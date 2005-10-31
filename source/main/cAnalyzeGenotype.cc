@@ -156,6 +156,7 @@ void cAnalyzeGenotype::CalcLandscape() const
   landscape_stats->frac_neg  = landscape.GetProbNeg();
   landscape_stats->frac_neut = landscape.GetProbNeut();
   landscape_stats->frac_pos  = landscape.GetProbPos();
+  landscape_stats->complexity = landscape.GetComplexity();
 }
 
 void cAnalyzeGenotype::Recalculate(cAnalyzeGenotype * parent_genotype)
@@ -245,6 +246,11 @@ double cAnalyzeGenotype::GetFracPos() const
   return landscape_stats->frac_pos;
 }
 
+double cAnalyzeGenotype::GetComplexity() const
+{
+  CalcLandscape();  // Make sure the landscape is calculated...
+  return landscape_stats->complexity;
+}
 
 cString cAnalyzeGenotype::GetTaskList() const
 {

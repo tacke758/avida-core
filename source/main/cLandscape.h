@@ -164,6 +164,9 @@ public:
 	else return no_epi_size/no_epi_count;}
 
   inline int GetNumTrials() const { return trials; }
+
+  inline double GetTotalEntropy() const { return total_entropy; }
+  inline double GetComplexity() const { return complexity; }
 };
 
 #endif
