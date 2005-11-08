@@ -201,11 +201,11 @@ class pyMapProfile:
         gradualLinScaleUpdater(RangeReport(SizeRng, self.m_session_mdl)),
         sigmoidColorLookup
         ),
-      ('Ancestor Organism',
-        continuousIndexer(LineageIdx),
-        gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
-        sigmoidColorLookup
-        ),
+      # ('Ancestor Organism',
+      #   continuousIndexer(LineageIdx),
+      #   gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
+      #   sigmoidColorLookup
+      #   ),
       #('Genotype',       GenotypeIdx,),
       #('Lineage',        LineageIdx,),
     )
