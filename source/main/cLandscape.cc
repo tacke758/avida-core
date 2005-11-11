@@ -113,7 +113,7 @@ void cLandscape::ProcessBase()
   cTestCPU::TestGenome(test_info, base_genome);
 
   cPhenotype & phenotype = test_info.GetColonyOrganism()->GetPhenotype();
-  base_fitness = phenotype.GetFitness();
+  base_fitness = test_info.GetColonyFitness(); // phenotype.GetFitness();
   base_merit = phenotype.GetMerit().GetDouble();
   base_gestation = phenotype.GetGestationTime();
    
@@ -331,6 +331,7 @@ void cLandscape::PredictWProcess(ostream & fp, int update)
   // Calculate the complexity...
 
   double max_ent = log((double) inst_set.GetSize());
+  total_entropy = 0;
   for (int i = 0; i < base_genome.GetSize(); i++) {
     total_entropy += (log((double) site_count[i] + 1) / max_ent);
   }
@@ -464,6 +465,7 @@ void cLandscape::PredictNuProcess(ostream & fp, int update)
   // Calculate the complexity...
 
   double max_ent = log((double) inst_set.GetSize());
+  total_entropy = 0;
   for (int i = 0; i < base_genome.GetSize(); i++) {
     total_entropy += (log((double) site_count[i] + 1) / max_ent);
   }
@@ -863,4 +865,3 @@ void cLandscape::PrintPeak(cString filename)
 {
   cTestUtil::PrintGenome(peak_genome, filename);
 }
-

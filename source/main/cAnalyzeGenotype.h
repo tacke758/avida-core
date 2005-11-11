@@ -81,6 +81,35 @@ private:
   cString parent_muts;
 
   // Group 4 : Landscape stats (obtained from testing all possible mutations)
+  class cAnalyzeKnockouts {
+  public:
+    int dead_count;
+    int neg_count;
+    int neut_count;
+    int pos_count;
+
+    bool has_pair_info;
+    int pair_dead_count;
+    int pair_neg_count;
+    int pair_neut_count;
+    int pair_pos_count;
+
+    void Reset() {
+      dead_count = 0;
+      neg_count = 0;
+      neut_count = 0;
+      pos_count = 0;
+
+      has_pair_info = false;
+      pair_dead_count = 0;
+      pair_neg_count = 0;
+      pair_neut_count = 0;
+      pair_pos_count = 0;
+    }
+
+    cAnalyzeKnockouts() { Reset(); }
+  };
+
   class cAnalyzeLandscape {
   public:
     double frac_dead;
@@ -92,6 +121,7 @@ private:
 			  frac_neut(0.0), frac_pos(0.0),
 			  complexity(0.0) { ; }
   };
+  mutable cAnalyzeKnockouts * knockout_stats;
   mutable cAnalyzeLandscape * landscape_stats;
 
   // Group 5 : More complex stats (obtained indvidually, through tests)
@@ -109,6 +139,7 @@ private:
   }
 
   int CalcMaxGestation() const;
+  void CalcKnockouts(bool check_pairs=false) const;
   void CalcLandscape() const;
 public:
   cAnalyzeGenotype(cString symbol_string, cInstSet & in_inst_set);
@@ -193,6 +224,18 @@ public:
   int GetDepth() const { return depth; }
 
   const cString & GetParentMuts() const { return parent_muts; }
+
+  // Knockout accessors
+  int GetKO_DeadCount() const;
+  int GetKO_NegCount() const;
+  int GetKO_NeutCount() const;
+  int GetKO_PosCount() const;
+  int GetKO_Complexity() const;
+  int GetKOPair_DeadCount() const;
+  int GetKOPair_NegCount() const;
+  int GetKOPair_NeutCount() const;
+  int GetKOPair_PosCount() const;
+  int GetKOPair_Complexity() const;
 
   // Landscape accessors
   double GetFracDead() const;
