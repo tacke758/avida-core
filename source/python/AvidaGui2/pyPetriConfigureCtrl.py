@@ -350,10 +350,15 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     
   def FreezePetriSlot(self, population_dict = None, send_reset_signal = False, send_quit_signal = False):
     descr()
+    if len(population_dict) == 0:
+      freeze_empty_only_flag = True;
+    else:
+      freeze_empty_only_flag = False;
     tmp_dict = {}
     tmp_dict["SETTINGS"] = self.Form2Dictionary()
     m_pop_up_freezer_file_name = pyFreezeDialogCtrl()
-    file_name = m_pop_up_freezer_file_name.showDialog(self.m_session_mdl.m_current_freezer)
+    file_name = m_pop_up_freezer_file_name.showDialog(self.m_session_mdl.m_current_freezer,
+         freeze_empty_only_flag)
     file_name_len = len(file_name.rstrip())
 
     # If the user is saving a full population expand the name and insert

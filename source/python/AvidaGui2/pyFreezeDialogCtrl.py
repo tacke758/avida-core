@@ -11,9 +11,13 @@ class pyFreezeDialogCtrl (pyFreezeDialogView):
   def __init__(self):
     pyFreezeDialogView.__init__(self)
     
-  def showDialog(self, freezer_dir = None):
+  def showDialog(self, freezer_dir = None, freeze_empty_only_flag = False):
     found_valid_name = False
     dialog_result = 1
+    if freeze_empty_only_flag == True:
+      self.FullRadioButton.setEnabled(False)
+    else:
+      self.FullRadioButton.setEnabled(True)
     while (found_valid_name == False and dialog_result > 0):
       while (self.exec_loop() and self.result() == 0):
         pass

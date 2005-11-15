@@ -47,22 +47,6 @@
             </property>
             <widget class="QRadioButton">
                 <property name="name">
-                    <cstring>FullRadioButton</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>170</x>
-                        <y>10</y>
-                        <width>117</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Full Petri Dish</string>
-                </property>
-            </widget>
-            <widget class="QRadioButton">
-                <property name="name">
                     <cstring>EmptyRadioButton</cstring>
                 </property>
                 <property name="geometry">
@@ -78,6 +62,25 @@
                 </property>
                 <property name="checked">
                     <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>FullRadioButton</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>false</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>170</x>
+                        <y>10</y>
+                        <width>117</width>
+                        <height>22</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Full Petri Dish</string>
                 </property>
             </widget>
         </widget>
