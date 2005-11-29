@@ -224,6 +224,12 @@ public:
   static int GetInstanceCount() { return instance_count; }
   void SetRunning(bool in_running) { is_running = in_running; }
   bool GetIsRunning() { return is_running; }
+
+  /*
+  Access for state-display in Avida-ED
+  */
+  int GetInputAt(int i){ return input_buf[i]; }
+  int GetOutputAt(int i){ return output_buf[i]; }
 };
 
 #endif

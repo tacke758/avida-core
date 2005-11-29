@@ -19,6 +19,12 @@ import site
 # 
 py2app.util.SCMDIRS=['CVS']
 
+# Hack, similar to above in purpose, for an earlier version of py2app.
+#
+def do_not_skip_scm(ofn):
+  return True
+py2app.util.skipscm = do_not_skip_scm
+
 # Tell Python where to find Avida and Avida-ED python modules and packages.
 avida_ed_python_basedir = '${CMAKE_CURRENT_SOURCE_DIR}'
 site.addsitedir(avida_ed_python_basedir)

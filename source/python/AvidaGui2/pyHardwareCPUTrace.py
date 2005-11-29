@@ -20,6 +20,10 @@ class pyHardwareCPUTrace:
   def clearFrames(self):
     self.m_hardware_snapshots = []
 
+    self.m_ibuf_0_info = []
+    self.m_ibuf_1_info = []
+    self.m_ibuf_2_info = []
+    self.m_obuf_0_info = []
     self.m_genome_info = []
     self.m_ihead_info = []
     self.m_rhead_info = []
@@ -53,6 +57,11 @@ class pyHardwareCPUTrace:
 
   def recordFrame(self, hardware):
     self.m_hardware_snapshots.append(cHardwareCPU(hardware))
+
+    self.m_ibuf_0_info.append(hardware.GetOrganism().GetInputAt(0))
+    self.m_ibuf_1_info.append(hardware.GetOrganism().GetInputAt(1))
+    self.m_ibuf_2_info.append(hardware.GetOrganism().GetInputAt(2))
+    self.m_obuf_0_info.append(hardware.GetOrganism().GetOutputAt(0))
 
     self.m_genome_info.append(hardware.GetMemory().AsString().GetData())
     self.m_ihead_info.append(hardware.GetHead(cHardwareDefs.s_HEAD_IP).GetPosition())

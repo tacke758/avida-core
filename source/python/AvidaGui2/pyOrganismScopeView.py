@@ -253,7 +253,7 @@ class pathAnimator:
 class indicator(QCanvasRectangle):
   def __init__(self, anim, x, y, width, height):
     QCanvasRectangle.__init__(self, x, y, width, height, anim.canvas)
-    descr()
+    #descr()
     self.anim = anim
   def setBit(self, bit):
     self.setBrush(bit and self.anim.on_brush or self.anim.off_brush)
@@ -261,74 +261,358 @@ class indicator(QCanvasRectangle):
 
 class indicatorPolicy:
   def __init__(self, anim):
-    descr()
+    #descr()
     self.anim = anim
   def createIndicators(self):
-    a = self.anim
-    hw_anim = a.hw_anim
-    x = hw_anim.regs_anim.x
-    y = hw_anim.regs_anim.y
-    w = a.hardware_indicator_size
-    h = a.hardware_indicator_size
-    return [indicator(a, x + i*w, y, w, h) for i in xrange(32)]
+    w = self.anim.hardware_indicator_size
+    h = self.anim.hardware_indicator_size
+    return [indicator(self.anim, 0, 0, w, h) for i in xrange(32)]
+  def setBits(self, indicators, bits):
+    bit = 1
+    for indicator in indicators:
+      indicator.setBit(bit & bits)
+      bit = bit << 1
+  def width(self):
+    #descr()
+    return 32 * anim.hardware_indicator_size
+  def height(self):
+    #descr()
+    return anim.hardware_indicator_size
+  def setX(self, indicators, x):
+    #descr()
+    w = self.anim.hardware_indicator_size
+    cx = x + w * (len(indicators))
+    for indicator in indicators:
+      cx = cx - w
+      indicator.setX(cx)
+  def setY(self, indicators, y):
+    #descr()
+    for indicator in indicators:
+      indicator.setY(y)
+  def setZ(self, indicators, z):
+    #descr()
+    for indicator in indicators:
+      indicator.setZ(z)
+  def show(self, indicators):
+    #descr()
+    for indicator in indicators:
+      indicator.show()
+  def hide(self, indicators):
+    #descr()
+    for indicator in indicators:
+      indicator.hide()
+    
 
 class bufAnimator:
   def __init__(self, anim):
-    descr()
+    #descr()
     self.anim = anim
+    self.frames = None
     self.indicator_items = []
+    self.old_bits = 0
     self.indicator_policy = indicatorPolicy(self.anim)
-  def width(self):
-    return 32 * anim.hardware_indicator_size
-  def height(self):
-    return anim.hardware_indicator_size
 
   def setReadFnc(self, read_fnc):
     self.read_fnc = read_fnc
   def resetIndicators(self, indicator_items):
-    descr()
+    #descr()
     a = self.anim
     for item in indicator_items:
       if item is not None: item.setCanvas(None)
     return self.indicator_policy.createIndicators()
+
+  def width(self):
+    #descr()
+    return self.indicator_policy.width()
+  def height(self):
+    #descr()
+    return self.indicator_policy.height()
   def setX(self, x):
-    descr()
+    #descr()
+    return self.indicator_policy.setX(self.indicator_items, x)
   def setY(self, y):
-    descr()
+    #descr()
+    return self.indicator_policy.setY(self.indicator_items, y)
   def setZ(self, z):
-    descr()
+    #descr()
+    return self.indicator_policy.setZ(self.indicator_items, z)
   def show(self):
-    descr()
+    #descr()
+    return self.indicator_policy.show(self.indicator_items)
   def hide(self):
-    descr()
+    #descr()
+    return self.indicator_policy.hide(self.indicator_items)
   def setFrames(self, frames):
-    descr()
-    self.indicator_items = self.resetIndicators()
+    #descr(frames)
+    self.frames = frames
+    self.indicator_items = self.resetIndicators(self.indicator_items)
+    self.old_bits = 0
+    self.indicator_policy.setBits(self.indicator_items, self.old_bits)
+    if frames is not None:
+      for item in self.indicator_items:
+        item.show()
   def showFrame(self, frame_number):
-    descr()
+    if self.frames is not None:
+      new_bits = self.read_fnc(self.frames, frame_number)
+      if self.old_bits != new_bits:
+        self.indicator_policy.setBits(self.indicator_items, new_bits)
+        self.old_bits = new_bits
 
 
 class regsAnimator:
   def __init__(self, anim):
     descr()
     self.anim = anim
-    self.buf_anim = bufAnimator(self.anim)
+
+    self.in_label = None
+    self.out_label = None
+    self.stack_a_label = None
+    self.stack_b_label = None
+    self.regs_label = None
+
+    #self.dummy_anim = bufAnimator(self.anim)
+    #self.dummy_anim.setReadFnc(lambda f, fn: fn)
+
+    
+    #self.in0_anim = bufAnimator(self.anim)
+    #self.in0_anim.setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).GetOrganism().GetInputAt(0))
+    #self.in1_anim = bufAnimator(self.anim)
+    #self.in1_anim.setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).GetOrganism().GetInputAt(1))
+    #self.in2_anim = bufAnimator(self.anim)
+    #self.in2_anim.setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).GetOrganism().GetInputAt(2))
+
+    #self.out0_anim = bufAnimator(self.anim)
+    #self.out0_anim.setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).GetOrganism().GetOutputAt(0))
+
+    self.in0_anim = bufAnimator(self.anim)
+    self.in0_anim.setReadFnc(lambda f, fn: f.m_ibuf_0_info[fn])
+    self.in1_anim = bufAnimator(self.anim)
+    self.in1_anim.setReadFnc(lambda f, fn: f.m_ibuf_1_info[fn])
+    self.in2_anim = bufAnimator(self.anim)
+    self.in2_anim.setReadFnc(lambda f, fn: f.m_ibuf_2_info[fn])
+
+    self.out0_anim = bufAnimator(self.anim)
+    self.out0_anim.setReadFnc(lambda f, fn: f.m_obuf_0_info[fn])
+
+    self.stack_a_anims = [
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+    ]
+    self.stack_a_anims[0].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(0))
+    self.stack_a_anims[1].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(1))
+    self.stack_a_anims[2].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(2))
+    self.stack_a_anims[3].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(3))
+    self.stack_a_anims[4].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(4))
+    self.stack_a_anims[5].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(5))
+    self.stack_a_anims[6].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(6))
+    self.stack_a_anims[7].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(7))
+    self.stack_a_anims[8].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(8))
+    self.stack_a_anims[9].setReadFnc(lambda f, fn: f.getHardwareSnapshotAt(fn).pyGetGlobalStack().Get(9))
+
+    self.stack_b_anims = [
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+      bufAnimator(self.anim),
+    ]
+    self.stack_b_anims[0].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(0))
+    self.stack_b_anims[1].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(1))
+    self.stack_b_anims[2].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(2))
+    self.stack_b_anims[3].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(3))
+    self.stack_b_anims[4].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(4))
+    self.stack_b_anims[5].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(5))
+    self.stack_b_anims[6].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(6))
+    self.stack_b_anims[7].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(7))
+    self.stack_b_anims[8].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(8))
+    self.stack_b_anims[9].setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(9))
+
+    #for j in xrange(cHardwareDefs.s_STACK_SIZE):
+    #  stack_anim = bufAnimator(self.anim)
+    #  stack_anim.setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].stack.Get(j))
+    #  self.stack_a_anims.append(stack_anim)
+
+    self.rega_anim = bufAnimator(self.anim)
+    self.rega_anim.setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].GetRegister(cHardwareCPUDefs.s_REG_AX))
+    self.regb_anim = bufAnimator(self.anim)
+    self.regb_anim.setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].GetRegister(cHardwareCPUDefs.s_REG_BX))
+    self.regc_anim = bufAnimator(self.anim)
+    self.regc_anim.setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].GetRegister(cHardwareCPUDefs.s_REG_CX))
+
   def size(self):
     descr()
     if not self.anim.show_registers_flag:
       return 0, 0
+    return self.rega_anim.width(), 4*self.rega_anim.height()
+  
+  def _positionSubanimator(self, sa, frames, x, y):
+    sa.setFrames(frames)
+    sa.setX(x)
+    sa.setY(y)
   def setFrames(self, frames):
     descr()
-    #if self.anim.show_hardware_flag and self.anim.show_registers_flag:
-    #  pass
-    #else:
-    #  pass
+    setourframes = (
+      #(self.dummy_anim, self.anim.hw_anim.regs_anim.y),
+      (self.in0_anim, self.anim.hw_anim.regs_anim.y + 2 * self.anim.hardware_indicator_size),
+      (self.in1_anim, self.anim.hw_anim.regs_anim.y + 3 * self.anim.hardware_indicator_size),
+      (self.in2_anim, self.anim.hw_anim.regs_anim.y + 4 * self.anim.hardware_indicator_size),
+
+      (self.out0_anim, self.anim.hw_anim.regs_anim.y + 7 * self.anim.hardware_indicator_size),
+
+      (self.rega_anim, self.anim.hw_anim.regs_anim.y + 10 * self.anim.hardware_indicator_size),
+      (self.regb_anim, self.anim.hw_anim.regs_anim.y + 11 * self.anim.hardware_indicator_size),
+      (self.regc_anim, self.anim.hw_anim.regs_anim.y + 12 * self.anim.hardware_indicator_size),
+
+      (self.stack_a_anims[0], self.anim.hw_anim.regs_anim.y + 15 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[1], self.anim.hw_anim.regs_anim.y + 16 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[2], self.anim.hw_anim.regs_anim.y + 17 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[3], self.anim.hw_anim.regs_anim.y + 18 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[4], self.anim.hw_anim.regs_anim.y + 19 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[5], self.anim.hw_anim.regs_anim.y + 20 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[6], self.anim.hw_anim.regs_anim.y + 21 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[7], self.anim.hw_anim.regs_anim.y + 22 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[8], self.anim.hw_anim.regs_anim.y + 23 * self.anim.hardware_indicator_size),
+      (self.stack_a_anims[9], self.anim.hw_anim.regs_anim.y + 24 * self.anim.hardware_indicator_size),
+
+      (self.stack_b_anims[0], self.anim.hw_anim.regs_anim.y + 27 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[1], self.anim.hw_anim.regs_anim.y + 28 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[2], self.anim.hw_anim.regs_anim.y + 29 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[3], self.anim.hw_anim.regs_anim.y + 30 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[4], self.anim.hw_anim.regs_anim.y + 31 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[5], self.anim.hw_anim.regs_anim.y + 32 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[6], self.anim.hw_anim.regs_anim.y + 33 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[7], self.anim.hw_anim.regs_anim.y + 34 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[8], self.anim.hw_anim.regs_anim.y + 35 * self.anim.hardware_indicator_size),
+      (self.stack_b_anims[9], self.anim.hw_anim.regs_anim.y + 36 * self.anim.hardware_indicator_size),
+    )
+    for setme in setourframes:
+      self._positionSubanimator(setme[0], frames, self.anim.hw_anim.regs_anim.x, setme[1])
+
+    if self.in_label is not None:
+      self.in_label.setCanvas(None)
+      del self.in_label
+      self.in_label = None
+    if self.out_label is not None:
+      self.out_label.setCanvas(None)
+      del self.out_label
+      self.out_label = None
+    if self.stack_a_label is not None:
+      self.stack_a_label.setCanvas(None)
+      del self.stack_a_label
+      self.stack_a_label = None
+    if self.stack_b_label is not None:
+      self.stack_b_label.setCanvas(None)
+      del self.stack_b_label
+      self.stack_b_label = None
+    if self.regs_label is not None:
+      self.regs_label.setCanvas(None)
+      del self.regs_label
+      self.regs_label = None
+
+    if frames is not None:
+      self.in_label = QCanvasText("Input Buffer", self.anim.font, self.anim.canvas)
+      self.in_label.setX(self.anim.hw_anim.regs_anim.x)
+      self.in_label.setY(self.anim.hw_anim.regs_anim.y -1 + 0 * self.anim.hardware_indicator_size)
+      self.in_label.show()
+
+      self.out_label = QCanvasText("Output Buffer", self.anim.font, self.anim.canvas)
+      self.out_label.setX(self.anim.hw_anim.regs_anim.x)
+      self.out_label.setY(self.anim.hw_anim.regs_anim.y -1 + 5 * self.anim.hardware_indicator_size)
+      self.out_label.show()
+
+      self.regs_label = QCanvasText("Registers A, B, C", self.anim.font, self.anim.canvas)
+      self.regs_label.setX(self.anim.hw_anim.regs_anim.x)
+      self.regs_label.setY(self.anim.hw_anim.regs_anim.y -1 + 8 * self.anim.hardware_indicator_size)
+      self.regs_label.show()
+
+      self.stack_a_label = QCanvasText("Stack A", self.anim.font, self.anim.canvas)
+      self.stack_a_label.setX(self.anim.hw_anim.regs_anim.x)
+      self.stack_a_label.setY(self.anim.hw_anim.regs_anim.y -1 + 13 * self.anim.hardware_indicator_size)
+      self.stack_a_label.show()
+
+      self.stack_b_label = QCanvasText("Stack B", self.anim.font, self.anim.canvas)
+      self.stack_b_label.setX(self.anim.hw_anim.regs_anim.x)
+      self.stack_b_label.setY(self.anim.hw_anim.regs_anim.y -1 + 25 * self.anim.hardware_indicator_size)
+      self.stack_b_label.show()
+
+
+    #self.in_label.setTextFlags(Qt.AlignLeft | Qt.AlignBottom)
+    #self.in_label.setFont(anim.font)
+    #self.in_label.setText("Input Buffer")
+
+    #self.out_label = QCanvasText(self.anim.canvas)
+    #self.out_label.setTextFlags(Qt.AlignLeft | Qt.AlignBottom)
+    #self.out_label.setFont(anim.font)
+    #self.out_label.setText("Output Buffer")
+
+    #self.stack_a_label = QCanvasText(self.anim.canvas)
+    #self.stack_a_label.setTextFlags(Qt.AlignLeft | Qt.AlignBottom)
+    #self.stack_a_label.setFont(anim.font)
+    #self.stack_a_label.setText("Stack A")
+
+    #self.stack_b_label = QCanvasText(self.anim.canvas)
+    #self.stack_b_label.setTextFlags(Qt.AlignLeft | Qt.AlignBottom)
+    #self.stack_b_label.setFont(anim.font)
+    #self.stack_b_label.setText("Stack B")
+
+    #self.regs_label = QCanvasText(self.anim.canvas)
+    #self.regs_label.setTextFlags(Qt.AlignLeft | Qt.AlignBottom)
+    #self.regs_label.setFont(anim.font)
+    #self.regs_label.setText("Registers A, B, C")
+
   def showFrame(self, frame_number):
-    descr()
-    #if self.anim.show_hardware_flag and self.anim.show_registers_flag:
-    #  pass
-    #else:
-    #  pass
+    #descr()
+    showourframes = (
+      #self.dummy_anim,
+      self.in0_anim,
+      self.in1_anim,
+      self.in2_anim,
+
+      self.out0_anim,
+
+      self.rega_anim,
+      self.regb_anim,
+      self.regc_anim,
+
+      self.stack_a_anims[0],
+      self.stack_a_anims[1],
+      self.stack_a_anims[2],
+      self.stack_a_anims[3],
+      self.stack_a_anims[4],
+      self.stack_a_anims[5],
+      self.stack_a_anims[6],
+      self.stack_a_anims[7],
+      self.stack_a_anims[8],
+      self.stack_a_anims[9],
+
+      self.stack_b_anims[0],
+      self.stack_b_anims[1],
+      self.stack_b_anims[2],
+      self.stack_b_anims[3],
+      self.stack_b_anims[4],
+      self.stack_b_anims[5],
+      self.stack_b_anims[6],
+      self.stack_b_anims[7],
+      self.stack_b_anims[8],
+      self.stack_b_anims[9],
+    )
+    for showme in showourframes:
+      showme.showFrame(frame_number)
 
 class stackAnimator:
   def __init__(self, anim):
@@ -402,7 +686,7 @@ class hwAnimator:
     #]
 
   def showFrame(self, frame_number):
-    descr()
+    #descr()
     self.regs_anim.showFrame(frame_number)
 
 class dataAnimator:
@@ -495,9 +779,9 @@ class pyOrganismAnimator:
     self.default_color_saturation = 100
     self.default_color_value = 248
 
-    self.on_brush = QBrush(Qt.white)
+    self.on_brush = QBrush(Qt.red)
     self.off_brush = QBrush(Qt.black)
-    self.on_pen = QPen(Qt.white)
+    self.on_pen = QPen(Qt.red)
     self.off_pen = QPen(Qt.black)
 
     self.hardware_indicator_size = 4
@@ -565,7 +849,7 @@ class pyOrganismAnimator:
     Forwards call to .showFrame() of various subanimators, then updates
     canvas.
     """
-    descr()
+    #descr()
     self.instructions_anim.showFrame(frame_number)
     self.heads_anim.showFrame(frame_number)
     self.hw_anim.showFrame(frame_number)
@@ -585,7 +869,7 @@ class pyOrganismAnimator:
 
     XXX
 
-    This has become hackish. It was supposed to manage required layout
+    This has become too hacky. It was supposed to manage required layout
     changes, but the code that does this has been scattered all over the
     place, and needs reconsolidation. @kgn
     """
