@@ -38,9 +38,9 @@ setup(
     # Options for py2app
     py2app = dict(
       # Python modules to copy :
-      includes = ['iqt', 'qt', 'qwt', 'readline', 'unittest', 'AvidaGui2', 'AvidaCore'],
+      includes = ['iqt', 'qt', 'qwt', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore'],
       # Python packages to copy :
-      packages = ['AvidaGui2'],
+      packages = ['IPython', 'AvidaGui2'],
       # Additional frameworks and dylibs to include
       #frameworks = ['libqt-mt.3.dylib'],
       # Subdirectory in which Avi :da-ED.app should be assembled
