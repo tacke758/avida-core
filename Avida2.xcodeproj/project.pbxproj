@@ -290,6 +290,23 @@
 		DCC3166107628531008F7A48 /* avida.cc in Sources */ = {isa = PBXBuildFile; fileRef = DCC3109C0762539E008F7A48 /* avida.cc */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildStyle section */
+		70B393C30944B5060018F09D /* Development */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Development;
+		};
+		70B393C40944B5060018F09D /* Deployment */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			name = Deployment;
+		};
+/* End PBXBuildStyle section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		700E2B6D085DE50C00CF158A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -3001,6 +3018,10 @@
 			buildConfigurationList = 702442D70859E0B00059BD9B /* Build configuration list for PBXProject "Avida2" */;
 			buildSettings = {
 			};
+			buildStyles = (
+				70B393C30944B5060018F09D /* Development */,
+				70B393C40944B5060018F09D /* Deployment */,
+			);
 			hasScannedForEncodings = 0;
 			mainGroup = DCC30C490762532C008F7A48;
 			productRefGroup = DCC3164E07626CF3008F7A48 /* Products */;
