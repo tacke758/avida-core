@@ -43,6 +43,8 @@ FIXME:  remove asap, switching to file-configureable option
 
 // -= Toggles =-      (define these to actually turn features on)
 
+#define SMT_FULLY_ASSOCIATIVE
+
 #define WRITE_PROTECTION
 // #define FATAL_ERRORS
 // #define FATAL_WARNINGS
