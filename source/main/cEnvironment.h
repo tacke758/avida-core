@@ -76,6 +76,7 @@ private:
   bool LoadMutation(cString desc);
 
   bool LoadSetActive(cString desc);
+  bool LoadSetValue(cString desc);
 
   bool TestRequisites(const tList<cReactionRequisite> & req_list,
 		      int task_count,

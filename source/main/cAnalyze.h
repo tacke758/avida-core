@@ -31,13 +31,6 @@
 
 #define MAX_BATCHES 2000
 
-namespace nAnalyze {
-  const int VERBOSE_SILENT  = 0;  // No output at all
-  const int VERBOSE_QUIET   = 1;  // Notification at start of commands.
-  const int VERBOSE_ON      = 2;  // Verbose output, detailing progress
-  const int VERBOSE_DETAILS = 3;  // High level of details, as available.
-}
-
 // cAnalyze            : The master analyze object.
 
 class cGenotypeBatch; // array
@@ -74,7 +67,7 @@ private:
   // is a pair of the update and a vector of the resource concentrations
   std::vector<std::pair<int, std::vector<double> > > resources;
 
-  int verbose;             // How much information to print?
+  bool verbose;            // Should details be output to command line?
   int interactive_depth;   // How nested are we if in interactive mode?
 
   cDataFileManager data_file_manager;
@@ -162,8 +155,8 @@ private:
   // Population Analysis Commands...
   void CommandPrintPhenotypes(cString cur_string);
   void CommandPrintDiversity(cString cur_string);
-  void PhyloCommunityComplexity(cString cur_string);
-  void AnalyzeCommunityComplexity(cString cur_string);
+  void CommunityComplexity(cString cur_string);
+  void PopDiversity(cString cur_string);
 
   // Individual Organism Analysis...
   void CommandLandscape(cString cur_string);
@@ -181,7 +174,6 @@ private:
 
   // Lineage Analysis Commands...
   void CommandAlign(cString cur_string);
-  void AnalyzeNewInfo(cString cur_string);   
 
   // Build Input Files for Avida
   void WriteClone(cString cur_string);
@@ -195,11 +187,9 @@ private:
   void AnalyzeBranching(cString cur_string);
   void AnalyzeMutationTraceback(cString cur_string);
   void AnalyzeComplexity(cString cur_string);
-  void AnalyzeKnockouts(cString cur_string);
   void AnalyzePopComplexity(cString cur_string);
   void AnalyzeEpistasis(cString cur_string);
   void AnalyzeMateSelection(cString cur_string);
-  void AnalyzeComplexityDelta(cString cur_string);
 
   // Environment Manipulation
   void EnvironmentSetup(cString cur_string);
@@ -219,7 +209,7 @@ private:
   void BatchRename(cString cur_string);
   void PrintStatus(cString cur_string);
   void PrintDebug(cString cur_string);
-  void CommandVerbose(cString cur_string);
+  void ToggleVerbose(cString cur_string);
   void IncludeFile(cString cur_string);
   void CommandSystem(cString cur_string);
   void CommandInteractive(cString cur_string);
@@ -230,19 +220,7 @@ private:
   // Looks up the resource concentrations that are the closest to the
   // given update and then fill in those concentrations into the environment.
   void FillResources(int update);
-  // Analyze the entropy of genotype under default environment
-  double AnalyzeEntropy(cAnalyzeGenotype * genotype, double mut_rate);
-  // Analyze the entropy of child given parent and default environment
-  double AnalyzeEntropyGivenParent(cAnalyzeGenotype * genotype, 
-				   cAnalyzeGenotype * parent, 
-				   double mut_rate);
-  // Calculate the increased information in genotype1 comparing to genotype2 
-  // line by line. If information in genotype1 is less than that in genotype2 
-  // in a line, increasing is 0. Usually this is used for child-parent comparison.
-  double IncreasedInfo(cAnalyzeGenotype * genotype1, 
-		       cAnalyzeGenotype * genotype2, 
-		       double mut_rate);
-  
+ 
   // Flow Control...
   void CommandForeach(cString cur_string, tList<cAnalyzeCommand> & clist);
   void CommandForRange(cString cur_string, tList<cAnalyzeCommand> & clist);

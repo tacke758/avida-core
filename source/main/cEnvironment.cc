@@ -607,6 +607,35 @@ bool cEnvironment::LoadSetActive(cString desc)
   return true;
 }
 
+
+bool cEnvironment::LoadSetValue(cString desc)
+{
+  cString item_type = desc.PopWord(); 
+  item_type.ToUpper();
+
+  cString item_name = desc.PopWord();
+
+  double item_value = desc.PopWord().AsDouble();
+
+
+  if (item_type == "REACTION") {
+    cReaction * cur_reaction = reaction_lib.GetReaction(item_name);
+    if (cur_reaction == NULL) {
+      cerr << "Unknown REACTION: '" << item_name << "'" << endl;
+      return false;
+    }
+    cur_reaction->ModifyValue(item_value);
+  } else if (item_type == "") {
+    cerr << "Format: SET_VALUE <type> <name> <new_value>" << endl;
+  } else {
+    cerr << "Error: Cannot modify value of type "
+	 << item_type << endl;
+    return false;
+  }
+
+  return true;
+}
+
 bool cEnvironment::LoadLine(cString line) 
 {
   cString type = line.PopWord();      // Determine type of this entry.
@@ -617,6 +646,7 @@ bool cEnvironment::LoadLine(cString line)
   else if (type == "REACTION") load_ok = LoadReaction(line);
   else if (type == "MUTATION") load_ok = LoadMutation(line);
   else if (type == "SET_ACTIVE") load_ok = LoadSetActive(line);
+  else if (type == "SET_VALUE") load_ok = LoadSetValue(line);
   else {
     cerr << "Error: Unknown environment keyword '" << type << "." << endl;
     return false;
