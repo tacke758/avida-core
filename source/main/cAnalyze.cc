@@ -63,7 +63,7 @@ using namespace std;
 cAnalyze::cAnalyze(cString filename, cEnvironment *environment)
 : cur_batch(0)
 , d_environment(environment)
-, verbose(false)
+, verbose(nAnalyze::VERBOSE_QUIET)
 , interactive_depth(0)
 , inst_set(cHardwareUtil::DefaultInstSet(cConfig::GetInstFilename()))
 {
@@ -269,7 +269,7 @@ void cAnalyze::LoadMultiDetail(cString cur_string)
     << endl;
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Loading in " << num_steps
     << " detail files from update " << start_UD
     << " to update " << stop_UD
@@ -489,8 +489,331 @@ cTestCPU::SetupResourceArray(temp);
 return;
 }
 
+double cAnalyze::AnalyzeEntropy(cAnalyzeGenotype * genotype, double mu) 
+{
+  double entropy = 0.0;
+
+  // If the fitness is 0, the entropy is the length of genotype ...
+  genotype->Recalculate();
+  if (genotype->GetFitness() == 0) {
+    return genotype->GetLength();
+  }
+
+  // Calculate the stats for the genotype we're working with ...
+  const int num_insts = inst_set.GetSize();
+  const int num_lines = genotype->GetLength();
+  const cGenome & base_genome = genotype->GetGenome();
+  cGenome mod_genome(base_genome);
+  double base_fitness = genotype->GetFitness();
+  
+  // Loop through all the lines of code, testing all mutations...
+  tArray<double> test_fitness(num_insts);
+  tArray<double> prob(num_insts);
+  for (int line_no = 0; line_no < num_lines; line_no ++) {
+    int cur_inst = base_genome[line_no].GetOp();
+    
+    // Test fitness of each mutant.
+    for (int mod_inst = 0; mod_inst < num_insts; mod_inst++) {
+      mod_genome[line_no].SetOp(mod_inst);
+      cAnalyzeGenotype test_genotype(mod_genome, inst_set);
+      test_genotype.Recalculate();
+      // Ajust fitness ...
+      if (test_genotype.GetFitness() <= base_fitness) {
+	test_fitness[mod_inst] = test_genotype.GetFitness();
+      } else {
+	test_fitness[mod_inst] = base_fitness;
+      }
+    }
+    
+    // Calculate probabilities at mut-sel balance
+    double w_bar = 1;
+    
+    // Normalize fitness values
+    double maxFitness = 0.0;
+    for(int i=0; i<num_insts; i++) {
+      if(test_fitness[i] > maxFitness) {
+	maxFitness = test_fitness[i];
+      }
+    }
+    
+   
+    for(int i=0; i<num_insts; i++) {
+      test_fitness[i] /= maxFitness;
+    }
+       
+    while(1) {
+      double sum = 0.0;
+      for (int mod_inst = 0; mod_inst < num_insts; mod_inst ++) {
+	prob[mod_inst] = (mu * w_bar) / 
+	  ((double)num_insts * 
+	   (w_bar + test_fitness[mod_inst] * mu - test_fitness[mod_inst]));
+	sum = sum + prob[mod_inst];
+      }
+      if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+	break;
+      else
+	w_bar = w_bar - 0.000001;
+    }
+    
+    // Calculate entropy ...
+    double this_entropy = 0.0;
+    for (int i = 0; i < num_insts; i ++) {
+      this_entropy += prob[i] * log((double) 1.0/prob[i]) / log ((double) num_insts);
+    }
+    entropy += this_entropy;
+    
+    // Reset the mod_genome back to the original sequence.
+    mod_genome[line_no].SetOp(cur_inst);
+  }
+  return entropy;
+}
+
+double cAnalyze::AnalyzeEntropyGivenParent(cAnalyzeGenotype * genotype,
+					   cAnalyzeGenotype * parent, double mut_rate)
+{
+  double entropy = 0.0;
+
+  // Calculate the stats for the genotype we're working with ...
+  genotype->Recalculate();
+  const int num_insts = inst_set.GetSize();
+  const int num_lines = genotype->GetLength();
+  const cGenome & base_genome = genotype->GetGenome();
+  const cGenome & parent_genome = parent->GetGenome();
+  cGenome mod_genome(base_genome);
+
+  // Loop through all the lines of code, testing all mutations ...
+  tArray<double> test_fitness(num_insts);
+  tArray<double> prob(num_insts);
+  for (int line_no = 0; line_no < num_lines; line_no ++) {
+    int cur_inst = base_genome[line_no].GetOp();
+    int parent_inst = parent_genome[line_no].GetOp();
+
+    // Test fitness of each mutant.
+    for (int mod_inst = 0; mod_inst < num_insts; mod_inst++) {
+      mod_genome[line_no].SetOp(mod_inst);
+      cAnalyzeGenotype test_genotype(mod_genome, inst_set);
+      test_genotype.Recalculate();
+      test_fitness[mod_inst] = test_genotype.GetFitness();
+    }
 
 
+    // Calculate probabilities at mut-sel balance
+    double w_bar = 1;
+    
+    // Normalize fitness values, assert if they are all zero
+    double maxFitness = 0.0;
+    for(int i=0; i<num_insts; i++) {
+      if ( i == parent_inst) { continue; }
+      if (test_fitness[i] > maxFitness) {
+	maxFitness = test_fitness[i];
+      }
+    }
+    
+    if(maxFitness > 0) {
+      for(int i = 0; i < num_insts; i ++) {
+	if (i == parent_inst) { continue; }
+	test_fitness[i] /= maxFitness;
+      }
+    } else {
+      // every other inst is equally likely to be mutated to
+      for (int i = 0; i < num_insts; i ++) {
+	if (i == parent_inst) { continue; }
+	test_fitness[i] = 1;
+      }
+    }
+    
+    double double_num_insts = num_insts * 1.0;
+    while(1) {
+      double sum = 0.0;
+      for (int mod_inst = 0; mod_inst < num_insts; mod_inst ++) {
+	if (mod_inst == parent_inst) { continue; }
+	prob[mod_inst] = (mut_rate * w_bar) / 
+	  (double_num_insts-2) / 
+	   (w_bar + test_fitness[mod_inst] * mut_rate * (double_num_insts-1) / (double_num_insts - 2) 
+	    - test_fitness[mod_inst]);
+	sum = sum + prob[mod_inst];
+      }
+      if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+	break;
+      else
+	w_bar = w_bar - 0.000001;
+    }
+    
+    // Calculate entropy ...
+    double this_entropy = 0.0;
+    this_entropy -= (1.0 - mut_rate) * log(1.0 - mut_rate) / log(static_cast<double>(num_insts));
+    for (int i = 0; i < num_insts; i ++) {
+      if (i == parent_inst) { continue; }
+      prob[i] = prob[i] * mut_rate;
+      this_entropy += prob[i] * log(static_cast<double>(1.0/prob[i])) / log (static_cast<double>(num_insts));
+    }
+    entropy += this_entropy;
+
+    // Reset the mod_genome back to the base_genome.
+    mod_genome[line_no].SetOp(cur_inst);
+  }
+  return entropy;
+}
+
+double cAnalyze::IncreasedInfo(cAnalyzeGenotype * genotype1,
+			       cAnalyzeGenotype * genotype2,
+			       double mu) 
+{
+  double increased_info = 0.0;
+
+  // Calculate the stats for the genotypes we're working with ...
+  if ( genotype1->GetLength() != genotype2->GetLength() ) {
+    cerr << "Error: Two genotypes don't have same length.(cAnalyze::IncreasedInfo)" << endl;
+    exit(1);
+  }
+
+  genotype1->Recalculate();
+  if (genotype1->GetFitness() == 0) {
+    return 0.0;
+  }
+
+  const int num_insts = inst_set.GetSize();
+  const int num_lines = genotype1->GetLength();
+  const cGenome & genotype1_base_genome = genotype1->GetGenome();
+  cGenome genotype1_mod_genome(genotype1_base_genome);
+  double genotype1_base_fitness = genotype1->GetFitness();
+  vector<double> genotype1_info(num_lines, 0.0);
+  
+  // Loop through all the lines of code, calculate genotype1 information
+  tArray<double> test_fitness(num_insts);
+  tArray<double> prob(num_insts);
+  for (int line_no = 0; line_no < num_lines; line_no ++) {
+    int cur_inst = genotype1_base_genome[line_no].GetOp();
+    
+    // Test fitness of each mutant.
+    for (int mod_inst = 0; mod_inst < num_insts; mod_inst++) {
+      genotype1_mod_genome[line_no].SetOp(mod_inst);
+      cAnalyzeGenotype test_genotype(genotype1_mod_genome, inst_set);
+      test_genotype.Recalculate();
+      // Ajust fitness ...
+      if (test_genotype.GetFitness() <= genotype1_base_fitness) {
+	test_fitness[mod_inst] = test_genotype.GetFitness();
+      } else {
+	test_fitness[mod_inst] = genotype1_base_fitness;
+      }
+    }
+    
+    // Calculate probabilities at mut-sel balance
+    double w_bar = 1;
+    
+    // Normalize fitness values
+    double maxFitness = 0.0;
+    for(int i=0; i<num_insts; i++) {
+      if(test_fitness[i] > maxFitness) {
+	maxFitness = test_fitness[i];
+      }
+    }
+    
+    for(int i=0; i<num_insts; i++) {
+      test_fitness[i] /= maxFitness;
+    }
+    
+    while(1) {
+      double sum = 0.0;
+      for (int mod_inst = 0; mod_inst < num_insts; mod_inst ++) {
+	prob[mod_inst] = (mu * w_bar) / 
+	  ((double)num_insts * 
+	   (w_bar + test_fitness[mod_inst] * mu - test_fitness[mod_inst]));
+	sum = sum + prob[mod_inst];
+      }
+      if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+	break;
+      else
+	w_bar = w_bar - 0.000001;
+    }
+    
+    // Calculate entropy ...
+    double this_entropy = 0.0;
+    for (int i = 0; i < num_insts; i ++) {
+      this_entropy += prob[i] * log((double) 1.0/prob[i]) / log ((double) num_insts);
+    }
+    genotype1_info[line_no] = 1 - this_entropy;
+    
+    // Reset the mod_genome back to the original sequence.
+    genotype1_mod_genome[line_no].SetOp(cur_inst);
+  }
+
+  genotype2->Recalculate();
+  if (genotype2->GetFitness() == 0) {
+    for (int line_no = 0; line_no < num_lines; ++ line_no) {
+      increased_info += genotype1_info[line_no];
+    }
+    return increased_info;
+  }
+    
+  const cGenome & genotype2_base_genome = genotype2->GetGenome();
+  cGenome genotype2_mod_genome(genotype2_base_genome);
+  double genotype2_base_fitness = genotype2->GetFitness();
+
+  // Loop through all the lines of code, calculate increased information
+  for (int line_no = 0; line_no < num_lines; line_no ++) {
+    int cur_inst = genotype2_base_genome[line_no].GetOp();
+    
+    // Test fitness of each mutant.
+    for (int mod_inst = 0; mod_inst < num_insts; mod_inst++) {
+      genotype2_mod_genome[line_no].SetOp(mod_inst);
+      cAnalyzeGenotype test_genotype(genotype2_mod_genome, inst_set);
+      test_genotype.Recalculate();
+      // Ajust fitness ...
+      if (test_genotype.GetFitness() <= genotype2_base_fitness) {
+	test_fitness[mod_inst] = test_genotype.GetFitness();
+      } else {
+	test_fitness[mod_inst] = genotype2_base_fitness;
+      }
+    }
+    
+    // Calculate probabilities at mut-sel balance
+    double w_bar = 1;
+    
+    // Normalize fitness values, assert if they are all zero
+    double maxFitness = 0.0;
+    for(int i=0; i<num_insts; i++) {
+      if(test_fitness[i] > maxFitness) {
+	maxFitness = test_fitness[i];
+      }
+    }
+    
+    for(int i=0; i<num_insts; i++) {
+      test_fitness[i] /= maxFitness;
+    }
+    
+    while(1) {
+      double sum = 0.0;
+      for (int mod_inst = 0; mod_inst < num_insts; mod_inst ++) {
+	prob[mod_inst] = (mu * w_bar) / 
+	  ((double)num_insts * 
+	   (w_bar + test_fitness[mod_inst] * mu - test_fitness[mod_inst]));
+	sum = sum + prob[mod_inst];
+      }
+      if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+	break;
+      else
+	w_bar = w_bar - 0.000001;
+    }
+    
+    // Calculate entropy ...
+    double this_entropy = 0.0;
+    for (int i = 0; i < num_insts; i ++) {
+      this_entropy += prob[i] * log((double) 1.0/prob[i]) / log ((double) num_insts);
+    }
+    
+    // Compare information 
+    if (genotype1_info[line_no] > 1 - this_entropy) {
+      increased_info += genotype1_info[line_no] - (1 - this_entropy);
+    } // else increasing is 0, do nothing
+    
+    // Reset the mod_genome back to the original sequence.
+    genotype2_mod_genome[line_no].SetOp(cur_inst);
+  }
+
+
+  return increased_info;
+}
 
 void cAnalyze::LoadFile(cString cur_string)
 {
@@ -517,7 +840,7 @@ void cAnalyze::LoadFile(cString cur_string)
     exit(1);
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Loading file of type: " << filetype << endl;
   }
   
@@ -573,7 +896,7 @@ void cAnalyze::FindGenotype(cString cur_string)
   // If no arguments are passed in, just find max num_cpus.
   if (cur_string.GetSize() == 0) cur_string = "num_cpus";
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Reducing batch " << cur_batch << " to genotypes: ";
   }
   
@@ -581,7 +904,7 @@ void cAnalyze::FindGenotype(cString cur_string)
   tListPlus<cAnalyzeGenotype> found_list;
   while (cur_string.CountNumWords() > 0) {
     cString gen_desc(cur_string.PopWord());
-    if (verbose) cout << gen_desc << " ";
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << gen_desc << " ";
     
     // Determine by lin_type which genotype were are tracking...
     cAnalyzeGenotype * found_gen = PopGenotype(gen_desc, cur_batch);
@@ -615,7 +938,7 @@ void cAnalyze::FindOrganism(cString cur_string)
     return;
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Reducing batch " << cur_batch << " to organisms: " << endl;
   }
   
@@ -627,7 +950,7 @@ void cAnalyze::FindOrganism(cString cur_string)
   
   while (cur_string.CountNumWords() > 0) {
     cString org_desc(cur_string.PopWord());
-    if (verbose) cout << org_desc << " ";
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << org_desc << " ";
     
     // Determine by org_desc which genotype were are tracking...
     if (org_desc == "random") {
@@ -684,7 +1007,7 @@ void cAnalyze::FindLineage(cString cur_string)
   cString lin_type = "num_cpus";
   if (cur_string.CountNumWords() > 0) lin_type = cur_string.PopWord();
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Reducing batch " << cur_batch
     << " to " << lin_type << " lineage " << endl;
   } else cout << "Performing lineage scan..." << endl;
@@ -737,7 +1060,7 @@ void cAnalyze::FindLineage(cString cur_string)
     batch[cur_batch].List().PushRear(found_list.Pop());
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  Lineage has " << total_kept << " genotypes; "
     << total_removed << " were removed." << endl;
   }
@@ -764,7 +1087,7 @@ void cAnalyze::FindSexLineage(cString cur_string)
   cString parent_method = "rec_region_size";
   if (cur_string.CountNumWords() > 0) parent_method = cur_string.PopWord();
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Reducing batch " << cur_batch
     << " to " << lin_type << " sexual lineage " 
     << " using " << parent_method << " criteria." << endl;
@@ -892,7 +1215,7 @@ void cAnalyze::FindSexLineage(cString cur_string)
     batch[cur_batch].List().PushRear(found_list.Pop());
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  Sexual lineage has " << total_kept << " genotypes; "
     << total_removed << " were removed." << endl;
   }
@@ -911,7 +1234,7 @@ void cAnalyze::FindClade(cString cur_string)
   
   cString clade_type( cur_string.PopWord() );
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Reducing batch " << cur_batch
     << " to clade " << clade_type << "." << endl;
   } else cout << "Performing clade scan..." << endl;
@@ -965,7 +1288,7 @@ void cAnalyze::FindClade(cString cur_string)
     batch[cur_batch].List().PushRear(found_list.Pop());
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  Clade has " << total_kept << " genotypes; "
     << total_removed << " were removed." << endl;
   }
@@ -985,49 +1308,77 @@ void cAnalyze::SampleOrganisms(cString cur_string)
     test_viable = cur_string.PopWord().AsDouble();
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Sampling " << fraction << " organisms from batch "
     << cur_batch << "." << endl;
   }
   else cout << "Sampling Organisms..." << endl;
   
-  int old_total = 0;
-  int new_total = 0;
-  
   cAnalyzeGenotype * genotype = NULL;
   tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
-  
-  // of only interested in viables, remove them first. 
-  if (test_viable==1) {
-    while ((genotype = batch_it.Next()) != NULL) {
-      if ((genotype->GetViable())==0) { 
-        batch_it.Remove();
-        delete genotype;
-      } 
-    } 
-  } 
-  
-  batch_it.Reset();
-  
+
+  // Loop through all genotypes to perform a census
+  int org_count = 0;
   while ((genotype = batch_it.Next()) != NULL) {
-    const int old_count = genotype->GetNumCPUs();
-    const int new_count = random.GetRandBinomial(old_count, fraction);
-    old_total += old_count;
-    new_total += new_count;
-    
-    if (new_count == 0) {
+    // If we require viables, reduce all non-viables to zero organisms.
+    if (test_viable == 1  &&  genotype->GetViable() == 0) { 
+      genotype->SetNumCPUs(0);
+    }
+
+    // Count the number of organisms in this genotype.
+    org_count += genotype->GetNumCPUs();
+  } 
+
+  // Create an array to store pointers to the genotypes and fill it in
+  // while temporarily resetting all of the organism counts to zero.
+  tArray<cAnalyzeGenotype *> org_array(org_count);
+  int cur_org = 0;
+  batch_it.Reset();
+  while ((genotype = batch_it.Next()) != NULL) {
+    for (int i = 0; i < genotype->GetNumCPUs(); i++) {
+      org_array[cur_org] = genotype;
+      cur_org++;
+    }
+    genotype->SetNumCPUs(0);
+  }
+
+  assert(cur_org == org_count);
+
+  // Determine how many organisms we want to keep.
+  int new_org_count = (int) fraction;
+  if (fraction < 1.0) new_org_count = (int) (fraction * (double) org_count);
+  if (new_org_count > org_count) {
+    cerr << "Warning: Trying to sample " << new_org_count
+	 << "organisms from a population of " << org_count
+	 << endl;
+    new_org_count = org_count;
+  }
+
+  // Now pick those that we are keeping.
+  tArray<int> keep_ids(new_org_count);
+  random.Choose(org_count, keep_ids);
+
+  // And increment the org counts for the associated genotypes.
+  for (int i = 0; i < new_org_count; i++) {
+    genotype = org_array[ keep_ids[i] ];
+    genotype->SetNumCPUs(genotype->GetNumCPUs() + 1);
+  }
+
+
+  // Delete all genotypes with no remaining organisms...
+  batch_it.Reset();
+  while ((genotype = batch_it.Next()) != NULL) {
+    if (genotype->GetNumCPUs() == 0) {
       batch_it.Remove();
       delete genotype;
-    } else {
-      genotype->SetNumCPUs(new_count);
     }
   }
   
   int num_genotypes = batch[cur_batch].List().GetSize();
-  if (verbose) {
-    cout << "  Removed " << old_total - new_total
+  if (verbose >= nAnalyze::VERBOSE_ON) {
+    cout << "  Removed " << org_count - new_org_count
     << " organisms (" << init_genotypes - num_genotypes
-    << " genotypes); " << new_total
+    << " genotypes); " << new_org_count
     << " orgs (" << num_genotypes << " gens) remaining."
     << endl;
   }
@@ -1048,7 +1399,7 @@ void cAnalyze::SampleGenotypes(cString cur_string)
     test_viable = cur_string.PopWord().AsDouble();
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Sampling " << fraction << " genotypes from batch "
     << cur_batch << "." << endl;
   }
@@ -1067,7 +1418,7 @@ void cAnalyze::SampleGenotypes(cString cur_string)
   }
   
   int num_genotypes = batch[cur_batch].List().GetSize();
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  Removed " << init_genotypes - num_genotypes
     << " genotypes; " << num_genotypes << " remaining."
     << endl;
@@ -1099,7 +1450,7 @@ void cAnalyze::KeepTopGenotypes(cString cur_string)
 
 void cAnalyze::CommandPrint(cString cur_string)
 {
-  if (verbose == true) cout << "Printing batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Printing batch " << cur_batch << endl;
   else cout << "Printing organisms..." << endl;
   
   cString directory = PopDirectory(cur_string, "genebank/");
@@ -1118,13 +1469,15 @@ void cAnalyze::CommandPrint(cString cur_string)
     }
     
     cTestUtil::PrintGenome(genotype->GetGenome(), filename);
-    if (verbose) cout << "Printing: " << filename << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) {
+      cout << "Printing: " << filename << endl;
+    }
   }
 }
 
 void cAnalyze::CommandTrace(cString cur_string)
 {
-  if (verbose == true) cout << "Tracing batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Tracing batch " << cur_batch << endl;
   else cout << "Tracing organisms..." << endl;
   
   int words = cur_string.CountNumWords();
@@ -1177,7 +1530,7 @@ void cAnalyze::CommandTrace(cString cur_string)
     
     cTestCPU::TestGenome(test_info, genotype->GetGenome());
     
-    if (verbose) cout << "  Tracing: " << filename << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Tracing: " << filename << endl;
     trace_fp.close();
   }
   
@@ -1192,7 +1545,7 @@ void cAnalyze::CommandTrace(cString cur_string)
 
 void cAnalyze::CommandPrintTasks(cString cur_string)
 {
-  if (verbose == true) cout << "Printing tasks in batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Printing tasks in batch " << cur_batch << endl;
   else cout << "Printing tasks..." << endl;
   
   // Load in the variables...
@@ -1213,7 +1566,7 @@ void cAnalyze::CommandPrintTasks(cString cur_string)
 
 void cAnalyze::CommandDetail(cString cur_string)
 {
-  if (verbose == true) cout << "Detailing batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Detailing batch " << cur_batch << endl;
   else cout << "Detailing..." << endl;
   
   // Load in the variables...
@@ -1248,7 +1601,7 @@ void cAnalyze::CommandDetail(cString cur_string)
 
 void cAnalyze::CommandDetailTimeline(cString cur_string)
 {
-  if (verbose == true) cout << "Detailing batch "
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Detailing batch "
     << cur_batch << " based on time" << endl;
   else cout << "Detailing..." << endl;
   
@@ -1260,7 +1613,7 @@ void cAnalyze::CommandDetailTimeline(cString cur_string)
   if (cur_string.GetSize() != 0) time_step = cur_string.PopWord().AsInt();
   if (cur_string.GetSize() != 0) max_time = cur_string.PopWord().AsInt();
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  Time step = " << time_step << endl
     << "  Max time = " << max_time << endl;
   }
@@ -1352,6 +1705,12 @@ void cAnalyze::CommandDetail_Body(ostream & fp, int format_type,
   
   int cur_time = 0;
   while (cur_genotype != NULL && cur_time <= max_time) {
+    if (verbose >= nAnalyze::VERBOSE_DETAILS) {
+      cout << "Detailing genotype " << cur_genotype->GetID()
+	   << " at depth " << cur_genotype->GetDepth()
+	   << endl;
+    }
+
     output_it.Reset();
     tDataEntryCommand<cAnalyzeGenotype> * data_command = NULL;
     if (format_type == FILE_TYPE_HTML) {
@@ -1443,7 +1802,7 @@ void cAnalyze::CommandDetailAverage_Body(ostream & fp, int num_outputs,
 
 void cAnalyze::CommandDetailAverage(cString cur_string) 
 { 
-  if (verbose == true) cout << "Average detailing batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Average detailing batch " << cur_batch << endl;
   else cout << "Detailing..." << endl;
   
   // Load in the variables...
@@ -1478,7 +1837,7 @@ void cAnalyze::CommandDetailBatches(cString cur_string)
   if (cur_string.GetSize() != 0) keyword = cur_string.PopWord();
   if (cur_string.GetSize() != 0) filename = cur_string.PopWord();
   
-  if (verbose == true) cout << "Detailing batches for " << keyword << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Detailing batches for " << keyword << endl;
   else cout << "Detailing Batches..." << endl;
   
   // Scan the functions list for the keyword we need...
@@ -1749,7 +2108,7 @@ void cAnalyze::CommandDetailIndex(cString cur_string)
 
 void cAnalyze::CommandHistogram(cString cur_string)
 {
-  if (verbose == true) cout << "Histogram batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Histogram batch " << cur_batch << endl;
   else cout << "Histograming..." << endl;
   
   // Load in the variables...
@@ -1923,7 +2282,7 @@ void cAnalyze::CommandHistogram_Body(ostream & fp, int format_type,
 
 void cAnalyze::CommandPrintPhenotypes(cString cur_string)
 {
-  if (verbose == true) cout << "Printing phenotypes in batch "
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Printing phenotypes in batch "
     << cur_batch << endl;
   else cout << "Printing phenotypes..." << endl;
   
@@ -2010,7 +2369,7 @@ void cAnalyze::CommandPrintPhenotypes(cString cur_string)
 // Print various diversity metrics from the current batch of genotypes...
 void cAnalyze::CommandPrintDiversity(cString cur_string)
 {
-  if (verbose == true) cout << "Printing diversity data for batch "
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Printing diversity data for batch "
     << cur_batch << endl;
   else cout << "Printing diversity data..." << endl;
   
@@ -2100,7 +2459,500 @@ void cAnalyze::CommandPrintDiversity(cString cur_string)
   }
 }
 
-void cAnalyze::CommunityComplexity(cString cur_string)
+
+void cAnalyze::PhyloCommunityComplexity(cString cur_string)
+{
+
+  /////////////////////////////////////////////////////////////////////////
+  // Calculate the mutual information between all genotypes and environment
+  /////////////////////////////////////////////////////////////////////////
+
+  cout << "Analyze biocomplexity of current population about environment ...\n";
+
+  // Get the number of genotypes that are gonna be analyzed.
+  int max_genotypes = cur_string.PopWord().AsInt();
+
+  // Get update
+  int update = cur_string.PopWord().AsInt();
+
+  // Get the directory  
+  cString directory = PopDirectory(cur_string, "community_cpx/");
+
+  // Get the file name that saves the result 
+  cString filename = cur_string.PopWord();
+  if (filename.IsEmpty()) {
+    filename = "community.complexity.dat";
+  }
+
+  filename.Set("%s%s", directory(), filename.GetData());
+  ofstream cpx_fp(filename());
+
+  cpx_fp << "# Legend:" << endl;
+  cpx_fp << "# 1: Genotype ID" << endl;
+  cpx_fp << "# 2: Entropy given Known Genotypes" << endl;
+  cpx_fp << "# 3: Entropy given Both Known Genotypes and Env" << endl;
+  cpx_fp << "# 4: New Information about Environment" << endl;
+  cpx_fp << "# 5: Total Complexity" << endl;
+  cpx_fp << endl;
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Loop through all genotypes in all batches and build id vs. genotype map
+
+  map<int, cAnalyzeGenotype *> genotype_database;
+  for (int i = 0; i < MAX_BATCHES; ++ i) {
+    tListIterator<cAnalyzeGenotype> batch_it(batch[i].List());
+    cAnalyzeGenotype * genotype = NULL;
+    while ((genotype = batch_it.Next()) != NULL) {
+      genotype_database.insert(make_pair(genotype->GetID(), genotype));
+    }
+  }
+
+  ////////////////////////////////////////////////
+  // Check if all the genotypes having same length
+
+  int length_genome;
+  if (genotype_database.size() > 0) {
+    length_genome = genotype_database.begin()->second->GetLength();
+  }
+  map<int, cAnalyzeGenotype *>::iterator gen_iterator = genotype_database.begin();
+  for (; gen_iterator != genotype_database.end(); ++ gen_iterator) {
+    if (gen_iterator->second->GetLength() != length_genome) {
+      cerr << "Genotype " << gen_iterator->first << " has different genome length." << endl;
+      exit(1);
+    }
+  }
+
+  ///////////////////////
+  // Backup test CPU data
+  bool backupUsage = cTestCPU::UseResources();
+  tArray<double> backupResources(cTestCPU::GetResources());
+  cTestCPU::UseResources() = true;
+  FillResources(update);
+
+  ///////////////////////////////////////////////////////////////////////
+  // Choose the first n most abundant genotypes and put them in community
+
+  vector<cAnalyzeGenotype *> community;
+  cAnalyzeGenotype * genotype = NULL;
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+
+  while (((genotype = batch_it.Next()) != NULL) && (community.size() < max_genotypes)) {
+    community.push_back(genotype);
+  }
+    
+  ///////////////////////////
+  // Measure hamming distance
+
+  int size_community = community.size();
+  if (size_community == 0) {
+    cerr << "There is no genotype in this community." << endl;
+    cpx_fp.close();
+    exit(1);
+  }
+  typedef pair<int,int> gen_pair;
+  map<gen_pair, int> hamming_dist;
+  
+  for (int i = 0; i< size_community; ++ i) {
+    for (int j = i+1; j < size_community; ++ j) {
+      int dist = cGenomeUtil::FindHammingDistance(community[i]->GetGenome(),
+						  community[j]->GetGenome());
+      int id1 = community[i]->GetID();
+      int id2 = community[j]->GetID();
+
+      hamming_dist.insert(make_pair(gen_pair(id1, id2), dist));
+      hamming_dist.insert(make_pair(gen_pair(id2, id1), dist));
+    }
+  }
+
+  //////////////////////////////////
+  // Get Most Recent Common Ancestor
+
+  map<gen_pair, cAnalyzeGenotype *> mrca;
+  map<gen_pair, int> raw_dist;
+  for (int i = 0; i< size_community; ++ i) {
+    for (int j = i+1; j < size_community; ++ j) {
+				    
+      cAnalyzeGenotype * lineage1_genotype = community[i];
+      cAnalyzeGenotype * lineage2_genotype = community[j];
+      int total_dist = 0;
+
+      while (lineage1_genotype->GetID() != lineage2_genotype->GetID()) {
+	if (lineage1_genotype->GetID() > lineage2_genotype->GetID()) {
+	  int parent_id = lineage1_genotype->GetParentID();
+	  cAnalyzeGenotype * parent = genotype_database.find(parent_id)->second;
+
+	  total_dist += cGenomeUtil::FindHammingDistance(lineage1_genotype->GetGenome(),
+							 parent->GetGenome());
+	  lineage1_genotype = parent;
+	} else {
+	  int parent_id = lineage2_genotype->GetParentID();
+	  cAnalyzeGenotype * parent = genotype_database.find(parent_id)->second;
+	  total_dist += cGenomeUtil::FindHammingDistance(lineage2_genotype->GetGenome(),
+							 parent->GetGenome());
+      
+	  lineage2_genotype = parent;
+	}
+      }
+
+      int id1 = community[i]->GetID();
+      int id2 = community[j]->GetID();
+      mrca.insert(make_pair(gen_pair(id1, id2), lineage1_genotype));
+      mrca.insert(make_pair(gen_pair(id2, id1), lineage1_genotype));
+      raw_dist.insert(make_pair(gen_pair(id1, id2), total_dist));
+      raw_dist.insert(make_pair(gen_pair(id2, id1), total_dist));
+    }
+  }
+
+  /*
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  // Sort the genotype that is next genotype is the most closest one to all previous genotypes
+
+  vector<cAnalyzeGenotype *> sorted_community;
+  vector<cAnalyzeGenotype *> left_genotypes = community;
+
+  // Put the first genotype in left to sorted.
+  sorted_community.push_back(*left_genotypes.begin());
+  left_genotypes.erase(left_genotypes.begin());
+
+  while (left_genotypes.size() > 0) {
+    int min_total_hamming = size_community * length_genome;
+    int index_next;
+
+    for (int next = 0; next < left_genotypes.size(); ++ next) {
+      int total_hamming = 0;
+      int id1 = left_genotypes[next]->GetID();
+      
+      for (int given = 0; given < sorted_community.size(); ++ given) {
+	int id2 = sorted_community[given]->GetID();
+	total_hamming += hamming_dist.find(gen_pair(id1, id2))->second;
+      }
+
+      if (total_hamming < min_total_hamming) {
+	min_total_hamming = total_hamming;
+	index_next = next;
+      }
+    }
+
+    sorted_community.push_back(left_genotypes[index_next]);
+    left_genotypes.erase(left_genotypes.begin() + index_next);
+  }
+
+  */
+
+  vector<cAnalyzeGenotype *> sorted_community = community;
+  /////////////////////////////////////////////
+  // Loop through genotypes in sorted community
+
+  double complexity = 0.0;
+  vector<cAnalyzeGenotype *> given_genotypes;
+  int num_insts = inst_set.GetSize();
+
+  for (int i = 0; i < size_community; ++ i) {
+    genotype = sorted_community[i];
+
+    // Skip the dead organisms
+    genotype->Recalculate();
+    if (genotype->GetFitness() == 0) {
+      continue;
+    }
+
+    vector<double> one_line_prob(num_insts, 0.0);
+    vector< vector<double> > prob(length_genome, one_line_prob);
+
+    cout << endl << genotype->GetID() << endl;
+
+    /*if (given_genotypes.size() >= 2) {
+
+      ///////////////////////////////////////////////////////////////////
+      // Look for two given genotypes that has minimun depth dist with it
+
+      cAnalyzeGenotype * min_depth_gen = given_genotypes[0];
+      cAnalyzeGenotype * tmrca = mrca.find(gen_pair(genotype->GetID(), 
+						    given_genotypes[0]->GetID()))->second;
+      int min_depth_dist = genotype->GetDepth() + given_genotypes[0]->GetDepth() - 2 * tmrca->GetDepth();
+      
+      cAnalyzeGenotype * second_min_gen = given_genotypes[1];
+      tmrca = mrca.find(gen_pair(genotype->GetID(), given_genotypes[1]->GetID()))->second;
+      int second_min_depth = genotype->GetDepth() + given_genotypes[1]->GetDepth() - 2 * tmrca->GetDepth();
+
+      for (int i = 2; i < given_genotypes.size(); ++ i) {
+	cAnalyzeGenotype * given_genotype = given_genotypes[i];
+	cAnalyzeGenotype * tmrca = mrca.find(gen_pair(genotype->GetID(),
+						      given_genotype->GetID()))->second;
+	int dist = genotype->GetDepth() + given_genotype->GetDepth() - 2 * tmrca->GetDepth();
+
+	if (dist < min_depth_dist) {
+	  second_min_depth = min_depth_dist;
+	  second_min_gen = min_depth_gen;
+	  min_depth_dist = dist;
+	  min_depth_gen = given_genotype;
+	} else if (dist >= min_depth_dist && dist < second_min_depth) {
+	  second_min_depth = dist;
+	  second_min_gen = given_genotype;
+	}
+      }
+
+      const cGenome & given_genome1 = min_depth_gen->GetGenome();
+      const cGenome & given_genome2 = second_min_gen->GetGenome();
+      for (int line = 0; line < length_genome; ++ line) {
+	int given_inst = given_genome1[line].GetOp();
+	prob[line][given_inst] += pow(1 - 1.0/length_genome, min_depth_dist);
+	given_inst = given_genome2[line].GetOp();
+	prob[line][given_inst] += pow(1 - 1.0/length_genome, min_depth_dist);
+      }
+
+      cpx_fp << genotype->GetID() << " " << min_depth_dist << " " << second_min_depth 
+	     << " " << raw_dist.find(gen_pair(genotype->GetID(), min_depth_gen->GetID()))->second
+	     << " " << raw_dist.find(gen_pair(genotype->GetID(), second_min_gen->GetID()))->second
+	     << " ";
+      
+	
+    } else  if (given_genotypes.size() == 1) {
+      //////////////////////////////////////////////////////
+      // Calculate the probability of each inst at each line
+      cAnalyzeGenotype * tmrca = mrca.find(gen_pair(genotype->GetID(), 
+						    given_genotypes[0]->GetID()))->second;
+      int dist = genotype->GetDepth() + given_genotypes[0]->GetDepth() - 2 * tmrca->GetDepth();
+      const cGenome & given_genome = given_genotypes[0]->GetGenome();
+
+      for (int line = 0; line < length_genome; ++ line) {
+	int given_inst = given_genome[line].GetOp();
+	prob[line][given_inst] += pow(1 - 1.0/length_genome, dist);
+      }
+      
+      cpx_fp << genotype->GetID() << " " << dist << " " 
+	     << raw_dist.find(gen_pair(genotype->GetID(), given_genotypes[0]->GetID()))->second << " ";
+    } else {
+      cpx_fp << genotype->GetID() << " ";
+      }*/
+
+    if (given_genotypes.size() >= 1) {
+      //////////////////////////////////////////////////
+      // Look for a genotype that is closest to this one
+      
+      cAnalyzeGenotype * min_depth_gen = given_genotypes[0];
+      cAnalyzeGenotype * tmrca = mrca.find(gen_pair(genotype->GetID(), 
+						    given_genotypes[0]->GetID()))->second;
+      int min_depth_dist = genotype->GetDepth() + given_genotypes[0]->GetDepth() - 2 * tmrca->GetDepth();
+
+      for (int i = 1; i < given_genotypes.size() ; ++ i) {
+	cAnalyzeGenotype * given_genotype = given_genotypes[i];
+	cAnalyzeGenotype * tmrca = mrca.find(gen_pair(genotype->GetID(),
+						      given_genotype->GetID()))->second;
+	int dist = genotype->GetDepth() + given_genotype->GetDepth() - 2 * tmrca->GetDepth();
+	
+	if (dist < min_depth_dist) {
+	  min_depth_dist = dist;
+	  min_depth_gen = given_genotype;
+	}
+      }
+
+      const cGenome & given_genome = min_depth_gen->GetGenome();
+      const cGenome & base_genome = genotype->GetGenome();
+      cGenome mod_genome(base_genome);
+      for (int line = 0; line < length_genome; ++ line) {
+	int given_inst = given_genome[line].GetOp();
+	mod_genome = base_genome;
+	mod_genome[line].SetOp(given_inst);
+	cAnalyzeGenotype test_genotype(mod_genome, inst_set);
+	test_genotype.Recalculate();
+
+	// Only when given inst make the genotype alive
+	if (test_genotype.GetFitness() > 0) {
+	  prob[line][given_inst] += pow(1 - 1.0/length_genome, min_depth_dist);
+	}
+      }
+      
+      cpx_fp << genotype->GetID() << " " << min_depth_dist << " " 
+	     << raw_dist.find(gen_pair(genotype->GetID(), min_depth_gen->GetID()))->second << " "
+	     << hamming_dist.find(gen_pair(genotype->GetID(), min_depth_gen->GetID()))->second << "   ";
+    } else {
+      cpx_fp << genotype->GetID() << " ";
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    // Point mutation at all lines of code to look for neutral mutation
+    // and the mutations that can make organism alive
+    cout << "Test point mutation." << endl;
+    vector<bool> one_line_neutral(num_insts, false);
+    vector< vector<bool> > neutral_mut(length_genome, one_line_neutral);
+    vector< vector<bool> > alive_mut(length_genome, one_line_neutral);
+//     if (verbose >= nAnalyze::VERBOSE_ON) {
+//       PrintTestCPUResources("");
+//     }
+
+    genotype->Recalculate();
+    double base_fitness = genotype->GetFitness();
+    cout << base_fitness << endl;
+    const cGenome & base_genome = genotype->GetGenome();
+    cGenome mod_genome(base_genome);
+      
+    for (int line = 0; line < length_genome; ++ line) {
+      int cur_inst = base_genome[line].GetOp();
+      
+      for (int mod_inst = 0; mod_inst < num_insts; ++ mod_inst) {
+	mod_genome[line].SetOp(mod_inst);
+	cAnalyzeGenotype test_genotype(mod_genome, inst_set);
+	test_genotype.Recalculate();
+	if (test_genotype.GetFitness() >= base_fitness) {
+	  neutral_mut[line][mod_inst] = true;
+	} 
+	if (test_genotype.GetFitness() > 0) {
+	  alive_mut[line][mod_inst] = true;
+	}
+      }
+      
+      mod_genome[line].SetOp(cur_inst);
+    }
+
+    /////////////////////////////////////////
+    // Normalize the probability at each line
+    vector< vector<double> > prob_before_env(length_genome, one_line_prob);
+
+    for (int line = 0; line < length_genome; ++ line) {
+      double cur_total_prob = 0.0;
+      int num_alive = 0;
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	if (alive_mut[line][inst] == true) {
+	  cur_total_prob += prob[line][inst];
+	  num_alive ++;
+	}
+      }
+      if (cur_total_prob > 1) {
+	cout << "Total probability at " << line << " is greater than 0." << endl;
+	exit(1);
+      }
+      double left_prob = 1 - cur_total_prob;
+
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	if (alive_mut[line][inst] == true) {
+	  prob_before_env[line][inst] = prob[line][inst] + left_prob / num_alive;
+	} else {
+	  prob_before_env[line][inst] = 0;
+	}	
+      }
+      
+    }
+
+    /////////////////////////////////
+    // Calculate entropy of each line  
+    vector<double> entropy(length_genome, 0.0);
+    for (int line = 0; line < length_genome; ++ line) {
+      double sum = 0;
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	sum += prob_before_env[line][inst];
+	if (prob_before_env[line][inst] > 0) {
+	  entropy[line] -= prob_before_env[line][inst] * log(prob_before_env[line][inst]) / log(num_insts*1.0);
+	}
+      }
+      if (sum > 1.001 || sum < 0.999) {
+	cout << "Sum of probability is not 1 at line " << line << endl;
+	exit(1);
+      }
+    }
+
+
+    /////////////////////////////////////////////////////
+    // Redistribute the probability of insts at each line
+    vector< vector<double> > prob_given_env(length_genome, one_line_prob);
+    
+    for (int line = 0; line < length_genome; ++ line) {
+      double total_prob = 0.0;
+      int num_neutral = 0;
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	if (neutral_mut[line][inst] == true) {
+	  num_neutral ++;
+	  total_prob += prob[line][inst];
+	}
+      }
+
+      double left = 1 - total_prob;
+
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	if (neutral_mut[line][inst] == true) {
+	  prob_given_env[line][inst] = prob[line][inst] + left / num_neutral;
+	} else {
+	  prob_given_env[line][inst] = 0.0;
+	}
+      }
+      
+    }
+
+    ////////////////////////////////////////////////
+    // Calculate the entropy given environment
+
+    vector<double> entropy_given_env(length_genome, 0.0);
+    for (int line = 0; line < length_genome; ++ line) {
+      double sum = 0;
+      for (int inst = 0; inst < num_insts; ++ inst) {
+	sum += prob_given_env[line][inst];
+	if (prob_given_env[line][inst] > 0) {
+	  entropy_given_env[line] -= prob_given_env[line][inst] * log(prob_given_env[line][inst]) / 
+	                             log(num_insts*1.0);
+	}
+      }
+      if (sum > 1.001 || sum < 0.999) {
+	cout << "Sum of probability is not 1 at line " << line << " " << sum << endl;
+	exit(1);
+      }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Calculate the information between genotype and env given other genotypes
+    double information = 0.0;
+    double entropy_before = 0.0;
+    double entropy_after = 0.0;
+    for (int line = 0; line < length_genome; ++ line) {
+      entropy_before += entropy[line];
+      entropy_after += entropy_given_env[line];
+
+      if (entropy[line] >= entropy_given_env[line]) {
+	information += entropy[line] - entropy_given_env[line];	
+      } else {    // Negative information is because given condition is not related with this genotype  ...
+	
+	// Count the number of insts that can make genotype alive
+	int num_inst_alive = 0;
+	for (int inst = 0; inst < num_insts; ++ inst) {
+	  if (alive_mut[line][inst] == true) {
+	    num_inst_alive ++;
+	  }
+	}
+	
+	double entropy_before = - log(1.0/num_inst_alive) / log(num_insts*1.0);
+	information += entropy_before - entropy_given_env[line];
+	if (information < 0) {
+	  cout << "Negative information at site " << line << endl;
+	  exit(1);
+	}
+      }
+      
+    }
+    complexity += information;
+
+    cpx_fp << entropy_before << " " << entropy_after << " "
+	   << information << " " << complexity << "   ";
+
+    genotype->PrintTasks(cpx_fp, 0, -1);
+    cpx_fp << endl; 
+
+    /////////////////////////////////////////////////////////////
+    // This genotype becomes the given condition of next genotype
+
+    given_genotypes.push_back(genotype);
+    
+  }
+
+  // Set the test CPU back to the state it was 
+  cTestCPU::UseResources() = backupUsage;
+  cTestCPU::SetupResourceArray(backupResources);
+    
+  cpx_fp.close();
+  return;
+	 
+}
+
+void cAnalyze::AnalyzeCommunityComplexity(cString cur_string)
 {
   /////////////////////////////////////////////////////////////////////
   // Calculate the mutual information between community and environment
@@ -2500,120 +3352,9 @@ void cAnalyze::CommunityComplexity(cString cur_string)
   
 }
 
-void cAnalyze::PopDiversity(cString cur_string)
-{
-  ////////////////////////////////////////////////
-  // Calculate Shannon Index of the Population ...
-  ////////////////////////////////////////////////
-
-  cout << "Analyze biological diversity of current population ...\n";
-
-  // Get the directory  
-  cString dir = cur_string.PopWord();
-  cString defaultDir = "pop_diversity/";
-  cString directory = PopDirectory(dir, defaultDir);
-
-  // Get the file name that saves the result 
-  cString filename = cur_string.PopWord();
-  if (filename.IsEmpty()) {
-    filename = "diversity.dat";
-  }
-
-  filename.Set("%s%s", directory(), filename.GetData());
-  ofstream diversity_fp(filename());
-
-  
-  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
-  cAnalyzeGenotype * genotype;
-
-  // Classify the genotype by task implemented ...
-  map<string, vector<cAnalyzeGenotype *> > genotype_classBytask;
-  int num_tasks = d_environment->GetTaskLib().GetSize();
-
-  while ((genotype = batch_it.Next()) != NULL) {
-    genotype->Recalculate();
-
-    double fitness = genotype->GetFitness();
-    if (genotype->GetFitness() == 0) continue; // Dead Genotype
-
-    string tasks;
-    for (int task_id = 0; task_id < num_tasks; ++ task_id) {
-      int count = genotype->GetTaskCount(task_id);
-      if (count > 0) {
-	tasks += '1';
-      } else {
-	tasks += '0';
-      }
-    }
-    
-    map<string, vector<cAnalyzeGenotype *> >::iterator classBytask_it;
-    classBytask_it = genotype_classBytask.find(tasks);
-    if (classBytask_it == genotype_classBytask.end()) {
-      vector<cAnalyzeGenotype *> genotypes;
-      genotypes.push_back(genotype);
-      genotype_classBytask.insert(make_pair(tasks, genotypes));
-    } else {
-      classBytask_it->second.push_back(genotype);
-    }
-  }
-  
-  diversity_fp << "# Biological diversity of the population" << endl;
-  diversity_fp << "# Column 1: number of species" << endl;
-  diversity_fp << "# Column 2: Shannon index" << endl;
-  diversity_fp << "# Column 3: Simpson index" << endl << endl;
-
-  // Calculate Shannon index for classes by tasks ...
-  double entropy = 0.0;
-  int num_class = 0;
-  
-  // count total organisms belonging to major species ...
-  int total_organisms = 0;
-  vector<int> speciesbytasks;
-  map<string, vector<cAnalyzeGenotype*> >::iterator classBytask_it;
-  for (classBytask_it = genotype_classBytask.begin(); 
-       classBytask_it != genotype_classBytask.end(); ++ classBytask_it) {
-    
-    vector<cAnalyzeGenotype *> & genotype_vector = classBytask_it->second;
-    int num_genotypes = genotype_vector.size();
-    int num_cpus = 0;
-    
-    for (int gen = 0; gen < num_genotypes; ++ gen) {
-      num_cpus += genotype_vector[gen]->GetNumCPUs();
-    }
-    
-    cout << classBytask_it->first << " " << num_cpus << endl;
-    // Don't count the class which has too few organisms. 
-    if (num_cpus < 3) continue;
-    num_class ++;
-    total_organisms += num_cpus;
-    speciesbytasks.push_back(num_cpus);
-    
-  }
-
-  for (int pos = 0; pos < speciesbytasks.size(); ++ pos) {
-    double prob = speciesbytasks[pos] * 1.0 / total_organisms;
-    entropy -= prob * log(prob);
-  }
-
-  // Calculate Simpson's index ...
-  double D = 0;
-  for (int pos = 0; pos < speciesbytasks.size(); ++ pos) {
-    int num_orgs = speciesbytasks[pos];
-    D += num_orgs * (num_orgs -1) * 1.0 / (total_organisms*(total_organisms-1));
-  } 
-
-  diversity_fp << num_class << " " 
-	       << entropy << " "
-	       << 1-D << endl;
-  diversity_fp.close();
-
-}
-
-
-
 void cAnalyze::CommandLandscape(cString cur_string)
 {
-  if (verbose == true) cout << "Landscaping batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Landscaping batch " << cur_batch << endl;
   else cout << "Landscapping..." << endl;
   
   // Load in the variables...
@@ -2640,7 +3381,7 @@ void cAnalyze::CommandLandscape(cString cur_string)
 
 void cAnalyze::AnalyzeEpistasis(cString cur_string)
 {
-  if (verbose == true) cout << "Epistasis on " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Epistasis on " << cur_batch << endl;
   else cout << "Calculating epistasis values..." << endl;
   
   // Load in the variables...
@@ -2843,10 +3584,295 @@ void cAnalyze::AnalyzeMateSelection(cString cur_string)
   df.Endl();
 }
 
+void cAnalyze::AnalyzeComplexityDelta(cString cur_string)
+{
+  // This command will examine the current population, and sample mutations
+  // to see what the distribution of complexity changes is.  Only genotypes
+  // with a certain abundance (default=3) will be tested to make sure that
+  // the organism didn't already have hidden complexity due to a downward
+  // step.
+  cout << "Testing complexity delta." << endl;
+
+  cString filename = "complexity_delta.dat";
+  int num_tests = 10;
+  double copy_mut_prob = cConfig::GetCopyMutProb();
+  double ins_mut_prob = cConfig::GetDivideInsProb();
+  double del_mut_prob = cConfig::GetDivideDelProb();
+  int count_threshold = 3;
+
+  if (cur_string.GetSize() > 0) filename = cur_string.PopWord();
+  if (cur_string.GetSize() > 0) num_tests = cur_string.PopWord().AsInt();
+  if (cur_string.GetSize() > 0) copy_mut_prob = cur_string.PopWord().AsDouble();
+  if (cur_string.GetSize() > 0) ins_mut_prob = cur_string.PopWord().AsDouble();
+  if (cur_string.GetSize() > 0) del_mut_prob = cur_string.PopWord().AsDouble();
+  if (cur_string.GetSize() > 0) count_threshold = cur_string.PopWord().AsInt();
+
+  if (verbose >= nAnalyze::VERBOSE_ON) {
+    cout << "...using:"
+	 << " filename='" << filename << "'"
+	 << " num_tests=" << num_tests
+	 << " copy_mut_prob=" << copy_mut_prob
+	 << " ins_mut_prob=" << ins_mut_prob
+	 << " del_mut_prob=" << del_mut_prob
+	 << " count_threshold=" << count_threshold
+	 << endl;
+  }
+
+  // Create an array of all of the genotypes above threshold.
+  cAnalyzeGenotype * genotype = NULL;
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+
+  // Loop through all genotypes to perform a census
+  int org_count = 0;
+  while ((genotype = batch_it.Next()) != NULL) {
+    // Only count genotypes above threshold
+    if (genotype->GetNumCPUs() >= count_threshold) { 
+      org_count += genotype->GetNumCPUs();
+    }
+  } 
+
+  // Create an array to store pointers to the genotypes and fill it in.
+  tArray<cAnalyzeGenotype *> org_array(org_count);
+  int cur_org = 0;
+  batch_it.Reset();
+  while ((genotype = batch_it.Next()) != NULL) {
+    // Ignore genotypes below threshold.
+    if (genotype->GetNumCPUs() < count_threshold) continue;
+
+    // Insert the remaining genotypes into the array.
+    for (int i = 0; i < genotype->GetNumCPUs(); i++) {
+      org_array[cur_org] = genotype;
+      cur_org++;
+    }
+  }
+
+  // Open up the file and prepare it for output.
+  cDataFile & df = data_file_manager.Get(filename);
+  df.WriteComment( "An analyze of expected complexity changes between parent and offspring" );
+  df.WriteTimeStamp();  
+  
+  // Next check the appropriate number of organisms, perform mutations, and
+  // store the results.
+  for (int cur_test = 0; cur_test < num_tests; cur_test++) {
+    // Pick the genotype to test.
+    int test_org_id = g_random.GetInt(org_count);
+    genotype = org_array[test_org_id];
+    
+    // Create a copy of the genome.
+    cCPUMemory mod_genome = genotype->GetGenome();
+    
+    if (copy_mut_prob == 0.0 &&
+	ins_mut_prob == 0.0 &&
+	del_mut_prob == 0.0) {
+      cerr << "ERROR: All mutation rates are zero!  No complexity delta analysis possible." << endl;
+      return;
+    }
+
+    // Perform the per-site mutations -- we are going to keep looping until
+    // we trigger at least one mutation.
+    int num_mutations = 0;
+    while (num_mutations == 0) {
+      if (copy_mut_prob > 0.0) {
+	for (int i = 0; i < mod_genome.GetSize(); i++) {
+	  if (g_random.P(copy_mut_prob)) {
+	    mod_genome[i] = inst_set.GetRandomInst();
+	    num_mutations++;
+	  }
+	}
+      }
+
+      // Perform an Insertion if it has one.
+      if (g_random.P(ins_mut_prob)) {
+	int ins_line = g_random.GetInt(mod_genome.GetSize() + 1);
+	mod_genome.Insert(ins_line, inst_set.GetRandomInst());
+	num_mutations++;
+      }
+      
+      // Perform a Deletion if it has one.
+      if (g_random.P(del_mut_prob)) {
+	int del_line = g_random.GetInt(mod_genome.GetSize());
+	mod_genome.Remove(del_line);
+	num_mutations++;
+      }
+    }
+    
+    // Calculate the complexities....
+    genotype->Recalculate();
+    double start_complexity = genotype->GetKO_Complexity(); // genotype->GetComplexity();
+    double start_fitness = genotype->GetFitness();
+    int start_length = genotype->GetLength();
+    int start_gest = genotype->GetGestTime();
+
+    cAnalyzeGenotype new_genotype(mod_genome, inst_set);
+    new_genotype.Recalculate();
+    double end_complexity = new_genotype.GetKO_Complexity();  // GetComplexity();
+    double complexity_change = end_complexity - start_complexity;
+    double end_fitness = new_genotype.GetFitness();
+    int end_length = new_genotype.GetLength();
+    int end_gest = new_genotype.GetGestTime();
+
+    df.Write(num_mutations, "Number of mutational differences between original organism and mutant.");
+    df.Write(complexity_change, "Complexity difference between original organism and mutant.");
+    df.Write(start_complexity, "Complexity of initial organism.");
+    df.Write(end_complexity, "Complexity of mutant.");
+    df.Write(start_fitness, "Fitness of initial organism.");
+    df.Write(end_fitness, "Fitness of mutant.");
+    df.Write(start_length, "Length of initial organism.");
+    df.Write(end_length, "Length of mutant.");
+    df.Write(start_gest, "Gestation Time of initial organism.");
+    df.Write(end_gest, "Gestation Time of mutant.");
+    df.Write(genotype->GetID(), "ID of initial genotype.");
+    df.Endl();
+  }
+}
+
+void cAnalyze::AnalyzeKnockouts(cString cur_string)
+{
+  cout << "Analyzing the effects of knockouts..." << endl;
+  
+  cString filename = "knockouts.dat";
+  if (cur_string.GetSize() > 0) filename = cur_string.PopWord();
+  
+  int max_knockouts = 1;
+  if (cur_string.GetSize() > 0) max_knockouts = cur_string.PopWord().AsInt();
+
+  // Open up the data file...
+  cDataFile & df = data_file_manager.Get(filename);
+  df.WriteComment( "Analysis of knockouts in genomes" );
+  df.WriteTimeStamp();  
+  
+
+  // Setup a NULL instruction in a special inst set.
+  cInstSet ko_inst_set(inst_set);
+  // Locate the instruction corresponding to "NULL" in the instruction library.
+  {
+    cInstruction lib_null_inst = ko_inst_set.GetInstLib()->GetInst("NULL");
+    if (lib_null_inst == ko_inst_set.GetInstLib()->GetInstError()) {
+      cout << "<cAnalyze::AnalyzeKnockouts> got error:" << endl
+	   << "  instruction 'NULL' not in current hardware type" << endl;
+      exit(1);
+    }
+    // Add mapping to located instruction. 
+    ko_inst_set.Add2(lib_null_inst.GetOp());
+  }
+  const cInstruction null_inst = ko_inst_set.GetInst("NULL");
+    
+  // Loop through all of the genotypes in this batch...
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+  cAnalyzeGenotype * genotype = NULL;
+  while ((genotype = batch_it.Next()) != NULL) {
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Knockout: " << genotype->GetName() << endl;
+    
+    // Calculate the stats for the genotype we're working with...
+    genotype->Recalculate();
+    const double base_fitness = genotype->GetFitness();
+    
+    const int max_line = genotype->GetLength();
+    const cGenome & base_genome = genotype->GetGenome();
+    cGenome mod_genome(base_genome);
+    
+    // Loop through all the lines of code, testing the removal of each.
+    // -2=lethal, -1=detrimental, 0=neutral, 1=beneficial
+    int dead_count = 0;
+    int neg_count = 0;
+    int neut_count = 0;
+    int pos_count = 0;
+    tArray<int> ko_effect(max_line);
+    for (int line_num = 0; line_num < max_line; line_num++) {
+      // Save a copy of the current instruction and replace it with "NULL"
+      int cur_inst = base_genome[line_num].GetOp();
+      mod_genome[line_num] = null_inst;
+      cAnalyzeGenotype ko_genotype(mod_genome, ko_inst_set);
+      ko_genotype.Recalculate();
+      
+      double ko_fitness = ko_genotype.GetFitness();
+      if (ko_fitness == 0.0) {
+	dead_count++;
+	ko_effect[line_num] = -2;
+      } else if (ko_fitness < base_fitness) {
+	neg_count++;
+	ko_effect[line_num] = -1;
+      } else if (ko_fitness == base_fitness) {
+	neut_count++;
+	ko_effect[line_num] = 0;
+      } else if (ko_fitness > base_fitness) {
+	pos_count++;
+	ko_effect[line_num] = 1;
+      } else {
+	cerr << "ERROR: illegal state in AnalyzeKnockouts()" << endl;
+      }
+
+      // Reset the mod_genome back to the original sequence.
+      mod_genome[line_num].SetOp(cur_inst);
+    }
+
+    tArray<int> ko_pair_effect(ko_effect);
+    if (max_knockouts > 1) {
+      for (int line1 = 0; line1 < max_line; line1++) {
+	for (int line2 = line1+1; line2 < max_line; line2++) {
+	  int cur_inst1 = base_genome[line1].GetOp();
+	  int cur_inst2 = base_genome[line2].GetOp();
+	  mod_genome[line1] = null_inst;
+	  mod_genome[line2] = null_inst;
+	  cAnalyzeGenotype ko_genotype(mod_genome, ko_inst_set);
+	  ko_genotype.Recalculate();
+      
+	  double ko_fitness = ko_genotype.GetFitness();
+
+	  // If both individual knockouts are both harmful, but in combination
+	  // they are neutral or even beneficial, they should not count as 
+	  // information.
+	  if (ko_fitness >= base_fitness &&
+	      ko_effect[line1] < 0 && ko_effect[line2] < 0) {
+	    ko_pair_effect[line1] = 0;
+	    ko_pair_effect[line2] = 0;
+	  }
+
+	  // If the individual knockouts are both neutral (or beneficial?),
+	  // but in combination they are harmful, they are likely redundant
+	  // to each other.  For now, count them both as information.
+	  if (ko_fitness < base_fitness &&
+	      ko_effect[line1] >= 0 && ko_effect[line2] >= 0) {
+	    ko_pair_effect[line1] = -1;
+	    ko_pair_effect[line2] = -1;
+	  }	
+
+	  // Reset the mod_genome back to the original sequence.
+	  mod_genome[line1].SetOp(cur_inst1);
+	  mod_genome[line2].SetOp(cur_inst2);
+	}
+      }
+    }    
+
+    int pair_dead_count = 0;
+    int pair_neg_count = 0;
+    int pair_neut_count = 0;
+    int pair_pos_count = 0;
+    for (int i = 0; i < max_line; i++) {
+      if (ko_pair_effect[i] == -2) pair_dead_count++;
+      else if (ko_pair_effect[i] == -1) pair_neg_count++;
+      else if (ko_pair_effect[i] == 0) pair_neut_count++;
+      else if (ko_pair_effect[i] == 1) pair_pos_count++;
+    }
+
+    // Output data...
+    df.Write(genotype->GetID(), "Genotype ID");
+    df.Write(dead_count, "Count of lethal knockouts");
+    df.Write(neg_count,  "Count of detrimental knockouts");
+    df.Write(neut_count, "Count of neutral knockouts");
+    df.Write(pos_count,  "Count of beneficial knockouts");
+    df.Write(pair_dead_count, "Count of lethal knockouts after paired knockout tests.");
+    df.Write(pair_neg_count,  "Count of detrimental knockouts after paired knockout tests.");
+    df.Write(pair_neut_count, "Count of neutral knockouts after paired knockout tests.");
+    df.Write(pair_pos_count,  "Count of beneficial knockouts after paired knockout tests.");
+    df.Endl();
+  }
+}
+
   
 void cAnalyze::CommandFitnessMatrix(cString cur_string)
 {
-  if (verbose == true) cout << "Calculating fitness matrix for batch " << cur_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Calculating fitness matrix for batch " << cur_batch << endl;
   else cout << "Calculating fitness matrix..." << endl;
   
   cout << "Warning: considering only first genotype of the batch!" << endl;
@@ -2933,7 +3959,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
   const int num_cols = output_list.GetSize();
   
   // Give some information in verbose mode.
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  outputing as ";
     if (print_mode == 1) cout << "boolean ";
     if (file_type == FILE_TYPE_TEXT) {
@@ -2960,7 +3986,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
   tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
   cAnalyzeGenotype * genotype = NULL;
   while ((genotype = batch_it.Next()) != NULL) {
-    if (verbose == true) cout << "  Mapping " << genotype->GetName() << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Mapping " << genotype->GetName() << endl;
     
     // Construct this filename...
     cString filename;
@@ -3092,11 +4118,8 @@ void cAnalyze::CommandMapTasks(cString cur_string)
       const cInstruction inst_lib_null_inst = map_inst_set.GetInstLib()->GetInst("NULL");
       if(inst_lib_null_inst == map_inst_set.GetInstLib()->GetInstError()){
         cout << "<cAnalyze::CommandMapTasks> got error:" << endl;
-        cout << " --- instruction \"NULL\" isn't in the instruction library;" << endl;
-        cout << " --- get somebody to map a function to \"NULL\" in the library." << endl;
-        cout << " --- (probably to class method \"cHardware-of-some-type::initInstLib\"" << endl;
-        cout << " --- in file named \"cpu/hardware-of-some-type.cc\".)" << endl;
-        cout << " --- bailing-out." << endl;
+        cout << " --- instruction \"NULL\" isn't in the instruction library for the" << endl;
+        cout << " --- current hardware type." << endl;
         exit(1);
       }
       // Add mapping to located instruction. 
@@ -3176,7 +4199,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
     delete [] col_pass_count;
     delete [] col_fail_count;
     
-    }
+  }
 }
 
 void cAnalyze::CommandAverageModularity(cString cur_string)
@@ -3210,7 +4233,7 @@ void cAnalyze::CommandAverageModularity(cString cur_string)
   const int num_cols = output_list.GetSize();
   
   // Give some information in verbose mode.
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  outputing as ";
     if (print_mode == 1) cout << "boolean ";
     cout << "text files." << endl;
@@ -3295,7 +4318,7 @@ void cAnalyze::CommandAverageModularity(cString cur_string)
     
     int num_cpus = genotype->GetNumCPUs();
     
-    if (verbose == true) cout << "  Mapping " << genotype->GetName() << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Mapping " << genotype->GetName() << endl;
     
     // Calculate the stats for the genotype we're working with...
     genotype->Recalculate();
@@ -3562,7 +4585,7 @@ void cAnalyze::CommandMapMutations(cString cur_string)
   if (arg_list.PopString("html") != "") file_type = FILE_TYPE_HTML;
   
   // Give some information in verbose mode.
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "  outputing as ";
     if (file_type == FILE_TYPE_TEXT) cout << "text files." << endl;
     else cout << "HTML files." << endl;
@@ -3575,7 +4598,7 @@ void cAnalyze::CommandMapMutations(cString cur_string)
   tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
   cAnalyzeGenotype * genotype = NULL;
   while ((genotype = batch_it.Next()) != NULL) {
-    if (verbose == true) {
+    if (verbose >= nAnalyze::VERBOSE_ON) {
       cout << "  Creating mutation map for " << genotype->GetName() << endl;
     }
     
@@ -3870,7 +4893,7 @@ void cAnalyze::CommandHamming(cString cur_string)
     int tmp = batch1;  batch1 = batch2;  batch2 = tmp;
   }
   
-  if (verbose == false) {
+  if (verbose <= nAnalyze::VERBOSE_QUIET) {
     cout << "Calculating Hamming Distance... ";
     cout.flush();
   } else {
@@ -3937,7 +4960,7 @@ void cAnalyze::CommandLevenstein(cString cur_string)
     int tmp = batch1;  batch1 = batch2;  batch2 = tmp;
   }
   
-  if (verbose == false) {
+  if (verbose <= nAnalyze::VERBOSE_QUIET) {
     cout << "Calculating Levenstein Distance... ";
     cout.flush();
   } else {
@@ -4004,7 +5027,7 @@ void cAnalyze::CommandSpecies(cString cur_string)
     int tmp = batch1;  batch1 = batch2;  batch2 = tmp;
   }
   
-  if (verbose == false) cout << "Calculating Species Distance... " << endl;
+  if (verbose <= nAnalyze::VERBOSE_QUIET) cout << "Calculating Species Distance... " << endl;
   else cout << "Calculating Species Distance between batch "
     << batch1 << " and " << batch2 << endl;
   
@@ -4120,7 +5143,7 @@ void cAnalyze::CommandRecombine(cString cur_string)
     int tmp = batch1;  batch1 = batch2;  batch2 = tmp;
   }
   
-  if (verbose == false) cout << "Creating recombinants...  " << endl;
+  if (verbose <= nAnalyze::VERBOSE_QUIET) cout << "Creating recombinants...  " << endl;
   else cout << "Creating recombinants between batch "
     << batch1 << " and " << batch2 << endl;
   
@@ -4214,7 +5237,7 @@ void cAnalyze::CommandAlign(cString cur_string)
   
   cout << "Aligning sequences..." << endl;
   
-  if (batch[cur_batch].IsLineage() == false && verbose == true) {
+  if (batch[cur_batch].IsLineage() == false && verbose >= nAnalyze::VERBOSE_ON) {
     cerr << "  Warning: sequences may not be a consecutive lineage."
     << endl;
   }
@@ -4278,6 +5301,101 @@ void cAnalyze::CommandAlign(cString cur_string)
   batch[cur_batch].SetAligned(true);
 }
 
+// Now this command do not consider changing environment 
+// and only work for lineage and fixed-length runs.
+void cAnalyze::AnalyzeNewInfo(cString cur_string)
+{
+  cout << "Analyze new information in child about environment ..." << endl;
+  
+  // Load in the variables
+  int words = cur_string.CountNumWords();
+  if (words < 1) {
+    cout << "This command requires mutation rate, skipping." << endl;
+    return;
+  }
+  
+  // Get the mutation rate ...
+  double mu = cur_string.PopWord().AsDouble();
+  
+  // Create the directory using the string given as the second argument
+  cString dir = cur_string.PopWord();
+  cString defaultDir = "newinfo/";
+  cString directory = PopDirectory(dir, defaultDir);
+  
+  ///////////////////////////////////////////////////////
+  // Loop through all of the genotypes in this batch...
+  
+  cString newinfo_fn;
+  ofstream newinfo_fp;
+  if (batch[cur_batch].IsLineage() == true) {
+    newinfo_fn.Set("%s%s.newinfo.dat", directory(), "lineage");
+    newinfo_fp.open(newinfo_fn);
+  } else {
+    cout << "This command requires the lineage in the batch, skipping.\n";
+    return;
+  }
+  newinfo_fp << "# Legend:" << endl;
+  newinfo_fp << "# 1:Child Genotype ID" << endl;
+  newinfo_fp << "# 2:Parent Genotype ID" << endl;
+  newinfo_fp << "# 3:Information of Child about Environment I(C:E)" << endl;
+  newinfo_fp << "# 4:Information of Parent about Environment I(P:E)" << endl;
+  newinfo_fp << "# 5:I(C:E)-I(P:E)" << endl;
+  newinfo_fp << "# 6:Information Gained in Child" << endl;
+  newinfo_fp << "# 7:Information Decreased in Child" << endl;
+  newinfo_fp << "# 8:Net Increasing of Information in Child" << endl;
+  newinfo_fp << endl; 
+  
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+  cAnalyzeGenotype * parent_genotype = batch_it.Next();
+  if (parent_genotype == NULL) {
+    newinfo_fp.close();
+    return;
+  }
+  cAnalyzeGenotype * child_genotype = NULL;
+  double I_P_E; // Information of parent about environment
+  double H_P_E = AnalyzeEntropy(parent_genotype, mu);
+  I_P_E = parent_genotype->GetLength() - H_P_E;
+
+  while ((child_genotype = batch_it.Next()) != NULL) {
+    
+    if (verbose >= nAnalyze::VERBOSE_ON) {
+      cout << "Analyze new information for " << child_genotype->GetName() << endl;
+    }
+    
+    // Information of parent about its environment should not be zero.
+    if (I_P_E == 0) {
+      cerr << "Error: Information between parent and its enviroment is zero."
+	   << "(cAnalyze::AnalyzeNewInfo)" << endl;
+      exit(1);
+    }
+
+    double H_C_E = AnalyzeEntropy(child_genotype, mu);
+    double I_C_E = child_genotype->GetLength() - H_C_E;
+    double net_gain = I_C_E - I_P_E;
+    
+    // Increased information in child compared to parent
+    double child_increased_info = IncreasedInfo(child_genotype, parent_genotype, mu);
+    
+    // Lost information in child compared to parent
+    double child_lost_info = IncreasedInfo(parent_genotype, child_genotype, mu);
+
+    // Write information to file ...
+    newinfo_fp << child_genotype->GetID() << " ";
+    newinfo_fp << parent_genotype->GetID() << " ";
+    newinfo_fp << I_C_E << " ";
+    newinfo_fp << I_P_E << " ";
+    newinfo_fp << net_gain << " ";
+    newinfo_fp << child_increased_info << " ";
+    newinfo_fp << child_lost_info << " ";
+    newinfo_fp << child_increased_info - child_lost_info << endl;
+    
+    parent_genotype = child_genotype;
+    I_P_E = I_C_E;
+  }
+  
+  newinfo_fp.close();
+  return;
+}
 
 
 
@@ -4428,7 +5546,7 @@ void cAnalyze::WriteCompetition(cString cur_string)
     for (grid_side = 5; grid_side < 100; grid_side += 5) {
       if (grid_side * grid_side >= max_count) break;
     }
-    if (verbose == true) {
+    if (verbose >= nAnalyze::VERBOSE_ON) {
       cout << "...assuming population size "
       << grid_side << "x" << grid_side << "." << endl;
     }
@@ -4541,7 +5659,7 @@ void cAnalyze::AnalyzeMuts(cString cur_string)
   
   // Count the number of diffs between the two strings we're interested in.
   const int total_diffs = cStringUtil::Distance(first_seq, last_seq);
-  if (verbose) cout << "  " << total_diffs << " mutations being tested."
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "  " << total_diffs << " mutations being tested."
     << endl;
   
   // Locate each difference.
@@ -4663,7 +5781,7 @@ void cAnalyze::AnalyzeMuts(cString cur_string)
 
 void cAnalyze::AnalyzeInstructions(cString cur_string)
 {
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Analyzing Instructions in batch " << cur_batch << endl;
   }
   else cout << "Analyzeing Instructions..." << endl;
@@ -4803,7 +5921,7 @@ void cAnalyze::AnalyzeInstructions(cString cur_string)
 
 void cAnalyze::AnalyzeInstPop(cString cur_string)
 {
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Analyzing Instructions in batch " << cur_batch << endl;
   }
   else cout << "Analyzeing Instructions..." << endl;
@@ -4861,7 +5979,7 @@ void cAnalyze::AnalyzeInstPop(cString cur_string)
 
 void cAnalyze::AnalyzeBranching(cString cur_string)
 {
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Analyzing branching patterns in batch " << cur_batch << endl;
   }
   else cout << "Analyzeing Branches..." << endl;
@@ -4879,13 +5997,13 @@ void cAnalyze::AnalyzeBranching(cString cur_string)
 
 void cAnalyze::AnalyzeMutationTraceback(cString cur_string)
 {
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Analyzing mutation traceback in batch " << cur_batch << endl;
   }
   else cout << "Analyzing mutation traceback..." << endl;
   
   // This works best on lineages, so warn if we don't have one.
-  if (batch[cur_batch].IsLineage() == false && verbose == true) {
+  if (batch[cur_batch].IsLineage() == false && verbose >= nAnalyze::VERBOSE_ON) {
     cerr << "  Warning: trying to traceback mutations outside of lineage."
     << endl;
   }
@@ -4968,13 +6086,13 @@ void cAnalyze::AnalyzeMutationTraceback(cString cur_string)
 
 void cAnalyze::AnalyzeComplexity(cString cur_string)
 {
-    cout << "Analyzing genome complexity..." << endl;
+  cout << "Analyzing genome complexity..." << endl;
   
   // Load in the variables...
   // This command requires at least on arguement
   int words = cur_string.CountNumWords();
   if(words < 1) {
-    cout << "AnalyzeComplexity has no parameters, skipping." << endl;
+    cout << "ERROR: AnalyzeComplexity has no parameters, skipping." << endl;
     return;
   }
   
@@ -5033,19 +6151,19 @@ void cAnalyze::AnalyzeComplexity(cString cur_string)
   ofstream lineage_fp;
   ofstream non_lineage_fp;
   if (batch[cur_batch].IsLineage() == true) {
-    lineage_filename.Set("%s%s_cpx.dat", directory(), "lineage");
+    lineage_filename.Set("%s%s.complexity.dat", directory(), "lineage");
     lineage_fp.open(lineage_filename);
     islineage = true;
   } else {
     cString non_lineage_file;
-    non_lineage_file.Set("%s%s_cpx.dat", directory(), "nonlineage");
+    non_lineage_file.Set("%s%s.complexity.dat", directory(), "nonlineage");
     non_lineage_fp.open(non_lineage_file);
     islineage = false;
   }
   
   while ((genotype = batch_it.Next()) != NULL) {
-    if (verbose == true) {
-      cout << "Analyzing complexity for " << genotype->GetName() << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) {
+      cout << "  Analyzing complexity for " << genotype->GetName() << endl;
     }
     
     // Construct this filename...
@@ -5174,7 +6292,7 @@ void cAnalyze::AnalyzeComplexity(cString cur_string)
     // where i is the batchFrequency
     for(int count=0; genotype != NULL && count < batchFrequency - 1; count++) {
       genotype = batch_it.Next();
-      if(genotype != NULL && verbose == true) {
+      if(genotype != NULL && verbose >= nAnalyze::VERBOSE_ON) {
         cout << "Skipping: " << genotype->GetName() << endl;
       }
     }
@@ -5284,7 +6402,7 @@ void cAnalyze::CommandHelpfile(cString cur_string)
   cout << "Printing helpfiles in: " << cur_string << endl;
   
   cHelpManager help_control;
-  if (verbose == true) help_control.SetVerbose();
+  if (verbose >= nAnalyze::VERBOSE_ON) help_control.SetVerbose();
   while (cur_string.GetSize() > 0) {
     help_control.LoadFile(cur_string.PopWord());
   }
@@ -5297,7 +6415,7 @@ void cAnalyze::CommandDocfile(cString cur_string)
   cout << "Printing documentation files in: " << cur_string << endl;
   
   cHelpManager help_control;
-  if (verbose == true) help_control.SetVerbose();
+  if (verbose >= nAnalyze::VERBOSE_ON) help_control.SetVerbose();
   while (cur_string.GetSize() > 0) {
     help_control.LoadFile(cur_string.PopWord());
   }
@@ -5321,7 +6439,7 @@ void cAnalyze::VarSet(cString cur_string)
   cString & cur_variable = GetVariable(var);
   cur_variable = cur_string.PopWord();
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Setting " << var << " to " << cur_variable << endl;
   }
 }
@@ -5332,7 +6450,7 @@ void cAnalyze::BatchSet(cString cur_string)
   if (cur_string.CountNumWords() > 0) {
     next_batch = cur_string.PopWord().AsInt();
   }
-  if (verbose) cout << "Setting current batch to " << next_batch << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Setting current batch to " << next_batch << endl;
   if (next_batch >= MAX_BATCHES) {
     cerr << "  Error: max batches is " << MAX_BATCHES << endl;
     exit(1);
@@ -5344,7 +6462,7 @@ void cAnalyze::BatchSet(cString cur_string)
 void cAnalyze::BatchName(cString cur_string)
 {
   if (cur_string.CountNumWords() == 0) {
-    if (verbose) cout << "  Warning: No name given in NAME_BATCH!" << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Warning: No name given in NAME_BATCH!" << endl;
     return;
   }
   
@@ -5354,11 +6472,11 @@ void cAnalyze::BatchName(cString cur_string)
 void cAnalyze::BatchTag(cString cur_string)
 {
   if (cur_string.CountNumWords() == 0) {
-    if (verbose) cout << "  Warning: No tag given in TAG_BATCH!" << endl;
+    if (verbose >= nAnalyze::VERBOSE_ON) cout << "  Warning: No tag given in TAG_BATCH!" << endl;
     return;
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Tagging batch " << cur_batch
     << " with tag '" << cur_string << "'" << endl;
   }
@@ -5376,7 +6494,7 @@ void cAnalyze::BatchPurge(cString cur_string)
   int batch_id = cur_batch;
   if (cur_string.CountNumWords() > 0) batch_id = cur_string.PopWord().AsInt();
   
-  if (verbose) cout << "Purging batch " << batch_id << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Purging batch " << batch_id << endl;
   
   while (batch[batch_id].List().GetSize() > 0) {
     delete batch[batch_id].List().Pop();
@@ -5397,7 +6515,7 @@ void cAnalyze::BatchDuplicate(cString cur_string)
   int batch_to = cur_batch;
   if (cur_string.GetSize() > 0) batch_to = cur_string.PopWord().AsInt();
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Duplicating from batch " << batch_from
     << " to batch " << batch_to << "." << endl;
   }
@@ -5440,11 +6558,11 @@ void cAnalyze::BatchRecalculate(cString cur_string)
     cTestCPU::UseResources() = true;
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Running batch " << cur_batch << " through test CPUs..." << endl;
   } else cout << "Running through test CPUs..." << endl;
   
-  if (verbose == true && batch[cur_batch].IsLineage() == false) {
+  if (verbose >= nAnalyze::VERBOSE_ON && batch[cur_batch].IsLineage() == false) {
     cerr << "  Warning: batch may not be a linege; "
     << "parent and ancestor distances may not be correct" << endl;
   }
@@ -5467,7 +6585,7 @@ void cAnalyze::BatchRecalculate(cString cur_string)
     
     // If the previous genotype was the parent of this one, pass in a pointer
     // to it for improved recalculate (such as distance to parent, etc.)
-//     if (verbose == true) {
+//     if (verbose >= nAnalyze::VERBOSE_ON) {
 //       PrintTestCPUResources("");
 //     }
     if (last_genotype != NULL &&
@@ -5489,7 +6607,7 @@ void cAnalyze::BatchRecalculate(cString cur_string)
 
 void cAnalyze::BatchRename(cString cur_string)
 {
-  if (verbose == false) cout << "Renaming organisms..." << endl;
+  if (verbose <= nAnalyze::VERBOSE_QUIET) cout << "Renaming organisms..." << endl;
   else cout << "Renaming organisms in batch " << cur_batch << endl;
   
   // If a number is given with rename, start at that number...
@@ -5529,17 +6647,33 @@ void cAnalyze::PrintDebug(cString cur_string)
   cerr << "Debug Args: " << cur_string << endl;
 }
 
-void cAnalyze::ToggleVerbose(cString cur_string)
+void cAnalyze::CommandVerbose(cString cur_string)
 {
-  // No Args needed...
-  (void) cur_string;
+  cur_string.ToUpper();
+
+  // If no arguments are given, assume a basic toggle.
+  if (cur_string.GetSize() == 0 && verbose <= nAnalyze::VERBOSE_QUIET) {
+    verbose = nAnalyze::VERBOSE_ON;
+  }
+  else if (cur_string.GetSize() == 0 && verbose >= nAnalyze::VERBOSE_ON) {
+    verbose = nAnalyze::VERBOSE_QUIET;
+  }
+
+  // Otherwise, read in the argument to decide the new mode.
+  else if (cur_string == "SILENT") verbose = nAnalyze::VERBOSE_SILENT;
+  else if (cur_string == "QUIET") verbose = nAnalyze::VERBOSE_QUIET;
+  else if (cur_string == "OFF") verbose = nAnalyze::VERBOSE_QUIET;
+  else if (cur_string == "ON") verbose = nAnalyze::VERBOSE_ON;
+  else if (cur_string == "DETAILS") verbose = nAnalyze::VERBOSE_DETAILS;
+  else if (cur_string == "HIGH") verbose = nAnalyze::VERBOSE_DETAILS;
   
-  if (verbose == false) {
-    cout << "Using verbose log messages..." << endl;
-    verbose = true;
-  } else {
-    cout << "Using non-verbose log messages..." << endl;
-    verbose = false;
+  // Print out new verbose level (nothing for silent!)
+  if (verbose == nAnalyze::VERBOSE_QUIET) {
+    cout << "Verbose QUIET: Using minimal log messages..." << endl;
+  } else if (verbose == nAnalyze::VERBOSE_ON) {
+    cout << "Verbose ON: Using verbose log messages..." << endl;
+  } else if (verbose == nAnalyze::VERBOSE_DETAILS) {
+    cout << "Verbose DETAILS: Using detailed log messages..." << endl;
   }
 }
 
@@ -5606,7 +6740,7 @@ void cAnalyze::FunctionCreate(cString cur_string,
     exit(1);
   }
   
-  if (verbose) cout << "Creating function: " << fun_name << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Creating function: " << fun_name << endl;
   
   // Create the new function...
   cAnalyzeFunction * new_function = new cAnalyzeFunction(fun_name);
@@ -5620,7 +6754,7 @@ void cAnalyze::FunctionCreate(cString cur_string,
 
 bool cAnalyze::FunctionRun(const cString & fun_name, cString args)
 {
-  if (verbose) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Running function: " << fun_name << endl;
     // << " with args: " << args << endl;
   }
@@ -5678,7 +6812,7 @@ int cAnalyze::BatchUtil_GetMaxLength(int batch_id)
 void cAnalyze::CommandForeach(cString cur_string,
                               tList<cAnalyzeCommand> & clist)
 {
-  if (verbose) cout << "Initiating Foreach loop..." << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) cout << "Initiating Foreach loop..." << endl;
   
   cString var = cur_string.PopWord();
   int num_args = cur_string.CountNumWords();
@@ -5688,13 +6822,13 @@ void cAnalyze::CommandForeach(cString cur_string,
   for (int i = 0; i < num_args; i++) {
     cur_variable = cur_string.PopWord();
     
-    if (verbose == true) {
+    if (verbose >= nAnalyze::VERBOSE_ON) {
       cout << "Foreach: setting " << var << " to " << cur_variable << endl;
     }
     ProcessCommands(clist);
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Ending Foreach on " << var << endl;
   }
 }
@@ -5703,7 +6837,9 @@ void cAnalyze::CommandForeach(cString cur_string,
 void cAnalyze::CommandForRange(cString cur_string,
                                tList<cAnalyzeCommand> & clist)
 {
-  if (verbose) cout << "Initiating FORRANGE loop..." << endl;
+  if (verbose >= nAnalyze::VERBOSE_ON) {
+    cout << "Initiating FORRANGE loop..." << endl;
+  }
   
   int num_args = cur_string.CountNumWords();
   if (num_args < 3) {
@@ -5727,7 +6863,7 @@ void cAnalyze::CommandForRange(cString cur_string,
     for (int i = (int) min_val; i <= (int) max_val; i += (int) step_val) {
       cur_variable.Set("%d", i);
       
-      if (verbose == true) {
+      if (verbose >= nAnalyze::VERBOSE_ON) {
         cout << "FORRANGE: setting " << var << " to " << cur_variable << endl;
       }
       ProcessCommands(clist);
@@ -5736,14 +6872,14 @@ void cAnalyze::CommandForRange(cString cur_string,
     for (double i = min_val; i <= max_val; i += step_val) {
       cur_variable.Set("%f", i);
       
-      if (verbose == true) {
+      if (verbose >= nAnalyze::VERBOSE_ON) {
         cout << "FORRANGE: setting " << var << " to " << cur_variable << endl;
       }
       ProcessCommands(clist);
     }
   }
   
-  if (verbose == true) {
+  if (verbose >= nAnalyze::VERBOSE_ON) {
     cout << "Ending FORRANGE on " << var << endl;
   }
 }
@@ -5974,7 +7110,7 @@ void cAnalyze::SetupGenotypeDataList()
                               ("viable",      "Is Viable (0/1)", &cAnalyzeGenotype::GetViable,
                                &cAnalyzeGenotype::SetViable));
   genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, int>
-                              ("id",          "Genome ID",       &cAnalyzeGenotype::GetID,
+                              ("id",          "Genotype ID",       &cAnalyzeGenotype::GetID,
                                &cAnalyzeGenotype::SetID));
   genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, const cString &>
                               ("tag",         "Genotype Tag",    &cAnalyzeGenotype::GetTag,
@@ -6072,6 +7208,18 @@ void cAnalyze::SetupGenotypeDataList()
                               ("frac_pos",   "Fraction Mutations Beneficial",
                                &cAnalyzeGenotype::GetFracPos,
                                (void (cAnalyzeGenotype::*)(double)) NULL));
+  genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, double>
+                              ("complexity",   "Basic Complexity (all neutral/beneficial muts are equal)",
+                               &cAnalyzeGenotype::GetComplexity,
+                               (void (cAnalyzeGenotype::*)(double)) NULL));
+  genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, int>
+                              ("ko_complexity", "Complexity calculated by counting sites you can't knockout",
+                               &cAnalyzeGenotype::GetKO_Complexity,
+                               (void (cAnalyzeGenotype::*)(int)) NULL));
+  genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, int>
+                              ("ko_pair_complexity", "Count of sites you can't knockout (including epistatic effects)",
+                               &cAnalyzeGenotype::GetKOPair_Complexity,
+                               (void (cAnalyzeGenotype::*)(int)) NULL));
   genotype_data_list.PushRear(new tDataEntry<cAnalyzeGenotype, const cString &>
                               ("parent_muts", "Mutations from Parent",
                                &cAnalyzeGenotype::GetParentMuts, &cAnalyzeGenotype::SetParentMuts,
@@ -6254,8 +7402,7 @@ void cAnalyze::SetupCommandDefLibrary()
   // Population analysis commands...
   AddLibraryDef("PRINT_PHENOTYPES", &cAnalyze::CommandPrintPhenotypes);
   AddLibraryDef("PRINT_DIVERSITY", &cAnalyze::CommandPrintDiversity);
-  AddLibraryDef("COMMUNITY_COMPLEXITY", &cAnalyze::CommunityComplexity);
-  AddLibraryDef("POP_DIVERSITY", &cAnalyze::PopDiversity);
+  AddLibraryDef("COMMUNITY_COMPLEXITY", &cAnalyze::AnalyzeCommunityComplexity);
 
   // Individual organism analysis...
   AddLibraryDef("LANDSCAPE", &cAnalyze::CommandLandscape);
@@ -6265,6 +7412,7 @@ void cAnalyze::SetupCommandDefLibrary()
   AddLibraryDef("AVERAGE_MODULARITY", &cAnalyze::CommandAverageModularity);
   AddLibraryDef("MAP_MUTATIONS", &cAnalyze::CommandMapMutations);
   AddLibraryDef("ANALYZE_COMPLEXITY", &cAnalyze::AnalyzeComplexity);
+  AddLibraryDef("ANALYZE_KNOCKOUTS", &cAnalyze::AnalyzeKnockouts);
   AddLibraryDef("ANALYZE_POP_COMPLEXITY", &cAnalyze::AnalyzePopComplexity);
   AddLibraryDef("MAP_DEPTH", &cAnalyze::CommandMapDepth);
   
@@ -6276,6 +7424,7 @@ void cAnalyze::SetupCommandDefLibrary()
   
   // Lineage analysis commands...
   AddLibraryDef("ALIGN", &cAnalyze::CommandAlign);
+  AddLibraryDef("ANALYZE_NEWINFO", &cAnalyze::AnalyzeNewInfo);
   
   // Build input files for avida...
   AddLibraryDef("WRITE_CLONE", &cAnalyze::WriteClone);
@@ -6291,6 +7440,7 @@ void cAnalyze::SetupCommandDefLibrary()
                 &cAnalyze::AnalyzeMutationTraceback);
   AddLibraryDef("ANALYZE_EPISTASIS", &cAnalyze::AnalyzeEpistasis);
   AddLibraryDef("ANALYZE_MATE_SELECTION", &cAnalyze::AnalyzeMateSelection);
+  AddLibraryDef("ANALYZE_COMPLEXITY_DELTA", &cAnalyze::AnalyzeComplexityDelta);
   
   // Environment manipulation
   AddLibraryDef("ENVIRONMENT", &cAnalyze::EnvironmentSetup);
@@ -6310,7 +7460,7 @@ void cAnalyze::SetupCommandDefLibrary()
   AddLibraryDef("STATUS", &cAnalyze::PrintStatus);
   AddLibraryDef("DEBUG", &cAnalyze::PrintDebug);
   AddLibraryDef("ECHO", &cAnalyze::PrintDebug);
-  AddLibraryDef("VERBOSE", &cAnalyze::ToggleVerbose);
+  AddLibraryDef("VERBOSE", &cAnalyze::CommandVerbose);
   AddLibraryDef("INCLUDE", &cAnalyze::IncludeFile);
   AddLibraryDef("SYSTEM", &cAnalyze::CommandSystem);
   AddLibraryDef("INTERACTIVE", &cAnalyze::CommandInteractive);

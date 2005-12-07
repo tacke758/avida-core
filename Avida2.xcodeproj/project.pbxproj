@@ -1426,7 +1426,7 @@
 		DCC31614076253A5008F7A48 /* viewers.pro */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = viewers.pro; sourceTree = "<group>"; };
 		DCC31615076253A5008F7A48 /* zoom_screen.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = zoom_screen.cc; sourceTree = "<group>"; };
 		DCC31616076253A5008F7A48 /* zoom_screen.hh */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.h; path = zoom_screen.hh; sourceTree = "<group>"; };
-		DCC3164D07626CF3008F7A48 /* primitive */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = primitive; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCC3164D07626CF3008F7A48 /* primitive */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = primitive; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3389,6 +3389,7 @@
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_FAST_MATH = YES;
+				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_UNROLL_LOOPS = YES;
