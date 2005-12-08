@@ -36,8 +36,8 @@
 #ifndef STRING_HH
 #include "cString.h"
 #endif
-#ifndef TARRAY_HH
-#include "tArray.h"
+#ifndef tManagePointerArray_h
+#include "tManagedPointerArray.h"
 #endif
 #ifndef TINSTLIB_H
 #include "tInstLib.h"
@@ -78,7 +78,7 @@ private:
   cCPUStack m_global_stacks[nHardwareSMT::NUM_GLOBAL_STACKS];
 	
   // Memory
-  tArray<cCPUMemory> m_mem_array;
+  tManagedPointerArray<cCPUMemory> m_mem_array;
   tHashTable<int, int> m_mem_lbls;
 
   // Threads
