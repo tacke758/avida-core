@@ -11,8 +11,8 @@
 #ifndef GENOME_HH
 #include "cGenome.h"
 #endif
-#ifndef TARRAY_HH
-#include "tArray.h"
+#ifndef tManagedPointerArray_h
+#include "tManagedPointerArray.h"
 #endif
 #ifndef MEMORY_FLAGS_HH
 #include "cMemoryFlags.h"
@@ -26,7 +26,7 @@ template <class T> class tArray; // aggregate
 
 class cCPUMemory : public cGenome {
 private:
-  tArray<cMemoryFlags> flag_array;
+  tManagedPointerArray<cMemoryFlags> flag_array;
 
   // A collection of sloppy instructions to perform oft-used functions that
   // will need to be cleaned up after this is run.

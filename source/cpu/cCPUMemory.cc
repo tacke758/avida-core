@@ -11,6 +11,7 @@
 
 using namespace std;
 
+const int MEMORY_INCREASE_MINIMUM = 10;
 const double MEMORY_INCREASE_FACTOR = 1.5;
 const double MEMORY_SHRINK_TEST_FACTOR = 4.0;
 
@@ -57,9 +58,10 @@ void cCPUMemory::SloppyResize(int new_size)
   const int array_size = genome.GetSize();
 
   // Determine if we need to adjust the allocated array sizes...
-  if (new_size > array_size ||
-      new_size * MEMORY_SHRINK_TEST_FACTOR < array_size) {
-    const int new_array_size = (int) (new_size * MEMORY_INCREASE_FACTOR);
+  if (new_size > array_size || new_size * MEMORY_SHRINK_TEST_FACTOR < array_size) {
+    int new_array_size = (int) (new_size * MEMORY_INCREASE_FACTOR);
+    const int new_array_min = new_size + MEMORY_INCREASE_MINIMUM;
+		if (new_array_min > new_array_size) new_array_size = new_array_min;
     genome.Resize(new_array_size);
     flag_array.Resize(new_array_size);
   }
