@@ -194,7 +194,7 @@ void cHardwareSMT::SingleProcess()
     IP().Adjust();
 		
 #ifdef BREAKPOINTS
-    if (IP().FlagBreakpoint() == true) {
+    if (IP().FlagBreakpoint()) {
       organism->DoBreakpoint();
     }
 #endif
@@ -280,7 +280,7 @@ bool cHardwareSMT::SingleProcess_ExecuteInst(const cInstruction & cur_inst)
   int inst_idx = GetInstSet().GetLibFunctionIndex(actual_inst);
   
   // Mark the instruction as executed
-  IP().FlagExecuted() = true;
+  IP().SetFlagExecuted();
 	
 	
 #ifdef INSTRUCTION_COUNT
@@ -791,7 +791,7 @@ bool cHardwareSMT::InjectHost(const cCodeLabel & in_label, const cGenome & injec
 		
     // Set instruction flags on the injected code
     for (int i = 0; i < inject_code.GetSize(); i++) {
-      m_mem_array[target_mem_space].FlagInjected(i) = true;
+      m_mem_array[target_mem_space].SetFlagInjected(i);
     }
     organism->GetPhenotype().IsModified() = true;
     
@@ -823,8 +823,8 @@ void cHardwareSMT::Mutate(int mut_point)
   assert(mut_point >= 0 && mut_point < m_mem_array[0].GetSize());
 	
   m_mem_array[0][mut_point] = GetRandomInst();
-  m_mem_array[0].FlagMutated(mut_point) = true;
-  m_mem_array[0].FlagPointMut(mut_point) = true;
+  m_mem_array[0].SetFlagMutated(mut_point);
+  m_mem_array[0].SetFlagPointMut(mut_point);
   organism->CPUStats().mut_stats.point_mut_count++;
 }
 
@@ -966,7 +966,7 @@ void cHardwareSMT::TriggerMutations_Body(int type, cCPUMemory & target_memory,
   switch (type) {
 		case nMutation::TYPE_POINT:
 			target_memory[pos] = GetRandomInst();
-			target_memory.FlagMutated(pos) = true;
+			target_memory.SetFlagMutated(pos);
 			break;
 		case nMutation::TYPE_INSERT:
 		case nMutation::TYPE_DELETE:
@@ -1020,7 +1020,7 @@ void cHardwareSMT::ReadLabel(int max_size)
 		
     // If this is the first line of the template, mark it executed.
     if (GetLabel().GetSize() <=	cConfig::GetMaxLabelExeSize()) {
-      inst_ptr->FlagExecuted() = true;
+      inst_ptr->SetFlagExecuted();
     }
   }
 }
@@ -1141,7 +1141,7 @@ inline int cHardwareSMT::FindModifiedStack(int default_stack)
   if (GetInstSet().IsNop(IP().GetNextInst())) {
     IP().Advance();
     default_stack = GetInstSet().GetNopMod(IP().GetInst());
-    IP().FlagExecuted() = true;
+    IP().SetFlagExecuted();
   }
   return default_stack;
 }
@@ -1153,7 +1153,7 @@ inline int cHardwareSMT::FindModifiedNextStack(int default_stack)
   if (GetInstSet().IsNop(IP().GetNextInst())) {
     IP().Advance();
     default_stack = GetInstSet().GetNopMod(IP().GetInst());
-    IP().FlagExecuted() = true;
+    IP().SetFlagExecuted();
   } else {
     default_stack = FindNextStack(default_stack);
   }
@@ -1167,7 +1167,7 @@ inline int cHardwareSMT::FindModifiedPreviousStack(int default_stack)
   if (GetInstSet().IsNop(IP().GetNextInst())) {
     IP().Advance();
     default_stack = GetInstSet().GetNopMod(IP().GetInst());
-    IP().FlagExecuted() = true;
+    IP().SetFlagExecuted();
   } else {
     default_stack = FindPreviousStack(default_stack);
   }
@@ -1181,7 +1181,7 @@ inline int cHardwareSMT::FindModifiedComplementStack(int default_stack)
   if (GetInstSet().IsNop(IP().GetNextInst())) {
     IP().Advance();
     default_stack = GetInstSet().GetNopMod(IP().GetInst());
-    IP().FlagExecuted() = true;
+    IP().SetFlagExecuted();
   } else {
     default_stack = FindPreviousStack(default_stack);
   }
@@ -1196,7 +1196,7 @@ inline int cHardwareSMT::FindModifiedHead(int default_head)
     IP().Advance();    
     int nop_head = GetInstSet().GetNopMod(IP().GetInst());
     if (nop_head < nHardware::NUM_HEADS) default_head = nop_head;
-    IP().FlagExecuted() = true;
+    IP().SetFlagExecuted();
   }
   return default_head;
 }
@@ -1380,12 +1380,12 @@ void cHardwareSMT::Divide_DoMutations(double mut_multiplier)
 	
   // Count up mutated lines
   for(int i = 0; i < m_mem_array[0].GetSize(); i++){
-    if (m_mem_array[0].FlagPointMut(i) == true) {
+    if (m_mem_array[0].FlagPointMut(i)) {
       cpu_stats.mut_stats.point_mut_line_count++;
     }
   }
   for(int i = 0; i < child_genome.GetSize(); i++){
-    if( child_genome.FlagCopyMut(i) == true) {
+    if( child_genome.FlagCopyMut(i)) {
       cpu_stats.mut_stats.copy_mut_line_count++;
     }
   }
@@ -1878,7 +1878,7 @@ bool cHardwareSMT::Inst_HeadWrite()
   if (value < 0 || value >= GetNumInst()) value = nHardwareSMT::NOPX;
 	
   active_head.SetInst(cInstruction(value));
-  active_head.FlagCopied() = true;
+  active_head.SetFlagCopied();
 	
   // Advance the head after write...
   active_head++;
@@ -1903,8 +1903,8 @@ bool cHardwareSMT::Inst_HeadCopy()
   if (organism->TestCopyMut()) {
     read_inst = GetRandomInst();
     cpu_stats.mut_stats.copy_mut_count++; 
-    write_head.FlagMutated() = true;
-    write_head.FlagCopyMut() = true;
+    write_head.SetFlagMutated();
+    write_head.SetFlagCopyMut();
     //organism->GetPhenotype().IsMutated() = true;
   }
   ReadInst(read_inst.GetOp());
@@ -1912,7 +1912,7 @@ bool cHardwareSMT::Inst_HeadCopy()
   cpu_stats.mut_stats.copies_exec++;
 	
   write_head.SetInst(read_inst);
-  write_head.FlagCopied() = true;  // Set the copied flag...
+  write_head.SetFlagCopied();  // Set the copied flag...
 	
   // TriggerMutations(nMutation::TRIGGER_WRITE, write_head);
 	
