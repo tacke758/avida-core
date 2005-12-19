@@ -96,8 +96,12 @@ public:
   virtual void SetFlagPointMut();
   virtual void SetFlagCopyMut();
 
-  void ClearFlagMutated();
-  void ClearFlagCopyMut();
+  virtual void ClearFlagCopied();
+  virtual void ClearFlagMutated();
+  virtual void ClearFlagExecuted();
+  virtual void ClearFlagBreakpoint();
+  virtual void ClearFlagPointMut();
+  virtual void ClearFlagCopyMut();
 
   // Operator Overloading...
   virtual cHeadCPU & operator=(const cHeadCPU & in_cpu_head);

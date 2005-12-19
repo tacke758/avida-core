@@ -196,6 +196,42 @@ void cHeadMultiMem::SetFlagCopyMut()
   GetMemory().SetFlagCopyMut(position);    
 }
 
+void cHeadMultiMem::ClearFlagCopied()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagCopied(position);     
+}
+
+void cHeadMultiMem::ClearFlagMutated()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagMutated(position);    
+}
+
+void cHeadMultiMem::ClearFlagExecuted()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagExecuted(position);   
+}
+
+void cHeadMultiMem::ClearFlagBreakpoint()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagBreakpoint(position); 
+}
+
+void cHeadMultiMem::ClearFlagPointMut()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagPointMut(position);   
+}
+
+void cHeadMultiMem::ClearFlagCopyMut()
+{
+  assert(cur_hardware != NULL);
+  GetMemory().ClearFlagCopyMut(position);    
+}
+
 cHeadMultiMem & cHeadMultiMem::operator=(const cHeadMultiMem & in_cpu_head)
 {
   main_hardware = in_cpu_head.main_hardware;

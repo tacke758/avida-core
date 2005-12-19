@@ -273,10 +273,34 @@ void cHeadCPU::SetFlagCopyMut()
   return cur_hardware->GetMemory().SetFlagCopyMut(position);    
 }
 
+void cHeadCPU::ClearFlagCopied()
+{
+  assert(cur_hardware != NULL);
+  return cur_hardware->GetMemory().ClearFlagCopied(position);    
+}
+
 void cHeadCPU::ClearFlagMutated()
 {
   assert(cur_hardware != NULL);
   return cur_hardware->GetMemory().ClearFlagMutated(position);    
+}
+
+void cHeadCPU::ClearFlagExecuted()
+{
+  assert(cur_hardware != NULL);
+  return cur_hardware->GetMemory().ClearFlagExecuted(position);    
+}
+
+void cHeadCPU::ClearFlagBreakpoint()
+{
+  assert(cur_hardware != NULL);
+  return cur_hardware->GetMemory().ClearFlagBreakpoint(position);    
+}
+
+void cHeadCPU::ClearFlagPointMut()
+{
+  assert(cur_hardware != NULL);
+  return cur_hardware->GetMemory().ClearFlagPointMut(position);    
 }
 
 void cHeadCPU::ClearFlagCopyMut()

@@ -79,8 +79,13 @@ public:
   void SetFlagCopyMut(int pos)    { flag_array[pos] |= MASK_COPYMUT;  }
   void SetFlagInjected(int pos)   { flag_array[pos] |= MASK_INJECTED; }
 	
-	void ClearFlagMutated(int pos)  { flag_array[pos] &= ~MASK_MUTATED;  }
-	void ClearFlagCopyMut(int pos)  { flag_array[pos] &= ~MASK_COPYMUT;  }
+	void ClearFlagCopied(int pos)     { flag_array[pos] &= ~MASK_COPIED;   }
+	void ClearFlagMutated(int pos)    { flag_array[pos] &= ~MASK_MUTATED;  }
+	void ClearFlagExecuted(int pos)   { flag_array[pos] &= ~MASK_EXECUTED; }
+	void ClearFlagBreakpoint(int pos) { flag_array[pos] &= ~MASK_BREAK;    }
+	void ClearFlagPointMut(int pos)   { flag_array[pos] &= ~MASK_POINTMUT; }
+	void ClearFlagCopyMut(int pos)    { flag_array[pos] &= ~MASK_COPYMUT;  }
+  void ClearFlagInjected(int pos)   { flag_array[pos] &= ~MASK_INJECTED; }
 
   void Insert(int pos, const cInstruction & in_inst);
   void Insert(int pos, const cGenome & in_genome);

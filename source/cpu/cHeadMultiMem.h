@@ -55,6 +55,13 @@ public:
   void SetFlagPointMut();
   void SetFlagCopyMut();
 
+  void ClearFlagCopied();
+  void ClearFlagMutated();
+  void ClearFlagExecuted();
+  void ClearFlagBreakpoint();
+  void ClearFlagPointMut();
+  void ClearFlagCopyMut();
+  
   // Operator Overloading...
   cHeadMultiMem & operator=(const cHeadMultiMem & in_cpu_head);
   bool operator==(const cHeadMultiMem & in_cpu_head) const; 
