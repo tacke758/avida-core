@@ -61,10 +61,6 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_combo_box.setCurrentItem(2)
     self.modeActivatedSlot(self.m_combo_box.currentItem())
 
-    self.connect(
-      self.m_session_mdl.m_session_mdtr, PYSIGNAL("printGraphSig"),
-      self.printGraphSlot)
-
   def load(self, filename, colx, coly):
     print "pyOnePop_GraphCtrl.load file name = " + filename
     if (self.m_avida is None) or (self.m_avida.m_population.GetStats().GetUpdate() == 0):

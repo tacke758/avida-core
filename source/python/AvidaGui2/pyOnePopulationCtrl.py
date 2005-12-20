@@ -18,6 +18,8 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     self.m_one_pop_petri_dish_ctrl.construct(self.m_session_mdl)
     self.m_one_pop_graph_ctrl.construct(self.m_session_mdl)
     self.m_one_pop_stats_ctrl.construct(self.m_session_mdl)
+    # XXX temporarily disabled nonfunctioning gui element, reenable in
+    # future when it works. @kgn
     self.m_one_pop_timeline_ctrl.hide()
     self.connect( self, PYSIGNAL("petriDishDroppedInPopViewSig"),
       self.m_session_mdl.m_session_mdtr,
@@ -29,6 +31,21 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       PYSIGNAL("freezerItemDoubleClicked"), self.freezerItemDoubleClicked)
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("restartPopulationSig"), self.restartPopulationSlot)
+
+  def aboutToBeLowered(self):
+    """Disconnects "Print Graph..." menu item from One-Pop Graph controller."""
+    descr()
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_pop_graph_ctrl.printGraphSlot)
+  def aboutToBeRaised(self):
+    """Connects "Print Graph..." menu item to One-Pop Graph controller."""
+    descr()
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_pop_graph_ctrl.printGraphSlot)
 
   def dragEnterEvent( self, e ):
     descr(e)

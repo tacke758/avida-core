@@ -44,7 +44,7 @@ Python:from pyOneAna_TimelineCtrl import pyOneAna_TimelineCtrl
                     </property>
                     <widget class="pyOneAna_StatsCtrl">
                         <property name="name">
-                            <cstring>pyOneAna_StatsCtrl1</cstring>
+                            <cstring>m_one_ana_stats_ctrl</cstring>
                         </property>
                     </widget>
                     <widget class="pyOneAna_PetriDishCtrl">
@@ -85,7 +85,7 @@ Python:from pyOneAna_TimelineCtrl import pyOneAna_TimelineCtrl
                     </widget>
                     <widget class="pyOneAna_TimelineCtrl">
                         <property name="name">
-                            <cstring>pyOneAna_TimelineCtrl1</cstring>
+                            <cstring>m_one_ana_timeline_ctrl</cstring>
                         </property>
                     </widget>
                 </vbox>

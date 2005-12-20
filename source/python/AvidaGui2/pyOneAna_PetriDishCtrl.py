@@ -12,6 +12,11 @@ class pyOneAna_PetriDishCtrl(pyOneAna_PetriDishView):
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl     
+    # XXX temporarily disabled nonfunctioning gui element, reenable in
+    # future when it works. @kgn
+    self.m_ana_petri_dish_ctrl.hide()
+    self.m_ana_gradient_scale_ctrl.hide()
+    self.m_ana_live_controls_ctrl.hide()
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"),
       self.freezerItemDropped)  

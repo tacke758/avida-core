@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from descr import descr
+
 from qt import *
 from pyOneAnalyzeView import pyOneAnalyzeView
 import os.path
@@ -14,6 +16,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     self.m_session_mdl = session_mdl
     self.m_one_ana_graph_ctrl.construct(self.m_session_mdl)
     self.m_one_ana_petri_ctrl.construct(self.m_session_mdl) 
+    # XXX temporarily disabled nonfunctioning gui element, reenable in
+    # future when it works. @kgn
+    self.m_one_ana_timeline_ctrl.hide()
+    self.m_one_ana_stats_ctrl.hide()
     self.connect( self, PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"),
       self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"))
@@ -23,6 +29,21 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("freezerItemDoubleClicked"),
       self.freezerItemDoubleClicked)
+
+  def aboutToBeLowered(self):
+    """Disconnects "Print Graph..." menu item from One-Analyze Graph controller."""
+    descr()
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_ana_graph_ctrl.printGraphSlot)
+  def aboutToBeRaised(self):
+    """Connects "Print Graph..." menu item to One-Analyze Graph controller."""
+    descr()
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_ana_graph_ctrl.printGraphSlot)
 
   def dropEvent( self, e ):
     freezer_item_name = QString()

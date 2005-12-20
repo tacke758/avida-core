@@ -47,8 +47,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_cli_to_ctrl_dict[cli] = ctrl
       self.m_ctrl_to_cli_dict[ctrl] = cli
 
-    self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.On)
-    self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.Off)
+    #self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.On)
+    #self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.Off)
+    #self.m_nav_bar_ctrl.m_one_population_cli.setSelected(True)
+    #self.m_nav_bar_ctrl.m_one_population_cli.setSelected(False)
 
     #for ctrl in self.m_ctrl_to_cli_dict.keys():
     #  ctrl.construct(self.m_session_mdl)
@@ -62,9 +64,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(
       self.m_nav_bar_ctrl.m_list_view, SIGNAL("clicked(QListViewItem *)"), 
       self.navBarItemClickedSlot)
-    self.connect(
-      self.m_widget_stack, SIGNAL("aboutToShow(QWidget *)"), 
-      self.ctrlAboutToShowSlot)
     # self.connect(
     #   self.fileOpenFreezerAction,SIGNAL("activated()"),self.freezerOpenSlot)
     self.connect(
@@ -103,8 +102,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("statusBarMessageSig"), self.statusBarMessageSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("statusBarClearSig"), self.statusBarClearSlot)
 
-    self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.On)
-    self.m_widget_stack.raiseWidget(self.m_one_population_ctrl)
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
+    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
     self.splitter1.setSizes([100])
 
     self.show()
@@ -116,20 +115,14 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       del self.m_ctrl_to_cli_dict[key]
 
   def navBarItemClickedSlot(self, item):
-    print "called navBarItemClickedSlot"
     if item:
-      print "item true"
-      print item
-      dir (item)
       if self.m_cli_to_ctrl_dict.has_key(item):
-        self.m_widget_stack.raiseWidget(self.m_cli_to_ctrl_dict[item])
-
-  def ctrlAboutToShowSlot(self, ctrl):
-    if ctrl:
-      if self.m_ctrl_to_cli_dict.has_key(ctrl):
-        for cli in self.m_cli_to_ctrl_dict.keys():
-          cli.setState(QCheckListItem.Off)
-        self.m_ctrl_to_cli_dict[ctrl].setState(QCheckListItem.On)
+        controller = self.m_cli_to_ctrl_dict[item]
+        old_controller = self.m_widget_stack.visibleWidget()
+        if old_controller is not None:
+          old_controller.aboutToBeLowered()
+        controller.aboutToBeRaised()
+        self.m_widget_stack.raiseWidget(controller)
 
   def close(self, also_delete = False):
     self.emit(PYSIGNAL("quitAvidaPhaseISig"), ())

@@ -100,10 +100,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
     self.modeActivatedSlot() 
 
-    self.connect(
-      self.m_session_mdl.m_session_mdtr, PYSIGNAL("printGraphSig"),
-      self.printGraphSlot)
-
   def load(self, filename, colx, coly):
     
     init_file = cInitFile(cString(os.path.join(str(self.m_petri_dish_dir_path), filename)))

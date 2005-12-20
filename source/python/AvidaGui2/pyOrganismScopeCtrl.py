@@ -184,29 +184,49 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
 
   def ShowTaskTestsCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowTaskTestsCBToggled(bool)
+
   def ShowRegistersCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowRegistersCBToggled(bool)
+
   def AnimateHeadMovementCBToggledSlot(self, bool):
     descr(bool)
+
   def ShowStacksCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowStacksCBToggled(bool)
+
   def ShowHeadsAsLettersCBToggledSlot(self, bool):
     descr(bool)
+
   def ShowInstructionNamesCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowInstructionNamesCBToggled(bool)
+
   def ShowInputsAndOutputsCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowInputsAndOutputsCBToggled(bool)
+
   def ShowFullStacksCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowFullStacksCBToggled(bool)
+
   def AnimateInstructionCopyCBToggledSlot(self, bool):
     descr(bool)
+
   def ShowHardwareCBToggledSlot(self, bool):
     descr(bool)
+    self.anim.setShowHardwareCBToggled(bool)
+
   def AnimateOrganismDivideCBToggledSlot(self, bool):
     descr(bool)
 
   def LayoutSpacingSBValueChangedSlot(self, value):
     descr(value)
+
   def HardwareIndicatorSBValueChangedSlot(self, value):
     descr(value)
+    self.anim.setHardwareIndicatorSBValueChanged(value)
+
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from descr import descr
+
 from qt import *
 from pyOneOrganismView import pyOneOrganismView
 
@@ -19,6 +21,12 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     self.connect(self.m_organism_scope_toggle, SIGNAL("clicked()"),
       self.ToggleScopeSlot)
 
+  def aboutToBeLowered(self):
+    """does nothing yet."""
+    descr()
+  def aboutToBeRaised(self):
+    """does nothing yet."""
+    descr()
 
   def setOneOrganismViewNameLabelTextSlot(self, name):
     self.m_organism_name_label.setText(name)
