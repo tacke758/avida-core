@@ -59,7 +59,11 @@ cHardwareBase * cHardwareFactory::Create(cOrganism * in_org,
 // Recycled hardware may be *briefly* in use, so don't delete immediately.
 void cHardwareFactory::Recycle(cHardwareBase * out_hardware)
 {
+#ifdef HARDWARE_RECYCLING
   hardware_cpu_list.Push(out_hardware);
+#else
+  delete out_hardware;
+#endif
 }
 
 // Delete any hardware that needs it, save the rest for re-use.
