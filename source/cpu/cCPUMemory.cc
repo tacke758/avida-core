@@ -34,11 +34,13 @@ cCPUMemory::cCPUMemory(const cCPUMemory & in_memory)
 cCPUMemory::cCPUMemory(const cGenome & in_genome)
   : cGenome(in_genome), flag_array(in_genome.GetSize())
 {
+  ClearFlags();
 }
 
 cCPUMemory::cCPUMemory(const cString & in_string)
   : cGenome(in_string), flag_array(in_string.GetSize())
 {
+  ClearFlags();
 }
 
 cCPUMemory::~cCPUMemory()

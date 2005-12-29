@@ -38,6 +38,7 @@ void cHardwareBase::Recycle(cOrganism * new_organism, cInstSet * in_inst_set)
   organism    = new_organism;
   inst_set    = in_inst_set;
   viewer_lock = -1;
+  m_tracer = NULL;
 }
 
 bool cHardwareBase::Inst_Nop()          // Do Nothing.
