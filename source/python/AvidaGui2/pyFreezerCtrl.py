@@ -8,6 +8,7 @@ from pyFreezerView import *
 from pyReadFreezer import pyReadFreezer
 from pyWriteToFreezer import pyWriteToFreezer
 from pyFreezeOrganismCtrl import pyFreezeOrganismCtrl
+from pyRightClickDialogCtrl import pyRightClickDialogCtrl
 import os.path
 
 class pyFreezerListView(QListView):
@@ -127,6 +128,9 @@ class pyFreezerCtrl(QWidget):
     self.connect(self.m_list_view, 
       SIGNAL("pressed(QListViewItem*, const QPoint &, int )"),
       self.pressed_itemSlot)
+    self.connect(self.m_list_view, 
+      SIGNAL("rightButtonPressed(QListViewItem*, const QPoint &, int )"),
+      self.right_clicked_itemSlot)
     self.setAcceptDrops(1)
     descr()
 
@@ -164,6 +168,10 @@ class pyFreezerCtrl(QWidget):
 
   def createFreezerIndexSlot(self):
     descr()
+
+    # Freezer is hardcoded to list in order :
+    #   Empty Dishes, Full Dishes, Organisms
+
     self.m_empty_item = self.m_list_view.firstChild()
     while self.m_empty_item.firstChild():
       tmp_child = self.m_empty_item.firstChild()
@@ -249,6 +257,13 @@ class pyFreezerCtrl(QWidget):
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
         (file_name,))
 
+  # if item is right clicked pull up services menu
+
+  def right_clicked_itemSlot(self, item):
+    print item.text(0)
+    m_right_click_menu = pyRightClickDialogCtrl()
+    cancel_confirm = m_right_click_menu.showDialog()
+    print cancel_confirm
 
   class itemDrag(QTextDrag):
     def __init__(self, item_name, parent=None, name=None):

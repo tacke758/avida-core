@@ -1,0 +1,151 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>pyRightClickDialogView</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>pyRightClickDialogView</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>133</width>
+            <height>224</height>
+        </rect>
+    </property>
+    <property name="paletteBackgroundColor">
+        <color>
+            <red>255</red>
+            <green>255</green>
+            <blue>100</blue>
+        </color>
+    </property>
+    <property name="caption">
+        <string></string>
+    </property>
+    <widget class="QButtonGroup">
+        <property name="name">
+            <cstring>ItemChoicesButtonGroup</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>113</width>
+                <height>204</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>255</red>
+                <green>255</green>
+                <blue>100</blue>
+            </color>
+        </property>
+        <property name="title">
+            <string></string>
+        </property>
+        <property name="alignment">
+            <set>AlignHCenter</set>
+        </property>
+        <vbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>DeleteRadioButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>delete</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>RenameRadioButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>rename</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>SaveAsRadioButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>save as</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>OpenRadioButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>open</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>ConfirmPushButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>Confirm</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>CancelPushButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="text">
+                    <string>Cancel</string>
+                </property>
+            </widget>
+        </vbox>
+    </widget>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
