@@ -15,8 +15,10 @@ class pyFreezeOrganismCtrl (pyFreezeOrganismView):
     found_valid_name = False
     dialog_result = 1
     while (found_valid_name == False and dialog_result > 0):
-      while (self.exec_loop() and self.result() == 0):
-        pass
+      self.show()
+      self.exec_loop()
+      # while (self.exec_loop() and self.result() == 0):
+      #   pass
       dialog_result = self.result()
       tmp_name = str(self.FileNameLineEdit.text())
 

@@ -260,10 +260,28 @@ class pyFreezerCtrl(QWidget):
   # if item is right clicked pull up services menu
 
   def right_clicked_itemSlot(self, item):
-    print item.text(0)
-    m_right_click_menu = pyRightClickDialogCtrl()
-    cancel_confirm = m_right_click_menu.showDialog()
-    print cancel_confirm
+
+    # check that the item is not at the top level
+
+    if item != None and item.depth() > 0:
+      top_level = item
+      while top_level.parent():
+        top_level = top_level.parent()
+
+      # Rebuild the file name
+
+      if str(top_level.text(0)).startswith(" Empty Petri"):
+        file_name = str(item.text(0)) + ".empty"
+      elif str(top_level.text(0)).startswith(" Full Petri"):
+        file_name = str(item.text(0)) + ".full"
+        file_name = os.path.join(file_name, "petri_dish")
+      elif str(top_level.text(0)).startswith(" Organism"):
+        file_name = str(item.text(0)) + ".organism"
+      file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
+
+      print "BDB " + str(file_name)
+      m_right_click_menu = pyRightClickDialogCtrl(item.text(0), file_name)
+      cancel_confirm = m_right_click_menu.showDialog()
 
   class itemDrag(QTextDrag):
     def __init__(self, item_name, parent=None, name=None):

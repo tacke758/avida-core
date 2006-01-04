@@ -9,28 +9,29 @@ import shutil, os, os.path
 # return the name of a file to save information to be frozen
 
 class pyRightClickDialogCtrl (pyRightClickDialogView):
-  def __init__(self):
+  def __init__(self, item_name, file_name):
     pyRightClickDialogView.__init__(self)
-    self.connect(self.CancelPushButton, SIGNAL("clicked()"), self.DownCancelSlot)
-    self.connect(self.ConfirmPushButton, SIGNAL("clicked()"), self.DownConfirmSlot)
-    self.ConfirmFlag = 1
-    self.CancelFlag = 2
+    self.connect(self.ConfirmPushButton, SIGNAL("clicked()"), self.DoneDialogSlot)
+
+    print "BDB item_name = " + str(item_name) + " file_name = " + str(file_name)
+    self.DeleteFlag = 1
+    self.RenameFlag = 2
+    self.SaveAsFlag = 3
+    self.OpenFlag = 4
     
-  def DownCancelSlot(self):
-    self.QuitCancelButton.setDown(True)
-    
-  def DownConfirmSlot(self):
-    self.ConfirmPushButton.setDown(True)
-    
+  def DoneDialogSlot(self):
+    if self.DeleteRadioButton.isChecked():
+      self.done(self.DeleteFlag)
+    elif self.RenameRadioButton.isChecked():
+      self.done(self.RenameFlag)
+    elif self.SaveAsRadioButton.isChecked():
+      self.done(self.SaveAsFlag)
+    elif self.OpenRadioButton.isChecked():
+      self.done(self.OpenFlag)
+
   def showDialog(self):
-    dialog_result = 1
-    while (dialog_result > 0):
-      while (self.exec_loop() and self.result() == 0):
-        pass
-      dialog_result = self.result()
-      if dialog_result == 0:
-        return self.CancelFlag
-      elif self.ConfirmPushButton.isDown():
-        return self.ConfirmFlag
-      else:
-        return self.CancelFlag
+    self.show()
+    junk = self.exec_loop()
+    print "BDB junk = " + str(junk)
+    dialog_result = self.result()
+    print "BDB dialog_results = " + str(dialog_result)
