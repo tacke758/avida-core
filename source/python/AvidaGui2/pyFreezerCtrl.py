@@ -31,7 +31,7 @@ class pyFreezerListView(QListView):
         freezer_item_name = freezer_item_name[9:] 
         self.FreezeOrganismSlot(freezer_item_name)
       else:
-        print "that was not an organism"      
+        pass
     
   def FreezeOrganismSlot(self, freezer_item_name, send_reset_signal = False, send_quit_signal = False):
     tmp_dict = {1:freezer_item_name}
@@ -274,14 +274,17 @@ class pyFreezerCtrl(QWidget):
         file_name = str(item.text(0)) + ".empty"
       elif str(top_level.text(0)).startswith(" Full Petri"):
         file_name = str(item.text(0)) + ".full"
-        file_name = os.path.join(file_name, "petri_dish")
       elif str(top_level.text(0)).startswith(" Organism"):
         file_name = str(item.text(0)) + ".organism"
       file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
 
-      print "BDB " + str(file_name)
       m_right_click_menu = pyRightClickDialogCtrl(item.text(0), file_name)
-      cancel_confirm = m_right_click_menu.showDialog()
+      (file_list_change, open_obj)  = m_right_click_menu.showDialog()
+      if file_list_change == True:
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("doRefreshFreezerInventorySig"), ())
+      if open_obj == True:
+        self.clicked_itemSlot(item)
 
   class itemDrag(QTextDrag):
     def __init__(self, item_name, parent=None, name=None):
@@ -313,7 +316,7 @@ class pyFreezerCtrl(QWidget):
         freezer_item_name = freezer_item_name[9:] 
         self.FreezeOrganismSlot(freezer_item_name)
       else:
-        print "that was not an organism"      
+        pass 
     
   def FreezeOrganismSlot(self, freezer_item_name, send_reset_signal = False, send_quit_signal = False):
     tmp_dict = {1:freezer_item_name}

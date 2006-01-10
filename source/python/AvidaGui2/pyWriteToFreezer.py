@@ -16,22 +16,19 @@ class pyWriteToFreezer:
       out_file_name = (os.path.split(out_file_name)[0])
 
     if out_file_name.endswith(".organism"):
-      print "that was an org"
       is_org = True
 
     elif out_file_name.endswith(".full"):
-      print "that was a full dish man"
       is_dish = True
       self.simplifyPopulation(in_dict)
-      out_file_name = (out_file_name + '/petri_dish')
+      out_file_name = os.path.join(out_file_name, 'petri_dish')
 
     elif out_file_name.endswith(".empty"):
-      print "that was an empty dish man"
       is_dish = True
       is_empty_dish = True
 
     else:
-      print "that was junk man"
+      pass
 
     out_freezer_file = open((out_file_name), "w")
 

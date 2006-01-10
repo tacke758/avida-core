@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>133</width>
-            <height>224</height>
+            <width>262</width>
+            <height>267</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -20,7 +20,7 @@
         </color>
     </property>
     <property name="caption">
-        <string></string>
+        <string>pyRightClickDialogView</string>
     </property>
     <widget class="QButtonGroup">
         <property name="name">
@@ -29,9 +29,9 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>10</y>
-                <width>113</width>
-                <height>204</height>
+                <y>12</y>
+                <width>242</width>
+                <height>231</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -51,6 +51,32 @@
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout2</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>TypeTextLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Type:</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>NameTextLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Name</string>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
             <widget class="QRadioButton">
                 <property name="name">
                     <cstring>DeleteRadioButton</cstring>
@@ -66,20 +92,35 @@
                     <string>delete</string>
                 </property>
             </widget>
-            <widget class="QRadioButton">
+            <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>RenameRadioButton</cstring>
+                    <cstring>layout1</cstring>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string>rename</string>
-                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QRadioButton">
+                        <property name="name">
+                            <cstring>RenameRadioButton</cstring>
+                        </property>
+                        <property name="paletteBackgroundColor">
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>100</blue>
+                            </color>
+                        </property>
+                        <property name="text">
+                            <string>rename</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>NewNameLineEdit</cstring>
+                        </property>
+                    </widget>
+                </hbox>
             </widget>
             <widget class="QRadioButton">
                 <property name="name">
@@ -93,7 +134,7 @@
                     </color>
                 </property>
                 <property name="text">
-                    <string>save as</string>
+                    <string>export</string>
                 </property>
             </widget>
             <widget class="QRadioButton">
