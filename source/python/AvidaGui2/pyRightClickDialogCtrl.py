@@ -11,18 +11,21 @@ import shutil, os, os.path
 class pyRightClickDialogCtrl (pyRightClickDialogView):
   def __init__(self, item_name, file_name):
     pyRightClickDialogView.__init__(self)
-    self.file_name = file_name
-    self.NewNameLineEdit.setText(item_name)
+    self.file_name = str(file_name)
+    self.item_name = str(item_name)
+    self.NewNameLineEdit.setText(self.item_name)
     self.connect(self.ConfirmPushButton, SIGNAL("clicked()"), 
                  self.DoneDialogSlot)
 
     (self.file_dir, self.file_core_name)  = os.path.split(self.file_name)
     self.file_ext = self.file_core_name[self.file_core_name.rfind('.'):]
-    self.NameTextLabel.setText(item_name)
     if (self.file_ext == '.organism'):
-      self.TypeTextLabel.setText(self.file_ext.lstrip('.') + ":")
+      self.setCaption(self.file_ext.lstrip('.') + ": " + self.item_name)
+      self.OpenRadioButton.setDisabled(True)
+      self.OpenRadioButton.setChecked(False)
+      self.SaveAsRadioButton.setChecked(True)
     else:
-      self.TypeTextLabel.setText(self.file_ext.lstrip('.') + " dish:")
+      self.setCaption(self.file_ext.lstrip('.') + " dish: " + self.item_name)
     self.DeleteFlag = 1
     self.RenameFlag = 2
     self.SaveAsFlag = 3
@@ -72,17 +75,23 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       file_dialog = QFileDialog (os.path.join(self.file_dir, '..'), 
         '.junk1234junk', self, 'Export', False)
       file_dialog.setCaption('Export ' + self.file_ext.lstrip('.') + " " + 
-        str(self.NameTextLabel.text()) + ' to:')
+        self.item_name + ' to:')
       file_dialog.setMode(QFileDialog.DirectoryOnly)
       # file_dialog.setSelection (self.file_core_name)
       file_dialog.show()
       file_dialog.exec_loop()
       if file_dialog.result() == True:
-        print "BDB dir name = " + str(file_dialog.dir().selectedFile())
-        export_file_name = os.path.join(str(file_dialog.dir().selectedFile()), 
-          self.file_core_name)
+        # tmp_dir = file_dialog.dir()
+        # tmp_file = file_dialog.selectedFile()
+        # print "BDB dir name = " + str(tmp_dir.path())
+        # print "BDB file name = " + str(tmp_file)
+        export_file_name = os.path.join(str(file_dialog.selectedFile()),
+         self.file_core_name)
         print "BDB export file name = " + str(export_file_name)
-        # shutil.copytree(self.file_name, str(file_dialog.dir().path()))
+        if (self.file_ext == '.full'):
+          shutil.copytree(self.file_name, str(export_file_name))
+        else:
+          shutil.copyfile(self.file_name, str(export_file_name))
 
     elif dialog_result == self.OpenFlag:
       self.open_obj = True

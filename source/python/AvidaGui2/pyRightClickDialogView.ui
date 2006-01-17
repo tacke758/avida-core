@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>262</width>
-            <height>267</height>
+            <height>240</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -29,9 +29,9 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>12</y>
+                <y>23</y>
                 <width>242</width>
-                <height>231</height>
+                <height>206</height>
             </rect>
         </property>
         <property name="paletteBackgroundColor">
@@ -51,32 +51,6 @@
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout2</cstring>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>TypeTextLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Type:</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>NameTextLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Name</string>
-                        </property>
-                    </widget>
-                </hbox>
-            </widget>
             <widget class="QRadioButton">
                 <property name="name">
                     <cstring>DeleteRadioButton</cstring>
