@@ -1,0 +1,5 @@
+Included in this directory are support scripts to assist in building under
+Windows.
+
+The two fix- scripts should be run in:
+build/source/bindings/Boost.Python/CMakeFiles/AvidaCore

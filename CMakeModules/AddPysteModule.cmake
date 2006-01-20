@@ -6,8 +6,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 IF(APPLE)
   SET(BOOST_PYTHON_COMPILE_FLAGS "-no-cpp-precomp -ftemplate-depth-120 -fno-inline -fPIC -Wno-long-double -Wno-long-long -DBOOST_PYTHON_DYNAMIC_LIB")
 ELSE(APPLE)
-  SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100  -DBOOST_PYTHON_DYNAMIC_LIB  -fno-inline -fPIC")
+  IF(WIN32)
+    SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100 -DBOOST_PYTHON_STATIC_LIB  -fno-inline")
+  ELSE(WIN32)
+    SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100  -DBOOST_PYTHON_DYNAMIC_LIB  -fno-inline -fPIC")
+  ENDIF(WIN32)
 ENDIF(APPLE)
+
 
 SET(AvidaPysteScript "${PROJECT_SOURCE_DIR}/source/bindings/Boost.Python/AvidaPyste.py")
 
@@ -223,7 +228,7 @@ MACRO(ADD_PYSTE_PACKAGE
     ADD_LIBRARY(${ModuleName}/${PysteBase} MODULE ${CMAKE_CURRENT_BINARY_DIR}/${PysteBase}.cpp)
     SET_TARGET_PROPERTIES(${ModuleName}/${PysteBase} PROPERTIES PREFIX "")
     TARGET_LINK_LIBRARIES(${ModuleName}/${PysteBase} ${${LinkLibraries}})
-    INSTALL_TARGETS(${PackageLocation}/${ModuleName} $${ModuleName}/${PysteBase})
+    INSTALL_TARGETS(${PackageLocation}/${ModuleName} ${ModuleName}/${PysteBase})
     FILE(APPEND ${LIBRARY_OUTPUT_PATH}/${ModuleName}/__init__.py "from ${PysteBase} import *\n")
   ENDFOREACH(Entry ${${PysteBases}})
 ENDMACRO(ADD_PYSTE_PACKAGE)

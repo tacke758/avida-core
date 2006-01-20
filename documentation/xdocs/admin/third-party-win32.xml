@@ -36,12 +36,12 @@
 	sure you install the following tools:
       </p>
       <ul>
-	<li>subversion</li>
-	<li>openssh</li>
-	<li>wget</li>
-	<li>make</li>
-	<li>automake</li>
-	<li>autoconf</li>
+	<li>subversion (under Devel)</li>
+	<li>openssh (under Net)</li>
+	<li>wget (under Web)</li>
+	<li>make (under Devel)</li>
+	<li>automake (under Devel)</li>
+	<li>autoconf (under Devel)</li>
       </ul>
       <p>
 	Don't install any of the other stuff, including the Qt
@@ -86,6 +86,21 @@
 	  latest w32-api, automake, and autoconf tarballs in the MinGW
 	  directory.
 	</p>
+	<p>
+	  The monolithic installer is no longer available on the MinGW
+	  page, you will need to download each component seperately,
+	  or use the following link:<br/>
+	  <a
+	      href="http://prdownloads.sourceforge.net/mingw/MinGW-5.0.0.exe">MinGW-5.0.0.exe</a>
+	  <br/>
+	  I haven't tested this release yet.
+	</p>
+	<ul>
+	  <li>http://prdownloads.sf.net/mingw/MSYS-1.0.10.exe?download</li>
+	  <li>http://prdownloads.sf.net/mingw/msysDTK-1.0.1.exe?download</li>
+	  <li>http://prdownloads.sf.net/mingw/w32api-3.6.tar.gz?download</li>
+	  <li>http://prdownloads.sf.net/mingw/mingw-runtime-3.9.tar.gz?download</li>
+	</ul>
       </section>
 
       <section id="win32_cmake">
@@ -99,6 +114,26 @@
 	    http://www.cmake.org/files/v2.0/CMSetup206.exe
           </a>
         </p>
+	<p>
+	  The latest version of CMake in CVS includes MinGW and MSYS
+	  targets.  You will need a version of CVS already installed
+	  in order to build the CVS version.  Instructions for
+	  downloading the cvs version are available here: <a
+	  href="http://www.cmake.org/HTML/Download.html#cvs">CMake CVS
+	  Instructions</a>
+	</p>
+	<p>
+	  To build it, run the following:
+	</p>
+	<p>
+	  <code>cmake</code>
+	</p>
+	<p>
+	  <code>make</code>
+	</p>
+	<p>
+	  <code>make install</code>
+	</p>
 	<p>
 	  Basic instructions for use with Avida can be found in the
 	  file "<code>README</code>" in the top-level Avida source
@@ -148,7 +183,15 @@
 	<p>
 	  <code>
 	    pexports.exe /c/WINDOWS/system32/python24.dll > python24.def
+	  </code>
+	</p>
+	<p>
+	  <code>
 	    dlltool --dllname python24.dll --def python24.def --output-lib libpython24.a
+	  </code>
+	</p>
+	<p>
+	  <code>
 	    cp libpython24.a c:\python24\libs
 	  </code>
 	</p>
@@ -343,8 +386,8 @@
         </p>
         <p>
           Download and unpack the PyQt source archive
-          <a href="http://www.river-bank.demon.co.uk/download/PyQt/PyQt-mac-gpl-3.13.tar.gz">
-            http://www.river-bank.demon.co.uk/download/PyQt/PyQt-mac-gpl-3.13.tar.gz
+          <a href="http://www.river-bank.demon.co.uk/download/PyQt/PyQt-x11-gpl-3.15.1.tar.gz">
+	    http://www.river-bank.demon.co.uk/download/PyQt/PyQt-x11-gpl-3.15.1.tar.gz
           </a>
           into the directory of your choice using Terminal.app; for example:
         </p>
@@ -593,7 +636,7 @@
           <br/>
           <code>$ cd tools\build\jam_src</code>
           <br/>
-          <code>$ build.bat gcc-nocygwin</code>
+          <code>$ build.bat mingw</code>
         </p>
         <p>
 	  Switch back over to MSYS.  copy bin.ntx86/* to
@@ -615,7 +658,7 @@
 	  <br/>
 	  <code>export PYTHON_VERSION=2.4</code>
 	  <br/>
-          <code>$ bjam -sTOOLS=gcc-nocygwin \</code>
+          <code>$ bjam -sTOOLS=mingw \</code>
           <br/>
           <code>
 	    -sBUILD=release \
@@ -647,7 +690,7 @@
           "<code>install</code>"):
         </p>
         <p>
-          <code>$ bjam -sTOOLS=gcc-nocygwin \</code>
+          <code>$ bjam -sTOOLS=mingw \</code>
           <br/>
           <code>
             "-sBUILD=release"
@@ -775,7 +818,23 @@
 	</p>
       </section>
 
-    </section>      
+      <section id="issues">
+	<title>Build issues</title>
+	<p>
+	  There are some problems with the makefiles that CMake generates.
+	</p>
+	<p>
+	  Included in the source/python/scripts/win32 directory are
+	  some scripts that will fix these issues.
+	</p>
+	<p>
+	  There are also some import errors related to vtable
+	  imports.  The mingw-fix-vtable-import.sh script will define
+	  the -enable-runtime-pseudo-reloc switch which eliminates
+	  these errors.
+	</p>
+      </section>
+    </section>
 
   </body>
 </document>
