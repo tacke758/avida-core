@@ -1,4 +1,9 @@
-import os, time, re
+import os, time, re, sys
+force = False
+if (len(sys.argv) > 1):
+  for arg in sys.argv[1:]:
+    if arg.strip() == "-f":
+      force = True
 py_dict = {}
 dir_listing = os.listdir('.')
 for file in dir_listing:
@@ -43,18 +48,26 @@ for file in dir_listing:
         print ui_name + ' ' + time.ctime(ui_stat.st_mtime)
         print py_name + ' ' + time.ctime(py_stat.st_mtime)
         command =  "pyuic " + ui_name + " > " + py_name
+        if (force == False):
+          response = raw_input(command + "? (y/n)  ")
+          response = response.upper()
+          response = response.strip()
+          if response.startswith('Y'):
+            os.system(command)
+        else:
+          print command
+          os.system(command)
+    else:
+      print "No file " + py_name + " exists"
+      command =  "pyuic " + ui_name + " > " + py_name
+      if (force == False):
         response = raw_input(command + "? (y/n)  ")
         response = response.upper()
         response = response.strip()
         if response.startswith('Y'):
           os.system(command)
-    else:
-      print "No file " + py_name + " exists"
-      command =  "pyuic " + ui_name + " > " + py_name
-      response = raw_input(command + "? (y/n)  ")
-      response = response.upper()
-      response = response.strip()
-      if response.startswith('Y'):
+      else:
+        print command
         os.system(command)
 
 print "------------------------------------------------------"

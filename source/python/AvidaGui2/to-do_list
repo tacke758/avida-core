@@ -2,6 +2,8 @@
 
 16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Brian -- High Priority
 
+16-Jan-06 Fix problem where start in menu bar not linked to start button -- Brian -- Low priority
+
 16-Jan-06 Non-Fix length Genomes? -- Brian -- Low priority
 
 16-Jan-06 Change header of config screen to warn users they can not change it when program is running. -- Brian -- Medium Priority

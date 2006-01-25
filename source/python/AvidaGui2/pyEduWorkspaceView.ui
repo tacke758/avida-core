@@ -144,6 +144,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <item text="&amp;File" name="File">
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
+        <action name="fileSaveAsAction"/>
         <separator/>
         <action name="m_graph_print_action"/>
     </item>
