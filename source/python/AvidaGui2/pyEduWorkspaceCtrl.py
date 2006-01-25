@@ -10,7 +10,8 @@ from pyTwoOrganismCtrl import pyTwoOrganismCtrl
 from pyTwoPopulationCtrl import pyTwoPopulationCtrl
 from pyPetriConfigureCtrl import pyPetriConfigureCtrl
 from pyQuitDialogCtrl import pyQuitDialogCtrl
-import os.path
+from pyDefaultFiles import pyDefaultFiles
+import os.path, shutil
 
 
 from qt import *
@@ -29,12 +30,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     while self.m_widget_stack.visibleWidget():
       self.m_widget_stack.removeWidget(self.m_widget_stack.visibleWidget())
 
-    self.m_one_population_ctrl  = pyOnePopulationCtrl(self.m_widget_stack,  "m_one_population_ctrl")
-    self.m_two_population_ctrl  = pyTwoPopulationCtrl(self.m_widget_stack,  "m_two_population_ctrl")
-    self.m_one_organism_ctrl    = pyOneOrganismCtrl(self.m_widget_stack,    "m_one_organism_ctrl")
-    self.m_two_organism_ctrl    = pyTwoOrganismCtrl(self.m_widget_stack,    "m_two_organism_ctrl")
-    self.m_one_analyze_ctrl     = pyOneAnalyzeCtrl(self.m_widget_stack,     "m_one_analyze_ctrl")
-    self.m_two_analyze_ctrl     = pyTwoAnalyzeCtrl(self.m_widget_stack,     "m_two_analyze_ctrl")
+    self.m_one_population_ctrl  = pyOnePopulationCtrl(self.m_widget_stack,  
+                                    "m_one_population_ctrl")
+    self.m_two_population_ctrl  = pyTwoPopulationCtrl(self.m_widget_stack,  
+                                    "m_two_population_ctrl")
+    self.m_one_organism_ctrl    = pyOneOrganismCtrl(self.m_widget_stack,    
+                                    "m_one_organism_ctrl")
+    self.m_two_organism_ctrl    = pyTwoOrganismCtrl(self.m_widget_stack,    
+                                    "m_two_organism_ctrl")
+    self.m_one_analyze_ctrl     = pyOneAnalyzeCtrl(self.m_widget_stack,     
+                                    "m_one_analyze_ctrl")
+    self.m_two_analyze_ctrl     = pyTwoAnalyzeCtrl(self.m_widget_stack,     
+                                    "m_two_analyze_ctrl")
 
     for (cli, ctrl) in (
       (self.m_nav_bar_ctrl.m_one_population_cli, self.m_one_population_ctrl),
@@ -139,16 +146,58 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def fileNew(self):
-    print "pyEduWorkspaceCtrl.fileNew(): Not implemented yet"
+
+    # loop till the users selects a directory name that does not exist or
+    # choses the cancel button
+
+    created = False
+    dialog_caption = "Enter the name of a new workspace"
+    while (created == False):
+      new_dir = QFileDialog.getSaveFileName(
+                    "",
+                    "Workspace (*.workspace)",
+                    None,
+                    "new workspace",
+                    dialog_caption);
+      new_dir = str(new_dir)
+      if (new_dir.strip() == ""):
+        created = True
+      else:
+        if (new_dir.endswith(".workspace") != True):
+          new_dir = new_dir + ".workspace"
+          if os.path.exists(new_dir):
+            dialog_caption = new_dir + " already exists"
+          else:
+            os.mkdir(new_dir)
+            os.mkdir(os.path.join(new_dir,"freezer"))
+            filesToCopy = ["environment.default", "inst_set.default", 
+                           "events.default", "genesis.default", 
+                           os.path.join("freezer", "default.empty"), 
+                           os.path.join("freezer", "default.organism")]
+            for fileName in filesToCopy:
+              sourceName = os.path.join(self.m_session_mdl.m_current_workspace,
+                           fileName)
+              destName = os.path.join(new_dir, fileName)
+              if (os.path.exists(sourceName)):
+                shutil.copyfile(sourceName, destName)
+              else:
+                pyDefaultFiles(fileName, destName)
+            created = True
 
   # public slot
 
   def fileOpen(self):
+
+    # self.m_session_mdl.m_current_workspace does not work correctly in this
+    # context (at least on the Mac).  It is a relative path where 
+    # getExistingDirectory seems to require an absult path
+
     workspace_dir = QFileDialog.getExistingDirectory(
-                    self.m_session_mdl.m_current_workspace,
+                    # self.m_session_mdl.m_current_workspace,
+                    "",
                     None,
-                    "get existing directory",
-                    "Choose a directory",
+                    "get existing workspace",
+                    "Choose a workspace",
                     True);
     workspace_dir = str(workspace_dir)              
 

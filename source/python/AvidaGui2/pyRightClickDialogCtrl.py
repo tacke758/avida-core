@@ -81,10 +81,6 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       file_dialog.show()
       file_dialog.exec_loop()
       if file_dialog.result() == True:
-        # tmp_dir = file_dialog.dir()
-        # tmp_file = file_dialog.selectedFile()
-        # print "BDB dir name = " + str(tmp_dir.path())
-        # print "BDB file name = " + str(tmp_file)
         export_file_name = os.path.join(str(file_dialog.selectedFile()),
          self.file_core_name)
         print "BDB export file name = " + str(export_file_name)
