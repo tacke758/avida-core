@@ -1,3 +1,6 @@
+
+************Brian******************
+
 16-Jan-06 Default mutation rate to 0.5? -- Brian -- Low priority (easy to change)
 
 16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Brian -- High Priority
@@ -12,19 +15,68 @@
 
 16-Jan-06 Get file system finished -- Brian -- High Priority
 
-16-Jan-06 Get Drag and Drop working in analyze mode and back of petri dish -- Jeff -- High Priority 
-
-16-Jan-06 Set up a temporary screen/widget to show new populations creatures dragged in before program starts running -- Jeff -- Medium Priority
-
-16-Jan-06 Get Windows version working -- Josh -- Medium to High Priority (depdnding the needs for this term)
-
-23-Jan-06 Get program to run on all Macs -- Kaben -- High Priority
-
 23-Jan-06 Remove die of old age option -- Brian -- Medium Priority
 
 23-Jan-06 Add ability to have resource control -- Brian -- Medium Priority
 
-23-Jan-06 Come up with list of 10-15 experiments that should be possible on Avida-ED -- Rich, Rob & Charles -- Medium Priority
+
+Priority High
+
+
+Priority Medium
+
+Priority Low
+-Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
+-Make arrow keys bind to environmental parameter configurations (non)
+-Make the selection of a workspace look like you are choosing a file not a directory (non)
+-Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it
+-add the ability to tell genesis where you want the default organism to be 
+
+
+************Jeff*******************
+
+Priority High
+-add a status page to the petri dish saying what is loaded (1/22/06)
+-make scroll bars dynamic (1/26/05)
+-make tasks reflect parent tasks (not real time) in org report (email rob first) (1/26/06)
+
+Priority Medium
+-Use warning system
+   -make a warning that says you can't drag orgs into this view (1/26/06)
+   -the "that was a bad path" or "file does not exist" warnings for dragging and dropping should use this (10/01/05)
+
+
+Priority Low
+-color the scales (1/10/05)
+
+
+
+************Kaben******************
+
+Priority High-
+-make gradient say "rescaling" when it rescales
+-run things throught the test cpus (so we can accurately paint loaded dishes and so the graphs have good data from the get go)
+-investigation of printing petri dish (1/26/06)
+
+Priority Medium-
+-add a general box that allows us to send a message to the user in the form of a box that pops up. after they have read it the user can click ok. (a modal box with an explanation point)
+-add the word "scale" to color gradient before a run starts
+
+
+Priority Low-
+
+
+
+
+23-Jan-06 Get program to run on all Macs -- Kaben -- High Priority
+
+************Josh*******************
+
+16-Jan-06 Get Windows version working -- Josh -- Medium to High Priority (depdnding the needs for this ations.term)
+
+
+************Other*****************
+a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
 
 
 ==============================================================================

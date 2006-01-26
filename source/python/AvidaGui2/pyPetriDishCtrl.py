@@ -15,7 +15,6 @@ from AvidaCore import cInitFile, cString
 
 from qt import *
 from math import exp
-from qt import PYSIGNAL, QBrush, QColor, QLayout, QPen, QSize, Qt, QVBoxLayout, QWidget, QWMatrix, QTextDrag, QStoredDrag, QScrollView, QScrollBar
 from qtcanvas import QCanvas, QCanvasRectangle
 from pyPetriCanvasView import pyPetriCanvasView
 from pyPopulationCellItem import pyPopulationCellItem

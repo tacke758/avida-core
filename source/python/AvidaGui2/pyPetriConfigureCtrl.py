@@ -422,6 +422,18 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
+
+  def dragEnterEvent( self, e ):
+    descr(e)
+
+    freezer_item_name = QString()
+    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
+      if os.path.exists(str(freezer_item_name)) == False:
+        descr("that was not a valid path (1)")
+      else: 
+        e.acceptAction(True)
+        descr("accepted.")
+
       
   def dropEvent( self, e ):
     descr()
