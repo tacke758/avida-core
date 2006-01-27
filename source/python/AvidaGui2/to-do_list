@@ -1,36 +1,43 @@
 
 ************Brian******************
 
-16-Jan-06 Default mutation rate to 0.5? -- Brian -- Low priority (easy to change)
+
+Priority High
+
+16-Jan-06 Get file system finished -- Brian -- High Priority
 
 16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Brian -- High Priority
 
-16-Jan-06 Fix problem where start in menu bar not linked to start button -- Brian -- Low priority
 
-16-Jan-06 Non-Fix length Genomes? -- Brian -- Low priority
+Priority Medium
 
 16-Jan-06 Change header of config screen to warn users they can not change it when program is running. -- Brian -- Medium Priority
 
 16-Jan-06 Freeze button on bottom of main screen. -- Brian -- Medium Priority
 
-16-Jan-06 Get file system finished -- Brian -- High Priority
-
 23-Jan-06 Remove die of old age option -- Brian -- Medium Priority
 
 23-Jan-06 Add ability to have resource control -- Brian -- Medium Priority
 
-
-Priority High
-
-
-Priority Medium
-
 Priority Low
--Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
--Make arrow keys bind to environmental parameter configurations (non)
--Make the selection of a workspace look like you are choosing a file not a directory (non)
+
+-Under the sliders with ranges put a few values in grey that tell you the range min and max 
+
+-Make arrow keys bind to environmental parameter configurations 
+
+-Make the selection of a workspace look like you are choosing a file not a directory 
+
 -Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it
+
 -add the ability to tell genesis where you want the default organism to be 
+
+-change the word "repopulate" to "start new experiment"
+
+16-Jan-06 Default mutation rate to 0.5? -- Brian -- Low priority (easy to change)
+
+16-Jan-06 Fix problem where start in menu bar not linked to start button -- Brian -- Low priority
+
+16-Jan-06 Non-Fix length Genomes? -- Brian -- Low priority
 
 
 ************Jeff*******************
