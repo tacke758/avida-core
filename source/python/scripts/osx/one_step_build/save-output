@@ -1,0 +1,73 @@
+#!/usr/bin/env expect
+
+set today "[exec date +%m%d.%H%M%S]"
+
+# if the "-b" option is used, the next argument will be used as the root
+# name for the outfile.  otherwise, the command-line is used as the root
+# name for the outfile.
+if {[string match [lindex $argv 0] "-b"]} {
+  set outfile ",$today [lindex $argv 1]"
+  set argv "[lrange $argv 2 end]"
+} else {
+  set outfile ",$today $argv"
+}
+set outfile "[exec echo $outfile | sed -e s#/#:#g]"
+
+# tell user where output will be saved, and what command is being logged.
+send_user "\n***\n"
+send_user "date-tagging output of command\n"
+send_user "\t\"$argv\"\n"
+send_user "to file"
+send_user "\t\"$outfile\"\n"
+send_user "***\n\n"
+
+# begin logging to outfile.
+log_file -noappend "$outfile"
+
+# log the command to outfile
+send_log "***\n"
+send_log "starting at $today\n"
+send_log "command:\n"
+send_log "***\n\n"
+
+send_log "$argv\n\n"
+
+# log environment to outfile
+send_log "***\n"
+send_log "exported environment:\n"
+send_log "***\n\n"
+send_log [exec bash -c export]
+
+# log output of command to outfile
+send_log "\n\n***\n"
+send_log "output follows...\n"
+send_log "***\n\n"
+eval spawn -noecho $argv
+# permit user to respond interactively to commands which take control of
+# the terminal device.
+interact
+
+# when command is finished, save its return status.
+set resary [wait]
+
+# log time of command completion to outfile
+send_user "\n\n***\n"
+send_user "finished at [exec date +%y%m%d.%H%M%S]\n"
+
+# if command failed, note failure in outfile.
+if {[lindex $resary 3] == 0} {
+  send_user "***\n\n"
+} else {
+  if {[lindex $resary 2] == -1} {
+    send_user "operating system error number:  [lindex $resary 3 ]...\n"
+  } else {
+    send_user "error status number:  [lindex $resary 3 ]...\n"
+  }
+  send_user "***\n\n"
+}
+
+# stop logging, close outfile, and remove annoying carriage returns from
+# outfile.
+log_file
+system cat "\"$outfile\"" | tr -d "\r" > "\",$outfile\""
+system mv "\",$outfile\"" "\"$outfile\""
