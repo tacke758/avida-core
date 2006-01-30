@@ -41,8 +41,15 @@ test_module_names = [
 ]
 
 nontest_module_names = [
+
+  # For some reason these dialog views/controls need to be listed first
+  # (not in Alphabetic order)
+
   "AvidaGui2.pyQuitDialogView",
   "AvidaGui2.pyQuitDialogCtrl",
+  "AvidaGui2.pyRightClickDialogView",
+  "AvidaGui2.pyRightClickDialogCtrl",
+
   "AvidaGui2.pyAnalyzeControlsView",
   "AvidaGui2.pyAnalyzeControlsCtrl",
   "AvidaGui2.pyAvidaStatsInterface",
@@ -76,8 +83,6 @@ nontest_module_names = [
   "AvidaGui2.pyPetriDishCtrl",
   "AvidaGui2.pyPopulationCellItem",
   "AvidaGui2.pyReadFreezer",
-  "AvidaGui2.pyRightClickDialogView",
-  "AvidaGui2.pyRightClickDialogCtrl",
   "AvidaGui2.pyTimelineView",
   "AvidaGui2.pyTimelineCtrl",
   "AvidaGui2.pyWriteGenesisEvent",

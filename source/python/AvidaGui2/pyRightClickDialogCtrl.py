@@ -83,7 +83,6 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       if file_dialog.result() == True:
         export_file_name = os.path.join(str(file_dialog.selectedFile()),
          self.file_core_name)
-        print "BDB export file name = " + str(export_file_name)
         if (self.file_ext == '.full'):
           shutil.copytree(self.file_name, str(export_file_name))
         else:

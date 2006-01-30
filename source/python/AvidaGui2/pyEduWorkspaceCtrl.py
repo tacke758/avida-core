@@ -182,6 +182,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
                 shutil.copyfile(sourceName, destName)
               else:
                 pyDefaultFiles(fileName, destName)
+            self.m_session_mdl.m_current_workspace = str(new_dir)
+            self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
+            self.m_session_mdl.m_session_mdtr.emit(
+              PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
 
   # public slot
@@ -202,8 +206,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     workspace_dir = str(workspace_dir)              
 
     if workspace_dir.strip() != "":
-      self.m_session_mdl.m_current_workspce = str(workspace_dir)
-      self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspce, "freezer")
+      self.m_session_mdl.m_current_workspace = str(workspace_dir)
+      self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
@@ -230,7 +234,34 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def fileSaveAs(self):
-    print "pyEduWorkspaceCtrl.fileSaveAs(): Not implemented yet"
+
+    # loop till the users selects a directory name that does not exist or
+    # choses the cancel button
+
+    created = False
+    dialog_caption = "Save workspace as:"
+    while (created == False):
+      new_dir = QFileDialog.getSaveFileName(
+                    "",
+                    "Workspace (*.workspace)",
+                    None,
+                    "new workspace",
+                    dialog_caption);
+      new_dir = str(new_dir)
+      if (new_dir.strip() == ""):
+        created = True
+      else:
+        if (new_dir.endswith(".workspace") != True):
+          new_dir = new_dir + ".workspace"
+          if os.path.exists(new_dir):
+            dialog_caption = new_dir + " already exists"
+          else:
+            shutil.copytree(self.m_session_mdl.m_current_workspace, new_dir)
+            self.m_session_mdl.m_current_workspace = str(new_dir)
+            self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
+            self.m_session_mdl.m_session_mdtr.emit(
+              PYSIGNAL("doRefreshFreezerInventorySig"), ())
+            created = True
 
   # public slot
 
