@@ -51,7 +51,8 @@ Priority Medium
 -Use warning system
    -make a warning that says you can't drag orgs into this view (1/26/06)
    -the "that was a bad path" or "file does not exist" warnings for dragging and dropping should use this (10/01/05)
-
+-add the ability to drag things into the menu blocks (e.g. drag into the organism tab in the top left corner) (1/30/05)
+-right clicking on things as much as possible (1/30/05)
 
 Priority Low
 -color the scales (1/10/05)
@@ -61,6 +62,7 @@ Priority Low
 ************Kaben******************
 
 Priority High-
+-first step is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)
 -make gradient say "rescaling" when it rescales
 -run things throught the test cpus (so we can accurately paint loaded dishes and so the graphs have good data from the get go)
 -investigation of printing petri dish (1/26/06)
