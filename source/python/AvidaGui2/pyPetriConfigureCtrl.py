@@ -40,10 +40,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.ChangeMutationTextSlot)
     self.connect(self.WorldSizeSlider, SIGNAL("valueChanged(int)"), 
       self.ChangeWorldSizeTextSlot)
-    self.connect(self.DieYesButton, SIGNAL("clicked()"), 
-      self.ChangeDeathTextSlot)
-    self.connect(self.DieNoButton, SIGNAL("clicked()"), 
-      self.ChangeDeathTextSlot)
+    self.connect(self.RewardNonePushButton, SIGNAL("clicked()"), 
+      self.RewardNoneSlot)
+    self.connect(self.RewardAllPushButton, SIGNAL("clicked()"), 
+      self.RewardAllSlot)
     self.connect(self.RadomGeneratedRadioButton, SIGNAL("clicked()"), 
       self.ChangeRandomSpinBoxSlot)
     self.connect(self.RandomFixedRadioButton, SIGNAL("clicked()"), 
@@ -90,10 +90,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.ChangeMutationTextSlot)
     self.disconnect(self.WorldSizeSlider, SIGNAL("valueChanged(int)"), 
       self.ChangeWorldSizeTextSlot)
-    self.disconnect(self.DieYesButton, SIGNAL("clicked()"), 
-      self.ChangeDeathTextSlot)
-    self.disconnect(self.DieNoButton, SIGNAL("clicked()"), 
-      self.ChangeDeathTextSlot)
+    self.disconnect(self.RewardAllPushButton, SIGNAL("clicked()"), 
+      self.RewardAllSlot)
+    self.disconnect(self.RewordNonePushButton, SIGNAL("clicked()"), 
+      self.RewardNoneSlot)
     self.disconnect(self.RadomGeneratedRadioButton, SIGNAL("clicked()"), 
       self.ChangeRandomSpinBoxSlot)
     self.disconnect(self.RandomFixedRadioButton, SIGNAL("clicked()"), 
@@ -146,15 +146,27 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     slide_value_txt = slide_value + " x " + slide_value + " cells"
     self.WorldSizeTextLabel.setText(slide_value_txt)
 
-  def ChangeDeathTextSlot(self):
-    if self.DieYesButton.isChecked() == False:
-      self.DeathTextLabel2.setEnabled(False)
-      self.DeathTextLabel3.setEnabled(False)
-      self.LifeSpanSpinBox.setEnabled(False)
-    else:
-      self.DeathTextLabel2.setEnabled(True)
-      self.DeathTextLabel3.setEnabled(True)
-      self.LifeSpanSpinBox.setEnabled(True)
+  def RewardAllSlot(self):
+    self.NotCheckBox.setChecked(True)
+    self.NandCheckBox.setChecked(True)
+    self.AndCheckBox.setChecked(True)
+    self.OrnCheckBox.setChecked(True)
+    self.OrCheckBox.setChecked(True)
+    self.AndnCheckBox.setChecked(True)
+    self.NorCheckBox.setChecked(True)
+    self.XorCheckBox.setChecked(True)
+    self.EquCheckBox.setChecked(True)
+
+  def RewardNoneSlot(self):
+    self.NotCheckBox.setChecked(False)
+    self.NandCheckBox.setChecked(False)
+    self.AndCheckBox.setChecked(False)
+    self.OrnCheckBox.setChecked(False)
+    self.OrCheckBox.setChecked(False)
+    self.AndnCheckBox.setChecked(False)
+    self.NorCheckBox.setChecked(False)
+    self.XorCheckBox.setChecked(False)
+    self.EquCheckBox.setChecked(False)
 
   def ChangeRandomSpinBoxSlot(self):
     if self.RadomGeneratedRadioButton.isChecked() == True:
@@ -214,26 +226,52 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     else:
        self.LocalBirthRadioButton.setChecked(False)
        self.MassActionRadioButton.setChecked(True)
-    self.LifeSpanSpinBox.setValue(int(settings_dict["AGE_LIMIT"]))
-    if int(settings_dict["DEATH_METHOD"]) == 0:
-       self.DieNoButton.setChecked(True)
-       self.DieYesButton.setChecked(False)
-       self.DeathTextLabel2.setEnabled(False)
-       self.DeathTextLabel3.setEnabled(False)
-       self.LifeSpanSpinBox.setEnabled(False)
+
+    print "BDB REWARD_NOT = |" + settings_dict["REWARD_NOT"] + "|"
+    if settings_dict["REWARD_NOT"] == "YES":
+      self.NotCheckBox.setChecked(True)
     else:
-       self.DieNoButton.setChecked(False)
-       self.DieYesButton.setChecked(True)
-       self.DeathTextLabel2.setEnabled(True)
-       self.DeathTextLabel3.setEnabled(True)
-       self.LifeSpanSpinBox.setEnabled(True)
+      self.NotCheckBox.setChecked(False)
+    if settings_dict["REWARD_NAND"] == "YES":
+      self.NandCheckBox.setChecked(True)
+    else:
+      self.NandCheckBox.setChecked(False)
+    if settings_dict["REWARD_AND"] == "YES":
+      self.AndCheckBox.setChecked(True)
+    else:
+      self.AndCheckBox.setChecked(False)
+    if settings_dict["REWARD_ORN"] == "YES":
+      self.OrnCheckBox.setChecked(True)
+    else:
+      self.OrnCheckBox.setChecked(False)
+    if settings_dict["REWARD_OR"] == "YES":
+      self.OrCheckBox.setChecked(True)
+    else:
+      self.OrCheckBox.setChecked(False)
+    if settings_dict["REWARD_ANDN"] == "YES":
+      self.AndnCheckBox.setChecked(True)
+    else:
+      self.AndnCheckBox.setChecked(False)
+    if settings_dict["REWARD_NOR"] == "YES":
+      self.NorCheckBox.setChecked(True)
+    else:
+      self.NorCheckBox.setChecked(False)
+    if settings_dict["REWARD_XOR"] == "YES":
+      self.XorCheckBox.setChecked(True)
+    else:
+      self.XorCheckBox.setChecked(False)
+    if settings_dict["REWARD_EQU"] == "YES":
+      self.EquCheckBox.setChecked(True)
+    else:
+      self.EquCheckBox.setChecked(False)
+
     self.m_session_mdl.new_empty_dish = True
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("finishedPetriDishSig"), ())
 
-       
   def DisablePetriConfigureSlot(self):
     descr()
+    self.ConfigTitleTextLabel.setText("Environmental Settings Disabled During Run")
 
     # Turn off the controls 
 
@@ -248,26 +286,33 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.MutationSlider.setEnabled(False)
     self.LocalBirthRadioButton.setEnabled(False)
     self.MassActionRadioButton.setEnabled(False)
-    self.LifeSpanSpinBox.setEnabled(False)
-    self.DieNoButton.setEnabled(False)
-    self.DieYesButton.setEnabled(False)
+    self.RewardAllPushButton.setEnabled(False)
+    self.RewardNonePushButton.setEnabled(False)
+    self.NotCheckBox.setEnabled(False)
+    self.NandCheckBox.setEnabled(False)
+    self.AndCheckBox.setEnabled(False)
+    self.OrnCheckBox.setEnabled(False)
+    self.OrCheckBox.setEnabled(False)
+    self.AndnCheckBox.setEnabled(False)
+    self.NorCheckBox.setEnabled(False)
+    self.XorCheckBox.setEnabled(False)
+    self.EquCheckBox.setEnabled(False)
     self.MutationPercentTextLabel.setEnabled(False)
     self.WorldSizeTextLabel.setEnabled(False)
     self.MutationRateHeadTextLabel.setEnabled(False)
     self.WorldSizeHeadTextLable.setEnabled(False)
-    self.DeathLabel.setEnabled(False)
+    self.RewardTextLabel.setEnabled(False)
     self.RandomHeadTextLabel.setEnabled(False)
     self.AncestorHeadTextLabel.setEnabled(False)
     self.BirthHeadTextLabel.setEnabled(False)
     self.StopHeadTextLabel.setEnabled(False)
-    self.DeathTextLabel2.setEnabled(False)
-    self.DeathTextLabel3.setEnabled(False)
     self.DishDisabled = True
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("doDisablePetriDishSig"), ())
 
   def EnablePetriConfigureSlot(self):
     descr()
+    self.ConfigTitleTextLabel.setText("Environmental Settings")
 
     # Turn on the controls 
     
@@ -282,20 +327,26 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.MutationSlider.setEnabled(True)
     self.LocalBirthRadioButton.setEnabled(True)
     self.MassActionRadioButton.setEnabled(True)
-    self.LifeSpanSpinBox.setEnabled(True)
-    self.DieNoButton.setEnabled(True)
-    self.DieYesButton.setEnabled(True)
+    self.RewardAllPushButton.setEnabled(True)
+    self.RewardNonePushButton.setEnabled(True)
+    self.NotCheckBox.setEnabled(True)
+    self.NandCheckBox.setEnabled(True)
+    self.AndCheckBox.setEnabled(True)
+    self.OrnCheckBox.setEnabled(True)
+    self.OrCheckBox.setEnabled(True)
+    self.AndnCheckBox.setEnabled(True)
+    self.NorCheckBox.setEnabled(True)
+    self.XorCheckBox.setEnabled(True)
+    self.EquCheckBox.setEnabled(True)
     self.MutationPercentTextLabel.setEnabled(True)
     self.WorldSizeTextLabel.setEnabled(True)
     self.MutationRateHeadTextLabel.setEnabled(True)
     self.WorldSizeHeadTextLable.setEnabled(True)
-    self.DeathLabel.setEnabled(True)
+    self.RewardTextLabel.setEnabled(True)
     self.RandomHeadTextLabel.setEnabled(True)
     self.AncestorHeadTextLabel.setEnabled(True)
     self.BirthHeadTextLabel.setEnabled(True)
     self.StopHeadTextLabel.setEnabled(True)
-    self.DeathTextLabel2.setEnabled(True)
-    self.DeathTextLabel3.setEnabled(True)
     self.DishDisabled = False
 
 
@@ -341,11 +392,44 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       settings_dict["BIRTH_METHOD"] = 0
     else:
       settings_dict["BIRTH_METHOD"] = 4
-    settings_dict["AGE_LIMIT"] = self.LifeSpanSpinBox.value()
-    if self.DieNoButton.isChecked() == True:
-      settings_dict["DEATH_METHOD"] = 0
+
+    if self.NotCheckBox.isChecked() == True:
+      settings_dict["REWARD_NOT"] = "YES"
     else:
-      settings_dict["DEATH_METHOD"] = 2
+      settings_dict["REWARD_NOT"] = "NO"
+    if self.NandCheckBox.isChecked() == True:
+      settings_dict["REWARD_NAND"] = "YES"
+    else:
+      settings_dict["REWARD_NAND"] = "NO"
+    if self.AndCheckBox.isChecked() == True:
+      settings_dict["REWARD_AND"] = "YES"
+    else:
+      settings_dict["REWARD_AND"] = "NO"
+    if self.OrnCheckBox.isChecked() == True:
+      settings_dict["REWARD_ORN"] = "YES"
+    else:
+      settings_dict["REWARD_ORN"] = "NO"
+    if self.OrCheckBox.isChecked() == True:
+      settings_dict["REWARD_OR"] = "YES"
+    else:
+      settings_dict["REWARD_OR"] = "NO"
+    if self.AndnCheckBox.isChecked() == True:
+      settings_dict["REWARD_ANDN"] = "YES"
+    else:
+      settings_dict["REWARD_ANDN"] = "NO"
+    if self.NorCheckBox.isChecked() == True:
+      settings_dict["REWARD_NOR"] = "YES"
+    else:
+      settings_dict["REWARD_NOR"] = "NO"
+    if self.XorCheckBox.isChecked() == True:
+      settings_dict["REWARD_XOR"] = "YES"
+    else:
+      settings_dict["REWARD_XOR"] = "NO"
+    if self.EquCheckBox.isChecked() == True:
+      settings_dict["REWARD_EQU"] = "YES"
+    else:
+      settings_dict["REWARD_EQU"] = "NO"
+
     return settings_dict
     
   def FreezePetriSlot(self, population_dict = None, send_reset_signal = False, send_quit_signal = False):

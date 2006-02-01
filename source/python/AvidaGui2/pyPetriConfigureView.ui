@@ -35,7 +35,7 @@
         </property>
         <widget class="QLabel">
             <property name="name">
-                <cstring>textLabel1</cstring>
+                <cstring>ConfigTitleTextLabel</cstring>
             </property>
             <property name="font">
                 <font>
@@ -116,7 +116,7 @@
                                         <number>1</number>
                                     </property>
                                     <property name="value">
-                                        <number>50</number>
+                                        <number>-200</number>
                                     </property>
                                     <property name="orientation">
                                         <enum>Horizontal</enum>
@@ -345,7 +345,7 @@
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>DeathFrame</cstring>
+                <cstring>RewardFrame</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
@@ -361,13 +361,13 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <vbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLabel">
+                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="4">
                     <property name="name">
-                        <cstring>DeathLabel</cstring>
+                        <cstring>RewardTextLabel</cstring>
                     </property>
                     <property name="font">
                         <font>
@@ -375,15 +375,170 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Do organisms die of old age?</string>
+                        <string>Which Tasks Should Be Rewarded?</string>
                     </property>
                     <property name="alignment">
                         <set>AlignCenter</set>
                     </property>
                 </widget>
-                <widget class="QButtonGroup">
+                <spacer row="1" column="0">
                     <property name="name">
-                        <cstring>DeathButtonGroup</cstring>
+                        <cstring>spacer15_2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>21</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <spacer row="1" column="3">
+                    <property name="name">
+                        <cstring>spacer16_2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>21</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QButtonGroup" row="1" column="2">
+                    <property name="name">
+                        <cstring>TasksToRewardGroup</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Plain</enum>
+                    </property>
+                    <property name="title">
+                        <string></string>
+                    </property>
+                    <property name="radioButtonExclusive">
+                        <bool>false</bool>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox" row="0" column="0">
+                            <property name="name">
+                                <cstring>NotCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Not</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="0">
+                            <property name="name">
+                                <cstring>NandCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Nand</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="2" column="0">
+                            <property name="name">
+                                <cstring>AndCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>And</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="0" column="1">
+                            <property name="name">
+                                <cstring>OrnCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Orn</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="2" column="1">
+                            <property name="name">
+                                <cstring>AndnCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Andn</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="0" column="2">
+                            <property name="name">
+                                <cstring>NorCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Nor</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="1">
+                            <property name="name">
+                                <cstring>OrCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Or</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="2">
+                            <property name="name">
+                                <cstring>XorCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Xor</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="2" column="2">
+                            <property name="name">
+                                <cstring>EquCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Equ</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QButtonGroup" row="1" column="1">
+                    <property name="name">
+                        <cstring>RewardAllNoneButtonGroup</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
@@ -405,180 +560,37 @@
                     <property name="flat">
                         <bool>true</bool>
                     </property>
-                    <hbox>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <spacer>
+                        <widget class="QPushButton">
                             <property name="name">
-                                <cstring>spacer11</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>21</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>DieNoButton</cstring>
+                                <cstring>RewardNonePushButton</cstring>
                             </property>
                             <property name="font">
                                 <font>
                                 </font>
                             </property>
                             <property name="text">
-                                <string>No</string>
-                            </property>
-                            <property name="checked">
-                                <bool>false</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Organisms only die when replaced by new oranisims</string>
+                                <string>None</string>
                             </property>
                         </widget>
-                        <widget class="QRadioButton">
+                        <widget class="QPushButton">
                             <property name="name">
-                                <cstring>DieYesButton</cstring>
+                                <cstring>RewardAllPushButton</cstring>
                             </property>
                             <property name="font">
                                 <font>
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Yes</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Organism can die without being replaced</string>
+                                <string>All</string>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout26</cstring>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>DeathTextLabel2</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>1</hsizetype>
-                                            <vsizetype>1</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="text">
-                                        <string>when # executed instructions exceeds</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLayoutWidget">
-                                    <property name="name">
-                                        <cstring>DeathGenomeLengthLayout</cstring>
-                                    </property>
-                                    <hbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QSpinBox">
-                                            <property name="name">
-                                                <cstring>LifeSpanSpinBox</cstring>
-                                            </property>
-                                            <property name="enabled">
-                                                <bool>true</bool>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>1</hsizetype>
-                                                    <vsizetype>1</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="maxValue">
-                                                <number>99999</number>
-                                            </property>
-                                            <property name="minValue">
-                                                <number>1</number>
-                                            </property>
-                                            <property name="lineStep">
-                                                <number>10</number>
-                                            </property>
-                                            <property name="value">
-                                                <number>100</number>
-                                            </property>
-                                            <property name="toolTip" stdset="0">
-                                                <string>How long to let organism live</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QLabel">
-                                            <property name="name">
-                                                <cstring>DeathTextLabel3</cstring>
-                                            </property>
-                                            <property name="enabled">
-                                                <bool>true</bool>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>1</hsizetype>
-                                                    <vsizetype>1</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="font">
-                                                <font>
-                                                </font>
-                                            </property>
-                                            <property name="text">
-                                                <string>times the genome length</string>
-                                            </property>
-                                        </widget>
-                                    </hbox>
-                                </widget>
-                            </vbox>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer12</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>31</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
+                    </vbox>
                 </widget>
-            </vbox>
+            </grid>
         </widget>
         <spacer>
             <property name="name">
