@@ -2,7 +2,8 @@
 
 import shutil, string, pyInstructionSet, os.path
 
-# Class to write the working genesis and event files
+# Class to write the working genesis, event and environment files based on 
+# the contents of settings dictionary
 
 class pyWriteGenesisEvent:
 
@@ -56,16 +57,19 @@ class pyWriteGenesisEvent:
     self.modifyEventFile(cells_dict, organisms_dict, 
       os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
     
-    shutil.copyfile(os.path.join(workspace_dir, "environment.default"), os.path.join(tmp_in_dir, "environment.cfg"))
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")
+    self.writeEnvironmentFile(workspace_dir, settings_dict)
     settings_dict["INST_SET"] = os.path.join(tmp_in_dir, "inst_set.default")
     # settings_dict["START_CREATURE"] = os.path.join(tmp_in_dir, settings_dict["START_CREATURE"])
+    self.writeGenesisFile(workspace_dir, tmp_in_dir, settings_dict)
     
-    # Read the default genesis file, if there is a equivilent line in the 
-    # dictionary replace it the new values, otherwise just copy the line
+  # Read the default genesis file, if there is a equivilent line in the 
+  # dictionary replace it the new values, otherwise just copy the line
+
+  def writeGenesisFile(self, workspace_dir, tmp_in_dir, settings_dict):
   
     orig_genesis_file = open(os.path.join(workspace_dir, "genesis.default"))
     lines = orig_genesis_file.readlines()
@@ -92,6 +96,55 @@ class pyWriteGenesisEvent:
          out_genesis_file.write(line)
     out_genesis_file.close()
     
+   
+  # Read the default environment file, if there is a reward in the
+  # dictionary for a given resource print out that line in working env. file
+
+  def writeEnvironmentFile(self, workspace_dir, settings_dict):
+ 
+    orig_environment_file = open(os.path.join(workspace_dir, "environment.default"))
+    lines = orig_environment_file.readlines()
+    orig_environment_file.close()
+    out_environment_file = open(settings_dict["ENVIRONMENT_FILE"], "w")
+    for line in lines:
+      comment_start = line.find("#")
+      if comment_start > -1:
+        if comment_start == 0:
+          clean_line = ""
+        else:
+          clean_line = line[:comment_start]
+      else:
+        clean_line = line;
+      clean_line = clean_line.strip()
+      if len(clean_line) > 0:
+        split_out = string.split(clean_line)
+        command_name = split_out[0].upper()
+
+        # if it is a reaction line check further (otherwise print the line)
+
+        if command_name == "REACTION":
+          resource_name = split_out[1].upper()
+          resource_key = "REWARD_" + resource_name
+
+          # If the there is a reward key for this resource check further
+          # (otherwise print the line)
+ 
+          if settings_dict.has_key(resource_key) == True:
+
+            # If the value of the reward key is true print it out as is 
+            # (otherwise print out as a comment)
+
+            if settings_dict[resource_key] == "YES":
+              out_environment_file.write(line)
+            else:
+              out_environment_file.write("# " + line)
+          else:
+            out_environment_file.write(line)
+        else:
+          out_environment_file.write(line)
+
+    out_environment_file.close()
+
   def modifyEventFile(self, cells_dict, organisms_dict, event_file_name, 
     tmp_out_dir = None):
 

@@ -198,7 +198,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       start_creature = settings_dict["START_CREATURE" + str(i)]
       self.AncestorComboBox.insertItem(start_creature)
       i = i + 1
-    max_updates = int(settings_dict["MAX_UPDATES"])
+    if settings_dict.has_key("MAX_UPDATES") == True:
+      max_updates = int(settings_dict["MAX_UPDATES"])
+    else:
+      max_updates = -1
     self.StopAtSpinBox.setValue(max_updates)
     if max_updates < 0:
        self.StopManuallyRadioButton.setChecked(True)
@@ -206,8 +209,14 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     else:
        self.StopManuallyRadioButton.setChecked(False)
        self.StopAtRadioButton.setChecked(True)
-    self.WorldSizeSlider.setValue(int(settings_dict["WORLD-X"]))
-    seed = int(settings_dict["RANDOM_SEED"])
+    if settings_dict.has_key("WORLD-X") == True:
+      self.WorldSizeSlider.setValue(int(settings_dict["WORLD-X"]))
+    else:
+      self.WorldSizeSlider.setValue(30)
+    if settings_dict.has_key("RANDOM_SEED") == True:
+      seed = int(settings_dict["RANDOM_SEED"])
+    else:
+      seed = 0
     self.RandomSpinBox.setValue(seed)
     if seed == 0:
        self.RadomGeneratedRadioButton.setChecked(True)
@@ -215,52 +224,64 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     else:
        self.RadomGeneratedRadioButton.setChecked(False)
        self.RandomFixedRadioButton.setChecked(True)
-    copy_mutation_percent = float(settings_dict["COPY_MUT_PROB"]) * 100;
+    if settings_dict.has_key("COPY_MUT_PROB") == True:
+      copy_mutation_percent = float(settings_dict["COPY_MUT_PROB"]) * 100;
+    else:
+      copy_mutation_percent = 0.01
     if copy_mutation_percent > 0.00000001:
       self.MutationSlider.setValue(int(math.log10(copy_mutation_percent) * 100))
     else:
       self.MutationSlider.setValue(-300)
-    if int(settings_dict["BIRTH_METHOD"]) in [0, 1, 2, 3]:
+    if (settings_dict.has_key("BIRTH_METHOD") and 
+        int(settings_dict["BIRTH_METHOD"])) in [0, 1, 2, 3]:
        self.LocalBirthRadioButton.setChecked(True)
        self.MassActionRadioButton.setChecked(False)
     else:
        self.LocalBirthRadioButton.setChecked(False)
        self.MassActionRadioButton.setChecked(True)
 
-    print "BDB REWARD_NOT = |" + settings_dict["REWARD_NOT"] + "|"
-    if settings_dict["REWARD_NOT"] == "YES":
+    if (settings_dict.has_key("REWARD_NOT") and 
+        settings_dict["REWARD_NOT"] == "YES"):
       self.NotCheckBox.setChecked(True)
     else:
       self.NotCheckBox.setChecked(False)
-    if settings_dict["REWARD_NAND"] == "YES":
+    if (settings_dict.has_key("REWARD_NAND") and 
+        settings_dict["REWARD_NAND"] == "YES"):
       self.NandCheckBox.setChecked(True)
     else:
       self.NandCheckBox.setChecked(False)
-    if settings_dict["REWARD_AND"] == "YES":
+    if (settings_dict.has_key("REWARD_AND") and 
+        settings_dict["REWARD_AND"] == "YES"):
       self.AndCheckBox.setChecked(True)
     else:
       self.AndCheckBox.setChecked(False)
-    if settings_dict["REWARD_ORN"] == "YES":
+    if (settings_dict.has_key("REWARD_ORN") and 
+        settings_dict["REWARD_ORN"] == "YES"):
       self.OrnCheckBox.setChecked(True)
     else:
       self.OrnCheckBox.setChecked(False)
-    if settings_dict["REWARD_OR"] == "YES":
+    if (settings_dict.has_key("REWARD_OR") and 
+        settings_dict["REWARD_OR"] == "YES"):
       self.OrCheckBox.setChecked(True)
     else:
       self.OrCheckBox.setChecked(False)
-    if settings_dict["REWARD_ANDN"] == "YES":
+    if (settings_dict.has_key("REWARD_ANDN") and 
+        settings_dict["REWARD_ANDN"] == "YES"):
       self.AndnCheckBox.setChecked(True)
     else:
       self.AndnCheckBox.setChecked(False)
-    if settings_dict["REWARD_NOR"] == "YES":
+    if (settings_dict.has_key("REWARD_NOR") and 
+        settings_dict["REWARD_NOR"] == "YES"):
       self.NorCheckBox.setChecked(True)
     else:
       self.NorCheckBox.setChecked(False)
-    if settings_dict["REWARD_XOR"] == "YES":
+    if (settings_dict.has_key("REWARD_XOR") and 
+        settings_dict["REWARD_XOR"] == "YES"):
       self.XorCheckBox.setChecked(True)
     else:
       self.XorCheckBox.setChecked(False)
-    if settings_dict["REWARD_EQU"] == "YES":
+    if (settings_dict.has_key("REWARD_EQU") and 
+        settings_dict["REWARD_EQU"] == "YES"):
       self.EquCheckBox.setChecked(True)
     else:
       self.EquCheckBox.setChecked(False)

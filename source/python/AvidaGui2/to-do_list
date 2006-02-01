@@ -4,20 +4,14 @@
 
 Priority High
 
-16-Jan-06 Get file system finished -- Brian -- High Priority
+16-Jan-06 Get file system finished
 
-16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Brian -- High Priority
+16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace).
 
 
 Priority Medium
 
-16-Jan-06 Change header of config screen to warn users they can not change it when program is running. -- Brian -- Medium Priority
-
-16-Jan-06 Freeze button on bottom of main screen. -- Brian -- Medium Priority
-
-23-Jan-06 Remove die of old age option -- Brian -- Medium Priority
-
-23-Jan-06 Add ability to have resource control -- Brian -- Medium Priority
+16-Jan-06 Freeze button on bottom of main screen.
 
 Priority Low
 
@@ -33,11 +27,9 @@ Priority Low
 
 -change the word "repopulate" to "start new experiment"
 
-16-Jan-06 Default mutation rate to 0.5? -- Brian -- Low priority (easy to change)
+16-Jan-06 Fix problem where start in menu bar not linked to start button 
 
-16-Jan-06 Fix problem where start in menu bar not linked to start button -- Brian -- Low priority
-
-16-Jan-06 Non-Fix length Genomes? -- Brian -- Low priority
+16-Jan-06 Non-Fix length Genomes? 
 
 
 ************Jeff*******************
@@ -62,7 +54,8 @@ Priority Low
 ************Kaben******************
 
 Priority High-
--first step is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)
+23-Jan-06 Get program to run on all Macs
+-first step for Windows is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)
 -make gradient say "rescaling" when it rescales
 -run things throught the test cpus (so we can accurately paint loaded dishes and so the graphs have good data from the get go)
 -investigation of printing petri dish (1/26/06)
@@ -78,7 +71,6 @@ Priority Low-
 
 
 
-23-Jan-06 Get program to run on all Macs -- Kaben -- High Priority
 
 ************Josh*******************
 
@@ -93,7 +85,14 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 = DONE = DONE = DONE = DONE = DONE = DONE = DONE = DONE = DONE = DONE = DONE =
 ==============================================================================
 
-16-Jan-06 Set up Angel account. -- Brian -- Medium Priority -- Finished 18-Jan-06
+************Brian******************
 
+16-Jan-06 Set up Angel account. -- Finished 18-Jan-06
 
+23-Jan-06 Remove die of old age option -- Finished 1-Feb-06
 
+16-Jan-06 Change header of config screen to warn users they can not change it when program is running. -- Finished 1-Feb-06
+
+23-Jan-06 Add ability to have resource control -- Finished 1-Feb-06
+
+16-Jan-06 Default mutation rate to 0.5? (easy to change) -- Finished 1-Feb-06

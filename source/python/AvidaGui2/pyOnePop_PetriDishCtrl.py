@@ -210,7 +210,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
             Restart_Only_Flag = True
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
           elif quit_return == m_check_to_freeze.FreezeQuitFlag:
-            print "BDB: Freeze than Restart" 
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezeDishPhaseISig"), (True, False, ))
   

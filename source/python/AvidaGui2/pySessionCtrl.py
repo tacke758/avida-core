@@ -139,7 +139,6 @@ class pySessionCtrl(qt.QObject):
     return self
 
   def restartPopulationSlot(self): 
-    print "BDB restartPopulationSlot Called"
     self.sessionInitialized = False
     self.m_should_update = False
 
