@@ -440,7 +440,7 @@
                                 <cstring>NotCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Not</string>
+                                <string>not</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -451,7 +451,7 @@
                                 <cstring>NandCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Nand</string>
+                                <string>nand</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -462,7 +462,7 @@
                                 <cstring>AndCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>And</string>
+                                <string>and</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -473,7 +473,7 @@
                                 <cstring>OrnCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Orn</string>
+                                <string>ornot</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -484,7 +484,7 @@
                                 <cstring>AndnCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Andn</string>
+                                <string>andnot</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -495,7 +495,7 @@
                                 <cstring>NorCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Nor</string>
+                                <string>nor</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -506,7 +506,7 @@
                                 <cstring>OrCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Or</string>
+                                <string>or</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -517,7 +517,7 @@
                                 <cstring>XorCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Xor</string>
+                                <string>xor</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -528,7 +528,7 @@
                                 <cstring>EquCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>Equ</string>
+                                <string>equals</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>

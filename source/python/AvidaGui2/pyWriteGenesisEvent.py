@@ -125,6 +125,7 @@ class pyWriteGenesisEvent:
         if command_name == "REACTION":
           resource_name = split_out[1].upper()
           resource_key = "REWARD_" + resource_name
+          task_name = split_out[2]
 
           # If the there is a reward key for this resource check further
           # (otherwise print the line)
@@ -132,12 +133,13 @@ class pyWriteGenesisEvent:
           if settings_dict.has_key(resource_key) == True:
 
             # If the value of the reward key is true print it out as is 
-            # (otherwise print out as a comment)
+            # (otherwise print out as a zero bonus)
 
             if settings_dict[resource_key] == "YES":
               out_environment_file.write(line)
             else:
-              out_environment_file.write("# " + line)
+              out_environment_file.write("REACTION " + resource_name + " " +
+                                task_name + " process:value=0.0:type=add\n")
           else:
             out_environment_file.write(line)
         else:
