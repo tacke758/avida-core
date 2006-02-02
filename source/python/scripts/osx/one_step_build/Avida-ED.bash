@@ -71,12 +71,13 @@ popd
 
 mkdir -p "$BUILD_DIR/Avida-ED"
 pushd "$BUILD_DIR/Avida-ED"
-rm -fr "$BUILD_DIR/Avida-ED/bin/Avida-ED.app" "$BUILD_DIR/Avida-ED/source/python/build"
+rm -fr "$BUILD_DIR/Avida-ED/lib/AvidaCore"* "$BUILD_DIR/Avida-ED/bin/Avida-ED.app" "$BUILD_DIR/Avida-ED/source/python/build"
 /usr/local/bin/cmake \
  -DAVD_GUI_NCURSES:BOOL=ON \
  -DAVD_GUI_PYQT:BOOL=ON \
  -DAVD_PRIMITIVE:BOOL=ON \
  -DAVD_PY_BINDINGS:BOOL=ON \
+ -DAVD_PY_MONOLITHIC:BOOL=ON \
  -DAVD_PY_MODULE:BOOL=OFF \
  -DAVD_UNIT_TESTS:BOOL=OFF \
  -DBOOST_INCLUDE_PATH:PATH="$BOOST_INCLUDE_PATH" \

@@ -44,7 +44,7 @@ mkdir -p "$BUILD_PATH"
 pushd "$BUILD_PATH"
 mkdir -p "$SOURCE_SUBDIR"
 pushd "$SOURCE_SUBDIR"
-yes yes | "$SOURCE_PATH/configure" -libdir /usr/local/lib -thread -verbose
+yes yes | "$SOURCE_PATH/configure" -libdir /usr/local/lib -thread -verbose -system-libpng -system-libjpeg -system-libmng
 # The generated makefile isn't parallelized, so we can't use -j2.
 make install
 

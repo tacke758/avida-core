@@ -65,21 +65,21 @@ then
 
 	#"$SCRIPT_DIR"/Python.bash -a "$ARCHIVES_DIR"/Python-2.4.2.tar.bz2 -b "$ARCHIVES_DIR" -s Python-2.4.2 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/Qt.bash -a "$ARCHIVES_DIR"/qt-mac-free-3.3.5.tar.bz2 -b "$ARCHIVES_DIR" -s qt-mac-free-3.3.5 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
+	"$SCRIPT_DIR"/Qt.bash -a "$ARCHIVES_DIR"/qt-mac-free-3.3.5.tar.bz2 -b "$ARCHIVES_DIR" -s qt-mac-free-3.3.5 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/SIP.bash -a "$ARCHIVES_DIR"/sip-4.3.2.tar.gz -b "$ARCHIVES_DIR" -s sip-4.3.2 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
+	"$SCRIPT_DIR"/SIP.bash -a "$ARCHIVES_DIR"/sip-4.3.2.tar.gz -b "$ARCHIVES_DIR" -s sip-4.3.2 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/PyQt.bash -a "$ARCHIVES_DIR"/PyQt-mac-gpl-3.15.1.tar.gz -b "$ARCHIVES_DIR" -s PyQt-mac-gpl-3.15.1 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
+	"$SCRIPT_DIR"/PyQt.bash -a "$ARCHIVES_DIR"/PyQt-mac-gpl-3.15.1.tar.gz -b "$ARCHIVES_DIR" -s PyQt-mac-gpl-3.15.1 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/Numeric.bash -a "$ARCHIVES_DIR"/Numeric-23.6-osx3.tar.gz -b "$ARCHIVES_DIR" -s Numeric-23.6-osx3 -v "$DEBUG"
+	"$SCRIPT_DIR"/Numeric.bash -a "$ARCHIVES_DIR"/Numeric-23.6-osx3.tar.gz -b "$ARCHIVES_DIR" -s Numeric-23.6-osx3 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/PyQwt.bash -a "$ARCHIVES_DIR"/PyQwt-4.2.tar.gz -b "$ARCHIVES_DIR" -s PyQwt-4.2 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
+	"$SCRIPT_DIR"/PyQwt.bash -a "$ARCHIVES_DIR"/PyQwt-4.2.tar.gz -b "$ARCHIVES_DIR" -s PyQwt-4.2 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
-	"$SCRIPT_DIR"/ElementTree.bash -a "$ARCHIVES_DIR"/elementtree-1.2.6-20050316.tar.gz -b "$ARCHIVES_DIR" -s elementtree-1.2.6-20050316 -v "$DEBUG"
+	#"$SCRIPT_DIR"/ElementTree.bash -a "$ARCHIVES_DIR"/elementtree-1.2.6-20050316.tar.gz -b "$ARCHIVES_DIR" -s elementtree-1.2.6-20050316 -v "$DEBUG"
 
-	"$SCRIPT_DIR"/GCC-XML.bash -a "$ARCHIVES_DIR"/gccxml-0.6.0.tar.gz -b "$ARCHIVES_DIR" -s gccxml-0.6.0 -v "$DEBUG"
+	#"$SCRIPT_DIR"/GCC-XML.bash -a "$ARCHIVES_DIR"/gccxml-0.6.0.tar.gz -b "$ARCHIVES_DIR" -s gccxml-0.6.0 -v "$DEBUG"
 
-	"$SCRIPT_DIR"/Boost.bash -a "$ARCHIVES_DIR"/boost_1_33_0-osx4.tar.bz2 -b "$ARCHIVES_DIR" -s boost_1_33_0 -v "$DEBUG"
+	#"$SCRIPT_DIR"/Boost.bash -a "$ARCHIVES_DIR"/boost_1_33_0-osx4.tar.bz2 -b "$ARCHIVES_DIR" -s boost_1_33_0 -v "$DEBUG"
 
 	#"$SCRIPT_DIR"/Py2App.bash -a "$ARCHIVES_DIR"/py2app-0.1.7.tar.gz -b "$ARCHIVES_DIR" -s py2app-0.1.7 -v "$DEBUG"
 
