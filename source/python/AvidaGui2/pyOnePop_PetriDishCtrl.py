@@ -204,7 +204,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         # widget) the dish
 
         if (not self.m_session_mdl.saved_full_dish):
-          m_check_to_freeze = pyQuitDialogCtrl("Repopulate")
+          m_check_to_freeze = pyQuitDialogCtrl("Start New Experiment")
           quit_return = m_check_to_freeze.showDialog()
           if quit_return == m_check_to_freeze.QuitFlag:
             Restart_Only_Flag = True

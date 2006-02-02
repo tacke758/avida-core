@@ -15,7 +15,7 @@
     <property name="caption">
         <string>pyLiveControlsView</string>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -25,116 +25,7 @@
         <property name="spacing">
             <number>0</number>
         </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout137</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer97_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>10</width>
-                            <height>10</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QWidgetStack">
-                    <property name="name">
-                        <cstring>m_play_pause_widgetStack</cstring>
-                    </property>
-                    <widget class="QWidget">
-                        <property name="name">
-                            <cstring>WStackPage</cstring>
-                        </property>
-                        <attribute name="id">
-                            <number>0</number>
-                        </attribute>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>0</number>
-                            </property>
-                            <widget class="QToolButton">
-                                <property name="name">
-                                    <cstring>m_play_button</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="iconSet">
-                                    <iconset>image0</iconset>
-                                </property>
-                                <property name="usesBigPixmap">
-                                    <bool>false</bool>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
-                    <widget class="QWidget">
-                        <property name="name">
-                            <cstring>WStackPage</cstring>
-                        </property>
-                        <attribute name="id">
-                            <number>1</number>
-                        </attribute>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QToolButton">
-                                <property name="name">
-                                    <cstring>m_pause_button</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="iconSet">
-                                    <iconset>image1</iconset>
-                                </property>
-                                <property name="usesBigPixmap">
-                                    <bool>false</bool>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
-                </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer97</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>10</width>
-                            <height>10</height>
-                        </size>
-                    </property>
-                </spacer>
-            </hbox>
-        </widget>
-        <spacer>
+        <spacer row="1" column="3">
             <property name="name">
                 <cstring>spacer99</cstring>
             </property>
@@ -151,7 +42,117 @@
                 </size>
             </property>
         </spacer>
-    </vbox>
+        <spacer row="0" column="0">
+            <property name="name">
+                <cstring>spacer97_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>16</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QWidgetStack" row="0" column="1">
+            <property name="name">
+                <cstring>m_play_pause_widgetStack</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>WStackPage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>0</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>0</number>
+                    </property>
+                    <widget class="QToolButton">
+                        <property name="name">
+                            <cstring>m_play_button</cstring>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="iconSet">
+                            <iconset>image0</iconset>
+                        </property>
+                        <property name="usesBigPixmap">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>WStackPage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>1</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QToolButton">
+                        <property name="name">
+                            <cstring>m_pause_button</cstring>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="iconSet">
+                            <iconset>image1</iconset>
+                        </property>
+                        <property name="usesBigPixmap">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+        <spacer row="0" column="4">
+            <property name="name">
+                <cstring>spacer97</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QToolButton" row="0" column="2" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>FreezeToolButton</cstring>
+            </property>
+            <property name="text">
+                <string></string>
+            </property>
+            <property name="iconSet">
+                <iconset>image2</iconset>
+            </property>
+        </widget>
+    </grid>
 </widget>
 <images>
     <image name="image0">
@@ -159,6 +160,9 @@
     </image>
     <image name="image1">
         <data format="PNG" length="2611">89504e470d0a1a0a0000000d49484452000000270000002708060000008ca35135000009fa49444154789cad585b6c1bc7153df3e072558a92f816699a9694c8b624ab966440569dd8812cd86d82244883002d90cf18fe683ffae57efbbbffe947e002f9b1d140455a2041d540a88dbcec2840e238b2ec5812649990f5a0f85a4ae263c9dde9c73eb87a5096db5e62c059ee9db967ee3d73e772881002cf2b8410198007c0cf00c800dc0038000640035003500150065004b02584283fb79d83822384d09696963659967d8944e258341a1d6c6e6e3e26495217e73c4e290d10423c42882d5dd733b55a6d4955d585cdcdcd472b2b2b7793c9e4a372b99c2b140a792184fe7f03d7d3d313a8542ac1dedede5ff97cbe978381e04b8944221a8bc5100a8710f007e0f57ae176bb51a954b0b1b1814c3683f5d43a969797914c2657d299f4d7b95ceeab070f1efccbed76a71f3e7c98f99fc09d3973a6696b6babfdc89123177c3edf6b5d9d9daf1e3b7e5c3ada7d14eded1143491080080801100002048408184f8080c0daea1ae6e666f1d34f3fa90b8f1f4fe472b97f3e79f264d2e3f1acdebe7dbbf4dce0464747dbaad5eaa18e8e8e4bb158ec9d818181f8c99327e16bf33d6bc10d2597cbe1de8ff7f0c30f3f2c2d2f2fff6d7171f19acbe57a7aebd6adfc81c1bdfdf6db014ae9cfbd5eefe5de9ededf0c9f1e2647bbbb61790300ec6144008280d8af0484e54301630c016c7500b373b3989afa563c7cf8e0a38d8d8d0f745dfff1e38f3fde15e65de02e5dbae45755754892a4df0f0e0cbe75f6ec598443612b660e43d6830008811d4921204ca4c6a3f9deb92802aca752f8f2ab2f71f7eedd7fa8aafabe2449df5fbb762debc4429d0f57ae5cf170cebb6459be3c3838f8d6f9f3e7118e84eb5aa605420042c8b66fd88dd85d43d704668da5867e3812c1d8e8790c0e0ebe25cbf265ce79d7952b573c4e3c7c87273b29a5efbdf0c20bef9c3b7b0e7ebfdf19c9bdc589c45a6ea33d56470c08c0e7f7e3dcd97328154bef2c3c5ec800781fc07de7540080ab57afc6354d7badb5b5f5cd919111128944ec551310d3430d1a1af40fa01f894430f28b11e2f178ded434edb5ab57afc6b7811b1f1f671e8fa7b35aad5e183839103b7efc98111e4200420d4e13520f9ba30fb3ef0c337684190e60ce39ac76f4e851747576c5aad5ea058fc7d3393e3ece6c708aa2241445793d1c0e9f1b181c044041cd81d46c2004945050d3a8d5a766df0048cd31d4d19cdc2420a43e372100650c5b5b5b881f8ec3ebf59e5314e57545511236e718638962b1786a6060400a04023b682220406d2abdfbeebb7bd2e9faf51be686160d756e5cbf0162ef7562cf9a4967e0f57a118fc7a5f9f9f9538cb10480c7747c7cdc5f2c168738e7033dc78fdb9ea294982bdceec5461fa777f7d680ed396b4ec619f28a8262a908c618e287e30030502c1687c6c7c7fd5492a47645514ec40fc503d1d8219317bb898d5d29637bb3e86771707773ce0730ce512c16914aa5c018056314017f007ebf3fa028ca094992daa92ccb9162b1d8113f1cdfc6050b109c5e23148d843838d658c78808630c1b1b052c2d2d41d77530c6412905650ca17018c562b14396e50875b95cede57239166d8fdaa0ec30d2bdd280c144fbe3f432753ceffc1002c628841058cfa4b1fcf42974a18373131865609422e0f7a35c2ec75c2e573b9724c9afaa6a30180e195b4f000035884b1c950684f1ca7114d55d62647eabbf57e216422093cda2a01450512ba08c19d1d9213e9f0faaaa062549f273b7dbedabd56adeb696563b2508004418fbcaf0a630003fa3f4134200c2f8b69aaeebd0751d9aa62193c9801002ceb9e3a836f72f31c6363737a356ab79dd6eb78f73ce9b354d73cbb2db3c5508a8e925fb24b2cf47233cb6614d836ef6d7d6d6a0eb1a344d47b95cae83758824490d5655efb2260e4dd3dc9cf3662e4912618c5554b5ea969be43aa7ac2899030925a856aba8556bd0740dbaaec169bb52a960679476868d51564762beb38a540b654555c118ab48924438e75c9565b9542814dc725393c92d039c10c2e6d2d656118a92875a554da3641b182b547b81b2847206ecf0a683cd008052a90459964b9c739573ce15afd7bbb99e5e6f8bb44760ed444080328a5ab5064551502a19d534a57ba713ceeb054e23709cb13d7f774aa15080d7ebdde49c2bdce572a502814061757515fdfdfd0e03149aa6219f57a0aaaa6dbc9161c698590a897d7438006173dbae3c1d9ecb66b30804020597cb95e28cb1a543870e1592c9a4ed314208345d87a2281042834b7299dcdbcfb0056e9f05700662924c80581bd44e5b10c0eaea2a8e1c3952608c2d5142c87c7777f7cafafa7a6979e529402940088ac5a29dbdade38599b969afc6183374f87e3a14947150cac1280575cc4b19433a9d463e9f2f757777af1042e6792c164bba5cae6f43a1d0a99999078978fc302a950a6ab51a5c2ed7aed537e4d38138b7b3f0de2e73f3f30887c3ebd168f4db502894b44aa6effafafaf2535353f153a74e515996c11cbbcf29376edcd8d78053c748e6a827f67dc664b359cccdcde967ce9cc933c6be03cc62d3eff77f313434f4594b4bcbfad4d49491c54d57b3fd1a657648a81556c77bce181877f41d21dc39fedebd7bf0f97ceb4343439ff9fdfe2f6c70302e5d26878787d7666767cb8f1e3d0263d404687183999ca1a0d434621ba66094997c626685511fc3acdf2807a30c9c9a5ce3c65c73b3b3585858280f0f0faf019834f1d4ff7db5b6b64ef6f4f45c5f5959f9c39d3b7762c15010d1f628b02d459a621dba02f5442c84713301e71f68f34938136dbd94000456565771fbf66df4f6f6667b7a7aae7b3c9e49cbccb68cca18fb686c6cecd3502894bdf9ef9bc8e5726629b3a331a3bc61a617ad5accf0505dcf2a85e8b6705ba1a5c8e5f3b879f32642a150766c6cec53c6d8474e3cdbc0c9b2fc8410f2e1c58b17ef489254989898402ab56618640600abeedace37338cd47c768695d6758c101bbfa752294c4c4c4092a4c2c58b17ef10423e9465f98913cf9e7725e57279747373f38f9393932fa752a9e6575e7905274e9c708474d790e792fbf7efe3f3cf3f47381cdebc70e1c257cdcdcd7f9265f9d64ebd86b74cb55aed2521c4ef6eddbaf5c6f4f474537777371f19398d403008abdc144ece1d40d2e934bef9e61bcccdcdd5fafbfb4ba3a3a39f1042fecc39ff7a2ffd675d1e76d56ab5f7e6e7e72f4f4d4d7953a994d4d7d747fafbfb118fc777a8927a7db59dfb585a5ac2f4f43466666644381c564f9f3ebdf1e28b2f7ec039ff0b808546c60f74b3a969daaf01fc766666e68de9e969beb8b8c8fc7e3fede8e8402c1643381c465b5b1b645946b95c463e9f472a95c2f2f23216171791cd66f58e8e0eadbfbfbfd6d7d7f70980bf32c6fefe2cbb07be1306d0a469da1b84905f6632995717161682c96492acacacd0743a4d0a85022997cb9065192d2d2d22180c8a6834aa271209d1d5d5950e0402134288cf18639f0068789bf9df8273ca3100a7019c1442f400e8041006e005b0012005e03121e421807b00a6003c7a5e23ff01b479d2670f099ffb0000000049454e44ae426082</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="50016">789ced9d4b6fdc361080eff9158bec2d289cda0eda04457f42811e0b143d50b483f6904b9b1e8aa2ffbdd6ee4ae263de1caeb486e664591239df70c4c7f0b1efdf1d7ef9f9a7c3bbf76ffefa1abefe110ff1f7f0e7e1ddd3df5fbefcf3eb6f3ffefbe6edc3fdb78787c7c7c3f787fbb7dfbc79fb7c8887e3e3fde3fdf0345e1ec7cb0f0f1f1e3e7f1e2fe378f9ddf0dd70be7c1a2f3fc68ff1fc70182f3fc54ff17c77182fe3737c3e5fde8d979f4f72baec2cc74a7ae7b85359259450a1778e3b9555762a1fd9a9acb253f9c84e65959dca47762aabec543eb25359e586a906fc96868a4846216e54c7882a24a71aa2cf80d28b6a785116c312535189a8c48beaa47924ee09a8a2db37e74575d117b4b48c6ab8dcf4d0c6896aa0141651cd0f79b8a013559c3506bc50424526a01627aa54e7cad83cd590de7550c7872ad7bbb4364b15c9bb06f1a1cad52a9b2e866a28df6ed7c787aa543bf7429a6aa85e6ed7c785aa523b37384915eb77db5dd085aa562c2b2e82aa2e2897c2f2a082555b74c7a98042ce0d62945e1e384ac46e4f54913187597c6a8bb21acb8d8e5021458cf7fde5e2dabb458a0ba6ea5650779ea34658cbd1f21015f1b883388ef0118f1a202af4591f91520d31f0be81d8bfa6421e64950841d6f11097d545411a0d2902999005f50274364807aa8ba903ae00526bf082ab3b0175a63a52ad3f56c9d342d51242f8ae54a6e22275dd0695bab898eabc27555e02aa8719e114cd1e96d5fd7da8d09e0350506c52ba8c4fd28b4a5ac90b6cbf252a517189dad49e54833e71aed69075fa0c192bfa8186c4e95a43d83bd73b89994ada0dc58b4bdc3bcfa884f12723957c148414973101e16b29957b63784e15282ecd304a4135a79a5005ba7ca33c754aafb6b7a93787e5ab4ba898b72c9e3067978b6a7028cd77b4fa542c0b55647cc34e55c50b552fcbf20d99bd66aad9a0981bae45257973fe762fcacf547179155679c35495ee1355e6fba01b664f6c890a68a627aa225fc80db74905ce135da8eab6b2d6db49315faa5af161a1aaee016eb801aad285a0e14e9ca92270b74a630354f424e5f2d0890a1de165a964695c8d0aafa4d001c1850a661e2575c32c95ab51610d0a31d68e272a72301ee1f457a6a207a4c36967172d014a7f5d2a2e8625a09adc7003546745f878e3e9bb62c377b1526e1daad37f58a670a9d979fa5028a71a4c7852f1253020fd40e4e19272052ad6fce7af65195ff14658852acb95639ad44ae316ec3b6b5029745a94ca624c8ac98c0d52253d862272269eccd81e555a7f55f14021d7d6a8727dea28a7cc0db745558e50a0d8ad6492664b547540028e48f36ea85a70d94025b030d02140e2ecbc1b6ab0ec543c14e834e8ec81ac13d599ca6a5b624e44d4e312499192d41c7605c8991eaba95ca87867c18d4acf5f39b9a185aa29676e564ed297ef40d5e8fdfc5ca37048e949251c6fb45009fa1a9c9a4aaaf60c392a59b790b19d8aca23479a4abe1e89744305957c30148964082ae5d231e9e42b3b0dea906543dfa214f126546e1a54c305e78950d9169a8a265f512ac755a0209579f1ac64f2157bc8c484a4a71d35062673d074022aaeb5af978f672916b996540c13fb8464bb664d255a9d4672e5d6cca968d793c6ee2bad392a2ec141f25c5ad32754838c49a046e9863415e77cf28ceb7820e304f4b6d19a4b4cc5395f9931cd75b1e73487af63526a435071a55e67cc71853b6e5e18651270256e8852311963ed3a638a819cc32799348646a8e46651e51c670f44d367fafc0c57a0a8588bdb725ed65bb0db487189a46a677b435436af1770256b63c04c5ca22611a452d6b80aae7c56aec29287fb58152b2a79cbc8c8130855ade534a47cc7d765e465f9b06e7323785c43d2b74832d36f6fb577f39b988aaceb75b70b966dcbae07977163ed94f5dc9464bddb06a63beba82f15fb0ee833d77c99cf0b376ead6ee36adbd51dd2162e1f8934ef42b66fad6ddfa99e28ef7e7a9b6fc4c3281dcea4d37339edbe5fa4c7497bcacfcb9da9d7f9811a2e7fa67ea7224aab0d97e32c2ae977d6a3e4f3eac3d4f7044b8ecbb9e24ba4efb99c711da8be5424544707ec49b5e287d58d4ada16f7a8d87b5129fa171d1ae13e54ab772e3a5019c623de9f973b95718ce5cbe53dbeb2318dd29ef7f2a7eb58b82d76d1f679a163e1a1d1179ae33176ae9017774a3525be5e8ca9316b28c6145b126f3a0bac8d8b8c07c686c4b9583b79598a67ecb6ca4a9eb8779c5df1795509c58c0a504c98788f391161d69071e8bdddd2c4256637cc5f09065fecfc159a05c7d571aed13ccb39ed95a3ec669d9d3d36cf0b9b67a4076e1734c5259f80bfee1c7e983d505f295d69bd0590b360ddcf5cb3ebb8744bb45ad6c6b087bd436a66271749b9b407985d691d5304fb818cb6f34b0c93ff9a33d162b7d494c5a851c065885d5e617d20b70390f91839a675d67216a94123fc8631c566d7dd9ed4b065b1ca1a6928352c1a63c8628df5ec489e788c49cbb5c2de03db5e394d0416d7b4d33e11aa87cac403855cd7dfd383eda51051c98c77f5fd575c1282d82d97c90a7be5b8d12c4b656a761ba99a7365a8d880d86a7b50492e928adf3529d1afd77e61db5eb936733553096a43fd5eb986342b29df14bf68b52bda637ae61214abd6f5cc04980ba6f23d08a2eff91690262015cbb4adb3484423115197654b548251a3b41bb629aaf2f352c52db64b5570bda2b3b3e07d8daaa1e806a9a07d8d82732c56a14a738d65429514b15bc94119ab50852c53def4c94ea51b39eb919fa43c267be5780b54ca6914f3a4921d3c755b67a802ff02e5b6cebbbdfc8f75c3db3a9b78fe2fed86c36d9d238dfdbf50fac6cefc4e6b5edc0d6ffc7c76186a9eedbe95b3f4250728247bbbebdb75e7618354901b2e6b636ee5372aa0132920cd6febf744c06849a8d37e0dbffd92bae159b157f23b3d85f237f69b4adc53f5da18465b3b95e3ef5f1199c4c4cfb2153f64e8329aa9aa66c3fe36650ff8b7ca3afdae1cb8f855f1bac247e0754ca418a99a7fa1dbe2f9462aa952debfd7d897caa2512996c361bca9b6f13ba8c20f524c05f44b546fd88b4b6fce7e54b2e8b6a4b83644258e6ef3c5b5192acdca2eb6b87a521d15892b57c431c5a579b61f95e749b99ba132ad6fa594bd12552056b15937a112c53584c4503da862605235329dd226139ed07ca90616e80eedc956a8083bdb76bda0c93a179e7bbb616563bdb526207eea768e871f151e4985468dc446370771a382ad7f04b7428cbe8c79ab8b324e54a48ec8089fb043abf850d10a62718b7ec5e541856937591d8dc6608d5b7371b99415a8dad210103126b8d26856c8850ad20d9ba4cca91a4ea4a5c485aa562dfb36e87860a40c62149fda82d68b8972563669d7c7870a3cb800b90bb85824ef1ac4a9bd22b5e223d2f6e501b038512dd606861482387b52c77bf42e9ca802a59368f6205237b5e2d50fbca804565fb23991a9d2f0d0c68b2a10ce239de9895e45e54635100a89e7af0256da5a711b89c8b7a012e5f15269b828e34645d85833d7e8336cec7b2ee759da66502db2535965a7f2919dca2a3b958fec5456d9a97c64a7b2ca4ee5233b95555e275509e5139ba0e49552fdf7c39bff01f3bb6d13</data>
     </image>
 </images>
 <layoutdefaults spacing="1" margin="1"/>

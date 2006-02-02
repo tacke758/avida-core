@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>324</width>
+            <width>465</width>
             <height>113</height>
         </rect>
     </property>
@@ -24,7 +24,10 @@
                 <cstring>WarningLabel</cstring>
             </property>
             <property name="text">
-                <string>The current petri dish has not been saved in the freezer.</string>
+                <string>&lt;p align="center"&gt;The current petri dish has not been saved in the freezer.&lt;/p&gt;</string>
+            </property>
+            <property name="textFormat">
+                <enum>AutoText</enum>
             </property>
         </widget>
         <widget class="QLayoutWidget">

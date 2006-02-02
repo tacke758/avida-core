@@ -25,8 +25,6 @@ Priority Low
 
 -add the ability to tell genesis where you want the default organism to be 
 
--change the word "repopulate" to "start new experiment"
-
 16-Jan-06 Fix problem where start in menu bar not linked to start button 
 
 16-Jan-06 Non-Fix length Genomes? 
@@ -74,7 +72,7 @@ Priority Low-
 
 ************Josh*******************
 
-16-Jan-06 Get Windows version working -- Josh -- Medium to High Priority (depdnding the needs for this ations.term)
+16-Jan-06 Get Windows version working -- Medium to High Priority (depdnding the needs for this ations.term)
 
 
 ************Other*****************
@@ -96,3 +94,5 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 23-Jan-06 Add ability to have resource control -- Finished 1-Feb-06
 
 16-Jan-06 Default mutation rate to 0.5? (easy to change) -- Finished 1-Feb-06
+
+-change the word "repopulate" to "start new experiment" -- Finished 2-Feb-06

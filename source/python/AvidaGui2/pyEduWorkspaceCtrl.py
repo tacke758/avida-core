@@ -26,6 +26,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
+    self.setCaption(self.m_session_mdl.m_current_workspace)
    
     while self.m_widget_stack.visibleWidget():
       self.m_widget_stack.removeWidget(self.m_widget_stack.visibleWidget())
@@ -184,6 +185,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
                 pyDefaultFiles(fileName, destName)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
+            self.setCaption(self.m_session_mdl.m_current_workspace)
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
@@ -208,6 +210,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     if workspace_dir.strip() != "":
       self.m_session_mdl.m_current_workspace = str(workspace_dir)
       self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
+      self.setCaption(self.m_session_mdl.m_current_workspace)
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
@@ -259,6 +262,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             shutil.copytree(self.m_session_mdl.m_current_workspace, new_dir)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
+            self.setCaption(self.m_session_mdl.m_current_workspace)
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
