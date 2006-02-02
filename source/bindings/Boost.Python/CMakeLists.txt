@@ -205,16 +205,22 @@ SET(PyAvida_Includes
   -I ${PROJECT_SOURCE_DIR}/source/third-party/yaktest
   -I ${CMAKE_CURRENT_SOURCE_DIR}
   -I ${BOOST_INCLUDE_PATH})
-SET(PyAvida_Defines)
-SET(PyAvida_ExtraDepends)
 SET(PyAvida_LinkLibraries PyAvidaRepairHacks ${BOOST_LIBRARY} ${PYTHON_LIBRARY})
-ADD_PYSTE_PACKAGE("AvidaCore"
-  PyAvida_Pyste_Bases
-  PyAvida_Includes
-  PyAvida_Defines
-  PyAvida_ExtraDepends
-  PyAvida_Extra_Cpp_Files
-  PyAvida_LinkLibraries
-  /lib)
+
+IF(AVD_PY_MONOLITHIC)
+	ADD_PYSTE_MODULE("AvidaCore"
+		PyAvida_Pyste_Bases
+		PyAvida_Includes
+		PyAvida_Defines
+		PyAvida_LinkLibraries
+		/lib)
+ELSE(AVD_PY_MONOLITHIC)
+	ADD_PYSTE_PACKAGE("AvidaCore"
+		PyAvida_Pyste_Bases
+		PyAvida_Includes
+		PyAvida_Defines
+		PyAvida_LinkLibraries
+		/lib)
+ENDIF(AVD_PY_MONOLITHIC)
 
 # vim: set ft=conf:

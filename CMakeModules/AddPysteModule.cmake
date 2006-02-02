@@ -7,7 +7,7 @@ IF(APPLE)
   SET(BOOST_PYTHON_COMPILE_FLAGS "-no-cpp-precomp -ftemplate-depth-120 -fno-inline -fPIC -Wno-long-double -Wno-long-long -DBOOST_PYTHON_DYNAMIC_LIB")
 ELSE(APPLE)
   IF(WIN32)
-    SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100 -DBOOST_PYTHON_STATIC_LIB  -fno-inline")
+    SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100 -DBOOST_PYTHON_DYNAMIC_LIB  -fno-inline")
   ELSE(WIN32)
     SET(BOOST_PYTHON_COMPILE_FLAGS "-Wall -ftemplate-depth-100  -DBOOST_PYTHON_DYNAMIC_LIB  -fno-inline -fPIC")
   ENDIF(WIN32)
@@ -25,9 +25,10 @@ MACRO(ADD_PYSTE_MODULE
   PysteBases
   Includes
   Defines
-  ExtraDepends
-  ExtraCppFiles
+  LinkLibraries
+  PackageLocation
 )
+
   #
   # A list of cpp source files to generate from pyste source files.
   #
@@ -51,11 +52,10 @@ MACRO(ADD_PYSTE_MODULE
   #
   # Command defining the python module build target.
   #
-  ADD_LIBRARY(${ModuleName} MODULE ${${ModuleName}_CppFiles} ${${ExtraCppFiles}})
+  ADD_LIBRARY(${ModuleName} MODULE ${${ModuleName}_CppFiles})
   SET_TARGET_PROPERTIES(${ModuleName} PROPERTIES PREFIX "")
-  IF(${ExtraDepends})
-    ADD_DEPENDENCIES(${ModuleName} ${${ExtraDepends}})
-  ENDIF(${ExtraDepends})
+  TARGET_LINK_LIBRARIES(${ModuleName} ${${LinkLibraries}})
+  INSTALL_TARGETS(${PackageLocation}/${ModuleName} ${ModuleName})
 
   #
   # Make a list of pyste source files to parse, and for each such file, add the parsing command that produces the
@@ -65,6 +65,7 @@ MACRO(ADD_PYSTE_MODULE
   SET(${ModuleName}_PysteCacheFiles)
   #XXX
   FOREACH(Entry ${${PysteBases}})
+#  SET(Entry "hardware_tracer::")
     STRING(REGEX REPLACE "(.*)::(.*)" "\\1" PysteBase ${Entry})
     STRING(REGEX REPLACE "(.*)::(.*)" "\\2" Args ${Entry})
     IF(Args)
@@ -129,6 +130,7 @@ MACRO(ADD_PYSTE_MODULE
         test -f ${CMAKE_CURRENT_BINARY_DIR}/${ModuleName}/_${PysteBase}.cpp
         && touch ${CMAKE_CURRENT_BINARY_DIR}/${ModuleName}/_${PysteBase}.cpp
     )
+
   ENDFOREACH(Entry ${${PysteBases}})
 
   ADD_CUSTOM_COMMAND(COMMENT "${ModuleName} main cpp source file..."
@@ -159,8 +161,6 @@ MACRO(ADD_PYSTE_PACKAGE
   PysteBases
   Includes
   Defines
-  ExtraDepends
-  ExtraCppFiles
   LinkLibraries
   PackageLocation
 )

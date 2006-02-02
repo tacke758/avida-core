@@ -99,6 +99,10 @@ OPTION(AVD_PY_BINDINGS
   "Enable Python interface to Avida. (EXPERIMENTAL)"
   OFF
 )
+OPTION(AVD_PY_MONOLITHIC
+  "Monolithic Python interface. (ignored if AVD_PY_BINDINGS is OFF)"
+  ON
+)
 IF(AVD_PY_BINDINGS)
   INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/avdFindPython.cmake)
   AVD_FIND_PYTHON(2.4 /Library/Frameworks)
