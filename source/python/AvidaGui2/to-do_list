@@ -51,8 +51,12 @@ Priority Low
 
 ************Kaben******************
 
-- toggle to see legend instruction names to colors?
-- toggle to see letters?
+- toggle to see legend instruction names to colors
+- toggle to see letters
+- animation of organism divide
+  - or, for now, some way of indicating that divide has occurred
+    - say, perhaps, just drawing a line at divide points when copy is
+      complete
 
 Priority High-
 -first step for Windows is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)

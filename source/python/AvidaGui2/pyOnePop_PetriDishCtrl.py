@@ -16,6 +16,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
   def __init__(self,parent = None,name = None,fl = 0):
     pyOnePop_PetriDishView.__init__(self,parent,name,fl)
     self.m_gradient_scale_view = pyGradientScaleView(self,"m_gradient_scale_ctrl")
+    self.m_gradient_scale_is_rescaling = False
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
@@ -138,10 +139,17 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         self.m_gradient_scale_ctrl.setRange(min, max)
         self.m_gradient_scale_ctrl.activate(True)
         self.m_petri_dish_ctrl.setRange(min, max)
+        if (old_min, old_max) != (min, max):
+          self.m_gradient_scale_ctrl.setMapModeSlot(self.m_map_profile.getModeName(self.m_mode_index) + ' (rescaling)')
+          self.m_gradient_scale_is_rescaling = True
         # Force subsequent resets until valid range is obtained.
         if ((min, max) != (0, 0)):
           self.m_updater.reset(False)
         should_update_all = True
+      elif self.m_gradient_scale_is_rescaling:
+        self.m_gradient_scale_ctrl.setMapModeSlot(self.m_map_profile.getModeName(self.m_mode_index))
+        self.m_gradient_scale_ctrl.activate(True)
+        self.m_gradient_scale_is_rescaling = False
     else:
       self.m_gradient_scale_ctrl.setRange(0, 0)
       self.m_gradient_scale_ctrl.activate(True)
