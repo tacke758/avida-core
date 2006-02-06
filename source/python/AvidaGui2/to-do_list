@@ -51,10 +51,11 @@ Priority Low
 
 ************Kaben******************
 
+- toggle to see legend instruction names to colors?
+- toggle to see letters?
+
 Priority High-
-23-Jan-06 Get program to run on all Macs
 -first step for Windows is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)
--make gradient say "rescaling" when it rescales
 -run things throught the test cpus (so we can accurately paint loaded dishes and so the graphs have good data from the get go)
 -investigation of printing petri dish (1/26/06)
 
@@ -96,3 +97,10 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 16-Jan-06 Default mutation rate to 0.5? (easy to change) -- Finished 1-Feb-06
 
 -change the word "repopulate" to "start new experiment" -- Finished 2-Feb-06
+
+
+************Kaben******************
+
+23-Jan-06 Get program to run on all Macs -- Finished 27-Jan-06
+
+30-Jan-06 Make gradient say "rescaling" when it rescales -- Finished 06-Feb-06
