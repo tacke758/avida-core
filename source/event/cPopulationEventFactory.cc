@@ -584,6 +584,25 @@ namespace nPopulation {
       population->GetStats().PrintTasksExeData(fname);
     }
   };
+
+  class cEvent_print_reaction_data : public cPopulationEvent {
+  private:
+    cString fname;
+  public:
+    const cString GetName() const { return "print_reaction_data"; }
+    const cString GetDescription() const { return "print_reaction_data  [cString fname=\"reaction.dat\"]"; }
+    
+    void Configure(const cString& in_args)
+  {
+      m_args = in_args;
+      cString args(in_args);
+      if (args == "") fname="reaction.dat"; else fname=args.PopWord();
+  }
+    ///// print_tasks_exe_data /////
+    void Process(){
+      population->GetStats().PrintReactionData(fname);
+    }
+  };
   
   ///// print_resource_data /////
   

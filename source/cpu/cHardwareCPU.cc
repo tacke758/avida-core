@@ -202,7 +202,7 @@ cInstLibCPU *cHardwareCPU::initInstLib(void){
     cInstEntryCPU("put",       &cHardwareCPU::Inst_TaskPut),
     cInstEntryCPU("IO",        &cHardwareCPU::Inst_TaskIO, true,
 		  "Output ?BX?, and input new number back into ?BX?"),
-
+	cInstEntryCPU("match-strings", &cHardwareCPU::Inst_MatchStrings),
     cInstEntryCPU("send",      &cHardwareCPU::Inst_Send),
     cInstEntryCPU("receive",   &cHardwareCPU::Inst_Receive),
     cInstEntryCPU("sense",     &cHardwareCPU::Inst_Sense),
@@ -385,6 +385,7 @@ cHardwareCPU::cHardwareCPU(const cHardwareCPU &hardware_cpu)
 , cur_thread(hardware_cpu.cur_thread)
 , mal_active(hardware_cpu.mal_active)
 , advance_ip(hardware_cpu.advance_ip)
+, executedmatchstrings(hardware_cpu.executedmatchstrings)
 #ifdef INSTRUCTION_COSTS
 , inst_cost(hardware_cpu.inst_cost)
 , inst_ft_cost(hardware_cpu.inst_ft_cost)
@@ -420,6 +421,7 @@ void cHardwareCPU::Reset()
   cur_thread = 0;
 
   mal_active = false;
+  executedmatchstrings = false;
 
 #ifdef INSTRUCTION_COSTS
   // instruction cost arrays
@@ -2825,6 +2827,15 @@ bool cHardwareCPU::Inst_TaskIO()
   Register(reg_used) = value_in;
   organism->DoInput(value_in);
   return true;
+}
+
+bool cHardwareCPU::Inst_MatchStrings()
+{
+	if (executedmatchstrings)
+		return false;
+	organism->DoOutput(1234);
+	executedmatchstrings = true;
+	return true;
 }
 
 bool cHardwareCPU::Inst_Send()

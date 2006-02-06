@@ -7,6 +7,9 @@
 
 #ifndef REACTION_PROCESS_HH
 #define REACTION_PROCESS_HH
+#ifndef STRING_HH
+#include "cString.h"
+#endif
 
 #include <iostream>
 
@@ -23,8 +26,9 @@ private:
   double max_fraction;   // Max fraction of avaiable resources useable.
   cResource * product;   // Output resource.
   double conversion;     // Conversion factor.
-  bool lethal;		 // Lethality of reaction
+  bool lethal;			 // Lethality of reaction
   int inst_id;           // Instruction to be triggered if reaction successful.
+  cString match_string;	 // Bit string to match if this is a match string reaction
 
   // Resource detection
   cResource * detect;    // Resource Measured
@@ -47,6 +51,7 @@ public:
   cResource * GetDetect() const { return detect; }
   double GetDetectionThreshold() const { return detection_threshold; }
   double GetDetectionError() const { return detection_error; }
+  cString GetMatchString() const { return match_string; }
 
   void SetResource(cResource * _in) { resource = _in; }
   void SetValue(double _in) { value = _in; }
@@ -61,6 +66,7 @@ public:
   void SetDetect(cResource * _in) { detect = _in; }
   void SetDetectionThreshold(double _in) { detection_threshold = _in; }
   void SetDetectionError(double _in) { detection_error = _in; }
+  void SetMatchString(cString _in) { match_string = _in; }
 };
 
 #endif

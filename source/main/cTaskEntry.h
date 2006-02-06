@@ -21,15 +21,17 @@ private:
   cString desc;  // For more human-understandable output...
   int id;
   tTaskTest test_fun;
+  cString info;  // extra info (like the string or whatever to match)
 public:
   cTaskEntry(const cString & _name, const cString & _desc, int _id,
-	     tTaskTest _test_fun);
+	     tTaskTest _test_fun, const cString & info);
   ~cTaskEntry();
 
   const cString & GetName()    const { return name; }
   const cString & GetDesc() const { return desc; }
   const int       GetID()      const { return id; }
   const tTaskTest GetTestFun() const { return test_fun; }
+  const cString & GetInfo() const { return info; }
 };
 
 #endif

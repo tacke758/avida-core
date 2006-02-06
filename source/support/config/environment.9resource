@@ -31,3 +31,8 @@ REACTION  ANDN andn  process:resource=resANDN:value=4.0:frac=0.0025:max=25
 REACTION  NOR  nor   process:resource=resNOR:value=8.0:frac=0.0025:max=25
 REACTION  XOR  xor   process:resource=resXOR:value=8.0:frac=0.0025:max=25
 REACTION  EQU  equ   process:resource=resEQU:value=16.0:frac=0.0025:max=25
+
+
+REACTION  MATCHSTR matchstr   process:resource=resMATCHSTR:value=16.0:frac=0.0025:max=25:string=11111111111111111111111111111111
+
+

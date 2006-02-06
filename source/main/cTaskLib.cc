@@ -17,6 +17,7 @@ extern "C" {
 #include <math.h>
 #include <limits.h>
 }
+#include <iostream>
 
 using namespace std;
 
@@ -39,11 +40,12 @@ cTaskLib::~cTaskLib()
   }
 }
 
-cTaskEntry * cTaskLib::AddTask(const cString & name)
+cTaskEntry * cTaskLib::AddTask(const cString & name, const cString & info)
 {
   // Determine if this task is already in the active library.
   for (int i = 0; i < task_array.GetSize(); i++) {
-    if (task_array[i]->GetName() == name) {
+    if (task_array[i]->GetName() == name &&
+		task_array[i]->GetInfo() == info) {
       assert(task_array[i] != NULL);
       return task_array[i];
     }
@@ -52,6 +54,7 @@ cTaskEntry * cTaskLib::AddTask(const cString & name)
   // Match up this name to its corresponding task
   const int start_size = task_array.GetSize();
 
+  
   if (name == "echo")      NewTask(name, "Echo", &cTaskLib::Task_Echo);
   else if (name == "add")  NewTask(name, "Add",  &cTaskLib::Task_Add);
   else if (name == "sub")  NewTask(name, "Sub",  &cTaskLib::Task_Sub);
@@ -318,6 +321,8 @@ cTaskEntry * cTaskLib::AddTask(const cString & name)
   else if (name == "math_3AM")
     NewTask(name, "Math 3AM ((X+Y)^2+(Y+Z)^2)", &cTaskLib::Task_Math3in_AM);  
     
+   // match string task
+  if (name == "matchstr")  NewTask(name, "MatchStr", &cTaskLib::Task_MatchStr, 0, info);
 	// communication tasks
   else if (name == "comm_echo")
     NewTask(name, "Echo of Neighbor's Input", &cTaskLib::Task_CommEcho,
@@ -434,6 +439,7 @@ void cTaskLib::SetupLogicTests(const tBuffer<int> & inputs,
 
 double cTaskLib::TestOutput(const cTaskEntry & task) const
 {
+  cur_task = task.GetID();
   tTaskTest test_fun = task.GetTestFun();
   return (this->*test_fun)();
 }
@@ -444,14 +450,14 @@ double cTaskLib::TestOutput(const cTaskEntry & task) const
 ////////////////////////
 
 void cTaskLib::NewTask(const cString & name, const cString & desc,
-		       tTaskTest task_fun, int reqs)
+		       tTaskTest task_fun, int reqs, const cString & info)
 {
   if (reqs & REQ_NEIGHBOR_INPUT == true) use_neighbor_input = true;
   if (reqs & REQ_NEIGHBOR_OUTPUT == true) use_neighbor_output = true;
 
   const int id = task_array.GetSize();
   task_array.Resize(id+1);
-  task_array[id] = new cTaskEntry(name, desc, id, task_fun);
+  task_array[id] = new cTaskEntry(name, desc, id, task_fun, info);
 }
 
 
@@ -1664,6 +1670,42 @@ double cTaskLib::Task_Math3in_AM() const //((X+Y)^2+(Y+Z)^2)
     }
   }
   return 0.0;
+}
+
+double cTaskLib::Task_MatchStr() const
+{
+	if (output_buffer[0] != 1234)
+		return 0;
+
+	output_buffer.Pop(); // pop the 1234 value off of the buffer
+	if (output_buffer.GetNumStored() == 0)
+		return 0;
+
+	const cString & string_to_match = task_array[cur_task]->GetInfo();
+	int max_num_matched = 0;
+	//for (int i=0; i<output_buffer.GetNumStored(); i++)
+	//{
+		const int test_output = output_buffer[0];
+		int num_matched = 0;
+		int string_index;
+
+		for (int j=0; j<string_to_match.GetSize(); j++)
+		{	
+			string_index=string_to_match.GetSize()-j-1;
+			int k = 1 << j;
+			if ((string_to_match[string_index]=='0' && !(test_output & k)) || (string_to_match[string_index]=='1' && (test_output & k))) 
+				num_matched++;
+		}	
+		if (num_matched > max_num_matched)
+			max_num_matched = num_matched;
+	//}
+
+	// return # of bits matched over the expected 50% that would match just by chance 
+	// this value is multiplied into the bonus
+	int bonus = max_num_matched - string_to_match.GetSize()/2;
+	if (bonus < 0)
+		bonus = 0;
+	return (double) bonus;
 }
 
 double cTaskLib::Task_CommEcho() const

@@ -38,6 +38,7 @@ private:
   mutable tList<tBuffer<int> > other_input_buffers;
   mutable tList<tBuffer<int> > other_output_buffers;
   mutable int logic_id;
+  mutable int cur_task; // the ID of the task currently being tested
 
   enum req_list { REQ_NEIGHBOR_INPUT=1,
 		  REQ_NEIGHBOR_OUTPUT=2, 
@@ -52,7 +53,7 @@ public:
 
   int GetSize() const { return task_array.GetSize(); }
 
-  cTaskEntry * AddTask(const cString & name);
+  cTaskEntry * AddTask(const cString & name, const cString & info);
   const cTaskEntry & GetTask(int id) const;
   
   void SetupTests(const tBuffer<int> & inputs,
@@ -66,7 +67,7 @@ public:
 
 private:  // Direct task related methods
   void NewTask(const cString & name, const cString & desc,
-	       tTaskTest task_fun, int reqs=0);
+	       tTaskTest task_fun, int reqs=0, const cString & info="");
   void SetupLogicTests(const tBuffer<int> & inputs,
 		       const tBuffer<int> & outputs) const;
 
@@ -211,6 +212,8 @@ private:  // Direct task related methods
   double Task_Math3in_AL() const;
   double Task_Math3in_AM() const;
   
+  // match string tasks
+  double Task_MatchStr() const;
   // Communication Tasks...
   double Task_CommEcho() const;
   double Task_CommNot() const;

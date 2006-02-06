@@ -14,11 +14,12 @@
 ////////////////
 
 cTaskEntry::cTaskEntry(const cString & _name, const cString & _desc,
-		       int _id, tTaskTest _test_fun)
+		       int _id, tTaskTest _test_fun, const cString & _info)
   : name(_name)
   , desc(_desc)
   , id(_id)
   , test_fun(_test_fun)
+  , info(_info)
 {
 }
 

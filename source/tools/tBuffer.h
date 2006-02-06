@@ -52,6 +52,12 @@ public:
     while (offset >= data.GetSize()) offset -= data.GetSize();
   }
 
+  void Pop(){
+	  total--;
+	  offset--;
+	  while (offset < 0) offset += data.GetSize();
+  }
+
   void ZeroNumAdds() { total = 0; }
 
   T operator[] (int i) const {

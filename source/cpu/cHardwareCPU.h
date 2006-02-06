@@ -99,6 +99,7 @@ private:
   // Flags...
   bool mal_active;         // Has an allocate occured since last divide?
   bool advance_ip;         // Should the IP advance after this instruction?
+  bool executedmatchstrings;	// Have we already executed the match strings instruction?
 
   // Instruction costs...
 #ifdef INSTRUCTION_COSTS
@@ -393,6 +394,7 @@ public:
   bool Inst_TaskStackLoad();
   bool Inst_TaskPut();
   bool Inst_TaskIO();
+  bool Inst_MatchStrings();
   bool Inst_Send();
   bool Inst_Receive();
   bool Inst_Sense();
