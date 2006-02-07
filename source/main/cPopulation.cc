@@ -1238,8 +1238,17 @@ void cPopulation::UpdateOrganismStats()
     
     // Test what tasks this creatures has completed.
     for (int j=0; j < phenotype.GetEnvironment().GetTaskLib().GetSize(); j++) {
-      if (phenotype.GetCurTaskCount()[j] > 0)  stats.AddCurTask(j);
-      if (phenotype.GetLastTaskCount()[j] > 0) stats.AddLastTask(j);
+      if (phenotype.GetCurTaskCount()[j] > 0)  
+	  {
+		  stats.AddCurTask(j);
+		  stats.AddCurTaskQuality(j, phenotype.GetCurTaskQuality()[j]);
+	  }
+
+      if (phenotype.GetLastTaskCount()[j] > 0) 
+	  {
+		  stats.AddLastTask(j);
+		  stats.AddLastTaskQuality(j, phenotype.GetLastTaskQuality()[j]);
+	  }
       if (phenotype.GetLastTaskCount()[j] > 0) 
         stats.IncTaskExeCount(j, phenotype.GetLastTaskCount()[j]);
     }

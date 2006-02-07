@@ -74,6 +74,7 @@ private:
   int cur_num_errors;             // Total instructions executed illeagally.
   int cur_num_donates;            // Number of donations so far
   tArray<int> cur_task_count;     // Total times each task was performed
+  tArray<double> cur_task_quality;	  // Average (total?) quality with which each task was performed
   tArray<int> cur_reaction_count; // Total times each reaction was triggered.
   tArray<int> cur_inst_count;	  // Intruction exection counter
   tArray<double> sensed_resources; // Resources of which the organism is explictly aware
@@ -84,6 +85,7 @@ private:
   int last_num_errors;
   int last_num_donates;
   tArray<int> last_task_count;
+  tArray<double> last_task_quality;
   tArray<int> last_reaction_count;
   tArray<int> last_inst_count;	  // Intruction exection counter
   double last_fitness;            // Used to determine sterilization.
@@ -203,6 +205,8 @@ public:
     { assert(initialized == true); return cur_num_donates; }
   const tArray<int> & GetCurTaskCount() const
     { assert(initialized == true); return cur_task_count; }
+  const tArray<double> & GetCurTaskQuality() const
+    { assert(initialized == true); return cur_task_quality; }
   const tArray<int> & GetCurReactionCount() const
     { assert(initialized == true); return cur_reaction_count;}
   const tArray<int> & GetCurInstCount() const
@@ -223,6 +227,8 @@ public:
     { assert(initialized == true); return last_num_donates; }
   const tArray<int> & GetLastTaskCount() const
     { assert(initialized == true); return last_task_count; }
+  const tArray<double> & GetLastTaskQuality() const
+    { assert(initialized == true); return last_task_quality; }
   const tArray<int> & GetLastReactionCount() const
     { assert(initialized == true); return last_reaction_count; }
   const tArray<int> & GetLastInstCount() const

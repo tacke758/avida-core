@@ -46,6 +46,7 @@
 #include "cTools.h"
 #endif
 
+#include <iostream>
 using namespace std;
 
 cEnvironment::cEnvironment()
@@ -759,7 +760,6 @@ bool cEnvironment::TestOutput( cReactionResult & result,
 
     // If this task wasn't performed, move on to the next one.
     if (task_quality == 0.0) continue;
-
 
     // Examine requisites on this reaction
     if (TestRequisites(cur_reaction->GetRequisites(), task_count[task_id],

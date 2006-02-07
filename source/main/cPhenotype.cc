@@ -31,10 +31,12 @@ cPhenotype::cPhenotype(const cEnvironment & _environment)
   : environment(_environment)
   , initialized(false)
   , cur_task_count(environment.GetTaskLib().GetSize())
+  , cur_task_quality(environment.GetTaskLib().GetSize())
   , cur_reaction_count(environment.GetReactionLib().GetSize())
   , cur_inst_count(environment.GetInstSet().GetSize())
   , sensed_resources(environment.GetResourceLib().GetSize())
   , last_task_count(environment.GetTaskLib().GetSize())
+  , last_task_quality(environment.GetTaskLib().GetSize())
   , last_reaction_count(environment.GetReactionLib().GetSize())
   , last_inst_count(environment.GetInstSet().GetSize())
 {
@@ -104,6 +106,7 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_inst_count.SetAll(0);
   for (int j = 0; j < sensed_resources.GetSize(); j++)
@@ -116,6 +119,7 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   last_num_errors     = parent_phenotype.last_num_errors;
   last_num_donates    = parent_phenotype.last_num_donates;
   last_task_count     = parent_phenotype.last_task_count;
+  last_task_quality   = parent_phenotype.last_task_quality;
   last_reaction_count = parent_phenotype.last_reaction_count;
   last_inst_count     = parent_phenotype.last_inst_count;
   last_fitness        = last_merit_base * last_bonus / gestation_time;
@@ -196,6 +200,7 @@ void cPhenotype::SetupInject(int _length)
   last_num_errors = 0;
   last_num_donates = 0;
   last_task_count.SetAll(0);
+  last_task_quality.SetAll(0);
   last_reaction_count.SetAll(0);
   last_inst_count.SetAll(0);
 
@@ -264,6 +269,7 @@ void cPhenotype::DivideReset(int _length)
   last_num_errors     = cur_num_errors;
   last_num_donates    = cur_num_donates;
   last_task_count     = cur_task_count;
+  last_task_quality   = cur_task_quality;
   last_reaction_count = cur_reaction_count;
   last_inst_count     = cur_inst_count;
 
@@ -272,6 +278,7 @@ void cPhenotype::DivideReset(int _length)
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_inst_count.SetAll(0);
 
@@ -349,6 +356,7 @@ void cPhenotype::TestDivideReset(int _length)
   last_num_errors     = cur_num_errors;
   last_num_donates    = cur_num_donates;
   last_task_count     = cur_task_count;
+  last_task_quality   = cur_task_quality;
   last_reaction_count = cur_reaction_count;
   last_inst_count     = cur_inst_count;
 
@@ -357,6 +365,7 @@ void cPhenotype::TestDivideReset(int _length)
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_inst_count.SetAll(0);
   sensed_resources.SetAll(-1.0);
@@ -525,6 +534,9 @@ bool cPhenotype::TestOutput(tBuffer<int> & input_buf, tBuffer<int> &output_buf,
   // Start with updating task and reaction counters
   for (int i = 0; i < num_tasks; i++) {
     if (result.TaskDone(i) == true) cur_task_count[i]++;
+  }
+  for (int i = 0; i < num_tasks; i++) {
+    if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i);
   }
   for (int i = 0; i < num_reactions; i++) {
     if (result.ReactionTriggered(i) == true) cur_reaction_count[i]++;

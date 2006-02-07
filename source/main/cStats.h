@@ -221,6 +221,8 @@ private:
 
   tArray<int> task_cur_count;
   tArray<int> task_last_count;
+  tArray<double> task_cur_quality;
+  tArray<double> task_last_quality;
   tArray<int> task_exe_count;
 
   tArray<double> reaction_count;
@@ -444,7 +446,9 @@ public:
   void IncExecuted() { num_executed++; }
 
   void AddCurTask(int task_num) { task_cur_count[task_num]++; }
+  void AddCurTaskQuality(int task_num, double quality) { task_cur_quality[task_num] += quality; }
   void AddLastTask(int task_num) { task_last_count[task_num]++; }
+  void AddLastTaskQuality(int task_num, double quality) { task_last_quality[task_num] += quality; }
   void IncTaskExeCount(int task_num, int task_count) 
     { task_exe_count[task_num] += task_count; }
   void ZeroTasks();
@@ -492,6 +496,8 @@ public:
 
   int GetTaskCurCount(int task_num) const { return task_cur_count[task_num]; }
   int GetTaskLastCount(int task_num) const {return task_last_count[task_num];}
+  int GetTaskCurQuality(int task_num) const { return task_cur_quality[task_num]; }
+  int GetTaskLastQuality(int task_num) const {return task_last_quality[task_num];}
   int GetTaskExeCount(int task_num) const { return task_exe_count[task_num]; }
 
   const tArray<double> & GetReactions() const { return reaction_count; }

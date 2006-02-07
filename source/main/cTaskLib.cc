@@ -1699,13 +1699,12 @@ double cTaskLib::Task_MatchStr() const
 		if (num_matched > max_num_matched)
 			max_num_matched = num_matched;
 	//}
+	output_buffer.Add(1234);
 
-	// return # of bits matched over the expected 50% that would match just by chance 
-	// this value is multiplied into the bonus
-	int bonus = max_num_matched - string_to_match.GetSize()/2;
-	if (bonus < 0)
-		bonus = 0;
-	return (double) bonus;
+
+	// return value between 0 & 1 representing the percentage of string that was matched
+	double bonus = pow((double(max_num_matched*2)/(double)string_to_match.GetSize()),2);
+	return bonus;
 }
 
 double cTaskLib::Task_CommEcho() const

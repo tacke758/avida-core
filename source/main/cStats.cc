@@ -101,9 +101,13 @@ cStats::cStats()
 
   task_cur_count.Resize( cConfig::GetNumTasks() );
   task_last_count.Resize( cConfig::GetNumTasks() );
+  task_cur_quality.Resize( cConfig::GetNumTasks() );
+  task_last_quality.Resize( cConfig::GetNumTasks() );
   task_exe_count.Resize( cConfig::GetNumTasks() );
   task_cur_count.SetAll(0);
   task_last_count.SetAll(0);
+  task_cur_quality.SetAll(0);
+  task_last_quality.SetAll(0);
   task_exe_count.SetAll(0);
 
 #ifdef INSTRUCTION_COUNT
@@ -235,6 +239,8 @@ void cStats::ZeroTasks()
   for( int i=0; i < task_cur_count.GetSize(); i++ ){
     task_cur_count[i] = 0;
     task_last_count[i] = 0;
+	task_cur_quality[i] = 0;
+    task_last_quality[i] = 0;
   }
 }
 
@@ -392,6 +398,8 @@ void cStats::ProcessUpdate()
 
   task_cur_count.SetAll(0);
   task_last_count.SetAll(0);
+  task_cur_quality.SetAll(0);
+  task_last_quality.SetAll(0);
   task_exe_count.SetAll(0);
 
   dom_merit = 0;
@@ -651,13 +659,18 @@ void cStats::PrintTasksData(const cString & filename)
 
   df.WriteComment( "Avida tasks data" );
   df.WriteTimeStamp();
-  df.WriteComment( "First column gives the current update, all further columns give the number" );
-  df.WriteComment( "of organisms that have the particular task as a component of the merit." );
+  df.WriteComment( "First column gives the current update, next columns give the number" );
+  df.WriteComment( "of organisms that have the particular task as a component of their merit" );
+  //df.WriteComment( "and the total task quality of all those orgs performing it" );
 
 
   df.Write( GetUpdate(),   "Update");
   for(int i = 0; i < task_last_count.GetSize(); i++) {
     df.Write( task_last_count[i], task_names[i] );
+	double qual=0;
+	if (task_last_count[i] > 0)
+		qual = task_last_quality[i]/(double)task_last_count[i];
+	//df.Write( qual, "quality" );
   }
   df.Endl();
 }

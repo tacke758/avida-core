@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "cReactionResult.h"
+#include <iostream>
+using namespace std;
 
 
 cReactionResult::cReactionResult(const int num_resources,
@@ -78,11 +80,11 @@ void cReactionResult::Lethal(bool flag)
  lethal = flag;
 }
 
-void cReactionResult::MarkTask(int id, const double quality)
+void cReactionResult::MarkTask(int id, double quality)
 {
   ActivateReaction();
   tasks_done[id] = true;
-  tasks_quality[id]+=quality;
+  tasks_quality[id] = quality;
 }
 
 
@@ -164,7 +166,7 @@ bool cReactionResult::TaskDone(int id)
 
 double cReactionResult::TaskQuality(int id)
 {
-	if (GetActive() == false) return false;
+	if (GetActive() == false) return 0;
 	return tasks_quality[id];
 }
 
