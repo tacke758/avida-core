@@ -1674,7 +1674,7 @@ double cTaskLib::Task_Math3in_AM() const //((X+Y)^2+(Y+Z)^2)
 
 double cTaskLib::Task_MatchStr() const
 {
-	if (output_buffer[0] != 1234)
+	if (output_buffer[0] != 357913941)
 		return 0;
 
 	output_buffer.Pop(); // pop the 1234 value off of the buffer
@@ -1699,7 +1699,7 @@ double cTaskLib::Task_MatchStr() const
 		if (num_matched > max_num_matched)
 			max_num_matched = num_matched;
 	//}
-	output_buffer.Add(1234);
+	output_buffer.Add(357913941);
 
 
 	// return value between 0 & 1 representing the percentage of string that was matched

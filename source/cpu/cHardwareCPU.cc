@@ -2833,7 +2833,7 @@ bool cHardwareCPU::Inst_MatchStrings()
 {
 	if (executedmatchstrings)
 		return false;
-	organism->DoOutput(1234);
+	organism->DoOutput(357913941);
 	executedmatchstrings = true;
 	return true;
 }
