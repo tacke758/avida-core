@@ -78,6 +78,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDropped)
     self.ChangeMutationTextSlot()
     self.ChangeWorldSizeTextSlot()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("setAvidaSig"),
+      (self.m_avida,))
+
     self.populated = False
     
   def destruct(self):
@@ -384,7 +388,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.m_session_mdl.m_current_freezer, self.m_session_mdl.m_tempdir,
       self.m_session_mdl.m_tempdir_out)
     self.m_session_mdl.m_session_mdtr.emit(
-      PYSIGNAL("doInitializeAvidaPhaseIISig"), (os.path.join(self.m_session_mdl.m_tempdir, "genesis.avida"),))
+      PYSIGNAL("doInitializeAvidaPhaseIISig"), 
+      (os.path.join(self.m_session_mdl.m_tempdir, "genesis.avida"),))
       
   def Form2Dictionary(self):
     descr()

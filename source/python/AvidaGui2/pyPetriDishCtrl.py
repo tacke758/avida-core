@@ -123,12 +123,15 @@ class pyPetriDishCtrl(QWidget):
     if(self.m_avida):
       pass
 
-    self.m_change_list = self.m_avida.m_avida_threaded_driver.GetChangeList()
-
-    self.m_world_w = cConfig.GetWorldX()
-    self.m_world_h = cConfig.GetWorldY()
+    if (self.m_avida):
+      self.m_change_list = self.m_avida.m_avida_threaded_driver.GetChangeList()
+      self.m_world_w = cConfig.GetWorldX()
+      self.m_world_h = cConfig.GetWorldY()
+    else:
+      self.m_world_w = 30
+      self.m_world_h = 30
+      
     self.m_initial_target_zoom = int(self.m_target_dish_width / self.m_world_w)
-
     self.emit(PYSIGNAL("zoomSig"), (self.m_initial_target_zoom,))
 
     if self.m_canvas: del self.m_canvas
@@ -236,7 +239,7 @@ class pyPetriDishCtrl(QWidget):
 
   def zoomSlot(self, zoom_factor):
     if hasattr(self,"m_world_h") == False:
-      return
+       return
 
     self.m_zoom_factor = zoom_factor
     self.m_world_matrix = QWMatrix()
