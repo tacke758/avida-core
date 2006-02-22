@@ -53,7 +53,16 @@ MACRO(ADD_PYSTE_MODULE
   # Command defining the python module build target.
   #
   ADD_LIBRARY(${ModuleName} MODULE ${${ModuleName}_CppFiles})
-  SET_TARGET_PROPERTIES(${ModuleName} PROPERTIES PREFIX "")
+  IF(MINGW)
+    SET_TARGET_PROPERTIES(${ModuleName}
+      PROPERTIES
+        LINK_FLAGS "-enable-runtime-pseudo-reloc"
+        PREFIX "")
+  ELSE(MINGW)
+    SET_TARGET_PROPERTIES(${ModuleName}
+      PROPERTIES
+        PREFIX "")
+  ENDIF(MINGW)
   TARGET_LINK_LIBRARIES(${ModuleName} ${${LinkLibraries}})
   INSTALL_TARGETS(${PackageLocation}/${ModuleName} ${ModuleName})
 

@@ -658,31 +658,7 @@
 	  <br/>
 	  <code>export PYTHON_VERSION=2.4</code>
 	  <br/>
-          <code>$ bjam -sTOOLS=mingw \</code>
-          <br/>
-          <code>
-	    -sBUILD=release \
-          </code>
-          <br/>
-          <code>--prefix=/usr/local \</code>
-          <br/>
-          <code>--without-serialization \</code>
-          <br/>
-          <code>--without-test \</code>
-          <br/>
-          <code>--without-date_time \</code>
-          <br/>
-          <code>--without-filesystem \</code>
-          <br/>
-          <code>--without-regexp \</code>
-          <br/>
-          <code>--without-signals \</code>
-          <br/>
-          <code>--without-program_options \</code>
-          <br/>
-          <code>--with-python-root=/c/Python24 \</code>
-          <br/>
-          <code>-sPYTHON_VERSION=2.4</code>
+          <code>$ bjam -sTOOLS=mingw -sBUILD=release --prefix=/usr/local --without-serialization --without-test --without-date_time --without-filesystem --without-regexp --without-signals --without-program_options --with-python-root=/c/Python24 -sPYTHON_VERSION=2.4</code>
         </p>
         <p>
           Install Boost.Python (again, a big and ugly command --
@@ -690,33 +666,7 @@
           "<code>install</code>"):
         </p>
         <p>
-          <code>$ bjam -sTOOLS=mingw \</code>
-          <br/>
-          <code>
-            "-sBUILD=release"
-          </code>
-          <br/>
-          <code>--prefix=/usr/local \</code>
-          <br/>
-          <code>--without-serialization \</code>
-          <br/>
-          <code>--without-test \</code>
-          <br/>
-          <code>--without-date_time \</code>
-          <br/>
-          <code>--without-filesystem \</code>
-          <br/>
-          <code>--without-regexp \</code>
-          <br/>
-          <code>--without-signals \</code>
-          <br/>
-          <code>--without-program_options \</code>
-          <br/>
-          <code>--with-python-root=/c/Python24 \</code>
-          <br/>
-          <code>-sPYTHON_VERSION=2.4 \</code>
-          <br/>
-          <code>install</code>
+          <code>$ bjam -sTOOLS=mingw -sBUILD=release --prefix=/usr/local --without-serialization --without-test --without-date_time --without-filesystem --without-regexp --without-signals --without-program_options --with-python-root=/c/Python24 -sPYTHON_VERSION=2.4 install</code>
         </p>
 	<p>
 	  After building it, we still need to compile and install the

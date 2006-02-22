@@ -5,6 +5,15 @@ INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/AddPysteModule.cmake)
 INCLUDE_DIRECTORIES(${ALL_INC_DIRS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 
+
+# Fix for CMake and MSYS (MinGW shell)
+# TODO: Find CMake bug causing this
+IF(MINGW)
+  STRING(REGEX REPLACE "c:/" "/c/" SourceDir "${CMAKE_CURRENT_SOURCE_DIR}")
+ELSE(MINGW)
+  SET(SourceDir ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF(MINGW)
+
 #
 # example unittest-style test suite.
 #
@@ -20,10 +29,10 @@ FOREACH(PY_TEST_SUITE ${PY_UNITTEST_SUITES})
     
   ADD_TEST(
     ${PY_TEST_SUITE}
-    ${PYTHON_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/py_unittest_driver.py
+    ${PYTHON_EXE} ${SourceDir}/py_unittest_driver.py
     ${PY_TEST_SUITE}
     ${LIBRARY_OUTPUT_PATH}
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${SourceDir}
   )   
 ENDFOREACH(PY_TEST_SUITE)
 
@@ -33,7 +42,7 @@ ENDFOREACH(PY_TEST_SUITE)
 SET(PyAvida_Pyste_Bases
 
   # XXX I can't figure out how it works.
-  tArray::${CMAKE_CURRENT_SOURCE_DIR}/organism.pyste:${CMAKE_CURRENT_SOURCE_DIR}/merit.pyste:${CMAKE_CURRENT_SOURCE_DIR}/mutation.pyste:${CMAKE_CURRENT_SOURCE_DIR}/int_sum.pyste:
+  tArray::${SourceDir}/organism.pyste:${SourceDir}/merit.pyste:${SourceDir}/mutation.pyste:${SourceDir}/int_sum.pyste:
 
   cpu_head::
   phenotype::
@@ -49,8 +58,8 @@ SET(PyAvida_Pyste_Bases
   cTextTestInterpreter::
 
   help_entry::
-  help_alias::${CMAKE_CURRENT_SOURCE_DIR}/help_entry.pyste:
-  help_full_entry::${CMAKE_CURRENT_SOURCE_DIR}/help_entry.pyste:
+  help_alias::${SourceDir}/help_entry.pyste:
+  help_full_entry::${SourceDir}/help_entry.pyste:
   help_manager::
   help_type::
   reaction::
@@ -85,29 +94,29 @@ SET(PyAvida_Pyste_Bases
   analyze_util:: # XXX XXX
   birth_chamber:: # XXX XXX
   schedule:: # XXX XXX
-  const_schedule::${CMAKE_CURRENT_SOURCE_DIR}/schedule.pyste: # XXX XXX
+  const_schedule::${SourceDir}/schedule.pyste: # XXX XXX
   data_manager_base:: # XXX XXX
   event_list:: # XXX XXX
   fitness_matrix:: # XXX XXX
   genotype_birth_data:: # XXX XXX
   hardware_4stack_thread:: # XXX XXX
-  hardware_cpu_thread::${CMAKE_CURRENT_SOURCE_DIR}/hardware_cpu_thread-fixups.hh # XXX XXX
+  hardware_cpu_thread::${SourceDir}/hardware_cpu_thread-fixups.hh # XXX XXX
   inject_genotype_birth_data:: # XXX XXX
   inst_util:: # XXX XXX
-  integrated_schedule::${CMAKE_CURRENT_SOURCE_DIR}/schedule.pyste: # XXX XXX
+  integrated_schedule::${SourceDir}/schedule.pyste: # XXX XXX
   landscape:: # XXX XXX
   lineage:: # XXX XXX
   local_mutations:: # XXX XXX
   mx_code_array:: # XXX XXX
-  prob_schedule::${CMAKE_CURRENT_SOURCE_DIR}/schedule.pyste: # XXX XXX
+  prob_schedule::${SourceDir}/schedule.pyste: # XXX XXX
   reaction_requisite:: # XXX
   string_iterator:: # XXX
   test_util:: # XXX
   analyze:: # XXX XXX
   avida_driver_base:: # XXX XXX
-  avida_driver_analyze::${CMAKE_CURRENT_SOURCE_DIR}/avida_driver_base.pyste: # XXX XXX
+  avida_driver_analyze::${SourceDir}/avida_driver_base.pyste: # XXX XXX
   event_triggers:: # XXX XXX
-  avida_triggers::${CMAKE_CURRENT_SOURCE_DIR}/event_triggers.pyste: # XXX XXX
+  avida_triggers::${SourceDir}/event_triggers.pyste: # XXX XXX
   code_label:: # XXX XXX
   cpu_stack:: # XXX XXX
   cpu_stats:: # XXX XXX
@@ -115,7 +124,7 @@ SET(PyAvida_Pyste_Bases
   fixed_block:: # XXX XXX
   fixed_coords:: # XXX XXX
   genome:: # XXX XXX
-  cpu_memory::${CMAKE_CURRENT_SOURCE_DIR}/genome.pyste:
+  cpu_memory::${SourceDir}/genome.pyste:
 
   genome_util:: # XXX XXX
   genotype_test_data:: # XXX XXX
@@ -138,22 +147,22 @@ SET(PyAvida_Pyste_Bases
   weighted_index:: # XXX XXX
 
   ##### Each of these wrappers satisfies Pyste, compiles, and loads, but many have FIXME todo lists.
-  avida_driver_population::${CMAKE_CURRENT_SOURCE_DIR}/avida_driver_base.pyste # XXX XXX XXX
+  avida_driver_population::${SourceDir}/avida_driver_base.pyste # XXX XXX XXX
   config:: # XXX XXX XXX
   count_tracker:: # XXX XXX XXX
-  nHardware::${CMAKE_CURRENT_SOURCE_DIR}/nHardware-fixups.h
-  nHardwareCPU::${CMAKE_CURRENT_SOURCE_DIR}/nHardwareCPU-fixups.h
+  nHardware::${SourceDir}/nHardware-fixups.h
+  nHardwareCPU::${SourceDir}/nHardwareCPU-fixups.h
   data_entry:: # XXX XXX XXX
   data_file:: # XXX XXX XXX
   data_file_manager:: # XXX XXX XXX
   double_sum:: # XXX XXX XXX
   environment:: # XXX XXX XXX
-  file::${CMAKE_CURRENT_SOURCE_DIR}/file-fixups.hh # XXX XXX XXX
-  init_file::${CMAKE_CURRENT_SOURCE_DIR}/file.pyste # XXX XXX XXX
-  genesis::${CMAKE_CURRENT_SOURCE_DIR}/init_file.pyste:${CMAKE_CURRENT_SOURCE_DIR}/genesis-fixups.hh # XXX XXX XXX
+  file::${SourceDir}/file-fixups.hh # XXX XXX XXX
+  init_file::${SourceDir}/file.pyste # XXX XXX XXX
+  genesis::${SourceDir}/init_file.pyste:${SourceDir}/genesis-fixups.hh # XXX XXX XXX
   hardware_base::
-  hardware_4stack::${CMAKE_CURRENT_SOURCE_DIR}/hardware_base.pyste # XXX XXX XXX
-  hardware_cpu::${CMAKE_CURRENT_SOURCE_DIR}/hardware_base.pyste:${CMAKE_CURRENT_SOURCE_DIR}/hardware_cpu-fixups.hh # XXX XXX XXX
+  hardware_4stack::${SourceDir}/hardware_base.pyste # XXX XXX XXX
+  hardware_cpu::${SourceDir}/hardware_base.pyste:${SourceDir}/hardware_cpu-fixups.hh # XXX XXX XXX
   hardware_tracer::
   hardware_tracer_cpu::
   hardware_tracer_smt::
@@ -162,11 +171,11 @@ SET(PyAvida_Pyste_Bases
   hardware_status_printer::
   hardware_util:: # XXX XXX XXX
   inst_lib_base:: # XXX XXX XXX
-  inst_lib_cpu::${CMAKE_CURRENT_SOURCE_DIR}/inst_lib_base.pyste # XXX XXX XXX
+  inst_lib_cpu::${SourceDir}/inst_lib_base.pyste # XXX XXX XXX
   inst_set:: # XXX XXX XXX
   population:: # XXX XXX XXX
   population_interface:: # XXX XXX XXX
-  py_avida_driver::${CMAKE_CURRENT_SOURCE_DIR}/avida_driver_population.pyste # XXX XXX XXX
+  py_avida_driver::${SourceDir}/avida_driver_population.pyste # XXX XXX XXX
   py_hardware_tracer::
   reaction_lib:: # XXX XXX XXX
   resource_count:: # XXX XXX XXX
@@ -176,7 +185,7 @@ SET(PyAvida_Pyste_Bases
   string_list:: # XXX XXX XXX
   task_lib:: # XXX XXX XXX
   test_cpu:: # XXX XXX XXX
-  tList::${CMAKE_CURRENT_SOURCE_DIR}/string.pyste # XXX XXX XXX
+  tList::${SourceDir}/string.pyste # XXX XXX XXX
   tVector::
   change_list::
 )
@@ -196,15 +205,20 @@ SET(PyAvida_Extra_Cpp_Files
   test_cpu-fixups.cc
 )
 
-ADD_LIBRARY(PyAvidaRepairHacks SHARED ${PyAvida_Extra_Cpp_Files})
+IF(MINGW)
+  ADD_LIBRARY(PyAvidaRepairHacks STATIC ${PyAvida_Extra_Cpp_Files})
+ELSE(MINGW)
+  ADD_LIBRARY(PyAvidaRepairHacks SHARED ${PyAvida_Extra_Cpp_Files})
+ENDIF(MINGW)
 TARGET_LINK_LIBRARIES(PyAvidaRepairHacks main cpu event main tools yaktest)
 
 STRING(REGEX REPLACE ";" ";-I;" PyAvida_Includes "${ALL_INC_DIRS}")
 SET(PyAvida_Includes
   -I ${PyAvida_Includes}
   -I ${PROJECT_SOURCE_DIR}/source/third-party/yaktest
-  -I ${CMAKE_CURRENT_SOURCE_DIR}
+  -I ${SourceDir}
   -I ${BOOST_INCLUDE_PATH})
+
 SET(PyAvida_LinkLibraries PyAvidaRepairHacks ${BOOST_LIBRARY} ${PYTHON_LIBRARY})
 
 IF(AVD_PY_MONOLITHIC)
