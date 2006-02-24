@@ -1,5 +1,8 @@
 Included in this directory are support scripts to assist in building under
 Windows.
 
-The two fix- scripts should be run in:
-build/source/bindings/Boost.Python/CMakeFiles/AvidaCore
+mingw-setupshell.sh will setup the PATH and other environment variables for MinGW.
+
+setup.py is the py2exe setup script.  Run with: python setup.py py2exe
+
+setup.nsi is a NSIS installer script that unpacks the executable to a temporary directory and sets up the default workspace.  Run with: makensis setup.nsi
