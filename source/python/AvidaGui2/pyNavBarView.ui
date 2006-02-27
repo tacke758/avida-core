@@ -33,7 +33,7 @@
         <widget class="QListView">
             <column>
                 <property name="text">
-                    <string>Navigation</string>
+                    <string>Viewers</string>
                 </property>
                 <property name="clickable">
                     <bool>false</bool>
