@@ -54,16 +54,16 @@ BOOST_VERSION_STRING=1_33
 
 if [ "$SHOULD_BUILD_THIRD_PARTY" == "Y" ]
 then
-	#"$SCRIPT_DIR"/Subversion.bash -a "$ARCHIVES_DIR"/subversion-client-1.2.3.dmg -p "*SubversionClient*.pkg" -v "$DEBUG"
+	"$SCRIPT_DIR"/Subversion.bash -a "$ARCHIVES_DIR"/subversion-client-1.2.3.dmg -p "*SubversionClient*.pkg" -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/CMake.bash -a "$ARCHIVES_DIR"/cmake-2.0.5-osx.dmg -p "*CMakeInstaller*.pkg" -v "$DEBUG"
+	"$SCRIPT_DIR"/CMake.bash -a "$ARCHIVES_DIR"/cmake-2.0.5-osx.dmg -p "*CMakeInstaller*.pkg" -v "$DEBUG"
 
-	##"$SCRIPT_DIR"/Xcode.bash -a "$ARCHIVES_DIR"/xcode_2.2_8m654_018213974.dmg -p "*XcodeTools*.mpkg" -v "$DEBUG"
-	#"$SCRIPT_DIR"/Xcode.bash -a "$ARCHIVES_DIR"/xcode_2.2.1_8g1165_018213632.dmg -p "*XcodeTools*.mpkg" -v "$DEBUG"
+	#"$SCRIPT_DIR"/Xcode.bash -a "$ARCHIVES_DIR"/xcode_2.2_8m654_018213974.dmg -p "*XcodeTools*.mpkg" -v "$DEBUG"
+	"$SCRIPT_DIR"/Xcode.bash -a "$ARCHIVES_DIR"/xcode_2.2.1_8g1165_018213632.dmg -p "*XcodeTools*.mpkg" -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/ReadLine.bash -a "$ARCHIVES_DIR"/readline-5.0-4-osx4.tar.gz -b "$ARCHIVES_DIR" -s readline-5.0 -v "$DEBUG"
+	"$SCRIPT_DIR"/ReadLine.bash -a "$ARCHIVES_DIR"/readline-5.0-4-osx4.tar.gz -b "$ARCHIVES_DIR" -s readline-5.0 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/Python.bash -a "$ARCHIVES_DIR"/Python-2.4.2.tar.bz2 -b "$ARCHIVES_DIR" -s Python-2.4.2 -v "$DEBUG"
+	"$SCRIPT_DIR"/Python.bash -a "$ARCHIVES_DIR"/Python-2.4.2.tar.bz2 -b "$ARCHIVES_DIR" -s Python-2.4.2 -v "$DEBUG"
 
 	"$SCRIPT_DIR"/Qt.bash -a "$ARCHIVES_DIR"/qt-mac-free-3.3.5.tar.bz2 -b "$ARCHIVES_DIR" -s qt-mac-free-3.3.5 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
@@ -75,15 +75,15 @@ then
 
 	"$SCRIPT_DIR"/PyQwt.bash -a "$ARCHIVES_DIR"/PyQwt-4.2.tar.gz -b "$ARCHIVES_DIR" -s PyQwt-4.2 -q "$ARCHIVES_DIR"/qt-mac-free-3.3.5 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/ElementTree.bash -a "$ARCHIVES_DIR"/elementtree-1.2.6-20050316.tar.gz -b "$ARCHIVES_DIR" -s elementtree-1.2.6-20050316 -v "$DEBUG"
+	"$SCRIPT_DIR"/ElementTree.bash -a "$ARCHIVES_DIR"/elementtree-1.2.6-20050316.tar.gz -b "$ARCHIVES_DIR" -s elementtree-1.2.6-20050316 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/GCC-XML.bash -a "$ARCHIVES_DIR"/gccxml-0.6.0.tar.gz -b "$ARCHIVES_DIR" -s gccxml-0.6.0 -v "$DEBUG"
+	"$SCRIPT_DIR"/GCC-XML.bash -a "$ARCHIVES_DIR"/gccxml-0.6.0.tar.gz -b "$ARCHIVES_DIR" -s gccxml-0.6.0 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/Boost.bash -a "$ARCHIVES_DIR"/boost_1_33_0-osx4.tar.bz2 -b "$ARCHIVES_DIR" -s boost_1_33_0 -v "$DEBUG"
+	"$SCRIPT_DIR"/Boost.bash -a "$ARCHIVES_DIR"/boost_1_33_0-osx4.tar.bz2 -b "$ARCHIVES_DIR" -s boost_1_33_0 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/Py2App.bash -a "$ARCHIVES_DIR"/py2app-0.1.7.tar.gz -b "$ARCHIVES_DIR" -s py2app-0.1.7 -v "$DEBUG"
+	"$SCRIPT_DIR"/Py2App.bash -a "$ARCHIVES_DIR"/py2app-0.1.7.tar.gz -b "$ARCHIVES_DIR" -s py2app-0.1.7 -v "$DEBUG"
 
-	#"$SCRIPT_DIR"/IPython.bash -a "$ARCHIVES_DIR"/ipython-0.6.15.tar.gz -b "$ARCHIVES_DIR" -s ipython-0.6.15 -v "$DEBUG"
+	"$SCRIPT_DIR"/IPython.bash -a "$ARCHIVES_DIR"/ipython-0.6.15.tar.gz -b "$ARCHIVES_DIR" -s ipython-0.6.15 -v "$DEBUG"
 fi
 
 if [ "$SHOULD_BUILD_AVIDA_ED" == "Y" ]
