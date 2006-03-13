@@ -101,3 +101,5 @@ SET(GenerateTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/ge
 SET(GenerateTailsScript "${CMAKE_CURRENT_BINARY_DIR}/asex_generate_tails.py") 
 CONFIGURE_FILE(${GenerateTailsScriptTemplate} ${GenerateTailsScript} IMMEDIATE)
 
+# Vim modeline to tell Vim that this is a configuration script.
+# vim: set ft=config:
