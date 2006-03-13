@@ -16,7 +16,7 @@ IF(_AvidaExePath)
 ENDIF(_AvidaExePath)
 
 FIND_PROGRAM(_PythonExePath
-  NAMES python python2.3
+  NAMES python python2.3 python2.4
   DOC "Where can the Python executable be found ?"
 )
 IF(_PythonExePath)
@@ -34,3 +34,6 @@ ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 SET(AvidaConsistencyChecksPythonSiteDir "${PROJECT_SOURCE_DIR}/Support/python")
 
 SUBDIRS(Tests)
+
+# Vim modeline to tell Vim that this is a configuration script.
+# vim: set ft=config:

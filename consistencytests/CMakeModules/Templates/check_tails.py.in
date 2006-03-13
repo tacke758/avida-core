@@ -27,8 +27,7 @@ tail_checker.check_tails()
 
 for seed, lines in tail_checker.failures_dict.iteritems():
   print 'Seed', seed, 'produced unexpected last line in file', output_file_name, ':'
-  print lines[0]
-  print 'Expected last line in file', expectation_file_name, ':'
+  print lines[0], 'Expected last line in file', expectation_file_name, ':'
   print lines[1]
 
 sys.exit(len(tail_checker.failures_dict))
