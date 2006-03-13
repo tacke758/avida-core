@@ -83,9 +83,9 @@ SET(EnvironmentFile "${ConfigDir}/environment.cfg")
 SET(StartCreatureFile "${ConfigDir}/creature.final.asex")
 SET(AvidaArgs "-seed %d -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile} -set BIRTH_METHOD 4")
 
-SET(SeedSet "range(100,110)")
+SET(SeedSet "range(100,105)")
 SET(RunSubdirPathBase "${CMAKE_CURRENT_BINARY_DIR}/GlobalAsex_")
-SET(OutputFileName "detail_pop.100")
+SET(OutputFileName "detail_pop.500")
 SET(ExpectationFilePathBase "${CMAKE_CURRENT_SOURCE_DIR}/GlobalAsex_")
 SET(ExpectationFileName "detail_pop.100.expected_last_line")
 
