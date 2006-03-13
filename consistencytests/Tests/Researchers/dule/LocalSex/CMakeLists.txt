@@ -29,13 +29,13 @@ SET(AvidaArgs "-seed %d -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile
 SET(SeedSet "range(100,105)")
 # Avida will be run in, and store output files in, ${CMAKE_CURRENT_BINARY_DIR}/Test_100, and so on.
 SET(RunSubdirPathBase "${CMAKE_CURRENT_BINARY_DIR}/GlobalSex_")
-# I've written ${ConfigDir}/events.cfg to stop Avida after 100 updates,
-# and to output a single detail-population file "detail_pop.100" per run,
-# i.e., ${CMAKE_CURRENT_SOURCE_DIR}/Test_100/detail_pop.100, and so on.
-SET(OutputFileName "detail_pop.100")
+# I've written ${ConfigDir}/events.cfg to stop Avida after 500 updates,
+# and to output a single detail-population file "detail_pop.500" per run,
+# i.e., ${CMAKE_CURRENT_SOURCE_DIR}/Test_100/detail_pop.500, and so on.
+SET(OutputFileName "detail_pop.500")
 # Similar to above, except that this tells the testing scripts where to find
-# expected last lines of detail_pop.100 files,
-# i.e., ${CMAKE_CURRENT_SOURCE_DIR}/Test_100/detail_pop.100.expected_last_line, and so on.
+# expected last lines of detail_pop.500 files,
+# i.e., ${CMAKE_CURRENT_SOURCE_DIR}/Test_100/detail_pop.500.expected_last_line, and so on.
 SET(ExpectationFilePathBase "${CMAKE_CURRENT_SOURCE_DIR}/GlobalSex_")
 SET(ExpectationFileName "detail_pop.100.expected_last_line")
 
