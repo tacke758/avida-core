@@ -37,7 +37,7 @@ SET(OutputFileName "detail_pop.500")
 # expected last lines of detail_pop.500 files,
 # i.e., ${CMAKE_CURRENT_SOURCE_DIR}/Test_100/detail_pop.500.expected_last_line, and so on.
 SET(ExpectationFilePathBase "${CMAKE_CURRENT_SOURCE_DIR}/GlobalSex_")
-SET(ExpectationFileName "detail_pop.100.expected_last_line")
+SET(ExpectationFileName "detail_pop.500.expected_last_line")
 
 #
 # This generates the Python script that performs consistency checks.
@@ -53,11 +53,11 @@ IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 
 #
-# Generation of expected last lines of detail_pop.100 files.
+# Generation of expected last lines of detail_pop.500 files.
 #
 # To trigger this script, use commands like the following :
 #   $ pushd ${CMAKE_CURRENT_BINARY_DIR} # i.e., cd .../build/Tests/Researchers/dule/LocalSex/
-#   $ tar cvfz Tests.tgz `find . -name detail_pop.100.expected_last_line`
+#   $ tar cvfz Tests.tgz `find . -name detail_pop.500.expected_last_line`
 #   $ cd ${CMAKE_CURRENT_SOURCE_DIR}
 #   $ tar xvfz ${CMAKE_CURRENT_BINARY_DIR}/Tests.tgz
 #   $ popd
@@ -79,7 +79,7 @@ SET(GenesisFile "${ConfigDir}/genesis")
 SET(InstSetFile "${ConfigDir}/inst_set.asex")
 SET(EventFile "${ConfigDir}/events.cfg")
 SET(EnvironmentFile "${ConfigDir}/environment.cfg")
-#SET(StartCreatureFile "${ConfigDir}/organism.100.asex")
+#SET(StartCreatureFile "${ConfigDir}/organism.500.asex")
 SET(StartCreatureFile "${ConfigDir}/creature.final.asex")
 SET(AvidaArgs "-seed %d -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile} -set BIRTH_METHOD 4")
 
@@ -87,7 +87,7 @@ SET(SeedSet "range(100,105)")
 SET(RunSubdirPathBase "${CMAKE_CURRENT_BINARY_DIR}/GlobalAsex_")
 SET(OutputFileName "detail_pop.500")
 SET(ExpectationFilePathBase "${CMAKE_CURRENT_SOURCE_DIR}/GlobalAsex_")
-SET(ExpectationFileName "detail_pop.100.expected_last_line")
+SET(ExpectationFileName "detail_pop.500.expected_last_line")
 
 SET(CheckTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/check_tails.py.in") 
 SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/asex_check_tails.py") 
