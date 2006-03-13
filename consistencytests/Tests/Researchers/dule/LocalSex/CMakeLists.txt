@@ -26,7 +26,7 @@ SET(AvidaArgs "-seed %d -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile
 # This is Python list of Avida random seeds.
 # E.g., "range(100,105)" is equivalent to the Python list "[100,101,102,103,104]".
 # I.e., SET(SeedSet "range(100,105)") is equivalent to SET(SeedSet "[100,101,102,103,104]").
-SET(SeedSet "range(100,110)")
+SET(SeedSet "range(100,105)")
 # Avida will be run in, and store output files in, ${CMAKE_CURRENT_BINARY_DIR}/Test_100, and so on.
 SET(RunSubdirPathBase "${CMAKE_CURRENT_BINARY_DIR}/GlobalSex_")
 # I've written ${ConfigDir}/events.cfg to stop Avida after 100 updates,
