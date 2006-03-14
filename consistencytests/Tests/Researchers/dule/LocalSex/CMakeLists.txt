@@ -49,7 +49,7 @@ SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/sex_check_tails.py")
 CONFIGURE_FILE(${CheckTailsScriptTemplate} ${CheckTailsScript} IMMEDIATE)
 
 IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
-  #ADD_TEST("Consistency-Check--GlobalSex" "${_PythonExePath}" "${CheckTailsScript}")
+  #ADD_TEST("Consistency-Check--Dule--GlobalSex" "${_PythonExePath}" "${CheckTailsScript}")
 ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 
 #
@@ -94,7 +94,7 @@ SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/asex_check_tails.py")
 CONFIGURE_FILE(${CheckTailsScriptTemplate} ${CheckTailsScript} IMMEDIATE)
 
 IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
-  ADD_TEST("Consistency-Check--GlobalAsex" "${_PythonExePath}" "${CheckTailsScript}")
+  ADD_TEST("Consistency-Check--Dule--GlobalAsex" "${_PythonExePath}" "${CheckTailsScript}")
 ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 
 SET(GenerateTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/generate_tails.py.in") 
