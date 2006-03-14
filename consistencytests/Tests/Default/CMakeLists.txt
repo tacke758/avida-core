@@ -22,7 +22,7 @@ SET(AvidaArgs "-seed %d -set WORLD-X 40 -set WORLD-Y 40 -set INST_SET ${InstSetF
 #
 # Consistency checks configuration
 #
-SET(TestDirBaseName "Default")
+SET(TestDirBaseName "Seed")
 
 # This is Python list of Avida random seeds.
 # E.g., "range(100,105)" is equivalent to the Python list "[100,101,102,103,104]".
@@ -47,9 +47,8 @@ SET(RunSubdirPathBase "${CMAKE_CURRENT_BINARY_DIR}/${TestDirBaseName}_")
 # This generates the Python script that performs consistency checks.
 # Several of the variables defined above make their ways into the script.
 # See CMake's documentaton of the CONFIGURE_FILE command for details.
-
 SET(CheckTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/check_tails.py.in") 
-SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/${TestDirBaseName}_check_tails.py") 
+SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/check_tails.py") 
 CONFIGURE_FILE(${CheckTailsScriptTemplate} ${CheckTailsScript} IMMEDIATE)
 
 IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
@@ -70,7 +69,7 @@ ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 # to reduce the chance of inadvertently clobbering existing consistency-check suites.
 #
 SET(GenerateTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/generate_tails.py.in") 
-SET(GenerateTailsScript "${CMAKE_CURRENT_BINARY_DIR}/${TestDirBaseName}_generate_tails.py") 
+SET(GenerateTailsScript "${CMAKE_CURRENT_BINARY_DIR}/generate_tails.py") 
 CONFIGURE_FILE(${GenerateTailsScriptTemplate} ${GenerateTailsScript} IMMEDIATE)
 
 # Vim modeline to tell Vim that this is a configuration script.
