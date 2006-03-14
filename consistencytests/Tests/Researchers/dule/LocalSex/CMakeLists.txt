@@ -51,7 +51,7 @@ SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/sex_check_tails.py")
 CONFIGURE_FILE(${CheckTailsScriptTemplate} ${CheckTailsScript} IMMEDIATE)
 
 IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
-  ADD_TEST("Consistency-Check--${TestsName}" "${_PythonExePath}" "${CheckTailsScript}")
+  #ADD_TEST("Consistency-Check--${TestsName}" "${_PythonExePath}" "${CheckTailsScript}")
 ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 
 #
