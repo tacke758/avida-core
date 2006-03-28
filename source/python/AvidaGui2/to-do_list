@@ -54,28 +54,29 @@ Priority Low
 
 ************Kaben******************
 
+
+
+Priority High-
 - toggle to see legend instruction names to colors
 - toggle to see letters
 - animation of organism divide
   - or, for now, some way of indicating that divide has occurred
     - say, perhaps, just drawing a line at divide points when copy is
       complete
-
-Priority High-
--first step for Windows is that if python is installed, Avida-Ed can be downloaded and run(1/30/05)
--run things throught the test cpus (so we can accurately paint loaded dishes and so the graphs have good data from the get go)
--investigation of printing petri dish (1/26/06)
+- in petri dish, indication of each mutation as it occurs.
 
 Priority Medium-
--add a general box that allows us to send a message to the user in the form of a box that pops up. after they have read it the user can click ok. (a modal box with an explanation point)
--add the word "scale" to color gradient before a run starts
--consider different icons in navigation bar and freezer (12/21/05)
--change the text in analyze mode to list the population instead of what it currently state (12/21/05)
+- run things throught the test cpus (so we can accurately paint loaded
+  dishes and so the graphs have good data from the get go)
+- add a general box that allows us to send a message to the user in the
+  form of a box that pops up. after they have read it the user can click
+  ok. (a modal box with an explanation point)
+- consider different icons in navigation bar and freezer (12/21/05)
+- change the text in analyze mode to list the population instead of what
+  it currently state (12/21/05)
+- investigation of printing petri dish (1/26/06)
 
 Priority Low-
-
-
-
 
 
 ************Josh*******************
@@ -111,6 +112,9 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 ************Kaben******************
 
-23-Jan-06 Get program to run on all Macs -- Finished 27-Jan-06
+* 23-Jan-06 Get program to run on all Macs -- Finished 27-Jan-06
 
-30-Jan-06 Make gradient say "rescaling" when it rescales -- Finished 06-Feb-06
+* 30-Jan-06 Make gradient say "rescaling" when it rescales -- Finished 06-Feb-06
+
+* 30-Jan-06 first step for Windows is that if python is installed,
+Avida-Ed can be downloaded and run -- Finished 24-Feb-06
