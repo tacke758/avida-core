@@ -57,6 +57,7 @@ Priority Low
 
 
 Priority High-
+- troubleshoot crash on run end, as set in petri dish control.
 - toggle to see legend instruction names to colors
 - toggle to see letters
 - animation of organism divide
