@@ -66,6 +66,11 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.m_current_workspace = "default.workspace"
     self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
 
+    # BDB -- hack to overcome problem with program crashing when Core ends
+
+    print "BDB -- pySessionCtrl: about to set .m_session_mdl.m_update_to_pause = -99"
+    self.m_session_mdl.m_update_to_pause = -99
+
     # Create a temporary subdirectory for general use in this session. Add a 
     # subdirectory to that for output files -- these files will only get 
     # put into named directories when frozen

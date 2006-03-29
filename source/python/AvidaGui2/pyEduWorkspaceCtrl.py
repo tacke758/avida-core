@@ -11,6 +11,7 @@ from pyTwoPopulationCtrl import pyTwoPopulationCtrl
 from pyPetriConfigureCtrl import pyPetriConfigureCtrl
 from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
+from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 import os.path, shutil
 
 
@@ -110,12 +111,23 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("removeStatusBarWidgetSig"), self.removeStatusBarWidgetSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("statusBarMessageSig"), self.statusBarMessageSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("statusBarClearSig"), self.statusBarClearSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("workspaceNewSig"),
+      self.fileNew)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("workspaceOpenSig"),
+      self.fileOpen)
+
 
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
     self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
     self.splitter1.setSizes([100])
 
     self.show()
+    # junk=pyBeforeStartingCtrl()
+    # print "BDB pyEduWorkspaceCtrl -- before junk.showDialog"
+    # junk2 = junk.showDialog()
+    # print "BDB pyEduWorkspaceCtrl -- after junk.showDialog"
 
   def __del__(self):
     for key in self.m_cli_to_ctrl_dict.keys():

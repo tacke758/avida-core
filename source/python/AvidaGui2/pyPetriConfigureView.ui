@@ -361,11 +361,11 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <grid>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="4">
+                <widget class="QLabel">
                     <property name="name">
                         <cstring>RewardTextLabel</cstring>
                     </property>
@@ -375,47 +375,14 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Which Functions Should Be Rewarded?</string>
+                        <string>&lt;p align="center"&gt;&lt;b&gt;What rewards are available in the environment?&lt;/b&gt;&lt;br&gt;
+(strength of reward shown in parentheses)&lt;/p&gt;</string>
                     </property>
                     <property name="alignment">
-                        <set>AlignCenter</set>
+                        <set>WordBreak|AlignCenter</set>
                     </property>
                 </widget>
-                <spacer row="1" column="0">
-                    <property name="name">
-                        <cstring>spacer15_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>21</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <spacer row="1" column="3">
-                    <property name="name">
-                        <cstring>spacer16_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>21</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QButtonGroup" row="1" column="2">
+                <widget class="QButtonGroup">
                     <property name="name">
                         <cstring>TasksToRewardGroup</cstring>
                     </property>
@@ -435,18 +402,7 @@
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QCheckBox" row="0" column="0">
-                            <property name="name">
-                                <cstring>NotCheckBox</cstring>
-                            </property>
-                            <property name="text">
-                                <string>not</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox" row="1" column="0">
+                        <widget class="QCheckBox" row="2" column="0">
                             <property name="name">
                                 <cstring>NandCheckBox</cstring>
                             </property>
@@ -457,18 +413,7 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="2" column="0">
-                            <property name="name">
-                                <cstring>AndCheckBox</cstring>
-                            </property>
-                            <property name="text">
-                                <string>and</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox" row="0" column="1">
+                        <widget class="QCheckBox" row="2" column="2">
                             <property name="name">
                                 <cstring>OrnCheckBox</cstring>
                             </property>
@@ -479,29 +424,18 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="2" column="1">
+                        <widget class="QCheckBox" row="1" column="2">
                             <property name="name">
-                                <cstring>AndnCheckBox</cstring>
+                                <cstring>AndCheckBox</cstring>
                             </property>
                             <property name="text">
-                                <string>andnot</string>
+                                <string>and</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="0" column="2">
-                            <property name="name">
-                                <cstring>NorCheckBox</cstring>
-                            </property>
-                            <property name="text">
-                                <string>nor</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox" row="1" column="1">
+                        <widget class="QCheckBox" row="1" column="4">
                             <property name="name">
                                 <cstring>OrCheckBox</cstring>
                             </property>
@@ -512,7 +446,91 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="1" column="2">
+                        <widget class="QCheckBox" row="1" column="6">
+                            <property name="name">
+                                <cstring>NorCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>nor</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="0">
+                            <property name="name">
+                                <cstring>EasyTextLabel</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>&lt;p align="center"&gt;Easy&lt;br&gt;(1x)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="4">
+                            <property name="name">
+                                <cstring>HardTextLabel</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>&lt;p align="center"&gt;Hard&lt;br&gt;(3x)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="0">
+                            <property name="name">
+                                <cstring>NotCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>not</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="2">
+                            <property name="name">
+                                <cstring>ModerateTextLabel</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>&lt;p align="center"&gt;Moderate&lt;br&gt;(2x)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="Line" row="0" column="1" rowspan="3" colspan="1">
+                            <property name="name">
+                                <cstring>line1</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>VLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="6">
+                            <property name="name">
+                                <cstring>VHardTextLabel</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>&lt;p align="center"&gt;Very Hard&lt;br&gt;(4x)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="2" column="6">
                             <property name="name">
                                 <cstring>XorCheckBox</cstring>
                             </property>
@@ -523,7 +541,72 @@
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QCheckBox" row="2" column="2">
+                        <widget class="QCheckBox" row="2" column="4">
+                            <property name="name">
+                                <cstring>AndnCheckBox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>andnot</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="Line" row="0" column="3" rowspan="3" colspan="1">
+                            <property name="name">
+                                <cstring>line2</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>VLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                        </widget>
+                        <widget class="Line" row="0" column="5" rowspan="3" colspan="1">
+                            <property name="name">
+                                <cstring>line3</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>VLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                        </widget>
+                        <widget class="Line" row="0" column="7" rowspan="3" colspan="1">
+                            <property name="name">
+                                <cstring>line4</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>VLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="8">
+                            <property name="name">
+                                <cstring>BrutalTextLabel</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>&lt;p align="center"&gt;Brutal&lt;br&gt;(5x)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="8">
                             <property name="name">
                                 <cstring>EquCheckBox</cstring>
                             </property>
@@ -536,61 +619,7 @@
                         </widget>
                     </grid>
                 </widget>
-                <widget class="QButtonGroup" row="1" column="1">
-                    <property name="name">
-                        <cstring>RewardAllNoneButtonGroup</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>3</hsizetype>
-                            <vsizetype>3</vsizetype>
-                            <horstretch>1</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Plain</enum>
-                    </property>
-                    <property name="lineWidth">
-                        <number>0</number>
-                    </property>
-                    <property name="title">
-                        <string></string>
-                    </property>
-                    <property name="flat">
-                        <bool>true</bool>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>RewardNonePushButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>None</string>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>RewardAllPushButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>All</string>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-            </grid>
+            </vbox>
         </widget>
         <spacer>
             <property name="name">
@@ -644,7 +673,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Random Number Generator Seed</string>
+                        <string>Should run be repeatable?</string>
                     </property>
                     <property name="alignment">
                         <set>AlignCenter</set>
@@ -683,81 +712,30 @@
                         </spacer>
                         <widget class="QRadioButton">
                             <property name="name">
-                                <cstring>RadomGeneratedRadioButton</cstring>
+                                <cstring>RandomGeneratedRadioButton</cstring>
                             </property>
                             <property name="font">
                                 <font>
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Based on current time</string>
+                                <string>No</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QRadioButton">
                             <property name="name">
-                                <cstring>layout24</cstring>
+                                <cstring>RandomFixedRadioButton</cstring>
                             </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>RandomFixedRadioButton</cstring>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="text">
-                                        <string>Set to</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>RandomSpinBox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>4</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>70</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>90</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>32767</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>32767</number>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>Yes</string>
+                            </property>
                         </widget>
                         <spacer>
                             <property name="name">
@@ -969,7 +947,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Stop Run</string>
+                        <string>Pause Run</string>
                     </property>
                     <property name="alignment">
                         <set>WordBreak|AlignCenter</set>
@@ -1142,9 +1120,9 @@
 </widget>
 <connections>
     <connection>
-        <sender>RadomGeneratedRadioButton</sender>
+        <sender>RandomGeneratedRadioButton</sender>
         <signal>&lt;No Signal&gt;</signal>
-        <receiver>RadomGeneratedRadioButton</receiver>
+        <receiver>RandomGeneratedRadioButton</receiver>
         <slot>&lt;No)</slot>
     </connection>
 </connections>

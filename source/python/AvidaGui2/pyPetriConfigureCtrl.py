@@ -40,17 +40,11 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.ChangeMutationTextSlot)
     self.connect(self.WorldSizeSlider, SIGNAL("valueChanged(int)"), 
       self.ChangeWorldSizeTextSlot)
-    self.connect(self.RewardNonePushButton, SIGNAL("clicked()"), 
-      self.RewardNoneSlot)
-    self.connect(self.RewardAllPushButton, SIGNAL("clicked()"), 
-      self.RewardAllSlot)
-    self.connect(self.RadomGeneratedRadioButton, SIGNAL("clicked()"), 
-      self.ChangeRandomSpinBoxSlot)
-    self.connect(self.RandomFixedRadioButton, SIGNAL("clicked()"), 
-      self.ChangeRandomSpinBoxSlot)
     self.connect(self.StopManuallyRadioButton, SIGNAL("clicked()"), 
-      self.ChangeStopSpinBoxSlot)
+      self.ChangeStopSpinBoxEnabledSlot)
     self.connect(self.StopAtRadioButton, SIGNAL("clicked()"), 
+      self.ChangeStopSpinBoxEnabledSlot)
+    self.connect(self.StopAtSpinBox, SIGNAL("valueChanged(int)"), 
       self.ChangeStopSpinBoxSlot)
     self.connect(self.SavePetriPushButton, SIGNAL("clicked()"), 
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezeDishPhaseISig"))
@@ -94,17 +88,11 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.ChangeMutationTextSlot)
     self.disconnect(self.WorldSizeSlider, SIGNAL("valueChanged(int)"), 
       self.ChangeWorldSizeTextSlot)
-    self.disconnect(self.RewardAllPushButton, SIGNAL("clicked()"), 
-      self.RewardAllSlot)
-    self.disconnect(self.RewordNonePushButton, SIGNAL("clicked()"), 
-      self.RewardNoneSlot)
-    self.disconnect(self.RadomGeneratedRadioButton, SIGNAL("clicked()"), 
-      self.ChangeRandomSpinBoxSlot)
-    self.disconnect(self.RandomFixedRadioButton, SIGNAL("clicked()"), 
-      self.ChangeRandomSpinBoxSlot)
     self.disconnect(self.StopManuallyRadioButton, SIGNAL("clicked()"), 
-      self.ChangeStopSpinBoxSlot)
+      self.ChangeStopSpinBoxEnabledSlot)
     self.disconnect(self.StopAtRadioButton, SIGNAL("clicked()"), 
+      self.ChangeStopSpinBoxEnabledSlot)
+    self.disconnect(self.StopAtSpinBox, SIGNAL("valueChanged(int)"), 
       self.ChangeStopSpinBoxSlot)
     self.disconnect(self.SavePetriPushButton, SIGNAL("clicked()"), 
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezeDishPhaseISig"))
@@ -150,40 +138,20 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     slide_value_txt = slide_value + " x " + slide_value + " cells"
     self.WorldSizeTextLabel.setText(slide_value_txt)
 
-  def RewardAllSlot(self):
-    self.NotCheckBox.setChecked(True)
-    self.NandCheckBox.setChecked(True)
-    self.AndCheckBox.setChecked(True)
-    self.OrnCheckBox.setChecked(True)
-    self.OrCheckBox.setChecked(True)
-    self.AndnCheckBox.setChecked(True)
-    self.NorCheckBox.setChecked(True)
-    self.XorCheckBox.setChecked(True)
-    self.EquCheckBox.setChecked(True)
-
-  def RewardNoneSlot(self):
-    self.NotCheckBox.setChecked(False)
-    self.NandCheckBox.setChecked(False)
-    self.AndCheckBox.setChecked(False)
-    self.OrnCheckBox.setChecked(False)
-    self.OrCheckBox.setChecked(False)
-    self.AndnCheckBox.setChecked(False)
-    self.NorCheckBox.setChecked(False)
-    self.XorCheckBox.setChecked(False)
-    self.EquCheckBox.setChecked(False)
-
-  def ChangeRandomSpinBoxSlot(self):
-    if self.RadomGeneratedRadioButton.isChecked() == True:
-      self.RandomSpinBox.setEnabled(False)
-    else:
-      self.RandomSpinBox.setEnabled(True)
-  
-  def ChangeStopSpinBoxSlot(self):
+  def ChangeStopSpinBoxEnabledSlot(self):
     if self.StopManuallyRadioButton.isChecked() == True:
       self.StopAtSpinBox.setEnabled(False)
+      # BDB -- hack for pause at given update
+      self.m_session_mdl.m_update_to_pause = -99
     else:
       self.StopAtSpinBox.setEnabled(True)
+      # BDB -- hack for pause at given update
+      self.m_session_mdl.m_update_to_pause = self.StopAtSpinBox.value()
   
+  def ChangeStopSpinBoxSlot(self):
+    # BDB -- hack for pause at given update
+    self.m_session_mdl.m_update_to_pause = self.StopAtSpinBox.value()
+     
   def FillDishSlot(self, dish_name, petri_dict):
     descr()
     
@@ -210,9 +178,13 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     if max_updates < 0:
        self.StopManuallyRadioButton.setChecked(True)
        self.StopAtRadioButton.setChecked(False)
+       # BDB -- hack for pause at given update
+       self.m_session_mdl.m_update_to_pause = -99
     else:
        self.StopManuallyRadioButton.setChecked(False)
        self.StopAtRadioButton.setChecked(True)
+       # BDB -- hack for pause at given update
+       self.m_session_mdl.m_update_to_pause = self.StopAtSpinBox.value()
     if settings_dict.has_key("WORLD-X") == True:
       self.WorldSizeSlider.setValue(int(settings_dict["WORLD-X"]))
     else:
@@ -221,12 +193,11 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       seed = int(settings_dict["RANDOM_SEED"])
     else:
       seed = 0
-    self.RandomSpinBox.setValue(seed)
     if seed == 0:
-       self.RadomGeneratedRadioButton.setChecked(True)
+       self.RandomGeneratedRadioButton.setChecked(True)
        self.RandomFixedRadioButton.setChecked(False)
     else:
-       self.RadomGeneratedRadioButton.setChecked(False)
+       self.RandomGeneratedRadioButton.setChecked(False)
        self.RandomFixedRadioButton.setChecked(True)
     if settings_dict.has_key("COPY_MUT_PROB") == True:
       copy_mutation_percent = float(settings_dict["COPY_MUT_PROB"]) * 100;
@@ -301,18 +272,28 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # Turn off the controls 
 
     self.AncestorComboBox.setEnabled(False)
-    self.StopAtSpinBox.setEnabled(False)
-    self.StopManuallyRadioButton.setEnabled(False)
-    self.StopAtRadioButton.setEnabled(False)
+
+    # BDB -- while using pause at hack don't turn off these settings
+
+    # self.StopAtSpinBox.setEnabled(False) 
+    # self.StopManuallyRadioButton.setEnabled(False)
+    # self.StopAtRadioButton.setEnabled(False)
+
     self.WorldSizeSlider.setEnabled(False)
-    self.RandomSpinBox.setEnabled(False)
-    self.RadomGeneratedRadioButton.setEnabled(False)
+    self.RandomGeneratedRadioButton.setEnabled(False)
     self.RandomFixedRadioButton.setEnabled(False)
     self.MutationSlider.setEnabled(False)
     self.LocalBirthRadioButton.setEnabled(False)
     self.MassActionRadioButton.setEnabled(False)
-    self.RewardAllPushButton.setEnabled(False)
-    self.RewardNonePushButton.setEnabled(False)
+    self.EasyTextLabel.setEnabled(False)
+    self.ModerateTextLabel.setEnabled(False)
+    self.HardTextLabel.setEnabled(False)
+    self.VHardTextLabel.setEnabled(False)
+    self.BrutalTextLabel.setEnabled(False)
+    self.line1.setEnabled(False)
+    self.line2.setEnabled(False)
+    self.line3.setEnabled(False)
+    self.line4.setEnabled(False)
     self.NotCheckBox.setEnabled(False)
     self.NandCheckBox.setEnabled(False)
     self.AndCheckBox.setEnabled(False)
@@ -346,14 +327,20 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.StopManuallyRadioButton.setEnabled(True)
     self.StopAtRadioButton.setEnabled(True)
     self.WorldSizeSlider.setEnabled(True)
-    self.RandomSpinBox.setEnabled(True)
-    self.RadomGeneratedRadioButton.setEnabled(True)
+    self.RandomGeneratedRadioButton.setEnabled(True)
     self.RandomFixedRadioButton.setEnabled(True)
     self.MutationSlider.setEnabled(True)
     self.LocalBirthRadioButton.setEnabled(True)
     self.MassActionRadioButton.setEnabled(True)
-    self.RewardAllPushButton.setEnabled(True)
-    self.RewardNonePushButton.setEnabled(True)
+    self.EasyTextLabel.setEnabled(True)
+    self.ModerateTextLabel.setEnabled(True)
+    self.HardTextLabel.setEnabled(True)
+    self.VHardTextLabel.setEnabled(True)
+    self.BrutalTextLabel.setEnabled(True)
+    self.line1.setEnabled(True)
+    self.line2.setEnabled(True)
+    self.line3.setEnabled(True)
+    self.line4.setEnabled(True)
     self.NotCheckBox.setEnabled(True)
     self.NandCheckBox.setEnabled(True)
     self.AndCheckBox.setEnabled(True)
@@ -406,7 +393,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     settings_dict["WORLD-X"] = self.WorldSizeSlider.value()
     settings_dict["WORLD-Y"] = self.WorldSizeSlider.value()
     if self.RandomFixedRadioButton.isChecked() == True:
-      settings_dict["RANDOM_SEED"] = self.RandomSpinBox.value()
+      settings_dict["RANDOM_SEED"] = 777
     else:
       settings_dict["RANDOM_SEED"] = 0
     slide_value = float(self.MutationSlider.value())/100.0

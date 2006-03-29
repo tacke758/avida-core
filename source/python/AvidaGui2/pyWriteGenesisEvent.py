@@ -12,7 +12,7 @@ class pyWriteGenesisEvent:
   
     settings_dict = in_dict["SETTINGS"]
 	
-    # Copies default event and environment files and adds names to the 
+    # Copies default event file and add to the 
     # temporary dictionary where the input files will live
 
     shutil.copyfile(os.path.join(workspace_dir, "events.default"), os.path.join(tmp_in_dir, "events.cfg"))
@@ -88,7 +88,10 @@ class pyWriteGenesisEvent:
       if len(clean_line) > 0:
         var_name, value = string.split(clean_line)
         var_name = var_name.upper()
-        if settings_dict.has_key(var_name) == True:
+
+        # BDB -- added second if statment clause to support pause_at hack
+
+        if (settings_dict.has_key(var_name) == True) and (var_name != "MAX_UPDATES"):
           out_genesis_file.write(var_name + " " + str(settings_dict[var_name]) + "\n")
         else:
           out_genesis_file.write(line)

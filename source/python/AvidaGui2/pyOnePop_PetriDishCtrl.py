@@ -159,7 +159,14 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     stats = update = None
     if self.m_avida: stats = self.m_avida.m_population.GetStats()
     if stats: update = stats.GetUpdate()
-    if update: self.m_update_label.setText(QString("%1").arg(update))
+    if update: 
+      self.m_update_label.setText(QString("%1").arg(update))
+
+      # BDB -- Pause at certain update hack
+
+      if int(update) == int(self.m_session_mdl.m_update_to_pause):
+        print "BDB -- send the pause signal here"
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
     
   def RenameDishSlot(self, dishName):
     descr()
