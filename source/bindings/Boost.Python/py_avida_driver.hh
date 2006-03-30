@@ -35,6 +35,7 @@ public:
   virtual ~pyAvidaDriver();
   bool getDoneFlag(){ return done_flag; }
   void setDoneFlag(){ done_flag = true; }
+  void setMainAvidaDriver(pyAvidaDriver &driver){ cAvidaDriver_Base::main_driver = &driver; }
 public:
   bool ProcessSome(unsigned int bite_size){ return (this->*(m_update_stage_function))(bite_size); }
   cChangeList *GetChangeList();
