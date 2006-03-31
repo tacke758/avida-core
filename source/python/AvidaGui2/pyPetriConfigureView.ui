@@ -673,7 +673,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Should run be repeatable?</string>
+                        <string>Should this run be exactly repeatable?</string>
                     </property>
                     <property name="alignment">
                         <set>AlignCenter</set>
