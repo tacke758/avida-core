@@ -27,6 +27,30 @@
 			settings = {
 			};
 		};
+		992F7F2309E2C40A004AD02D = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.script.python;
+			path = Avida_ED_startup_utils.py;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		992F7F2509E2CBB4004AD02D = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.script.python;
+			path = pyBeforeStartingCtrl.py;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		992F7F2609E2CBB4004AD02D = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			path = pyBeforeStartingView.ui;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 		99AC419907DF44CF00594A3D = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -174,6 +198,8 @@
 		};
 		DC0BFDB007DDB49200AAE422 = {
 			children = (
+				992F7F2509E2CBB4004AD02D,
+				992F7F2609E2CBB4004AD02D,
 				990666F407FDD01F0095D195,
 				990666F507FDD01F0095D195,
 				DC3A63F907DD02DE00A043AD,
@@ -300,6 +326,7 @@
 		};
 		DC0BFDC407DDB79A00AAE422 = {
 			children = (
+				992F7F2309E2C40A004AD02D,
 				DC3A641A07DD02DE00A043AD,
 				DC3A63FB07DD02DE00A043AD,
 				DC3A63E807DD02DE00A043AD,

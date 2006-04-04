@@ -3,7 +3,7 @@ from pyEduWorkspaceCtrl import *
 from pyAvidaCoreData import *
 from pyMdtr import *
 from pySessionControllerFactory import *
-# from pySessionDumbCtrl import *
+from pyBeforeStartingCtrl import *
 
 from AvidaCore import cString
 
@@ -68,7 +68,6 @@ class pySessionCtrl(qt.QObject):
 
     # BDB -- hack to overcome problem with program crashing when Core ends
 
-    print "BDB -- pySessionCtrl: about to set .m_session_mdl.m_update_to_pause = -99"
     self.m_session_mdl.m_update_to_pause = -99
 
     # Create a temporary subdirectory for general use in this session. Add a 
@@ -89,18 +88,17 @@ class pySessionCtrl(qt.QObject):
     # Connect various session controller creators to the controller
     # factory.
     self.m_session_controller_factory.addControllerCreator("pyEduSessionMenuBarHdlr", pyEduSessionMenuBarHdlr)
-    # self.m_session_controller_factory.addControllerCreator("pySessionDumbCtrl", pySessionDumbCtrl)
     self.m_session_controller_factory.addControllerCreator("pyEduWorkspaceCtrl", pyEduWorkspaceCtrl)
+    self.m_session_controller_factory.addControllerCreator("pyBeforeStartingCtrl", pyBeforeStartingCtrl)
 
     self.m_session_mdl.m_session_mdtr.emit(
       qt.PYSIGNAL("newSessionControllerSig"), ("pyEduSessionMenuBarHdlr",))
-    
-    ## XXX Temporary. Cause instantiation of a dumb gui for testing. @kgn
-    # self.m_session_mdl.m_session_mdtr.emit(
-    #   qt.PYSIGNAL("newSessionControllerSig"), ("pySessionDumbCtrl",))
 
     self.m_session_mdl.m_session_mdtr.emit(
       qt.PYSIGNAL("newSessionControllerSig"), ("pyEduWorkspaceCtrl",))
+    
+    self.m_session_mdl.m_session_mdtr.emit(
+      qt.PYSIGNAL("newSessionControllerSig"), ("pyBeforeStartingCtrl",))
 
     self.connect(self.m_session_mdl.m_session_mdtr, qt.PYSIGNAL("doOrphanSessionSig"), self.doOrphanSessionSlot)
 

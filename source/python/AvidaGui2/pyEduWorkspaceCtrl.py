@@ -125,10 +125,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.splitter1.setSizes([100])
 
     self.show()
-    # junk=pyBeforeStartingCtrl()
-    # print "BDB pyEduWorkspaceCtrl -- before junk.showDialog"
-    # junk2 = junk.showDialog()
-    # print "BDB pyEduWorkspaceCtrl -- after junk.showDialog"
 
   def __del__(self):
     for key in self.m_cli_to_ctrl_dict.keys():
@@ -199,30 +195,44 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
                 pyDefaultFiles(fileName, destName)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
-            #self.setCaption(self.m_session_mdl.m_current_workspace)
             self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
 
   # public slot
-
   def fileOpen(self):
+
+    tmpDialogCap = "Choose a workspace (folder with name ending .workspace)"
+    foundFile = False
+    workspace_dir = ""
 
     # self.m_session_mdl.m_current_workspace does not work correctly in this
     # context (at least on the Mac).  It is a relative path where 
     # getExistingDirectory seems to require an absult path
 
-    workspace_dir = QFileDialog.getExistingDirectory(
+    while (foundFile == False):
+
+      workspace_dir = QFileDialog.getExistingDirectory(
                     # self.m_session_mdl.m_current_workspace,
                     "",
                     None,
                     "get existing workspace",
-                    "Choose a workspace",
+                    tmpDialogCap,
                     True);
-    workspace_dir = str(workspace_dir)              
+      workspace_dir = str(workspace_dir)              
+      workspace_dir = workspace_dir.strip()
 
-    if workspace_dir.strip() != "":
+      # If a valid name is found or the user hit cancel leave the loop
+      # otherwise prompt for the wrong name and continue
+      
+      if (workspace_dir == "") or (workspace_dir.endswith(".workspace")):
+        foundFile = True
+      else:
+        foundFile = False
+        tmpDialogCap = "Name did not end with .workspace, please try again"
+
+    if workspace_dir != "":
       self.m_session_mdl.m_current_workspace = str(workspace_dir)
       self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
       #self.setCaption(self.m_session_mdl.m_current_workspace)
