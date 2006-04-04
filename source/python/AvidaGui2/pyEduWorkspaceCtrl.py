@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from Get_Avida_ED_version import svn_revision_string
+from Get_Avida_ED_version import avida_ed_version_string
 from pyEduWorkspaceView import pyEduWorkspaceView
 from pyMdtr import pyMdtr
 from pyOneAnalyzeCtrl import pyOneAnalyzeCtrl
@@ -29,7 +29,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
     #self.setCaption(self.m_session_mdl.m_current_workspace)
-    self.setCaption('%s - %s' % (svn_revision_string, self.m_session_mdl.m_current_workspace) )
+    self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
    
     while self.m_widget_stack.visibleWidget():
       self.m_widget_stack.removeWidget(self.m_widget_stack.visibleWidget())
@@ -200,7 +200,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
             #self.setCaption(self.m_session_mdl.m_current_workspace)
-            self.setCaption('%s - %s' % (svn_revision_string, self.m_session_mdl.m_current_workspace) )
+            self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
@@ -226,7 +226,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_session_mdl.m_current_workspace = str(workspace_dir)
       self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
       #self.setCaption(self.m_session_mdl.m_current_workspace)
-      self.setCaption('%s - %s' % (svn_revision_string, self.m_session_mdl.m_current_workspace) )
+      self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
@@ -279,7 +279,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
             #self.setCaption(self.m_session_mdl.m_current_workspace)
-            self.setCaption('%s - %s' % (svn_revision_string, self.m_session_mdl.m_current_workspace) )
+            self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True

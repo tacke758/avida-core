@@ -1,6 +1,8 @@
 
+avida_ed_version_string = 'Avida-ED v2.0'
 try:
   import Avida_ED_version
-  svn_revision_string = Avida_ED_version.svn_revision_string
+  reload(Avida_ED_version)
+  avida_ed_version_string += '.%s' % Avida_ED_version.svn_revision_string
 except:
-  svn_revision_string = "(unknown)"
+  avida_ed_version_string += '.(unknown)'
