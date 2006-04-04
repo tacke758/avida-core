@@ -41,6 +41,7 @@ test_module_names = [
 ]
 
 nontest_module_names = [
+  "AvidaGui2.Avida_ED_version",
 
   # For some reason these dialog views/controls need to be listed first
   # (not in Alphabetic order)
@@ -55,6 +56,8 @@ nontest_module_names = [
   "AvidaGui2.pyAvidaStatsInterface",
   "AvidaGui2.pyBeforeStartingView",
   "AvidaGui2.pyBeforeStartingCtrl",
+  "AvidaGui2.pyBufferView",
+  "AvidaGui2.pyBufferCtrl",
   "AvidaGui2.pyDefaultFiles",
   "AvidaGui2.pyFreezeDialogView",
   "AvidaGui2.pyFreezeDialogCtrl",
@@ -68,6 +71,11 @@ nontest_module_names = [
   "AvidaGui2.pyGraphCtrl",
   "AvidaGui2.pyHardwareCPUTrace",
   "AvidaGui2.pyHardwareTracer",
+  "AvidaGui2.pyHideShowButtonView",
+  "AvidaGui2.pyHideShowButtonCtrl",
+  "AvidaGui2.pyHideShowView",
+  "AvidaGui2.pyHideShowCtrl",
+  "AvidaGui2.pyInstructionDescriptionCtrl",
   "AvidaGui2.pyInstructionSet",
   "AvidaGui2.pyLiveControlsView",
   "AvidaGui2.pyLiveControlsCtrl",
@@ -76,6 +84,8 @@ nontest_module_names = [
   "AvidaGui2.pyNavBarCtrl",
   "AvidaGui2.pyOrganismConfigureView",
   "AvidaGui2.pyOrganismConfigureCtrl",
+  "AvidaGui2.pyOrganismDataView",
+  "AvidaGui2.pyOrganismDataCtrl",
   "AvidaGui2.pyOrganismScopeView",
   "AvidaGui2.pyOrganismScopeCtrl",
   "AvidaGui2.pyPetriConfigureView",

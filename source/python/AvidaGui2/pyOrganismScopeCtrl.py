@@ -4,8 +4,6 @@ from pyOrganismScopeView import pyOrganismScopeView, pyOrganismAnimator
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
 
-from descr import descr
-
 from qt import *
 
 import os
@@ -62,12 +60,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
 
 
   def dragEnterEvent( self, e ):
-    descr(e)
     e.acceptAction(True)
-    if e.isAccepted():
-      descr("isAccepted.")
-    else:
-      descr("not isAccepted.")
 
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
@@ -83,7 +76,6 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
           print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name doesn't end with .organism."
 
   def dropEvent( self, e ):
-    descr(e)
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       if os.path.exists( str(freezer_item_name)) == False:
@@ -179,54 +171,45 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
       )
 
   def HeadsTypeCBActivatedSlot(self, index):
-    descr(index)
     self.anim.setDisplayHeadsAs(index)
 
   def ShowTaskTestsCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowTaskTestsCBToggled(bool)
 
   def ShowRegistersCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowRegistersCBToggled(bool)
 
   def AnimateHeadMovementCBToggledSlot(self, bool):
-    descr(bool)
+    pass
 
   def ShowStacksCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowStacksCBToggled(bool)
 
   def ShowHeadsAsLettersCBToggledSlot(self, bool):
-    descr(bool)
+    pass
 
   def ShowInstructionNamesCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowInstructionNamesCBToggled(bool)
 
   def ShowInputsAndOutputsCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowInputsAndOutputsCBToggled(bool)
 
   def ShowFullStacksCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowFullStacksCBToggled(bool)
 
   def AnimateInstructionCopyCBToggledSlot(self, bool):
-    descr(bool)
+    pass
 
   def ShowHardwareCBToggledSlot(self, bool):
-    descr(bool)
     self.anim.setShowHardwareCBToggled(bool)
 
   def AnimateOrganismDivideCBToggledSlot(self, bool):
-    descr(bool)
+    pass
 
   def LayoutSpacingSBValueChangedSlot(self, value):
-    descr(value)
+    pass
 
   def HardwareIndicatorSBValueChangedSlot(self, value):
-    descr(value)
     self.anim.setHardwareIndicatorSBValueChanged(value)
 
 

@@ -32,6 +32,10 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.connect(
       self.m_organism_scope_ctrl, qt.PYSIGNAL("executionStepResetSig"),
       self.executionStepResetSlot)
+    self.connect(
+      self.m_organism_scope_ctrl, qt.PYSIGNAL("frameShownSig"),
+      self.m_organism_data_ctrl.frameShownSlot)
+
 
     self.connect(
       self.m_analyze_controls_ctrl.m_rewind_btn, qt.SIGNAL("clicked()"),

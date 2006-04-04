@@ -1,6 +1,7 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>pyOneOrg_ScopeView</class>
-<comment>Python:from pyOrganismScopeCtrl import pyOrganismScopeCtrl
+<comment>Python:from pyOrganismDataCtrl import pyOrganismDataCtrl
+Python:from pyOrganismScopeCtrl import pyOrganismScopeCtrl
 Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
 </comment>
 <widget class="QWidget">
@@ -22,18 +23,53 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="pyOrganismScopeCtrl">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>m_organism_scope_ctrl</cstring>
+                <cstring>layout6</cstring>
             </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>5</hsizetype>
-                    <vsizetype>3</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                </sizepolicy>
-            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="pyOrganismDataCtrl">
+                    <property name="name">
+                        <cstring>m_organism_data_ctrl</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>5</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>50</width>
+                            <height>50</height>
+                        </size>
+                    </property>
+                </widget>
+                <widget class="pyOrganismScopeCtrl">
+                    <property name="name">
+                        <cstring>m_organism_scope_ctrl</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>3</vsizetype>
+                            <horstretch>1</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>50</width>
+                            <height>50</height>
+                        </size>
+                    </property>
+                </widget>
+            </hbox>
         </widget>
         <widget class="QSlider">
             <property name="name">
@@ -125,6 +161,8 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         <property type="3">-1</property>
         <property type="1">pyAnalyzeControlsCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyAnalyzeControlsCtrl</property>
+        <property type="0">-1</property>
         <property type="pyAnalyzeControlsCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -144,6 +182,26 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
+    <customwidget>
+        <class>pyOrganismDataCtrl</class>
+        <header location="global">1</header>
+        <sizehint>
+            <width>-1</width>
+            <height>0</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+        <property type="0">4</property>
+        <property type="1">pyOrganismDataCtrl</property>
+        <property type="-1">-1</property>
+        <property type="3">0</property>
+    </customwidget>
 </customwidgets>
 <images>
     <image name="image0">
@@ -152,6 +210,7 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
 </images>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
+    <includehint>pyorganismdatactrl.h</includehint>
     <includehint>pyorganismscopectrl.h</includehint>
     <includehint>pyanalyzecontrolsctrl.h</includehint>
 </includehints>
