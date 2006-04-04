@@ -46,7 +46,12 @@ setup(
       # Subdirectory in which Avi :da-ED.app should be assembled
       dist_dir = '${EXECUTABLE_OUTPUT_PATH}',
       # Extra files and folders to  :copy into Resources subdirectory
-      resources = ['${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/avidalogo.png', '${CMAKE_CURRENT_SOURCE_DIR}/default.workspace'],
+      resources = [
+        '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/avidalogo.png',
+        '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/open.png',
+        '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/closed.png',
+        '${CMAKE_CURRENT_SOURCE_DIR}/default.workspace',
+      ],
       # Strip symbols from libraries.
       #strip = True,
       # Generate a file named Avida-ED.dot containing dependency graphs.
