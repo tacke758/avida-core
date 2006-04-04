@@ -41,7 +41,7 @@ test_module_names = [
 ]
 
 nontest_module_names = [
-  "AvidaGui2.Avida_ED_version",
+  "AvidaGui2.Get_Avida_ED_version",
 
   # For some reason these dialog views/controls need to be listed first
   # (not in Alphabetic order)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from Avida_ED_version import svn_revision_string
+from Get_Avida_ED_version import svn_revision_string
 from pyEduWorkspaceView import pyEduWorkspaceView
 from pyMdtr import pyMdtr
 from pyOneAnalyzeCtrl import pyOneAnalyzeCtrl
