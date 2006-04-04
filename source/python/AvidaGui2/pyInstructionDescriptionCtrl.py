@@ -8,6 +8,7 @@ class pyInstructionDescriptionCtrl(QLabel):
   def __init__(self,parent = None,name = None,fl = 0):
     QLabel.__init__(self,parent,name,fl)
     if not name: self.setName("pyInstructionDescriptionCtrl")
+
     font = QFont(qApp.font())
     font.setPointSize(9)
     self.setFont(font)

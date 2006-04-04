@@ -7,6 +7,8 @@ class pyHideShowView(QWidget):
     QWidget.__init__(self,parent,name,fl)
     if not name: self.setName("pyHideShowView")
 
+    self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
     top_layout = QVBoxLayout(self,0,0,"pyHideShowView,top_layout")
 
     h_layout1 = QHBoxLayout(None,0,0,"pyHideShowView,h_layout1")

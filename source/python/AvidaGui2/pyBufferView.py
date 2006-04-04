@@ -6,12 +6,14 @@ class pyBufferView(QWidget):
     QWidget.__init__(self,parent,name,fl)
     if not name: self.setName("pyBufferView")
 
+    self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
     self.indicator_h = self.indicator_w = self.indicator_bit_count = 0
     self.old_bits = -1
     self.backing_store = QPixmap()
 
-    self.setIndicatorHeight(6)
-    self.setIndicatorWidth(6)
+    self.setIndicatorHeight(5)
+    self.setIndicatorWidth(5)
     self.setIndicatorBitCount(32)
     self.setBits(0)
 
