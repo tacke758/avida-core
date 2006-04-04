@@ -3,8 +3,6 @@
 
 from AvidaCore import cHardwareDefs, cHardwareCPUDefs
 
-from descr import descr
-
 from qt import *
 from qtcanvas import *
 import math
@@ -13,7 +11,6 @@ import math
 class ringHead(QCanvasEllipse):
   def __init__(self, anim, color):
     QCanvasEllipse.__init__(self, anim.canvas)
-    descr()
     self.anim = anim
     if hasattr(anim, 'r'):
       diam = 2 * (anim.r + 1)
@@ -30,7 +27,6 @@ class ringHead(QCanvasEllipse):
 class textHead(QCanvasText):
   def __init__(self, anim, text):
     QCanvasText.__init__(self, anim.canvas)
-    descr()
     self.anim = anim
     self.setTextFlags(Qt.AlignCenter)
     self.setFont(anim.font)
@@ -45,7 +41,6 @@ class textHead(QCanvasText):
 
 class headsDotShapePolicy:
   def __init__(self, anim):
-    descr()
     self.anim = anim
   def createHeads(self):
     a = self.anim
@@ -54,7 +49,6 @@ class headsDotShapePolicy:
 
 class headsLetterShapePolicy:
   def __init__(self, anim):
-    descr()
     self.anim = anim
   def createHeads(self):
     a = self.anim
@@ -63,25 +57,21 @@ class headsLetterShapePolicy:
 
 class headsAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
     anim.ihead_item = anim.rhead_item = anim.whead_item = anim.fhead_item = None
 
   def resetHeads(self, head_items):
-    descr()
     a = self.anim
     for head_item in head_items:
       if head_item is not None: head_item.setCanvas(None)
     return a.heads_shape_policy.createHeads()
 
   def setFrames(self, frames):
-    descr()
     a = self.anim
     (a.ihead_item, a.rhead_item, a.whead_item, a.fhead_item
     ) = self.resetHeads((a.ihead_item, a.rhead_item, a.whead_item, a.fhead_item))
 
   def showFrame(self, frame_number):
-    descr()
     a = self.anim
     if a.frames is not None and frame_number < a.frames.m_gestation_time:
       displayed_genome_size = max(a.last_copied_instruction_cache[frame_number] + 1, a.frames.m_size)
@@ -99,7 +89,6 @@ class headsAnimator:
 
 class instructionsAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
     anim.canvas_ellipses = []
     anim.current_genome_str = None
@@ -108,7 +97,6 @@ class instructionsAnimator:
     anim.color = QColor()
 
   def setFrames(self, frames):
-    descr("frames", frames)
     a = self.anim
     # canvas items must be detached from canvas before attempt is made to delete them.
     for item in a.canvas_ellipses: item.setCanvas(None)
@@ -129,7 +117,6 @@ class instructionsAnimator:
 
     #if a.ops_dict is not None:
     #  l = len(a.ops_dict)
-    #  descr(l)
 
     #  a.legend_hack_ellipses = [QCanvasEllipse(a.canvas) for i in xrange(l)]
     #  for ellipse in a.legend_hack_ellipses:
@@ -145,7 +132,6 @@ class instructionsAnimator:
     #  for key in a.ops_dict.keys():
     #    op_id = a.ops_dict[key]
     #    instr_name = a.inst_names_dict[key]
-    #    descr(instr_name, (op_id * 360)/l)
 
     #    ellipse = a.legend_hack_ellipses[op_id]
     #    a.color.setHsv(
@@ -189,7 +175,6 @@ class instructionsAnimator:
       ellipse.show()
 
   def showFrame(self, frame_number):
-    descr("frame number", frame_number)
 
     a = self.anim
 
@@ -202,7 +187,6 @@ class instructionsAnimator:
     a.current_genome_str = None
 
     if frame_number < 0:
-      descr("bad frame_number %d reset to zero." % frame_number)
       frame_number = 0
 
     if a.frames is not None and frame_number < a.frames.m_gestation_time:
@@ -236,18 +220,15 @@ class instructionsAnimator:
 
 class instFactoryAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
 
 class segAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
 class pathAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
 class indicator(QCanvasRectangle):
@@ -346,7 +327,6 @@ def _positionSubanimator(subanimator, frames, x, y):
 
 class regsAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
     self.in_label = None
@@ -421,7 +401,6 @@ class regsAnimator:
     self.regc_anim.setReadFnc(lambda f, fn: f.getThreadsSnapshotAt(fn)[0].GetRegister(cHardwareCPUDefs.s_REG_CX))
 
   def size(self):
-    descr()
     if not self.anim.show_registers_flag:
       return 0, 0
     return self.rega_anim.width(), 4*self.rega_anim.height()
@@ -516,32 +495,25 @@ class regsAnimator:
 
 class stackAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
   def size(self):
-    descr()
     return 0, 0
 
 class ioAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
   def size(self):
-    descr()
     return 0, 0
 
 class taskTestsAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
   def size(self):
-    descr()
     return 0, 0
 
 
 class hwAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
     self.regs_anim = regsAnimator(anim)
     self.stack_a_anim = stackAnimator(anim)
@@ -556,7 +528,6 @@ class hwAnimator:
     self.regs_anim.y = None
 
   def size(self):
-    descr()
     if not self.anim.show_hardware_flag:
       return 0, 0
 
@@ -567,7 +538,6 @@ class hwAnimator:
     return width, height
 
   def setFrames(self, frames):
-    descr()
     self.x = self.anim.layout_margin
     self.y = self.anim.layout_margin
     self.regs_anim.x = self.x
@@ -586,28 +556,23 @@ class hwAnimator:
     #]
 
   def showFrame(self, frame_number):
-    #descr()
     self.regs_anim.showFrame(frame_number)
 
 class dataAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
 
 class divideAnimator:
   def __init__(self, anim):
-    descr()
     self.anim = anim
 
 
 class layoutManager:
   def __init__(self, anim):
-    descr()
     self.anim = anim
     anim.MAX_ORG_LEN = 200
   def checkDimensions(self, width, height):
-    descr(width, height)
     a = self.anim
     hw_width, hw_height = a.hw_anim.size()
     w = width - hw_width
@@ -626,15 +591,11 @@ class layoutManager:
     c_x = width - w / 2.
     c_y = height / 2.
 
-    descr(c_x, c_y, R, r, rr)
     return c_x, c_y, R, r, rr
 
   def setDimensions(self, layout_dims):
-    descr()
     a = self.anim
     c_x, c_y, R, r, rr = layout_dims
-    descr(c_x, c_y, R, r, rr)
-    descr(layout_dims)
     a.circles = []
     a.head_circles = []
     a.circle_radii = []
@@ -665,7 +626,6 @@ class layoutManager:
 
 class pyOrganismAnimator:
   def __init__(self):
-    descr()
     self.heads_anim = headsAnimator(self)
     self.instructions_anim = instructionsAnimator(self)
     self.ihead_path_anim = pathAnimator(self)
@@ -725,7 +685,6 @@ class pyOrganismAnimator:
     self.inst_names_dict = inst_names
 
   def setCanvas(self, canvas = None):
-    descr()
     self.canvas = canvas
   def setFrames(self, frames = None):
     """
@@ -733,7 +692,6 @@ class pyOrganismAnimator:
     
     frames - sequence of hardware snapshots from organism analysis.
     """
-    descr()
     self.frames = frames
     if frames is None:
       self.last_copied_instruction_cache = None
@@ -746,7 +704,6 @@ class pyOrganismAnimator:
           [ms.GetFlagCopied(j) and j or last_copied_instruction for j in xrange(last_copied_instruction, ms.GetSize())]
         )
         self.last_copied_instruction_cache.append(last_copied_instruction)
-      descr("self.last_copied_instruction_cache", self.last_copied_instruction_cache)
 
     self.instructions_anim.setFrames(frames)
     self.heads_anim.setFrames(frames)
@@ -756,7 +713,6 @@ class pyOrganismAnimator:
     Forwards call to .showFrame() of various subanimators, then updates
     canvas.
     """
-    #descr()
     self.instructions_anim.showFrame(frame_number)
     self.heads_anim.showFrame(frame_number)
     self.hw_anim.showFrame(frame_number)
@@ -766,7 +722,6 @@ class pyOrganismAnimator:
     Doesn't do anything yet. I was planning to use this call to animate
     transitions between adjacent frames.
     """
-    descr()
     pass
 
 
@@ -780,7 +735,6 @@ class pyOrganismAnimator:
     changes, but the code that does this has been scattered all over the
     place, and needs reconsolidation. @kgn
     """
-    descr()
     self.canvas_width = width
     self.canvas_height = height
 
@@ -791,7 +745,6 @@ class pyOrganismAnimator:
     if layout_dims != self.layout_dims:
       self.layout_dims = layout_dims
       self.layout_manager.setDimensions(layout_dims)
-      descr()
       self.c_x, self.c_y, self.R, self.r, self.rr = layout_dims
       text_height = 3 * self.r
       font_metrics = QFontMetrics(self.font)
@@ -806,7 +759,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. I may remove it. @kgn
     """
-    descr()
     if self.animate_head_movement_flag != bool:
       self.animate_head_movement_flag = bool
   def setAnimateInstructionCopyCBToggled(self, bool):
@@ -815,7 +767,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. I may remove it. @kgn
     """
-    descr()
     if self.animate_instruction_copy_flag != bool:
       self.animate_instruction_copy_flag = bool
   def setAnimateOrganismDivideCBToggled(self, bool):
@@ -824,7 +775,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.animate_organism_divide_flag != bool:
       self.animate_organism_divide_flag = bool
 
@@ -833,7 +783,6 @@ class pyOrganismAnimator:
     """
     Sets display method for organism hardware heads.
     """
-    descr()
     heads_shape_policy_table = (
       headsDotShapePolicy,
       headsLetterShapePolicy
@@ -850,7 +799,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_hardware_flag != bool:
       self.show_hardware_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -861,7 +809,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_registers_flag != bool:
       self.show_registers_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -872,7 +819,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_stacks_flag != bool:
       self.show_stacks_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -883,7 +829,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_full_stacks_flag != bool:
       self.show_full_stacks_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -893,7 +838,6 @@ class pyOrganismAnimator:
     Enables or disables display of organism's hardware's inputs and
     outputs.
     """
-    descr()
     if self.show_io_flag != bool:
       self.show_io_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -904,7 +848,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_task_tests_flag != bool:
       self.show_task_tests_flag = bool
       self.hw_anim.setFrames(self.frames)
@@ -915,7 +858,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. @kgn
     """
-    descr()
     if self.show_instruction_names_flag != bool:
       self.show_instruction_names_flag = bool
 
@@ -926,7 +868,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. I may remove it. @kgn
     """
-    descr()
     if self.hardware_indicator_size != value:
       self.hardware_indicator_size = value
       self.hw_anim.setFrames(self.frames)
@@ -939,7 +880,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. I may remove it. @kgn
     """
-    descr()
     if self.layout_spacing != value:
       self.layout_spacing = value
   def setLayoutMarginSBValueChanged(self, value):
@@ -948,7 +888,6 @@ class pyOrganismAnimator:
 
     This doesn't do anything yet. I may remove it. @kgn
     """
-    descr()
     if self.layout_margin != value:
       self.layout_margin = value
 
@@ -1462,4 +1401,5 @@ class pyOrganismScopeView(QCanvasView):
       #  self.m_fhead_item.show()
       #  # Update changed fhead_item.
 
+    self.emit(PYSIGNAL("frameShownSig"),(self.m_frames, self.m_current_frame_number))
     self.m_canvas.update()
