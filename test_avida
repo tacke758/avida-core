@@ -1,4 +1,3 @@
 #!/bin/sh
 
-cd build
-ctest --verbose "$@"
+cd build && ctest --verbose "$@"
