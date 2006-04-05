@@ -217,6 +217,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       # Try to decode to the data you understand...
       freezer_item_name = QString()
       if ( QTextDrag.decode( e, freezer_item_name ) ) :
+        freezer_item_name = str(e.encodedData("text/plain"))
+        print "BDB:pyOneAna_GraphCtrl:petriDropped freezer_item_name = " + freezer_item_name
         self.m_petri_dish_dir_path = freezer_item_name
         self.modeActivatedSlot()
         return
@@ -244,9 +246,9 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
                 m = m + "   " + i + '\n'
         return
 
-      str = decode( e ) 
-      if str:
-        print " in if str"
+      decode_str = decode( e ) 
+      if decode_str:
+        print " in if decode_str"
 
   def freezerItemDoubleClickedOn(self, freezer_item_name): 
     # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path

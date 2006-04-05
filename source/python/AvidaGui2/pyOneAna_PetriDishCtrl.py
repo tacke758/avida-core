@@ -30,7 +30,8 @@ class pyOneAna_PetriDishCtrl(pyOneAna_PetriDishView):
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      self.m_one_ana_pop_name.setText(os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0])
+      freezer_item_name = str(e.encodedData("text/plain"))
+      self.m_one_ana_pop_name.setText(os.path.splitext((os.path.split(freezer_item_name)[1]))[0])
 
   def freezerItemDoubleClickedOn(self, freezer_item_name):
     self.m_one_ana_pop_name.setText(os.path.split(os.path.splitext(os.path.split(freezer_item_name)[0])[0])[1])

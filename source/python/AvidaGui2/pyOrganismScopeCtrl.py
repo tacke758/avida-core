@@ -62,32 +62,30 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
   def dragEnterEvent( self, e ):
     e.acceptAction(True)
 
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      if os.path.exists( str(freezer_item_name)) == False:
-        print "pyOrganismScopeCtrl.dragEnterEvent(e): that was not a valid path."
+    freezer_item_name = str(e.encodedData("text/plain"))
+    if os.path.exists(freezer_item_name) == False:
+      print "pyOrganismScopeCtrl.dragEnterEvent(e): that was not a valid path."
+    else:
+      print "pyOrganismScopeCtrl.dragEnterEvent(e): that was a valid path."
+      print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name", freezer_item_name
+      if freezer_item_name.endswith('.organism'):
+        print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name ends with .organism."
+        e.accept()
       else:
-        print "pyOrganismScopeCtrl.dragEnterEvent(e): that was a valid path."
-        print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name", freezer_item_name
-        if str(freezer_item_name).endswith('.organism'):
-          print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name ends with .organism."
-          e.accept()
-        else:
-          print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name doesn't end with .organism."
+        print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name doesn't end with .organism."
 
   def dropEvent( self, e ):
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      if os.path.exists( str(freezer_item_name)) == False:
-        print "pyOrganismScopeCtrl.dropEvent(e): that was not a valid path."
+    freezer_item_name = str(e.encodedData("text/plain"))
+    if os.path.exists(freezer_item_name) == False:
+      print "pyOrganismScopeCtrl.dropEvent(e): that was not a valid path."
+    else:
+      print "pyOrganismScopeCtrl.dropEvent(e): that was a valid path."
+      if freezer_item_name.endswith('.organism'):
+        print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name ends with .organism."
+        e.accept()
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
       else:
-        print "pyOrganismScopeCtrl.dropEvent(e): that was a valid path."
-        if str(freezer_item_name).endswith('.organism'):
-          print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name ends with .organism."
-          e.accept()
-          self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
-        else:
-          print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name doesn't end with .organism."
+        print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name doesn't end with .organism."
 
 
   def setAvidaSlot(self, avida):
@@ -104,7 +102,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
       self.setFrames()
 
       inst_set = self.m_avida.m_environment.GetInstSet()
-      org_file = open(organism_filename.ascii())
+      org_file = open(organism_filename)
       org_string = org_file.readline()
       org_string = org_string.rstrip()
       org_string = org_string.lstrip()
@@ -128,7 +126,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
           self.progress_bar.setProgress(step)
           qApp.processEvents()
 
-      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"), (organism_filename.ascii(),))
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"), (organism_filename,))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Analyzing organism...",))
       progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
 

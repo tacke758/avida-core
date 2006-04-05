@@ -57,7 +57,8 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      if os.path.exists(str(freezer_item_name)) == False:
+      freezer_item_name = str(e.encodedData("text/plain"))
+      if os.path.exists(freezer_item_name) == False:
         descr("that was not a valid path (1)")
       else: 
         e.acceptAction(True)
@@ -68,7 +69,8 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     descr(e)
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      if os.path.exists(str(freezer_item_name)) == False:
+      freezer_item_name = str(e.encodedData("text/plain"))
+      if os.path.exists(freezer_item_name) == False:
         print "that was not a valid path (1)" 
       else: 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))

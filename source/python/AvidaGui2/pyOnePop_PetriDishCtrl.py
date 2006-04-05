@@ -185,14 +185,15 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
+      freezer_item_name = str(e.encodedData("text/plain"))
       if freezer_item_name[-8:] == 'organism':
         # We can't yet deal with organims in the population view
         return
       elif freezer_item_name[-4:] == 'full':
-        freezer_item_name_temp = os.path.join(str(freezer_item_name), 'petri_dish')
+        freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
         self.m_session_mdl.new_full_dish = True
       else:
-        freezer_item_name_temp = str(freezer_item_name)
+        freezer_item_name_temp = freezer_item_name
         self.m_session_mdl.new_empty_dish = True
       thawed_item = pyReadFreezer(freezer_item_name_temp)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),  

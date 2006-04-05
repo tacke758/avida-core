@@ -269,12 +269,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
+      freezer_item_name = str(e.encodedData("text/plain"))
       if freezer_item_name[-4:] == 'full':
-        full_petri_dir = str(freezer_item_name)
+        full_petri_dir = freezer_item_name
         self.loadStats(full_petri_dir)
       else:
         return
-#        (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
+#        (os.path.splitext((os.path.split(freezer_item_name)[1]))[0], thawed_item,))
 
   def loadStats(self, full_petri_dir):
     full_petri_average_file_name = os.path.join(str(full_petri_dir), 'average.dat')

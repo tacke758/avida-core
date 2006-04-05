@@ -44,7 +44,7 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
   def showDialog(self):
     self.change = False
     self.open_obj = False
-    self.show()
+    # self.show()
     self.exec_loop()
     dialog_result = self.result()
     new_name_core = str(self.NewNameLineEdit.text())

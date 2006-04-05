@@ -525,7 +525,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      if os.path.exists(str(freezer_item_name)) == False:
+      freezer_item_name = str(e.encodedData("text/plain"))
+      if os.path.exists(freezer_item_name) == False:
         descr("that was not a valid path (1)")
       else: 
         e.acceptAction(True)
@@ -536,7 +537,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     descr()
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      if os.path.exists(str(freezer_item_name)) == False:
+      freezer_item_name = str(e.encodedData("text/plain"))
+      if os.path.exists(freezer_item_name) == False:
         print "that was not a valid path (2)" 
       else: 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
@@ -546,6 +548,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
+      freezer_item_name = str(e.encodedData("text/plain"))
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
