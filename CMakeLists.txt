@@ -60,6 +60,15 @@ SET(CMAKE_BUILD_TYPE
   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
 )
 
+# This section introduces the Avida project to CMake.  In this file, it
+# must be between the configuration options above (otherwise it
+# overrides their defaults) and the configuration options, cmake module
+# includes, and convenience variables below (otherwise some variables
+# can't be properly defined because PROJECT_SOURCE_DIR and
+# PROJECT_BUILD_DIR aren't yet defined).
+
+PROJECT(AVIDA)
+
 # Default location for installed software / configs / docs is work
 # subdirectory of build directory.
 SET(CMAKE_INSTALL_PREFIX
@@ -84,14 +93,6 @@ SET(LIBRARY_OUTPUT_PATH
 )
 
 
-# This section introduces the Avida project to CMake.  In this file, it
-# must be between the configuration options above (otherwise it
-# overrides their defaults) and the configuration options, cmake module
-# includes, and convenience variables below (otherwise some variables
-# can't be properly defined because PROJECT_SOURCE_DIR and
-# PROJECT_BUILD_DIR aren't yet defined).
-
-PROJECT(AVIDA)
 SUBDIRS(source)
 
 # Experimental Boost.Python interface to avida is disabled by default.
