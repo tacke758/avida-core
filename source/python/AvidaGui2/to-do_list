@@ -57,6 +57,9 @@ Priority Low
 
 
 Priority High-
+- reenable buildbot
+- emails on new release
+- new-style application icon
 - printing of petri dish and of color scale
 - troubleshoot crash on run end, as set in petri dish control.
   - hack with a pause signal upon a certain event completed.
