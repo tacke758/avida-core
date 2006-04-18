@@ -40,8 +40,8 @@ IF(AVD_GUI_PYQT)
       ADD_CUSTOM_COMMAND(
         OUTPUT ${EXECUTABLE_OUTPUT_PATH}/Avida-ED.app
         COMMAND ${PYTHON_EXE}
-        DEPENDS ${LIBRARY_OUTPUT_PATH}/libPyAvidaRepairHacks.dylib
         ARGS setup.py py2app
+        DEPENDS ${LIBRARY_OUTPUT_PATH}/libPyAvidaRepairHacks.dylib
       )
 
       # 'clean' build target
