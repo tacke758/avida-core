@@ -14,6 +14,10 @@ Priority High
 
 Priority Medium
 
+18-Apr-06 Replace "Viewers" buttons icons.
+
+18-Apr-06 Make "freeze full petri dish" be default.
+
 16-Jan-06 Freeze button on bottom of main screen.
 
 Priority Low
@@ -60,6 +64,9 @@ Priority High-
 - reenable buildbot
 - emails on new release
 - new-style application icon
+- replace flip arrow on petri dish with a button with text reading
+  "configure"
+
 - printing of petri dish and of color scale
 - troubleshoot crash on run end, as set in petri dish control.
   - hack with a pause signal upon a certain event completed.
