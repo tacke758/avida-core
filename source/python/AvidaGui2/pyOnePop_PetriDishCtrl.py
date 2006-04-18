@@ -34,8 +34,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       PYSIGNAL("freezeDishPhaseISig"),
       self.m_petri_dish_ctrl.extractPopulationSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("freezeDishPhaseISig"), self.freezeDishPhaseISlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("setAvidaSig"), self.setAvidaSlot)
     self.connect(self.m_petri_dish_toggle, SIGNAL("clicked()"), 
       self.ToggleDishSlot)
@@ -172,14 +170,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     if (not self.dishDisabled):
       self.PopulationTextLabel.setText(dishName)
     
-  # Dummy routine
-    
-  def freezeDishPhaseISlot(self, send_reset_signal = False, send_quit_signal = False):
-    descr()
-    print "in pyOnePop_PetriDishCtrl recieved freezeDishPhaseISig"
-    print "send_reset_signal = " + str(send_reset_signal)
-    print "send_quit_signal = " + str(send_quit_signal)
-
   def petriDropped(self, e):
     descr()
     # Try to decode to the data you understand...

@@ -278,6 +278,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # self.StopAtSpinBox.setEnabled(False) 
     # self.StopManuallyRadioButton.setEnabled(False)
     # self.StopAtRadioButton.setEnabled(False)
+    # self.StopHeadTextLabel.setEnabled(False)
 
     self.WorldSizeSlider.setEnabled(False)
     self.RandomGeneratedRadioButton.setEnabled(False)
@@ -311,7 +312,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.RandomHeadTextLabel.setEnabled(False)
     self.AncestorHeadTextLabel.setEnabled(False)
     self.BirthHeadTextLabel.setEnabled(False)
-    self.StopHeadTextLabel.setEnabled(False)
     self.DishDisabled = True
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("doDisablePetriDishSig"), ())

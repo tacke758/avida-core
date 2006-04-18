@@ -21,11 +21,12 @@ class pyBeforeStartingCtrl (pyBeforeStartingView):
                  PYSIGNAL("workspaceNewSig"))
     self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
                 self.closeDialog)
+    self.connect(self.CancelPushButton, SIGNAL("clicked()"),
+                self.closeDialog)
 
   def showDialog(self):
     self.exec_loop()
     dialog_result = self.result()
-    print "BDB pyBeforeStgartingCtrl:showDialog dialog_result = " + str(dialog_result)
 
   def closeDialog(self):
     self.done(1)

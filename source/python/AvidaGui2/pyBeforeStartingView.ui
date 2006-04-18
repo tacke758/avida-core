@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>224</width>
-            <height>100</height>
+            <height>136</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -31,7 +31,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>222</width>
-                <height>92</height>
+                <height>130</height>
             </rect>
         </property>
         <property name="title">
@@ -52,8 +52,17 @@
                         <blue>100</blue>
                     </color>
                 </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
                 <property name="text">
                     <string>Open Existing Workspace</string>
+                </property>
+                <property name="toggleButton">
+                    <bool>true</bool>
+                </property>
+                <property name="on">
+                    <bool>false</bool>
                 </property>
             </widget>
             <widget class="QPushButton">
@@ -67,12 +76,44 @@
                         <blue>100</blue>
                     </color>
                 </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
                 <property name="text">
                     <string>Create New Workspace</string>
+                </property>
+                <property name="toggleButton">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>CancelPushButton</cstring>
+                </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>100</blue>
+                    </color>
+                </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
+                <property name="text">
+                    <string>Cancel</string>
+                </property>
+                <property name="toggleButton">
+                    <bool>true</bool>
                 </property>
             </widget>
         </vbox>
     </widget>
 </widget>
+<tabstops>
+    <tabstop>OpenExistingPushButton</tabstop>
+    <tabstop>CreateNewPushButton</tabstop>
+    <tabstop>CancelPushButton</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -120,6 +120,13 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
                         <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
+                <property name="paletteBackgroundColor">
+                    <color>
+                        <red>255</red>
+                        <green>255</green>
+                        <blue>255</blue>
+                    </color>
+                </property>
                 <widget class="QWidget">
                     <property name="name">
                         <cstring>WStackPage</cstring>
@@ -225,6 +232,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -252,6 +265,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>

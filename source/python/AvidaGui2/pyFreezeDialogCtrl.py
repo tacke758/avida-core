@@ -19,10 +19,7 @@ class pyFreezeDialogCtrl (pyFreezeDialogView):
     else:
       self.FullRadioButton.setEnabled(True)
     while (found_valid_name == False and dialog_result > 0):
-      self.show()
       self.exec_loop()
-      # while (self.exec_loop() and self.result() == 0):
-      #   pass
       dialog_result = self.result()
       tmp_name = str(self.FileNameLineEdit.text())
       if dialog_result == 0:

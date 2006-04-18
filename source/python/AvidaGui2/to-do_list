@@ -7,10 +7,7 @@ Click on freezer name same on clicking on expand/contract
 
 Priority High
 
-16-Jan-06 Get file system finished
-
-16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace).
-
+16-Jan-06 Get file system finished -- Make one big database file?
 
 Priority Medium
 
@@ -18,7 +15,7 @@ Priority Medium
 
 18-Apr-06 Make "freeze full petri dish" be default.
 
-16-Jan-06 Freeze button on bottom of main screen.
+18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved.
 
 Priority Low
 
@@ -120,6 +117,11 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 -change the word "repopulate" to "start new experiment" -- Finished 2-Feb-06
 
 27-Feb-06 Change Navigation -> Viewer
+
+16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Finished 06-Apr-06
+
+16-Jan-06 Freeze button on bottom of main screen. -- Finished 06-Apr-06
+
 
 
 

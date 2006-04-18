@@ -62,6 +62,9 @@
                         <blue>100</blue>
                     </color>
                 </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
                 <property name="text">
                     <string>delete</string>
                 </property>
@@ -85,6 +88,9 @@
                                 <blue>100</blue>
                             </color>
                         </property>
+                        <property name="focusPolicy">
+                            <enum>StrongFocus</enum>
+                        </property>
                         <property name="text">
                             <string>rename</string>
                         </property>
@@ -107,6 +113,9 @@
                         <blue>100</blue>
                     </color>
                 </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
                 <property name="text">
                     <string>export</string>
                 </property>
@@ -121,6 +130,9 @@
                         <green>255</green>
                         <blue>100</blue>
                     </color>
+                </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
                 </property>
                 <property name="text">
                     <string>open</string>
@@ -140,6 +152,9 @@
                         <blue>100</blue>
                     </color>
                 </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
+                </property>
                 <property name="text">
                     <string>Confirm</string>
                 </property>
@@ -154,6 +169,9 @@
                         <green>255</green>
                         <blue>100</blue>
                     </color>
+                </property>
+                <property name="focusPolicy">
+                    <enum>StrongFocus</enum>
                 </property>
                 <property name="text">
                     <string>Cancel</string>

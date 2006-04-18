@@ -36,6 +36,13 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
             <property name="name">
                 <cstring>OnPop_PetriFrame</cstring>
             </property>
+            <property name="paletteForegroundColor">
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
             </property>
@@ -464,6 +471,16 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="0">-1</property>
         <property type="1">pyPetriDishCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
         <property type="pyPetriDishCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -519,6 +536,16 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="0">-1</property>
         <property type="1">pyGradientScaleCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
         <property type="pyGradientScaleCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -546,6 +573,16 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="4">-1</property>
         <property type="1">pyLiveControlsCtrl</property>
         <property type="4">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
         <property type="1">pyLiveControlsCtrl</property>
         <property type="0">-1</property>
         <property type="1">pyLiveControlsCtrl</property>

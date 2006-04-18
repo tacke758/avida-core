@@ -34,10 +34,19 @@
             <property name="name">
                 <cstring>FileNameLineEdit</cstring>
             </property>
+            <property name="frameShape">
+                <enum>LineEditPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
+            </property>
         </widget>
         <widget class="QButtonGroup">
             <property name="name">
                 <cstring>FullEmptyButtonGroup</cstring>
+            </property>
+            <property name="focusPolicy">
+                <enum>StrongFocus</enum>
             </property>
             <property name="frameShape">
                 <enum>NoFrame</enum>
@@ -53,6 +62,9 @@
                     <property name="name">
                         <cstring>EmptyRadioButton</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
                     <property name="text">
                         <string>Empty Petri Dish</string>
                     </property>
@@ -67,6 +79,9 @@
                     <property name="enabled">
                         <bool>false</bool>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
                     <property name="text">
                         <string>Full Petri Dish</string>
                     </property>
@@ -78,15 +93,27 @@
                     <property name="enabled">
                         <bool>false</bool>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
                     <property name="text">
                         <string>Highlighted Organism</string>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QButtonGroup">
             <property name="name">
-                <cstring>layout1</cstring>
+                <cstring>FreezeCancelButtonGroup</cstring>
+            </property>
+            <property name="focusPolicy">
+                <enum>StrongFocus</enum>
+            </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="title">
+                <string></string>
             </property>
             <hbox>
                 <property name="name">
@@ -96,6 +123,9 @@
                     <property name="name">
                         <cstring>SaveToFreezerPushButton</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
                     <property name="text">
                         <string>Freeze</string>
                     </property>
@@ -103,6 +133,9 @@
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
                     </property>
                     <property name="text">
                         <string>Cancel</string>
@@ -114,17 +147,23 @@
 </widget>
 <connections>
     <connection>
-        <sender>SaveToFreezerPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>pyFreezeDialogView</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
         <sender>CancelPushButton</sender>
         <signal>clicked()</signal>
         <receiver>pyFreezeDialogView</receiver>
         <slot>reject()</slot>
     </connection>
+    <connection>
+        <sender>SaveToFreezerPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyFreezeDialogView</receiver>
+        <slot>accept()</slot>
+    </connection>
 </connections>
+<tabstops>
+    <tabstop>FileNameLineEdit</tabstop>
+    <tabstop>EmptyRadioButton</tabstop>
+    <tabstop>SaveToFreezerPushButton</tabstop>
+    <tabstop>CancelPushButton</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

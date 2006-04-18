@@ -106,6 +106,9 @@
                                         <font>
                                         </font>
                                     </property>
+                                    <property name="focusPolicy">
+                                        <enum>StrongFocus</enum>
+                                    </property>
                                     <property name="minValue">
                                         <number>-300</number>
                                     </property>
@@ -197,6 +200,9 @@
                                     <property name="font">
                                         <font>
                                         </font>
+                                    </property>
+                                    <property name="focusPolicy">
+                                        <enum>StrongFocus</enum>
                                     </property>
                                     <property name="minValue">
                                         <number>1</number>
@@ -386,6 +392,9 @@
                     <property name="name">
                         <cstring>TasksToRewardGroup</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
                     <property name="frameShape">
                         <enum>NoFrame</enum>
                     </property>
@@ -406,6 +415,9 @@
                             <property name="name">
                                 <cstring>NandCheckBox</cstring>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>nand</string>
                             </property>
@@ -416,6 +428,9 @@
                         <widget class="QCheckBox" row="2" column="2">
                             <property name="name">
                                 <cstring>OrnCheckBox</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>ornot</string>
@@ -428,6 +443,9 @@
                             <property name="name">
                                 <cstring>AndCheckBox</cstring>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>and</string>
                             </property>
@@ -439,6 +457,9 @@
                             <property name="name">
                                 <cstring>OrCheckBox</cstring>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>or</string>
                             </property>
@@ -449,6 +470,9 @@
                         <widget class="QCheckBox" row="1" column="6">
                             <property name="name">
                                 <cstring>NorCheckBox</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>nor</string>
@@ -484,6 +508,9 @@
                         <widget class="QCheckBox" row="1" column="0">
                             <property name="name">
                                 <cstring>NotCheckBox</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>not</string>
@@ -534,6 +561,9 @@
                             <property name="name">
                                 <cstring>XorCheckBox</cstring>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>xor</string>
                             </property>
@@ -544,6 +574,9 @@
                         <widget class="QCheckBox" row="2" column="4">
                             <property name="name">
                                 <cstring>AndnCheckBox</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>andnot</string>
@@ -609,6 +642,9 @@
                         <widget class="QCheckBox" row="1" column="8">
                             <property name="name">
                                 <cstring>EquCheckBox</cstring>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>equals</string>
@@ -683,6 +719,9 @@
                     <property name="name">
                         <cstring>RandomButtonGroup</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
                     <property name="frameShape">
                         <enum>NoFrame</enum>
                     </property>
@@ -718,6 +757,9 @@
                                 <font>
                                 </font>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>No</string>
                             </property>
@@ -732,6 +774,9 @@
                             <property name="font">
                                 <font>
                                 </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Yes</string>
@@ -817,6 +862,9 @@
                     <property name="name">
                         <cstring>BirthButtonGroup</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
                     <property name="frameShadow">
                         <enum>Plain</enum>
                     </property>
@@ -858,6 +906,9 @@
                                 <font>
                                 </font>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>Nearby their parent</string>
                             </property>
@@ -872,6 +923,9 @@
                             <property name="font">
                                 <font>
                                 </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Anywhere, randomly</string>
@@ -957,6 +1011,9 @@
                     <property name="name">
                         <cstring>StopButtonGroup</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
                     <property name="frameShadow">
                         <enum>Plain</enum>
                     </property>
@@ -1006,6 +1063,9 @@
                                 <font>
                                 </font>
                             </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
                             <property name="text">
                                 <string>Manually</string>
                             </property>
@@ -1032,6 +1092,9 @@
                                             <horstretch>0</horstretch>
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
+                                    </property>
+                                    <property name="focusPolicy">
+                                        <enum>StrongFocus</enum>
                                     </property>
                                     <property name="text">
                                         <string>At</string>
@@ -1112,6 +1175,9 @@
                 <font>
                 </font>
             </property>
+            <property name="focusPolicy">
+                <enum>StrongFocus</enum>
+            </property>
             <property name="text">
                 <string>Freeze Petri Dish</string>
             </property>
@@ -1126,5 +1192,27 @@
         <slot>&lt;No)</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>MutationSlider</tabstop>
+    <tabstop>WorldSizeSlider</tabstop>
+    <tabstop>AncestorComboBox</tabstop>
+    <tabstop>NotCheckBox</tabstop>
+    <tabstop>NandCheckBox</tabstop>
+    <tabstop>AndCheckBox</tabstop>
+    <tabstop>OrnCheckBox</tabstop>
+    <tabstop>OrCheckBox</tabstop>
+    <tabstop>AndnCheckBox</tabstop>
+    <tabstop>NorCheckBox</tabstop>
+    <tabstop>XorCheckBox</tabstop>
+    <tabstop>EquCheckBox</tabstop>
+    <tabstop>RandomGeneratedRadioButton</tabstop>
+    <tabstop>RandomFixedRadioButton</tabstop>
+    <tabstop>LocalBirthRadioButton</tabstop>
+    <tabstop>MassActionRadioButton</tabstop>
+    <tabstop>StopManuallyRadioButton</tabstop>
+    <tabstop>StopAtRadioButton</tabstop>
+    <tabstop>StopAtSpinBox</tabstop>
+    <tabstop>SavePetriPushButton</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
