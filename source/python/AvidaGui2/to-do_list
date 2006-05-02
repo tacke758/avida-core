@@ -17,6 +17,10 @@ Priority Medium
 
 18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved.
 
+29-Apr-06 Export Excel style (tab delimited) files
+
+29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
+
 Priority Low
 
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
@@ -32,6 +36,10 @@ Priority Low
 16-Jan-06 Fix problem where start in menu bar not linked to start button 
 
 16-Jan-06 Non-Fix length Genomes? 
+
+29-Apr-06 Add pop-up help for all control items
+
+29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
 
 
 ************Jeff*******************
