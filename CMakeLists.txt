@@ -67,8 +67,6 @@ SET(CMAKE_BUILD_TYPE
 # can't be properly defined because PROJECT_SOURCE_DIR and
 # PROJECT_BUILD_DIR aren't yet defined).
 
-PROJECT(AVIDA)
-
 # Default location for installed software / configs / docs is work
 # subdirectory of build directory.
 SET(CMAKE_INSTALL_PREFIX
@@ -77,6 +75,8 @@ SET(CMAKE_INSTALL_PREFIX
   CACHE PATH
   "Install path prefix, prepended onto install directories."
 )
+
+PROJECT(AVIDA)
 
 # Final software is built directly into the work subdirectory.
 SET(EXECUTABLE_OUTPUT_PATH
