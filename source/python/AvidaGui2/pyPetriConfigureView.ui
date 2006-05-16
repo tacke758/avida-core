@@ -222,6 +222,9 @@
                                     <property name="orientation">
                                         <enum>Horizontal</enum>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Set the size of the petri dish (1 to 100)</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -329,6 +332,9 @@
                     <property name="currentItem">
                         <number>0</number>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>The name of the organism(s) that will start the population on an empty petri dish (normally dragged in)</string>
+                    </property>
                 </widget>
             </vbox>
         </widget>
@@ -424,6 +430,9 @@
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;nand&lt;/i&gt;&lt;/b&gt; function</string>
+                            </property>
                         </widget>
                         <widget class="QCheckBox" row="2" column="2">
                             <property name="name">
@@ -437,6 +446,9 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;ornot&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox" row="1" column="2">
@@ -452,6 +464,9 @@
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;and&lt;/i&gt;&lt;/b&gt; function</string>
+                            </property>
                         </widget>
                         <widget class="QCheckBox" row="1" column="4">
                             <property name="name">
@@ -466,6 +481,9 @@
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;or&lt;/i&gt;&lt;/b&gt; function</string>
+                            </property>
                         </widget>
                         <widget class="QCheckBox" row="1" column="6">
                             <property name="name">
@@ -479,6 +497,9 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;nor&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="0">
@@ -517,6 +538,9 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;not&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="2">
@@ -570,6 +594,9 @@
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;xor&lt;/i&gt;&lt;/b&gt; function</string>
+                            </property>
                         </widget>
                         <widget class="QCheckBox" row="2" column="4">
                             <property name="name">
@@ -583,6 +610,9 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;andnot&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
                         <widget class="Line" row="0" column="3" rowspan="3" colspan="1">
@@ -651,6 +681,9 @@
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Reward the &lt;b&gt;&lt;i&gt;equals&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
                     </grid>
@@ -758,13 +791,16 @@
                                 </font>
                             </property>
                             <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
+                                <enum>TabFocus</enum>
                             </property>
                             <property name="text">
                                 <string>No</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Each time this petri is run the results will not be exactly the same</string>
                             </property>
                         </widget>
                         <widget class="QRadioButton">
@@ -776,10 +812,13 @@
                                 </font>
                             </property>
                             <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
+                                <enum>NoFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Yes</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Each time this petri is run the results will be exactly the same</string>
                             </property>
                         </widget>
                         <spacer>
@@ -907,13 +946,16 @@
                                 </font>
                             </property>
                             <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
+                                <enum>TabFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Nearby their parent</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
                             </property>
                         </widget>
                         <widget class="QRadioButton">
@@ -925,10 +967,13 @@
                                 </font>
                             </property>
                             <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
+                                <enum>NoFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Anywhere, randomly</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>When a new organism is split off place it in a cell any where in the petri dish</string>
                             </property>
                         </widget>
                         <spacer>
@@ -1064,13 +1109,16 @@
                                 </font>
                             </property>
                             <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
+                                <enum>TabFocus</enum>
                             </property>
                             <property name="text">
                                 <string>Manually</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Program will run until you pause it using the button under the petri dish</string>
                             </property>
                         </widget>
                         <widget class="QLayoutWidget">
@@ -1098,6 +1146,9 @@
                                     </property>
                                     <property name="text">
                                         <string>At</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Run will pause at a given update and wait to you press the play button under the petri dish</string>
                                     </property>
                                 </widget>
                                 <widget class="QSpinBox">
@@ -1180,6 +1231,9 @@
             </property>
             <property name="text">
                 <string>Freeze Petri Dish</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Save either an empty or full petri dish to the freezer</string>
             </property>
         </widget>
     </vbox>

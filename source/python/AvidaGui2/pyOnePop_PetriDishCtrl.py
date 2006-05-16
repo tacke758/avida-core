@@ -97,8 +97,14 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)
     if (current_page_int == 0):
        self.m_petri_dish_widget_stack.raiseWidget(1)
+       QToolTip.remove(self.m_petri_dish_toggle)
+       QToolTip.add(self.m_petri_dish_toggle,
+         "Flip to see the <b><i>Petri Dish</i></b>")
     else:
        self.m_petri_dish_widget_stack.raiseWidget(0)
+       QToolTip.remove(self.m_petri_dish_toggle)
+       QToolTip.add(self.m_petri_dish_toggle,
+         "Flip to see the <b><i>Environmental Settings</i></b>")
  
   def MakeConfigVisiableSlot (self):
     if self.dishDisabled:

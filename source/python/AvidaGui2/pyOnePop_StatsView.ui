@@ -9,8 +9,8 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
     </property>
     <property name="geometry">
         <rect>
-            <x>87</x>
-            <y>171</y>
+            <x>0</x>
+            <y>0</y>
             <width>400</width>
             <height>400</height>
         </rect>
@@ -67,6 +67,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
             </property>
             <property name="title">
                 <string>Org. Clicked on  Report</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Information on single highlighted organisim from population</string>
             </property>
             <vbox>
                 <property name="name">
@@ -924,6 +927,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
             </property>
             <property name="title">
                 <string>Population Statistics</string>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Information about the entire population of organisms in the petri dish</string>
             </property>
             <vbox>
                 <property name="name">

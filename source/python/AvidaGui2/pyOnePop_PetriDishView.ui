@@ -100,6 +100,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                             <property name="text">
                                 <string>[population]</string>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Name of petri dish dragged in from the freezer</string>
+                            </property>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -140,6 +143,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                     </property>
                                     <property name="iconSet">
                                         <iconset>image1</iconset>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Flip to see the &lt;b&gt;&lt;i&gt;Environmental Settings&lt;/i&gt;&lt;/b&gt;</string>
                                     </property>
                                 </widget>
                                 <spacer>
@@ -242,6 +248,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                         <property name="text">
                                             <string>&lt;font size="-1"&gt;&lt;p align="right"&gt;Update:&lt;/p&gt;&lt;/font&gt;</string>
                                         </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Updates is the basic unit of time in Avida-ED</string>
+                                        </property>
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -257,6 +266,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                         </property>
                                         <property name="text">
                                             <string>&lt;font size="-1"&gt;-&lt;/font&gt;</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Updates is the basic unit of time in Avida-ED</string>
                                         </property>
                                     </widget>
                                     <widget class="QComboBox">
@@ -281,6 +293,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                                 <pointsize>11</pointsize>
                                             </font>
                                         </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Choose what variable to view</string>
+                                        </property>
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -297,6 +312,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                         <property name="text">
                                             <string>&lt;font size="-1"&gt;&lt;p align="right"&gt;Zoom:&lt;/p&gt;&lt;/font&gt;</string>
                                         </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Zoom in or out on petri dish</string>
+                                        </property>
                                     </widget>
                                     <widget class="QSpinBox">
                                         <property name="name">
@@ -309,6 +327,9 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                                 <horstretch>0</horstretch>
                                                 <verstretch>0</verstretch>
                                             </sizepolicy>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Zoom in or out on petri dish</string>
                                         </property>
                                     </widget>
                                 </hbox>
@@ -481,6 +502,10 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="0">-1</property>
         <property type="1">pyPetriDishCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
         <property type="pyPetriDishCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -546,6 +571,10 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="0">-1</property>
         <property type="1">pyGradientScaleCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
         <property type="pyGradientScaleCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -573,6 +602,10 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
         <property type="4">-1</property>
         <property type="1">pyLiveControlsCtrl</property>
         <property type="4">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyLiveControlsCtrl</property>
+        <property type="0">-1</property>
         <property type="1">pyLiveControlsCtrl</property>
         <property type="0">-1</property>
         <property type="1">pyLiveControlsCtrl</property>

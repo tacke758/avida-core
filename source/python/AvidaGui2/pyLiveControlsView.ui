@@ -93,6 +93,9 @@
                         <property name="usesBigPixmap">
                             <bool>false</bool>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Start (or restart) runnning the program</string>
+                        </property>
                     </widget>
                 </vbox>
             </widget>
@@ -119,6 +122,9 @@
                         </property>
                         <property name="usesBigPixmap">
                             <bool>false</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Pause running the program</string>
                         </property>
                     </widget>
                 </vbox>
@@ -150,6 +156,9 @@
             </property>
             <property name="iconSet">
                 <iconset>image2</iconset>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Save either an empty or full petri dish to the freezer</string>
             </property>
         </widget>
     </grid>
