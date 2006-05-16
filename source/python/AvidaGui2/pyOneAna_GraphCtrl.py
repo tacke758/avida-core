@@ -255,7 +255,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       # TODO: get it working with zip
       #print zip([data[elem][1][i] for elem in res])        
       num_updates = len(data[res[0]][0])
-      for i in range(num_updates - 1):
+      for i in range(num_updates):
         out_file.write("%d,%s\n"
                        % (i, ",".join([str(data[elem][1][i]) for elem in res])))
       out_file.close()
