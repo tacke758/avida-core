@@ -37,6 +37,11 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printGraphSig"),
       self.m_one_ana_graph_ctrl.printGraphSlot)
+    # Disconnect export signal
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("exportAnalyzeSig"),
+      self.m_one_ana_graph_ctrl.exportSlot)
   def aboutToBeRaised(self):
     """Connects "Print Graph..." menu item to One-Analyze Graph controller."""
     descr()
@@ -44,6 +49,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printGraphSig"),
       self.m_one_ana_graph_ctrl.printGraphSlot)
+    # Connect export
+    self.connect(self.m_session_mdl.m_session_mdtr,
+                 PYSIGNAL("exportAnalyzeSig"),
+                 self.m_one_ana_graph_ctrl.exportSlot)
 
   def dragEnterEvent( self, e ):
     descr(e)

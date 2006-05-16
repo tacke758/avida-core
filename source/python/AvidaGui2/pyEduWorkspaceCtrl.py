@@ -302,6 +302,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   # public slot
 
+  def fileExport(self):
+    "Export Avida analysis to a file"
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("exportAnalyzeSig"), ())
+ 
+  # public slot
+
   def fileExit(self):
     print "pyEduWorkspaceCtrl.fileExit(): Not implemented yet"
 

@@ -153,6 +153,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="fileOpenAction"/>
         <action name="fileSaveAsAction"/>
         <separator/>
+        <action name="fileExportAction"/>
+        <separator/>
         <action name="m_graph_print_action"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
@@ -361,6 +363,20 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="accel">
             <string>Ctrl+Shift+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExportAction</cstring>
+        </property>
+        <property name="text">
+            <string>Export Analysis</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Export Analysis</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+E</string>
         </property>
     </action>
     <action>
@@ -576,13 +592,13 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     </action>
     <action>
         <property name="name">
-            <cstring>fileExportAction</cstring>
+            <cstring>fileExportAction2</cstring>
         </property>
         <property name="text">
-            <string>Export...</string>
+            <string>Export</string>
         </property>
         <property name="menuText">
-            <string>Export...</string>
+            <string>Export</string>
         </property>
     </action>
     <action>
@@ -727,6 +743,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <slot>fileSaveAs()</slot>
     </connection>
     <connection>
+        <sender>fileExportAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileExport()</slot>
+    </connection>
+    <connection>
         <sender>m_graph_print_action</sender>
         <signal>activated()</signal>
         <receiver>pyEduWorkspaceView</receiver>
@@ -798,6 +820,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>fileOpen()</slot>
     <slot>fileSave()</slot>
     <slot>fileSaveAs()</slot>
+    <slot>fileExport()</slot>
     <slot>filePrint()</slot>
     <slot>fileExit()</slot>
     <slot>editUndo()</slot>

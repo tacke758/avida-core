@@ -4,6 +4,7 @@ from AvidaCore import cInitFile, cString
 from Numeric import *
 from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOneAna_GraphView import pyOneAna_GraphView
+from pyExportCtrl import pyExportCtrl
 from qt import *
 from qwt import *
 import os.path
@@ -105,7 +106,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     init_file = cInitFile(cString(os.path.join(str(self.m_petri_dish_dir_path), filename)))
     init_file.Load()
     init_file.Compress()
-
 
     x_array = zeros(init_file.GetNumLines(), Float)
     y_array = zeros(init_file.GetNumLines(), Float)
@@ -210,6 +210,55 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       if (QPrinter.GrayScale == printer.colorMode()):
         filter.setOptions(QwtPlotPrintFilter.PrintAll & ~QwtPlotPrintFilter.PrintCanvasBackground)
       self.m_graph_ctrl.printPlot(printer, filter)
+
+  def exportSlot(self):
+    "Export analysis data to a file"
+    dialog_caption = "Export analysis as:"
+    fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.csv)", None,
+                                     "export as", dialog_caption)
+    filename = str(fd)
+    if (filename[-4:].lower() != ".csv"):
+      filename += ".csv"
+
+    dialog = pyExportCtrl()
+    checks = []
+    # dictionary indexed by stat name so we can lookup stats to export
+    stats = {}
+    stat_cnt = 0
+    for stat in self.m_avida_stats_interface.m_entries:
+      # Note: this relies on labeling dummy stats with None
+      if stat[0] != "None":
+        stats[stat[0]] = stat_cnt
+        checks.append(QCheckListItem(dialog.listView1, stat[0],
+                                     QCheckListItem.CheckBox))
+        # enable last added checkbox
+        checks[len(checks) - 1].setOn(True)
+      stat_cnt += 1
+
+    res = dialog.showDialog()
+    if res == []:
+      return
+
+    data = {}
+    if self.m_combo_box_1.currentItem():
+      # Load stats for selected exports
+      # TODO: more efficient loading
+      for item in res:
+        idx = stats[item]
+        label1 = self.m_avida_stats_interface.m_entries[idx][0]
+        data[item] = self.load(self.m_avida_stats_interface.m_entries[idx][1],
+                               1,
+                               self.m_avida_stats_interface.m_entries[idx][2])
+
+      out_file = open(filename, 'w')
+      out_file.write("Update,%s\n" % (",".join(res)))
+      # TODO: get it working with zip
+      #print zip([data[elem][1][i] for elem in res])        
+      num_updates = len(data[res[0]][0])
+      for i in range(num_updates - 1):
+        out_file.write("%d,%s\n"
+                       % (i, ",".join([str(data[elem][1][i]) for elem in res])))
+      out_file.close()
 
   def petriDropped(self, e): 
       # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path

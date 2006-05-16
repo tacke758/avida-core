@@ -14,7 +14,7 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.m_organism_scope_ctrl.construct(self.m_session_mdl)
     self.m_execution_step_slider.setMinValue(0)
     self.m_execution_step_slider.setMaxValue(0)
-    self.m_clock = qt.QTime()
+#    self.m_clock = qt.QTime()
     self.m_timer = qt.QTimer()
     self.m_next = qt.QTimer()
     self.m_timer_interval = 250
@@ -91,8 +91,8 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
   def playSlot(self):
     print "pyOneOrg_ScopeCtrl.playSlot()."
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_pause_page)
-    self.m_timer.start(self.m_timer_interval, True)
-    self.m_clock.start()
+    self.m_timer.start(self.m_timer_interval, False)
+#    self.m_clock.start()
 
   def advanceSlot(self):
     #print "pyOneOrg_ScopeCtrl.advanceSlot()."
@@ -101,4 +101,4 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
       self.pauseSlot()
     else:
       self.m_execution_step_slider.setValue(slider_value + 1)
-      self.m_timer.start(min(0, self.m_timer_interval - self.m_clock.restart(), True))
+#        self.m_timer.start(min(0, self.m_timer_interval - self.m_clock.restart(), True))
