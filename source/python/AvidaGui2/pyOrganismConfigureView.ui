@@ -51,6 +51,9 @@
                     <property name="text">
                         <string></string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -150,6 +153,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -251,6 +257,9 @@
                     <property name="text">
                         <string></string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -301,6 +310,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -353,6 +365,9 @@
                     <property name="text">
                         <string></string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Show organism's stacks</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -378,6 +393,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Show organism's input and output buffers</string>
                     </property>
                 </widget>
             </hbox>
@@ -405,6 +423,9 @@
                     <property name="text">
                         <string></string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Show organism's registers</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -422,6 +443,9 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
             </property>
         </widget>
         <widget class="QLayoutWidget" row="6" column="1">
@@ -449,6 +473,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -486,6 +513,9 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>How large to display stack, register and buffer information</string>
             </property>
         </widget>
         <widget class="QLabel" row="7" column="0">
@@ -580,6 +610,9 @@
                     <property name="text">
                         <string></string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Show either top or full stack (only works if &lt;B&gt;&lt;I&gt;Show Stacks&lt;/i&gt;&lt;/b&gt; is selected</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -655,6 +688,9 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;i&gt;Not implemented&lt;/i&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -749,6 +785,9 @@
                 <font>
                     <pointsize>9</pointsize>
                 </font>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>How to display read, write, flow and instruction heads</string>
             </property>
         </widget>
     </grid>

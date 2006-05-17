@@ -8,6 +8,8 @@ class pyGraphCtrl(QwtPlot):
 
   def __init__(self, *args):
     QwtPlot.__init__(self, *args)
+    QToolTip.add(self, "To zoom -- pause run and use mouse to select an area on graph to magnify")
+
   def construct(self, session_mdl):
     self.setCanvasBackground(Qt.white)
     self.m_zoomer = QwtPlotZoomer(

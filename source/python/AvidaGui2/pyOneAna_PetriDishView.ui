@@ -81,6 +81,9 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
                     <property name="text">
                         <string>[population]</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Name of population dragged in to analyze</string>
+                    </property>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
@@ -301,6 +304,10 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         <property type="0">-1</property>
         <property type="1">pyPetriDishCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyPetriDishCtrl</property>
+        <property type="0">-1</property>
         <property type="pyPetriDishCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -366,6 +373,10 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         <property type="0">-1</property>
         <property type="1">pyGradientScaleCtrl</property>
         <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
+        <property type="1">pyGradientScaleCtrl</property>
+        <property type="0">-1</property>
         <property type="pyGradientScaleCtrl"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -389,6 +400,8 @@ Python:from pyAnalyzeControlsCtrl import pyAnalyzeControlsCtrl
         <property type="3">-1</property>
         <property type="1">pyAnalyzeControlsCtrl</property>
         <property type="3">-1</property>
+        <property type="1">pyAnalyzeControlsCtrl</property>
+        <property type="0">-1</property>
         <property type="pyAnalyzeControlsCtrl"></property>
         <property type="-1">1</property>
     </customwidget>

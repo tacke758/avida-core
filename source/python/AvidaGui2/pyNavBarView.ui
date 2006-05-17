@@ -103,6 +103,9 @@
             <property name="resizeMode">
                 <enum>AllColumns</enum>
             </property>
+            <property name="toolTip" stdset="0">
+                <string>Go to major sections of Avida-ED</string>
+            </property>
         </widget>
     </hbox>
 </widget>

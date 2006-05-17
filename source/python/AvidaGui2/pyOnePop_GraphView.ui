@@ -176,6 +176,9 @@
                                     <pointsize>11</pointsize>
                                 </font>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Chose which variable to graph</string>
+                            </property>
                         </widget>
                         <spacer>
                             <property name="name">

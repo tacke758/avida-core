@@ -52,6 +52,9 @@
             <property name="iconSet">
                 <iconset>image0</iconset>
             </property>
+            <property name="toolTip" stdset="0">
+                <string>Go to beginning of movie</string>
+            </property>
         </widget>
         <widget class="QWidgetStack">
             <property name="name">
@@ -87,6 +90,9 @@
                         <property name="usesBigPixmap">
                             <bool>false</bool>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Start (or restart) movie</string>
+                        </property>
                     </widget>
                 </vbox>
             </widget>
@@ -120,6 +126,9 @@
                         <property name="usesBigPixmap">
                             <bool>false</bool>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Pause movie</string>
+                        </property>
                     </widget>
                 </vbox>
             </widget>
@@ -133,6 +142,9 @@
             </property>
             <property name="iconSet">
                 <iconset>image3</iconset>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>Go to end of movie</string>
             </property>
         </widget>
         <spacer>

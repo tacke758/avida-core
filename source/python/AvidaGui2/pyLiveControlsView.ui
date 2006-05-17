@@ -94,7 +94,7 @@
                             <bool>false</bool>
                         </property>
                         <property name="toolTip" stdset="0">
-                            <string>Start (or restart) runnning the program</string>
+                            <string>Start (or restart) running the program</string>
                         </property>
                     </widget>
                 </vbox>

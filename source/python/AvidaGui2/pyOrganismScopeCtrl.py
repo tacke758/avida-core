@@ -15,6 +15,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
 
   def __init__(self,parent = None,name = None,fl = 0):
     pyOrganismScopeView.__init__(self,parent,name,fl)
+    QToolTip.add(self,"Watch an organism run")
 
     if not name: self.setName("pyOrganismScopeCtrl")
 
@@ -116,6 +117,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView):
           self.qobj = qobj
           # FIXME : remove hard-coding of 2000 below. @kgn
           self.progress_bar = QProgressBar(2000)
+          QToolTip.add(self.progress_bar,"Loading movie")
           self.qobj.emit(PYSIGNAL("addStatusBarWidgetSig"), (self.progress_bar, 0, True))
         def clear(self):
           self.qobj.emit(PYSIGNAL("removeStatusBarWidgetSig"), (self.progress_bar,))

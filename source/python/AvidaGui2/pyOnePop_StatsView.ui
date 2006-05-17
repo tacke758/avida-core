@@ -69,7 +69,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                 <string>Org. Clicked on  Report</string>
             </property>
             <property name="toolTip" stdset="0">
-                <string>Information on single highlighted organisim from population</string>
+                <string>Information on single highlighted organism from population</string>
             </property>
             <vbox>
                 <property name="name">

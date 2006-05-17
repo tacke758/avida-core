@@ -31,6 +31,7 @@ class pyPetriDishCtrl(QWidget):
     #pyPetriDishView.__init__(self,parent,name,fl)
     QWidget.__init__(self,parent,name,fl)
     if not name: self.setName("pyPetriDishCtrl")
+    QToolTip.add(self, "Shows selected variable for organisms in the population")
 
     #self.resize(QSize(202,202).expandedTo(self.minimumSizeHint()))
     self.clearWState(Qt.WState_Polished)

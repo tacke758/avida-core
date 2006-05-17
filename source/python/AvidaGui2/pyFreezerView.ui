@@ -103,6 +103,9 @@
             <property name="resizeMode">
                 <enum>AllColumns</enum>
             </property>
+            <property name="toolTip" stdset="0">
+                <string>Storage for</string>
+            </property>
         </widget>
     </vbox>
 </widget>

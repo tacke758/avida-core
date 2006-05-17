@@ -53,6 +53,7 @@ class pyOrganismDataCtrl(QScrollView):
     QScrollView.__init__(self,parent,name,fl)
     #QWidget.__init__(self,parent,name,fl)
     if not name: self.setName("pyOrganismDataCtrl")
+    QToolTip.add(self,"Shows current state of the organism's hardware")
 
     #font = QFont(qApp.font())
     #font.setPointSize(9)
