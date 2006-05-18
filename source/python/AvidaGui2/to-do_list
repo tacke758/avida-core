@@ -13,13 +13,13 @@ Priority Medium
 
 18-Apr-06 Replace "Viewers" buttons icons.
 
-18-Apr-06 Make "freeze full petri dish" be default.
+18-Apr-06 Make "freeze full petri dish" be default for freezing.
 
 18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved.
 
-29-Apr-06 Export Excel style (tab delimited) files
-
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
+
+15-May-06 Make "default" organism named "*Ancestor"
 
 Priority Low
 
@@ -37,9 +37,9 @@ Priority Low
 
 16-Jan-06 Non-Fix length Genomes? 
 
-29-Apr-06 Add pop-up help for all control items
-
 29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
+
+15-May-06 Prevent program from deleting files with names beginning with "*"
 
 
 ************Jeff*******************
@@ -101,6 +101,8 @@ Priority Low-
 
 16-Jan-06 Get Windows version working -- Medium to High Priority (depdnding the needs for this ations.term)
 
+29-Apr-06 Export Excel style (tab delimited) files
+
 
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
@@ -129,6 +131,8 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Finished 06-Apr-06
 
 16-Jan-06 Freeze button on bottom of main screen. -- Finished 06-Apr-06
+
+29-Apr-06 Add pop-up help for all control items -- Finished 17-May-06
 
 
 
