@@ -296,6 +296,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   # public slot
 
+  def filePrintPetriDish(self):
+    print "pyEduWorkspaceCtrl.filePrintPetriDish() emitting printPetriDishSig via self.m_session_mdl.m_session_mdtr"
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printPetriDishSig"), ())
+
+  # public slot
+
   def filePrint(self):
     print "pyEduWorkspaceCtrl.filePrint() emitting printGraphSig via self.m_session_mdl.m_session_mdtr"
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printGraphSig"), ())

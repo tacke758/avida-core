@@ -33,19 +33,29 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       PYSIGNAL("restartPopulationSig"), self.restartPopulationSlot)
 
   def aboutToBeLowered(self):
-    """Disconnects "Print Graph..." menu item from One-Pop Graph controller."""
+    """Disconnects "Print..." menu items from One-Pop Graph controller."""
     descr()
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printGraphSig"),
       self.m_one_pop_graph_ctrl.printGraphSlot)
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printPetriDishSig"),
+#      self.m_one_pop_petri_dish_ctrl.m_petri_dish_ctrl.printPetriDishSlot)
+      self.m_one_pop_petri_dish_ctrl.printPetriDishSlot)
   def aboutToBeRaised(self):
-    """Connects "Print Graph..." menu item to One-Pop Graph controller."""
+    """Connects "Print..." menu items to One-Pop Graph controller."""
     descr()
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printGraphSig"),
       self.m_one_pop_graph_ctrl.printGraphSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printPetriDishSig"),
+#      self.m_one_pop_petri_dish_ctrl.m_petri_dish_ctrl.printPetriDishSlot)
+      self.m_one_pop_petri_dish_ctrl.printPetriDishSlot)
 
   def dragEnterEvent( self, e ):
     descr(e)

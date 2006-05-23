@@ -253,3 +253,12 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     descr(session_mdl)
     self.dishDisabled = False
 
+  def printPetriDishSlot(self):
+    printer = QPrinter()
+    if printer.setup():
+      widget = QPixmap.grabWidget(self, 0, 0,
+                                  self.width(),
+                                  self.height())
+      painter = QPainter(printer)
+      painter.drawPixmap(0, 0, widget)
+      painter.end()

@@ -17,7 +17,7 @@ opts = {
 }
 
 def recurse_dir(dir, filter, ltrim):
-    "Recursively return list of files in directory.  filter is a functino to filter the directories and ltrim will trim off n characters from the directory."
+    "Recursively return list of files in directory.  filter is a function to filter the directories and ltrim will trim off n characters from the directory."
     l = []
     for root, newdir, files in os.walk(dir):
         if filter(root):
@@ -28,6 +28,8 @@ def recurse_dir(dir, filter, ltrim):
                     l.append((root[ltrim:], [root + "/" + file]))
     return l
 
+ext_files = recurse_dir("../../default.workspace", lambda x: not '.svn' in x, 6)
+ext_files.append(('.', ['../../AvidaGui2/open.png', '../../AvidaGui2/closed.png', '../../AvidaGui2/avidalogo.png']))
 setup(
     version = "0.0.1",
     description = "Avida-ED Windows Executable",
@@ -35,8 +37,7 @@ setup(
 
     # targets to build
     console = ["Avida-ED.py"],
-    data_files =  recurse_dir("../../default.workspace",
-                              lambda x: not '.svn' in x, 6),
+    data_files = ext_files, 
     options = opts,
     zipfile = None
 )

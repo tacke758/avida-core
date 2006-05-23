@@ -99,9 +99,9 @@ Priority Low-
 
 ************Josh*******************
 
-16-Jan-06 Get Windows version working -- Medium to High Priority (depdnding the needs for this ations.term)
-
 29-Apr-06 Export Excel style (tab delimited) files
+  - Change .csv to .txt extension
+  - Allow exporting in Petri Dish view
 
 
 ************Other*****************
@@ -145,3 +145,8 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 * 30-Jan-06 first step for Windows is that if python is installed,
 Avida-Ed can be downloaded and run -- Finished 24-Feb-06
+
+
+************Josh*******************
+
+16-Jan-06 Get Windows version working -- Finished 21-Feb-06

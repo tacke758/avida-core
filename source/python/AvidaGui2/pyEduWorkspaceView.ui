@@ -155,6 +155,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <separator/>
         <action name="fileExportAction"/>
         <separator/>
+        <action name="m_petri_print_action"/>
         <action name="m_graph_print_action"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
@@ -377,6 +378,23 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="accel">
             <string>Ctrl+E</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>m_petri_print_action</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image4</iconset>
+        </property>
+        <property name="text">
+            <string>Print Petri &amp;Dish...</string>
+        </property>
+        <property name="menuText">
+            <string>Print Petri &amp;Dish...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+D</string>
         </property>
     </action>
     <action>
@@ -747,6 +765,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <signal>activated()</signal>
         <receiver>pyEduWorkspaceView</receiver>
         <slot>fileExport()</slot>
+    </connection>
+    <connection>
+        <sender>m_petri_print_action</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>filePrintPetriDish()</slot>
     </connection>
     <connection>
         <sender>m_graph_print_action</sender>
