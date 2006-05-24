@@ -613,8 +613,8 @@
         <title>Boost.Python</title>
         <p>
           Download and unpack the Boost source archive
-	  <a href="http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_0.tar.gz">
-            http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_0.tar.gz
+	  <a href="http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.gz">
+            http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.gz
           </a>
           into the directory of your choice using cygwin; for example:
         </p>
@@ -622,17 +622,17 @@
           <code>$ cd ~/src</code>
           <br/>
           <code>
-            $ wget http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_0.tar.gz
+            $ wget http://easynews.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.gz
           </code>
           <br/>
-          <code>$ tar xvfz boost_1_33_0.tar.gz</code>
+          <code>$ tar xvfz boost_1_33_1.tar.gz</code>
         </p>
         <p>
           Build Boost.Jam, the Boost Build system.  Use the Windows
           command shell to build it.
         </p>
         <p>
-          <code>$ cd boost_1_33_0</code>
+          <code>$ cd boost_1_33_1</code>
           <br/>
           <code>$ cd tools\build\jam_src</code>
           <br/>
@@ -742,7 +742,7 @@
 	  <code>   -DCMAKE_BUILD_TYPE:STRING=Debug \</code>
 	  <code>   -DAVD_GUI_NCURSES:BOOL=ON \</code>
 	  <code>   -DAVD_PY_BINDINGS:BOOL=ON \</code>
-	  <code>   -DBOOST_INCLUDE_PATH:PATH=/usr/local/include/boost-1_33 \</code>
+	  <code>   -DBOOST_INCLUDE_PATH:PATH=/usr/local/include/boost-1_33_1 \</code>
 	  <code>   -DBOOST_LIBRARY:FILEPATH=/usr/local/lib/libboost_python-gcc.lib \</code>
 	  <code>   -DPYTHON_INCLUDE_PATH:PATH=/c/Python24/include \</code>
 	  <code>   -DPYTHON_LIBRARY:FILEPATH=/c/Python24/libs/python24.lib \</code>

@@ -256,9 +256,19 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
   def printPetriDishSlot(self):
     printer = QPrinter()
     if printer.setup():
-      widget = QPixmap.grabWidget(self, 0, 0,
-                                  self.width(),
-                                  self.height())
+      dish_height = self.m_petri_dish_ctrl.m_canvas_view.height()
+      # Hide the scrollbars so they aren't printed
+      self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.hide()
+      self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.hide()
+      dish_pix = QPixmap.grabWidget(self.m_petri_dish_ctrl.m_canvas_view, 0, 0,
+                                    self.m_petri_dish_ctrl.m_canvas_view.width(),
+                                    dish_height)
+      self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.show()
+      self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.show()
+      scale_pix = QPixmap.grabWidget(self.m_gradient_scale_ctrl, 0, 0,
+                                     self.m_gradient_scale_ctrl.width(),
+                                     self.m_gradient_scale_ctrl.height())
       painter = QPainter(printer)
-      painter.drawPixmap(0, 0, widget)
+      painter.drawPixmap(0, 0, dish_pix)
+      painter.drawPixmap(0, dish_height + 1, scale_pix)
       painter.end()

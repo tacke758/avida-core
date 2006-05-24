@@ -101,14 +101,6 @@ class pyPetriDishCtrl(QWidget):
     self.m_org_clicked_on_item = None
     self.m_occupied_cells_ids = []
 
-  def printPetriDishSlot(self):
-    printer = QPrinter()
-    if printer.setup():
-      painter = QPainter(printer)
-      self.m_canvas.drawArea(QRect(0, 0, self.m_canvas.width(),
-                                   self.m_canvas.height()), painter, False)
-      painter.end()
-
   def setColorLookupFunctor(self, color_lookup_functor):
     self.m_color_lookup_functor = color_lookup_functor
 
