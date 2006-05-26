@@ -63,6 +63,13 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.saved_full_dish = False
     self.m_session_mdl.new_empty_dish = True
     self.m_session_mdl.new_full_dish = True
+
+    # flag to see if user has chosen a workspace for this session
+
+    self.m_session_mdl.directory_chosen = False
+
+    # use the default workspace that is in the application directory
+
     self.m_session_mdl.m_current_workspace = "default.workspace"
     self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
 

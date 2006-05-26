@@ -15,18 +15,22 @@ class pyBeforeStartingCtrl (pyBeforeStartingView):
                  self.m_session_mdl.m_session_mdtr, 
                  PYSIGNAL("workspaceOpenSig"))
     self.connect(self.OpenExistingPushButton, SIGNAL("clicked()"),
-                self.closeDialog)
+                self.closeDialog1)
     self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
                  self.m_session_mdl.m_session_mdtr, 
                  PYSIGNAL("workspaceNewSig"))
     self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
-                self.closeDialog)
+                self.closeDialog1)
     self.connect(self.CancelPushButton, SIGNAL("clicked()"),
-                self.closeDialog)
+                self.closeDialog0)
 
   def showDialog(self):
     self.exec_loop()
     dialog_result = self.result()
+    return(dialog_result)
 
-  def closeDialog(self):
+  def closeDialog0(self):
+    self.done(0)
+
+  def closeDialog1(self):
     self.done(1)

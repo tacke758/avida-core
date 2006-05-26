@@ -29,14 +29,14 @@ class pyFreezerListView(QListView):
     if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
       if freezer_item_name[:9] == 'organism.':
         freezer_item_name = freezer_item_name[9:] 
-        self.FreezeOrganismSlot(freezer_item_name)
+        self.FreezeOrganism(freezer_item_name)
       else:
         pass
     
-  def FreezeOrganismSlot(self, freezer_item_name, send_reset_signal = False, send_quit_signal = False):
+  def FreezeOrganism(self, freezer_item_name):
     tmp_dict = {1:freezer_item_name}
     pop_up_organism_file_name = pyFreezeOrganismCtrl()
-    file_name = pop_up_organism_file_name.showDialog(self.m_session_mdl.m_current_freezer)
+    file_name = pop_up_organism_file_name.showDialog(self.m_session_mdl)
 
     file_name_len = len(file_name.rstrip())
     if (file_name_len > 0):
@@ -315,11 +315,11 @@ class pyFreezerCtrl(QWidget):
     if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
       if freezer_item_name[:9] == 'organism.':
         freezer_item_name = freezer_item_name[9:] 
-        self.FreezeOrganismSlot(freezer_item_name)
+        self.FreezeOrganism(freezer_item_name)
       else:
         pass 
     
-  def FreezeOrganismSlot(self, freezer_item_name, send_reset_signal = False, send_quit_signal = False):
+  def FreezeOrganism(self, freezer_item_name):
     tmp_dict = {1:freezer_item_name}
     pop_up_organism_file_name = pyFreezeOrganismCtrl()
     file_name = pop_up_organism_file_name.showDialog(self.m_session_mdl.m_current_freezer)

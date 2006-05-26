@@ -8,8 +8,7 @@ class pyGradientScaleCtrl(pyGradientScaleView):
 
   def __init__(self,parent = None,name = None,fl = 0):
     pyGradientScaleView.__init__(self,parent,name,fl)
-    QToolTip.add(self, "Dynamic scale for current variable (scale changes as maximum value in population increases or decreases)")
-
+    QToolTip.add(self, "<p>Dynamic scale for current variable (scale changes as maximum value in population increases or decreases)</p>")
 
 
   def construct(self, session_mdl):

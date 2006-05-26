@@ -48,6 +48,9 @@
                     <property name="frameShadow">
                         <enum>Sunken</enum>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Enter unique (case-sensitive) name&lt;/p&gt;</string>
+                    </property>
                 </widget>
                 <spacer>
                     <property name="name">
@@ -81,6 +84,9 @@
                             <property name="text">
                                 <string>Freeze</string>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>&lt;P&gt;Save the named file&lt;/P&gt;</string>
+                            </property>
                         </widget>
                         <widget class="QPushButton">
                             <property name="name">
@@ -88,6 +94,9 @@
                             </property>
                             <property name="text">
                                 <string>Cancel</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>&lt;p&gt;Don't save, return to the program&lt;/P&gt;</string>
                             </property>
                         </widget>
                     </hbox>

@@ -48,6 +48,9 @@
                     <property name="text">
                         <string>Freeze and Quit</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Save data and quit the program&lt;/P&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -59,6 +62,9 @@
                     <property name="text">
                         <string>Quit</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Quit the program discarding any unsaved data&lt;/P&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -69,6 +75,9 @@
                     </property>
                     <property name="text">
                         <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Don't quit, return to the program&lt;/P&gt;</string>
                     </property>
                 </widget>
             </hbox>

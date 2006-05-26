@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>500</width>
-            <height>157</height>
+            <height>177</height>
         </rect>
     </property>
     <property name="caption">
@@ -40,13 +40,16 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
+            <property name="toolTip" stdset="0">
+                <string>&lt;P&gt;Enter unique (case-sensitive) name&lt;/p&gt;</string>
+            </property>
         </widget>
         <widget class="QButtonGroup">
             <property name="name">
                 <cstring>FullEmptyButtonGroup</cstring>
             </property>
             <property name="focusPolicy">
-                <enum>StrongFocus</enum>
+                <enum>NoFocus</enum>
             </property>
             <property name="frameShape">
                 <enum>NoFrame</enum>
@@ -71,6 +74,9 @@
                     <property name="checked">
                         <bool>true</bool>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Save just the envrionmental settings&lt;/p&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QRadioButton">
                     <property name="name">
@@ -84,6 +90,9 @@
                     </property>
                     <property name="text">
                         <string>Full Petri Dish</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Save the envrionmental settings and all the organisms in the population&lt;/P&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton">
@@ -99,6 +108,9 @@
                     <property name="text">
                         <string>Highlighted Organism</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Save just the one organism from the population&lt;/P&gt;</string>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -107,7 +119,7 @@
                 <cstring>FreezeCancelButtonGroup</cstring>
             </property>
             <property name="focusPolicy">
-                <enum>StrongFocus</enum>
+                <enum>NoFocus</enum>
             </property>
             <property name="frameShape">
                 <enum>NoFrame</enum>
@@ -129,6 +141,9 @@
                     <property name="text">
                         <string>Freeze</string>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Save the named file&lt;/P&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -139,6 +154,9 @@
                     </property>
                     <property name="text">
                         <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Don't save, return to the program&lt;/P&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -162,8 +180,12 @@
 <tabstops>
     <tabstop>FileNameLineEdit</tabstop>
     <tabstop>EmptyRadioButton</tabstop>
+    <tabstop>FullRadioButton</tabstop>
+    <tabstop>OrganismRadioButton</tabstop>
     <tabstop>SaveToFreezerPushButton</tabstop>
     <tabstop>CancelPushButton</tabstop>
+    <tabstop>FreezeCancelButtonGroup</tabstop>
+    <tabstop>FullEmptyButtonGroup</tabstop>
 </tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

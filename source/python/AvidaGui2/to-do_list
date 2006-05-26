@@ -9,13 +9,11 @@ Priority High
 
 16-Jan-06 Get file system finished -- Make one big database file?
 
+26-May-06 Fix problem where canceling out of initial Quit menu causes Quit to stop working
+
 Priority Medium
 
 18-Apr-06 Replace "Viewers" buttons icons.
-
-18-Apr-06 Make "freeze full petri dish" be default for freezing.
-
-18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved.
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
@@ -134,6 +132,9 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 29-Apr-06 Add pop-up help for all control items -- Finished 17-May-06
 
+18-Apr-06 Make "freeze full petri dish" be default for freezing. -- Finished 25-May-06
+
+18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved. -- Finished 26-May-06
 
 
 

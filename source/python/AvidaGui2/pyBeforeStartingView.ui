@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>224</width>
-            <height>136</height>
+            <width>307</width>
+            <height>168</height>
         </rect>
     </property>
     <property name="paletteBackgroundColor">
@@ -20,7 +20,7 @@
         </color>
     </property>
     <property name="caption">
-        <string>Before Starting</string>
+        <string>Chose Active Workspace</string>
     </property>
     <widget class="QButtonGroup">
         <property name="name">
@@ -30,8 +30,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>222</width>
-                <height>130</height>
+                <width>310</width>
+                <height>203</height>
             </rect>
         </property>
         <property name="title">
@@ -41,6 +41,19 @@
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>BeforeStartTextLabel</cstring>
+                </property>
+                <property name="font">
+                    <font>
+                        <pointsize>12</pointsize>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>&lt;p align="center"&gt;Before you can freeze a petri dish or organism&lt;br&gt; you must choose a workspace to work with&lt;/p&gt;</string>
+                </property>
+            </widget>
             <widget class="QPushButton">
                 <property name="name">
                     <cstring>OpenExistingPushButton</cstring>
@@ -64,6 +77,9 @@
                 <property name="on">
                     <bool>false</bool>
                 </property>
+                <property name="toolTip" stdset="0">
+                    <string>&lt;p&gt;Use a directory that has already been created&lt;/P&gt;</string>
+                </property>
             </widget>
             <widget class="QPushButton">
                 <property name="name">
@@ -85,6 +101,9 @@
                 <property name="toggleButton">
                     <bool>true</bool>
                 </property>
+                <property name="toolTip" stdset="0">
+                    <string>&lt;P&gt;Create a new workspace to save your work&lt;/P&gt;</string>
+                </property>
             </widget>
             <widget class="QPushButton">
                 <property name="name">
@@ -105,6 +124,9 @@
                 </property>
                 <property name="toggleButton">
                     <bool>true</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>&lt;p&gt;Don't freeze and return to the program&lt;/P&gt;</string>
                 </property>
             </widget>
         </vbox>

@@ -58,15 +58,27 @@ def AvidaEd():
 
     # Get the edu_workspace_ctrl to browse interactively via
     # 'avida_ed.m_edu_workspace_ctrl'
-    #
+    
     session_ctrl = edu_main_controller.m_main_controller_factory.m_main_controllers_list[1]
+
+    # Get the workspace from the session controller factory
+
     edu_main_controller.m_edu_workspace_ctrl = session_ctrl.m_session_controller_factory.m_session_controllers_list[1]
+
+    # Get the prompt for new/existing workspace from the session controller 
+    # factory
+
     edu_main_controller.m_prompt_for_workspace_ctrl = session_ctrl.m_session_controller_factory.m_session_controllers_list[2]
 
   finally:
     s_splash.clear()
     s_splash.hide()
-    edu_main_controller.m_prompt_for_workspace_ctrl.showDialog()
+
+    # BDB temporarily turn off prompting for new/existing workspace at
+    # the beginning of a new program.  Leave just in case we decide to
+    # go back to this system
+    #
+    # edu_main_controller.m_prompt_for_workspace_ctrl.showDialog()
     print """
     
     Type 'avida_ed=AvidaEd()' to reload the AvidaEd user interface.
