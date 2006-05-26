@@ -2,8 +2,8 @@
 Main controller for AvidaEdu.
 """
 
-import pyEduMainMenuBarHdlr; reload(pyEduMainMenuBarHdlr)
-from pyEduMainMenuBarHdlr import *
+# import pyEduMainMenuBarHdlr; reload(pyEduMainMenuBarHdlr)
+# from pyEduMainMenuBarHdlr import *
 
 import pyMainControllerFactory; reload(pyMainControllerFactory)
 from pyMainControllerFactory import *
@@ -27,8 +27,13 @@ class pyEduMainCtrl(qt.QObject):
     self.m_main_mdl.m_main_mdtr = pyMdtr()
     self.m_main_controller_factory = pyMainControllerFactory()
     self.m_main_controller_factory.construct(self.m_main_mdl)
-    self.m_main_controller_factory.addControllerCreator(
-      "pyEduMainMenuBarHdlr", pyEduMainMenuBarHdlr)
+
+    # BDB -- Prevented creation of contoller for pyEduMainMenuBarHdlr
+    #        it seemed to be causing problem where if you quit and 
+    #        canceled the quit button would no longer work
+
+    # self.m_main_controller_factory.addControllerCreator(
+    #   "pyEduMainMenuBarHdlr", pyEduMainMenuBarHdlr)
     #self.m_main_controller_factory.addControllerCreator(
     #  "pyEduMainConsoleCtrl", pyEduMainConsoleCtrlCreator())
     #self.m_main_controller_factory.addControllerCreator(
@@ -38,8 +43,10 @@ class pyEduMainCtrl(qt.QObject):
     self.m_main_controller_factory.addControllerCreator(
       "pySessionCtrl", pySessionCtrl)
 
-    self.m_main_mdl.m_main_mdtr.m_main_controller_factory_mdtr.emit(
-      qt.PYSIGNAL("newMainControllerSig"), ("pyEduMainMenuBarHdlr",))
+    # BDB -- Also commented out the following two lines
+
+    # self.m_main_mdl.m_main_mdtr.m_main_controller_factory_mdtr.emit(
+    #   qt.PYSIGNAL("newMainControllerSig"), ("pyEduMainMenuBarHdlr",))
     return self
     
   def unitTest(self, recurse = False):
@@ -66,7 +73,9 @@ class pyUnitTestSuite_pyEduMainCtrl(pyUnitTestSuite):
     %s
     """ % self.__class__.__name__
 
-    self.adoptUnitTestSuite("pyEduMainMenuBarHdlr")
+    # BDB -- Commented out this line as well
+
+    # self.adoptUnitTestSuite("pyEduMainMenuBarHdlr")
     self.adoptUnitTestSuite("pyMainControllerFactory")
     self.adoptUnitTestSuite("pyMdtr")
 
@@ -88,8 +97,11 @@ class pyUnitTestSuite_pyEduMainCtrl(pyUnitTestSuite):
         driver without causing a crash. then all of the objects below
         will be properly deleted.
         """
+        
+        # BDB -- Commented out m_main_controllers_list[0].m_menu_bar line
+
         these_are_not_being_deleted_and_it_really_sucks = [
-          ".m_main_controller_factory.m_main_controllers_list[0].m_menu_bar",
+        #  ".m_main_controller_factory.m_main_controllers_list[0].m_menu_bar",
         #  ".m_main_controller_factory.m_main_controllers_list[1].m_session_mdl.m_avida_threaded_driver",
         #  ".m_main_controller_factory.m_main_controllers_list[1].m_session_mdl.m_avida_threaded_driver.m_thread",
         #  ".m_main_controller_factory.m_main_controllers_list[1].m_session_mdl.m_avida_threaded_driver.m_updated_semaphore",

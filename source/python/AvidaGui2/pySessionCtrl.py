@@ -122,29 +122,29 @@ class pySessionCtrl(qt.QObject):
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("doStartSig"),
-      self.doStart)
+      self.doStartSlot)
 
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("doPauseSig"),
-      self.doPause)
+      self.doPauseSlot)
 
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("fromLiveCtrlStartAvidaSig"),
-      self.doStart)
+      self.doStartSlot)
 
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("fromLiveCtrlPauseAvidaSig"),
-      self.doPause)
+      self.doPauseSlot)
 
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("restartPopulationSig"),
       self.restartPopulationSlot)
 
-    self.doPause()
+    self.doPauseSlot()
 
     return self
 
@@ -217,7 +217,7 @@ class pySessionCtrl(qt.QObject):
       (self.m_session_mdl.m_tempdir,))
     self.m_avida.m_avida_thread_mdtr.emit(PYSIGNAL("AvidaUpdatedSig"), ())
 
-  def doStart(self):
+  def doStartSlot(self):
     if self.sessionInitialized == False:
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doInitializeAvidaPhaseISig"),
@@ -226,7 +226,7 @@ class pySessionCtrl(qt.QObject):
     self.m_should_update = True
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doStartAvidaSig"), ())
 
-  def doPause(self):
+  def doPauseSlot(self):
     self.m_should_update = False
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
 

@@ -59,7 +59,11 @@ def AvidaEd():
     # Get the edu_workspace_ctrl to browse interactively via
     # 'avida_ed.m_edu_workspace_ctrl'
     
-    session_ctrl = edu_main_controller.m_main_controller_factory.m_main_controllers_list[1]
+    # BDB -- When I commented out the creation of the contoller for
+    #        pyEduMainMenuBarHdlr the array index for the session contoller
+    #        changed from 1 to 0
+
+    session_ctrl = edu_main_controller.m_main_controller_factory.m_main_controllers_list[0]
 
     # Get the workspace from the session controller factory
 

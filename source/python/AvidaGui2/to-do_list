@@ -9,8 +9,6 @@ Priority High
 
 16-Jan-06 Get file system finished -- Make one big database file?
 
-26-May-06 Fix problem where canceling out of initial Quit menu causes Quit to stop working
-
 Priority Medium
 
 18-Apr-06 Replace "Viewers" buttons icons.
@@ -23,15 +21,11 @@ Priority Low
 
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
 
--Make arrow keys bind to environmental parameter configurations 
-
 -Make the selection of a workspace look like you are choosing a file not a directory 
 
 -Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it
 
 -add the ability to tell genesis where you want the default organism to be 
-
-16-Jan-06 Fix problem where start in menu bar not linked to start button 
 
 16-Jan-06 Non-Fix length Genomes? 
 
@@ -135,6 +129,12 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 18-Apr-06 Make "freeze full petri dish" be default for freezing. -- Finished 25-May-06
 
 18-Apr-06 Remove query screen at the beginning of the program, make users choose this the first time a file is saved. -- Finished 26-May-06
+
+26-May-06 Fix problem where canceling out of initial Quit menu causes Quit to stop working -- "Temporary" fix, removed the Main Menu Bar Handler, 26-May-06
+
+-Make arrow keys bind to environmental parameter configurations -- Finished 26-Ma-06
+
+16-Jan-06 Fix problem where start in menu bar not linked to start button -- Finished 26-May-06
 
 
 

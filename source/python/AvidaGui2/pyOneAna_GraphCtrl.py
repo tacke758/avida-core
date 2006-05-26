@@ -267,7 +267,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       freezer_item_name = QString()
       if ( QTextDrag.decode( e, freezer_item_name ) ) :
         freezer_item_name = str(e.encodedData("text/plain"))
-        print "BDB:pyOneAna_GraphCtrl:petriDropped freezer_item_name = " + freezer_item_name
         self.m_petri_dish_dir_path = freezer_item_name
         self.modeActivatedSlot()
         return
