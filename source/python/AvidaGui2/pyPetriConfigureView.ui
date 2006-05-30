@@ -313,7 +313,7 @@
                 <widget class="QComboBox">
                     <item>
                         <property name="text">
-                            <string>default</string>
+                            <string>*ancestor</string>
                         </property>
                     </item>
                     <property name="name">
@@ -333,7 +333,7 @@
                         <number>0</number>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>The name of the organism(s) that will start the population on an empty petri dish (normally dragged in)</string>
+                        <string>&lt;P&gt;The name of the organism(s) that will start the population on an empty petri dish (normally dragged in)&lt;/p&gt;</string>
                     </property>
                 </widget>
             </vbox>
