@@ -15,8 +15,6 @@ Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
-15-May-06 Make "default" organism named "*Ancestor"
-
 Priority Low
 
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
@@ -27,7 +25,7 @@ Priority Low
 
 -add the ability to tell genesis where you want the default organism to be 
 
-16-Jan-06 Non-Fix length Genomes? 
+16-Jan-06 Non-Fix length Genomes -- Much Later
 
 29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
 
@@ -136,7 +134,7 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 16-Jan-06 Fix problem where start in menu bar not linked to start button -- Finished 26-May-06
 
-
+15-May-06 Make "default" organism named "*Ancestor" -- Finished 30-May-06
 
 ************Kaben******************
 

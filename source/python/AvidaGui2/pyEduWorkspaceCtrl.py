@@ -28,7 +28,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
     if (session_mdl.directory_chosen == False):
-      self.setCaption('%s - %s' % (avida_ed_version_string, "No Active Workspace") )
+      self.setCaption('%s - %s' % (avida_ed_version_string, "Unnamed  Workspace") )
     else:
       self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
    
@@ -184,8 +184,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             os.mkdir(os.path.join(new_dir,"freezer"))
             filesToCopy = ["environment.default", "inst_set.default", 
                            "events.default", "genesis.default", 
-                           os.path.join("freezer", "default.empty"), 
-                           os.path.join("freezer", "default.organism")]
+                           os.path.join("freezer", "@default.empty"), 
+                           os.path.join("freezer", "@ancestor.organism")]
             for fileName in filesToCopy:
               sourceName = os.path.join(self.m_session_mdl.m_current_workspace,
                            fileName)

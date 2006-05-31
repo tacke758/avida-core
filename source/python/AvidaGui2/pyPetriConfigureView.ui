@@ -313,7 +313,7 @@
                 <widget class="QComboBox">
                     <item>
                         <property name="text">
-                            <string>*ancestor</string>
+                            <string>@ancestor</string>
                         </property>
                     </item>
                     <property name="name">
