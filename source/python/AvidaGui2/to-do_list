@@ -62,7 +62,6 @@ Priority High-
 - replace flip arrow on petri dish with a button with text reading
   "configure"
 
-- printing of petri dish and of color scale
 - troubleshoot crash on run end, as set in petri dish control.
   - hack with a pause signal upon a certain event completed.
 - toggle to see legend instruction names to colors
@@ -82,7 +81,6 @@ Priority Medium-
 - consider different icons in navigation bar and freezer (12/21/05)
 - change the text in analyze mode to list the population instead of what
   it currently state (12/21/05)
-- investigation of printing petri dish (1/26/06)
 
 Priority Low-
 
@@ -93,6 +91,9 @@ Priority Low-
   - Change .csv to .txt extension
   - Allow exporting in Petri Dish view
 
+30-May-06 Printing of petri dish and of color scale
+  - Fill out save dialog with default filename that includes update and other
+    info
 
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)

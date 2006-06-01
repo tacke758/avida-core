@@ -316,6 +316,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
  
   # public slot
 
+  def fileSaveImages(self):
+    "Export images to a file"
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("saveImagesSig"), ())
+
+  # public slot
+
   def fileExit(self):
     print "pyEduWorkspaceCtrl.fileExit(): Not implemented yet"
 

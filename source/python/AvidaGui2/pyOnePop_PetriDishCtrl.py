@@ -9,7 +9,7 @@ import os
 from pyReadFreezer import pyReadFreezer
 from pyGradientScaleView import pyGradientScaleView
 from pyQuitDialogCtrl import pyQuitDialogCtrl
-
+from pyButtonListDialog import pyButtonListDialog
 
 class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
@@ -253,22 +253,33 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     descr(session_mdl)
     self.dishDisabled = False
 
+  def getPetriDishPixmap(self):
+    "Return QPixmap of petri dish and scale"
+    dish_height = self.m_petri_dish_ctrl.m_canvas_view.height()
+    # Hide the scrollbars so they aren't painted
+    self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.hide()
+    self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.hide()
+    dish_pix = QPixmap.grabWidget(self.m_petri_dish_ctrl.m_canvas_view, 0, 0,
+                                  self.m_petri_dish_ctrl.m_canvas_view.width(),
+                                  dish_height)
+    self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.show()
+    self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.show()
+    scale_pix = QPixmap.grabWidget(self.m_gradient_scale_ctrl, 0, 0,
+                                   self.m_gradient_scale_ctrl.width(),
+                                   self.m_gradient_scale_ctrl.height())
+    p = QPixmap(max(self.m_petri_dish_ctrl.m_canvas_view.width(),
+                    self.m_gradient_scale_ctrl.width()),
+                dish_height + self.m_gradient_scale_ctrl.height())
+    painter = QPainter(p)
+    painter.drawPixmap(0, 0, dish_pix)
+    painter.drawPixmap(0, dish_height, scale_pix)
+    painter.end()
+    return p
+
   def printPetriDishSlot(self):
+    "Print the petri dish and fitness scale"
     printer = QPrinter()
     if printer.setup():
-      dish_height = self.m_petri_dish_ctrl.m_canvas_view.height()
-      # Hide the scrollbars so they aren't printed
-      self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.hide()
-      self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.hide()
-      dish_pix = QPixmap.grabWidget(self.m_petri_dish_ctrl.m_canvas_view, 0, 0,
-                                    self.m_petri_dish_ctrl.m_canvas_view.width(),
-                                    dish_height)
-      self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.show()
-      self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.show()
-      scale_pix = QPixmap.grabWidget(self.m_gradient_scale_ctrl, 0, 0,
-                                     self.m_gradient_scale_ctrl.width(),
-                                     self.m_gradient_scale_ctrl.height())
       painter = QPainter(printer)
-      painter.drawPixmap(0, 0, dish_pix)
-      painter.drawPixmap(0, dish_height + 1, scale_pix)
+      painter.drawPixmap(0, 0, self.getPetriDishPixmap())
       painter.end()

@@ -154,6 +154,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="fileSaveAsAction"/>
         <separator/>
         <action name="fileExportAction"/>
+        <action name="fileSaveImagesAction"/>
         <separator/>
         <action name="m_petri_print_action"/>
         <action name="m_graph_print_action"/>
@@ -378,6 +379,20 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="accel">
             <string>Ctrl+E</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveImagesAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save Images</string>
+        </property>
+        <property name="menuText">
+            <string>Save &amp;Images</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+I</string>
         </property>
     </action>
     <action>
@@ -765,6 +780,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <signal>activated()</signal>
         <receiver>pyEduWorkspaceView</receiver>
         <slot>fileExport()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveImagesAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileSaveImages()</slot>
     </connection>
     <connection>
         <sender>m_petri_print_action</sender>

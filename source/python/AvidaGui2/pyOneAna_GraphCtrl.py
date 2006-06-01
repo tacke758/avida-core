@@ -4,34 +4,12 @@ from AvidaCore import cInitFile, cString
 from Numeric import *
 from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOneAna_GraphView import pyOneAna_GraphView
-from pyExportCtrl import pyExportCtrl
+from pyButtonListDialog import pyButtonListDialog
+from pyGraphCtrl import PrintFilter
 from qt import *
 from qwt import *
 import os.path
 import os.path
-
-
-class PrintFilter(QwtPlotPrintFilter):
-  def __init__(self):
-    QwtPlotPrintFilter.__init__(self)
-  def color(self, c, item, i):
-    if not (self.options() & QwtPlotPrintFilter.PrintCanvasBackground):
-      if item == QwtPlotPrintFilter.MajorGrid:
-        return Qt.darkGray
-      elif item == QwtPlotPrintFilter.MinorGrid:
-        return Qt.gray
-    if item == QwtPlotPrintFilter.Title:
-      return Qt.black
-    elif item == QwtPlotPrintFilter.AxisScale:
-      return Qt.black
-    elif item == QwtPlotPrintFilter.AxisTitle:
-      return Qt.black
-    return Qt.black
-  def font(self, f, item, i):
-    result = QFont(f)
-    result.setPointSize(int(f.pointSize()*1.25))
-    return result
-
 
 class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
@@ -213,14 +191,13 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
   def exportSlot(self):
     "Export analysis data to a file"
-    dialog_caption = "Export analysis as:"
+    dialog_caption = "Export Analysis"
     fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.csv)", None,
                                      "export as", dialog_caption)
     filename = str(fd)
     if (filename[-4:].lower() != ".csv"):
       filename += ".csv"
 
-    dialog = pyExportCtrl()
     checks = []
     # dictionary indexed by stat name so we can lookup stats to export
     stats = {}
@@ -229,11 +206,14 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       # Note: this relies on labeling dummy stats with None
       if stat[0] != "None":
         stats[stat[0]] = stat_cnt
-        checks.append(QCheckListItem(dialog.listView1, stat[0],
-                                     QCheckListItem.CheckBox))
-        # enable last added checkbox
-        checks[len(checks) - 1].setOn(True)
+        checks.append(stat[0])
       stat_cnt += 1
+
+    dialog = pyButtonListDialog(dialog_caption, "Choose stats to export",
+                                checks, True)
+    # enable checkboxes
+    for button in dialog.buttons:
+      button.setOn(True)
 
     res = dialog.showDialog()
     if res == []:

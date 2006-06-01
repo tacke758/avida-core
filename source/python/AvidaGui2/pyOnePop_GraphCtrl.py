@@ -4,31 +4,10 @@ from AvidaCore import cInitFile, cString
 from Numeric import *
 from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOnePop_GraphView import pyOnePop_GraphView
+from pyGraphCtrl import PrintFilter
 from qt import *
 from qwt import *
 import os.path
-
-class PrintFilter(QwtPlotPrintFilter):
-  def __init__(self):
-    QwtPlotPrintFilter.__init__(self)
-  def color(self, c, item, i):
-    if not (self.options() & QwtPlotPrintFilter.PrintCanvasBackground):
-      if item == QwtPlotPrintFilter.MajorGrid:
-        return Qt.darkGray
-      elif item == QwtPlotPrintFilter.MinorGrid:
-        return Qt.gray
-    if item == QwtPlotPrintFilter.Title:
-      return Qt.black
-    elif item == QwtPlotPrintFilter.AxisScale:
-      return Qt.black
-    elif item == QwtPlotPrintFilter.AxisTitle:
-      return Qt.black
-    return Qt.black
-  def font(self, f, item, i):
-    result = QFont(f)
-    result.setPointSize(int(f.pointSize()*1.25))
-    return result
-
 
 class pyOnePop_GraphCtrl(pyOnePop_GraphView):
 

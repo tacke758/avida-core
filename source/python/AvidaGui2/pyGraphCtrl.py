@@ -24,3 +24,24 @@ class pyGraphCtrl(QwtPlot):
     # - Click and drag to create a zoom rectangle;
     # - Option-click to zoom-out to full view.
     self.m_zoomer.initMousePattern(1)
+
+class PrintFilter(QwtPlotPrintFilter):
+  def __init__(self):
+    QwtPlotPrintFilter.__init__(self)
+  def color(self, c, item, i):
+    if not (self.options() & QwtPlotPrintFilter.PrintCanvasBackground):
+      if item == QwtPlotPrintFilter.MajorGrid:
+        return Qt.darkGray
+      elif item == QwtPlotPrintFilter.MinorGrid:
+        return Qt.gray
+    if item == QwtPlotPrintFilter.Title:
+      return Qt.black
+    elif item == QwtPlotPrintFilter.AxisScale:
+      return Qt.black
+    elif item == QwtPlotPrintFilter.AxisTitle:
+      return Qt.black
+    return Qt.black
+  def font(self, f, item, i):
+    result = QFont(f)
+    result.setPointSize(int(f.pointSize()*1.25))
+    return result
