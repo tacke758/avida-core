@@ -31,28 +31,28 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       self.freezerItemDoubleClicked)
 
   def aboutToBeLowered(self):
-    """Disconnects "Print Graph..." menu item from One-Analyze Graph controller."""
+    """Disconnects menu items from One-Analyze Graph controller."""
     descr()
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printGraphSig"),
-      self.m_one_ana_graph_ctrl.printGraphSlot)
+      PYSIGNAL("printSig"),
+      self.m_one_ana_graph_ctrl.printSlot)
     # Disconnect export signal
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_ana_graph_ctrl.exportSlot)
   def aboutToBeRaised(self):
-    """Connects "Print Graph..." menu item to One-Analyze Graph controller."""
+    """Connects items to One-Analyze Graph controller."""
     descr()
     self.connect(
       self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printGraphSig"),
-      self.m_one_ana_graph_ctrl.printGraphSlot)
+      PYSIGNAL("printSig"),
+      self.m_one_ana_graph_ctrl.printSlot)
     # Connect export
     self.connect(self.m_session_mdl.m_session_mdtr,
-                 PYSIGNAL("exportAnalyzeSig"),
-                 self.m_one_ana_graph_ctrl.exportSlot)
+      PYSIGNAL("exportAnalyzeSig"),
+      self.m_one_ana_graph_ctrl.exportSlot)
 
   def dragEnterEvent( self, e ):
     descr(e)

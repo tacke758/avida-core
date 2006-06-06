@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from AvidaCore import cInitFile, cString
 from Numeric import *
 from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOnePop_GraphView import pyOnePop_GraphView
@@ -40,7 +39,7 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_combo_box.setCurrentItem(2)
     self.modeActivatedSlot(self.m_combo_box.currentItem())
 
-  def load(self, filename, colx, coly):
+  def load(self, path, filename, colx, coly):
     print "pyOnePop_GraphCtrl.load file name = " + filename
     if (self.m_avida is None) or (self.m_avida.m_population.GetStats().GetUpdate() == 0):
       print " m_avida is None, or update is zero. Not loading from file."
@@ -48,17 +47,9 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
       self.m_y_array = zeros(1, Float)
     else:
       print " loading from file."
-      init_file = cInitFile(cString(filename))
-      init_file.Load()
-      init_file.Compress()
-
-      self.m_x_array = zeros(init_file.GetNumLines(), Float)
-      self.m_y_array = zeros(init_file.GetNumLines(), Float)
-
-      for line_id in range(init_file.GetNumLines()):
-        line = init_file.GetLine(line_id)
-        self.m_x_array[line_id] = line.GetWord(colx - 1).AsDouble()
-        self.m_y_array[line_id] = line.GetWord(coly - 1).AsDouble()
+      self.m_x_array, self.m_y_array = self.m_avida_stats_interface.load(
+        path,
+        filename, colx, coly)
 
   def modeActivatedSlot(self, index):
 #    self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index][0])
@@ -66,7 +57,8 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_graph_ctrl.clear()
     if index:
       self.load(
-        os.path.join(self.m_session_mdl.m_tempdir_out, self.m_avida_stats_interface.m_entries[index][1]),
+        self.m_session_mdl.m_tempdir_out,
+        self.m_avida_stats_interface.m_entries[index][1],
         1,
         self.m_avida_stats_interface.m_entries[index][2]
       )
@@ -147,3 +139,7 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_combo_box.setCurrentItem(2)
     self.modeActivatedSlot(self.m_combo_box.currentItem())
 
+  def exportSlot(self):
+    "Export stats to a file"
+    if self.m_combo_box.currentItem():    
+      self.m_avida_stats_interface.export(self.m_session_mdl.m_tempdir_out)

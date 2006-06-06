@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from AvidaCore import cInitFile, cString
 from Numeric import *
 from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOneAna_GraphView import pyOneAna_GraphView
-from pyButtonListDialog import pyButtonListDialog
 from pyGraphCtrl import PrintFilter
 from qt import *
 from qwt import *
-import os.path
 import os.path
 
 class pyOneAna_GraphCtrl(pyOneAna_GraphView):
@@ -78,21 +75,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.m_combo_box_2_color.setCurrentItem(2)
 
     self.modeActivatedSlot() 
-
-  def load(self, filename, colx, coly):
-    
-    init_file = cInitFile(cString(os.path.join(str(self.m_petri_dish_dir_path), filename)))
-    init_file.Load()
-    init_file.Compress()
-
-    x_array = zeros(init_file.GetNumLines(), Float)
-    y_array = zeros(init_file.GetNumLines(), Float)
-
-    for line_id in xrange(init_file.GetNumLines()):
-      line = init_file.GetLine(line_id)
-      x_array[line_id] = line.GetWord(colx - 1).AsDouble()
-      y_array[line_id] = line.GetWord(coly - 1).AsDouble()
-    return x_array, y_array
   
   def modeActivatedSlot(self, index = None): #note: index is not used
     self.m_graph_ctrl.clear()
@@ -120,7 +102,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
         print "index_1[2] is"
         print self.m_avida_stats_interface.m_entries[index_1][2]
-        self.m_curve_1_arrays = self.load(
+        self.m_curve_1_arrays = self.m_avida_stats_interface.load(
+            str(self.m_petri_dish_dir_path),
             self.m_avida_stats_interface.m_entries[index_1][1],
             1,
             self.m_avida_stats_interface.m_entries[index_1][2]
@@ -142,7 +125,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         self.m_graph_ctrl.setAxisTitle(QwtPlot.yRight, self.m_avida_stats_interface.m_entries[index_2][0])
         self.m_graph_ctrl.enableYRightAxis(True)      
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yRight)
-        self.m_curve_2_arrays = self.load(
+        self.m_curve_2_arrays = self.m_avida_stats_interface.load(
+            str(self.m_petri_dish_dir_path),
             self.m_avida_stats_interface.m_entries[index_2][1],
             1,
             self.m_avida_stats_interface.m_entries[index_2][2]
@@ -181,7 +165,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
     self.m_graph_ctrl.replot()
       
-  def printGraphSlot(self):
+  def printSlot(self):
     printer = QPrinter()
     if printer.setup():
       filter = PrintFilter()
@@ -191,54 +175,9 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
   def exportSlot(self):
     "Export analysis data to a file"
-    dialog_caption = "Export Analysis"
-    fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.csv)", None,
-                                     "export as", dialog_caption)
-    filename = str(fd)
-    if (filename[-4:].lower() != ".csv"):
-      filename += ".csv"
-
-    checks = []
-    # dictionary indexed by stat name so we can lookup stats to export
-    stats = {}
-    stat_cnt = 0
-    for stat in self.m_avida_stats_interface.m_entries:
-      # Note: this relies on labeling dummy stats with None
-      if stat[0] != "None":
-        stats[stat[0]] = stat_cnt
-        checks.append(stat[0])
-      stat_cnt += 1
-
-    dialog = pyButtonListDialog(dialog_caption, "Choose stats to export",
-                                checks, True)
-    # enable checkboxes
-    for button in dialog.buttons:
-      button.setOn(True)
-
-    res = dialog.showDialog()
-    if res == []:
-      return
-
-    data = {}
     if self.m_combo_box_1.currentItem():
-      # Load stats for selected exports
-      # TODO: more efficient loading
-      for item in res:
-        idx = stats[item]
-        label1 = self.m_avida_stats_interface.m_entries[idx][0]
-        data[item] = self.load(self.m_avida_stats_interface.m_entries[idx][1],
-                               1,
-                               self.m_avida_stats_interface.m_entries[idx][2])
+      self.m_avida_stats_interface.export(str(self.m_petri_dish_dir_path))
 
-      out_file = open(filename, 'w')
-      out_file.write("Update,%s\n" % (",".join(res)))
-      # TODO: get it working with zip
-      #print zip([data[elem][1][i] for elem in res])        
-      num_updates = len(data[res[0]][0])
-      for i in range(num_updates):
-        out_file.write("%d,%s\n"
-                       % (i, ",".join([str(data[elem][1][i]) for elem in res])))
-      out_file.close()
 
   def petriDropped(self, e): 
       # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path

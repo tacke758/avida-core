@@ -39,31 +39,47 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     descr()
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printGraphSig"),
-      self.m_one_pop_graph_ctrl.printGraphSlot)
+      PYSIGNAL("printSig"),
+      self.printSlot)
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printPetriDishSig"),
       self.m_one_pop_petri_dish_ctrl.printPetriDishSlot)
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_pop_graph_ctrl.printGraphSlot)
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("saveImagesSig"),
       self.saveImagesSlot)
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("exportAnalyzeSig"),
+      self.m_one_pop_graph_ctrl.exportSlot)
   def aboutToBeRaised(self):
     """Connects menu items to One-Pop Graph controller."""
     descr()
     self.connect(
       self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printGraphSig"),
-      self.m_one_pop_graph_ctrl.printGraphSlot)
+      PYSIGNAL("printSig"),
+      self.printSlot)
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printPetriDishSig"),
       self.m_one_pop_petri_dish_ctrl.printPetriDishSlot)
     self.connect(
       self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printGraphSig"),
+      self.m_one_pop_graph_ctrl.printGraphSlot)    
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("saveImagesSig"),
       self.saveImagesSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("exportAnalyzeSig"),
+      self.m_one_pop_graph_ctrl.exportSlot)
 
   def dragEnterEvent( self, e ):
     descr(e)
@@ -139,3 +155,13 @@ class pyOnePopulationCtrl(pyOnePopulationView):
                              self.m_one_pop_graph_ctrl.m_graph_ctrl.width(),
                              self.m_one_pop_graph_ctrl.m_graph_ctrl.height())
       p.save(filename, type, 100)
+
+  def printSlot(self):
+    "Let user choose what object to print and send signal to appropriate slot"
+    dlg = pyButtonListDialog("Print", "Choose object to print",
+                             ["Petri Dish", "Graph"])
+    res = dlg.showDialog()
+    if res[0] == "Petri Dish":
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printPetriDishSig"), ())
+    elif res[0] == "Graph":
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printGraphSig"), ())

@@ -12,6 +12,7 @@ from pyTwoPopulationCtrl import pyTwoPopulationCtrl
 from pyPetriConfigureCtrl import pyPetriConfigureCtrl
 from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
+from pyButtonListDialog import pyButtonListDialog
 import os.path, shutil
 
 
@@ -298,15 +299,9 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   # public slot
 
-  def filePrintPetriDish(self):
-    print "pyEduWorkspaceCtrl.filePrintPetriDish() emitting printPetriDishSig via self.m_session_mdl.m_session_mdtr"
-    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printPetriDishSig"), ())
-
-  # public slot
-
   def filePrint(self):
-    print "pyEduWorkspaceCtrl.filePrint() emitting printGraphSig via self.m_session_mdl.m_session_mdtr"
-    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printGraphSig"), ())
+    "Print petri dish or graph"
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("printSig"), ())
 
   # public slot
 
