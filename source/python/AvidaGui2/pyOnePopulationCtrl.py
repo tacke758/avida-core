@@ -7,6 +7,7 @@ from qt import *
 from pyOnePopulationView import pyOnePopulationView
 from pyButtonListDialog import pyButtonListDialog
 from pyGraphCtrl import PrintFilter
+from pyImageFileDialog import pyImageFileDialog
 import os.path
 
 class pyOnePopulationCtrl(pyOnePopulationView):
@@ -125,36 +126,19 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
   def saveImagesSlot(self):
     "Save petri dish or graph to image file"
-    # Let user select which image to save
     dlg = pyButtonListDialog("Save Image", "Choose object to save",
                              ["Petri Dish", "Graph"])
     res = dlg.showDialog()
 
-    # Let user select file format
-    dialog_caption = "Export Image"
-    fd = QFileDialog.getSaveFileName("", "JPEG (*.jpg);;PNG (*.png)", None,
-                                     "Save As", dialog_caption)
-    filename = str(fd)
-    if filename == "":
-      return
-
-    if filename[-4:].lower() == ".jpg":
-      type = "JPEG"
-    elif filename[-4:].lower() == ".png":
-      type = "PNG"
-    else:
-      filename += ".jpg"
-      type = "JPEG"
+    img_dlg = pyImageFileDialog()
+    filename, type = img_dlg.saveImageDialog()
 
     # Save the image
     if res[0] == "Petri Dish":
       p = self.m_one_pop_petri_dish_ctrl.getPetriDishPixmap()
       p.save(filename, type, 100)
     else:
-      p = QPixmap.grabWidget(self.m_one_pop_graph_ctrl.m_graph_ctrl, 0, 0,
-                             self.m_one_pop_graph_ctrl.m_graph_ctrl.width(),
-                             self.m_one_pop_graph_ctrl.m_graph_ctrl.height())
-      p.save(filename, type, 100)
+      self.m_one_pop_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
 
   def printSlot(self):
     "Let user choose what object to print and send signal to appropriate slot"

@@ -2,7 +2,6 @@
 
 from qt import *
 from qwt import *
-from pyGraphView import pyGraphView
 
 class pyGraphCtrl(QwtPlot):
 
@@ -24,6 +23,12 @@ class pyGraphCtrl(QwtPlot):
     # - Click and drag to create a zoom rectangle;
     # - Option-click to zoom-out to full view.
     self.m_zoomer.initMousePattern(1)
+
+  def saveImage(self, filename, type):
+    "Save image of graph to file"
+    p = QPixmap.grabWidget(self, 0, 0, self.width(), self.height())
+    p.save(filename, type, 100)
+
 
 class PrintFilter(QwtPlotPrintFilter):
   def __init__(self):

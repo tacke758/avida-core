@@ -4,6 +4,7 @@ from descr import descr
 
 from qt import *
 from pyOneAnalyzeView import pyOneAnalyzeView
+from pyImageFileDialog import pyImageFileDialog
 import os.path
 
 class pyOneAnalyzeCtrl(pyOneAnalyzeView):
@@ -35,6 +36,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     descr()
     self.disconnect(
       self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("saveImagesSig"),
+      self.saveImagesSlot)
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printSig"),
       self.m_one_ana_graph_ctrl.printSlot)
     # Disconnect export signal
@@ -45,6 +50,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
   def aboutToBeRaised(self):
     """Connects items to One-Analyze Graph controller."""
     descr()
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("saveImagesSig"),
+      self.saveImagesSlot)
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("printSig"),
@@ -66,7 +75,6 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
         e.acceptAction(True)
         descr("accepted.")
 
-
   def dropEvent( self, e ):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
@@ -83,6 +91,9 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       if self.isVisible():
         self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"), 
           (freezer_item_name,))
-      
 
-
+  def saveImagesSlot(self):
+    "Save image of graph"
+    dlg = pyImageFileDialog()
+    filename, type = dlg.saveImageDialog()
+    self.m_one_ana_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
