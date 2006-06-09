@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pyOrganismScopeView import pyOrganismScopeView, pyOrganismAnimator
+from pyOrganismScopeView2 import pyOrganismScopeView2, pyOrganismAnimator
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
 
@@ -11,10 +11,10 @@ import tempfile
 
 
 
-class pyOrganismScopeCtrl(pyOrganismScopeView):
+class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
   def __init__(self,parent = None,name = None,fl = 0):
-    pyOrganismScopeView.__init__(self,parent,name,fl)
+    pyOrganismScopeView2.__init__(self,parent,name,fl)
     QToolTip.add(self,"Watch an organism run")
 
     if not name: self.setName("pyOrganismScopeCtrl")
