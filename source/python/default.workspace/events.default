@@ -32,6 +32,5 @@
 # u 100:100:end print_tasks_exe_data  # Num. times tasks have been executed.
 
 # Setup the exit time and full population data collection.
-u 50000:50000 detail_pop           # Save current state of population.
-u 50000:50000 dump_historic_pop    # Save ancestors of current population.
-
+# u 50000:50000 detail_pop           # Save current state of population.
+# u 50000:50000 dump_historic_pop    # Save ancestors of current population.
