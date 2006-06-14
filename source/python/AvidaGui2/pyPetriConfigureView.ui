@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>377</width>
+            <width>379</width>
             <height>626</height>
         </rect>
     </property>
@@ -65,13 +65,94 @@
                 </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout12</cstring>
+                        <cstring>layout22</cstring>
                     </property>
-                    <vbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="QSlider" row="1" column="0">
+                            <property name="name">
+                                <cstring>MutationSlider</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>3</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>130</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
+                            <property name="minValue">
+                                <number>-30000</number>
+                            </property>
+                            <property name="maxValue">
+                                <number>20000</number>
+                            </property>
+                            <property name="lineStep">
+                                <number>100</number>
+                            </property>
+                            <property name="pageStep">
+                                <number>100</number>
+                            </property>
+                            <property name="value">
+                                <number>-3010</number>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>&lt;p&gt;Set Mutation Rate from 0 to 100 % (use right and left arrow keys to fine tune the value)&lt;/P&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit" row="1" column="1">
+                            <property name="name">
+                                <cstring>MutationRateLineEdit</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>45</width>
+                                    <height>32767</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>0.50%%</string>
+                            </property>
+                            <property name="inputMask">
+                                <string>xxxxx%; </string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>&lt;P&gt;Enter the exact mutation rate (1 to 100%)&lt;/p&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
                             <property name="name">
                                 <cstring>MutationRateHeadTextLabel</cstring>
                             </property>
@@ -90,83 +171,17 @@
                                 <string>Set the rate of mutation from 0 to 1</string>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout11</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QSlider">
-                                    <property name="name">
-                                        <cstring>MutationSlider</cstring>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="focusPolicy">
-                                        <enum>StrongFocus</enum>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>-300</number>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>200</number>
-                                    </property>
-                                    <property name="pageStep">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>-30</number>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Set Mutation Rate from 0 to 100 %</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>MutationPercentTextLabel</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>0</hsizetype>
-                                            <vsizetype>5</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>40</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="text">
-                                        <string>%</string>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                    </vbox>
+                    </grid>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout10</cstring>
+                        <cstring>layout29</cstring>
                     </property>
-                    <vbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
                             <property name="name">
                                 <cstring>WorldSizeHeadTextLable</cstring>
                             </property>
@@ -185,45 +200,79 @@
                                 <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QSlider" row="1" column="0">
                             <property name="name">
-                                <cstring>layout9</cstring>
+                                <cstring>WorldSizeSlider</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>StrongFocus</enum>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                            <property name="maxValue">
+                                <number>100</number>
+                            </property>
+                            <property name="lineStep">
+                                <number>1</number>
+                            </property>
+                            <property name="pageStep">
+                                <number>1</number>
+                            </property>
+                            <property name="value">
+                                <number>30</number>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Set the size of the petri dish (1 to 100)</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget" row="1" column="1">
+                            <property name="name">
+                                <cstring>layout28</cstring>
                             </property>
                             <hbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QSlider">
+                                <widget class="QLineEdit">
                                     <property name="name">
-                                        <cstring>WorldSizeSlider</cstring>
+                                        <cstring>WorldSizeLineEdit</cstring>
                                     </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
                                     </property>
-                                    <property name="focusPolicy">
-                                        <enum>StrongFocus</enum>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>26</width>
+                                            <height>0</height>
+                                        </size>
                                     </property>
-                                    <property name="minValue">
-                                        <number>1</number>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>26</width>
+                                            <height>32767</height>
+                                        </size>
                                     </property>
-                                    <property name="maxValue">
-                                        <number>100</number>
+                                    <property name="text">
+                                        <string></string>
                                     </property>
-                                    <property name="lineStep">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="pageStep">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>30</number>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
+                                    <property name="inputMask">
+                                        <string>000; </string>
                                     </property>
                                     <property name="toolTip" stdset="0">
-                                        <string>Set the size of the petri dish (1 to 100)</string>
+                                        <string>&lt;p&gt;Enter world size&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -241,17 +290,29 @@
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
                                     </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>52</width>
+                                            <height>0</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>52</width>
+                                            <height>32767</height>
+                                        </size>
+                                    </property>
                                     <property name="font">
                                         <font>
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>100 x 100 cells</string>
+                                        <string>x 100 cells</string>
                                     </property>
                                 </widget>
                             </hbox>
                         </widget>
-                    </vbox>
+                    </grid>
                 </widget>
             </hbox>
         </widget>
@@ -341,6 +402,161 @@
         <spacer>
             <property name="name">
                 <cstring>spacer13_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QFrame">
+            <property name="name">
+                <cstring>BirthPlaceFrame</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="frameShape">
+                <enum>GroupBoxPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>BirthHeadTextLabel</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Where should new offspring be placed?</string>
+                    </property>
+                    <property name="alignment">
+                        <set>WordBreak|AlignCenter</set>
+                    </property>
+                </widget>
+                <widget class="QButtonGroup">
+                    <property name="name">
+                        <cstring>BirthButtonGroup</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Plain</enum>
+                    </property>
+                    <property name="lineWidth">
+                        <number>0</number>
+                    </property>
+                    <property name="title">
+                        <string></string>
+                    </property>
+                    <property name="flat">
+                        <bool>true</bool>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <spacer>
+                            <property name="name">
+                                <cstring>BirthLeftSpacer</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>41</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>LocalBirthRadioButton</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>TabFocus</enum>
+                            </property>
+                            <property name="text">
+                                <string>Nearby their parent</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
+                            </property>
+                        </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>MassActionRadioButton</cstring>
+                            </property>
+                            <property name="font">
+                                <font>
+                                </font>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>NoFocus</enum>
+                            </property>
+                            <property name="text">
+                                <string>Anywhere, randomly</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>When a new organism is split off place it in a cell any where in the petri dish</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>BirthRightSpacer</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>51</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+            </vbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer14_2</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -692,7 +908,7 @@
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer14_2</cstring>
+                <cstring>spacer16</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -834,161 +1050,6 @@
                             <property name="sizeHint">
                                 <size>
                                     <width>50</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
-                </widget>
-            </vbox>
-        </widget>
-        <spacer>
-            <property name="name">
-                <cstring>spacer16</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QFrame">
-            <property name="name">
-                <cstring>BirthPlaceFrame</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                </sizepolicy>
-            </property>
-            <property name="frameShape">
-                <enum>GroupBoxPanel</enum>
-            </property>
-            <property name="frameShadow">
-                <enum>Sunken</enum>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>BirthHeadTextLabel</cstring>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <bold>1</bold>
-                        </font>
-                    </property>
-                    <property name="text">
-                        <string>Where should new offspring be placed?</string>
-                    </property>
-                    <property name="alignment">
-                        <set>WordBreak|AlignCenter</set>
-                    </property>
-                </widget>
-                <widget class="QButtonGroup">
-                    <property name="name">
-                        <cstring>BirthButtonGroup</cstring>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Plain</enum>
-                    </property>
-                    <property name="lineWidth">
-                        <number>0</number>
-                    </property>
-                    <property name="title">
-                        <string></string>
-                    </property>
-                    <property name="flat">
-                        <bool>true</bool>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <spacer>
-                            <property name="name">
-                                <cstring>BirthLeftSpacer</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>41</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>LocalBirthRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Nearby their parent</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>MassActionRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>NoFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Anywhere, randomly</string>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>When a new organism is split off place it in a cell any where in the petri dish</string>
-                            </property>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>BirthRightSpacer</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>51</width>
                                     <height>20</height>
                                 </size>
                             </property>
@@ -1248,8 +1309,11 @@
 </connections>
 <tabstops>
     <tabstop>MutationSlider</tabstop>
+    <tabstop>MutationRateLineEdit</tabstop>
     <tabstop>WorldSizeSlider</tabstop>
+    <tabstop>WorldSizeLineEdit</tabstop>
     <tabstop>AncestorComboBox</tabstop>
+    <tabstop>LocalBirthRadioButton</tabstop>
     <tabstop>NotCheckBox</tabstop>
     <tabstop>NandCheckBox</tabstop>
     <tabstop>AndCheckBox</tabstop>
@@ -1260,13 +1324,12 @@
     <tabstop>XorCheckBox</tabstop>
     <tabstop>EquCheckBox</tabstop>
     <tabstop>RandomGeneratedRadioButton</tabstop>
-    <tabstop>RandomFixedRadioButton</tabstop>
-    <tabstop>LocalBirthRadioButton</tabstop>
-    <tabstop>MassActionRadioButton</tabstop>
     <tabstop>StopManuallyRadioButton</tabstop>
     <tabstop>StopAtRadioButton</tabstop>
     <tabstop>StopAtSpinBox</tabstop>
     <tabstop>SavePetriPushButton</tabstop>
+    <tabstop>RandomFixedRadioButton</tabstop>
+    <tabstop>MassActionRadioButton</tabstop>
 </tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
