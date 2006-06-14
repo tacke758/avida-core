@@ -13,6 +13,7 @@ from pyPetriConfigureCtrl import pyPetriConfigureCtrl
 from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
 from pyButtonListDialog import pyButtonListDialog
+from pyReadFreezer import pyReadFreezer
 import os.path, shutil
 
 
@@ -107,8 +108,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     #   PYSIGNAL("doNextUpdateSig"),
     #   self.updatePBClickedSlot)
 
-    self.connect(self.controlRepopulateAction,SIGNAL("activated()"),
-      self.RepopulateActionSlot)
+    self.connect(self.controlRestart_ExpAction,SIGNAL("activated()"),
+      self.Restart_ExpActionSlot)
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("addStatusBarWidgetSig"), self.addStatusBarWidgetSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("removeStatusBarWidgetSig"), self.removeStatusBarWidgetSlot)
@@ -429,16 +430,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     else:
       self.emit(PYSIGNAL("quitAvidaPhaseIISig"), ())
 
-  def RepopulateActionSlot(self):
+  def Restart_ExpActionSlot(self):
 
     # If the user clicks the repopulate button pretend that they double
     # the default empty petri dish from the freezer
 
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
-      "default.empty")
+      "@default.empty")
+    thawed_item = pyReadFreezer(file_name)
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
+      ("@default.empty", thawed_item,))
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
-
 
   def addStatusBarWidgetSlot(self, *args):
     widget = args[0]

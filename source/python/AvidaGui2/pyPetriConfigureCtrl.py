@@ -50,6 +50,11 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.ChangeStopSpinBoxEnabledSlot)
     self.connect(self.StopAtSpinBox, SIGNAL("valueChanged(int)"), 
       self.ChangeStopSpinBoxSlot)
+
+    # Before freezing be sure the population is paused
+
+    self.connect(self.SavePetriPushButton, SIGNAL("clicked()"), 
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("doPauseAvidaSig"))
     self.connect(self.SavePetriPushButton, SIGNAL("clicked()"), 
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezeDishPhaseISig"))
     self.connect(self.m_session_mdl.m_session_mdtr, 

@@ -27,6 +27,11 @@ class pyLiveControlsCtrl(pyLiveControlsView):
     self.connect(
       self.m_pause_button, SIGNAL("clicked()"),
       self.clickedPauseAvidaSlot)
+
+    # Before freezing be sure the population is paused
+    
+    self.connect(self.FreezeToolButton, SIGNAL("clicked()"),
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("doPauseAvidaSig"))
     self.connect(self.FreezeToolButton, SIGNAL("clicked()"),
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezeDishPhaseISig"))
 

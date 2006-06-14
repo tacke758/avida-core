@@ -11,8 +11,6 @@ Priority High
 
 Priority Medium
 
-18-Apr-06 Replace "Viewers" buttons icons.
-
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
 Priority Low
@@ -20,8 +18,6 @@ Priority Low
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
 
 -Make the selection of a workspace look like you are choosing a file not a directory 
-
--Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it
 
 -add the ability to tell genesis where you want the default organism to be 
 
@@ -132,6 +128,12 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 16-Jan-06 Fix problem where start in menu bar not linked to start button -- Finished 26-May-06
 
 15-May-06 Make "default" organism named "*Ancestor" -- Finished 30-May-06
+
+18-Apr-06 Replace "Viewers" buttons icons. -- Finished 14-Jun-06
+
+12-Jun-06 Deactivate Help Menus -- Finished 14-Jun-06
+
+-Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it -- Finished 14-Jun-06
 
 ************Kaben******************
 
