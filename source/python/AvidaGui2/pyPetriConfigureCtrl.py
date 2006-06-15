@@ -62,7 +62,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("FillDishSig"), self.FillDishSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("doInitializeAvidaPhaseISig"), self.DisablePetriConfigureSlot)
+      PYSIGNAL("doStartAvidaSig"), self.DisablePetriConfigureSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("doEnablePetriDishSig"), self.EnablePetriConfigureSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
@@ -110,7 +110,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.disconnect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("FillDishSig"), self.FillDishSlot)
     self.disconnect(self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("doInitializeAvidaPhaseISig"), self.DisablePetriConfigureSlot)
+      PYSIGNAL("doStartAvidaSig"), self.DisablePetriConfigureSlot)
     self.disconnect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("doEnablePetriDishSig"), self.EnablePetriConfigureSlot)
     self.disconnect(self.m_session_mdl.m_session_mdtr, 

@@ -105,6 +105,10 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
        QToolTip.remove(self.m_petri_dish_toggle)
        QToolTip.add(self.m_petri_dish_toggle,
          "Flip to see the <b><i>Environmental Settings</i></b>")
+       self.m_session_mdl.m_session_mdtr.emit(
+         PYSIGNAL("doInitializeAvidaPhaseISig"),
+         (self.m_session_mdl.m_tempdir,))
+
  
   def MakeConfigVisiableSlot (self):
     if self.dishDisabled:
