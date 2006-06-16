@@ -13,6 +13,18 @@ Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
+15-Jun-06 Move Freezer/Viewer line up 
+
+15-Jun-06 Drop on viewer icon
+
+15-Jun-06 Change menu item "Restart Experiment" -> "Start New Experiment"
+
+15-Jun-06 Add Viewer to view choice on menu
+
+15-Jun-06 Add text "environmental settings" on main screen 
+
+15-Jun-06 Finish work on AncestorIconView
+
 Priority Low
 
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
@@ -26,6 +38,12 @@ Priority Low
 29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
 
 15-May-06 Prevent program from deleting files with names beginning with "*"
+
+15-Jun-06 Change wording on can't freeze message
+
+15-Jun-06 Add Splash screen
+
+15-Jun-06 Create CGI script to allow users to enter information when they check out avida executable.
 
 
 ************Jeff*******************

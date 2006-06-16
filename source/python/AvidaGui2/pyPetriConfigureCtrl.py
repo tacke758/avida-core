@@ -78,7 +78,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("petriDishDroppedInPopViewSig"))
     self.connect( self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDropped)
+      PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDroppedSlot)
+    self.connect(self.AncestorIconView, 
+      SIGNAL("dropped(QDropEvent*,const QValueList<QIconDragItem>&)"),
+      self.petriAncestorDroppedSlot)
     self.ChangeMutationTextSlot()
     self.ChangeWorldSizeTextSlot()
     self.m_session_mdl.m_session_mdtr.emit(
@@ -225,15 +228,15 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     # Erase all items for the ancestor list (largest to smallest index)
 
-    for i in range((self.AncestorComboBox.count() - 1), -1, -1):
-      self.AncestorComboBox.removeItem (i)
+    self.AncestorIconView.clear()
 
-    # Find all ancestors with the name of the form START_CREATUREx
+    # Find all ancestors with the name of the form START_CREATUREi
 
     i = 0
     while(settings_dict.has_key("START_CREATURE" + str(i))):
       start_creature = settings_dict["START_CREATURE" + str(i)]
-      self.AncestorComboBox.insertItem(start_creature)
+      tmp_item = QIconViewItem(self.AncestorIconView, start_creature, 
+                self.image0)
       i = i + 1
     if settings_dict.has_key("MAX_UPDATES") == True:
       max_updates = int(settings_dict["MAX_UPDATES"])
@@ -336,7 +339,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     # Turn off the controls 
 
-    self.AncestorComboBox.setEnabled(False)
+    self.AncestorIconView.setEnabled(False)
 
     # BDB -- while using pause at hack don't turn off these settings
 
@@ -388,7 +391,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     # Turn on the controls 
     
-    self.AncestorComboBox.setEnabled(True)
+    self.AncestorIconView.setEnabled(True)
     self.StopAtSpinBox.setEnabled(True)
     self.StopManuallyRadioButton.setEnabled(True)
     self.StopAtRadioButton.setEnabled(True)
@@ -449,10 +452,14 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     descr()
     settings_dict = {}
     
-    # Write START_CREATUREx for all the organisms in the Ancestor Combo Box
+    # Write START_CREATUREi for all the organisms in the Ancestor Icon View
 
-    for i in range(self.AncestorComboBox.count()):
-      settings_dict["START_CREATURE" + str(i)] = str(self.AncestorComboBox.text(i))
+    curr_item = self.AncestorIconView.firstItem()
+    i = 0
+    while (curr_item):
+      settings_dict["START_CREATURE" + str(i)] = str(curr_item.text())
+      i = i + 1
+      curr_item = curr_item.nextItem()
     if (self.StopAtRadioButton.isChecked() == True):
       settings_dict["MAX_UPDATES"] = self.StopAtSpinBox.value()
     else:
@@ -609,7 +616,11 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       else: 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
 
-  def petriDropped(self, e):
+  # The function petriDroppedSlot and petriAncestorDroppedSlot are identical
+  # at some point petriDroppedSlot should not allow creatures dropped outside
+  # the AncestorIconView to be added to the Ancestort List
+
+  def petriDroppedSlot(self, e):
     descr()
     # Try to decode to the data you understand...
     freezer_item_name = QString()
@@ -618,5 +629,17 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
-        self.AncestorComboBox.insertItem(core_name)
+        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
+        return
+
+  def petriAncestorDroppedSlot(self, e):
+    descr()
+    # Try to decode to the data you understand...
+    freezer_item_name = QString()
+    if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
+      freezer_item_name = str(e.encodedData("text/plain"))
+      if freezer_item_name[-8:] == 'organism':
+        core_name = freezer_item_name[:-9]
+        core_name = os.path.basename(str(freezer_item_name[:-9]))
+        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
         return

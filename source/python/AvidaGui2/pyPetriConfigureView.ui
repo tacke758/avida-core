@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>379</width>
+            <width>392</width>
             <height>626</height>
         </rect>
     </property>
@@ -27,19 +27,14 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <property name="margin">
-            <number>2</number>
-        </property>
-        <property name="spacing">
-            <number>2</number>
-        </property>
         <widget class="QLabel">
             <property name="name">
                 <cstring>ConfigTitleTextLabel</cstring>
             </property>
             <property name="font">
                 <font>
-                    <pointsize>11</pointsize>
+                    <pointsize>14</pointsize>
+                    <bold>1</bold>
                 </font>
             </property>
             <property name="text">
@@ -53,272 +48,299 @@
             <property name="name">
                 <cstring>SliderFrame</cstring>
             </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>70</height>
+                </size>
+            </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
             </property>
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <hbox>
+            <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>unnamed</cstring>
+                    <cstring>layout17</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>11</y>
+                        <width>353</width>
+                        <height>46</height>
+                    </rect>
+                </property>
+                <hbox>
                     <property name="name">
-                        <cstring>layout22</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <grid>
+                    <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>unnamed</cstring>
+                            <cstring>layout22</cstring>
                         </property>
-                        <widget class="QSlider" row="1" column="0">
+                        <grid>
                             <property name="name">
-                                <cstring>MutationSlider</cstring>
+                                <cstring>unnamed</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>3</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>130</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
-                            </property>
-                            <property name="minValue">
-                                <number>-30000</number>
-                            </property>
-                            <property name="maxValue">
-                                <number>20000</number>
-                            </property>
-                            <property name="lineStep">
-                                <number>100</number>
-                            </property>
-                            <property name="pageStep">
-                                <number>100</number>
-                            </property>
-                            <property name="value">
-                                <number>-3010</number>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>&lt;p&gt;Set Mutation Rate from 0 to 100 % (use right and left arrow keys to fine tune the value)&lt;/P&gt;</string>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit" row="1" column="1">
-                            <property name="name">
-                                <cstring>MutationRateLineEdit</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>40</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="maximumSize">
-                                <size>
-                                    <width>45</width>
-                                    <height>32767</height>
-                                </size>
-                            </property>
-                            <property name="text">
-                                <string>0.50%%</string>
-                            </property>
-                            <property name="inputMask">
-                                <string>xxxxx%; </string>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>&lt;P&gt;Enter the exact mutation rate (1 to 100%)&lt;/p&gt;</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
-                            <property name="name">
-                                <cstring>MutationRateHeadTextLabel</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                    <bold>1</bold>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>Per Site Mutation Rate</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignCenter</set>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Set the rate of mutation from 0 to 1</string>
-                            </property>
-                        </widget>
-                    </grid>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout29</cstring>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
-                            <property name="name">
-                                <cstring>WorldSizeHeadTextLable</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                    <bold>1</bold>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>World Size</string>
-                            </property>
-                            <property name="textFormat">
-                                <enum>AutoText</enum>
-                            </property>
-                            <property name="alignment">
-                                <set>WordBreak|AlignCenter</set>
-                            </property>
-                        </widget>
-                        <widget class="QSlider" row="1" column="0">
-                            <property name="name">
-                                <cstring>WorldSizeSlider</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
-                            </property>
-                            <property name="minValue">
-                                <number>1</number>
-                            </property>
-                            <property name="maxValue">
-                                <number>100</number>
-                            </property>
-                            <property name="lineStep">
-                                <number>1</number>
-                            </property>
-                            <property name="pageStep">
-                                <number>1</number>
-                            </property>
-                            <property name="value">
-                                <number>30</number>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Set the size of the petri dish (1 to 100)</string>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget" row="1" column="1">
-                            <property name="name">
-                                <cstring>layout28</cstring>
-                            </property>
-                            <hbox>
+                            <widget class="QSlider" row="1" column="0">
                                 <property name="name">
-                                    <cstring>unnamed</cstring>
+                                    <cstring>MutationSlider</cstring>
                                 </property>
-                                <widget class="QLineEdit">
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>3</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>130</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                    </font>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>StrongFocus</enum>
+                                </property>
+                                <property name="minValue">
+                                    <number>-30000</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>20000</number>
+                                </property>
+                                <property name="lineStep">
+                                    <number>100</number>
+                                </property>
+                                <property name="pageStep">
+                                    <number>100</number>
+                                </property>
+                                <property name="value">
+                                    <number>-3010</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>&lt;p&gt;Set Mutation Rate from 0 to 100 % (use right and left arrow keys to fine tune the value)&lt;/P&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>MutationRateLineEdit</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>40</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>45</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string>%</string>
+                                </property>
+                                <property name="inputMask">
+                                    <string>xxxxx%; </string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>&lt;P&gt;Enter the exact mutation rate (1 to 100%)&lt;/p&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>MutationRateHeadTextLabel</cstring>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                        <bold>1</bold>
+                                    </font>
+                                </property>
+                                <property name="text">
+                                    <string>Per Site Mutation Rate</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignCenter</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Set the rate of mutation from 0 to 1</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout29</cstring>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>WorldSizeHeadTextLable</cstring>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                        <bold>1</bold>
+                                    </font>
+                                </property>
+                                <property name="text">
+                                    <string>World Size</string>
+                                </property>
+                                <property name="textFormat">
+                                    <enum>AutoText</enum>
+                                </property>
+                                <property name="alignment">
+                                    <set>WordBreak|AlignCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="1" column="0">
+                                <property name="name">
+                                    <cstring>WorldSizeSlider</cstring>
+                                </property>
+                                <property name="font">
+                                    <font>
+                                    </font>
+                                </property>
+                                <property name="focusPolicy">
+                                    <enum>StrongFocus</enum>
+                                </property>
+                                <property name="minValue">
+                                    <number>1</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>100</number>
+                                </property>
+                                <property name="lineStep">
+                                    <number>1</number>
+                                </property>
+                                <property name="pageStep">
+                                    <number>1</number>
+                                </property>
+                                <property name="value">
+                                    <number>30</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Set the size of the petri dish (1 to 100)</string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget" row="1" column="1">
+                                <property name="name">
+                                    <cstring>layout28</cstring>
+                                </property>
+                                <hbox>
                                     <property name="name">
-                                        <cstring>WorldSizeLineEdit</cstring>
+                                        <cstring>unnamed</cstring>
                                     </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>0</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>26</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>26</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string></string>
-                                    </property>
-                                    <property name="inputMask">
-                                        <string>000; </string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>&lt;p&gt;Enter world size&lt;/p&gt;</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>WorldSizeTextLabel</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>0</hsizetype>
-                                            <vsizetype>5</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>52</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>52</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="text">
-                                        <string>x 100 cells</string>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                    </grid>
-                </widget>
-            </hbox>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>WorldSizeLineEdit</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>0</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>26</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>26</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="inputMask">
+                                            <string>000; </string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>&lt;p&gt;Enter world size&lt;/p&gt;</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>WorldSizeTextLabel</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>0</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>52</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="maximumSize">
+                                            <size>
+                                                <width>52</width>
+                                                <height>32767</height>
+                                            </size>
+                                        </property>
+                                        <property name="font">
+                                            <font>
+                                            </font>
+                                        </property>
+                                        <property name="text">
+                                            <string>x 100 cells</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </grid>
+                    </widget>
+                </hbox>
+            </widget>
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer15</cstring>
+                <cstring>spacer17_3</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -329,21 +351,27 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>2</height>
                 </size>
             </property>
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>AncestorFrame</cstring>
+                <cstring>frame16</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>1</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>110</height>
+                </size>
             </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
@@ -371,37 +399,50 @@
                         <set>WordBreak|AlignCenter</set>
                     </property>
                 </widget>
-                <widget class="QComboBox">
+                <widget class="QIconView">
                     <item>
                         <property name="text">
                             <string>@ancestor</string>
                         </property>
+                        <property name="pixmap">
+                            <pixmap>image0</pixmap>
+                        </property>
                     </item>
                     <property name="name">
-                        <cstring>AncestorComboBox</cstring>
+                        <cstring>AncestorIconView</cstring>
                     </property>
-                    <property name="font">
-                        <font>
-                        </font>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>3</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
                     </property>
-                    <property name="acceptDrops">
-                        <bool>false</bool>
+                    <property name="minimumSize">
+                        <size>
+                            <width>0</width>
+                            <height>60</height>
+                        </size>
                     </property>
-                    <property name="editable">
-                        <bool>true</bool>
+                    <property name="frameShape">
+                        <enum>NoFrame</enum>
                     </property>
-                    <property name="currentItem">
-                        <number>0</number>
+                    <property name="vScrollBarMode">
+                        <enum>AlwaysOff</enum>
                     </property>
-                    <property name="toolTip" stdset="0">
-                        <string>&lt;P&gt;The name of the organism(s) that will start the population on an empty petri dish (normally dragged in)&lt;/p&gt;</string>
+                    <property name="hScrollBarMode">
+                        <enum>AlwaysOn</enum>
+                    </property>
+                    <property name="arrangement">
+                        <enum>TopToBottom</enum>
                     </property>
                 </widget>
             </vbox>
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer13_2</cstring>
+                <cstring>spacer17_2</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -412,21 +453,27 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>2</height>
                 </size>
             </property>
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>BirthPlaceFrame</cstring>
+                <cstring>BirthFrame</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>1</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>48</height>
+                </size>
             </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
@@ -434,7 +481,7 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <vbox>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -448,115 +495,73 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Where should new offspring be placed?</string>
+                        <string>Place offspring:</string>
                     </property>
                     <property name="alignment">
                         <set>WordBreak|AlignCenter</set>
                     </property>
                 </widget>
-                <widget class="QButtonGroup">
+                <spacer>
                     <property name="name">
-                        <cstring>BirthButtonGroup</cstring>
+                        <cstring>spacer26</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>21</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>LocalBirthRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>TabFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Near their parent</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>MassActionRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
-                    <property name="frameShadow">
-                        <enum>Plain</enum>
+                    <property name="text">
+                        <string>Anywhere, randomly</string>
                     </property>
-                    <property name="lineWidth">
-                        <number>0</number>
+                    <property name="toolTip" stdset="0">
+                        <string>When a new organism is split off place it in a cell any where in the petri dish</string>
                     </property>
-                    <property name="title">
-                        <string></string>
-                    </property>
-                    <property name="flat">
-                        <bool>true</bool>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <spacer>
-                            <property name="name">
-                                <cstring>BirthLeftSpacer</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>41</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>LocalBirthRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Nearby their parent</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>MassActionRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>NoFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Anywhere, randomly</string>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>When a new organism is split off place it in a cell any where in the petri dish</string>
-                            </property>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>BirthRightSpacer</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>51</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
                 </widget>
-            </vbox>
+            </hbox>
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer14_2</cstring>
+                <cstring>spacer17</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -567,21 +572,27 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>2</height>
                 </size>
             </property>
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>RewardFrame</cstring>
+                <cstring>TaskRewardFrame</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>1</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>140</height>
+                </size>
             </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
@@ -908,7 +919,7 @@
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer16</cstring>
+                <cstring>spacer18</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -919,21 +930,27 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>2</height>
                 </size>
             </property>
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>RandomNumFrame</cstring>
+                <cstring>RandomFrame</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>1</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>48</height>
+                </size>
             </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
@@ -941,7 +958,7 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <vbox>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -964,103 +981,67 @@
                         <set>AlignCenter</set>
                     </property>
                 </widget>
-                <widget class="QButtonGroup">
+                <spacer>
                     <property name="name">
-                        <cstring>RandomButtonGroup</cstring>
+                        <cstring>spacer16</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>RandomGeneratedRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>TabFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>No</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Each time this petri is run the results will not be exactly the same</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>RandomFixedRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>NoFocus</enum>
                     </property>
-                    <property name="frameShape">
-                        <enum>NoFrame</enum>
+                    <property name="text">
+                        <string>Yes</string>
                     </property>
-                    <property name="title">
-                        <string></string>
+                    <property name="toolTip" stdset="0">
+                        <string>Each time this petri is run the results will be exactly the same</string>
                     </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer10</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>51</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>RandomGeneratedRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>No</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Each time this petri is run the results will not be exactly the same</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>RandomFixedRadioButton</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>NoFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Yes</string>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Each time this petri is run the results will be exactly the same</string>
-                            </property>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer1</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>50</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
                 </widget>
-            </vbox>
+            </hbox>
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer17</cstring>
+                <cstring>spacer14</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -1071,21 +1052,27 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>1</height>
                 </size>
             </property>
         </spacer>
         <widget class="QFrame">
             <property name="name">
-                <cstring>StopFrame</cstring>
+                <cstring>PauseFrame</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>1</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>48</height>
+                </size>
             </property>
             <property name="frameShape">
                 <enum>GroupBoxPanel</enum>
@@ -1093,7 +1080,7 @@
             <property name="frameShadow">
                 <enum>Sunken</enum>
             </property>
-            <vbox>
+            <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -1107,164 +1094,112 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Pause Run</string>
+                        <string>Pause Run:</string>
                     </property>
                     <property name="alignment">
                         <set>WordBreak|AlignCenter</set>
                     </property>
                 </widget>
-                <widget class="QButtonGroup">
+                <spacer>
                     <property name="name">
-                        <cstring>StopButtonGroup</cstring>
+                        <cstring>spacer29</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>21</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>StopManuallyRadioButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
                     </property>
                     <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                        <enum>TabFocus</enum>
                     </property>
-                    <property name="frameShadow">
-                        <enum>Plain</enum>
+                    <property name="text">
+                        <string>Manually</string>
                     </property>
-                    <property name="lineWidth">
-                        <number>0</number>
-                    </property>
-                    <property name="title">
-                        <string></string>
-                    </property>
-                    <property name="flat">
+                    <property name="checked">
                         <bool>true</bool>
                     </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer13</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>40</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>StopManuallyRadioButton</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>TabFocus</enum>
-                            </property>
-                            <property name="text">
-                                <string>Manually</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Program will run until you pause it using the button under the petri dish</string>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>StopAtLayout</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>StopAtRadioButton</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>0</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="focusPolicy">
-                                        <enum>StrongFocus</enum>
-                                    </property>
-                                    <property name="text">
-                                        <string>At</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Run will pause at a given update and wait to you press the play button under the petri dish</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>StopAtSpinBox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="font">
-                                        <font>
-                                        </font>
-                                    </property>
-                                    <property name="suffix">
-                                        <string> updates</string>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>10000000</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="lineStep">
-                                        <number>1000</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>10000</number>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer14</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>21</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
+                    <property name="toolTip" stdset="0">
+                        <string>Program will run until you pause it using the button under the petri dish</string>
+                    </property>
                 </widget>
-            </vbox>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>StopAtRadioButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>At</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Run will pause at a given update and wait to you press the play button under the petri dish</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>StopAtSpinBox</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="font">
+                        <font>
+                        </font>
+                    </property>
+                    <property name="suffix">
+                        <string> updates</string>
+                    </property>
+                    <property name="maxValue">
+                        <number>10000000</number>
+                    </property>
+                    <property name="minValue">
+                        <number>1</number>
+                    </property>
+                    <property name="lineStep">
+                        <number>1000</number>
+                    </property>
+                    <property name="value">
+                        <number>10000</number>
+                    </property>
+                </widget>
+            </hbox>
         </widget>
         <spacer>
             <property name="name">
-                <cstring>spacer18</cstring>
+                <cstring>spacer13</cstring>
             </property>
             <property name="orientation">
                 <enum>Vertical</enum>
@@ -1275,7 +1210,7 @@
             <property name="sizeHint">
                 <size>
                     <width>20</width>
-                    <height>16</height>
+                    <height>1</height>
                 </size>
             </property>
         </spacer>
@@ -1299,12 +1234,47 @@
         </widget>
     </vbox>
 </widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="841">789c6dd1cd8e9b301007f07b9ec20ab768e5dd80f952d547a8d463a5aa87f930040281d8e450adf6ddcb4cba5256c196907efc3d36635e0fe6d7cf1fe6f0ba8b0b2c1d193a413007be8de3dfdf7fbebfeff6a933c7c2a49939ee5f76fbc5904932caf3cc0b2f4297425de5c2415856a94b9db051fa1aee8b3b61452595ba9885f5d151ae8baf423812e42c9c9405549009831033cc311546655e15150a4989e0a0108e427a4b217b13ce77a247fd0c502211696d2fe4729d5a9b087de1d881d02b4baa89843725665455425436328567619332b31ed42a5d9917ca93b284b2d65aabd4a1dc180958bb9d21b1dfced6841a7ccad0537b22ee7a7adaf34cc3d08d43c2bebf7ccd7abf76d24cd3304d5d9224f4909d67eeafb0be9ffbf5390ddaa1456c11edcc1d40e8a688162184fb9ed831c7654c5a8efe1293f87986fe028265ea22471edbb68de7c7cc067f0158783d645d80f64b8660af61d0fe1eef40b31e42e4f6e9e6ee3d84e936e3768600fef9c2ffd761bf11d9fdc7b7dd3f4172cb15</data>
+    </image>
+</images>
 <connections>
     <connection>
-        <sender>RandomGeneratedRadioButton</sender>
-        <signal>&lt;No Signal&gt;</signal>
+        <sender>LocalBirthRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MassActionRadioButton</receiver>
+        <slot>toggle()</slot>
+    </connection>
+    <connection>
+        <sender>MassActionRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>LocalBirthRadioButton</receiver>
+        <slot>toggle()</slot>
+    </connection>
+    <connection>
+        <sender>RandomFixedRadioButton</sender>
+        <signal>clicked()</signal>
         <receiver>RandomGeneratedRadioButton</receiver>
-        <slot>&lt;No)</slot>
+        <slot>toggle()</slot>
+    </connection>
+    <connection>
+        <sender>RandomGeneratedRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>RandomFixedRadioButton</receiver>
+        <slot>toggle()</slot>
+    </connection>
+    <connection>
+        <sender>StopManuallyRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>StopAtRadioButton</receiver>
+        <slot>toggle()</slot>
+    </connection>
+    <connection>
+        <sender>StopAtRadioButton</sender>
+        <signal>clicked()</signal>
+        <receiver>StopManuallyRadioButton</receiver>
+        <slot>toggle()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -1312,7 +1282,7 @@
     <tabstop>MutationRateLineEdit</tabstop>
     <tabstop>WorldSizeSlider</tabstop>
     <tabstop>WorldSizeLineEdit</tabstop>
-    <tabstop>AncestorComboBox</tabstop>
+    <tabstop>AncestorIconView</tabstop>
     <tabstop>LocalBirthRadioButton</tabstop>
     <tabstop>NotCheckBox</tabstop>
     <tabstop>NandCheckBox</tabstop>
