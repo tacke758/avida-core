@@ -291,21 +291,72 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_ihead_item.setSize(text_height + 6, text_height + 6)
         self.m_ihead_item.setZ(1.)
         self.m_ihead_item.setBrush(QBrush(Qt.blue))
+
+        self.m_ihead_bg_item = QCanvasEllipse(self.m_canvas)
+        self.m_ihead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_ihead_bg_item.setZ(4.)
+        self.m_ihead_bg_item.setBrush(QBrush(Qt.white))
+
+        self.m_ihead_text = QCanvasText(self.m_canvas)
+        self.m_ihead_text.setFont(font)
+        self.m_ihead_text.setColor(Qt.blue)
+        self.m_ihead_text.setTextFlags(Qt.AlignCenter)
+        self.m_ihead_text.setText("i")
+        self.m_ihead_text.setZ(5.)
+
       if self.m_frames.m_rhead_info is not None:
         self.m_rhead_item = QCanvasEllipse(self.m_canvas)
         self.m_rhead_item.setSize(text_height + 6, text_height + 6)
         self.m_rhead_item.setZ(1.)
         self.m_rhead_item.setBrush(QBrush(Qt.green))
+
+        self.m_rhead_bg_item = QCanvasEllipse(self.m_canvas)
+        self.m_rhead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_rhead_bg_item.setZ(4.)
+        self.m_rhead_bg_item.setBrush(QBrush(Qt.white))
+
+        self.m_rhead_text = QCanvasText(self.m_canvas)
+        self.m_rhead_text.setFont(font)
+        self.m_rhead_text.setColor(Qt.green)
+        self.m_rhead_text.setTextFlags(Qt.AlignCenter)
+        self.m_rhead_text.setText("r")
+        self.m_rhead_text.setZ(5.)
+
       if self.m_frames.m_whead_info is not None:
         self.m_whead_item = QCanvasEllipse(self.m_canvas)
         self.m_whead_item.setSize(text_height + 6, text_height + 6)
         self.m_whead_item.setZ(1.)
         self.m_whead_item.setBrush(QBrush(Qt.red))
+
+        self.m_whead_bg_item = QCanvasEllipse(self.m_canvas)
+        self.m_whead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_whead_bg_item.setZ(4.)
+        self.m_whead_bg_item.setBrush(QBrush(Qt.white))
+
+        self.m_whead_text = QCanvasText(self.m_canvas)
+        self.m_whead_text.setFont(font)
+        self.m_whead_text.setColor(Qt.red)
+        self.m_whead_text.setTextFlags(Qt.AlignCenter)
+        self.m_whead_text.setText("w")
+        self.m_whead_text.setZ(5.)
+
       if self.m_frames.m_fhead_info is not None:
         self.m_fhead_item = QCanvasEllipse(self.m_canvas)
         self.m_fhead_item.setSize(text_height + 6, text_height + 6)
         self.m_fhead_item.setZ(1.)
         self.m_fhead_item.setBrush(QBrush(Qt.cyan))
+
+        self.m_fhead_bg_item = QCanvasEllipse(self.m_canvas)
+        self.m_fhead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_fhead_bg_item.setZ(4.)
+        self.m_fhead_bg_item.setBrush(QBrush(Qt.white))
+
+        self.m_fhead_text = QCanvasText(self.m_canvas)
+        self.m_fhead_text.setFont(font)
+        self.m_fhead_text.setColor(Qt.cyan)
+        self.m_fhead_text.setTextFlags(Qt.AlignCenter)
+        self.m_fhead_text.setText("f")
+        self.m_fhead_text.setZ(5.)
 
       # XXX
       ###if self.m_frames.m_ihead_moves is not None:
@@ -484,11 +535,11 @@ class pyOrganismScopeView2(QCanvasView):
           bg_item.setBrush(QBrush(color))
           bg_item.show()
 
-      for head_info, head_item in (
-        (self.m_frames.m_ihead_info, self.m_ihead_item),
-        (self.m_frames.m_rhead_info, self.m_rhead_item),
-        (self.m_frames.m_whead_info, self.m_whead_item),
-        (self.m_frames.m_fhead_info, self.m_fhead_item),
+      for head_info, head_item, head_bg_item, head_text in (
+        (self.m_frames.m_ihead_info, self.m_ihead_item, self.m_ihead_bg_item, self.m_ihead_text),
+        (self.m_frames.m_rhead_info, self.m_rhead_item, self.m_rhead_bg_item, self.m_rhead_text),
+        (self.m_frames.m_whead_info, self.m_whead_item, self.m_whead_bg_item, self.m_whead_text),
+        (self.m_frames.m_fhead_info, self.m_fhead_item, self.m_fhead_bg_item, self.m_fhead_text),
       ):
         if head_info is not None:
           head = head_info[self.m_current_frame_number]
@@ -497,14 +548,26 @@ class pyOrganismScopeView2(QCanvasView):
           pt = self.m_inst_pts[head]
           if pt.hidden():
             head_item.hide()
+            head_bg_item.hide()
+            head_text.hide()
           else:
-            theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
-            x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
-            y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
+            circle = pt.circle()
+            theta = circle.oTheta() + pt.position() * circle.dTheta()
+            radius = circle.radius()
+            cx = circle.centerX()
+            cy = circle.centerY()
 
-            head_item.setX(x)
-            head_item.setY(y)
+            head_item.setX(radius*math.cos(theta) + cx)
+            head_item.setY(radius*math.sin(theta) + cy)
             head_item.show()
+
+            head_bg_item.setX((radius - head_item.width())*math.cos(theta) + cx)
+            head_bg_item.setY((radius - head_item.width())*math.sin(theta) + cy)
+            head_bg_item.show()
+
+            head_text.setX((radius - head_item.width())*math.cos(theta) + cx)
+            head_text.setY((radius - head_item.width())*math.sin(theta) + cy)
+            head_text.show()
 
     self.emit(PYSIGNAL("frameShownSig"),(self.m_frames, self.m_current_frame_number))
     self.m_canvas.update()
