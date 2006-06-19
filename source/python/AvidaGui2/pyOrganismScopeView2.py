@@ -484,73 +484,27 @@ class pyOrganismScopeView2(QCanvasView):
           bg_item.setBrush(QBrush(color))
           bg_item.show()
 
-      if self.m_frames.m_ihead_info is not None:
-        head_item = self.m_ihead_item
-        head = self.m_frames.m_ihead_info[self.m_current_frame_number]
-        if displayed_genome_size < head:
-          head = -1
-        pt = self.m_inst_pts[head]
-        if pt.hidden():
-          head_item.hide()
-        else:
-          theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
-          x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
-          y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
+      for head_info, head_item in (
+        (self.m_frames.m_ihead_info, self.m_ihead_item),
+        (self.m_frames.m_rhead_info, self.m_rhead_item),
+        (self.m_frames.m_whead_info, self.m_whead_item),
+        (self.m_frames.m_fhead_info, self.m_fhead_item),
+      ):
+        if head_info is not None:
+          head = head_info[self.m_current_frame_number]
+          if displayed_genome_size < head:
+            head = -1
+          pt = self.m_inst_pts[head]
+          if pt.hidden():
+            head_item.hide()
+          else:
+            theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
+            x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
+            y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
 
-          head_item.setX(x)
-          head_item.setY(y)
-          head_item.show()
-
-      if self.m_frames.m_rhead_info is not None:
-        head_item = self.m_rhead_item
-        head = self.m_frames.m_rhead_info[self.m_current_frame_number]
-        if displayed_genome_size < head:
-          head = -1
-        pt = self.m_inst_pts[head]
-        if pt.hidden():
-          head_item.hide()
-        else:
-          theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
-          x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
-          y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
-
-          head_item.setX(x)
-          head_item.setY(y)
-          head_item.show()
-
-      if self.m_frames.m_whead_info is not None:
-        head_item = self.m_whead_item
-        head = self.m_frames.m_whead_info[self.m_current_frame_number]
-        if displayed_genome_size < head:
-          head = -1
-        pt = self.m_inst_pts[head]
-        if pt.hidden():
-          head_item.hide()
-        else:
-          theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
-          x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
-          y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
-
-          head_item.setX(x)
-          head_item.setY(y)
-          head_item.show()
-
-      if self.m_frames.m_fhead_info is not None:
-        head_item = self.m_fhead_item
-        head = self.m_frames.m_fhead_info[self.m_current_frame_number]
-        if displayed_genome_size < head:
-          head = -1
-        pt = self.m_inst_pts[head]
-        if pt.hidden():
-          head_item.hide()
-        else:
-          theta = pt.circle().oTheta() + pt.position() * pt.circle().dTheta()
-          x = pt.circle().radius()*math.cos(theta) + pt.circle().centerX()
-          y = pt.circle().radius()*math.sin(theta) + pt.circle().centerY()
-
-          head_item.setX(x)
-          head_item.setY(y)
-          head_item.show()
+            head_item.setX(x)
+            head_item.setY(y)
+            head_item.show()
 
     self.emit(PYSIGNAL("frameShownSig"),(self.m_frames, self.m_current_frame_number))
     self.m_canvas.update()

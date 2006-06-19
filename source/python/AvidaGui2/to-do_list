@@ -80,10 +80,6 @@ Priority High-
   - hack with a pause signal upon a certain event completed.
 - toggle to see legend instruction names to colors
 - toggle to see letters
-- animation of organism divide
-  - or, for now, some way of indicating that divide has occurred
-    - say, perhaps, just drawing a line at divide points when copy is
-      complete
 - in petri dish, indication of each mutation as it occurs.
 
 Priority Medium-
@@ -92,7 +88,6 @@ Priority Medium-
 - add a general box that allows us to send a message to the user in the
   form of a box that pops up. after they have read it the user can click
   ok. (a modal box with an explanation point)
-- consider different icons in navigation bar and freezer (12/21/05)
 - change the text in analyze mode to list the population instead of what
   it currently state (12/21/05)
 
@@ -162,6 +157,11 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 * 30-Jan-06 first step for Windows is that if python is installed,
 Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 
+* June-06
+- animation of organism divide
+  - or, for now, some way of indicating that divide has occurred
+    - say, perhaps, just drawing a line at divide points when copy is
+      complete
 
 ************Josh*******************
 
