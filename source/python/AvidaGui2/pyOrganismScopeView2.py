@@ -58,6 +58,10 @@ class pyInstructionPoint:
   def position(self):
     return self.m_position
 
+class pyHead:
+  def __init__(self):
+    pass
+
 def checkDimensions(outer_diameter, n):
   print "checkDimensions(outer_diameter: %d, n: %d)" % (outer_diameter, n)
   sin_n = math.sin(math.pi/n)
@@ -290,7 +294,7 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_ihead_item = QCanvasEllipse(self.m_canvas)
         self.m_ihead_item.setSize(text_height + 6, text_height + 6)
         self.m_ihead_item.setZ(1.)
-        self.m_ihead_item.setBrush(QBrush(Qt.blue))
+        self.m_ihead_item.setBrush(QBrush(Qt.black))
 
         self.m_ihead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_ihead_bg_item.setSize(text_height + 6, text_height + 6)
@@ -299,7 +303,7 @@ class pyOrganismScopeView2(QCanvasView):
 
         self.m_ihead_text = QCanvasText(self.m_canvas)
         self.m_ihead_text.setFont(font)
-        self.m_ihead_text.setColor(Qt.blue)
+        self.m_ihead_text.setColor(Qt.black)
         self.m_ihead_text.setTextFlags(Qt.AlignCenter)
         self.m_ihead_text.setText("i")
         self.m_ihead_text.setZ(5.)
@@ -308,7 +312,7 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_rhead_item = QCanvasEllipse(self.m_canvas)
         self.m_rhead_item.setSize(text_height + 6, text_height + 6)
         self.m_rhead_item.setZ(1.)
-        self.m_rhead_item.setBrush(QBrush(Qt.green))
+        self.m_rhead_item.setBrush(QBrush(Qt.blue))
 
         self.m_rhead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_rhead_bg_item.setSize(text_height + 6, text_height + 6)
@@ -317,7 +321,7 @@ class pyOrganismScopeView2(QCanvasView):
 
         self.m_rhead_text = QCanvasText(self.m_canvas)
         self.m_rhead_text.setFont(font)
-        self.m_rhead_text.setColor(Qt.green)
+        self.m_rhead_text.setColor(Qt.blue)
         self.m_rhead_text.setTextFlags(Qt.AlignCenter)
         self.m_rhead_text.setText("r")
         self.m_rhead_text.setZ(5.)
@@ -344,7 +348,7 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_fhead_item = QCanvasEllipse(self.m_canvas)
         self.m_fhead_item.setSize(text_height + 6, text_height + 6)
         self.m_fhead_item.setZ(1.)
-        self.m_fhead_item.setBrush(QBrush(Qt.cyan))
+        self.m_fhead_item.setBrush(QBrush(Qt.darkGreen))
 
         self.m_fhead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_fhead_bg_item.setSize(text_height + 6, text_height + 6)
@@ -353,7 +357,7 @@ class pyOrganismScopeView2(QCanvasView):
 
         self.m_fhead_text = QCanvasText(self.m_canvas)
         self.m_fhead_text.setFont(font)
-        self.m_fhead_text.setColor(Qt.cyan)
+        self.m_fhead_text.setColor(Qt.darkGreen)
         self.m_fhead_text.setTextFlags(Qt.AlignCenter)
         self.m_fhead_text.setText("f")
         self.m_fhead_text.setZ(5.)
