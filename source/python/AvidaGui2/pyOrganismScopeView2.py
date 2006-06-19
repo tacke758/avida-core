@@ -206,21 +206,42 @@ class pyOrganismScopeView2(QCanvasView):
         item.setCanvas(None)
     if hasattr(self, "m_ihead_item") and self.m_ihead_item is not None:
       self.m_ihead_item.setCanvas(None)
+      self.m_ihead_bg_item.setCanvas(None)
+      self.m_ihead_text.setCanvas(None)
     if hasattr(self, "m_rhead_item") and self.m_rhead_item is not None:
       self.m_rhead_item.setCanvas(None)
+      self.m_rhead_bg_item.setCanvas(None)
+      self.m_rhead_text.setCanvas(None)
     if hasattr(self, "m_whead_item") and self.m_whead_item is not None:
       self.m_whead_item.setCanvas(None)
+      self.m_whead_bg_item.setCanvas(None)
+      self.m_whead_text.setCanvas(None)
     if hasattr(self, "m_fhead_item") and self.m_fhead_item is not None:
       self.m_fhead_item.setCanvas(None)
+      self.m_fhead_bg_item.setCanvas(None)
+      self.m_fhead_text.setCanvas(None)
 
     self.m_inst_pts = None
     self.m_inst_items = None
     self.m_inst_bg_items = None
     self.m_ihead_move_items = None
+
     self.m_ihead_item = None
+    self.m_ihead_bg_item = None
+    self.m_ihead_text = None
+
     self.m_rhead_item = None
+    self.m_rhead_bg_item = None
+    self.m_rhead_text = None
+
     self.m_whead_item = None
+    self.m_whead_bg_item = None
+    self.m_whead_text = None
+
     self.m_fhead_item = None
+    self.m_fhead_bg_item = None
+    self.m_fhead_text = None
+
     self.m_task_items = None
 
     self.m_task_names = None
