@@ -2,16 +2,16 @@ from qt import QFileDialog
 
 class pyImageFileDialog(QFileDialog):
 
-  def saveImageDialog(self):
+  def saveImageDialog(self, default = ""):
     """Dialog that lets user select where to save images.
     Returns filename and filetype."""
     # Let user select file format
     dialog_caption = "Export Image"
-    fd = self.getSaveFileName("", "JPEG (*.jpg);;PNG (*.png)", None,
+    fd = self.getSaveFileName(default, "JPEG (*.jpg);;PNG (*.png)", None,
                               "Save As", dialog_caption)
     filename = str(fd)
     if filename == "":
-      return
+      return None, None
 
     if filename[-4:].lower() == ".jpg":
       type = "JPEG"

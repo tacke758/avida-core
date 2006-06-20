@@ -129,16 +129,32 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     dlg = pyButtonListDialog("Save Image", "Choose object to save",
                              ["Petri Dish", "Graph"])
     res = dlg.showDialog()
+    if len(res) == 0:
+      return
 
     img_dlg = pyImageFileDialog()
-    filename, type = img_dlg.saveImageDialog()
+
+    # get population name
+    name = str(self.m_one_pop_petri_dish_ctrl.PopulationTextLabel.text())
+
+    # get update
+    stats = update = None
+    if self.m_one_pop_petri_dish_ctrl.m_avida:
+      stats = self.m_one_pop_petri_dish_ctrl.m_avida.m_population.GetStats()
+    if stats: update = stats.GetUpdate()
 
     # Save the image
     if res[0] == "Petri Dish":
+      filename, type = img_dlg.saveImageDialog(
+        name + "-" + "petridish-update" + str(update))
       p = self.m_one_pop_petri_dish_ctrl.getPetriDishPixmap()
-      p.save(filename, type, 100)
+      if filename:
+        p.save(filename, type, 100)
     else:
-      self.m_one_pop_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
+      filename, type = img_dlg.saveImageDialog(
+        name + "-" + "graph-update" + str(update))
+      if filename:
+        self.m_one_pop_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
 
   def printSlot(self):
     "Let user choose what object to print and send signal to appropriate slot"

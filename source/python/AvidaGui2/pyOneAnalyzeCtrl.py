@@ -96,4 +96,5 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     "Save image of graph"
     dlg = pyImageFileDialog()
     filename, type = dlg.saveImageDialog()
-    self.m_one_ana_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
+    if filename:
+      self.m_one_ana_graph_ctrl.m_graph_ctrl.saveImage(filename, type)

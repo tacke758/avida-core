@@ -96,9 +96,18 @@ Priority Low-
 
 ************Josh*******************
 
-06-Jun-06 Change .csv to .txt extension in export dialog
-
 30-May-06 Fill out save image dialog with default filename that includes update and other info
+  19-Jun-06 Finished default filename for population mode.  Need to finish analyze mode
+
+12-Jun-06 Fix color printing in graph
+
+12-Jun-06 Add documentation about saving and exporting excel data and images
+
+12-Jun-06 Add ability to analyze more than one population.
+
+01-Apr-06 Get Windows automated builds working on Devolab machine
+
+08-Jun-06 Add printing/saving images to organism and population stats view.
 
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
@@ -168,3 +177,4 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 16-Jan-06 Get Windows version working -- Finished 21-Feb-06
 29-Apr-06 Export Excel style (comma delimited) files -- Finished 06-Jun-06
 30-May-06 Printing of petri dish and of color scale -- Finished 06-Jun-06
+06-Jun-06 Change .csv to .txt extension in export dialog -- Finished 19-Jun-06

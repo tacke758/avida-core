@@ -50,11 +50,11 @@ class pyAvidaStatsInterface:
   def export(self, path):
     "Export stats to a file"
     dialog_caption = "Export Analysis"
-    fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.csv)", None,
+    fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.txt);;CSV (Excel compatible) (*.csv)", None,
                                      "export as", dialog_caption)
     filename = str(fd)
-    if (filename[-4:].lower() != ".csv"):
-      filename += ".csv"
+    if (filename[-4:].lower() != ".txt"):
+      filename += ".txt"
 
     checks = []
     # dictionary indexed by stat name so we can lookup stats to export

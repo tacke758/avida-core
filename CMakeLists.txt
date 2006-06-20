@@ -100,6 +100,9 @@ OPTION(AVD_PY_BINDINGS
   "Enable Python interface to Avida. (EXPERIMENTAL)"
   OFF
 )
+
+# Monolithic build is required for the Python bindings on Windows with the
+# MinGW GCC toolchain
 OPTION(AVD_PY_MONOLITHIC
   "Monolithic Python interface. (ignored if AVD_PY_BINDINGS is OFF)"
   ON
