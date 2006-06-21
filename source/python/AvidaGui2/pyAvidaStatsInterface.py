@@ -6,9 +6,24 @@ from pyButtonListDialog import pyButtonListDialog
 from qt import QFileDialog
 import os.path
 
+class pyAvidaStatsEntry:
+  def __init__(self, name, file, index, func):
+    self.name = name
+    self.file = file
+    self.index = index
+    self.func = func
+  def setname(self, name):
+    self.name = name
+  def setfile(self, file):
+    self.file = file
+  def setindex(self, index):
+    self.index = index
+  def setfunc(self, func):
+    self.func = func
+
 class pyAvidaStatsInterface:
   def __init__(self):
-    self.m_entries = (
+    self.m_e = (
       ('None',                          None,            0, None),
       ('Average Metabolic Rate',                 'average.dat',   2, lambda s: s.GetAveMerit()),
       ('Average Fitness',               'average.dat',   4, lambda s: s.GetAveFitness()),
@@ -27,10 +42,14 @@ class pyAvidaStatsInterface:
 #      ('Number of Births',              'count.dat',     9, lambda s: s.GetNumBirths()),
 #      ('Number of Deaths',              'count.dat',    10, lambda s: s.GetNumDeaths()),
     )
+    self.m_entries = []
+    for entry in self.m_e:
+      self.m_entries.append(pyAvidaStatsEntry(entry[0], entry[1], entry[2],
+                                              entry[3]))
 
   def getValue(self, entry_index, stats):
     if entry_index:
-      return self.m_entries[entry_index][3](stats)
+      return self.m_entries[entry_index].func(stats)
 
   def load(self, path, filename, colx, coly):
     "Load stats from file"
@@ -47,8 +66,9 @@ class pyAvidaStatsInterface:
       y_array[line_id] = line.GetWord(coly - 1).AsDouble()
     return x_array, y_array
 
-  def export(self, path):
-    "Export stats to a file"
+  def export(self, paths):
+    """Export stats to a file.  Can export multiple populations now.
+    paths is a array of tuples containing short name and full path. """
     dialog_caption = "Export Analysis"
     fd = QFileDialog.getSaveFileName("", "CSV (Excel compatible) (*.txt);;CSV (Excel compatible) (*.csv)", None,
                                      "export as", dialog_caption)
@@ -62,9 +82,9 @@ class pyAvidaStatsInterface:
     stat_cnt = 0
     for stat in self.m_entries:
       # Note: this relies on labeling dummy stats with None
-      if stat[0] != "None":
-        stats[stat[0]] = stat_cnt
-        checks.append(stat[0])
+      if stat.name != "None":
+        stats[stat.name] = stat_cnt
+        checks.append(stat.name)
       stat_cnt += 1
 
     dialog = pyButtonListDialog(dialog_caption, "Choose stats to export",
@@ -80,20 +100,43 @@ class pyAvidaStatsInterface:
     data = {}
 
     # Load stats for selected exports
-    # TODO: more efficient loading
-    for item in res:
-      idx = stats[item]
-      label1 = self.m_entries[idx][0]
-      data[item] = self.load(path, self.m_entries[idx][1], 1,
-                             self.m_entries[idx][2])
+    for population, path in paths:
+      data[population] = {}
+      for item in res:
+        idx = stats[item]
+        label1 = self.m_entries[idx].name
+        data[population][item] = self.load(path, self.m_entries[idx].file, 1,
+                                           self.m_entries[idx].index)
 
     out_file = open(filename, 'w')
-    out_file.write("Update,%s\n" % (",".join(res)))
-    # TODO: get it working with zip
-    #print zip([data[elem][1][i] for elem in res])        
-    num_updates = len(data[res[0]][0])
-    for i in range(num_updates):
-      out_file.write("%d,%s\n"
-                     % (i, ",".join([str(data[elem][1][i]) for elem in res])))
+
+    # write out the header
+    out_file.write("Update,")
+    header = ""
+    for population, path in paths:
+      if header != "":
+        header += ","
+      header += ",".join(["%s %s" % (population, item) for item in res])
+    header += "\n"
+    out_file.write(header)
+
+    max_updates = 0
+    # find the number of updates in each population
+    for population, path in paths:
+      data[population]["num_updates"] = len(data[population][res[0]][0])
+      if data[population]["num_updates"] > max_updates:
+        max_updates = data[population]["num_updates"]
+
+    # write out the data
+    for i in range(max_updates):
+      tmp = "%d" % (i)
+      for population, path in paths:
+        tmp += ","
+        if data[population]["num_updates"] > i:
+          tmp += ",".join([str(data[population][elem][1][i]) for elem in res])
+        else:
+          tmp += ",".join(["" for elem in res])
+      tmp += "\n"
+      out_file.write(tmp)
 
     out_file.close()

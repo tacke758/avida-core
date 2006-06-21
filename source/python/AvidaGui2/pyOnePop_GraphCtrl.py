@@ -25,7 +25,7 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_combo_box.clear()
     self.m_combo_box.setInsertionPolicy(QComboBox.AtBottom)
     for entry in self.m_avida_stats_interface.m_entries:
-      self.m_combo_box.insertItem(entry[0])
+      self.m_combo_box.insertItem(entry.name)
     self.connect(
       self.m_combo_box, SIGNAL("activated(int)"), self.modeActivatedSlot)
 
@@ -52,17 +52,18 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         filename, colx, coly)
 
   def modeActivatedSlot(self, index):
-#    self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index][0])
-    self.m_graph_title.setText(self.m_avida_stats_interface.m_entries[index][0])
+#    self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index].name)
+    self.m_graph_title.setText(
+      self.m_avida_stats_interface.m_entries[index].name)
     self.m_graph_ctrl.clear()
     if index:
       self.load(
         self.m_session_mdl.m_tempdir_out,
-        self.m_avida_stats_interface.m_entries[index][1],
+        self.m_avida_stats_interface.m_entries[index].file,
         1,
-        self.m_avida_stats_interface.m_entries[index][2]
+        self.m_avida_stats_interface.m_entries[index].index
       )
-      self.m_graph_ctrl.m_curve = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index][0])
+      self.m_graph_ctrl.m_curve = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index].name)
       self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
       self.m_graph_ctrl.setCurvePen(self.m_graph_ctrl.m_curve, QPen(Qt.red))
       self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.curve(self.m_graph_ctrl.m_curve).boundingRect())
@@ -125,7 +126,7 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_combo_box.clear()
     self.m_combo_box.setInsertionPolicy(QComboBox.AtBottom)
     for entry in self.m_avida_stats_interface.m_entries:
-      self.m_combo_box.insertItem(entry[0])
+      self.m_combo_box.insertItem(entry.name)
     self.connect(
       self.m_combo_box, SIGNAL("activated(int)"), self.modeActivatedSlot)
 
@@ -141,5 +142,6 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
 
   def exportSlot(self):
     "Export stats to a file"
-    if self.m_combo_box.currentItem():    
-      self.m_avida_stats_interface.export(self.m_session_mdl.m_tempdir_out)
+    if self.m_combo_box.currentItem():
+      self.m_avida_stats_interface.export(
+        [("", self.m_session_mdl.m_tempdir_out)])
