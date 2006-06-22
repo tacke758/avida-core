@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pyOrganismScopeView2 import pyOrganismScopeView2, pyOrganismAnimator
+from pyOrganismScopeView2 import pyOrganismScopeView2
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
 

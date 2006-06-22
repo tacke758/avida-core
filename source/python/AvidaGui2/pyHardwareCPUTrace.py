@@ -37,6 +37,7 @@ class pyHardwareCPUTrace:
     self.m_last_copy_info = []
     self.m_ihead_moves = []
     self.m_ihead_moves_info = []
+    self.m_ihead_moves_snapshot = []
     self.m_ihead_moves_counts = {}
 
     self.m_last_copied_instruction = 0
@@ -87,6 +88,7 @@ class pyHardwareCPUTrace:
           move_count = self.m_ihead_moves_counts[(self.m_ihead_info[-2], self.m_ihead_info[-1])] + 1
         self.m_ihead_moves_counts[(self.m_ihead_info[-2], self.m_ihead_info[-1])] = move_count
         self.m_ihead_moves.append((self.m_ihead_info[-2], self.m_ihead_info[-1], move_count))
+    self.m_ihead_moves_snapshot.append(self.m_ihead_moves_counts.copy())
     self.m_ihead_moves_info.append(len(self.m_ihead_moves))
 
   def recordGenotypeSummary(self, analyze_genotype):
