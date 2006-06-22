@@ -5172,6 +5172,39 @@ void cAnalyze::CommandLevenstein(cString cur_string)
   df.Endl();
 }
 
+void cAnalyze::CommandLevensteinSingle(cString cur_string)
+{
+  cString filename("lev.dat");
+  if (cur_string.GetSize() != 0) filename = cur_string.PopWord();
+  ofstream & fp = data_file_manager.GetOFStream(filename);
+
+  int batch1 = PopBatch(cur_string.PopWord());
+  
+  cout << "Calculating Levenstein Distance between most abundant genotype and other genotypes... ";
+  cout << endl; 
+  cout.flush();
+  
+  // Setup some variables;
+  tListIterator<cAnalyzeGenotype> list1_it(batch[batch1].List());
+  cAnalyzeGenotype * reference_genotype = list1_it.Next(); 
+  cAnalyzeGenotype * genotype1; 
+  list1_it.Reset();
+
+  fp << "# Levenstein distance information"; 
+  fp << endl; 
+  // Loop through all of the genotypes in the batch batch...
+  while ((genotype1 = list1_it.Next()) != NULL) {
+      const int dist = cGenomeUtil::FindEditDistance(reference_genotype->GetGenome(),
+                                                     genotype1->GetGenome());
+      fp << dist; 
+      fp << " "; 
+  }
+  fp << endl; 
+  fp.close(); 
+}
+
+
+
 void cAnalyze::CommandSpecies(cString cur_string)
 {
   cString filename("species.dat");
@@ -7578,6 +7611,7 @@ void cAnalyze::SetupCommandDefLibrary()
   // Population comparison commands...
   AddLibraryDef("HAMMING", &cAnalyze::CommandHamming);
   AddLibraryDef("LEVENSTEIN", &cAnalyze::CommandLevenstein);
+  AddLibraryDef("LEVENSTEIN_SINGLE", &cAnalyze::CommandLevensteinSingle);
   AddLibraryDef("SPECIES", &cAnalyze::CommandSpecies);
   AddLibraryDef("RECOMBINE", &cAnalyze::CommandRecombine);
   

@@ -176,6 +176,7 @@ private:
   // Population Comparison Commands...
   void CommandHamming(cString cur_string);
   void CommandLevenstein(cString cur_string);
+  void CommandLevensteinSingle(cString cur_string);
   void CommandSpecies(cString cur_string);
   void CommandRecombine(cString cur_string);
 
