@@ -63,8 +63,8 @@ class pyPetriDishCtrl(QWidget):
     self.m_petri_dish_ctrl_h_scrollBar = QScrollBar(0,371,0,20,185,Qt.Horizontal,self.m_canvas_view)
     self.m_petri_dish_ctrl_v_scrollBar = QScrollBar(0,371,0,20,185,Qt.Vertical,self.m_canvas_view)
     # end junk settings
-    self.m_petri_dish_ctrl_h_scrollBar.setGeometry(0,354, 371,self.m_scroll_bar_width)
-    self.m_petri_dish_ctrl_v_scrollBar.setGeometry(354,0,self.m_scroll_bar_width,354)
+    self.m_petri_dish_ctrl_h_scrollBar.setGeometry(0,365, 380,self.m_scroll_bar_width)
+    self.m_petri_dish_ctrl_v_scrollBar.setGeometry(365,0,self.m_scroll_bar_width,365)
 
     self.m_petri_dish_layout.addWidget(self.m_canvas_view)
     self.m_changed_cell_items = []
