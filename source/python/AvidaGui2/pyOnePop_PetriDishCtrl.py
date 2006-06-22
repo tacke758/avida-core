@@ -22,6 +22,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_session_mdl = session_mdl
     self.m_avida = None
     self.dishDisabled = False
+    
 
     self.m_petri_dish_ctrl.construct(self.m_session_mdl)
 
@@ -62,6 +63,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_map_profile = pyMapProfile(self.m_session_mdl)
     for i in range(self.m_map_profile.getSize()):
       self.m_mode_combobox.insertItem(self.m_map_profile.getModeName(i))
+    print "emiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiting"
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("initializeWithDefaultPetriDishSig"),())
+
  
     # Start with second map mode -- "Fitness".
     self.m_mode_combobox.setCurrentItem(2)
@@ -111,12 +115,13 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
        QToolTip.remove(self.m_petri_dish_toggle)
        QToolTip.add(self.m_petri_dish_toggle,
          "Flip to see the <b><i>Environmental Settings</i></b>")
-       self.m_session_mdl.m_session_mdtr.emit(
-         PYSIGNAL("doInitializeAvidaPhaseISig"),
-         (self.m_session_mdl.m_tempdir,))
+       if (self.dishDisabled == False):
+         self.m_session_mdl.m_session_mdtr.emit(
+           PYSIGNAL("doInitializeAvidaPhaseISig"),
+           (self.m_session_mdl.m_tempdir,))
 
  
-  def MakeConfigVisiableSlot (self):
+  def MakeConfigVisibleSlot (self):
     if self.dishDisabled:
       return
     current_page = self.m_petri_dish_widget_stack.visibleWidget()
@@ -207,16 +212,19 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
       current_page = self.m_petri_dish_widget_stack.visibleWidget()
       current_page_int = self.m_petri_dish_widget_stack.id(current_page)
-      self.MakeConfigVisiableSlot()
+      self.MakeConfigVisibleSlot()
 
   def DefrostSlot(self, dish_name, petri_dict):
-    descr()
-    if self.isVisible():
+      descr()
+
+#    if self.isVisible():
+      print "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ"
+      print "self is ", self
 
       Restart_Only_Flag = False
       # If the petri dish is already filled prompt the user if they want to 
       # freeze the existing dish
-
+      
       if self.m_petri_configure_ctrl.DishDisabled:
 
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
@@ -240,7 +248,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
             return
 
       self.RenameDishSlot(dish_name)
-      self.MakeConfigVisiableSlot()
+      self.MakeConfigVisibleSlot()
       self.finishedPetriDish = False
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("FillDishSig"), 
         (dish_name, petri_dict, ))

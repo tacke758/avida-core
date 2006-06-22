@@ -22,6 +22,7 @@ class pyFreezerListView(QListView):
     self.m_session_mdl = session_mdl
 
   def contentsDropEvent(self, e):
+    print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     descr(e)
     freezer_item_name = QString()
     if e.source() is self:
@@ -275,6 +276,8 @@ class pyFreezerCtrl(QWidget):
       thawed_item = pyReadFreezer(file_name)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
+      print "item.text(0) is ", item.text(0)
+      print "thawed_item is ", thawed_item
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
         (file_name,))
 

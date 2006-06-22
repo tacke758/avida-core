@@ -29,6 +29,13 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
+    print "conecting initiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalize"
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("initializeWithDefaultPetriDishSig"),
+       self.Restart_ExpActionSlot)
+
+
+
+
     if (session_mdl.directory_chosen == False):
       self.setCaption('%s - %s' % (avida_ed_version_string, "Unnamed  Workspace") )
     else:
@@ -110,7 +117,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     self.connect(self.controlRestart_ExpAction,SIGNAL("activated()"),
       self.Restart_ExpActionSlot)
-
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("addStatusBarWidgetSig"), self.addStatusBarWidgetSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("removeStatusBarWidgetSig"), self.removeStatusBarWidgetSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("statusBarMessageSig"), self.statusBarMessageSlot)
@@ -431,9 +437,9 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.emit(PYSIGNAL("quitAvidaPhaseIISig"), ())
 
   def Restart_ExpActionSlot(self):
-
+    print "in restarttttttttttttttttttttttttttttttttttttt"
     # If the user clicks the repopulate button pretend that they double
-    # the default empty petri dish from the freezer
+    # click the default empty petri dish from the freezer
 
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
       "@default.empty")
