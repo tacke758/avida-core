@@ -82,6 +82,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.connect(self.AncestorIconView, 
       SIGNAL("dropped(QDropEvent*,const QValueList<QIconDragItem>&)"),
       self.petriAncestorDroppedSlot)
+    self.connect(self.AncestorIconView, SIGNAL("clicked(QIconViewItem*)"),
+      self.setAncestorDragSlot)
     self.ChangeMutationTextSlot()
     self.ChangeWorldSizeTextSlot()
     self.m_session_mdl.m_session_mdtr.emit(
@@ -597,8 +599,12 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     descr(e)
 
     freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
+ 
+    # freezer_item_name is a string...the file name 
+
+    if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
+      print "BDB:dragEnterEvent -- freezer item name = " + freezer_item_name
       if os.path.exists(freezer_item_name) == False:
         descr("that was not a valid path (1)")
       else: 
@@ -611,6 +617,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
+      print "BDB:dropEvent -- freezer item name = " + freezer_item_name
       if os.path.exists(freezer_item_name) == False:
         print "that was not a valid path (2)" 
       else: 
@@ -626,6 +633,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
       freezer_item_name = str(e.encodedData("text/plain"))
+      print "BDB:petriDroppedEvent -- freezer item name = " + freezer_item_name
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
@@ -638,8 +646,29 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
       freezer_item_name = str(e.encodedData("text/plain"))
+      print "BDB:petriAncestorDroppedEvent -- freezer item name = " + freezer_item_name
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
         tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
         return
+
+  # class itemDrag(QTextDrag):
+  #   def __init__(self, item_name, parent=None, name=None):
+  #     QStoredDrag.__init__(self, 'item name (QString)', parent, name)
+  #     self.setText(item_name)
+  #     descr(item_name)
+
+
+  def setAncestorDragSlot(self, item):
+    descr()
+    
+    # if the user clicks on a portion of the ancestor icon view that does not
+    # have an actual icon quit this subroutine
+
+    print type(item)
+    if (not item):
+      print "BDB -- Not an item"
+      return
+    dragHolder = QTextDrag("ancestor." + str(item.text()), self.AncestorIconView, "dragname")
+    dragHolder.dragCopy()

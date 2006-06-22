@@ -77,7 +77,7 @@
                         <string>Cancel</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>&lt;p&gt;Don't quit, return to the program&lt;/P&gt;</string>
+                        <string>&lt;p&gt;Don't quit; return to the program&lt;/P&gt;</string>
                     </property>
                 </widget>
             </hbox>

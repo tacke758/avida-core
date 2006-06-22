@@ -179,7 +179,7 @@ class pyWriteGenesisEvent:
     # array (ignoring the edges)
 
     if (num_ancestors > 9):
-      return int(float(world_x * world_y) * (float(org_num + 1)/float(num_ancestors + 1))) 
+      return int(float(world_x * world_y) * (float(org_num + 1)/float(num_ancestors + 1))) % (world_x * world_y)
 
     spots = {};
     if (num_ancestors == 1):
@@ -212,4 +212,4 @@ class pyWriteGenesisEvent:
     x = spots[org_num * 2]
     y = spots[(org_num * 2) + 1]
     
-    return int((round(world_y * y) * world_x) + round(world_x * x))
+    return int((round(world_y * y) * world_x) + round(world_x * x)) % (world_x * world_y)

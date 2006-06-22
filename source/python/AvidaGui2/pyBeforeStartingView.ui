@@ -78,7 +78,7 @@
                     <bool>false</bool>
                 </property>
                 <property name="toolTip" stdset="0">
-                    <string>&lt;p&gt;Use a directory that has already been created&lt;/P&gt;</string>
+                    <string>&lt;p&gt;Use a workspace that has already been created&lt;/P&gt;</string>
                 </property>
             </widget>
             <widget class="QPushButton">
@@ -126,7 +126,7 @@
                     <bool>true</bool>
                 </property>
                 <property name="toolTip" stdset="0">
-                    <string>&lt;p&gt;Don't freeze and return to the program&lt;/P&gt;</string>
+                    <string>&lt;p&gt;Don't freeze; return to the program&lt;/P&gt;</string>
                 </property>
             </widget>
         </vbox>

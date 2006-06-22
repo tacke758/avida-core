@@ -136,7 +136,7 @@
                                     <enum>Horizontal</enum>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>&lt;p&gt;Set Mutation Rate from 0 to 100 % (use right and left arrow keys to fine tune the value)&lt;/P&gt;</string>
+                                    <string>&lt;p&gt;Set Mutation Rate from 0 to 100 % &lt;br&gt;(use right and left arrow keys to fine tune the value)&lt;/P&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLineEdit" row="1" column="1">
@@ -170,7 +170,7 @@
                                     <string>xxxxx%; </string>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>&lt;P&gt;Enter the exact mutation rate (1 to 100%)&lt;/p&gt;</string>
+                                    <string>&lt;P&gt;Enter the exact mutation rate (0.0 to 100.0%)&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
@@ -189,7 +189,7 @@
                                     <set>AlignCenter</set>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Set the rate of mutation from 0 to 1</string>
+                                    <string>&lt;p&gt;Set the rate of mutation from 0 to 100%&lt;/p&gt;</string>
                                 </property>
                             </widget>
                         </grid>
@@ -251,7 +251,7 @@
                                     <enum>Horizontal</enum>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Set the size of the petri dish (1 to 100)</string>
+                                    <string>&lt;p&gt;Set the height and width of the petri dish (1 to 100)&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLayoutWidget" row="1" column="1">
@@ -293,7 +293,7 @@
                                             <string>000; </string>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>&lt;p&gt;Enter world size&lt;/p&gt;</string>
+                                            <string>&lt;p&gt;Enter exact height and width of the petri dish&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QLabel">
@@ -437,6 +437,9 @@
                     <property name="arrangement">
                         <enum>TopToBottom</enum>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;The name of the organism(s) that will start the population on an empty petri dish (normally dragged in)&lt;/p&gt;</string>
+                    </property>
                 </widget>
             </vbox>
         </widget>
@@ -536,7 +539,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>When a new organism is split off place it in one of the 8 cells around the parent</string>
+                        <string>&lt;p&gt;When a new organism is split off place it in one of the 8 cells around the parent&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton">
@@ -554,7 +557,7 @@
                         <string>Anywhere, randomly</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>When a new organism is split off place it in a cell any where in the petri dish</string>
+                        <string>&lt;p&gt;When a new organism is split off place it in a cell anywhere in the petri dish&lt;/p&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -1016,7 +1019,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Each time this petri is run the results will not be exactly the same</string>
+                        <string>&lt;p&gt;Each time this petri dish is run the mutations will be different&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton">
@@ -1034,7 +1037,7 @@
                         <string>Yes</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Each time this petri is run the results will be exactly the same</string>
+                        <string>&lt;p&gt;Each time this petri dish is run the mutations will be exactly the same&lt;/p&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -1143,7 +1146,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Program will run until you pause it using the button under the petri dish</string>
+                        <string>&lt;p&gt;Run will continue until you pause it using the button under the petri dish&lt;/P&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton">
@@ -1165,7 +1168,7 @@
                         <string>At</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Run will pause at a given update and wait to you press the play button under the petri dish</string>
+                        <string>&lt;p&gt;Run will pause at a given update and wait to you press the play button under the petri dish&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QSpinBox">
@@ -1193,6 +1196,9 @@
                     </property>
                     <property name="value">
                         <number>10000</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Run will pause at a given update and wait to you press the play button under the petri dish&lt;/p&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -1229,7 +1235,7 @@
                 <string>Freeze Petri Dish</string>
             </property>
             <property name="toolTip" stdset="0">
-                <string>Save either an empty or full petri dish to the freezer</string>
+                <string>&lt;p&gt;Save either an empty or full petri dish to the freezer&lt;/p&gt;</string>
             </property>
         </widget>
     </vbox>

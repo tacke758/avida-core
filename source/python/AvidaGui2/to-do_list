@@ -13,13 +13,11 @@ Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
-15-Jun-06 Move Freezer/Viewer line up 
-
 15-Jun-06 Drop on viewer icon
 
 15-Jun-06 Change menu item "Restart Experiment" -> "Start New Experiment"
 
-15-Jun-06 Add Viewer to view choice on menu
+15-Jun-06 Add Viewers to view choice on menu
 
 15-Jun-06 Add text "environmental settings" on main screen 
 
@@ -156,6 +154,8 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 12-Jun-06 Deactivate Help Menus -- Finished 14-Jun-06
 
 -Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it -- Finished 14-Jun-06
+
+15-Jun-06 Move Freezer/Viewer line up -- Finished 16-Jun-06
 
 ************Kaben******************
 

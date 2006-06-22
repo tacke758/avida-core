@@ -113,7 +113,7 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
                                 <iconset>image1</iconset>
                             </property>
                             <property name="toolTip" stdset="0">
-                                <string>Flip to see &lt;b&gt;&lt;i&gt;Organism Scope Settings&lt;/i&gt;&lt;/b&gt;</string>
+                                <string>Flip to see &lt;b&gt;&lt;i&gt;Organism Viewer Settings&lt;/i&gt;&lt;/b&gt;</string>
                             </property>
                         </widget>
                         <spacer>
@@ -229,12 +229,14 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
         <container>0</container>
         <sizepolicy>
             <hordata>5</hordata>
-            <verdata>5</verdata>
+            <verdata>0</verdata>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image2</pixmap>
         <property type="0">3</property>
+        <property type="1">pyOrganismConfigureCtrl</property>
+        <property type="3">-1</property>
         <property type="pyOrganismConfigureCtrl"></property>
         <property type="-1">1</property>
     </customwidget>

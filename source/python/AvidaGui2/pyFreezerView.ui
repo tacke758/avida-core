@@ -104,7 +104,7 @@
                 <enum>AllColumns</enum>
             </property>
             <property name="toolTip" stdset="0">
-                <string>Storage for</string>
+                <string>&lt;p&gt;Storage for existing petri dishes and organisims&lt;/p&gt;</string>
             </property>
         </widget>
     </vbox>

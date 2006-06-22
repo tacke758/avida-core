@@ -25,7 +25,6 @@ class pySquareVBoxLayout(QVBoxLayout):
   def hasHeightForWidth(self): return True
   def heightForWidth(self, w): return w
 
-#class pyPetriDishCtrl(pyPetriDishView):
 class pyPetriDishCtrl(QWidget):
   def __init__(self,parent = None,name = None,fl = 0):
     #pyPetriDishView.__init__(self,parent,name,fl)
@@ -84,12 +83,22 @@ class pyPetriDishCtrl(QWidget):
       PYSIGNAL("orgClickedOnSig"), self.updateOrgClickedOutlineCellNumberSlot)
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("orgClickedOnSig"), self.setDragSlot)
-    self.connect(self.m_petri_dish_ctrl_h_scrollBar, SIGNAL("valueChanged(int)"), self.moveCanvasHorizontallySlot)    
-    self.connect(self.m_petri_dish_ctrl_h_scrollBar, SIGNAL("nextLine()"), self.hbarScrollNextLineSlot)    
-    self.connect(self.m_petri_dish_ctrl_h_scrollBar, SIGNAL("prevLine()"), self.hbarScrollPrevLineSlot)    
-    self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("valueChanged(int)"), self.moveCanvasVerticallySlot)    
-    self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("nextLine()"), self.vbarScrollNextLineSlot)    
-    self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("prevLine()"), self.vbarScrollPrevLineSlot)    
+    self.connect(self.m_petri_dish_ctrl_h_scrollBar, 
+                 SIGNAL("valueChanged(int)"), 
+                 self.moveCanvasHorizontallySlot)    
+    self.connect(self.m_petri_dish_ctrl_h_scrollBar, 
+                 SIGNAL("nextLine()"), 
+                 self.hbarScrollNextLineSlot)    
+    self.connect(self.m_petri_dish_ctrl_h_scrollBar, 
+                 SIGNAL("prevLine()"), 
+                 self.hbarScrollPrevLineSlot)    
+    self.connect(self.m_petri_dish_ctrl_v_scrollBar, 
+                 SIGNAL("valueChanged(int)"), 
+                 self.moveCanvasVerticallySlot)    
+    self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("nextLine()"), 
+                 self.vbarScrollNextLineSlot)    
+    self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("prevLine()"), 
+                 self.vbarScrollPrevLineSlot)    
 
 
   def restart(self):

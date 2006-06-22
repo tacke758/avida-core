@@ -37,9 +37,9 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     if (current_page_int == 0):
        self.m_organism_scope_widget_stack.raiseWidget(1)
        QToolTip.remove(self.m_organism_scope_toggle)
-       QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Scope</i></b>")
+       QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Viewer</i></b>")
     else:
        self.m_organism_scope_widget_stack.raiseWidget(0)
        QToolTip.remove(self.m_organism_scope_toggle)
-       QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Scope Settings</i></b>")
+       QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Viewer Settings</i></b>")
 
