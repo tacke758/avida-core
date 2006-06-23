@@ -46,7 +46,9 @@ class pyAvida(qt.QObject):
 
     self.m_avida_threaded_driver = pyAvidaThreadedDriver(self.m_environment)
     self.m_avida_threaded_driver.construct()
+    print "I am making a population!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     self.m_population = self.m_avida_threaded_driver.GetPopulation()
+    print "Population made"
     self.m_avida_thread_mdtr = pyMdtr()
     self.m_should_update = False
 

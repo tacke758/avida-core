@@ -74,6 +74,12 @@ def AvidaEd():
 
     edu_main_controller.m_prompt_for_workspace_ctrl = session_ctrl.m_session_controller_factory.m_session_controllers_list[2]
 
+    #launching the loading of the default petri dish from here
+    edu_main_controller.m_edu_workspace_ctrl.m_session_mdl.m_session_mdtr.emit( 
+      qt.PYSIGNAL("doInitializeAvidaPhaseISig"),
+      (edu_main_controller.m_edu_workspace_ctrl.m_session_mdl.m_tempdir,))
+
+
   finally:
     s_splash.clear()
     s_splash.hide()

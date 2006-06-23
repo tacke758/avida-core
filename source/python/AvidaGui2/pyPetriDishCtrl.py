@@ -100,6 +100,12 @@ class pyPetriDishCtrl(QWidget):
     self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("prevLine()"), 
                  self.vbarScrollPrevLineSlot)    
 
+#  def resizeEvent (self, event):
+#    print "JUST RESIZED----------------------------------------------------->"
+#    print self.width()
+#    print self.height()
+
+
 
   def restart(self):
     self.m_cell_info = None
@@ -122,20 +128,6 @@ class pyPetriDishCtrl(QWidget):
       self.m_map_cell_width,
       self.m_map_cell_width,
       self.m_canvas)
-
-  #@JMC delete this...just testing something
-  def createNewPseudoCellItem(self, n):
-    #self.m_occupied_cells_ids.append(n)
-    return pyPopulationCellItem(
-      None,
-      (n%self.m_world_w) * self.m_map_cell_width,
-      (n/self.m_world_w) * self.m_map_cell_width,
-      self.m_map_cell_width,
-      self.m_map_cell_width,
-      self.m_canvas)
-
-
-
 
   def setAvidaSlot(self, avida):
     print "pyPetriDishCtrl.setAvidaSlot() ..."
@@ -174,20 +166,20 @@ class pyPetriDishCtrl(QWidget):
     self.m_background_rect.setPen(QPen(Qt.black))
     self.m_background_rect.show()
     self.m_background_rect.setZ(0.0)
-    print "COULD PAINT CELLS HERE"
-
 
     if self.m_cell_info: del self.m_cell_info
     self.m_cell_info = [None] * self.m_world_w * self.m_world_h
     self.m_occupied_cells_ids = []
+
+    print "COULD PAINT CELLS HERE"
+#    self.updateCellItem(465)
+
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0
     self.m_cs_value_range = 0
     self.m_changed_cell_items = self.m_cell_info[:]
     self.updateCellItems(True)
-    print "Trying to paint cells HERE"
-#    self.updatePseudoCellItem(465)
 
   def setDragSlot(self, org_clicked_on_item = None):
     descr(org_clicked_on_item)
@@ -220,21 +212,9 @@ class pyPetriDishCtrl(QWidget):
           self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
 
   def updateCellItem(self, cell_id):
+    print "Kabennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
     if self.m_cell_info[cell_id] is None:
       self.m_cell_info[cell_id] = self.createNewCellItem(cell_id)
-    cell_info_item = self.m_cell_info[cell_id]
-    self.m_indexer(cell_info_item, self.m_cs_min_value, self.m_cs_value_range)
-    cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
-
-    if self.m_org_clicked_on_item:
-      if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
-        cell_info_item.setPen(QPen(QColor(0,255,0)))
-        self.m_last_cell_outlined = cell_info_item      
-
-  #delete @JMC just testing
-  def updatePseudoCellItem(self, cell_id):
-    if self.m_cell_info[cell_id] is None:
-      self.m_cell_info[cell_id] = self.createNewPseudoCellItem(cell_id)
     cell_info_item = self.m_cell_info[cell_id]
     self.m_indexer(cell_info_item, self.m_cs_min_value, self.m_cs_value_range)
     cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)

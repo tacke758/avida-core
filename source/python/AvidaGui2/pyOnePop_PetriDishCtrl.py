@@ -119,6 +119,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
          self.m_session_mdl.m_session_mdtr.emit(
            PYSIGNAL("doInitializeAvidaPhaseISig"),
            (self.m_session_mdl.m_tempdir,))
+         
 
  
   def MakeConfigVisibleSlot (self):
@@ -218,7 +219,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       descr()
 
 #    if self.isVisible():
-      print "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ"
       print "self is ", self
 
       Restart_Only_Flag = False
@@ -248,7 +248,11 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
             return
 
       self.RenameDishSlot(dish_name)
-      self.MakeConfigVisibleSlot()
+      print "8888888888888888888888888888888888888888888888888888888888888888"
+#      self.m_session_mdl.m_session_mdtr.emit(
+#           PYSIGNAL("doInitializeAvidaPhaseISig"),
+#           (self.m_session_mdl.m_tempdir,))
+      #self.MakeConfigVisibleSlot()
       self.finishedPetriDish = False
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("FillDishSig"), 
         (dish_name, petri_dict, ))
