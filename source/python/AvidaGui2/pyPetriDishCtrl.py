@@ -1,13 +1,4 @@
 
-
-print """
-XXX fixme: in pyPetriDishCtrl.py,
-pyPetriDishCtrl.setAvidaSlot(),
-most of the code in this function should only be performed when
-self.m_avida is not None.
-@kgn
-"""
-
 from descr import *
 
 from AvidaCore import cConfig
