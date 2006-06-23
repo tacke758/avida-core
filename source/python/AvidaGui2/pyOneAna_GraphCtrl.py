@@ -27,46 +27,31 @@ class pyPopulationGraph:
     # Setup the combo boxes that control the graph
     self.layout = QHBoxLayout(None, 0, 6, "row%s_layout" %(label))
 
-    self.layout.spacer200_1 = QSpacerItem(23, 16, QSizePolicy.Preferred,
+    self.layout.spacer200_1 = QSpacerItem(23, 16, QSizePolicy.Expanding,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_1)
-
-    self.layout.m_population = QLabel(parent, "row%s_m_population" % (label))
-    self.layout.m_population.setMinimumWidth(100)
-    self.layout.addWidget(self.layout.m_population)
-    
-    self.layout.m_combo_box_1 = QComboBox(0, parent, "row%s_m_combo_box_1" % (label))
-    self.layout.m_combo_box_1_font = QFont(self.layout.m_combo_box_1.font())
-    self.layout.m_combo_box_1_font.setPointSize(11)
-    self.layout.m_combo_box_1.setFont(self.layout.m_combo_box_1_font)
-    self.layout.addWidget(self.layout.m_combo_box_1)
-
-    self.layout.m_combo_box_1_color = QComboBox(0, parent,
-                                           "row%s_m_combo_box_1_color" %(label))
-    self.layout.addWidget(self.layout.m_combo_box_1_color)
-    self.layout.spacer200_2 = QSpacerItem(40, 16, QSizePolicy.Expanding,
-                                     QSizePolicy.Minimum)
-    self.layout.addItem(self.layout.spacer200_2)
-
-    self.layout.m_combo_box_2 = QComboBox(0, parent,
-                                          "row%s_m_combo_box_2" % (label))
-    self.layout.m_combo_box_2_font = QFont(self.layout.m_combo_box_2.font())
-    self.layout.m_combo_box_2_font.setPointSize(11)
-    self.layout.m_combo_box_2.setFont(self.layout.m_combo_box_2_font)
-    self.layout.addWidget(self.layout.m_combo_box_2)
-    
-    self.layout.m_combo_box_2_color = QComboBox(0, parent,
-                                           "row%s_m_combo_box_2_color" %(label))
-    self.layout.addWidget(self.layout.m_combo_box_2_color)
-
-    self.layout.spacer200_3 = QSpacerItem(40, 16, QSizePolicy.Expanding,
-                                     QSizePolicy.Minimum)
-    self.layout.addItem(self.layout.spacer200_3)
 
     self.layout.m_del_button = QPushButton("-", parent)
     self.layout.addWidget(self.layout.m_del_button)
 
-    self.layout.spacer200_4 = QSpacerItem(75, 16, QSizePolicy.Expanding,
+    self.layout.spacer200_2 = QSpacerItem(20, 16, QSizePolicy.Preferred,
+                                     QSizePolicy.Minimum)
+    self.layout.addItem(self.layout.spacer200_2)
+
+    self.layout.m_population = QLabel(parent, "row%s_m_population" % (label))
+    self.layout.m_population.setMinimumWidth(100)
+    self.layout.addWidget(self.layout.m_population)
+
+    self.layout.spacer200_3 = QSpacerItem(20, 16, QSizePolicy.Preferred,
+                                     QSizePolicy.Minimum)
+    self.layout.addItem(self.layout.spacer200_3)
+
+    self.layout.m_combo_box_1_color = QComboBox(0, parent,
+                                                "row%s_m_combo_box_1_color" % (label))
+    self.layout.addWidget(self.layout.m_combo_box_1_color)
+
+
+    self.layout.spacer200_4 = QSpacerItem(25, 16, QSizePolicy.Expanding,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_4)
 
@@ -79,12 +64,10 @@ class pyPopulationGraph:
   def del_population_slot(self):
     "Remove this population's controls from the display"
     self.parent.layout().removeItem(self.layout)
+    self.parent.avail_colors.append(self.color)
     # hide the widgets
     self.layout.m_population.hide()
-    self.layout.m_combo_box_1.hide()
     self.layout.m_combo_box_1_color.hide()
-    self.layout.m_combo_box_2.hide()
-    self.layout.m_combo_box_2_color.hide()
     self.layout.m_del_button.hide()
     del self.parent.m_combo_boxes[self.label]
 
@@ -100,53 +83,28 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
   def construct_box(self, widget):
     "Initialize new combo box group with stat information"
-    widget.layout.m_combo_box_1.clear()
-    widget.layout.m_combo_box_2.clear()
-    widget.layout.m_combo_box_1.setInsertionPolicy(QComboBox.AtBottom)
-    widget.layout.m_combo_box_2.setInsertionPolicy(QComboBox.AtBottom)
-
-    # set up the combo boxes with plot options
-    for entry in self.m_avida_stats_interface.m_entries:
-      widget.layout.m_combo_box_1.insertItem(entry.name)
-    for entry in self.m_avida_stats_interface.m_entries:
-      widget.layout.m_combo_box_2.insertItem(entry.name)
-
     widget.layout.m_combo_box_1_color.clear()
-    widget.layout.m_combo_box_2_color.clear()
     for color in self.m_Colors:
       widget.layout.m_combo_box_1_color.insertItem(color[0])
-      widget.layout.m_combo_box_2_color.insertItem(color[0])
+
+    if len(self.avail_colors) > 0:
+      widget.color = self.avail_colors.pop()
+      widget.layout.m_combo_box_1_color.setCurrentItem(widget.color[2])
+    else:
+      widget.layout.m_combo_box_1_color.setCurrentItem(0)
 
     # connect combo boxes to signal
-    self.connect(widget.layout.m_combo_box_1, SIGNAL("activated(int)"),
-                 self.modeActivatedSlot)
-    self.connect(widget.layout.m_combo_box_2, SIGNAL("activated(int)"),
-                 self.modeActivatedSlot)
     self.connect(widget.layout.m_combo_box_1_color, SIGNAL("activated(int)"),
-                 self.modeActivatedSlot)
-    self.connect(widget.layout.m_combo_box_2_color, SIGNAL("activated(int)"),
                  self.modeActivatedSlot)
     self.connect(widget.layout.m_del_button, SIGNAL("clicked()"),
                  widget.del_population_slot)
 
-    # Start the left with second graph mode -- "Average Fitness"
-    widget.layout.m_combo_box_1.setCurrentItem(2)
-
-    # Start the right with zeroth mode -- "None"
-    widget.layout.m_combo_box_2.setCurrentItem(0)
-
-    # Start the left with default of red
-    widget.layout.m_combo_box_1_color.setCurrentItem(0)
-    widget.layout.m_combo_box_2_color.setCurrentItem(2)
 
     self.resize(self.sizeHint())
 
     # Show the contents
     widget.layout.m_population.show()
-    widget.layout.m_combo_box_1.show()
     widget.layout.m_combo_box_1_color.show()
-    widget.layout.m_combo_box_2.show()
-    widget.layout.m_combo_box_2_color.show()
     widget.layout.m_del_button.show()
 
   def construct(self, session_mdl):
@@ -154,32 +112,73 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.m_avida = None
 
     self.m_graph_ctrl.construct(self.m_session_mdl)
+    self.m_combo_box_1.clear()
+    self.m_combo_box_2.clear()
+    self.m_combo_box_1.setInsertionPolicy(QComboBox.AtBottom)
+    self.m_combo_box_2.setInsertionPolicy(QComboBox.AtBottom)
     self.m_petri_dish_dir_path = ' '
     self.m_petri_dish_dir_exists_flag = False
 
-    self.connect( self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"),
-      self.freezerItemDoubleClickedOn)
+    self.connect(self.m_combo_box_1, SIGNAL("activated(int)"),
+                 self.modeActivatedSlot)
+    self.connect(self.m_combo_box_2, SIGNAL("activated(int)"),
+                 self.modeActivatedSlot)
+    self.connect(self.m_combo_box_1_style, SIGNAL("activated(int)"),
+                 self.modeActivatedSlot)
+    self.connect(self.m_combo_box_2_style, SIGNAL("activated(int)"),
+                 self.modeActivatedSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, 
+                 PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"),
+                 self.freezerItemDoubleClickedOn)
+
+    # set up the combo boxes with plot options
+    for entry in self.m_avida_stats_interface.m_entries:
+      self.m_combo_box_1.insertItem(entry.name)
+    for entry in self.m_avida_stats_interface.m_entries:
+      self.m_combo_box_2.insertItem(entry.name)
+
+    # line styles
+    self.pen_styles = ['solid', 'dotted', 'thick']
+    for style in self.pen_styles:
+      self.m_combo_box_1_style.insertItem(style)
+      self.m_combo_box_2_style.insertItem(style)
+
+    self.m_combo_box_1_style.setCurrentItem(0)
+    self.m_combo_box_2_style.setCurrentItem(1)
 
     # set up the plot line color options
-    self.m_Red = ['red', Qt.red]
-    self.m_Blue = ['blue', Qt.blue]
-    self.m_Green = ['green', Qt.green]
-    self.m_ThickBlue = ['thick', Qt.blue]
-    self.m_Colors = [self.m_Red, self.m_Blue, self.m_Green, self.m_ThickBlue]
-    
+    self.m_Colors =[['red', Qt.red, 0],
+                    ['blue', Qt.blue, 1],
+                    ['green', Qt.green, 2],
+                    ['cyan', Qt.cyan, 3],
+                    ['magenta', Qt.magenta, 4],
+                    ['yellow', Qt.yellow, 5],
+                    ['dark red', Qt.darkRed, 6],
+                    ['dark green', Qt.darkGreen, 7],
+                    ['dark blue', Qt.darkBlue, 8]]
+
+    # available colors
+    self.avail_colors = self.m_Colors[:] # shallow copy m_Colors
+    self.avail_colors.reverse()
+
     self.connect(self.m_session_mdl.m_session_mdtr,
                  PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"),
                  self.petriDropped)
     self.m_graph_ctrl.setAxisTitle(QwtPlot.xBottom, "Time (updates)")
     self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
 
+    # Start the left with second graph mode -- "Average Fitness"
+    self.m_combo_box_1.setCurrentItem(2)
+
+    # Start the right with zeroth mode -- "None"
+    self.m_combo_box_2.setCurrentItem(0)
+
   def graph_row(self, row):
     layout = row.layout
-    if row.layout.m_combo_box_1.currentItem() or row.layout.m_combo_box_2.currentItem():
+    if self.m_combo_box_1.currentItem() or self.m_combo_box_2.currentItem():
 
-      if row.layout.m_combo_box_1.currentItem():
-        index_1 = row.layout.m_combo_box_1.currentItem()
+      if self.m_combo_box_1.currentItem():
+        index_1 = self.m_combo_box_1.currentItem()
 
         #check to see if the file exists
         if os.path.isfile(os.path.join(
@@ -207,19 +206,25 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
         row.m_curve_1 = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index_1].name)
         self.m_graph_ctrl.setCurveData(row.m_curve_1, self.m_curve_1_arrays[0], self.m_curve_1_arrays[1])
-        self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1]))
+        # set the pen
+        if self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'thick':
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 3))
+        elif self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'dotted':
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 0, Qt.DotLine))
+        else:
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1]))
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_1, QwtPlot.yLeft)
-        if not row.layout.m_combo_box_2.currentItem():
+        if not self.m_combo_box_2.currentItem():
           self.m_graph_ctrl.enableYRightAxis(False)
           self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index_1].name)
       else:
         self.m_graph_ctrl.enableYLeftAxis(False)
 
 
-      if row.layout.m_combo_box_2.currentItem():
-        index_2 = row.layout.m_combo_box_2.currentItem()
+      if self.m_combo_box_2.currentItem():
+        index_2 = self.m_combo_box_2.currentItem()
         self.m_graph_ctrl.setAxisTitle(QwtPlot.yRight, self.m_avida_stats_interface.m_entries[index_2].name)
-        self.m_graph_ctrl.enableYRightAxis(True)      
+        self.m_graph_ctrl.enableYRightAxis(True)
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yRight)
         self.m_curve_2_arrays = self.m_avida_stats_interface.load(
             str(row.m_petri_dish_dir_path),
@@ -230,31 +235,33 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
         row.m_curve_2 = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index_2].name)
         self.m_graph_ctrl.setCurveData(row.m_curve_2, self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])
-        if self.m_Colors[row.layout.m_combo_box_2_color.currentItem()][0] is 'thick':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_2_color.currentItem()][1],3))
+        if self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'thick':
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1],3))
+        elif self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'dotted':
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 0, Qt.DotLine))
         else:
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_2_color.currentItem()][1]))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1]))
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_2, QwtPlot.yRight)
-        if not row.layout.m_combo_box_1.currentItem():
+        if not self.m_combo_box_1.currentItem():
           self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index_2].name)
 
 
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
 
-      if row.layout.m_combo_box_1.currentItem() and row.layout.m_combo_box_2.currentItem():    
-        self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[row.layout.m_combo_box_1.currentItem()].name + ' (' + self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][0] \
-        + ') and ' + self.m_avida_stats_interface.m_entries[row.layout.m_combo_box_2.currentItem()].name+ ' (' +  self.m_Colors[row.layout.m_combo_box_2_color.currentItem()][0] +')')
+      if self.m_combo_box_1.currentItem() and self.m_combo_box_2.currentItem():
+        self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[self.m_combo_box_1.currentItem()].name + ' (' + self.pen_styles[self.m_combo_box_1_style.currentItem()] \
+        + ') and ' + self.m_avida_stats_interface.m_entries[self.m_combo_box_2.currentItem()].name + ' (' +  self.pen_styles[self.m_combo_box_2_style.currentItem()] +')')
         bounding_rect_1 = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
         bounding_rect_2 = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
         bounding_rect = bounding_rect_1.unite(bounding_rect_2)
-      elif row.layout.m_combo_box_1.currentItem():
+      elif self.m_combo_box_1.currentItem():
         bounding_rect = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
       else:
         bounding_rect = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
 
       self.m_graph_ctrl.m_zoomer.setZoomBase(bounding_rect)
   
-    else:   # goes with '   if row.layout.m_combo_box_1.currentItem() or row.layout.m_combo_box_2.currentItem():'
+    else:   # goes with '   if self.m_combo_box_1.currentItem() or row.layout.m_combo_box_2.currentItem():'
        self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[0].name)
        self.m_graph_ctrl.setAxisTitle(QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[0].name)
 
@@ -358,7 +365,3 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       self.construct_box(self.m_combo_boxes[short_name])
       self.m_combo_boxes[short_name].m_petri_dish_dir_path = os.path.split(freezer_item_name)[0]
       self.modeActivatedSlot(None, short_name)
-
-  def delPopulationSlot(self):
-    print "test"
-    return
