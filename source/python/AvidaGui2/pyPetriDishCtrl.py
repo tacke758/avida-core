@@ -130,7 +130,8 @@ class pyPetriDishCtrl(QWidget):
       self.m_canvas)
 
   def setAvidaSlot(self, avida):
-    print "pyPetriDishCtrl.setAvidaSlot() ..."
+    descr(avida)
+    #print "pyPetriDishCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
@@ -139,7 +140,7 @@ class pyPetriDishCtrl(QWidget):
     if(self.m_avida):
       pass
 
-    if (self.m_avida):
+    if self.m_avida is not None:
       self.m_change_list = self.m_avida.m_avida_threaded_driver.GetChangeList()
       self.m_world_w = cConfig.GetWorldX()
       self.m_world_h = cConfig.GetWorldY()
@@ -171,8 +172,10 @@ class pyPetriDishCtrl(QWidget):
     self.m_cell_info = [None] * self.m_world_w * self.m_world_h
     self.m_occupied_cells_ids = []
 
-    print "COULD PAINT CELLS HERE"
-#    self.updateCellItem(465)
+    if self.m_avida is not None:
+      print "COULD PAINT CELLS HERE"
+      cell_info_item = self.updateCellItem(465)
+      #cell_info_item.setPen(QPen(QColor(Qt.gray)))
 
 
     self.m_thread_work_cell_item_index = 0
@@ -212,7 +215,7 @@ class pyPetriDishCtrl(QWidget):
           self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
 
   def updateCellItem(self, cell_id):
-    print "Kabennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+    #print "Kabennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
     if self.m_cell_info[cell_id] is None:
       self.m_cell_info[cell_id] = self.createNewCellItem(cell_id)
     cell_info_item = self.m_cell_info[cell_id]
@@ -223,12 +226,17 @@ class pyPetriDishCtrl(QWidget):
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
         cell_info_item.setPen(QPen(QColor(0,255,0)))
         self.m_last_cell_outlined = cell_info_item      
+    return cell_info_item
 
   def updateCellItems(self, should_update_all = False):
+    descr(should_update_all)
     if self.m_cell_info:
 
+      #descr("self.m_cell_info:", self.m_cell_info)
       self.m_avida and self.m_avida.m_avida_threaded_driver.m_lock.acquire()
+      #descr("self.m_change_list:", self.m_change_list)
       if self.m_change_list:
+        #descr("self.m_change_list.GetChangeCount():", self.m_change_list.GetChangeCount())
         for index in xrange(self.m_change_list.GetChangeCount()):
           self.updateCellItem(self.m_change_list[index])
         self.m_change_list.Reset()
