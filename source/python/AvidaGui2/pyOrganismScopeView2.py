@@ -302,7 +302,9 @@ class pyOrganismScopeView2(QCanvasView):
       #  self.m_ihead_move_items = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
       #  #self.m_ihead_move_items = [pyHeadPath(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
       if self.m_frames.m_ihead_moves_snapshot is not None:
-        self.m_ihead_move_items = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
+        #self.m_ihead_move_items = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
+        #self.m_ihead_move_items = [QCanvasLine(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
+        self.m_ihead_move_items = []
 
       if self.m_frames.m_is_viable:
         self.emit(PYSIGNAL("gestationTimeChangedSig"),(self.m_frames.m_gestation_time,))
@@ -521,10 +523,7 @@ class pyOrganismScopeView2(QCanvasView):
             head_text.setY((radius - head_item.width())*math.sin(theta) + cy)
             head_text.show()
 
-      #if self.m_frames.m_ihead_moves_snapshot is not None:
-      if False:
-        #for item in self.m_ihead_move_items:
-        #  item.hide()
+      if self.m_frames.m_ihead_moves_snapshot is not None:
         ihead_moves_counts = self.m_frames.m_ihead_moves_snapshot[self.m_current_frame_number]
         move_item_idx = 0
         for move in ihead_moves_counts.keys():
@@ -534,7 +533,7 @@ class pyOrganismScopeView2(QCanvasView):
           move_start = move[0]
           move_end = move[1]
 
-          control_radii_ratio = 0.4 + 0.5 * pow(2., -float(move_count)/25)
+          control_radii_ratio = 1.0 - 0.9 * pow(2., -float(move_count)/25)
 
           s_pt = self.m_inst_pts[move_start]
           e_pt = self.m_inst_pts[move_end]
@@ -549,47 +548,58 @@ class pyOrganismScopeView2(QCanvasView):
           s_cy = s_circle.centerY()
           e_cy = e_circle.centerY()
           
-          point_array = QPointArray(3)
-          #point_array[0] = QPoint(
-          point_array.setPoint(0, QPoint(
-            (s_radius - ihead_radius) * math.cos(s_theta) + s_cx,
-            (s_radius - ihead_radius) * math.sin(s_theta) + s_cy
-          ) )
-          #point_array[2] = QPoint(
-          point_array.setPoint(2, QPoint(
-            (e_radius - ihead_radius) * math.cos(e_theta) + e_cx,
-            (e_radius - ihead_radius) * math.sin(e_theta) + e_cy
-          ) )
+          point_array = QPointArray(4)
 
-          #cs_cx = (s_cx + e_cx) / 2.
-          #cs_cy = (s_cy + e_cy) / 2.
-          #ce_cx = (s_cx + e_cx) / 2.
-          #ce_cy = (s_cy + e_cy) / 2.
+          p0_x = (s_radius - ihead_radius) * math.cos(s_theta) + s_cx
+          p0_y = (s_radius - ihead_radius) * math.sin(s_theta) + s_cy
+          point_array.setPoint(0, QPoint(p0_x, p0_y))
 
-          ##cs_cx = (point_array[0].x() + point_array[2].x()) / 2.
-          ##cs_cy = (point_array[0].y() + point_array[2].y()) / 2.
-          cs_cx = (point_array.point(0).x() + point_array.point(2).x()) / 2.
-          cs_cy = (point_array.point(0).y() + point_array.point(2).y()) / 2.
+          p3_x = (e_radius - ihead_radius) * math.cos(e_theta) + e_cx
+          p3_y = (e_radius - ihead_radius) * math.sin(e_theta) + e_cy
+          point_array.setPoint(3, QPoint(p3_x, p3_y))
+
+          cs_cx = (p0_x + p3_x)/2.
+          cs_cy = (p0_y + p3_y)/2.
 
           ce_cx = (s_cx + e_cx) / 2.
           ce_cy = (s_cy + e_cy) / 2.
 
-          #point_array[1] = QPoint(
           point_array.setPoint(1, QPoint(
             cs_cx + control_radii_ratio * (ce_cx - cs_cx),
             cs_cy + control_radii_ratio * (ce_cy - cs_cy)
-            #self.anim.c_x + control_radii_ratio * ((from_circle_pt[0] + to_circle_pt[0])/2 - self.anim.c_x),
-            #self.anim.c_y + control_radii_ratio * ((from_circle_pt[1] + to_circle_pt[1])/2 - self.anim.c_y),
+          ) )
+          point_array.setPoint(2, QPoint(
+            cs_cx + control_radii_ratio * (ce_cx - cs_cx),
+            cs_cy + control_radii_ratio * (ce_cy - cs_cy)
           ) )
 
-          ihead_move_item = self.m_ihead_move_items[move_item_idx]
-          ihead_move_item.setControlPoints(point_array, False)
-          if move_start < move_end:
-            ihead_move_item.setPen(QPen(Qt.blue))
-          else:
-            ihead_move_item.setPen(QPen(Qt.red))
-          ihead_move_item.show()
-          move_item_idx = move_item_idx + 1
+          #ihead_move_item = self.m_ihead_move_items[move_item_idx]
+          #ihead_move_item.setControlPoints(point_array, False)
+          #if move_start < move_end:
+          #  ihead_move_item.setPen(QPen(Qt.gray))
+          #  ihead_move_item.setBrush(QBrush(Qt.gray))
+          #else:
+          #  ihead_move_item.setPen(QPen(Qt.lightGray))
+          #  ihead_move_item.setBrush(QBrush(Qt.lightGray))
+          #ihead_move_item.show()
+          #move_item_idx = move_item_idx + 1
+
+          bezier_pa = point_array.cubicBezier()
+          for i in range(bezier_pa.size() - 1):
+            if len(self.m_ihead_move_items) <= move_item_idx:
+              self.m_ihead_move_items.append(QCanvasLine(self.m_canvas))
+            line = self.m_ihead_move_items[move_item_idx]
+            line.setPoints(
+              bezier_pa.point(i)[0], 
+              bezier_pa.point(i)[1], 
+              bezier_pa.point(i+1)[0], 
+              bezier_pa.point(i+1)[1], 
+            )
+            if move_start < move_end: line.setPen(QPen(Qt.black, 1))
+            else: line.setPen(QPen(Qt.lightGray, 1))
+            line.show()
+            line.show()
+            move_item_idx = move_item_idx + 1
 
         for idx in range(move_item_idx, len(self.m_ihead_move_items)):
           self.m_ihead_move_items[idx].hide()
