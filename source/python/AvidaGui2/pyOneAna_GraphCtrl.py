@@ -8,8 +8,29 @@ from pyButtonListDialog import pyButtonListDialog
 from qt import *
 from qwt import *
 import os.path
+import heapq
 
-# This class deals with the graphing information for a single population
+# holds color information
+class PriorityColor:
+  def __init__(self, name, qt_color, priority):
+    self.name = name
+    self.qt_color = qt_color
+    self.priority = priority
+
+  def __eq__(self, other):
+    return (self.name == other.name) and \
+           (self.qt_color == other.qt_color) and \
+           (self.priority == other.priority)
+  def __lt__(self, other):
+    return self.priority < other.priority
+  def __le__(self, other):
+    return self.priority <= other.priority
+  def __gt__(self, other):
+    return self.priority > other.priority
+  def __ge__(self, other):
+    return self.priority >= other.priority
+
+# This class deals with the graphing information for populations
 # It also holds the widget for control of the graph
 class pyPopulationGraph:
   def __init__(self, parent = None, label = None):
@@ -50,7 +71,6 @@ class pyPopulationGraph:
                                                 "row%s_m_combo_box_1_color" % (label))
     self.layout.addWidget(self.layout.m_combo_box_1_color)
 
-
     self.layout.spacer200_4 = QSpacerItem(25, 16, QSizePolicy.Expanding,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_4)
@@ -64,13 +84,26 @@ class pyPopulationGraph:
   def del_population_slot(self):
     "Remove this population's controls from the display"
     self.parent.layout().removeItem(self.layout)
-    self.parent.avail_colors.append(self.color)
+    if self.color not in self.parent.avail_colors:
+      heapq.heappush(self.parent.avail_colors, self.color)
     # hide the widgets
     self.layout.m_population.hide()
     self.layout.m_combo_box_1_color.hide()
     self.layout.m_del_button.hide()
     del self.parent.m_combo_boxes[self.label]
 
+    self.parent.modeActivatedSlot()
+
+  def change_color_slot(self):
+    "User selected a new color"
+    color = self.parent.m_Colors[self.layout.m_combo_box_1_color.currentItem()]
+    self.layout.m_population.setPaletteForegroundColor(color.qt_color)
+    if color in self.parent.avail_colors:
+      self.parent.avail_colors.remove(color)
+      heapq.heapify(self.parent.avail_colors)
+    if self.color not in self.parent.avail_colors:
+      heapq.heappush(self.parent.avail_colors, self.color)
+    self.color = color
     self.parent.modeActivatedSlot()
 
 class pyOneAna_GraphCtrl(pyOneAna_GraphView):
@@ -80,25 +113,26 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.m_avida_stats_interface = pyAvidaStatsInterface()
     self.m_combo_boxes = {}
 
-
   def construct_box(self, widget):
     "Initialize new combo box group with stat information"
     widget.layout.m_combo_box_1_color.clear()
     for color in self.m_Colors:
-      widget.layout.m_combo_box_1_color.insertItem(color[0])
+      widget.layout.m_combo_box_1_color.insertItem(color.name)
 
     if len(self.avail_colors) > 0:
-      widget.color = self.avail_colors.pop()
-      widget.layout.m_combo_box_1_color.setCurrentItem(widget.color[2])
+      widget.color = heapq.heappop(self.avail_colors)
+      widget.layout.m_combo_box_1_color.setCurrentItem(widget.color.priority)
     else:
       widget.layout.m_combo_box_1_color.setCurrentItem(0)
 
+    # set the color
+    widget.layout.m_population.setPaletteForegroundColor(widget.color.qt_color)
+
     # connect combo boxes to signal
     self.connect(widget.layout.m_combo_box_1_color, SIGNAL("activated(int)"),
-                 self.modeActivatedSlot)
+                 widget.change_color_slot)
     self.connect(widget.layout.m_del_button, SIGNAL("clicked()"),
                  widget.del_population_slot)
-
 
     self.resize(self.sizeHint())
 
@@ -147,19 +181,18 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.m_combo_box_2_style.setCurrentItem(1)
 
     # set up the plot line color options
-    self.m_Colors =[['red', Qt.red, 0],
-                    ['blue', Qt.blue, 1],
-                    ['green', Qt.green, 2],
-                    ['cyan', Qt.cyan, 3],
-                    ['magenta', Qt.magenta, 4],
-                    ['yellow', Qt.yellow, 5],
-                    ['dark red', Qt.darkRed, 6],
-                    ['dark green', Qt.darkGreen, 7],
-                    ['dark blue', Qt.darkBlue, 8]]
+    self.m_Colors = [PriorityColor('red', Qt.red, 0),
+                     PriorityColor('blue', Qt.blue, 1),
+                     PriorityColor('green', Qt.green, 2),
+                     PriorityColor('cyan', Qt.cyan, 3),
+                     PriorityColor('magenta', Qt.magenta, 4),
+                     PriorityColor('yellow', Qt.yellow, 5),
+                     PriorityColor('dark red', Qt.darkRed, 6),
+                     PriorityColor('dark green', Qt.darkGreen, 7),
+                     PriorityColor('dark blue', Qt.darkBlue, 8)]
 
     # available colors
     self.avail_colors = self.m_Colors[:] # shallow copy m_Colors
-    self.avail_colors.reverse()
 
     self.connect(self.m_session_mdl.m_session_mdtr,
                  PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"),
@@ -179,11 +212,11 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
       if self.m_combo_box_1.currentItem():
         index_1 = self.m_combo_box_1.currentItem()
-
+        stat_1 = self.m_avida_stats_interface.m_entries[index_1]
         #check to see if the file exists
         if os.path.isfile(os.path.join(
             str(row.m_petri_dish_dir_path),
-            self.m_avida_stats_interface.m_entries[index_1].file)):
+            stat_1.file)):
           pass
         else:
           print "error: there is no data file in the directory to load from"
@@ -193,57 +226,51 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
             QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[0].name)
           self.m_graph_ctrl.replot()
           return
-        self.m_graph_ctrl.setAxisTitle(
-          QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[index_1].name)
+        self.m_graph_ctrl.setAxisTitle(QwtPlot.yLeft, stat_1.name)
         self.m_graph_ctrl.enableYLeftAxis(True)
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
         self.m_curve_1_arrays = self.m_avida_stats_interface.load(
-            str(row.m_petri_dish_dir_path),
-            self.m_avida_stats_interface.m_entries[index_1].file,
-            1,
-            self.m_avida_stats_interface.m_entries[index_1].index
+            str(row.m_petri_dish_dir_path), stat_1.file, 1, stat_1.index
         )
 
-        row.m_curve_1 = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index_1].name)
+        row.m_curve_1 = self.m_graph_ctrl.insertCurve(stat_1.name)
         self.m_graph_ctrl.setCurveData(row.m_curve_1, self.m_curve_1_arrays[0], self.m_curve_1_arrays[1])
         # set the pen
         if self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'thick':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 3))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 3))
         elif self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'dotted':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 0, Qt.DotLine))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
         else:
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1]))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_1, QwtPlot.yLeft)
         if not self.m_combo_box_2.currentItem():
           self.m_graph_ctrl.enableYRightAxis(False)
-          self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index_1].name)
+          self.m_graph_ctrl.setTitle(stat_1.name)
       else:
         self.m_graph_ctrl.enableYLeftAxis(False)
 
 
       if self.m_combo_box_2.currentItem():
         index_2 = self.m_combo_box_2.currentItem()
-        self.m_graph_ctrl.setAxisTitle(QwtPlot.yRight, self.m_avida_stats_interface.m_entries[index_2].name)
+        stat_2 = self.m_avida_stats_interface.m_entries[index_2]
+        self.m_graph_ctrl.setAxisTitle(QwtPlot.yRight, stat_2.name)
         self.m_graph_ctrl.enableYRightAxis(True)
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yRight)
         self.m_curve_2_arrays = self.m_avida_stats_interface.load(
-            str(row.m_petri_dish_dir_path),
-            self.m_avida_stats_interface.m_entries[index_2].file,
-            1,
-            self.m_avida_stats_interface.m_entries[index_2].index
+            str(row.m_petri_dish_dir_path), stat_2.file, 1, stat_2.index
         )
 
-        row.m_curve_2 = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index_2].name)
+        row.m_curve_2 = self.m_graph_ctrl.insertCurve(stat_2.name)
         self.m_graph_ctrl.setCurveData(row.m_curve_2, self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])
         if self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'thick':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1],3))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color,3))
         elif self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'dotted':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1], 0, Qt.DotLine))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
         else:
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()][1]))
+          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_2, QwtPlot.yRight)
         if not self.m_combo_box_1.currentItem():
-          self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[index_2].name)
+          self.m_graph_ctrl.setTitle(stat_2.name)
 
 
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
@@ -264,7 +291,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     else:   # goes with '   if self.m_combo_box_1.currentItem() or row.layout.m_combo_box_2.currentItem():'
        self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[0].name)
        self.m_graph_ctrl.setAxisTitle(QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[0].name)
-
 
   def modeActivatedSlot(self, selected = None, index = None):
    
