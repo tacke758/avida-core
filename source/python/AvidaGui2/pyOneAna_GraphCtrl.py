@@ -172,7 +172,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       self.m_combo_box_2.insertItem(entry.name)
 
     # line styles
-    self.pen_styles = ['solid', 'dotted', 'thick']
+    self.pen_styles = ['solid', 'thick', 'dotted']
     for style in self.pen_styles:
       self.m_combo_box_1_style.insertItem(style)
       self.m_combo_box_2_style.insertItem(style)
@@ -206,6 +206,15 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     # Start the right with zeroth mode -- "None"
     self.m_combo_box_2.setCurrentItem(0)
 
+  def check_file(self, path):
+    "Check for a valid population file"
+    if self.m_combo_box_1.currentItem():
+      index = self.m_combo_box_1.currentItem()
+      stat = self.m_avida_stats_interface.m_entries[index]
+      return os.path.isfile(os.path.join(str(path), stat.file))
+    else:
+      return False
+
   def graph_row(self, row):
     layout = row.layout
     if self.m_combo_box_1.currentItem() or self.m_combo_box_2.currentItem():
@@ -213,10 +222,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       if self.m_combo_box_1.currentItem():
         index_1 = self.m_combo_box_1.currentItem()
         stat_1 = self.m_avida_stats_interface.m_entries[index_1]
-        #check to see if the file exists
-        if os.path.isfile(os.path.join(
-            str(row.m_petri_dish_dir_path),
-            stat_1.file)):
+        if self.check_file(row.m_petri_dish_dir_path):
           pass
         else:
           print "error: there is no data file in the directory to load from"
@@ -234,7 +240,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         )
 
         row.m_curve_1 = self.m_graph_ctrl.insertCurve(stat_1.name)
-        self.m_graph_ctrl.setCurveData(row.m_curve_1, self.m_curve_1_arrays[0], self.m_curve_1_arrays[1])
+        self.m_graph_ctrl.setCurveData(row.m_curve_1, self.m_curve_1_arrays[0],
+                                       self.m_curve_1_arrays[1])
         # set the pen
         if self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'thick':
           self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 3))
@@ -343,11 +350,13 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         if short_name in self.m_combo_boxes:
           print "Already being graphed"
           return
-        self.m_combo_boxes[short_name] = pyPopulationGraph(self, short_name)
-        if self.m_combo_boxes[short_name]:
-          self.construct_box(self.m_combo_boxes[short_name])
-          self.m_combo_boxes[short_name].m_petri_dish_dir_path = freezer_item_name
-          self.modeActivatedSlot(None, short_name)
+        if self.check_file(freezer_item_name):
+          self.m_combo_boxes[short_name] = pyPopulationGraph(self, short_name)
+          if self.m_combo_boxes[short_name]:
+            self.construct_box(self.m_combo_boxes[short_name])
+            self.m_combo_boxes[short_name].m_petri_dish_dir_path = \
+                freezer_item_name
+            self.modeActivatedSlot(None, short_name)
         return
 
       pm = QPixmap()
