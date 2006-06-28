@@ -65,7 +65,15 @@ class pyPetriDishCtrl(QWidget):
     self.m_change_list = None
     self.m_org_clicked_on_item = None
     self.m_occupied_cells_ids = []
+    self.m_avida_has_started = False
 
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("doStartAvidaSig"),
+      self.doStartAvidaSlot)
+#    if you read this, delete this chunk of comments
+#    self.connect(
+#      self.m_session_mdl.m_session_mdtr, PYSIGNAL("doInitializeAvidaPhaseISig"),
+#      self.doSetAvidaHasStartedFalseSlot)
     self.connect( self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), 
       self.setAvidaSlot)
     self.connect( self.m_canvas_view, PYSIGNAL("orgClickedOnSig"), 
@@ -91,10 +99,8 @@ class pyPetriDishCtrl(QWidget):
     self.connect(self.m_petri_dish_ctrl_v_scrollBar, SIGNAL("prevLine()"), 
                  self.vbarScrollPrevLineSlot)    
 
-#  def resizeEvent (self, event):
-#    print "JUST RESIZED----------------------------------------------------->"
-#    print self.width()
-#    print self.height()
+  def doStartAvidaSlot (self):
+    self.m_avida_has_started = True
 
 
 
@@ -138,6 +144,11 @@ class pyPetriDishCtrl(QWidget):
     else:
       self.m_world_w = 30
       self.m_world_h = 30
+
+    self.m_avida_has_started = False
+    print "SEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEET"
+
+
       
     self.m_initial_target_zoom = int(self.m_target_dish_width / self.m_world_w)
     self.emit(PYSIGNAL("zoomSig"), (self.m_initial_target_zoom,))
@@ -164,10 +175,20 @@ class pyPetriDishCtrl(QWidget):
     self.m_occupied_cells_ids = []
 
     if self.m_avida is not None:
-      print "COULD PAINT CELLS HERE"
-      cell_info_item = self.updateCellItem(465)
-      #cell_info_item.setPen(QPen(QColor(Qt.gray)))
+      print "ABOUT TO OUTLINE CELLS"
+      m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
 
+      for k, v in m_founding_cells_dict.iteritems():
+        print k
+        cell_info_item = self.updateCellItem(int(k))
+        cell_info_item.setPen(QPen(QColor(Qt.gray)))
+
+      print "CELLS OUTLINED"
+
+#      cell_info_item = self.updateCellItem(475)
+#      cell_info_item.setPen(QPen(QColor(Qt.gray)))
+#      why doesn't this work?
+#      cell_info_item.setBrush(QBrush(QColor((Qt.gray))))
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0
@@ -206,11 +227,16 @@ class pyPetriDishCtrl(QWidget):
           self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
 
   def updateCellItem(self, cell_id):
-    #print "Kabennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
     if self.m_cell_info[cell_id] is None:
       self.m_cell_info[cell_id] = self.createNewCellItem(cell_id)
     cell_info_item = self.m_cell_info[cell_id]
     self.m_indexer(cell_info_item, self.m_cs_min_value, self.m_cs_value_range)
+    #the following could be moved to a one off function at the beginning of a run
+    #for speed efficiency. currenly it is checked every time a cell is updated
+    if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_avida_has_started == True):
+      print "77777777777777777777777777777777777777777777777777777" 
+      cell_info_item.setPen(QPen(Qt.NoPen))
+
     cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
 
     if self.m_org_clicked_on_item:

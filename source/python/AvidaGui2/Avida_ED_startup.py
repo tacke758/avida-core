@@ -10,6 +10,6 @@ def NonInteractive():
 def Interactive():
   import IPython
   import __builtin__
-  ipython_shell = IPython.Shell.IPShell(argv=["-c", "import iqt; import AvidaGui2; from AvidaGui2.Avida_ED_startup_utils import *; AvidaCore.cConfig.InitGroupList(); avida_ed = AvidaEd();print 'Fooooooooooooooooooooooooo!'"])
+  ipython_shell = IPython.Shell.IPShell(argv=["-c", "import iqt; import AvidaGui2; from AvidaGui2.Avida_ED_startup_utils import *; AvidaCore.cConfig.InitGroupList(); avida_ed = AvidaEd();"])
   ipython_shell.mainloop()
 

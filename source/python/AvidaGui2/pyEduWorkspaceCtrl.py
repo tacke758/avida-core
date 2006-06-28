@@ -439,6 +439,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # If the user clicks the repopulate button pretend that they double
     # click the default empty petri dish from the freezer
 
+    print " RESTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARTING"
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
       "@default.empty")
     thawed_item = pyReadFreezer(file_name)
@@ -446,6 +447,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       ("@default.empty", thawed_item,))
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
+
 
   def addStatusBarWidgetSlot(self, *args):
     widget = args[0]

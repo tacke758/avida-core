@@ -22,7 +22,6 @@ class pyFreezerListView(QListView):
     self.m_session_mdl = session_mdl
 
   def contentsDropEvent(self, e):
-    print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     descr(e)
     freezer_item_name = QString()
     if e.source() is self:

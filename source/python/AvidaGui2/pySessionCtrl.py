@@ -62,7 +62,7 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.saved_empty_dish = False
     self.m_session_mdl.saved_full_dish = False
     self.m_session_mdl.new_empty_dish = True
-    self.m_session_mdl.new_full_dish = True
+    self.m_session_mdl.new_full_dish = True  
 
     # flag to see if user has chosen a workspace for this session
 
@@ -72,6 +72,9 @@ class pySessionCtrl(qt.QObject):
 
     self.m_session_mdl.m_current_workspace = "default.workspace"
     self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
+
+    # set a global variable for the location of starting cells
+    self.m_session_mdl.m_founding_cells_dict = None
 
     # BDB -- hack to overcome problem with program crashing when Core ends
 

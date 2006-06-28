@@ -63,7 +63,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_map_profile = pyMapProfile(self.m_session_mdl)
     for i in range(self.m_map_profile.getSize()):
       self.m_mode_combobox.insertItem(self.m_map_profile.getModeName(i))
-    print "emiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiting"
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("initializeWithDefaultPetriDishSig"),())
 
  
@@ -248,10 +247,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
             return
 
       self.RenameDishSlot(dish_name)
-      print "8888888888888888888888888888888888888888888888888888888888888888"
-#      self.m_session_mdl.m_session_mdtr.emit(
-#           PYSIGNAL("doInitializeAvidaPhaseISig"),
-#           (self.m_session_mdl.m_tempdir,))
       #self.MakeConfigVisibleSlot()
       self.finishedPetriDish = False
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("FillDishSig"), 
@@ -265,6 +260,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       if (Restart_Only_Flag):
         self.m_session_mdl.m_session_mdtr.emit(
           PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
+
 
   def finishedPetriDishSlot(self):
     descr()

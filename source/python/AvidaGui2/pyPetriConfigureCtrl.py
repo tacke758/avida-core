@@ -442,7 +442,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # (ie saved)
 
     self.full_petri_dict["SETTINGS"] = self.Form2Dictionary()
-    write_object = pyWriteGenesisEvent(self.full_petri_dict, 
+    write_object = pyWriteGenesisEvent(self.full_petri_dict,
+      self.m_session_mdl, 
       self.m_session_mdl.m_current_workspace,
       self.m_session_mdl.m_current_freezer, self.m_session_mdl.m_tempdir,
       self.m_session_mdl.m_tempdir_out)

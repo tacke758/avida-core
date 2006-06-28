@@ -7,9 +7,11 @@ import shutil, string, pyInstructionSet, os.path
 
 class pyWriteGenesisEvent:
 
-  def __init__(self, in_dict = None, workspace_dir = None, freeze_dir = None,
+  def __init__(self, in_dict = None, session_mdl = None, workspace_dir = None, freeze_dir = None,
     tmp_in_dir = None, tmp_out_dir = None):
   
+    self.m_session_mdl = session_mdl
+
     settings_dict = in_dict["SETTINGS"]
 	
     # Copies default event file and add to the 
@@ -44,6 +46,9 @@ class pyWriteGenesisEvent:
           self.start_cell_location = self.find_location(world_x, world_y, 
              num_ancestors, i)
           cells_dict[str(self.start_cell_location)] = str(i)
+          print "CELL DICT IS ", self.m_session_mdl.m_founding_cells_dict
+          #this variable is used in pyPetriDishCtrl.py to outline the founding organisms
+          self.m_session_mdl.m_founding_cells_dict = cells_dict
 
           # Read the genome from the organism file 
 
@@ -53,6 +58,7 @@ class pyWriteGenesisEvent:
           org_string = org_string.lstrip()
           org_file.close
           organisms_dict[str(i)] = org_string
+
 
     self.modifyEventFile(cells_dict, organisms_dict, 
       os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
@@ -211,5 +217,11 @@ class pyWriteGenesisEvent:
 
     x = spots[org_num * 2]
     y = spots[(org_num * 2) + 1]
-    
+
+    print "THE NUMBER OF ANCESTORS IS ", num_ancestors
+
+    print "At the end of find_location -------------------------------------------------"    
+    print "returning " , int((round(world_y * y) * world_x) + round(world_x * x)) % (world_x * world_y)
+    print "done printing"
+    print "for some reason this text is not printing"
     return int((round(world_y * y) * world_x) + round(world_x * x)) % (world_x * world_y)
