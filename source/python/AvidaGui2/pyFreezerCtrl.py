@@ -17,9 +17,11 @@ class pyFreezerListView(QListView):
     apply(QListView.__init__,(self,) + args)
     self.setAcceptDrops( True )
     self.viewport().setAcceptDrops( True )
+
   def construct(self, session_mdl):
     descr()
     self.m_session_mdl = session_mdl
+    
 
   def contentsDropEvent(self, e):
     descr(e)
@@ -32,16 +34,13 @@ class pyFreezerListView(QListView):
     print type(e)
 
     if ( QIconDrag.canDecode(e)):
-      print "BDB -- can decode icon"
       format = QDropEvent.format(e, 0)
       print "format = " + str(format)
       print type(e.encodedData(format))
       print "--------------------"
       print dir(e.encodedData(format))
       print str(e.encodedData(format))
-      print "BDB -- " + str(e.encodedData(format).data())
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      print "BDB:pyFreezerListView freezer_item_name = ", str(freezer_item_name)
       if freezer_item_name[:9] == 'organism.':
         freezer_item_name = freezer_item_name[9:] 
         self.FreezeOrganism(freezer_item_name)
@@ -189,6 +188,9 @@ class pyFreezerCtrl(QWidget):
     self.m_empty_item.setDropEnabled(True)
     self.m_full_item.setDropEnabled(True)
     self.m_organism_item.setDropEnabled(True)
+    self.m_list_view.setOpen(self.m_empty_item, True)
+    self.m_list_view.setOpen(self.m_full_item, True)
+    self.m_list_view.setOpen(self.m_organism_item, True)
 
 
   def createFreezerIndexSlot(self):
@@ -275,8 +277,7 @@ class pyFreezerCtrl(QWidget):
       thawed_item = pyReadFreezer(file_name)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
-      print "item.text(0) is ", item.text(0)
-      print "thawed_item is ", thawed_item
+      print "BDB -- in clicked_item slot File name is " + file_name
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
         (file_name,))
 

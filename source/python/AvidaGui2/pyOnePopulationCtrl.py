@@ -31,7 +31,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("freezerItemDoubleClickedOnInOnePopSig"))
     self.connect( self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("freezerItemDoubleClicked"), self.freezerItemDoubleClicked)
+      PYSIGNAL("freezerItemDoubleClicked"), self.freezerItemDoubleClickedSlot)
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("restartPopulationSig"), self.restartPopulationSlot)
 
@@ -110,7 +110,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       else: 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
 
-  def freezerItemDoubleClicked(self, freezer_item_name):
+  def freezerItemDoubleClickedSlot(self, freezer_item_name):
    if self.isVisible():
      self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOnePopSig"), 
        (freezer_item_name,))

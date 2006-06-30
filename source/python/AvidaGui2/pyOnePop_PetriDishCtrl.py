@@ -99,6 +99,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
     if (current_page_int == 0):
        self.m_petri_dish_widget_stack.raiseWidget(1)
+       self.FlipButtonTextLabel.setText("<p align=\"right\">Flip to<br>Petri Dish</p>")
        QToolTip.remove(self.m_petri_dish_toggle)
        QToolTip.add(self.m_petri_dish_toggle,
          "Flip to see the <b><i>Petri Dish</i></b>")
@@ -107,6 +108,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
     else:
        self.m_petri_dish_widget_stack.raiseWidget(0)
+       self.FlipButtonTextLabel.setText("<p align=\"right\">Flip to<br>Settings</p>")
        QToolTip.remove(self.m_petri_dish_toggle)
        QToolTip.add(self.m_petri_dish_toggle,
          "Flip to see the <b><i>Environmental Settings</i></b>")
@@ -115,7 +117,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
            PYSIGNAL("doInitializeAvidaPhaseISig"),
            (self.m_session_mdl.m_tempdir,))
          
-
+  # if the configuration page is not visable make it so (also adjust labling
+  # on flip button correctly
  
   def MakeConfigVisibleSlot (self):
     if self.dishDisabled:
@@ -124,6 +127,10 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)
     if (current_page_int != 1):
        self.m_petri_dish_widget_stack.raiseWidget(1)
+       self.FlipButtonTextLabel.setText("<p align=\"right\">Flip to<br>Petri Dish</p>")
+       QToolTip.remove(self.m_petri_dish_toggle)
+       QToolTip.add(self.m_petri_dish_toggle,
+         "Flip to see the <b><i>Petri Dish</i></b>")
        
   def SetDishDisabledSlot(self):
     self.dishDisabled = True
@@ -213,7 +220,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       descr()
 
 #    if self.isVisible():
-      print "self is ", self
 
       # If the petri dish is already filled prompt the user if they want to 
       # freeze the existing dish
@@ -228,9 +234,14 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         if (not self.m_session_mdl.saved_full_dish):
           m_check_to_freeze = pyQuitDialogCtrl("Start New Experiment")
           quit_return = m_check_to_freeze.showDialog()
+ 
+          # if user chose not to freeze but only load the new dish
 
           if quit_return == m_check_to_freeze.QuitFlag:
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
+
+          # if user user chose to freeze the existing population
+
           elif quit_return == m_check_to_freeze.FreezeQuitFlag:
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezeDishPhaseISig"), (True, False, ))

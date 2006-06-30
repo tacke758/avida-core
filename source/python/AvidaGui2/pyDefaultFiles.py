@@ -290,7 +290,7 @@ class pyDefaultFiles:
     lines = lines + ["freezer/@default.empty", "START_CREATURE0 default"]
     lines = lines + ["freezer/@default.empty", "AGE_LIMIT 100"]
     lines = lines + ["freezer/@default.empty", "MAX_UPDATES -1"]
-    lines = lines + ["freezer/@ancestor.organism", "rucavcqgfcqapqcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab"]
+    lines = lines + ["freezer/@ancestor.organism", "rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab"]
     out_lines = []
     num_lines = len(lines)/2
     for line_num in range(num_lines):

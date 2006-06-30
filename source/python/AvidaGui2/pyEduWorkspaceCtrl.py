@@ -445,6 +445,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     thawed_item = pyReadFreezer(file_name)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
       ("@default.empty", thawed_item,))
+    print "BDB -- in Restart_ExpActionSlot File name is " + file_name
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
 

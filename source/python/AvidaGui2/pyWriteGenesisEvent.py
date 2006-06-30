@@ -50,7 +50,10 @@ class pyWriteGenesisEvent:
           self.start_cell_location = self.find_location(world_x, world_y, 
              num_ancestors, i)
           cells_dict[str(self.start_cell_location)] = str(i)
-          #this variable is used in pyPetriDishCtrl.py to outline the founding organisms
+
+          # This variable is used in pyPetriDishCtrl.py to outline the 
+          # founding organisms
+
           self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
 
@@ -222,10 +225,4 @@ class pyWriteGenesisEvent:
     x = spots[org_num * 2]
     y = spots[(org_num * 2) + 1]
 
-    print "THE NUMBER OF ANCESTORS IS ", num_ancestors
-
-    print "At the end of find_location -------------------------------------------------"    
-    print "returning " , int((round(world_y * y) * world_x) + round(world_x * x)) % (world_x * world_y)
-    print "done printing"
-    print "for some reason this text is not printing"
     return int((round(world_y * y) * world_x) + round(world_x * x)) % (world_x * world_y)

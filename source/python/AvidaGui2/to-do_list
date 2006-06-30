@@ -39,9 +39,15 @@ Priority Low
 
 15-Jun-06 Change wording on can't freeze message
 
-15-Jun-06 Add Splash screen
-
 15-Jun-06 Create CGI script to allow users to enter information when they check out avida executable.
+
+29-Jun-06 set petri dish flag to open
+
+29-Jun-06 change name of restart petri dish
+
+29-Jun-06 Same control on front and back of petri dish.
+
+30-Jun-06 Make cell location relative to center of screen (use +/- X and Y) instead of using Avida cell location
 
 
 ************Jeff*******************
