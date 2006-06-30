@@ -22,9 +22,13 @@ class pyWriteGenesisEvent:
     # If this is a full petri dish inject all the organisms, otherwise
     # inject the start creature in the center of the grid
     
-    if in_dict.has_key("CELLS"):
+    #if we have a full petri dish...
+    if in_dict.has_key("CELLS"): 
       cells_dict = in_dict["CELLS"]
       organisms_dict = in_dict["ORGANISMS"]
+      self.m_session_mdl.m_founding_cells_dict = cells_dict
+
+    #if it is not a full petri dish
     else:
       cells_dict = {}
       organisms_dict = {}
@@ -46,8 +50,8 @@ class pyWriteGenesisEvent:
           self.start_cell_location = self.find_location(world_x, world_y, 
              num_ancestors, i)
           cells_dict[str(self.start_cell_location)] = str(i)
-          print "CELL DICT IS ", self.m_session_mdl.m_founding_cells_dict
           #this variable is used in pyPetriDishCtrl.py to outline the founding organisms
+          self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
 
           # Read the genome from the organism file 

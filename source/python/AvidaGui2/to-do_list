@@ -174,3 +174,9 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 30-May-06 Printing of petri dish and of color scale -- Finished 06-Jun-06
 30-May-06 Fill out save image dialog with default filename that includes update and other info -- Finished 19-Jun-06
 12-Jun-06 Add ability to analyze more than one population. -- Finished 22-Jun-06
+
+
+*************Jeff********************
+June
+-Petri dish now outlines the organisms that are about to start that run
+-Scroll bars are working again (though hard coded)

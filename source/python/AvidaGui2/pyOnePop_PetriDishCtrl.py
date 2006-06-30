@@ -40,10 +40,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.ToggleDishSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("doDefrostDishSig"), self.DefrostSlot)
-#    self.connect(self.m_session_mdl.m_session_mdtr, 
-#       PYSIGNAL("doDefrostDishSig"), self.RenameDishSlot)
-#    self.connect(self.m_session_mdl.m_session_mdtr, 
-#       PYSIGNAL("doDefrostDishSig"), self.MakeConfigVisiableSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
        PYSIGNAL("doDisablePetriDishSig"), self.SetDishDisabledSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
@@ -212,7 +208,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
       current_page = self.m_petri_dish_widget_stack.visibleWidget()
       current_page_int = self.m_petri_dish_widget_stack.id(current_page)
-      self.MakeConfigVisibleSlot()
 
   def DefrostSlot(self, dish_name, petri_dict):
       descr()
@@ -220,7 +215,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 #    if self.isVisible():
       print "self is ", self
 
-      Restart_Only_Flag = False
       # If the petri dish is already filled prompt the user if they want to 
       # freeze the existing dish
       
@@ -234,8 +228,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         if (not self.m_session_mdl.saved_full_dish):
           m_check_to_freeze = pyQuitDialogCtrl("Start New Experiment")
           quit_return = m_check_to_freeze.showDialog()
+
           if quit_return == m_check_to_freeze.QuitFlag:
-            Restart_Only_Flag = True
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
           elif quit_return == m_check_to_freeze.FreezeQuitFlag:
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doEnablePetriDishSig"), ())
@@ -257,9 +251,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       while (not self.finishedPetriDish):
         pass
 
-      if (Restart_Only_Flag):
-        self.m_session_mdl.m_session_mdtr.emit(
-          PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
+      self.m_session_mdl.m_session_mdtr.emit(
+       PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
 
 
   def finishedPetriDishSlot(self):

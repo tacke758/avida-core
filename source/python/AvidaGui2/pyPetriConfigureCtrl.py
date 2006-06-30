@@ -639,7 +639,15 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
         tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
-        return
+        #initialize Avida (which repaints the dish)
+      print "ABOUT TO SEND INIT"
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("doInitializeAvidaPhaseISig"),
+        (self.m_session_mdl.m_tempdir,))
+      print "INIT SENT"
+#        if you are reading this, the next line doesn't matter and should die
+#        return
+        
 
   def petriAncestorDroppedSlot(self, e):
     descr()

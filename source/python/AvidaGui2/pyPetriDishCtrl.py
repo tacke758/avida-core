@@ -70,10 +70,6 @@ class pyPetriDishCtrl(QWidget):
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("doStartAvidaSig"),
       self.doStartAvidaSlot)
-#    if you read this, delete this chunk of comments
-#    self.connect(
-#      self.m_session_mdl.m_session_mdtr, PYSIGNAL("doInitializeAvidaPhaseISig"),
-#      self.doSetAvidaHasStartedFalseSlot)
     self.connect( self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), 
       self.setAvidaSlot)
     self.connect( self.m_canvas_view, PYSIGNAL("orgClickedOnSig"), 
@@ -179,7 +175,6 @@ class pyPetriDishCtrl(QWidget):
       m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
 
       for k, v in m_founding_cells_dict.iteritems():
-        print k
         cell_info_item = self.updateCellItem(int(k))
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
 
