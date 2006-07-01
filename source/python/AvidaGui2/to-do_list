@@ -53,11 +53,11 @@ Priority Low
 ************Jeff*******************
 
 Priority High
--add a status page to the petri dish saying what is loaded (1/22/06)
 -make scroll bars dynamic (1/26/05)
--make tasks reflect parent tasks (not real time) in org report (email rob first) (1/26/06)
+-make tasks reflect parent tasks (not real time) in org report (ask group first) (1/26/06)
 
 Priority Medium
+-make the getting rid of the outline of the cells something that doesn't slow down the code at every step
 -Use warning system
    -make a warning that says you can't drag orgs into this view (1/26/06)
    -the "that was a bad path" or "file does not exist" warnings for dragging and dropping should use this (10/01/05)
@@ -186,3 +186,6 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 June
 -Petri dish now outlines the organisms that are about to start that run
 -Scroll bars are working again (though hard coded)
+-Scroll bars are now dynamic (30th)
+
+July

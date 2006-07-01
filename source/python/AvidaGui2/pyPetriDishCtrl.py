@@ -42,7 +42,7 @@ class pyPetriDishCtrl(QWidget):
 
     self.m_petri_dish_layout = pySquareVBoxLayout(self,0,0,"m_petri_dish_layout")
     print "pyPetriDishCtrl.construct() self.m_petri_dish_layout.heightForWidth(20) :", self.m_petri_dish_layout.heightForWidth(20)
-    self.m_canvas_view = pyPetriCanvasView(None, self,"m_canvas_view")
+    self.m_canvas_view = pyPetriCanvasView(None, self,"m_canvas_view",session_mdl)
 
     #hiding the scroll bars, the pre-packaged ones were not working so we are adding them manually elsewhere
     self.m_canvas_view.setVScrollBarMode(QScrollView.AlwaysOff)
@@ -54,6 +54,7 @@ class pyPetriDishCtrl(QWidget):
     self.m_petri_dish_ctrl_h_scrollBar = QScrollBar(0,371,0,20,185,Qt.Horizontal,self.m_canvas_view)
     self.m_petri_dish_ctrl_v_scrollBar = QScrollBar(0,371,0,20,185,Qt.Vertical,self.m_canvas_view)
     # end junk settings
+
     self.m_petri_dish_ctrl_h_scrollBar.setGeometry(0,365, 380,self.m_scroll_bar_width)
     self.m_petri_dish_ctrl_v_scrollBar.setGeometry(365,0,self.m_scroll_bar_width,365)
 
@@ -78,6 +79,9 @@ class pyPetriDishCtrl(QWidget):
       PYSIGNAL("orgClickedOnSig"), self.updateOrgClickedOutlineCellNumberSlot)
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("orgClickedOnSig"), self.setDragSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("petriCanvasResizedSig"),
+      self.petriCanvasResizedSlot)
     self.connect(self.m_petri_dish_ctrl_h_scrollBar, 
                  SIGNAL("valueChanged(int)"), 
                  self.moveCanvasHorizontallySlot)    
@@ -108,6 +112,16 @@ class pyPetriDishCtrl(QWidget):
     self.m_change_list = None
     self.m_org_clicked_on_item = None
     self.m_occupied_cells_ids = []
+
+  def petriCanvasResizedSlot(self,petriCanvasSize):
+    descr()
+    self.m_petri_dish_ctrl_h_scrollBar.setGeometry(0,petriCanvasSize.height()
+      -self.m_scroll_bar_width+2, petriCanvasSize.width()+2,self.m_scroll_bar_width)
+    self.m_petri_dish_ctrl_v_scrollBar.setGeometry(petriCanvasSize.width()
+      -self.m_scroll_bar_width+2,0,self.m_scroll_bar_width,
+      petriCanvasSize.height()-self.m_scroll_bar_width+2)
+
+
 
   def setColorLookupFunctor(self, color_lookup_functor):
     self.m_color_lookup_functor = color_lookup_functor
