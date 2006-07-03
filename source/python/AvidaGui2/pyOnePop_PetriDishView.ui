@@ -259,7 +259,7 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                             </sizepolicy>
                                         </property>
                                         <property name="text">
-                                            <string>&lt;font size="-1"&gt;&lt;p align="right"&gt;Update:&lt;/p&gt;&lt;/font&gt;</string>
+                                            <string>&lt;font size="-1"&gt;&lt;p align="center"&gt;Time (updates):&lt;/p&gt;&lt;/font&gt;</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Updates is the basic unit of time in Avida-ED</string>

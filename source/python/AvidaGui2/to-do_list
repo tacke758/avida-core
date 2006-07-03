@@ -49,6 +49,10 @@ Priority Low
 
 30-Jun-06 Make cell location relative to center of screen (use +/- X and Y) instead of using Avida cell location
 
+03-Jul-06 Default, Replication Only, All Nine, Funky Org, zoo
+
+03-Jul-06 Delete item by clicking and delete
+
 
 ************Jeff*******************
 
@@ -63,6 +67,8 @@ Priority Medium
    -the "that was a bad path" or "file does not exist" warnings for dragging and dropping should use this (10/01/05)
 -add the ability to drag things into the menu blocks (e.g. drag into the organism tab in the top left corner) (1/30/05)
 -right clicking on things as much as possible (1/30/05)
+
+-Remove doubleclick from freezer items (3/07/06)
 
 Priority Low
 -color the scales (1/10/05)
@@ -163,6 +169,10 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 -Make the slider have the textbox that shows the readout value this box can also take input if they put a number in it (which then changes the slider) and has up and down arrows  next to it -- Finished 14-Jun-06
 
 15-Jun-06 Move Freezer/Viewer line up -- Finished 16-Jun-06
+
+15-Jun-06 Change menu item "Restart Experiment" -> "Start New Experiment" -- Finished 03-Jul-06
+
+15-Jun-06 Add Viewers to view choice on menu -- Finished 03-Jul-06
 
 ************Kaben******************
 

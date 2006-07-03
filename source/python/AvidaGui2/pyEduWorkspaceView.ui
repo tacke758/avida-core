@@ -177,6 +177,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="controlRestart_ExpAction"/>
     </item>
     <item text="&amp;View" name="View">
+        <action name="viewPopulationAction"/>
+        <action name="viewOrganismAction"/>
+        <action name="viewAnalysisAction"/>
     </item>
     <item text="&amp;Window" name="Window">
         <action name="windowZoom_WindowAction"/>
@@ -248,6 +251,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -275,6 +280,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -716,16 +723,58 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>controlRestart_ExpAction</cstring>
         </property>
         <property name="text">
-            <string>Restart Experiment</string>
+            <string>Start New Experiment</string>
         </property>
         <property name="menuText">
-            <string>Restart Experiment</string>
+            <string>Start New Experiment</string>
         </property>
         <property name="toolTip">
-            <string>&lt;P&gt;Restart experiment with empty petri dish&lt;/p&gt;</string>
+            <string>&lt;P&gt;Start new experiment with empty petri dish&lt;/p&gt;</string>
         </property>
         <property name="statusTip">
-            <string>Restart experiment with empty petri dish</string>
+            <string>Start new experiment with empty petri dish</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewPopulationAction</cstring>
+        </property>
+        <property name="text">
+            <string>Population</string>
+        </property>
+        <property name="menuText">
+            <string>Population</string>
+        </property>
+        <property name="toolTip">
+            <string>Open Population Viewer</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewOrganismAction</cstring>
+        </property>
+        <property name="text">
+            <string>Organism</string>
+        </property>
+        <property name="menuText">
+            <string>Organism</string>
+        </property>
+        <property name="toolTip">
+            <string>Open Organism Viewer</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>viewAnalysisAction</cstring>
+        </property>
+        <property name="text">
+            <string>Analysis</string>
+        </property>
+        <property name="menuText">
+            <string>Analysis</string>
+        </property>
+        <property name="toolTip">
+            <string>Open Analysis View</string>
         </property>
     </action>
 </actions>

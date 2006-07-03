@@ -741,7 +741,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>&lt;p align="center"&gt;Easy&lt;br&gt;(1x)&lt;/p&gt;</string>
+                                <string>&lt;p align="center"&gt;Easy&lt;br&gt;(x 2)&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="4">
@@ -753,7 +753,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>&lt;p align="center"&gt;Hard&lt;br&gt;(3x)&lt;/p&gt;</string>
+                                <string>&lt;p align="center"&gt;Hard&lt;br&gt;(x 8)&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox" row="1" column="0">
@@ -782,7 +782,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>&lt;p align="center"&gt;Moderate&lt;br&gt;(2x)&lt;/p&gt;</string>
+                                <string>&lt;p align="center"&gt;Moderate&lt;br&gt;(x 4)&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="Line" row="0" column="1" rowspan="3" colspan="1">
@@ -808,7 +808,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>&lt;p align="center"&gt;Very Hard&lt;br&gt;(4x)&lt;/p&gt;</string>
+                                <string>&lt;p align="center"&gt;Very Hard&lt;br&gt;(x 16)&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox" row="2" column="6">
@@ -896,7 +896,7 @@
                                 </font>
                             </property>
                             <property name="text">
-                                <string>&lt;p align="center"&gt;Brutal&lt;br&gt;(5x)&lt;/p&gt;</string>
+                                <string>&lt;p align="center"&gt;Brutal&lt;br&gt;(x 32)&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox" row="1" column="8">

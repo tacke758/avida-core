@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from descr import *
+
 from Get_Avida_ED_version import avida_ed_version_string
 from pyEduWorkspaceView import pyEduWorkspaceView
 from pyMdtr import pyMdtr
@@ -91,6 +93,17 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.next_UpdateActionSlot)
     self.connect(
       self.controlStartAction,SIGNAL("activated()"),self.startActionSlot)
+
+    # Next three connects  are for where a user selects a veiwer from 
+    # the View menu
+
+    self.connect( self.viewPopulationAction,SIGNAL("activated()"), 
+      self.viewPopulationActionSlot)
+    self.connect( self.viewOrganismAction,SIGNAL("activated()"), 
+      self.viewOrganismActionSlot)
+    self.connect( self.viewAnalysisAction,SIGNAL("activated()"), 
+      self.viewAnalysisActionSlot)
+    
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
@@ -127,6 +140,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("workspaceOpenSig"),
       self.fileOpen)
 
+    # Start the program with the population viewer
 
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
     self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
@@ -139,6 +153,9 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       del self.m_cli_to_ctrl_dict[key]
     for key in self.m_ctrl_to_cli_dict.keys():
       del self.m_ctrl_to_cli_dict[key]
+
+  # When user clicks on one of the icons in the navigation bar go to the 
+  # correct viewer
 
   def navBarItemClickedSlot(self, item):
     if item:
@@ -448,6 +465,17 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     print "BDB -- in Restart_ExpActionSlot File name is " + file_name
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
+
+  # Next three methods are for where a user selects a veiwer from the View menu
+
+  def viewPopulationActionSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
+
+  def viewOrganismActionSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_organism_cli)
+
+  def viewAnalysisActionSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_analyze_cli)
 
 
   def addStatusBarWidgetSlot(self, *args):
