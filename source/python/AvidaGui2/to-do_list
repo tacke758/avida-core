@@ -108,6 +108,12 @@ Priority Low-
 
 08-Jun-06 Add printing/saving images to organism and population stats view.
 
+03-Jul-06 Fix analysis mode pop box resizing issues
+03-Jul-06 Delete extra whitespace at top of analysis-mode
+03-Jul-06 Change title to y-axis vs. x-axis
+03-Jul-06 Remove "Drag a Full Petri Dish..." after first dish is dragged
+03-Jul-06 Remove flip arrow on analyze mode
+
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
 

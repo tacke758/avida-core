@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyOneOrg_ScopeView import pyOneOrg_ScopeView
+from pyTimeline import pyTimeline, Flag
 import qt
 import os
 
@@ -14,9 +15,16 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.m_organism_scope_ctrl.construct(self.m_session_mdl)
     self.m_execution_step_slider.setMinValue(0)
     self.m_execution_step_slider.setMaxValue(0)
+    self.m_timeline.setMinValue(0)
+    self.m_timeline.setMaxValue(0)
     self.m_timer = qt.QTimer()
     self.m_next = qt.QTimer()
     self.m_timer_interval = 100
+
+    # TODO: example to show flags, need to hook into TestCPU to get proper
+    # organism events
+    self.m_timeline.addFlag(Flag("timeline_arrow.png", 86, "First write into child"))
+    self.m_timeline.addFlag(Flag("timeline_arrow.png", 385, "Organism divide"))
 
     self.connect(
       self.m_execution_step_slider, qt.SIGNAL("valueChanged(int)"),
@@ -55,16 +63,19 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
   def sliderValueChangedSlot(self, frame_number):
 #    print "pyOneOrg_ScopeCtrl.sliderValueChangedSlot(", frame_number, ")."
     self.m_organism_scope_ctrl.showFrame(frame_number)
+    self.m_timeline.setValue(frame_number)
 
 
   def gestationTimeChangedSlot(self, gestation_time):
     print "pyOneOrg_ScopeCtrl.gestationTimeChangedSlot called, gestation_time ", gestation_time
     self.m_execution_step_slider.setMaxValue(gestation_time - 1)
+    self.m_timeline.setMaxValue(gestation_time - 1)
     self.rewindSlot()
 
   def executionStepResetSlot(self, execution_step):
     print "pyOneOrg_ScopeCtrl.executionStepResetSlot called, execution_step ", execution_step
     self.m_execution_step_slider.setValue(execution_step)
+    self.m_timeline.setValue(execution_step)
     # This may be redundant (I'm not sure). @kgn
     self.m_execution_step_slider.emit(qt.SIGNAL("valueChanged(int)"),(execution_step,))
 
@@ -75,11 +86,13 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
   def rewindSlot(self):
     print "pyOneOrg_ScopeCtrl.rewindSlot()."
     self.m_execution_step_slider.setValue(0)
+    self.m_timeline.setValue(0)
     self.pauseSlot()
 
   def cueSlot(self):
     print "pyOneOrg_ScopeCtrl.cueSlot()."
     self.m_execution_step_slider.setValue(self.m_execution_step_slider.maxValue())
+    self.m_timeline.setValue(self.m_timeline.maxValue())
     self.pauseSlot()
 
   def pauseSlot(self):
@@ -99,3 +112,4 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
       self.pauseSlot()
     else:
       self.m_execution_step_slider.setValue(slider_value + 1)
+      self.m_timeline.setValue(slider_value + 1)
