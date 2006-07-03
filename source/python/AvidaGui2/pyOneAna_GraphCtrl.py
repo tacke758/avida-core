@@ -46,20 +46,21 @@ class pyPopulationGraph:
     self.label = label
 
     # Setup the combo boxes that control the graph
-    self.layout = QHBoxLayout(None, 0, 6, "row%s_layout" %(label))
+    self.layout = QHBoxLayout(None, 0, 6, "row%s_layout" % (label))
 
     self.layout.spacer200_1 = QSpacerItem(23, 16, QSizePolicy.Expanding,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_1)
 
-    self.layout.m_del_button = QPushButton("-", parent)
+    self.layout.m_del_button = QPushButton("-", parent.population_box_widget)
     self.layout.addWidget(self.layout.m_del_button)
 
     self.layout.spacer200_2 = QSpacerItem(20, 16, QSizePolicy.Preferred,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_2)
 
-    self.layout.m_population = QLabel(parent, "row%s_m_population" % (label))
+    self.layout.m_population = QLabel(parent.population_box_widget,
+                                      "row%s_m_population" % (label))
     self.layout.m_population.setMinimumWidth(100)
     self.layout.addWidget(self.layout.m_population)
 
@@ -67,7 +68,8 @@ class pyPopulationGraph:
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_3)
 
-    self.layout.m_combo_box_1_color = QComboBox(0, parent,
+    self.layout.m_combo_box_1_color = QComboBox(0,
+                                                parent.population_box_widget,
                                                 "row%s_m_combo_box_1_color" % (label))
     self.layout.addWidget(self.layout.m_combo_box_1_color)
 
@@ -79,20 +81,24 @@ class pyPopulationGraph:
 
     self.parent = parent
 
-    parent.layout().addItem(self.layout)
+    self.parent.population_box_layout.addLayout(self.layout)
+#    parent.population_box.addItem(self.layout)
 
   def del_population_slot(self):
     "Remove this population's controls from the display"
-    self.parent.layout().removeItem(self.layout)
+    self.parent.population_box_layout.removeItem(self.layout)
     if self.color not in self.parent.avail_colors:
       heapq.heappush(self.parent.avail_colors, self.color)
-    # hide the widgets
-    self.layout.m_population.hide()
-    self.layout.m_combo_box_1_color.hide()
-    self.layout.m_del_button.hide()
+    # close and delete the widgets
+    self.layout.deleteAllItems()
+    self.layout.m_population.close(True)
+    self.layout.m_combo_box_1_color.close(True)
+    self.layout.m_del_button.close(True)
     del self.parent.m_combo_boxes[self.label]
-
     self.parent.modeActivatedSlot()
+    self.parent.population_box_widget.resize(
+      self.parent.population_box_widget.sizeHint())
+    self.parent.resize(self.parent.sizeHint())
 
   def change_color_slot(self):
     "User selected a new color"
@@ -134,16 +140,35 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.connect(widget.layout.m_del_button, SIGNAL("clicked()"),
                  widget.del_population_slot)
 
-    self.resize(self.sizeHint())
+    print widget.parent.population_box_widget.sizeHint().width()
+    print widget.parent.population_box_widget.sizeHint().height()
+    
+    
 
     # Show the contents
     widget.layout.m_population.show()
     widget.layout.m_combo_box_1_color.show()
     widget.layout.m_del_button.show()
+    widget.parent.population_box_widget.show()
+    print widget.parent.population_box_widget.sizeHint().width()
+    print widget.parent.population_box_widget.sizeHint().height()
+    widget.parent.population_box_widget.resize(widget.parent.population_box_widget.sizeHint())
+    self.resize(self.sizeHint())
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
+
+    self.population_box.setOrientation(Qt.Vertical)
+    self.population_box_widget = QWidget(self.population_box,
+                                         "population_box_widget")
+    self.population_box_widget.setSizePolicy(
+      QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding))
+    self.population_box_widget.setGeometry(QRect(5, 15, 310, 90))
+    self.population_box_widget.setMinimumWidth(310)
+    self.population_box_widget.setMinimumHeight(90)
+    self.population_box_layout = QVBoxLayout(self.population_box_widget, 2, 1,
+                                             "population_box_layout")
 
     self.m_graph_ctrl.construct(self.m_session_mdl)
     self.m_combo_box_1.clear()
@@ -205,6 +230,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
     # Start the right with zeroth mode -- "None"
     self.m_combo_box_2.setCurrentItem(0)
+
+    self.population_box_widget.resize(self.population_box_widget.sizeHint())
 
   def check_file(self, path):
     "Check for a valid population file"
