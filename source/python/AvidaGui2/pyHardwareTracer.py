@@ -58,6 +58,8 @@ class pyHardwareTracer(pyHardwareTracerBase):
     # Build the test info for tracing hardware.
     test_info = cCPUTestInfo()
     test_info.TestThreads()
+    organism = test_info.GetTestOrganism(0)
+    #organism.MutationRates().SetCopyMutProb(0.5)
     # Build storage for hardware trace info.
     self.m_hardware_trace = pyHardwareCPUTrace()
     test_info.SetTraceExecution(self)

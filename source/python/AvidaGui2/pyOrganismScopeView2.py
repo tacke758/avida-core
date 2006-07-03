@@ -245,12 +245,12 @@ class pyOrganismScopeView2(QCanvasView):
 
       if self.m_frames.m_rhead_info is not None:
         self.m_rhead_item = QCanvasEllipse(self.m_canvas)
-        self.m_rhead_item.setSize(text_height + 6, text_height + 6)
+        self.m_rhead_item.setSize(text_height + 2, text_height + 2)
         self.m_rhead_item.setZ(1.)
         self.m_rhead_item.setBrush(QBrush(Qt.blue))
 
         self.m_rhead_bg_item = QCanvasEllipse(self.m_canvas)
-        self.m_rhead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_rhead_bg_item.setSize(text_height + 2, text_height + 2)
         self.m_rhead_bg_item.setZ(1.)
         self.m_rhead_bg_item.setBrush(QBrush(Qt.white))
 
@@ -263,12 +263,12 @@ class pyOrganismScopeView2(QCanvasView):
 
       if self.m_frames.m_whead_info is not None:
         self.m_whead_item = QCanvasEllipse(self.m_canvas)
-        self.m_whead_item.setSize(text_height + 6, text_height + 6)
+        self.m_whead_item.setSize(text_height + 2, text_height + 2)
         self.m_whead_item.setZ(1.)
         self.m_whead_item.setBrush(QBrush(Qt.red))
 
         self.m_whead_bg_item = QCanvasEllipse(self.m_canvas)
-        self.m_whead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_whead_bg_item.setSize(text_height + 2, text_height + 2)
         self.m_whead_bg_item.setZ(1.)
         self.m_whead_bg_item.setBrush(QBrush(Qt.white))
 
@@ -281,12 +281,12 @@ class pyOrganismScopeView2(QCanvasView):
 
       if self.m_frames.m_fhead_info is not None:
         self.m_fhead_item = QCanvasEllipse(self.m_canvas)
-        self.m_fhead_item.setSize(text_height + 6, text_height + 6)
+        self.m_fhead_item.setSize(text_height + 2, text_height + 2)
         self.m_fhead_item.setZ(1.)
         self.m_fhead_item.setBrush(QBrush(Qt.darkGreen))
 
         self.m_fhead_bg_item = QCanvasEllipse(self.m_canvas)
-        self.m_fhead_bg_item.setSize(text_height + 6, text_height + 6)
+        self.m_fhead_bg_item.setSize(text_height + 2, text_height + 2)
         self.m_fhead_bg_item.setZ(1.)
         self.m_fhead_bg_item.setBrush(QBrush(Qt.white))
 
@@ -437,7 +437,7 @@ class pyOrganismScopeView2(QCanvasView):
           self.m_parent_circle.centerY(),
           self.m_instruction_spot_radius
         )
-        self.m_child_circle.setDTheta(-self.m_child_circle.dTheta())
+        #self.m_child_circle.setDTheta(-self.m_child_circle.dTheta())
 
       # Show all parent circle points
       for i in xrange(self.m_parent_size):
