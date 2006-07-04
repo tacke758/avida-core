@@ -420,6 +420,7 @@ class pyOrganismScopeView2(QCanvasView):
 
     if self.m_frames is not None and frame_number < self.m_frames.m_gestation_time:
       #self.debug_displayHardwareCPUSnapshot(frame_number)
+
       self.m_current_frame_number = frame_number
       self.m_current_genome = self.m_frames.m_genome_info[self.m_current_frame_number]
       displayed_genome_size = max(self.last_copied_instruction_cache[self.m_current_frame_number] + 1, self.m_parent_size)

@@ -47,6 +47,8 @@ class pyTimeline(QwtThermo):
         self.move_flag(flag)
         if self.maxValue() == 0.0:
             flag.widget.hide()
+        else:
+            flag.widget.show()
 
     def move_flag(self, flag):
         "Draw the flag in the proper location"
@@ -61,12 +63,13 @@ class pyTimeline(QwtThermo):
         # TODO: figure out proper geometry code
         a = self.width() - 418
         mult = a / (self.maxValue() - self.minValue())
-#        print self.height()
-#        print "frameGeometry: %d" % (self.frameSize().width())
-#        print "size: %d" % (self.width())
-#        print flag.pos * mult
-#        print adj
-#        print borders
+#         print "frameGeometry: %d" % (self.frameSize().width())
+#         print "size: %d" % (self.width())
+#         print flag.pos * mult
+#         print adj
+#         print borders
+#         print "maxValue(): %d" % (self.maxValue())
+#         print "final value: %f" % ((flag.pos * mult) + adj + borders)
         flag.widget.move((flag.pos * mult) + adj + borders, 2)
 
     def removeFlag(self, pos):
@@ -104,4 +107,5 @@ class pyTimeline(QwtThermo):
     def reset(self):
         "Reset the timeline, hiding all flags"
         for flag in self.flags:
-            flag.widget.hide()
+            flag.widget.close(True)
+        self.flags = []

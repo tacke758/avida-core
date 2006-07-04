@@ -81,7 +81,9 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       freezer_item_name = str(e.encodedData("text/plain"))
       if os.path.exists(freezer_item_name) == False:
         print "that was not a valid path(3)" 
-      else: 
+      else:
+        if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
+          self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
         self.emit(PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"), (e,))
 
   def freezerItemDoubleClicked(self, freezer_item_name):
@@ -89,6 +91,8 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       print "that was not a valid path(3)"
     else:
       if self.isVisible():
+        if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
+          self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
         self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"), 
           (freezer_item_name,))
 

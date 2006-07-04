@@ -114,11 +114,7 @@ Priority Low-
 
 08-Jun-06 Add printing/saving images to organism and population stats view.
 
-03-Jul-06 Fix analysis mode pop box resizing issues
 03-Jul-06 Delete extra whitespace at top of analysis-mode
-03-Jul-06 Change title to y-axis vs. x-axis
-03-Jul-06 Remove "Drag a Full Petri Dish..." after first dish is dragged
-03-Jul-06 Remove flip arrow on analyze mode
 
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
@@ -196,6 +192,10 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 30-May-06 Printing of petri dish and of color scale -- Finished 06-Jun-06
 30-May-06 Fill out save image dialog with default filename that includes update and other info -- Finished 19-Jun-06
 12-Jun-06 Add ability to analyze more than one population. -- Finished 22-Jun-06
+03-Jul-06 Fix analysis mode pop box resizing issues -- Finished 04-Jul-06
+03-Jul-06 Remove flip arrow on analyze mode -- Finished 04-Jul-06
+03-Jul-06 Change title to y-axis vs. x-axis -- Finished 04-Jul-06
+03-Jul-06 Remove "Drag a Full Petri Dish..." after first dish is graphed -- Finished 04-Jul-06
 
 
 *************Jeff********************

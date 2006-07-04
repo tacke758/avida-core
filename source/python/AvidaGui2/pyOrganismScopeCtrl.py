@@ -3,7 +3,7 @@
 from pyOrganismScopeView2 import pyOrganismScopeView2
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
-
+from pyTimeline import pyTimeline, Flag
 from qt import *
 
 import os
@@ -155,6 +155,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       self.setOps(ops)
       self.setFrames(hardware_tracer.m_hardware_trace)
 
+      self.m_timeline.reset()
+      self.flagEvents()
+
       progress_callback.clear()
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarClearSig"), ())
 
@@ -212,4 +215,24 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
   def HardwareIndicatorSBValueChangedSlot(self, value):
     self.anim.setHardwareIndicatorSBValueChanged(value)
 
-
+  def flagEvents(self):
+    "Flag events on timeline"
+    if self.m_frames is not None:
+      # task_completed holds frame number for when a task was first completed
+      task_completed = []
+      task_lib = self.m_avida.m_environment.GetTaskLib()
+      num_tasks = task_lib.GetSize()
+      print "num_tasks: %d" % (num_tasks)
+      for task in xrange(num_tasks):
+        task_completed.append(False)
+      for task in xrange(num_tasks):
+        for frame in xrange(self.m_frames.getSnapshotCount()):
+          if self.m_frames.m_tasks_info[frame][task] > 0:
+            if task_completed[task] == False:
+              task_completed[task] = True
+              self.m_timeline.addFlag(
+                Flag("timeline_arrow.png", frame,
+                     "Completed first %s task" % (task_lib.GetTask(task).GetDesc())))
+              # Task completed, don't need to search any more frames for this
+              # task
+              break

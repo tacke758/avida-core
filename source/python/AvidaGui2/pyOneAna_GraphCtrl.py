@@ -96,9 +96,7 @@ class pyPopulationGraph:
     self.layout.m_del_button.close(True)
     del self.parent.m_combo_boxes[self.label]
     self.parent.modeActivatedSlot()
-    self.parent.population_box_widget.resize(
-      self.parent.population_box_widget.sizeHint())
-    self.parent.resize(self.parent.sizeHint())
+    self.parent.my_resize()
 
   def change_color_slot(self):
     "User selected a new color"
@@ -113,7 +111,7 @@ class pyPopulationGraph:
     self.parent.modeActivatedSlot()
 
 class pyOneAna_GraphCtrl(pyOneAna_GraphView):
-
+  "The main graph control"
   def __init__(self, parent = None, name = None, fl = 0):
     pyOneAna_GraphView.__init__(self,parent,name,fl)
     self.m_avida_stats_interface = pyAvidaStatsInterface()
@@ -121,6 +119,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
   def construct_box(self, widget):
     "Initialize new combo box group with stat information"
+    self.m_first_graph = True
     widget.layout.m_combo_box_1_color.clear()
     for color in self.m_Colors:
       widget.layout.m_combo_box_1_color.insertItem(color.name)
@@ -140,33 +139,29 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.connect(widget.layout.m_del_button, SIGNAL("clicked()"),
                  widget.del_population_slot)
 
-    print widget.parent.population_box_widget.sizeHint().width()
-    print widget.parent.population_box_widget.sizeHint().height()
-    
-    
-
     # Show the contents
     widget.layout.m_population.show()
     widget.layout.m_combo_box_1_color.show()
     widget.layout.m_del_button.show()
     widget.parent.population_box_widget.show()
-    print widget.parent.population_box_widget.sizeHint().width()
-    print widget.parent.population_box_widget.sizeHint().height()
-    widget.parent.population_box_widget.resize(widget.parent.population_box_widget.sizeHint())
-    self.resize(self.sizeHint())
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
 
-    self.population_box.setOrientation(Qt.Vertical)
+    self.toolButton31_2.hide()
+    # m_first_graph is true if we have graphed any population
+    self.m_first_graph = False
+
+    # Setup the population controls group box
+    self.population_box.setColumnLayout(1, Qt.Vertical)
     self.population_box_widget = QWidget(self.population_box,
                                          "population_box_widget")
     self.population_box_widget.setSizePolicy(
-      QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding))
-    self.population_box_widget.setGeometry(QRect(5, 15, 310, 90))
+      QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum))
+    self.population_box_widget.setGeometry(QRect(5, 15, 310, 50))
     self.population_box_widget.setMinimumWidth(310)
-    self.population_box_widget.setMinimumHeight(90)
+    self.population_box_widget.setMinimumHeight(20)
     self.population_box_layout = QVBoxLayout(self.population_box_widget, 2, 1,
                                              "population_box_layout")
 
@@ -222,7 +217,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.connect(self.m_session_mdl.m_session_mdtr,
                  PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"),
                  self.petriDropped)
-    self.m_graph_ctrl.setAxisTitle(QwtPlot.xBottom, "Time (updates)")
+    self.x_axis_title = "Time (updates)"
+    self.m_graph_ctrl.setAxisTitle(QwtPlot.xBottom, self.x_axis_title)
     self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
 
     # Start the left with second graph mode -- "Average Fitness"
@@ -230,8 +226,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
     # Start the right with zeroth mode -- "None"
     self.m_combo_box_2.setCurrentItem(0)
-
-    self.population_box_widget.resize(self.population_box_widget.sizeHint())
 
   def check_file(self, path):
     "Check for a valid population file"
@@ -254,7 +248,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         else:
           print "error: there is no data file in the directory to load from"
           self.m_graph_ctrl.setTitle(
-            self.m_avida_stats_interface.m_entries[0].name)
+            self.m_avida_stats_interface.m_entries[0].name + " vs. " + self.x_axis_title)
           self.m_graph_ctrl.setAxisTitle(
             QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[0].name)
           self.m_graph_ctrl.replot()
@@ -279,7 +273,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_1, QwtPlot.yLeft)
         if not self.m_combo_box_2.currentItem():
           self.m_graph_ctrl.enableYRightAxis(False)
-          self.m_graph_ctrl.setTitle(stat_1.name)
+          self.m_graph_ctrl.setTitle(stat_1.name + " vs. " + self.x_axis_title)
       else:
         self.m_graph_ctrl.enableYLeftAxis(False)
 
@@ -304,14 +298,14 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
           self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
         self.m_graph_ctrl.setCurveYAxis(row.m_curve_2, QwtPlot.yRight)
         if not self.m_combo_box_1.currentItem():
-          self.m_graph_ctrl.setTitle(stat_2.name)
+          self.m_graph_ctrl.setTitle(stat_2.name + " vs. " + self.x_axis_title)
 
 
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
 
       if self.m_combo_box_1.currentItem() and self.m_combo_box_2.currentItem():
         self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[self.m_combo_box_1.currentItem()].name + ' (' + self.pen_styles[self.m_combo_box_1_style.currentItem()] \
-        + ') and ' + self.m_avida_stats_interface.m_entries[self.m_combo_box_2.currentItem()].name + ' (' +  self.pen_styles[self.m_combo_box_2_style.currentItem()] +')')
+        + ') and ' + self.m_avida_stats_interface.m_entries[self.m_combo_box_2.currentItem()].name + ' (' +  self.pen_styles[self.m_combo_box_2_style.currentItem()] +') vs. ' + self.x_axis_title)
         bounding_rect_1 = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
         bounding_rect_2 = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
         bounding_rect = bounding_rect_1.unite(bounding_rect_2)
@@ -323,7 +317,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       self.m_graph_ctrl.m_zoomer.setZoomBase(bounding_rect)
   
     else:   # goes with '   if self.m_combo_box_1.currentItem() or row.layout.m_combo_box_2.currentItem():'
-       self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[0].name)
+       self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[0].name + " vs. " + self.x_axis_title)
        self.m_graph_ctrl.setAxisTitle(QwtPlot.yLeft, self.m_avida_stats_interface.m_entries[0].name)
 
   def modeActivatedSlot(self, selected = None, index = None):
