@@ -248,25 +248,6 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                     </property>
                                     <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>textLabel11</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>1</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>&lt;font size="-1"&gt;&lt;p align="center"&gt;Time (updates):&lt;/p&gt;&lt;/font&gt;</string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Updates is the basic unit of time in Avida-ED</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel">
-                                        <property name="name">
                                             <cstring>m_update_label</cstring>
                                         </property>
                                         <property name="sizePolicy">
@@ -277,13 +258,41 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                                 <verstretch>0</verstretch>
                                             </sizepolicy>
                                         </property>
+                                        <property name="font">
+                                            <font>
+                                                <pointsize>10</pointsize>
+                                            </font>
+                                        </property>
                                         <property name="text">
-                                            <string>&lt;font size="-1"&gt;-&lt;/font&gt;</string>
+                                            <string>Time (Updates): -</string>
+                                        </property>
+                                        <property name="textFormat">
+                                            <enum>AutoText</enum>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>WordBreak|AlignVCenter|AlignLeft</set>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Updates is the basic unit of time in Avida-ED</string>
                                         </property>
                                     </widget>
+                                    <spacer>
+                                        <property name="name">
+                                            <cstring>UpdateSpacer</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Fixed</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>6</width>
+                                                <height>6</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
                                     <widget class="QComboBox">
                                         <item>
                                             <property name="text">

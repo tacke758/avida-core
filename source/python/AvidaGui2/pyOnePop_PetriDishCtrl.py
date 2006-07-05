@@ -182,7 +182,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     if self.m_avida: stats = self.m_avida.m_population.GetStats()
     if stats: update = stats.GetUpdate()
     if update: 
-      self.m_update_label.setText(QString("%1").arg(update))
+      self.m_update_label.setText("Time (Updates): " + str(QString("%1").arg(update)))
 
       # BDB -- Pause at certain update hack
 
