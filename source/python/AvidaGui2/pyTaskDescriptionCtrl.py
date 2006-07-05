@@ -38,6 +38,6 @@ class pyTaskDescriptionCtrl(QLabel):
       tasks_frame = frames.m_tasks_info[frame_no]
       task_count = tasks_frame[task_num]
       self.setFont(task_count > 0 and self.bold_font or self.normal_font)
-      task_text = task_text + ": " + str(task_count)
+      task_text = str(task_num) + ' ' + task_text + ": " + str(task_count)
     self.setText("%s" % task_text)
 
