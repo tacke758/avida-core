@@ -15,6 +15,7 @@ class pyBufferView(QWidget):
     self.setIndicatorHeight(5)
     self.setIndicatorWidth(5)
     self.setIndicatorBitCount(32)
+    self.setIndicatorColors(Qt.yellow, Qt.blue, Qt.darkGray, Qt.lightGray)
     self.setBits(0)
 
   def _updateSize(self):
@@ -23,6 +24,15 @@ class pyBufferView(QWidget):
     self.setMaximumSize(size)
     self.backing_store.resize(size)
 
+  def getIndicatorColor_OnFg(self):
+    return self.on_fg_color
+  def getIndicatorColor_OffFg(self):
+    return self.off_fg_color
+  def getIndicatorColor_EvenBg(self):
+    return self.even_bg_color
+  def getIndicatorColor_OddBg(self):
+    return self.odd_bg_color
+
   def getIndicatorHeight(self):
     return self.indicator_h
   def getIndicatorWidth(self):
@@ -30,6 +40,11 @@ class pyBufferView(QWidget):
   def getIndicatorBitCount(self):
     return self.indicator_bit_count
 
+  def setIndicatorColors(self, on_fg, off_fg, even_bg, odd_bg):
+    self.on_fg_color = on_fg
+    self.off_fg_color = off_fg
+    self.even_bg_color = even_bg
+    self.odd_bg_color = odd_bg
   def setIndicatorHeight(self, pixels):
     self.indicator_h = pixels
     self._updateSize()
@@ -44,11 +59,11 @@ class pyBufferView(QWidget):
     p = QPainter(self.backing_store)
     # fill rect with first color if bit_val is high, otherwise use
     # second color
-    p.setBrush(bit_val and Qt.yellow or Qt.blue)
+    p.setBrush(bit_val and self.getIndicatorColor_OnFg() or self.getIndicatorColor_OffFg())
     # alternate background colors, to help count bits visually.
     # do this by outlining odd bit number the fist color, and even the
     # second.
-    p.setPen(bit_no & 1 and Qt.lightGray or Qt.darkGray)
+    p.setPen(bit_no & 1 and self.getIndicatorColor_OddBg() or self.getIndicatorColor_EvenBg())
     p.drawRect(
       (self.getIndicatorBitCount() - bit_no - 1) * self.getIndicatorWidth(),
       0,
@@ -60,7 +75,7 @@ class pyBufferView(QWidget):
     if self.old_bits != bits:
       # hi is always 2^(current bit number)
       hi = 1
-      for i in xrange(32):
+      for i in xrange(self.getIndicatorBitCount()):
         self.setBit(i, hi & bits)
         hi = hi << 1
       self.old_bits = bits

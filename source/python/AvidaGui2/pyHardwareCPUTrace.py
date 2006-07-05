@@ -1,6 +1,5 @@
-from AvidaCore import cHardwareDefs
-from AvidaCore import cHardwareCPUDefs
-from AvidaCore import cHardwareCPU
+from AvidaCore import cEnvironment, cHardwareDefs, cHardwareCPUDefs, cHardwareCPU
+from descr import descr
 
 #class pyHardwareCPUFrame:
 #  def __init__(self):
@@ -30,6 +29,7 @@ class pyHardwareCPUTrace:
     self.m_whead_info = []
     self.m_fhead_info = []
     self.m_tasks_info = []
+    self.m_task_names = []
     self.m_register_ax_info = []
     self.m_register_bx_info = []
     self.m_register_cx_info = []
@@ -75,6 +75,8 @@ class pyHardwareCPUTrace:
     self.m_register_cx_info.append(hardware.GetRegister(cHardwareCPUDefs.s_REG_CX))
     self.m_read_label_info.append(hardware.GetReadLabel().AsString().GetData())
 
+    #descr("self.m_last_copied_instruction", self.m_last_copied_instruction)
+    #descr("hardware.GetMemory().GetSize()", hardware.GetMemory().GetSize())
     self.m_last_copied_instruction = max(
       [hardware.GetMemory().GetFlagCopied(i) and i or self.m_last_copied_instruction \
       for i in xrange(self.m_last_copied_instruction, hardware.GetMemory().GetSize())]
@@ -91,16 +93,17 @@ class pyHardwareCPUTrace:
     self.m_ihead_moves_snapshot.append(self.m_ihead_moves_counts.copy())
     self.m_ihead_moves_info.append(len(self.m_ihead_moves))
 
+  def recordTaskNames(self, environment):
+    #for i in range(phenotype.GetEnvironment().GetTaskLib().GetSize()):
+    #  self.m_task_names.append(phenotype.GetEnvironment().GetTaskLib().GetTask(i).GetName())
+    for i in range(environment.GetTaskLib().GetSize()):
+      self.m_task_names.append(environment.GetTaskLib().GetTask(i).GetName())
+
   def recordGenotypeSummary(self, analyze_genotype):
-    print "pyHardwareCPUTrace.recordGenotypeSummary() ..."
     self.m_is_viable = analyze_genotype.GetViable()
     self.m_gestation_time = analyze_genotype.GetGestTime()
     self.m_fitness = analyze_genotype.GetFitness()
     self.m_size = analyze_genotype.GetLength()
     if not self.m_is_viable:
       self.m_gestation_time = len(self.m_genome_info)
-    print "  self.m_is_viable", self.m_is_viable
-    print "  self.m_gestation_time", self.m_gestation_time
-    print "  self.m_fitness", self.m_fitness
-    print "  self.m_size", self.m_size
 

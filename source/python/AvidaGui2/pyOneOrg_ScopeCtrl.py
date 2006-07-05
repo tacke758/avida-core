@@ -57,6 +57,12 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.connect(
       self.m_analyze_controls_ctrl.m_pause_btn, qt.SIGNAL("clicked()"),
       self.pauseSlot)
+    self.connect(
+      self.m_analyze_controls_ctrl.m_prev_btn, qt.SIGNAL("clicked()"),
+      self.backSlot)
+    self.connect(
+      self.m_analyze_controls_ctrl.m_next_btn, qt.SIGNAL("clicked()"),
+      self.advanceSlot)
 
     self.connect(self.m_timer, qt.SIGNAL("timeout()"), self.advanceSlot)
 
@@ -105,6 +111,15 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     print "pyOneOrg_ScopeCtrl.playSlot()."
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_pause_page)
     self.m_timer.start(self.m_timer_interval, False)
+
+  def backSlot(self):
+    #print "pyOneOrg_ScopeCtrl.backSlot()."
+    slider_value = self.m_execution_step_slider.value()
+    if slider_value <= self.m_execution_step_slider.minValue():
+      self.pauseSlot()
+    else:
+      self.m_execution_step_slider.setValue(slider_value - 1)
+      self.m_timeline.setValue(slider_value - 1)
 
   def advanceSlot(self):
     #print "pyOneOrg_ScopeCtrl.advanceSlot()."

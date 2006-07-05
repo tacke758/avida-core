@@ -2,9 +2,11 @@
 
 
 from AvidaCore import cHardwareDefs, cHardwareCPUDefs
+from descr import descr
 
 from qt import *
 from qtcanvas import *
+
 import math
 
 class pyCircle:
@@ -115,8 +117,11 @@ class pyOrganismScopeView2(QCanvasView):
     if hasattr(self, "m_inst_bg_items") and self.m_inst_bg_items is not None:
       for item in self.m_inst_bg_items:
         item.setCanvas(None)
-    if hasattr(self, "m_ihead_move_items") and self.m_ihead_move_items is not None:
-      for item in self.m_ihead_move_items:
+    if hasattr(self, "m_muts_items_cache") and self.m_muts_items_cache is not None:
+      for item in self.m_muts_items_cache:
+        item.setCanvas(None)
+    if hasattr(self, "m_ihead_move_items_cache") and self.m_ihead_move_items_cache is not None:
+      for item in self.m_ihead_move_items_cache:
         item.setCanvas(None)
     if hasattr(self, "m_ihead_item") and self.m_ihead_item is not None:
       self.m_ihead_item.setCanvas(None)
@@ -138,7 +143,8 @@ class pyOrganismScopeView2(QCanvasView):
     self.m_inst_pts = None
     self.m_inst_items = None
     self.m_inst_bg_items = None
-    self.m_ihead_move_items = None
+    self.m_muts_items_cache = None
+    self.m_ihead_move_items_cache = None
 
     self.m_ihead_item = None
     self.m_ihead_bg_item = None
@@ -219,11 +225,15 @@ class pyOrganismScopeView2(QCanvasView):
       self.m_inst_items = [QCanvasText(self.m_canvas) for i in xrange(self.m_max_genome_size)]
       self.m_inst_bg_items = [QCanvasEllipse(self.m_canvas) for i in xrange(self.m_max_genome_size)]
       for item in self.m_inst_items:
+        item.setFont(font)
+        item.setColor(Qt.black)
         item.setTextFlags(Qt.AlignCenter)
         item.setZ(4.)
       for item in self.m_inst_bg_items:
         item.setSize(text_height, text_height)
         item.setZ(3.)
+
+      self.m_muts_items_cache = []
 
       if self.m_frames.m_ihead_info is not None:
         self.m_ihead_item = QCanvasEllipse(self.m_canvas)
@@ -299,12 +309,12 @@ class pyOrganismScopeView2(QCanvasView):
 
       # XXX
       #if self.m_frames.m_ihead_moves is not None:
-      #  self.m_ihead_move_items = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
-      #  #self.m_ihead_move_items = [pyHeadPath(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
+      #  self.m_ihead_move_items_cache = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
+      #  #self.m_ihead_move_items_cache = [pyHeadPath(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves))]
       if self.m_frames.m_ihead_moves_snapshot is not None:
-        #self.m_ihead_move_items = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
-        #self.m_ihead_move_items = [QCanvasLine(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
-        self.m_ihead_move_items = []
+        #self.m_ihead_move_items_cache = [QCanvasSpline(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
+        #self.m_ihead_move_items_cache = [QCanvasLine(self.m_canvas) for i in xrange(len(self.m_frames.m_ihead_moves_snapshot[-1]))]
+        self.m_ihead_move_items_cache = []
 
       if self.m_frames.m_is_viable:
         self.emit(PYSIGNAL("gestationTimeChangedSig"),(self.m_frames.m_gestation_time,))
@@ -355,7 +365,7 @@ class pyOrganismScopeView2(QCanvasView):
           item.setSize(point_size_float, point_size_float)
 
   def updateChildCircle(self, child_size, parent_size, parent_circle_radius, parent_center_x, parent_center_y, instruction_spot_radius):
-    print "pyOrganismScopeView2.updateChildCircle()..."
+    #descr()
     self.m_child_circle.setRadius(parent_circle_radius * child_size / parent_size)
     self.m_child_circle.setCenterX(parent_center_x + parent_circle_radius + 2*instruction_spot_radius + self.m_child_circle.radius())
     self.m_child_circle.setCenterY(parent_center_y)
@@ -363,39 +373,56 @@ class pyOrganismScopeView2(QCanvasView):
     self.m_child_circle.setOTheta(math.pi)
 
   def debug_displayHardwareCPUSnapshot(self, frame_number):
-    print "pyOrganismScopeView2.debug_displayHardwareCPUSnapshot(%d)..." % frame_number
+    descr("frame_number", frame_number)
+
     hardware_snapshot = self.m_frames.getHardwareSnapshotAt(frame_number)
     memory_snapshot = self.m_frames.getMemorySnapshotAt(frame_number)
     threads_snapshot = self.m_frames.getThreadsSnapshotAt(frame_number)
 
-    print "hardware_snapshot", hardware_snapshot
-    print "memory_snapshot", memory_snapshot
-    print "threads_snapshot", threads_snapshot
-    memory_size = memory_snapshot.GetSize()
-    memory_string = str(memory_snapshot.AsString())
-    print "memory_snapshot.GetSize()", memory_size
-    print "memory:"
-    for i in xrange(memory_size):
-      print " ", memory_string[i], memory_snapshot.GetFlagCopied(i), memory_snapshot.GetFlagExecuted(i)
-    threads_count = len(threads_snapshot)
-    print "thread:"
-    for i in xrange(threads_count):
-      thread = threads_snapshot[i]
-      print " .cur_head", thread.cur_head
-      print " .cur_stack", thread.cur_stack
-      print " .next_label", thread.next_label
-      print " .read_label", thread.read_label
-      #print " .stack", thread.stack
-      for j in xrange(cHardwareDefs.s_STACK_SIZE):
-        print " .stack[%d]" % j, thread.stack.Get(j)
-      print " .reg[s_REG_AX]", thread.GetRegister(cHardwareCPUDefs.s_REG_AX)
-      print " .reg[s_REG_BX]", thread.GetRegister(cHardwareCPUDefs.s_REG_BX)
-      print " .reg[s_REG_CX]", thread.GetRegister(cHardwareCPUDefs.s_REG_CX)
-      #print " .reg[s_REG_DX]", thread.GetRegister(cHardwareCPUDefs.s_REG_DX)
-      print " .heads[s_HEAD_IP]", thread.GetHead(cHardwareDefs.s_HEAD_IP).GetPosition()
-      print " .heads[s_HEAD_READ]", thread.GetHead(cHardwareDefs.s_HEAD_READ).GetPosition()
-      print " .heads[s_HEAD_WRITE]", thread.GetHead(cHardwareDefs.s_HEAD_WRITE).GetPosition()
-      print " .heads[s_HEAD_FLOW]", thread.GetHead(cHardwareDefs.s_HEAD_FLOW).GetPosition()
+    # XXX @kgn: This triggers "Bus Error" on OS X; bad memory address
+    # stored beneath hardware_snapshot?
+
+    #descr("hardware_snapshot", hardware_snapshot)
+    #organism = hardware_snapshot.GetOrganism()
+    #descr("organism", organism)
+    #phenotype = organism.GetPhenotype()
+    #descr("phenotype", phenotype)
+    #cur_task_ct = phenotype.GetCurTaskCount()
+    #descr("cur_task_ct", cur_task_ct)
+
+    tasks_frame = self.m_frames.m_tasks_info[frame_number]
+    descr("tasks_frame", tasks_frame)
+    for task in tasks_frame:
+      descr("task", task)
+
+    #print "hardware_snapshot", hardware_snapshot
+    #print "memory_snapshot", memory_snapshot
+    #print "threads_snapshot", threads_snapshot
+    #memory_size = memory_snapshot.GetSize()
+    #memory_string = str(memory_snapshot.AsString())
+    #print "memory_snapshot.GetSize()", memory_size
+    #print "memory:"
+    #for i in xrange(memory_size):
+    #  print " ", memory_string[i], memory_snapshot.GetFlagCopied(i), memory_snapshot.GetFlagExecuted(i)
+    #threads_count = len(threads_snapshot)
+    #print "thread:"
+    #for i in xrange(threads_count):
+    #  thread = threads_snapshot[i]
+    #  print " .cur_head", thread.cur_head
+    #  print " .cur_stack", thread.cur_stack
+    #  print " .next_label", thread.next_label
+    #  print " .read_label", thread.read_label
+    #  #print " .stack", thread.stack
+    #  for j in xrange(cHardwareDefs.s_STACK_SIZE):
+    #    print " .stack[%d]" % j, thread.stack.Get(j)
+    #  print " .reg[s_REG_AX]", thread.GetRegister(cHardwareCPUDefs.s_REG_AX)
+    #  print " .reg[s_REG_BX]", thread.GetRegister(cHardwareCPUDefs.s_REG_BX)
+    #  print " .reg[s_REG_CX]", thread.GetRegister(cHardwareCPUDefs.s_REG_CX)
+    #  #print " .reg[s_REG_DX]", thread.GetRegister(cHardwareCPUDefs.s_REG_DX)
+    #  print " .heads[s_HEAD_IP]", thread.GetHead(cHardwareDefs.s_HEAD_IP).GetPosition()
+    #  print " .heads[s_HEAD_READ]", thread.GetHead(cHardwareDefs.s_HEAD_READ).GetPosition()
+    #  print " .heads[s_HEAD_WRITE]", thread.GetHead(cHardwareDefs.s_HEAD_WRITE).GetPosition()
+    #  print " .heads[s_HEAD_FLOW]", thread.GetHead(cHardwareDefs.s_HEAD_FLOW).GetPosition()
 
 
     #print "ss", hardware_snapshot
@@ -411,7 +438,7 @@ class pyOrganismScopeView2(QCanvasView):
     # bool advance_ip : bool pyGetAdvanceIP()
 
   def showFrame(self, frame_number = 0):
-    print "pyOrganismScopeView2.showFrame(%d)" % frame_number
+    #descr("frame_number", frame_number)
     old_frame_number = self.m_current_frame_number
     old_genome = self.m_current_genome
 
@@ -423,6 +450,7 @@ class pyOrganismScopeView2(QCanvasView):
 
       self.m_current_frame_number = frame_number
       self.m_current_genome = self.m_frames.m_genome_info[self.m_current_frame_number]
+      memory_snapshot = self.m_frames.getMemorySnapshotAt(self.m_current_frame_number)
       displayed_genome_size = max(self.last_copied_instruction_cache[self.m_current_frame_number] + 1, self.m_parent_size)
       color = QColor()
 
@@ -466,6 +494,7 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_child_circle.setCenterX(self.m_child_circle.centerX() + 2 * self.m_instruction_spot_radius)
 
       ###
+      muts_item_idx = 0
       for i in xrange(self.m_max_genome_size):
         pt = self.m_inst_pts[i]
         item = self.m_inst_items[i]
@@ -488,6 +517,41 @@ class pyOrganismScopeView2(QCanvasView):
           color.setHsv((self.m_ops_dict[self.m_current_genome[i]] * 360) / len(self.m_ops_dict), 85, 248)
           bg_item.setBrush(QBrush(color))
           bg_item.show()
+
+          if memory_snapshot.GetFlagMutated(i):
+            #descr("GetFlagMutated", i)
+            if len(self.m_muts_items_cache) <= muts_item_idx:
+              # Make a new mutation circle outline, and append it to the
+              # cache.
+              self.m_muts_items_cache.append(QCanvasEllipse(self.m_canvas))
+              # Size it.
+              text_height = 2. * self.m_instruction_spot_radius
+              self.m_muts_items_cache[-1].setSize(text_height + 4, text_height + 4)
+              # Color it.
+              #self.m_muts_items_cache[-1].setBrush(QBrush(Qt.green))
+              # Place it low on the Z plane (behind other stuff)
+              self.m_muts_items_cache[-1].setZ(0.)
+
+            mut_item = self.m_muts_items_cache[muts_item_idx]
+            mut_item.setX(x)
+            mut_item.setY(y)
+            mut_item.show()
+            if memory_snapshot.GetFlagCopyMut(i):
+              mut_item.setBrush(QBrush(Qt.green))
+            elif memory_snapshot.GetFlagPointMut(i):
+              mut_item.setBrush(QBrush(Qt.yellow))
+            else:
+              mut_item.setBrush(QBrush(Qt.magenta))
+
+            muts_item_idx = muts_item_idx + 1
+
+          #if memory_snapshot.GetFlagCopyMut(i):
+          #  descr("GetFlagCopyMut", i)
+          #if memory_snapshot.GetFlagPointMut(i):
+          #  descr("GetFlagPointMut", i)
+
+      for idx in range(muts_item_idx, len(self.m_muts_items_cache)):
+        self.m_muts_items_cache[idx].hide()
 
       for head_info, head_item, head_bg_item, head_text in (
         (self.m_frames.m_ihead_info, self.m_ihead_item, self.m_ihead_bg_item, self.m_ihead_text),
@@ -574,7 +638,7 @@ class pyOrganismScopeView2(QCanvasView):
             cs_cy + control_radii_ratio * (ce_cy - cs_cy)
           ) )
 
-          #ihead_move_item = self.m_ihead_move_items[move_item_idx]
+          #ihead_move_item = self.m_ihead_move_items_cache[move_item_idx]
           #ihead_move_item.setControlPoints(point_array, False)
           #if move_start < move_end:
           #  ihead_move_item.setPen(QPen(Qt.gray))
@@ -587,9 +651,9 @@ class pyOrganismScopeView2(QCanvasView):
 
           bezier_pa = point_array.cubicBezier()
           for i in range(bezier_pa.size() - 1):
-            if len(self.m_ihead_move_items) <= move_item_idx:
-              self.m_ihead_move_items.append(QCanvasLine(self.m_canvas))
-            line = self.m_ihead_move_items[move_item_idx]
+            if len(self.m_ihead_move_items_cache) <= move_item_idx:
+              self.m_ihead_move_items_cache.append(QCanvasLine(self.m_canvas))
+            line = self.m_ihead_move_items_cache[move_item_idx]
             line.setPoints(
               bezier_pa.point(i)[0], 
               bezier_pa.point(i)[1], 
@@ -597,13 +661,12 @@ class pyOrganismScopeView2(QCanvasView):
               bezier_pa.point(i+1)[1], 
             )
             if move_start < move_end: line.setPen(QPen(Qt.black, 1))
-            else: line.setPen(QPen(Qt.lightGray, 1))
-            line.show()
+            else: line.setPen(QPen(Qt.red, 1))
             line.show()
             move_item_idx = move_item_idx + 1
 
-        for idx in range(move_item_idx, len(self.m_ihead_move_items)):
-          self.m_ihead_move_items[idx].hide()
+        for idx in range(move_item_idx, len(self.m_ihead_move_items_cache)):
+          self.m_ihead_move_items_cache[idx].hide()
 
     self.emit(PYSIGNAL("frameShownSig"),(self.m_frames, self.m_current_frame_number))
     self.m_canvas.update()

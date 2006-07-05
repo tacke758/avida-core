@@ -1,7 +1,7 @@
 
 from pyHardwareCPUTrace import pyHardwareCPUTrace
-
 from AvidaCore import cCPUTestInfo, cTestCPU, pyHardwareTracerBase
+from descr import descr
 
 class pyHardwareTracer(pyHardwareTracerBase):
 
@@ -42,7 +42,7 @@ class pyHardwareTracer(pyHardwareTracerBase):
   #  cTestCPU.SetUseResources(True)
 
   def traceAnalyzeGenotype(self, analyze_genotype, environment, should_use_resources):
-    print "pyHardwareTracer.traceAnalyzeGenotype()..."
+    descr()
     backup_environment = None
     original_resource_count = None
     backup_usage = None
@@ -56,19 +56,30 @@ class pyHardwareTracer(pyHardwareTracerBase):
       print " *** but resources in the python test-cpu are disabled for now."
 
     # Build the test info for tracing hardware.
-    test_info = cCPUTestInfo()
+    test_info = cCPUTestInfo(1)
     test_info.TestThreads()
-    organism = test_info.GetTestOrganism(0)
-    #organism.MutationRates().SetCopyMutProb(0.5)
+
     # Build storage for hardware trace info.
     self.m_hardware_trace = pyHardwareCPUTrace()
     test_info.SetTraceExecution(self)
+
     # Trace the genotype's execution.
     self.m_trace_progress = 0
-    cTestCPU.TestGenome(test_info, analyze_genotype.GetGenome())
+
+    #cTestCPU.TestGenome(test_info, analyze_genotype.GetGenome())
+    test_info.Clear()
+    organism = cTestCPU.SetupTestOrganism(test_info, analyze_genotype.GetGenome(), 0)
+    descr(organism)
+    organism.MutationRates().SetCopyMutProb(0.08)
+    organism.MutationRates().SetPointMutProb(0.08)
+    cTestCPU.TestGenome_Body(test_info, organism, analyze_genotype.GetGenome(), 0)
+
     # Record some of the genotype's statistics.
     analyze_genotype.Recalculate()
+    environment = cTestCPU.GetEnvironment()
+    self.m_hardware_trace.recordTaskNames(environment)
     self.m_hardware_trace.recordGenotypeSummary(analyze_genotype)
 
     # Restore test cpu if we need to use resources.
     #if should_use_resources: self.restoreTestCPU(backup_environment, original_resource_count, backup_usage)
+

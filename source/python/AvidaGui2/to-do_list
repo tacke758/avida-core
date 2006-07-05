@@ -92,6 +92,13 @@ Priority High-
 - toggle to see letters
 - in petri dish, indication of each mutation as it occurs.
 
+- title in organism view: instructions to drag organism into viewer,
+  then change to name of organism. (jeff)
+- get rid of pane
+- see tasks on timeline (josh)
+- task box
+- step forward/back buttons in organism scope
+
 Priority Medium-
 - run things throught the test cpus (so we can accurately paint loaded
   dishes and so the graphs have good data from the get go)
