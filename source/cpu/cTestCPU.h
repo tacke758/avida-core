@@ -28,6 +28,7 @@ template <class T> class tArray; // aggregate
 class cResourceCount;
 class cCPUTestInfo;
 class cGenome;
+class cOrganism;
 class cString; // aggregate
 
 class cTestCPU {
@@ -48,8 +49,10 @@ private:
 
   static bool ProcessGestation(cCPUTestInfo & test_info, int cur_depth);
 
-  static bool TestGenome_Body(cCPUTestInfo & test_info, const cGenome & genome,
-			      int cur_depth);
+public:
+  static cOrganism & SetupTestOrganism(cCPUTestInfo & test_info, const cGenome & genome, int cur_depth);
+  static bool TestGenome_Body(cCPUTestInfo & test_info, cOrganism & organism, const cGenome & genome, int cur_depth);
+  static bool TestGenome_Body(cCPUTestInfo & test_info, const cGenome & genome, int cur_depth);
 
 public:
   static void Setup(cInstSet * in_inst_set,

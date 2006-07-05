@@ -224,8 +224,21 @@ bool cTestCPU::TestGenome(cCPUTestInfo & test_info, const cGenome & genome,
   return test_info.is_viable;
 }
 
-bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
-			       const cGenome & genome, int cur_depth)
+cOrganism & cTestCPU::SetupTestOrganism(cCPUTestInfo & test_info, const cGenome & genome, int cur_depth)
+{
+  if (cur_depth > test_info.max_depth) test_info.max_depth = cur_depth;
+
+  // Setup the organism we're working with now.
+  if (test_info.org_array[cur_depth] != NULL) {
+    delete test_info.org_array[cur_depth];
+  }
+  test_info.org_array[cur_depth] =
+    new cOrganism(genome, test_interface, *environment);
+  cOrganism & organism = *( test_info.org_array[cur_depth] );
+  return organism;
+}
+
+bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info, cOrganism & organism, const cGenome & genome, int cur_depth)
 {
   assert(initialized == true);
   assert(cur_depth < test_info.generation_tests);
@@ -253,13 +266,6 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
 
   if (cur_depth > test_info.max_depth) test_info.max_depth = cur_depth;
 
-  // Setup the organism we're working with now.
-  if (test_info.org_array[cur_depth] != NULL) {
-    delete test_info.org_array[cur_depth];
-  }
-  test_info.org_array[cur_depth] =
-    new cOrganism(genome, test_interface, *environment);
-  cOrganism & organism = *( test_info.org_array[cur_depth] );
   organism.GetPhenotype().SetupInject(genome.GetSize());
 
   // Run the current organism.
@@ -309,6 +315,13 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
 
   // All options have failed; just return false.
   return false;
+}
+
+
+bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info, const cGenome & genome, int cur_depth)
+{
+  cOrganism & organism = SetupTestOrganism(test_info, genome, cur_depth);
+  return TestGenome_Body(test_info, organism, genome, cur_depth);
 }
 
 

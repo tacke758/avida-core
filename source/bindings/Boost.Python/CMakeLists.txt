@@ -205,11 +205,11 @@ SET(PyAvida_Extra_Cpp_Files
   test_cpu-fixups.cc
 )
 
-IF(AVD_PY_MONOLITHIC)
+IF(MINGW)
   ADD_LIBRARY(PyAvidaRepairHacks STATIC ${PyAvida_Extra_Cpp_Files})
-ELSE(AVD_PY_MONOLITHIC)
+ELSE(MINGW)
   ADD_LIBRARY(PyAvidaRepairHacks SHARED ${PyAvida_Extra_Cpp_Files})
-ENDIF(AVD_PY_MONOLITHIC)
+ENDIF(MINGW)
 TARGET_LINK_LIBRARIES(PyAvidaRepairHacks main cpu event main tools yaktest)
 
 STRING(REGEX REPLACE ";" ";-I;" PyAvida_Includes "${ALL_INC_DIRS}")
