@@ -1,5 +1,6 @@
 from pyBufferCtrl import pyBufferCtrl
 from pyInstructionDescriptionCtrl import pyInstructionDescriptionCtrl
+from pyTaskDataCtrl import pyTaskDataCtrl
 from pyTaskDescriptionCtrl import pyTaskDescriptionCtrl
 from pyHideShowCtrl import pyHideShowCtrl
 from descr import descr
@@ -51,7 +52,12 @@ def labelSetup(parent, layout, name):
   layout.addWidget(label)
   parent.updateMinWidth(label.maximumWidth())
   return label
-
+def tasksSetup(parent, layout, name):
+  "Setup tasks widget"
+  tasks_widget = pyTaskDataCtrl(parent.getSubwidget())
+  layout.addWidget(tasks_widget)
+  parent.updateMinWidth(tasks_widget.maximumWidth())
+  return tasks_widget
 
 #class pyOrganismDataCtrl(QScrollView):
 class pyOrganismDataCtrl(QWidget):
@@ -186,7 +192,21 @@ class pyOrganismDataCtrl(QWidget):
     self.curinst_descr.setText("(no instruction)")
     self.hideshow_all_hardware.updateMinWidth(self.hideshow_cur_inst.minimumWidth())
 
+    # Create tasks widget
+#    self.widget_factory.setWidgetFn(tasksSetup)
+#    self.hideshow_tasks = self.hideshow_tasks_create()
+
     layout.addStretch(1)
+
+  def hideshow_tasks_create(self):
+    "Create tasks widget"
+    widget = self.hideshow_factory.newWidget()
+    widget.getLabel().setText("Tasks Performed")
+    self.widget_factory.setParent(widget)
+    self.tasks_descr = self.widget_factory.newWidget().setReadFn(self, None)
+    self.hideshow_all_hardware.updateMinWidth(widget.minimumWidth())
+    return widget
+
 
   def frameShownSlot(self, frames, frame_no):
     if frames is None:

@@ -3,7 +3,7 @@
 from pyOrganismScopeView2 import pyOrganismScopeView2
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
-from pyTimeline import pyTimeline, Flag
+from pyTimeline import pyTimeline, TimelineFlag
 from qt import *
 
 import os
@@ -222,8 +222,8 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       task_completed = []
       task_lib = self.m_avida.m_environment.GetTaskLib()
       num_tasks = task_lib.GetSize()
-      print "num_tasks: %d" % (num_tasks)
       for task in xrange(num_tasks):
+#        print "task: %d, %s" % (task, task_lib.GetTask(task).GetName())
         task_completed.append(False)
       for task in xrange(num_tasks):
         for frame in xrange(self.m_frames.getSnapshotCount()):
@@ -231,8 +231,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
             if task_completed[task] == False:
               task_completed[task] = True
               self.m_timeline.addFlag(
-                Flag("timeline_arrow.png", frame,
-                     "Completed first %s task" % (task_lib.GetTask(task).GetDesc())))
+#                TimelineFlag("timeline_arrow.png", frame,
+                TimelineFlag(str(task), frame,
+                             "Completed first %s task" % (task_lib.GetTask(task).GetDesc())))
               # Task completed, don't need to search any more frames for this
               # task
               break

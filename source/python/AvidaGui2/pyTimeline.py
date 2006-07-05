@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from qt import Qt, QPainter, QPixmap, QWidget, QToolTip, QSize
+from qt import Qt, QPainter, QPixmap, QWidget, QToolTip, QSize, QLabel
 from qwt import QwtThermo
 
-class FlagWidget(QWidget):
+class TimelineFlagWidget(QWidget):
+    "TimelineFlag widget"
     def __init__(self, parent, pixmap, info):
         QWidget.__init__(self, parent)
         self.pixmap = pixmap
@@ -22,13 +23,21 @@ class FlagWidget(QWidget):
     def sizeHint(self):
         return self.pixmap_size
 
-class Flag:
+class TimelineFlagLabel(QLabel):
+    "Timeline flag based on QLabel"
+    def __init__(self, parent, label, info):
+        QLabel.__init__(self, parent)
+        self.setText(label)
+        QToolTip.add(self, info)
+        self.setFixedSize(self.sizeHint())
+
+class TimelineFlag:
     "Flag contains information about event flags."
     def __init__(self, filename, pos, info):
         self.filename = filename
         self.pos = pos
         self.info = info
-        self.pixmap = QPixmap(filename)
+#        self.pixmap = QPixmap(filename)
 
 class pyTimeline(QwtThermo):
     """pyTimeline is a generic timeline control.
@@ -43,7 +52,8 @@ class pyTimeline(QwtThermo):
     def addFlag(self, flag):
         "Add new flag to timeline"
         self.flags.append(flag)
-        flag.widget = FlagWidget(self, flag.pixmap, flag.info)
+#        flag.widget = TimelineFlagWidget(self, flag.pixmap, flag.info)
+        flag.widget = TimelineFlagLabel(self, flag.filename, flag.info)
         self.move_flag(flag)
         if self.maxValue() == 0.0:
             flag.widget.hide()
@@ -56,20 +66,15 @@ class pyTimeline(QwtThermo):
             # Uninitialized range
             return
         # adj adjusts for the pixmap size
-        adj = flag.pos - (flag.widget.pixmap_size.width() / 2)
+#        adj = flag.pos - (flag.widget.pixmap_size.width() / 2)
+
+        adj = flag.pos - flag.widget.width() / 2
         # adjust for borders
         borders = self.borderWidth() * 2 + 13
         # FIXME: horrible hack 418 depends on current geometry of window
         # TODO: figure out proper geometry code
         a = self.width() - 418
         mult = a / (self.maxValue() - self.minValue())
-#         print "frameGeometry: %d" % (self.frameSize().width())
-#         print "size: %d" % (self.width())
-#         print flag.pos * mult
-#         print adj
-#         print borders
-#         print "maxValue(): %d" % (self.maxValue())
-#         print "final value: %f" % ((flag.pos * mult) + adj + borders)
         flag.widget.move((flag.pos * mult) + adj + borders, 2)
 
     def removeFlag(self, pos):

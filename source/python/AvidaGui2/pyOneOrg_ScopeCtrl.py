@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyOneOrg_ScopeView import pyOneOrg_ScopeView
-from pyTimeline import pyTimeline, Flag
+from pyTimeline import pyTimeline
 import qt
 import os
 
@@ -21,10 +21,6 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.m_next = qt.QTimer()
     self.m_timer_interval = 100
 
-    # TODO: example to show flags, need to hook into TestCPU to get proper
-    # organism events
-#    self.m_timeline.addFlag(Flag("timeline_arrow.png", 86, "First write into child"))
-#    self.m_timeline.addFlag(Flag("timeline_arrow.png", 385, "Organism divide"))
     self.m_organism_scope_ctrl.m_timeline = self.m_timeline
 
     self.connect(
