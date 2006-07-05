@@ -29,8 +29,7 @@ class pyMapProfile:
     GestationTimeIdx = lambda c: c.GetOrganism().GetPhenotype().GetGestationTime()
     SizeIdx = lambda c: c.GetOrganism().GetPhenotype().GetGenomeLength()
     #GenotypeIdx = lambda c: c.GetOrganism().GetGenotype()
-    LineageIdx = lambda c: c.GetOrganism().GetLineageLabel()
-
+    LineageIdx = lambda c: c.GetOrganism().GetLineageLabel()+1
 
     class gradualLinScaleUpdater:
       def __init__(self, range):
@@ -201,11 +200,11 @@ class pyMapProfile:
         gradualLinScaleUpdater(RangeReport(SizeRng, self.m_session_mdl)),
         sigmoidColorLookup
         ),
-      # ('Ancestor Organism',
-      #   continuousIndexer(LineageIdx),
-      #   gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
-      #   sigmoidColorLookup
-      #   ),
+       ('Ancestor Organism',
+         continuousIndexer(LineageIdx),
+         gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
+         sigmoidColorLookup
+         ),
       #('Genotype',       GenotypeIdx,),
       #('Lineage',        LineageIdx,),
     )

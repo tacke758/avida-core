@@ -203,7 +203,7 @@ class pyDefaultFiles:
     lines = lines + ["genesis.default", "LOG_SPECIES 0		# 0/1 (off/on) toggle to print file."]
     lines = lines + ["genesis.default", "LOG_LANDSCAPE 0		# 0/1 (off/on) toggle to print file."]
     lines = lines + ["genesis.default", ""]
-    lines = lines + ["genesis.default", "LOG_LINEAGES 0          # 0/1 (off/on) to log advantageous mutations"]
+    lines = lines + ["genesis.default", "LOG_LINEAGES 1          # 0/1 (off/on) to log advantageous mutations"]
     lines = lines + ["genesis.default", "# This one can slow down avida a lot. It is used to get an idea of how"]
     lines = lines + ["genesis.default", "# often an advantageous mutation arises, and where it goes afterwards."]
     lines = lines + ["genesis.default", "# See also LINEAGE_CREATION_METHOD."]
