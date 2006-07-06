@@ -328,7 +328,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Gestation (instructions):</string>
+                                <string>Gestation:</string>
                             </property>
                         </widget>
                         <spacer>
@@ -492,6 +492,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             <vbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
+                                </property>
+                                <property name="spacing">
+                                    <number>3</number>
                                 </property>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
@@ -1204,7 +1207,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                 </font>
                             </property>
                             <property name="text">
-                                <string>Avg. Gestation (instructions):</string>
+                                <string>Avg. Gestation:</string>
                             </property>
                         </widget>
                         <spacer>
@@ -1404,6 +1407,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                     <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
+                        </property>
+                        <property name="spacing">
+                            <number>3</number>
                         </property>
                         <widget class="QLayoutWidget">
                             <property name="name">

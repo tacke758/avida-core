@@ -65,17 +65,14 @@ class pyTimeline(QwtThermo):
         if self.maxValue() == 0.0:
             # Uninitialized range
             return
-        # adj adjusts for the pixmap size
-#        adj = flag.pos - (flag.widget.pixmap_size.width() / 2)
-
-        adj = flag.pos - flag.widget.width() / 2
-        # adjust for borders
-        borders = self.borderWidth() * 2 + 13
-        # FIXME: horrible hack 418 depends on current geometry of window
-        # TODO: figure out proper geometry code
-        a = self.width() - 418
+        # center widget
+	adj = flag.widget.width() / 2
+	frame = self.frameSize().width() - self.width()
+	# default margin size is 10 (QwtThermo docs)
+	borders = self.borderWidth() + 10
+	a = self.width() - frame - (borders * 2)
         mult = a / (self.maxValue() - self.minValue())
-        flag.widget.move((flag.pos * mult) + adj + borders, 2)
+        flag.widget.move((flag.pos * mult) + (frame / 2) + borders - adj, 2)
 
     def removeFlag(self, pos):
         "Remove flag from timeline position pos"

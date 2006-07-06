@@ -2,11 +2,11 @@ from qt import QListView, QListViewItem, QFont, qApp, QColorGroup, Qt, PYSIGNAL
 
 class ColoredListViewItem(QListViewItem):
     "QListViewItem with colored text"
-    def __init__(self, parent, label1, label2):
-        QListViewItem.__init__(self, parent, label1, label2)
+    def __init__(self, parent, label1, label2, label3):
+        QListViewItem.__init__(self, parent, label1, label2, label3)
         self.color = Qt.black
-    def __init__(self, parent, label1, label2, color):
-        QListViewItem.__init__(self, parent, label1, label2)
+    def __init__(self, parent, label1, label2, label3, color):
+        QListViewItem.__init__(self, parent, label1, label2, label3)
         self.color = color
     def setColor(self, color):
         self.color = color
@@ -36,21 +36,31 @@ class pyTaskDataCtrl(QListView):
 
         self.addColumn("")
         self.addColumn("Task")
+        self.addColumn("Count")
         self.add_tasks()
         self.show()
 
     def add_tasks(self):
         self.list_items = []
         # TODO: set from TaskLib
-        self.list_items.append(ColoredListViewItem(self, "0", "not", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "1", "nand", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "2", "and", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "3", "orn", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "4", "or", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "5", "andn", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "6", "nor", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "7", "xor", Qt.gray))
-        self.list_items.append(ColoredListViewItem(self, "8", "equ", Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "0", "not", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "1", "nand", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "2", "and", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "3", "orn", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "4", "or", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "5", "andn", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "6", "nor", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "7", "xor", "0",
+						   Qt.gray))
+        self.list_items.append(ColoredListViewItem(self, "8", "equ", "0",
+						   Qt.gray))
         self.uncompleted_tasks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
     def setReadFn(self, sender, read_fn):
@@ -62,12 +72,13 @@ class pyTaskDataCtrl(QListView):
         "Called when a frame is shown"
         if frames is not None and frame_no < frames.m_gestation_time:
             for task in self.uncompleted_tasks:
-                if frames.m_tasks_info[frame_no][task] > 0:
+		count = frames.m_tasks_info[frame_no][task]
+		self.list_items[task].setText(2, str(count))
+                if count > 0:
                     self.list_items[task].dim(False)
                 else:
                     self.list_items[task].dim(True)
                 self.list_items[task].repaint()
-#                self.repaint()
 
     def reset():
         "Reset the uncompleted tasks"

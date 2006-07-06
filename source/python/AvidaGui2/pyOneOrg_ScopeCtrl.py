@@ -17,6 +17,8 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.m_execution_step_slider.setMaxValue(0)
     self.m_timeline.setMinValue(0)
     self.m_timeline.setMaxValue(0)
+    # Use background color so timeline meter doesn't show up
+    self.m_timeline.setFillColor(self.m_timeline.colorGroup().background())
     self.m_timer = qt.QTimer()
     self.m_next = qt.QTimer()
     self.m_timer_interval = 100
