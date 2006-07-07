@@ -71,28 +71,25 @@ class pyInstructionDescriptionCtrl(QTextEdit):
 
     self.setAlignment(Qt.WordBreak)
     self.setReadOnly(True)
-    #self.read_fn = None
+    self.read_fn = None
 
   def setReadFn(self, sender, read_fn):
-    #self.read_fn = read_fn
+    self.read_fn = read_fn
     self.connect(sender, PYSIGNAL("propagated-FrameShownSig"), self.frameShownSlot)
     return self
 
   def frameShownSlot(self, frames, frame_no):
-    #if frames is not None and frame_no < frames.m_gestation_time and self.read_fn is not None:
     label_text = "(no instruction)"
-    if frames is not None and frame_no < frames.m_gestation_time:
-      #self.read_fn(frames, frame_no)
-      inst_set = frames.getHardwareSnapshotAt(frame_no).GetInstSet()
-      short_name = frames.m_genome_info[frame_no][frames.m_ihead_info[frame_no]]
-      #self.setText(short_name)
+    actual_frame_no = None
+    if frames is not None and self.read_fn is not None:
+      actual_frame_no = self.read_fn(frames, frame_no)
+    if (actual_frame_no is not None) and (0 <= actual_frame_no) and (actual_frame_no < frames.m_gestation_time):
+      inst_set = frames.getHardwareSnapshotAt(actual_frame_no).GetInstSet()
+      short_name = frames.m_genome_info[actual_frame_no][frames.m_ihead_info[actual_frame_no]]
       inst = cInstruction()
       inst.SetSymbol(short_name)
       long_name = inst_set.GetName(inst)
       description = descriptions_dict.has_key(short_name) and descriptions_dict[short_name] or ""
       label_text = "%s: %s\n%s" % (short_name, long_name, description)
-      #self.setText("%s: %s" % (short_name, long_name))
-    #else: 
-    #  self.setText("(no instruction)")
     self.setText(label_text)
 

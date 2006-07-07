@@ -86,6 +86,8 @@ class pyOrganismScopeView2(QCanvasView):
     QCanvasView.__init__(self,parent,name,fl)
     if not name: self.setName("pyOrganismScopeView2")
 
+    self.setFrameShape(QScrollView.NoFrame)
+    self.setFrameShadow(QScrollView.Plain)
     self.setVScrollBarMode(QScrollView.AlwaysOff)
     self.setHScrollBarMode(QScrollView.AlwaysOff)
     self.m_canvas = QCanvas()

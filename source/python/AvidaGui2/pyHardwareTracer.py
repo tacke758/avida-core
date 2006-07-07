@@ -8,6 +8,10 @@ class pyHardwareTracer(pyHardwareTracerBase):
   def __init__(self, progress_callback = None):
     pyHardwareTracerBase.__init__(self)
     self.m_progress_callback = progress_callback
+    self.m_copy_mutation_rate = 0.0
+
+  def setTestCPUCopyMutationRate(self, copy_mutation_rate):
+    self.m_copy_mutation_rate = copy_mutation_rate
 
   def TraceHardware_CPU(self, hardware):
     self.m_hardware_trace.recordFrame(hardware)
@@ -70,8 +74,7 @@ class pyHardwareTracer(pyHardwareTracerBase):
     test_info.Clear()
     organism = cTestCPU.SetupTestOrganism(test_info, analyze_genotype.GetGenome(), 0)
     descr(organism)
-    organism.MutationRates().SetCopyMutProb(0.08)
-    organism.MutationRates().SetPointMutProb(0.08)
+    organism.MutationRates().SetCopyMutProb(self.m_copy_mutation_rate)
     cTestCPU.TestGenome_Body(test_info, organism, analyze_genotype.GetGenome(), 0)
 
     # Record some of the genotype's statistics.

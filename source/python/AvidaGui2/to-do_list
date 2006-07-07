@@ -90,21 +90,13 @@ Priority High-
   - hack with a pause signal upon a certain event completed.
 - toggle to see legend instruction names to colors
 - toggle to see letters
-- in petri dish, indication of each mutation as it occurs.
 
-- title in organism view: instructions to drag organism into viewer,
-  then change to name of organism. (jeff)
-- get rid of pane
+- in petri dish, indication of each mutation as it occurs.
 - see tasks on timeline (josh)
-- task box
-- step forward/back buttons in organism scope
 
 Priority Medium-
 - run things throught the test cpus (so we can accurately paint loaded
   dishes and so the graphs have good data from the get go)
-- add a general box that allows us to send a message to the user in the
-  form of a box that pops up. after they have read it the user can click
-  ok. (a modal box with an explanation point)
 - change the text in analyze mode to list the population instead of what
   it currently state (12/21/05)
 
@@ -177,6 +169,7 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 15-Jun-06 Add Viewers to view choice on menu -- Finished 03-Jul-06
 
+
 ************Kaben******************
 
 * 23-Jan-06 Get program to run on all Macs -- Finished 27-Jan-06
@@ -191,6 +184,26 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
   - or, for now, some way of indicating that divide has occurred
     - say, perhaps, just drawing a line at divide points when copy is
       complete
+
+* July-06
+- task box in org scope
+- step forward/back buttons in organism scope
+
+- got rid of pane-division between organism and organism-hardware in org
+  scope
+- added "just executed" instruction description field
+- renamed "current instruction" description field to "about to execute"
+- added a slider to control test-cpu mutation rate from back of organism
+  scope.
+- title in organism view: instructions to drag organism into viewer,
+  then change to name of organism.
+- replace flip arrow on organism scope with a button with text reading
+  "flip to settings"
+- added "info", "question", "warning" and "critical" messaging to the
+  user in the form of dialog boxes. After reading, the user can click
+  'ok'; in question, user can also click 'cancel'. (modal boxes with
+  word bubble, question mark, exclamation point, or 'X'.)
+- Note: can disable debugging messages via 'AvidaGui2.descr.DEBUG = False'.
 
 ************Josh*******************
 

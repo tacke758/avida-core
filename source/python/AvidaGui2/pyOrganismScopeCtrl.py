@@ -4,6 +4,10 @@ from pyOrganismScopeView2 import pyOrganismScopeView2
 from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
 from pyHardwareTracer import pyHardwareTracer
 from pyTimeline import pyTimeline, TimelineFlag
+
+from descr import descr, warning
+
+
 from qt import *
 
 import os
@@ -19,6 +23,12 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
     if not name: self.setName("pyOrganismScopeCtrl")
 
+    self.m_test_cpu_mutation_rate = 0.0
+    warning(
+"""random warning during initialization of
+"pyOrganismScopeCtrl" object."""
+)
+
   def construct(self, session_mdl):
     print "pyOrganismScopeCtrl.construct()."
     self.m_session_mdl = session_mdl
@@ -28,36 +38,39 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), self.setAvidaSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setDebugOrganismFileSig"), self.setDebugOrganismFileSlot)
 
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HeadsTypeCBActivatedSig"),
-      self.HeadsTypeCBActivatedSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),
+      self.MutationSliderValueChangedSlot)
 
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowTaskTestsCBToggledSig"),
-      self.ShowTaskTestsCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowRegistersCBToggledSig"),
-      self.ShowRegistersCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateHeadMovementCBToggledSig"),
-      self.AnimateHeadMovementCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowStacksCBToggledSig"),
-      self.ShowStacksCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowHeadsAsLettersCBToggledSig"),
-      self.ShowHeadsAsLettersCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowInstructionNamesCBToggledSig"),
-      self.ShowInstructionNamesCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowInputsAndOutputsCBToggledSig"),
-      self.ShowInputsAndOutputsCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowFullStacksCBToggledSig"),
-      self.ShowFullStacksCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateInstructionCopyCBToggledSig"),
-      self.AnimateInstructionCopyCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowHardwareCBToggledSig"),
-      self.ShowHardwareCBToggledSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateOrganismDivideCBToggledSig"),
-      self.AnimateOrganismDivideCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HeadsTypeCBActivatedSig"),
+    #  self.HeadsTypeCBActivatedSlot)
 
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_LayoutSpacingSBValueChangedSig"),
-      self.LayoutSpacingSBValueChangedSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HardwareIndicatorSBValueChangedSig"),
-      self.HardwareIndicatorSBValueChangedSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowTaskTestsCBToggledSig"),
+    #  self.ShowTaskTestsCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowRegistersCBToggledSig"),
+    #  self.ShowRegistersCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateHeadMovementCBToggledSig"),
+    #  self.AnimateHeadMovementCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowStacksCBToggledSig"),
+    #  self.ShowStacksCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowHeadsAsLettersCBToggledSig"),
+    #  self.ShowHeadsAsLettersCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowInstructionNamesCBToggledSig"),
+    #  self.ShowInstructionNamesCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowInputsAndOutputsCBToggledSig"),
+    #  self.ShowInputsAndOutputsCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowFullStacksCBToggledSig"),
+    #  self.ShowFullStacksCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateInstructionCopyCBToggledSig"),
+    #  self.AnimateInstructionCopyCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_ShowHardwareCBToggledSig"),
+    #  self.ShowHardwareCBToggledSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_AnimateOrganismDivideCBToggledSig"),
+    #  self.AnimateOrganismDivideCBToggledSlot)
+
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_LayoutSpacingSBValueChangedSig"),
+    #  self.LayoutSpacingSBValueChangedSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HardwareIndicatorSBValueChangedSig"),
+    #  self.HardwareIndicatorSBValueChangedSlot)
 
 
   def dragEnterEvent( self, e ):
@@ -133,6 +146,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
 
       hardware_tracer = pyHardwareTracer(progress_callback)
+      hardware_tracer.setTestCPUCopyMutationRate(self.m_test_cpu_mutation_rate)
       hardware_tracer.traceAnalyzeGenotype(analyze_genotype, self.m_avida.m_environment, should_use_resources = False)
 
       progress_callback(2000)
@@ -173,47 +187,51 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
         QMessageBox.NoButton
       )
 
-  def HeadsTypeCBActivatedSlot(self, index):
-    self.anim.setDisplayHeadsAs(index)
+  def MutationSliderValueChangedSlot(self, value):
+    self.m_test_cpu_mutation_rate = value / 100.
+    descr("self.m_test_cpu_mutation_rate", self.m_test_cpu_mutation_rate)
 
-  def ShowTaskTestsCBToggledSlot(self, bool):
-    self.anim.setShowTaskTestsCBToggled(bool)
+  #def HeadsTypeCBActivatedSlot(self, index):
+  #  self.anim.setDisplayHeadsAs(index)
 
-  def ShowRegistersCBToggledSlot(self, bool):
-    self.anim.setShowRegistersCBToggled(bool)
+  #def ShowTaskTestsCBToggledSlot(self, bool):
+  #  self.anim.setShowTaskTestsCBToggled(bool)
 
-  def AnimateHeadMovementCBToggledSlot(self, bool):
-    pass
+  #def ShowRegistersCBToggledSlot(self, bool):
+  #  self.anim.setShowRegistersCBToggled(bool)
 
-  def ShowStacksCBToggledSlot(self, bool):
-    self.anim.setShowStacksCBToggled(bool)
+  #def AnimateHeadMovementCBToggledSlot(self, bool):
+  #  pass
 
-  def ShowHeadsAsLettersCBToggledSlot(self, bool):
-    pass
+  #def ShowStacksCBToggledSlot(self, bool):
+  #  self.anim.setShowStacksCBToggled(bool)
 
-  def ShowInstructionNamesCBToggledSlot(self, bool):
-    self.anim.setShowInstructionNamesCBToggled(bool)
+  #def ShowHeadsAsLettersCBToggledSlot(self, bool):
+  #  pass
 
-  def ShowInputsAndOutputsCBToggledSlot(self, bool):
-    self.anim.setShowInputsAndOutputsCBToggled(bool)
+  #def ShowInstructionNamesCBToggledSlot(self, bool):
+  #  self.anim.setShowInstructionNamesCBToggled(bool)
 
-  def ShowFullStacksCBToggledSlot(self, bool):
-    self.anim.setShowFullStacksCBToggled(bool)
+  #def ShowInputsAndOutputsCBToggledSlot(self, bool):
+  #  self.anim.setShowInputsAndOutputsCBToggled(bool)
 
-  def AnimateInstructionCopyCBToggledSlot(self, bool):
-    pass
+  #def ShowFullStacksCBToggledSlot(self, bool):
+  #  self.anim.setShowFullStacksCBToggled(bool)
 
-  def ShowHardwareCBToggledSlot(self, bool):
-    self.anim.setShowHardwareCBToggled(bool)
+  #def AnimateInstructionCopyCBToggledSlot(self, bool):
+  #  pass
 
-  def AnimateOrganismDivideCBToggledSlot(self, bool):
-    pass
+  #def ShowHardwareCBToggledSlot(self, bool):
+  #  self.anim.setShowHardwareCBToggled(bool)
 
-  def LayoutSpacingSBValueChangedSlot(self, value):
-    pass
+  #def AnimateOrganismDivideCBToggledSlot(self, bool):
+  #  pass
 
-  def HardwareIndicatorSBValueChangedSlot(self, value):
-    self.anim.setHardwareIndicatorSBValueChanged(value)
+  #def LayoutSpacingSBValueChangedSlot(self, value):
+  #  pass
+
+  #def HardwareIndicatorSBValueChangedSlot(self, value):
+  #  self.anim.setHardwareIndicatorSBValueChanged(value)
 
   def flagEvents(self):
     "Flag events on timeline"

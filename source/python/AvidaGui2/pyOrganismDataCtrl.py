@@ -186,11 +186,20 @@ class pyOrganismDataCtrl(QWidget):
     self.widget_factory.setWidgetFn(instDescrSetup)
 
     self.hideshow_cur_inst = self.hideshow_factory.newWidget()
-    self.hideshow_cur_inst.getLabel().setText("Current instruction")
+    self.hideshow_cur_inst.getLabel().setText("About to Execute")
     self.widget_factory.setParent(self.hideshow_cur_inst)
-    self.curinst_descr = self.widget_factory.newWidget().setReadFn(self, None)
+    self.curinst_descr = self.widget_factory.newWidget().setReadFn(self, lambda f, fn: fn)
     self.curinst_descr.setText("(no instruction)")
     self.hideshow_all_hardware.updateMinWidth(self.hideshow_cur_inst.minimumWidth())
+
+    self.widget_factory.setWidgetFn(instDescrSetup)
+
+    self.hideshow_prv_inst = self.hideshow_factory.newWidget()
+    self.hideshow_prv_inst.getLabel().setText("Just Executed")
+    self.widget_factory.setParent(self.hideshow_prv_inst)
+    self.prvinst_descr = self.widget_factory.newWidget().setReadFn(self, lambda f, fn: fn - 1)
+    self.prvinst_descr.setText("(no instruction)")
+    self.hideshow_all_hardware.updateMinWidth(self.hideshow_prv_inst.minimumWidth())
 
     # Create tasks widget
 #    self.widget_factory.setWidgetFn(tasksSetup)

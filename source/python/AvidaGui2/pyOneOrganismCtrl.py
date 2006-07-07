@@ -36,10 +36,12 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     current_page_int = self.m_organism_scope_widget_stack.id(current_page)
     if (current_page_int == 0):
        self.m_organism_scope_widget_stack.raiseWidget(1)
+       self.m_flip_button_text_label.setText("<p align=\"right\">Flip to<br>Viewer</p>")
        QToolTip.remove(self.m_organism_scope_toggle)
        QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Viewer</i></b>")
     else:
        self.m_organism_scope_widget_stack.raiseWidget(0)
+       self.m_flip_button_text_label.setText("<p align=\"right\">Flip to<br>Settings</p>")
        QToolTip.remove(self.m_organism_scope_toggle)
        QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Viewer Settings</i></b>")
 

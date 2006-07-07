@@ -25,7 +25,7 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout64</cstring>
+                <cstring>layout7</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -66,10 +66,23 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
                         </font>
                     </property>
                     <property name="text">
-                        <string>[organism]</string>
+                        <string>[drag an organism into this window for analysis]</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Name of organism being analyzed (dragged in from freezer)</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>m_flip_button_text_label</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>&lt;p align="right"&gt;Flip to&lt;br&gt;Settings&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLayoutWidget">
