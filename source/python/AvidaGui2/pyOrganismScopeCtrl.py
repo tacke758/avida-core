@@ -24,10 +24,6 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     if not name: self.setName("pyOrganismScopeCtrl")
 
     self.m_test_cpu_mutation_rate = 0.0
-    warning(
-"""random warning during initialization of
-"pyOrganismScopeCtrl" object."""
-)
 
   def construct(self, session_mdl):
     print "pyOrganismScopeCtrl.construct()."

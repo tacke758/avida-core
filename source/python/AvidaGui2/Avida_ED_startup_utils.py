@@ -25,16 +25,6 @@ from descr import descr, info, question, warning, critical
 # the results of changes to the source code).
 #
 def Reload():
-  answer = question(
-"""Question dialog box permits
-'okay' or 'cancel'.""")
-  info("answer:", answer)
-
-  answer = question(
-"""(Again...)
-'okay' or 'cancel'.""")
-  info("answer:", answer)
-
   import AvidaGui2.pyTemporaryReloads
   reload(AvidaGui2.pyTemporaryReloads)
   # Ask the linecache module to refresh its cache with new versions of
@@ -58,11 +48,6 @@ def AvidaEd():
   sys.exc_traceback = sys.last_traceback = None
   s_splash.message("Loading Avida-ED user-interface ...")
   s_splash.show()
-
-  info("Demo of one-element information message.")
-  info("Demo of multi-element information message.", "ick.")
-  warning("Demo of warning message with arbitrary elements.", None, [1,2,3,5], s_splash)
-  critical("Demo of critical message.")
 
   try:
     Reload()
