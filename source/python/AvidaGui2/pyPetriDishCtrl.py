@@ -143,6 +143,9 @@ class pyPetriDishCtrl(QWidget):
     self.m_avida = avida
     if(old_avida):
       print "pyPetriDishCtrl.setAvidaSlot() deleting old_avida ..."
+      self.m_org_clicked_on_item = None
+      self.m_last_cell_outlined = None
+      self.m_last_cell_outlined_color = None
       del old_avida
     if(self.m_avida):
       pass
@@ -156,9 +159,6 @@ class pyPetriDishCtrl(QWidget):
       self.m_world_h = 30
 
     self.m_avida_has_started = False
-    print "SEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEET"
-
-
       
     self.m_initial_target_zoom = int(self.m_target_dish_width / self.m_world_w)
     self.emit(PYSIGNAL("zoomSig"), (self.m_initial_target_zoom,))
@@ -212,9 +212,12 @@ class pyPetriDishCtrl(QWidget):
       clicked_cell = self.m_avida.m_population.GetCell(int(clicked_cell_num))
       organism = clicked_cell.GetOrganism()
 
-      # tee up drag information
-      dragHolder = self.itemDrag( ('organism.' + str(organism.GetGenome().AsString())), self )
-      dragHolder.dragCopy()
+      #if the organism is not an empty org (e.g. ancestor dragged in that has
+      #not been run yet)
+      if organism is not None:
+        # tee up drag information
+        dragHolder = self.itemDrag( ('organism.' + str(organism.GetGenome().AsString())), self )
+        dragHolder.dragCopy()
 
   def setRange(self, min, max):
     self.m_cs_min_value = min
@@ -225,15 +228,17 @@ class pyPetriDishCtrl(QWidget):
 
   def updateOrgClickedOutlineCellNumberSlot(self, org_clicked_on_item = None):
     if self.m_org_clicked_on_item:
-      self.m_org_clicked_on_item.setPen(QPen(Qt.NoPen))
+      self.m_org_clicked_on_item.setPen(self.m_last_m_org_clicked_on_item_color)
     self.m_org_clicked_on_item = org_clicked_on_item
     if self.m_org_clicked_on_item:
       self.updateCellItems(self.m_org_clicked_on_item.m_population_cell.GetID())
       self.m_last_m_org_clicked_on_item = self.m_org_clicked_on_item
     else:
         if hasattr(self,"m_last_cell_outlined"):
-          self.m_last_cell_outlined.setPen(QPen(Qt.NoPen))
-          self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
+          if self.m_last_cell_outlined is not None:
+              print "HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              self.m_last_cell_outlined.setPen(self.m_last_m_org_clicked_on_item_color)
+              self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
 
   def updateCellItem(self, cell_id):
     if self.m_cell_info[cell_id] is None:
@@ -243,13 +248,15 @@ class pyPetriDishCtrl(QWidget):
     #the following could be moved to a one off function at the beginning of a run
     #for speed efficiency. currenly it is checked every time a cell is updated
     if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_avida_has_started == True):
-      print "77777777777777777777777777777777777777777777777777777" 
       cell_info_item.setPen(QPen(Qt.NoPen))
 
     cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
 
     if self.m_org_clicked_on_item:
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
+        print "COLOR ABOUT TO BE TURNED GREEN IS ", cell_info_item.pen().color().getRgb()
+#        self.m_last_m_org_clicked_on_item_color = cell_info_item.pen().color().getRgb()
+        self.m_last_m_org_clicked_on_item_color = cell_info_item.pen()
         cell_info_item.setPen(QPen(QColor(0,255,0)))
         self.m_last_cell_outlined = cell_info_item      
     return cell_info_item

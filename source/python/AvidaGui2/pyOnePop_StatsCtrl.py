@@ -34,6 +34,12 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     print "pyOnePop_StatsCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
+
+    #this prevents the org report from asking about the org clicked on (highlighted)
+    #before the run was started, because such a question would try to access an object
+    #that gets deleted when the run starts (unbeknowst to avida)
+    self.m_clicked_cell_number = -99
+
     if(old_avida):
       print "pyOnePop_StatsCtrl.setAvidaSlot() disconnecting old_avida ..."
       self.disconnect(

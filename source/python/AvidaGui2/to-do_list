@@ -1,4 +1,4 @@
-Change Viewer Icons to different ones than freezer
+hange Viewer Icons to different ones than freezer
 
 Click on freezer name same on clicking on expand/contract 
 
@@ -57,8 +57,10 @@ Priority Low
 ************Jeff*******************
 
 Priority High
--make scroll bars dynamic (1/26/05)
--make tasks reflect parent tasks (not real time) in org report (ask group first) (1/26/06)
+-fix the bugs with the lineage label (typically full petri dish)
+-make the org report give the name of the ancestor when they are clicked on
+-make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)
+-add task information to petri dish
 
 Priority Medium
 -make the getting rid of the outline of the cells something that doesn't slow down the code at every step
@@ -225,3 +227,5 @@ June
 -Scroll bars are now dynamic (30th)
 
 July
+-fix the prerun crashes for clicking around petri dish ancestors
+-fix the problem that the gray outline of ancestors is going away if they are clicked on then off again pre-run
