@@ -82,6 +82,23 @@ Priority Low
 
 
 Priority High-
+- independant random number generator for test cpu.
+  - be able to set a private random number generator.
+- default 0.02 (1 genomic) mutation rate in organism viewer.
+- optionally force exactly one mutation in organism viewer.
+  - subsequently, able to drag child organism back into freezer or dish.
+
+- meet with josh to automate windows, linux builds
+
+- use test cpu to analyze initial population in petri dish so that we
+  can properly color everyone.
+
+- calculate child statistics and use them in the place of parent stats,
+  which will be perhaps less confusing to user.
+
+- dynamic choice of fonts, scrollbars, window sizes, as needed for
+  platform, display size.
+
 - reenable buildbot
 - emails on new release
 - new-style application icon
@@ -97,6 +114,7 @@ Priority High-
 - see tasks on timeline (josh)
 
 Priority Medium-
+- animation of organism divide
 - run things throught the test cpus (so we can accurately paint loaded
   dishes and so the graphs have good data from the get go)
 - change the text in analyze mode to list the population instead of what
@@ -182,15 +200,11 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 
 * June-06
-- animation of organism divide
-  - or, for now, some way of indicating that divide has occurred
-    - say, perhaps, just drawing a line at divide points when copy is
-      complete
+- indication of organism divide
 
 * July-06
 - task box in org scope
 - step forward/back buttons in organism scope
-
 - got rid of pane-division between organism and organism-hardware in org
   scope
 - added "just executed" instruction description field
