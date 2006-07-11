@@ -40,7 +40,6 @@ class pyGradientScaleCtrl(pyGradientScaleView):
 
   def setMapModeSlot(self,index):
     self.m_current_map_mode_name = index
-    print "Map mode changed"
 
   def avidaUpdatedSlot(self):
     pass

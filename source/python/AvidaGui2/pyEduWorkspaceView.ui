@@ -235,24 +235,6 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
-        <property type="1">pyFreezerView</property>
-        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -280,24 +262,6 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
-        <property type="1">pyNavBarView</property>
-        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -733,6 +697,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="statusTip">
             <string>Start new experiment with empty petri dish</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+R</string>
         </property>
     </action>
     <action>
