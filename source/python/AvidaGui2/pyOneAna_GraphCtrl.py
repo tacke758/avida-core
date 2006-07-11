@@ -46,13 +46,15 @@ class pyPopulationGraph:
     self.label = label
 
     # Setup the combo boxes that control the graph
-    self.layout = QHBoxLayout(None, 0, 6, "row%s_layout" % (label))
+    self.layout = QHBoxLayout(None, 0, 6,
+                              "row%s_layout" % (label))
 
     self.layout.spacer200_1 = QSpacerItem(23, 16, QSizePolicy.Expanding,
                                      QSizePolicy.Minimum)
     self.layout.addItem(self.layout.spacer200_1)
 
-    self.layout.m_del_button = QPushButton("-", parent.population_box_widget)
+    self.layout.m_del_button = QPushButton("x", parent.population_box_widget)
+    self.layout.m_del_button.setMaximumWidth(20)
     self.layout.addWidget(self.layout.m_del_button)
 
     self.layout.spacer200_2 = QSpacerItem(20, 16, QSizePolicy.Preferred,
@@ -82,6 +84,7 @@ class pyPopulationGraph:
     self.parent = parent
 
     self.parent.population_box_layout.addLayout(self.layout)
+    self.parent.population_box.resize(self.parent.population_box_widget.sizeHint())
 #    parent.population_box.addItem(self.layout)
 
   def del_population_slot(self):
@@ -96,7 +99,6 @@ class pyPopulationGraph:
     self.layout.m_del_button.close(True)
     del self.parent.m_combo_boxes[self.label]
     self.parent.modeActivatedSlot()
-    self.parent.my_resize()
 
   def change_color_slot(self):
     "User selected a new color"
@@ -149,7 +151,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     self.m_session_mdl = session_mdl
     self.m_avida = None
 
-    self.toolButton31_2.hide()
     # m_first_graph is true if we have graphed any population
     self.m_first_graph = False
 
@@ -192,7 +193,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       self.m_combo_box_2.insertItem(entry.name)
 
     # line styles
-    self.pen_styles = ['solid', 'thick', 'dotted']
+    self.pen_styles = ['thick', 'thin', 'dotted']
     for style in self.pen_styles:
       self.m_combo_box_1_style.insertItem(style)
       self.m_combo_box_2_style.insertItem(style)
@@ -206,10 +207,9 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
                      PriorityColor('green', Qt.green, 2),
                      PriorityColor('cyan', Qt.cyan, 3),
                      PriorityColor('magenta', Qt.magenta, 4),
-                     PriorityColor('yellow', Qt.yellow, 5),
-                     PriorityColor('dark red', Qt.darkRed, 6),
-                     PriorityColor('dark green', Qt.darkGreen, 7),
-                     PriorityColor('dark blue', Qt.darkBlue, 8)]
+                     PriorityColor('dark red', Qt.darkRed, 5),
+                     PriorityColor('dark green', Qt.darkGreen, 6),
+                     PriorityColor('dark blue', Qt.darkBlue, 7)]
 
     # available colors
     self.avail_colors = self.m_Colors[:] # shallow copy m_Colors

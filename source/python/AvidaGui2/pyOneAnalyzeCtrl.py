@@ -84,6 +84,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       else:
         if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
           self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
+          self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
         self.emit(PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"), (e,))
 
   def freezerItemDoubleClicked(self, freezer_item_name):
@@ -93,6 +94,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       if self.isVisible():
         if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
           self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
+          self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
         self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"), 
           (freezer_item_name,))
 

@@ -27,13 +27,6 @@ Python:from pyOneAna_TimelineCtrl import pyOneAna_TimelineCtrl
         <property name="margin">
             <number>0</number>
         </property>
-        <widget class="QSplitter">
-            <property name="name">
-                <cstring>splitter3</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
             <widget class="QLayoutWidget">
                 <property name="name">
                     <cstring>layout55</cstring>
@@ -96,7 +89,6 @@ Python:from pyOneAna_TimelineCtrl import pyOneAna_TimelineCtrl
                     </widget>
                 </vbox>
             </widget>
-        </widget>
     </vbox>
 </widget>
 <customwidgets>
