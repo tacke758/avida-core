@@ -558,19 +558,25 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         self.m_session_mdl.saved_empty_dish = True
       else:
         self.m_session_mdl.saved_full_dish = True
+      descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
+      descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
+
     
-    self.m_session_mdl.m_session_mdtr.emit(
-      PYSIGNAL("doRefreshFreezerInventorySig"), ())
-    if send_reset_signal:
+      # Have program redraw the freezer menu pane
+
       self.m_session_mdl.m_session_mdtr.emit(
-        PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
+        PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
-    # If the send_quit_signal flag was sent to this routine kill the application
-    # (Instead of killing the application directly a signal should be sent
-    # upto the workspace moderator)
+      if send_reset_signal:
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
 
-    if send_quit_signal:
-      qApp.quit()
+      # If the send_quit_signal flag was sent to this routine kill the 
+      # application (Instead of killing the application directly a signal 
+      # should be sent upto the workspace moderator)
+
+      if send_quit_signal:
+        qApp.quit()
 
 
   def doLoadPetriDishConfigFileSlot(self, genesisFileName = None):

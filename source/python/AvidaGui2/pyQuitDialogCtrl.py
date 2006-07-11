@@ -27,9 +27,6 @@ class pyQuitDialogCtrl (pyQuitDialogView):
     dialog_result = 1
     while (dialog_result > 0):
       self.exec_loop()
-
-      # while (self.exec_loop() and self.result() == 0):
-      #   pass
       dialog_result = self.result()
       if dialog_result == 0:
         return self.CancelFlag

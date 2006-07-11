@@ -251,6 +251,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
           else:
             return
 
+      descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
+      descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
+      descr ("BDB -- self.m_session_mdl.new_full_dish = " + str(self.m_session_mdl.new_full_dish))
       self.RenameDishSlot(dish_name)
       #self.MakeConfigVisibleSlot()
       self.finishedPetriDish = False

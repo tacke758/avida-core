@@ -441,6 +441,9 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # (actually only works with one population will need to expand to
     # two populations in the future)
 
+    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
+    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
+
     if (not self.m_one_population_ctrl.m_session_mdl.saved_full_dish and
         not self.m_one_population_ctrl.m_session_mdl.new_full_dish):
       m_quit_avida_ed = pyQuitDialogCtrl()

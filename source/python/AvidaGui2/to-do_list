@@ -1,5 +1,3 @@
-hange Viewer Icons to different ones than freezer
-
 Click on freezer name same on clicking on expand/contract 
 
 ************Brian******************
@@ -7,7 +5,11 @@ Click on freezer name same on clicking on expand/contract
 
 Priority High
 
+15-Jun-06 Finish work on AncestorIconView
+
 16-Jan-06 Get file system finished -- Make one big database file?
+
+07-Jul-06 Save organism box is not model -- fix it.
 
 Priority Medium
 
@@ -15,13 +17,11 @@ Priority Medium
 
 15-Jun-06 Drop on viewer icon
 
-15-Jun-06 Change menu item "Restart Experiment" -> "Start New Experiment"
-
 15-Jun-06 Add Viewers to view choice on menu
 
 15-Jun-06 Add text "environmental settings" on main screen 
 
-15-Jun-06 Finish work on AncestorIconView
+07-Jul-06 Save lineage of creature as well as genotype
 
 Priority Low
 
@@ -53,6 +53,7 @@ Priority Low
 
 03-Jul-06 Delete item by clicking and delete
 
+07-Jul-06 Set Default organism freezer name to aaaa, aaab, etc.
 
 ************Jeff*******************
 
@@ -155,8 +156,6 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 16-Jan-06 Default mutation rate to 0.5? (easy to change) -- Finished 1-Feb-06
 
--change the word "repopulate" to "start new experiment" -- Finished 2-Feb-06
-
 27-Feb-06 Change Navigation -> Viewer
 
 16-Jan-06 Initial location of workspace box (ie before user can run program they must chose (or create) a workspace). -- Finished 06-Apr-06
@@ -189,6 +188,11 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 15-Jun-06 Add Viewers to view choice on menu -- Finished 03-Jul-06
 
+07-Jul-06 Change repeatable switch to: Experimental mode (natural variation) demo mode (forces exact replay) -- Finished 11-Jul-06
+
+07-Jul-06 Set default mutation rate to one genomic (2%) -- Finished 11-Jul-06
+
+07-Jul-06 Set Default Pause 10,000 -- Finished 11-Jul-06
 
 ************Kaben******************
 

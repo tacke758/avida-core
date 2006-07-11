@@ -130,7 +130,7 @@
                                     <number>100</number>
                                 </property>
                                 <property name="value">
-                                    <number>-3010</number>
+                                    <number>3010</number>
                                 </property>
                                 <property name="orientation">
                                     <enum>Horizontal</enum>
@@ -978,7 +978,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>Should this run be exactly repeatable?</string>
+                        <string>Mode:</string>
                     </property>
                     <property name="alignment">
                         <set>AlignCenter</set>
@@ -1013,7 +1013,8 @@
                         <enum>TabFocus</enum>
                     </property>
                     <property name="text">
-                        <string>No</string>
+                        <string>Experimental
+(natural variation)</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -1034,7 +1035,8 @@
                         <enum>NoFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Yes</string>
+                        <string>Demo
+(forces exact replay)</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;p&gt;Each time this petri dish is run the mutations will be exactly the same&lt;/p&gt;</string>
@@ -1189,7 +1191,7 @@
                         <number>10000000</number>
                     </property>
                     <property name="minValue">
-                        <number>1</number>
+                        <number>0</number>
                     </property>
                     <property name="lineStep">
                         <number>1000</number>

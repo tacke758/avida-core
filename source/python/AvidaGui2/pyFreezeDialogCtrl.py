@@ -25,6 +25,15 @@ class pyFreezeDialogCtrl (pyFreezeDialogView):
       m_prompt_dir.construct(session_mdl)
       if (m_prompt_dir.showDialog() == 0):
         return ''
+    
+    # If the user selects to open existing/create new workspace then hits
+    # the cancel button in the choose dir dialog box the program will end
+    # up saving into the program default workspace -- to prevent that
+    # double check that a directory has actually been chosen
+
+    if (session_mdl.directory_chosen == False):
+      return ''
+
     if freeze_empty_only_flag == True:
       self.FullRadioButton.setEnabled(False)
       self.FullRadioButton.setChecked(False)

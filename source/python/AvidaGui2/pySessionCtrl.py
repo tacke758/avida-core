@@ -61,6 +61,10 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl = pyMdl()
     self.m_session_mdl.saved_empty_dish = False
     self.m_session_mdl.saved_full_dish = False
+
+    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
+    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
+
     self.m_session_mdl.new_empty_dish = True
     self.m_session_mdl.new_full_dish = True  
 
@@ -240,6 +244,9 @@ class pySessionCtrl(qt.QObject):
 
     self.m_session_mdl.saved_full_dish = False
     self.m_session_mdl.new_full_dish = False
+  
+    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
+    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
 
   def unitTest(self, recurse = False):
     return pyUnitTestSuiteRecurser("pySessionCtrl", globals(), recurse).construct().runTest().lastResult()
