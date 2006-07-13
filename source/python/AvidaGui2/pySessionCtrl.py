@@ -29,16 +29,6 @@ class pySessionCtrl(qt.QObject):
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
     print "pySessionCtrl.__del__() sending setAvidaSig(None) ..."
-#    
-#    Why does the following command give error:
-#
-#   "'NoneType' object has no attribute 'm_avida_thread_mdtr'" in <bound 
-#   method pySessionCtrl.__del__ of <AvidaGui2.pySessionCtrl.pySessionCtrl 
-#   object at 0xd734d20>> ignored
-#
-#    self.m_session_mdl.m_session_mdtr.emit(
-#      PYSIGNAL("setAvidaSig"),
-#      (None,))
 
     print 'pySessionCtrl.__del__() done.'
 
@@ -61,10 +51,6 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl = pyMdl()
     self.m_session_mdl.saved_empty_dish = False
     self.m_session_mdl.saved_full_dish = False
-
-    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
-    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
-
     self.m_session_mdl.new_empty_dish = True
     self.m_session_mdl.new_full_dish = True  
 
@@ -245,9 +231,6 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.saved_full_dish = False
     self.m_session_mdl.new_full_dish = False
   
-    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
-    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
-
   def unitTest(self, recurse = False):
     return pyUnitTestSuiteRecurser("pySessionCtrl", globals(), recurse).construct().runTest().lastResult()
 

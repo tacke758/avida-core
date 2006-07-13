@@ -54,7 +54,8 @@ class pyPopulationGraph:
     self.layout.addItem(self.layout.spacer200_1)
 
     self.layout.m_del_button = QPushButton("x", parent.population_box_widget)
-    self.layout.m_del_button.setMaximumWidth(20)
+    self.layout.m_del_button.setMaximumWidth(40)
+    self.layout.m_del_button.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
     self.layout.addWidget(self.layout.m_del_button)
 
     self.layout.spacer200_2 = QSpacerItem(20, 16, QSizePolicy.Preferred,

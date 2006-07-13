@@ -248,11 +248,13 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     if max_updates < 0:
        self.StopManuallyRadioButton.setChecked(True)
        self.StopAtRadioButton.setChecked(False)
+       self.StopAtSpinBox.setEnabled(False)
        # BDB -- hack for pause at given update
        self.m_session_mdl.m_update_to_pause = -99
     else:
        self.StopManuallyRadioButton.setChecked(False)
        self.StopAtRadioButton.setChecked(True)
+       self.StopAtSpinBox.setEnabled(True)
        # BDB -- hack for pause at given update
        self.m_session_mdl.m_update_to_pause = self.StopAtSpinBox.value()
     if settings_dict.has_key("WORLD-X") == True:

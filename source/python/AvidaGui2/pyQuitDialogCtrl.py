@@ -18,7 +18,7 @@ class pyQuitDialogCtrl (pyQuitDialogView):
     if (textChange):
       self.setCaption(textChange)
       self.SaveToFreezerPushButton.setText("Freeze and " + textChange)
-      self.QuitPushButton.setText(textChange)
+      self.QuitPushButton.setText("Autoclave and " + textChange)
     
   def DownQuitSlot(self):
     self.QuitPushButton.setDown(True)

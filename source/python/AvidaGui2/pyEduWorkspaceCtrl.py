@@ -144,7 +144,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
     self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
-    self.splitter1.setSizes([100])
+    self.splitter1.setSizes([150,500,100])
 
     self.show()
 

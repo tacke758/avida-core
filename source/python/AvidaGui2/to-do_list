@@ -9,7 +9,7 @@ Priority High
 
 16-Jan-06 Get file system finished -- Make one big database file?
 
-07-Jul-06 Save organism box is not model -- fix it.
+11-Jul-06 Fix problem where user drags in in a new population, clicks on freeze and then clicks cancel the program loads the new population without saving.
 
 Priority Medium
 
@@ -193,6 +193,8 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 07-Jul-06 Set default mutation rate to one genomic (2%) -- Finished 11-Jul-06
 
 07-Jul-06 Set Default Pause 10,000 -- Finished 11-Jul-06
+ 
+07-Jul-06 Save organism box is not modal -- fix it. -- Finished 11-Jul-06
 
 ************Kaben******************
 
