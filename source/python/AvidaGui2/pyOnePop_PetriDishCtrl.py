@@ -39,6 +39,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.connect(self.m_petri_dish_toggle, SIGNAL("clicked()"), 
       self.ToggleDishSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
+      PYSIGNAL("startNewExperimentSig"), self.SetMapModeAndGraphModeToDefaultsSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("doDefrostDishSig"), self.DefrostSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
        PYSIGNAL("doDisablePetriDishSig"), self.SetDishDisabledSlot)
@@ -216,6 +218,12 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       current_page = self.m_petri_dish_widget_stack.visibleWidget()
       current_page_int = self.m_petri_dish_widget_stack.id(current_page)
 
+  def SetMapModeAndGraphModeToDefaultsSlot(self):
+    descr()
+    self.m_mode_combobox.setCurrentItem(2)
+    self.m_mode_index = self.m_mode_combobox.currentItem()
+    self.modeActivatedSlot(self.m_mode_index)
+    
   def DefrostSlot(self, dish_name, petri_dict):
       descr()
 

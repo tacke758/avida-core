@@ -66,6 +66,10 @@ class pySessionCtrl(qt.QObject):
     # set a global variable for the location of starting cells
     self.m_session_mdl.m_founding_cells_dict = None
 
+    # set a global variable for locking the ancestor lineage map mode max range
+    self.m_session_mdl.m_max_lineages_ever = 0
+    self.m_session_mdl.m_lock_max_lineages_ever = False
+
     # BDB -- hack to overcome problem with program crashing when Core ends
 
     self.m_session_mdl.m_update_to_pause = -99

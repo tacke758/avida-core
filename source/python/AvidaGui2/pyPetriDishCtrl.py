@@ -145,7 +145,8 @@ class pyPetriDishCtrl(QWidget):
       print "pyPetriDishCtrl.setAvidaSlot() deleting old_avida ..."
       self.m_org_clicked_on_item = None
       self.m_last_cell_outlined = None
-      self.m_last_cell_outlined_color = None
+      self.m_last_cell_outlined_color = (QPen(Qt.NoPen))
+
       del old_avida
     if(self.m_avida):
       pass
@@ -185,19 +186,11 @@ class pyPetriDishCtrl(QWidget):
     self.m_occupied_cells_ids = []
 
     if self.m_avida is not None:
-      print "ABOUT TO OUTLINE CELLS"
       m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
 
       for k, v in m_founding_cells_dict.iteritems():
         cell_info_item = self.updateCellItem(int(k))
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
-
-      print "CELLS OUTLINED"
-
-#      cell_info_item = self.updateCellItem(475)
-#      cell_info_item.setPen(QPen(QColor(Qt.gray)))
-#      why doesn't this work?
-#      cell_info_item.setBrush(QBrush(QColor((Qt.gray))))
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0
@@ -228,17 +221,17 @@ class pyPetriDishCtrl(QWidget):
 
   def updateOrgClickedOutlineCellNumberSlot(self, org_clicked_on_item = None):
     if self.m_org_clicked_on_item:
-      self.m_org_clicked_on_item.setPen(self.m_last_m_org_clicked_on_item_color)
+      self.m_org_clicked_on_item.setPen(self.m_last_cell_outlined_color)
     self.m_org_clicked_on_item = org_clicked_on_item
     if self.m_org_clicked_on_item:
+      self.m_last_cell_outlined_color = self.m_org_clicked_on_item.pen()
       self.updateCellItems(self.m_org_clicked_on_item.m_population_cell.GetID())
       self.m_last_m_org_clicked_on_item = self.m_org_clicked_on_item
     else:
-        if hasattr(self,"m_last_cell_outlined"):
-          if self.m_last_cell_outlined is not None:
-              print "HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-              self.m_last_cell_outlined.setPen(self.m_last_m_org_clicked_on_item_color)
-              self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
+      if hasattr(self,"m_last_cell_outlined"):
+        if self.m_last_cell_outlined is not None:
+            self.m_last_cell_outlined.setPen(self.m_last_cell_outlined_color)
+            self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
 
   def updateCellItem(self, cell_id):
     if self.m_cell_info[cell_id] is None:
@@ -254,9 +247,6 @@ class pyPetriDishCtrl(QWidget):
 
     if self.m_org_clicked_on_item:
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
-        print "COLOR ABOUT TO BE TURNED GREEN IS ", cell_info_item.pen().color().getRgb()
-#        self.m_last_m_org_clicked_on_item_color = cell_info_item.pen().color().getRgb()
-        self.m_last_m_org_clicked_on_item_color = cell_info_item.pen()
         cell_info_item.setPen(QPen(QColor(0,255,0)))
         self.m_last_cell_outlined = cell_info_item      
     return cell_info_item

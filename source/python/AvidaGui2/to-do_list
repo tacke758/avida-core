@@ -58,7 +58,6 @@ Priority Low
 ************Jeff*******************
 
 Priority High
--fix the bugs with the lineage label (typically full petri dish)
 -make the org report give the name of the ancestor when they are clicked on
 -make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)
 -add task information to petri dish
@@ -245,6 +244,8 @@ June
 -Petri dish now outlines the organisms that are about to start that run
 -Scroll bars are working again (though hard coded)
 -Scroll bars are now dynamic (30th)
+-fix the bugs with the lineage label (typically full petri dish)
+
 
 July
 -fix the prerun crashes for clicking around petri dish ancestors

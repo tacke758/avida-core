@@ -1,4 +1,5 @@
 
+
 from descr import *
 
 from qt import PYSIGNAL, QColor, QObject, Qt
@@ -31,7 +32,8 @@ class pyMapProfile:
     #GenotypeIdx = lambda c: c.GetOrganism().GetGenotype()
     LineageIdx = lambda c: c.GetOrganism().GetLineageLabel()+1
 
-    class gradualLinScaleUpdater:
+
+    class ancestorLinScaleUpdater:
       def __init__(self, range):
         self.m_range = range
         self.m_inf = 0.0
@@ -47,7 +49,6 @@ class pyMapProfile:
         self.m_should_reset = True
 
       def reset(self, should_reset):
-        #descr(should_reset)
         self.m_should_reset = should_reset
 
       def shouldReset(self):
@@ -70,6 +71,72 @@ class pyMapProfile:
 
       def updateRange(self, population):
         #descr(population)
+        if self.m_should_reset:
+          return self.resetRange(population)
+
+        (inf, sup) = self.m_range.getRange()
+        descr("(inf, sup)", (inf, sup))
+
+        if (sup < (1 - self.m_sup_tolerance_coeff) * self.m_target_sup) or (self.m_target_sup < sup):
+          new_target_sup = sup * (1 + self.m_sup_tolerance_coeff)
+          #self.m_sup_rescale_rate = float(new_target_sup - self.m_sup)
+          self.m_sup_rescale_rate = float(new_target_sup - self.m_sup) / self.m_updates_to_rescale
+          self.m_target_sup = new_target_sup
+
+        #descr("self.m_sup", self.m_sup)
+#        if self.m_sup <= 0:
+        if self.m_sup_rescale_rate != 0:
+          if inf <= self.m_sup:
+            #self.m_sup = self.m_target_sup
+            self.m_sup += self.m_sup_rescale_rate
+          else:
+            max_rate = self.m_sup * self.m_max_rescale_factor
+            self.m_sup += min(self.m_sup_rescale_rate, max_rate)
+          if abs(self.m_target_sup - self.m_sup) < abs(self.m_sup_rescale_rate):
+            self.m_sup = self.m_target_sup
+            self.m_sup_rescale_rate = 0
+
+        return self.getRange()
+
+    class gradualLinScaleUpdater:
+      def __init__(self, range):
+        self.m_range = range
+        self.m_inf = 0.0
+        self.m_sup = 0.0
+        self.m_target_inf = 0.0
+        self.m_target_sup = 0.0
+        self.m_inf_tolerance_coeff = 0.1
+        self.m_sup_tolerance_coeff = 0.1
+        self.m_inf_rescale_rate = 0.0
+        self.m_sup_rescale_rate = 0.0
+        self.m_max_rescale_factor = 0.03
+        self.m_updates_to_rescale = 40
+        self.m_should_reset = True
+
+      def reset(self, should_reset):
+        self.m_should_reset = should_reset
+
+      def shouldReset(self):
+        descr("Testing whether I should reset", self.m_should_reset)
+        return self.m_should_reset 
+
+      def getRange(self):
+        #descr()
+        return self.m_inf, self.m_sup
+
+      def resetRange(self, population):
+        #descr(population)
+        (inf, sup) = self.m_range.getRange()
+        #descr("(inf, sup)", (inf, sup))
+        #(self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (inf, sup)
+        (self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (0, sup)
+        self.m_inf_rescale_rate = self.m_sup_rescale_rate = 0
+
+        return self.getRange()
+
+      def updateRange(self, population):
+        #descr(population)
+        descr("self.m_should_reset",self.m_should_reset)
         if self.m_should_reset:
           return self.resetRange(population)
 
@@ -138,19 +205,28 @@ class pyMapProfile:
           self.connect(
             self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
             self.avidaUpdatedSlot)
+          self.m_should_reset = True
+          self.m_session_mdl.m_max_lineages_ever = 0
+          self.m_session_mdl.m_lock_max_lineages_ever = False
+          
       def avidaUpdatedSlot(self):
         if self.m_avida and self.m_avida.m_population:
-          self.m_range = self.m_range_functor(self.m_avida.m_population)
+          self.m_range = self.m_range_functor(self.m_avida.m_population,self.m_session_mdl)
       def getRange(self):
         return self.m_range
 
-    NullRng = lambda p: (0, 0)
-    MeritRng = lambda p: (p.GetStats().GetMinMerit(), p.GetStats().GetMaxMerit())
-    FitnessRng = lambda p: (p.GetStats().GetMinFitness(), p.GetStats().GetMaxFitness())
-    GestationTimeRng = lambda p: (p.GetStats().GetMinGestationTime(), p.GetStats().GetMaxGestationTime())
-    SizeRng = lambda p: (p.GetStats().GetMinGenomeLength(), p.GetStats().GetMaxGenomeLength())
-    LineageRng = lambda p: (0, p.GetStats().GetNumLineages())
-
+    #q here is the session_mdl, which is only used in LineageRng
+    NullRng = lambda p,q: (0, 0)
+    MeritRng = lambda p,q: (p.GetStats().GetMinMerit(), p.GetStats().GetMaxMerit())
+    FitnessRng = lambda p,q: (p.GetStats().GetMinFitness(), p.GetStats().GetMaxFitness())
+    GestationTimeRng = lambda p,q: (p.GetStats().GetMinGestationTime(), p.GetStats().GetMaxGestationTime())
+    SizeRng = lambda p,q: (p.GetStats().GetMinGenomeLength(), p.GetStats().GetMaxGenomeLength())
+    def LineageRng (p,session_mdl):
+      m_session_mdl = session_mdl
+      if (p.GetStats().GetNumLineages() > 0) and not m_session_mdl.m_lock_max_lineages_ever:
+        m_session_mdl.m_max_lineages_ever = p.GetStats().GetNumLineages()
+        m_session_mdl.m_lock_max_lineages_ever = True
+      return (0,m_session_mdl.m_max_lineages_ever)
 
     def sigmoid(x, midpoint, steepness):
       val = steepness * (x - midpoint)
@@ -204,7 +280,8 @@ class pyMapProfile:
         ),
        ('Ancestor Organism',
          continuousIndexer(LineageIdx),
-         gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
+         #gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
+         ancestorLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),
          sigmoidColorLookup
          ),
       #('Genotype',       GenotypeIdx,),

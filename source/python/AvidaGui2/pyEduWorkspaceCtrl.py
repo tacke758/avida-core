@@ -459,10 +459,11 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # If the user clicks the repopulate button pretend that they double
     # click the default empty petri dish from the freezer
 
-    print " RESTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARTING"
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
       "@default.empty")
     thawed_item = pyReadFreezer(file_name)
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
+      ())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
       ("@default.empty", thawed_item,))
     print "BDB -- in Restart_ExpActionSlot File name is " + file_name
