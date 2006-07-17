@@ -60,7 +60,7 @@
                         <enum>StrongFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Autoclave and Quit</string>
+                        <string>Discard and Quit</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;P&gt;Quit the program discarding any unsaved data&lt;/P&gt;</string>
