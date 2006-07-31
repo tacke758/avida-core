@@ -28,7 +28,10 @@ class pyReadFreezer:
           section_key = line[1:].upper()
           self.dictionary[section_key] = {}
         else:
-          var_name, value = string.split(line)
+
+          # split into key and value (which could be multiple words)
+
+          var_name, value = line.split(' ',1)
           self.dictionary[section_key][var_name.upper()] = value
 	
   def GetDictionary(self):

@@ -26,12 +26,22 @@ class pyWriteGenesisEvent:
     if in_dict.has_key("CELLS"): 
       cells_dict = in_dict["CELLS"]
       organisms_dict = in_dict["ORGANISMS"]
+      if in_dict.has_key("ANCESTOR_NAMES"):
+        session_mdl.m_ancestors_dict = in_dict["ANCESTOR_NAMES"]
+      else:
+        session_mdl.m_ancestors_dict = {};
+      if in_dict.has_key("ANCESTOR_LINKS"):
+        ancestor_link_dict = in_dict["ANCESTOR_LINKS"]
+      else:
+        ancestor_link_dict = {}
       self.m_session_mdl.m_founding_cells_dict = cells_dict
 
     #if it is not a full petri dish
     else:
       cells_dict = {}
       organisms_dict = {}
+      session_mdl.m_ancestors_dict = {}
+      ancestor_link_dict = {}
       if settings_dict.has_key("START_CREATURE0"):
         world_x = settings_dict["WORLD-X"]
         world_y = settings_dict["WORLD-Y"]
@@ -46,6 +56,8 @@ class pyWriteGenesisEvent:
 
         for i in range(num_ancestors):
           start_creature = settings_dict["START_CREATURE" + str(i)]
+          session_mdl.m_ancestors_dict[i] = start_creature
+          ancestor_link_dict[str(i)] = str(i)
 
           self.start_cell_location = self.find_location(world_x, world_y, 
              num_ancestors, i)
@@ -67,7 +79,7 @@ class pyWriteGenesisEvent:
           organisms_dict[str(i)] = org_string
 
 
-    self.modifyEventFile(cells_dict, organisms_dict, 
+    self.modifyEventFile(cells_dict, organisms_dict, ancestor_link_dict,
       os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
     
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
@@ -163,8 +175,8 @@ class pyWriteGenesisEvent:
 
     out_environment_file.close()
 
-  def modifyEventFile(self, cells_dict, organisms_dict, event_file_name, 
-    tmp_out_dir = None):
+  def modifyEventFile(self, cells_dict, organisms_dict, ancestor_link_dict, 
+    event_file_name, tmp_out_dir = None):
 
     # Routine to add to the event.cfg file by inject creatures into the
     # population and adding print statements into the correct directory
@@ -173,7 +185,10 @@ class pyWriteGenesisEvent:
     for cell in cells_dict.keys():
       part1 = "u begin inject_sequence " +  organisms_dict[cells_dict[cell]]
       part2 = " " + cell + " " + str(int(cell)+1) + " -1 "
-      part3 = cells_dict[cell] + "\n"
+      if (ancestor_link_dict.has_key(cells_dict[cell])):
+        part3 = ancestor_link_dict[cells_dict[cell]] + "\n"
+      else:
+        part3 ="\n"
       event_out_file.write(part1 +  part2 + part3)
     
     # write the .dat files to the correct directory

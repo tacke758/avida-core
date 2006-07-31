@@ -68,6 +68,8 @@ class pyWriteToFreezer:
       organism_dict = {}
       in_dict["ORGANISMS"] = {}
       in_dict["CELLS"] = {}
+      in_dict["ANCESTOR_NAMES"] = {}
+      in_dict["ANCESTOR_LINKS"] = {}
       new_genome_num = 0
       for cell in pop_dict.keys():
         genome = pop_dict[cell]
