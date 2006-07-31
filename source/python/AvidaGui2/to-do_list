@@ -23,6 +23,8 @@ Priority Medium
 
 07-Jul-06 Save lineage of creature as well as genotype
 
+13-Jul-06 Single click on dish/creature to rename it.
+
 Priority Low
 
 -Under the sliders with ranges put a few values in grey that tell you the range min and max 
@@ -54,6 +56,8 @@ Priority Low
 03-Jul-06 Delete item by clicking and delete
 
 07-Jul-06 Set Default organism freezer name to aaaa, aaab, etc.
+
+13-Jul-06 Change the patterns of dots for multiple ancestors
 
 ************Jeff*******************
 
@@ -119,6 +123,7 @@ Priority Medium-
   dishes and so the graphs have good data from the get go)
 - change the text in analyze mode to list the population instead of what
   it currently state (12/21/05)
+- check why repeatablity does not repeat
 
 Priority Low-
 
