@@ -40,13 +40,10 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.modeActivatedSlot(self.m_combo_box.currentItem())
 
   def load(self, path, filename, colx, coly):
-    print "pyOnePop_GraphCtrl.load file name = " + filename
     if (self.m_avida is None) or (self.m_avida.m_population.GetStats().GetUpdate() == 0):
-      print " m_avida is None, or update is zero. Not loading from file."
       self.m_x_array = zeros(1, Float)
       self.m_y_array = zeros(1, Float)
     else:
-      print " loading from file."
       self.m_x_array, self.m_y_array = self.m_avida_stats_interface.load(
         path,
         filename, colx, coly)
@@ -72,17 +69,14 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     self.m_graph_ctrl.replot()
       
   def setAvidaSlot(self, avida):
-    print "pyOnePop_GraphCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
-      print "pyOnePop_GraphCtrl.setAvidaSlot() disconnecting old_avida ..."
       self.disconnect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
       del old_avida
     if(self.m_avida):
-      print "pyOnePop_GraphCtrl.setAvidaSlot() connecting self.m_avida ..."
       self.connect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)

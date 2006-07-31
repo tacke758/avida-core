@@ -34,12 +34,8 @@ class pyFreezerListView(QListView):
     print type(e)
 
     if ( QIconDrag.canDecode(e)):
+      descr()
       format = QDropEvent.format(e, 0)
-      print "format = " + str(format)
-      print type(e.encodedData(format))
-      print "--------------------"
-      print dir(e.encodedData(format))
-      print str(e.encodedData(format))
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       if freezer_item_name[:9] == 'organism.':
         freezer_item_name = freezer_item_name[9:] 

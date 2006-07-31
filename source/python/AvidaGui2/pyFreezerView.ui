@@ -103,6 +103,9 @@
             <property name="resizeMode">
                 <enum>AllColumns</enum>
             </property>
+            <property name="defaultRenameAction">
+                <enum>Accept</enum>
+            </property>
             <property name="toolTip" stdset="0">
                 <string>&lt;p&gt;Storage for existing petri dishes and organisims&lt;/p&gt;</string>
             </property>
