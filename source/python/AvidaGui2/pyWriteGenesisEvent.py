@@ -2,6 +2,10 @@
 
 import shutil, string, pyInstructionSet, os.path
 
+from AvidaCore import *
+
+from descr import *
+
 # Class to write the working genesis, event and environment files based on 
 # the contents of settings dictionary
 
@@ -79,9 +83,6 @@ class pyWriteGenesisEvent:
           organisms_dict[str(i)] = org_string
 
 
-    self.modifyEventFile(cells_dict, organisms_dict, ancestor_link_dict,
-      os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
-    
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
@@ -89,7 +90,43 @@ class pyWriteGenesisEvent:
     self.writeEnvironmentFile(workspace_dir, settings_dict)
     settings_dict["INST_SET"] = os.path.join(tmp_in_dir, "inst_set.default")
     # settings_dict["START_CREATURE"] = os.path.join(tmp_in_dir, settings_dict["START_CREATURE"])
-    self.writeGenesisFile(workspace_dir, tmp_in_dir, settings_dict)
+    genesis_file_name = self.writeGenesisFile(workspace_dir, tmp_in_dir, settings_dict)
+    
+    # There's a loop around organisms_dict
+    #   organism number is key, sequence is value.
+    #   I need to make a merits_dict with organism number as key, and
+    #   merit as value.
+    genesis = cGenesis()
+    cConfig.Setup(genesis)
+    genesis.Open(cString(genesis_file_name))
+    environment = cEnvironment()
+    environment.Load(cString(settings_dict["ENVIRONMENT_FILE"]))
+    environment.GetInstSet().SetInstLib(cHardwareCPU.GetInstLib())
+    cHardwareUtil.LoadInstSet(cString(settings_dict["INST_SET"]), environment.GetInstSet())
+    cConfig.SetNumInstructions(environment.GetInstSet().GetSize())
+    cConfig.SetNumTasks(environment.GetTaskLib().GetSize())
+    cConfig.SetNumReactions(environment.GetReactionLib().GetSize())
+    cConfig.SetNumResources(environment.GetResourceLib().GetSize())
+    test_interface = cPopulationInterface()
+    BuildTestPopInterface(test_interface)
+    cTestCPU.Setup(
+      environment.GetInstSet(),
+      environment,
+      environment.GetResourceLib().GetSize(),
+      test_interface)
+
+    inst_set = environment.GetInstSet()
+    merits_dict = {}
+    for key in organisms_dict.keys():
+      genome = organisms_dict[key]
+      analyze_genotype = cAnalyzeGenotype(cString(genome), inst_set) 
+      analyze_genotype.Recalculate()
+      merit = analyze_genotype.GetMerit()
+      #descr("key", key, "genome", genome, "merit", merit)
+      merits_dict[key] = merit
+
+    self.modifyEventFile(cells_dict, organisms_dict, ancestor_link_dict,
+      merits_dict, os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
     
   # Read the default genesis file, if there is a equivilent line in the 
   # dictionary replace it the new values, otherwise just copy the line
@@ -124,6 +161,7 @@ class pyWriteGenesisEvent:
          out_genesis_file.write(line)
     out_genesis_file.close()
     
+    return out_genesis_file.name
    
   # Read the default environment file, if there is a reward in the
   # dictionary for a given resource print out that line in working env. file
@@ -175,7 +213,7 @@ class pyWriteGenesisEvent:
 
     out_environment_file.close()
 
-  def modifyEventFile(self, cells_dict, organisms_dict, ancestor_link_dict, 
+  def modifyEventFile(self, cells_dict, organisms_dict, ancestor_link_dict, merits_dict,
     event_file_name, tmp_out_dir = None):
 
     # Routine to add to the event.cfg file by inject creatures into the
@@ -184,12 +222,14 @@ class pyWriteGenesisEvent:
     event_out_file = open(event_file_name, 'a')
     for cell in cells_dict.keys():
       part1 = "u begin inject_sequence " +  organisms_dict[cells_dict[cell]]
-      part2 = " " + cell + " " + str(int(cell)+1) + " -1 "
+      part2 = " " + cell + " " + str(int(cell)+1)
+      #part3 = " -1 "
+      part3 = " " + str(merits_dict[cells_dict[cell]]) + " "
       if (ancestor_link_dict.has_key(cells_dict[cell])):
-        part3 = ancestor_link_dict[cells_dict[cell]] + "\n"
+        part4 = ancestor_link_dict[cells_dict[cell]] + "\n"
       else:
-        part3 ="\n"
-      event_out_file.write(part1 +  part2 + part3)
+        part4 ="\n"
+      event_out_file.write(part1 + part2 + part3 + part4)
     
     # write the .dat files to the correct directory
 

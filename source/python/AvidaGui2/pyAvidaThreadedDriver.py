@@ -2,6 +2,8 @@
 from AvidaCore import pyAvidaDriver
 import atexit, threading
 
+from descr import descr
+
 class pyAvidaThreadedDriver(pyAvidaDriver):
 
   def construct(self):
@@ -84,9 +86,9 @@ class pyAvidaThreadedDriver(pyAvidaDriver):
 #    print("pyAvidaThreadedDriver.doExit() done.")
 
   def doUpdate(self):
-#    print("pyAvidaThreadedDriver.doUpdate()...")
+    #descr("updating...")
     self.m_do_update_semaphore.release()
-#    print("pyAvidaThreadedDriver.doUpdate() done.")
+    #descr("done.")
 
   def doSetProcessBitesize(self, bitesize):
     self.m_lock.acquire()

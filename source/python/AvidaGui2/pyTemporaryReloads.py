@@ -37,7 +37,6 @@ test_module_names = [
   #"AvidaGui.UnitTest_pyMdtr",
   #"AvidaGui.UnitTest_pySessionControllerFactory",
   #"AvidaGui.UnitTest_pySessionCtrl",
-  #"AvidaGui.UnitTest_pySessionWorkThreadHdlr",
 ]
 
 nontest_module_names = [

@@ -14,12 +14,15 @@ from pyMdtr import *
 import qt
 from AvidaCore import *
 
+from descr import *
+
 class pyAvida(qt.QObject):
 
   def __init__(self):
     qt.QObject.__init__(self, None, self.__class__.__name__)
 
   def construct(self, genesis):
+    descr()
     self.m_name = genesis.GetFilename()
     self.m_environment = cEnvironment()
     cConfig.Setup(genesis)
@@ -34,20 +37,33 @@ class pyAvida(qt.QObject):
     cConfig.SetNumTasks(self.m_environment.GetTaskLib().GetSize())
     cConfig.SetNumReactions(self.m_environment.GetReactionLib().GetSize())
     cConfig.SetNumResources(self.m_environment.GetResourceLib().GetSize())
+    descr("cConfig.Set...() called.")
+
     
     # Test-CPU creation.
     test_interface = cPopulationInterface()
+    descr("cPopulationInterface() called.")
+
     BuildTestPopInterface(test_interface)
+    descr("BuildTestPopInterface(test_interface) called.")
+
     cTestCPU.Setup(
       self.m_environment.GetInstSet(),
       self.m_environment,
       self.m_environment.GetResourceLib().GetSize(),
       test_interface)
+    descr("cTestCPU.Setup() called.")
 
     self.m_avida_threaded_driver = pyAvidaThreadedDriver(self.m_environment)
+    descr("pyAvidaThreadedDriver(self.m_environment) called.")
+
     self.m_avida_threaded_driver.construct()
+    descr("self.m_avida_threaded_driver.construct() done.")
+
     self.m_population = self.m_avida_threaded_driver.GetPopulation()
-    print "Population made"
+    descr("self.m_avida_threaded_driver.GetPopulation() done.")
+
+    self.m_name = genesis.GetFilename()
     self.m_avida_thread_mdtr = pyMdtr()
     self.m_should_update = False
 
@@ -111,8 +127,15 @@ class pyAvida(qt.QObject):
     self.destruct()
     print("pyAvida.__del__() done.")
 
+  def shouldUpdate(self):
+    return self.m_should_update
+
+  def isUpdating(self):
+    return self.m_is_updating
+
   def updateCheckSlot(self):
     if self.m_avida_threaded_driver.m_updated_semaphore.acquire(False):
+      self.m_is_updating = False
       self.m_avida_thread_mdtr.emit(qt.PYSIGNAL("AvidaUpdatedSig"),())
       if True == self.m_should_update:
         self.doUpdateAvidaSlot()
@@ -126,6 +149,7 @@ class pyAvida(qt.QObject):
 
   def doUpdateAvidaSlot(self):
     try:
+      self.m_is_updating = True
       self.m_avida_threaded_driver.doUpdate()
     except AttributeError:
       pass

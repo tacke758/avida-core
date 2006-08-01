@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyOrganismScopeView2 import pyOrganismScopeView2
-from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cString
+from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cRandom, cString, cTools
 from pyHardwareTracer import pyHardwareTracer
 from pyTimeline import pyTimeline, TimelineFlag
 
@@ -137,16 +137,34 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
           self.progress_bar.setProgress(step)
           qApp.processEvents()
 
+
+      # If and Avida population is running, pause it.
+      is_avida_updating = self.m_avida.shouldUpdate()
+      if is_avida_updating:
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Pausing Avida...",))
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
+        progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
+        # Give the user something to watch while we wait for Avida population
+        # to pause. Calling the progress callback also causes the gui to
+        # process pending events, so the gui doesn't completely lock-up.
+        while self.m_avida.isUpdating():
+          progress_callback(0)
+        progress_callback.clear()
+
+      # Save random number generator state.
+      random_number_generator_state = cRandom(cTools.globalRandom())
+
+      # Tell user we're about to start organism analysis.
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"), (organism_filename,))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Analyzing organism...",))
       progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
 
+      # Analyze organism.
       hardware_tracer = pyHardwareTracer(progress_callback)
       hardware_tracer.setTestCPUCopyMutationRate(self.m_test_cpu_mutation_rate)
       hardware_tracer.traceAnalyzeGenotype(analyze_genotype, self.m_avida.m_environment, should_use_resources = False)
 
       progress_callback(2000)
-      #del progress_callback
 
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Setting up organism scope...",))
       qApp.processEvents()
@@ -170,6 +188,15 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
       progress_callback.clear()
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarClearSig"), ())
+
+      # Restore random number generator state.
+      cTools.globalRandom().Clone(random_number_generator_state)
+
+      # If we paused a running population, restart it.
+      if is_avida_updating:
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doStartAvidaSig"), ())
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Unpaused Avida after organism analysis.",))
+
 
     else:
       # XXX Temporary. @kgn

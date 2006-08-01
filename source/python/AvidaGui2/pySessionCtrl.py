@@ -44,7 +44,6 @@ class pySessionCtrl(qt.QObject):
     # Variables tracking the state of the session
 
     self.sessionInitialized = False
-    self.m_should_update = False
 
     # Create "model" for storing state data.
     class pyMdl: pass
@@ -150,7 +149,6 @@ class pySessionCtrl(qt.QObject):
 
   def restartPopulationSlot(self): 
     self.sessionInitialized = False
-    self.m_should_update = False
 
   def setAvidaSlot(self, avida):
     "print *** pySessionCtrl setAvidaSlot ***"
@@ -223,11 +221,9 @@ class pySessionCtrl(qt.QObject):
         PYSIGNAL("doInitializeAvidaPhaseISig"),
         (self.m_session_mdl.m_tempdir,))
       self.sessionInitialized = True
-    self.m_should_update = True
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doStartAvidaSig"), ())
 
   def doPauseSlot(self):
-    self.m_should_update = False
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
 
   def avidaUpdatedSlot(self):
