@@ -278,6 +278,7 @@ class pyPetriDishCtrl(QWidget):
     # phase with that signal.
 
     population_dict = {}
+    ancestor_dict = {}
     if self.m_avida != None:
       for x in range(self.m_world_w):
         for y in range(self.m_world_h):
@@ -286,8 +287,9 @@ class pyPetriDishCtrl(QWidget):
             organism = cell.GetOrganism()
             genome = organism.GetGenome()
             population_dict[cell.GetID()] = str(genome.AsString())
+            ancestor_dict[cell.GetID()] = str(organism.GetLineageLabel())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezeDishPhaseIISig"), 
-      (population_dict, send_reset_signal, send_quit_signal, ))
+      (population_dict, ancestor_dict, send_reset_signal, send_quit_signal, ))
 
   def zoomSlot(self, zoom_factor):
     if hasattr(self,"m_world_h") == False:

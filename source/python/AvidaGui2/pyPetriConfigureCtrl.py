@@ -524,7 +524,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     return settings_dict
     
-  def FreezePetriSlot(self, population_dict = None, send_reset_signal = False, send_quit_signal = False):
+  def FreezePetriSlot(self, population_dict = None, ancestor_dict = None, send_reset_signal = False, send_quit_signal = False):
     descr()
     if len(population_dict) == 0:
       freeze_empty_only_flag = True;
@@ -555,13 +555,13 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
           shutil.copyfile(tmp_count_file, os.path.join(file_name, "count.dat"))
         file_name = os.path.join(file_name, "petri_dish")
         tmp_dict["POPULATION"] = population_dict
+        tmp_dict["ANCESTOR_NAMES"] = self.m_session_mdl.m_ancestors_dict
+        tmp_dict["ANCESTOR_LINKS"] = ancestor_dict
       freezer_file = pyWriteToFreezer(tmp_dict, file_name)
       if (is_empty_dish):
         self.m_session_mdl.saved_empty_dish = True
       else:
         self.m_session_mdl.saved_full_dish = True
-      descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
-      descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
 
     
       # Have program redraw the freezer menu pane
@@ -613,7 +613,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
-      print "BDB:dragEnterEvent -- freezer item name = " + freezer_item_name
       if os.path.exists(freezer_item_name) == False:
         descr("that was not a valid path (1)")
       else: 
@@ -626,7 +625,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
-      print "BDB:dropEvent -- freezer item name = " + freezer_item_name
       if os.path.exists(freezer_item_name) == False:
         print "that was not a valid path (2)" 
       else: 
@@ -642,7 +640,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
       freezer_item_name = str(e.encodedData("text/plain"))
-      print "BDB:petriDroppedEvent -- freezer item name = " + freezer_item_name
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
@@ -663,7 +660,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
       freezer_item_name = str(e.encodedData("text/plain"))
-      print "BDB:petriAncestorDroppedEvent -- freezer item name = " + freezer_item_name
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
@@ -685,7 +681,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     print type(item)
     if (not item):
-      print "BDB -- Not an item"
       return
     dragHolder = QTextDrag("ancestor." + str(item.text()), self.AncestorIconView, "dragname")
     dragHolder.dragCopy()

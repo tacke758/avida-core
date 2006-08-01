@@ -58,17 +58,23 @@ class pyWriteToFreezer:
     if in_dict.has_key("POPULATION"):
       pop_dict = in_dict["POPULATION"]
       del in_dict["POPULATION"]
+
+      # When the ANCESTOR_LINKS hash is passed in it has cell location linked
+      # to linage label.  We need to have organism ID linked to linage label.
+
+      orig_anc_dict = in_dict["ANCESTOR_LINKS"]
+      del in_dict["ANCESTOR_LINKS"]
       
       # Create a unique number ID for each genome.  Make a dictionary with 
       # that ID as a key and the genome string as the value.  Make a second
       # (temporary) directory that has reverse key/values.  Create a third
       # dictionary that has the cell location as the key and the genome ID
-      # as the value
+      # as the value.  Write the ancestor dictionary with the correct
+      # ID/linage_label structure.
       
       organism_dict = {}
       in_dict["ORGANISMS"] = {}
       in_dict["CELLS"] = {}
-      in_dict["ANCESTOR_NAMES"] = {}
       in_dict["ANCESTOR_LINKS"] = {}
       new_genome_num = 0
       for cell in pop_dict.keys():
@@ -77,9 +83,8 @@ class pyWriteToFreezer:
           new_genome_num = new_genome_num + 1
           curr_genome_num = new_genome_num
           in_dict["ORGANISMS"][new_genome_num] = genome
+          in_dict["ANCESTOR_LINKS"][new_genome_num] = orig_anc_dict[cell] 
           organism_dict[genome] = new_genome_num
         else:
           curr_genome_num = organism_dict[genome]
         in_dict["CELLS"][cell] = curr_genome_num
-      
-      
