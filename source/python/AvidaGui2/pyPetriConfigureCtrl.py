@@ -12,6 +12,49 @@ from AvidaCore import cGenesis, cString
 
 from qt import *
 
+imageAncestor_data = [
+"24 16 23 1",
+"t c #3c553e",
+"n c #42a985",
+"l c #782424",
+"f c #7e9a3e",
+"i c #8c7c75",
+"d c #914c54",
+"q c #a1ca5d",
+"o c #a6a8a3",
+"r c #b3b5b2",
+"s c #b5868b",
+"c c #bba4a6",
+"m c #c02a30",
+"p c #c0bebe",
+"a c #cbcccb",
+"j c #d7d7d6",
+"# c #e64d4a",
+"e c #e7c9cc",
+"u c #eb3c88",
+"b c #efefef",
+"k c #f2ddde",
+"g c #f4756e",
+"h c #f7a798",
+". c #ffffff",
+"....................#a..",
+"..................bcde..",
+"................bcdcfb..",
+"...........becghcdijca..",
+"..........kclliml#dejn..",
+"........jeddefoolooi###c",
+".......kpdjqaooipjaooole",
+".bbgbb.pdiaariosb.barr..",
+"biddstm#gdsens#s........",
+"jcatoisdsdmgggsk........",
+".renaatdooosdsb.........",
+".ba.qrl....b............",
+".jarsdg.................",
+"..roupb.................",
+".baae...................",
+"..bj...................."
+]
+
 import os, os.path, shutil
 import math
 
@@ -19,6 +62,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
   def __init__(self,parent = None,name = None,fl = 0):
     pyPetriConfigureView.__init__(self,parent,name,fl)
+    self.imageAncestor = QPixmap(imageAncestor_data)
     self.setAcceptDrops(1)
 
   def setAvidaSlot(self, avida):
@@ -82,8 +126,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.connect(self.AncestorIconView, 
       SIGNAL("dropped(QDropEvent*,const QValueList<QIconDragItem>&)"),
       self.petriAncestorDroppedSlot)
-    self.connect(self.AncestorIconView, SIGNAL("clicked(QIconViewItem*)"),
-      self.setAncestorDragSlot)
+    # self.connect(self.AncestorIconView, SIGNAL("clicked(QIconViewItem*)"),
+    #   self.setAncestorDragSlot)
     self.ChangeMutationTextSlot()
     self.ChangeWorldSizeTextSlot()
     self.m_session_mdl.m_session_mdtr.emit(
@@ -238,7 +282,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     while(settings_dict.has_key("START_CREATURE" + str(i))):
       start_creature = settings_dict["START_CREATURE" + str(i)]
       tmp_item = QIconViewItem(self.AncestorIconView, start_creature, 
-                self.image0)
+                self.imageAncestor)
       i = i + 1
     if settings_dict.has_key("MAX_UPDATES") == True:
       max_updates = int(settings_dict["MAX_UPDATES"])
@@ -605,7 +649,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.setAvidaSlot)
 
   def dragEnterEvent( self, e ):
+    descr("BDB")
     descr(e)
+    descr("BDB")
 
     freezer_item_name = QString()
  
@@ -643,7 +689,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
-        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
+        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
         #initialize Avida (which repaints the dish)
       print "ABOUT TO SEND INIT"
       self.m_session_mdl.m_session_mdtr.emit(
@@ -663,24 +709,17 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
-        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.image0)
+        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
         return
 
-  # class itemDrag(QTextDrag):
-  #   def __init__(self, item_name, parent=None, name=None):
-  #     QStoredDrag.__init__(self, 'item name (QString)', parent, name)
-  #     self.setText(item_name)
-  #     descr(item_name)
+  # def setAncestorDragSlot(self, item):
+  #   descr()
+  #   
+  #   # if the user clicks on a portion of the ancestor icon view that does not
+  #   # have an actual icon quit this subroutine
 
-
-  def setAncestorDragSlot(self, item):
-    descr()
-    
-    # if the user clicks on a portion of the ancestor icon view that does not
-    # have an actual icon quit this subroutine
-
-    print type(item)
-    if (not item):
-      return
-    dragHolder = QTextDrag("ancestor." + str(item.text()), self.AncestorIconView, "dragname")
-    dragHolder.dragCopy()
+  #   print type(item)
+  #   if (not item):
+  #     return
+  #   dragHolder = QTextDrag("ancestor." + str(item.text()), self.AncestorIconView, "dragname")
+  #   dragHolder.dragCopy()

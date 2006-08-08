@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
+from descr import descr, warning
 
 from pyAvida import pyAvida
 from qt import *
@@ -8,6 +8,7 @@ from pyOnePopulationView import pyOnePopulationView
 from pyButtonListDialog import pyButtonListDialog
 from pyGraphCtrl import PrintFilter
 from pyImageFileDialog import pyImageFileDialog
+from pyNewIconView import *
 import os.path
 
 class pyOnePopulationCtrl(pyOnePopulationView):
@@ -103,12 +104,20 @@ class pyOnePopulationCtrl(pyOnePopulationView):
   def dropEvent( self, e ):
     descr(e)
     freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
+
+    #freezer_item_name is a string...the file name 
+
+    if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
       if os.path.exists(freezer_item_name) == False:
-        print "that was not a valid path (1)" 
+        warning("that was not a valid path (1)" )
       else: 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
+    
+    # Check if item is icon
+
+    if (pyNewIconView.canDecode(e)):
+      descr("caught icon")
 
   def freezerItemDoubleClickedSlot(self, freezer_item_name):
    if self.isVisible():

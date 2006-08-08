@@ -4,6 +4,7 @@ from descr import *
 
 import os
 from qt import *
+from pyNewIconView import *
 from pyFreezerView import *
 from pyReadFreezer import pyReadFreezer
 from pyWriteToFreezer import pyWriteToFreezer
@@ -13,13 +14,11 @@ import os.path
 
 class pyFreezerListView(QListView):
   def __init__(self, *args):
-    descr()
     apply(QListView.__init__,(self,) + args)
     self.setAcceptDrops( True )
     self.viewport().setAcceptDrops( True )
 
   def construct(self, session_mdl):
-    descr()
     self.m_session_mdl = session_mdl
     
 
@@ -42,6 +41,12 @@ class pyFreezerListView(QListView):
         self.FreezeOrganism(freezer_item_name)
       else:
         pass
+
+    # Check if item is icon
+
+    if (pyNewIconView.canDecode(e)):
+      descr("caught icon")
+
     
   def FreezeOrganism(self, freezer_item_name):
     tmp_dict = {1:freezer_item_name}
@@ -58,7 +63,6 @@ class pyFreezerListView(QListView):
 class pyEmptyDishListViewItem(QListViewItem):
   def __init__(self, *args):
     apply(QListViewItem.__init__,(self,) + args)
-    descr()
 
   def dragEntered(self):
     descr()
@@ -190,7 +194,6 @@ class pyFreezerCtrl(QWidget):
 
 
   def createFreezerIndexSlot(self):
-    descr()
 
     # Freezer is hardcoded to list in order :
     #   Empty Dishes, Full Dishes, Organisms
@@ -310,7 +313,6 @@ class pyFreezerCtrl(QWidget):
     def __init__(self, item_name, parent=None, name=None):
       QStoredDrag.__init__(self, 'item name (QString)', parent, name)
       self.setText(item_name)
-      descr(item_name)
 
   def dragMoveEvent( self, e ):
     descr(e)
