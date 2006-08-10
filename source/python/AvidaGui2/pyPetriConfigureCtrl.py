@@ -123,11 +123,17 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       PYSIGNAL("petriDishDroppedInPopViewSig"))
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDroppedSlot)
-    self.connect(self.AncestorIconView, 
-      SIGNAL("dropped(QDropEvent*,const QValueList<QIconDragItem>&)"),
+
+    # If the user drops something in the Ancestor Box
+
+    self.connect(self.AncestorIconView, PYSIGNAL("DroppedOnNewIconViewSig"),
       self.petriAncestorDroppedSlot)
-    # self.connect(self.AncestorIconView, SIGNAL("clicked(QIconViewItem*)"),
-    #   self.setAncestorDragSlot)
+
+    # If an ancestor was dropped into the trash can
+
+    self.connect(self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("DeleteFromAncestorViewSig"), self.deleteAncestorSlot)
+
     self.ChangeMutationTextSlot()
     self.ChangeWorldSizeTextSlot()
     self.m_session_mdl.m_session_mdtr.emit(
@@ -668,6 +674,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       
   def dropEvent( self, e ):
     descr()
+    descr("BDB -- e.pos()")
+    tmp_pos = self.mapToGlobal(e.pos())
+    descr("x = " + str(tmp_pos.x()) + "  y = " + str(tmp_pos.y()))
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
@@ -691,14 +700,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         core_name = os.path.basename(str(freezer_item_name[:-9]))
         tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
         #initialize Avida (which repaints the dish)
-      print "ABOUT TO SEND INIT"
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doInitializeAvidaPhaseISig"),
         (self.m_session_mdl.m_tempdir,))
-      print "INIT SENT"
-#        if you are reading this, the next line doesn't matter and should die
-#        return
-        
 
   def petriAncestorDroppedSlot(self, e):
     descr()
@@ -712,14 +716,20 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
         return
 
-  # def setAncestorDragSlot(self, item):
-  #   descr()
-  #   
-  #   # if the user clicks on a portion of the ancestor icon view that does not
-  #   # have an actual icon quit this subroutine
+  # Find the first item in the AncestorView with the name ancestor_item_name
+  # and remove it. Items in AncestorVeiw should have unique names so the 
+  # correct item should be deleted.
 
-  #   print type(item)
-  #   if (not item):
-  #     return
-  #   dragHolder = QTextDrag("ancestor." + str(item.text()), self.AncestorIconView, "dragname")
-  #   dragHolder.dragCopy()
+  def deleteAncestorSlot(self, ancestor_item_name):
+    descr()
+    curr_item = self.AncestorIconView.firstItem()
+    while (curr_item):
+      curr_item_name = str(curr_item.text())
+      descr("BDB -- curr_item_name = " + curr_item_name + " ancestor_item_name = " + ancestor_item_name)
+      if (str(curr_item_name) == ancestor_item_name):
+        descr("BDB -- in if curr_item_name = " + curr_item_name + " ancestor_item_name = " + ancestor_item_name)
+        self.AncestorIconView.takeItem(curr_item)
+        # curr_item.~QIconViewItem()
+        break
+      curr_item = curr_item.nextItem()
+

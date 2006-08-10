@@ -59,6 +59,12 @@ Priority Low
 
 13-Jul-06 Change the patterns of dots for multiple ancestors
 
+09-Aug-06 Deactivate Ancestor Icon Drag
+
+09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View
+
+09-Aug-06 Ask Charles about running test CPU on each org. 
+
 ************Jeff*******************
 
 Priority High
@@ -124,6 +130,7 @@ Priority Medium-
 - change the text in analyze mode to list the population instead of what
   it currently state (12/21/05)
 - check why repeatablity does not repeat
+- check why program runs so much when program is paused
 
 Priority Low-
 

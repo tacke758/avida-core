@@ -8,7 +8,7 @@ from pyOnePopulationView import pyOnePopulationView
 from pyButtonListDialog import pyButtonListDialog
 from pyGraphCtrl import PrintFilter
 from pyImageFileDialog import pyImageFileDialog
-from pyNewIconView import *
+import pyNewIconView
 import os.path
 
 class pyOnePopulationCtrl(pyOnePopulationView):
@@ -102,7 +102,6 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
 
   def dropEvent( self, e ):
-    descr(e)
     freezer_item_name = QString()
 
     #freezer_item_name is a string...the file name 

@@ -16,9 +16,8 @@ from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
 from pyButtonListDialog import pyButtonListDialog
 from pyReadFreezer import pyReadFreezer
+import pyNewIconView
 import os.path, shutil
-
-
 from qt import *
 
 class pyEduWorkspaceCtrl(pyEduWorkspaceView):
@@ -139,6 +138,11 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("workspaceOpenSig"),
       self.fileOpen)
+
+    # If the user drags something into the trash can
+
+    self.connect(self.AutoclaveIconView, PYSIGNAL("DroppedOnNewIconViewSig"),
+      self.DroppedInTrashSlot)
 
     # Start the program with the population viewer
 
@@ -441,9 +445,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # (actually only works with one population will need to expand to
     # two populations in the future)
 
-    descr ("BDB -- self.m_session_mdl.saved_empty_dish = " + str(self.m_session_mdl.saved_empty_dish))
-    descr ("BDB -- self.m_session_mdl.saved_full_dish = " + str(self.m_session_mdl.saved_full_dish))
-
     if (not self.m_one_population_ctrl.m_session_mdl.saved_full_dish and
         not self.m_one_population_ctrl.m_session_mdl.new_full_dish):
       m_quit_avida_ed = pyQuitDialogCtrl()
@@ -466,7 +467,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       ())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
       ("@default.empty", thawed_item,))
-    print "BDB -- in Restart_ExpActionSlot File name is " + file_name
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
 
@@ -493,3 +493,21 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     apply(QStatusBar.message,(self.statusBar(),) + args)
   def statusBarClearSlot(self):
     self.statusBar().clear()
+
+  # Routine to process item dropped in the trash can
+
+  def DroppedInTrashSlot(self, e):
+
+    # Try to decode to the data you understand...
+
+    freezer_item_name = QString()
+    if ( QTextDrag.decode( e, freezer_item_name)) :
+      freezer_item_name = str(e.encodedData("text/plain"))
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("DeleteFromFreezerSig"),
+        (freezer_item_name, ))
+    elif (pyNewIconView.canDecode(e)):
+      ancestor_item_name = str(e.encodedData("application/x-qiconlist"))
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("DeleteFromAncestorViewSig"),
+        (ancestor_item_name,) )
+ 
