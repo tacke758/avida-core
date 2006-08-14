@@ -41,6 +41,9 @@ ENDFOREACH(PY_TEST_SUITE)
 #
 SET(PyAvida_Pyste_Bases
 
+  cRandom::
+  cTools::
+
   # XXX I can't figure out how it works.
   tArray::${SourceDir}/organism.pyste:${SourceDir}/merit.pyste:${SourceDir}/mutation.pyste:${SourceDir}/int_sum.pyste:
 

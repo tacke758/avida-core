@@ -1,5 +1,6 @@
 
 Include("tList.h")
+Include("tArray.h")
 
 cRandom = Class("cRandom", "cRandom.h")
 

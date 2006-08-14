@@ -25,6 +25,7 @@ class cString;
 class cTools {
 public:
   static bool MkDir(const cString & dirname, bool verbose=false);
+  static cRandom &globalRandom(void){ return g_random; }
 };
 
 #endif

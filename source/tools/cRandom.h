@@ -17,9 +17,14 @@ Random variables from various statistical distributions
 #ifndef cRandom_h
 #define cRandom_h
 
+
 #include <time.h>
 #include <limits.h>
 #include <math.h>
+
+#ifndef TARRAY_HH
+#include "tArray.h"
+#endif
 
 #ifndef UINT
 #define UINT unsigned int
@@ -40,6 +45,13 @@ public:
    * seed from the actual system time.
    **/
   cRandom(const int in_seed=-1);
+
+  /**
+   * Makes this random number generator's state match the original.
+   *
+   * @param orig The random number generator whose state to copy.
+   **/
+  void Clone(const cRandom &orig){ *this = orig; }
   
   inline int GetUseCount() { return use_count; }
   
@@ -198,15 +210,17 @@ public:
   
   
   // Internals ////////////////////////////////////////////////////////////////
-private:
+public:
   // Internal memebers
   int seed;
   int original_seed;
   int inext;
   int inextp;
-  int ma[56];
+  //int ma[56];
+  tArray<int> ma;
   int use_count;
 
+private:
   // Constants ////////////////////////////////////////////////////////////////
   // Statistical Approximation
   static const unsigned int _BINOMIAL_TO_NORMAL;  //if < n*p*(1-p)

@@ -1,0 +1,10 @@
+
+Include("cString.h")
+
+Import("cRandom.pyste")
+
+cTools = Class("cTools", "cTools.h")
+#Var("g_random", "cTools.h")
+set_policy(cTools.globalRandom, return_value_policy(reference_existing_object))
+
+# vim: set ft=python:

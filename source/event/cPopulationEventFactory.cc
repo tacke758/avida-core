@@ -5,82 +5,32 @@
 // before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef POPULATION_EVENT_FACTORY_HH
 #include "cPopulationEventFactory.h"
-#endif
 
-#ifndef ANALYZE_UTIL_HH
-#include "cAnalyzeUtil.h"
-#endif
-#ifndef avida_h
 #include "avida.h"
-#endif
-#ifndef AVIDA_DRIVER_BASE_HH
+#include "cAnalyzeUtil.h"
 #include "cAvidaDriver_Base.h"
-#endif
-#ifndef CONFIG_HH
 #include "cConfig.h"
-#endif
-#ifndef ENVIRONMENT_HH
 #include "cEnvironment.h"
-#endif
-#ifndef EVENT_HH
 #include "cEvent.h"
-#endif
-#ifndef GENEBANK_HH
 #include "cGenebank.h"
-#endif
-#ifndef GENOTYPE_HH
 #include "cGenotype.h"
-#endif
-#ifndef INJECT_GENEBANK_HH
 #include "cInjectGenebank.h"
-#endif
-#ifndef INJECT_GENOTYPE_HH
 #include "cInjectGenotype.h"
-#endif
-#ifndef INST_UTIL_HH
 #include "cInstUtil.h"
-#endif
-#ifndef LANDSCAPE_HH
 #include "cLandscape.h"
-#endif
-#ifndef LINEAGE_CONTROL_HH
 #include "cLineageControl.h"
-#endif
-#ifndef ORGANISM_HH
 #include "cOrganism.h"
-#endif
-#ifndef PHENOTYPE_HH
 #include "cPhenotype.h"
-#endif
-#ifndef POPULATION_HH
 #include "cPopulation.h"
-#endif
-#ifndef POPULATION_CELL_HH
 #include "cPopulationCell.h"
-#endif
-#ifndef POPULATION_EVENT_HH
 #include "cPopulationEvent.h"
-#endif
-#ifndef RESOURCE_HH
 #include "cResource.h"
-#endif
-#ifndef STATS_HH
 #include "cStats.h"
-#endif
-#ifndef STRING_UTIL_HH
 #include "cStringUtil.h"
-#endif
-#ifndef TEST_CPU_HH
 #include "cTestCPU.h"
-#endif
-#ifndef TEST_UTIL_HH
 #include "cTestUtil.h"
-#endif
-#ifndef TOOLS_HH
 #include "cTools.h"
-#endif
 
 #include <ctype.h>           // for isdigit
 
@@ -1781,10 +1731,10 @@ namespace nPopulation {
     }
   };
   
-  ///// inject_sequence /////
+  ///// inject_sequence_with_stats /////
   
   /**
-    * Injects identical organisms into a range of cells of the population.
+   * Injects identical organisms into a range of cells of the population.
    *
    * Parameters:
    * sequence (string)
@@ -1794,17 +1744,95 @@ namespace nPopulation {
    * stop_cell (int)
    *   First cell *not* to inject into.
    * merit (double) default: -1
-     *   The initial merit of the organism. If set to -1, this is ignored.
-     * lineage label (integer) default: 0
-       *   An integer that marks all descendants of this organism.
-       * neutral metric (double) default: 0
-         *   A double value that randomly drifts over time.
-         *
-         * Example:
-         *   inject_range ckdfhgklsahnfsaggdsgajfg 0 10 100
-         *
-         * Will inject 10 organisms into cells 0 through 9 with a merit of 100.
-         **/
+   *   The initial merit of the organism. If set to -1, this is ignored.
+   * lineage label (integer) default: 0
+   *   An integer that marks all descendants of this organism.
+   * neutral metric (double) default: 0
+   *   A double value that randomly drifts over time.
+   * gestation time (integer) default: -1
+   *   The initial gestation of the organism. If set to -1, this is ignored.
+   * life fitness (double) default: -1
+   *   The initial fitness of the organism. If set to -1, this is ignored.
+   *
+   * Example:
+   *   inject_sequence_with_stats ckdfhgklsahnfsaggdsgajfg 0 10 100
+   *
+   * Will inject 10 organisms into cells 0 through 9 with a merit of 100.
+   **/
+  
+  
+  class cEvent_inject_sequence_with_stats : public cPopulationEvent {
+  private:
+    cString seq;
+    int start_cell;
+    int end_cell;
+    double merit;
+    int lineage_label;
+    double neutral_metric;
+    int gestation_time;
+    double life_fitness;
+  public:
+      const cString GetName() const { return "inject_sequence_with_stats"; }
+    const cString GetDescription() const { return
+    "inject_sequence_with_stats  <cString seq> [int start_cell=0] [int end_cell=-1] [double merit=-1] [int lineage_label=0] [double neutral_metric=0] [int gestation_time=-1] [double life_fitness=-1]"; }
+    
+    void Configure(const cString& in_args)
+    {
+      m_args = in_args;
+      cString args(in_args);
+      seq = args.PopWord();
+      if (args == "") start_cell=0; else start_cell=args.PopWord().AsInt();
+      if (args == "") end_cell=-1; else end_cell=args.PopWord().AsInt();
+      if (args == "") merit=-1; else merit=args.PopWord().AsDouble();
+      if (args == "") lineage_label=0; else lineage_label=args.PopWord().AsInt();
+      if (args == "") neutral_metric=0; else neutral_metric=args.PopWord().AsDouble();
+      if (args == "") gestation_time=-1; else gestation_time=args.PopWord().AsInt();
+      if (args == "") life_fitness=-1; else life_fitness=args.PopWord().AsDouble();
+    }
+    ///// inject_sequence_with_stats /////
+    void Process(){
+      if (end_cell == -1) end_cell = start_cell + 1;
+      if (start_cell < 0 ||
+          end_cell > population->GetSize() ||
+          start_cell >= end_cell) {
+            cout << "Warning: inject_sequence_with_stats has invalid range!" << endl;
+            cout << "start=" << start_cell << "  end=" << end_cell
+              << "genome length=" << seq.GetSize() << endl;
+      }
+      else {
+        cGenome genome(seq);
+        for (int i = start_cell; i < end_cell; i++) {
+          population->Inject(genome, i, merit, lineage_label, neutral_metric, 0, gestation_time, life_fitness);
+        }
+        population->SetSyncEvents(true);
+      }
+    }
+  };
+  
+  ///// inject_sequence /////
+  
+  /**
+   * Injects identical organisms into a range of cells of the population.
+   *
+   * Parameters:
+   * sequence (string)
+   *   The genome sequence for this organism.  This is a mandatory argument.
+   * start_cell (int)
+   *   First cell to inject into.
+   * stop_cell (int)
+   *   First cell *not* to inject into.
+   * merit (double) default: -1
+   *   The initial merit of the organism. If set to -1, this is ignored.
+   * lineage label (integer) default: 0
+   *   An integer that marks all descendants of this organism.
+   * neutral metric (double) default: 0
+   *   A double value that randomly drifts over time.
+   *
+   * Example:
+   *   inject_range ckdfhgklsahnfsaggdsgajfg 0 10 100
+   *
+   * Will inject 10 organisms into cells 0 through 9 with a merit of 100.
+   **/
   
   
   class cEvent_inject_sequence : public cPopulationEvent {

@@ -9,8 +9,8 @@
 #include "cRandom.h"
 #endif
 
-#ifndef TARRAY_HH
-#include "tArray.h"
+#ifndef TLIST_H
+#include "tList.h"
 #endif
 
 /* FIXME this is not defined in Visual Studio.net. -- kgn */
@@ -46,6 +46,7 @@ cRandom::cRandom(const int in_seed) :
  original_seed(0),
  inext(0),
  inextp(0),
+ ma(56),
  use_count(0),
  expRV(0)
   {

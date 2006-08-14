@@ -1762,9 +1762,16 @@ bool cPopulation::OK()
  * this organism.
  **/
 
-void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, 
-                         int lineage_label, double neutral, int mem_space )
-{
+void cPopulation::Inject(
+  const cGenome & genome,
+  int cell_id,
+  double merit, 
+  int lineage_label,
+  double neutral,
+  int mem_space,
+  int gestation_time,
+  double life_fitness
+){
   // If an invalid cell was given, choose a new ID for it.
   if (cell_id < 0) {
     switch (cConfig::GetBirthMethod()) {
@@ -1781,6 +1788,8 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit,
     phenotype.SetNeutralMetric(neutral);
     
     if (merit > 0) phenotype.SetMerit( cMerit(merit) );
+    if (gestation_time > 0) phenotype.SetGestationTime( gestation_time );
+    if (life_fitness > 0) phenotype.SetLifeFitness( life_fitness );
     schedule->Adjust(cell_id, phenotype.GetMerit());
     
     LineageSetupOrganism(GetCell(cell_id).GetOrganism(), 0, lineage_label);

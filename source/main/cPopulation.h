@@ -134,8 +134,16 @@ public:
   bool ActivateInject(const int cell_id, const cGenome & injected_code);
 
   // Inject an organism from the outside world.
-  void Inject(const cGenome & genome, int cell_id=-1, double merit=-1,
-	      int lineage_label=0, double neutral_metric=0, int mem_space=0 );
+  void Inject(
+    const cGenome & genome,
+    int cell_id=-1,
+    double merit=-1,
+	  int lineage_label=0,
+    double neutral_metric=0,
+    int mem_space=0,
+    int gestation_time=-1,
+    double life_fitness=-1
+  );
 
   // Deactivate an organism in the population (required for deactivations)
   void KillOrganism(cPopulationCell & in_cell);
