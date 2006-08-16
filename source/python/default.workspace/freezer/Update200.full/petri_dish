@@ -720,7 +720,8 @@
 *SETTINGS
 REWARD_AND YES
 REWARD_XOR YES
-START_CREATURE0 *ancestor
+START_CREATURE0 @ancestor
+START_GENOME0 rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab
 RANDOM_SEED 0
 COPY_MUT_PROB 0.02
 REWARD_EQU YES

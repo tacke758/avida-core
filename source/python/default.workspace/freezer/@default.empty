@@ -6,6 +6,7 @@ WORLD-X 30
 WORLD-Y 30
 BIRTH_METHOD 0
 START_CREATURE0 @ancestor
+START_GENOME0 rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab
 AGE_LIMIT 20
 MAX_UPDATES -1
 REWARD_NOT YES
