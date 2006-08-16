@@ -5,8 +5,6 @@ Click on freezer name same on clicking on expand/contract
 
 Priority High
 
-15-Jun-06 Finish work on AncestorIconView
-
 16-Jan-06 Get file system finished -- Make one big database file?
 
 11-Jul-06 Fix problem where user drags in in a new population, clicks on freeze and then clicks cancel the program loads the new population without saving.
@@ -15,9 +13,7 @@ Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
 
-15-Jun-06 Drop on viewer icon
-
-15-Jun-06 Add Viewers to view choice on menu
+15-Jun-06 Drop organism/full population directly  on organism/analysis viewer icon
 
 15-Jun-06 Add text "environmental settings" on main screen 
 
@@ -37,21 +33,19 @@ Priority Low
 
 29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
 
-15-May-06 Prevent program from deleting files with names beginning with "*"
+15-May-06 Prevent program from deleting files with names beginning with "@"
 
 15-Jun-06 Change wording on can't freeze message
 
 15-Jun-06 Create CGI script to allow users to enter information when they check out avida executable.
 
-29-Jun-06 set petri dish flag to open
-
-29-Jun-06 change name of restart petri dish
+29-Jun-06 set petri dish flag to open -- what does this mean?????
 
 29-Jun-06 Same control on front and back of petri dish.
 
 30-Jun-06 Make cell location relative to center of screen (use +/- X and Y) instead of using Avida cell location
 
-03-Jul-06 Default, Replication Only, All Nine, Funky Org, zoo
+03-Jul-06 Add some more data sets -- Default, Replication Only, All Nine, Funky Org, zoo
 
 03-Jul-06 Delete item by clicking and delete
 
@@ -59,7 +53,7 @@ Priority Low
 
 13-Jul-06 Change the patterns of dots for multiple ancestors
 
-09-Aug-06 Deactivate Ancestor Icon Drag
+09-Aug-06 Deactivate Ancestor Icon Drag when there is a full population
 
 09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View
 
@@ -206,6 +200,16 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 07-Jul-06 Set Default Pause 10,000 -- Finished 11-Jul-06
  
 07-Jul-06 Save organism box is not modal -- fix it. -- Finished 11-Jul-06
+
+15-Jun-06 Finish work on AncestorIconView -- Finished 10-Aug-06
+
+15-Jun-06 Add Viewers to view choice on menu
+
+29-Jun-06 change name of restart petri dish
+
+August - 06
+
+ - Fixed problems with IconView to get trash can to work 
 
 ************Kaben******************
 

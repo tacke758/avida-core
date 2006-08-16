@@ -7,53 +7,11 @@ from pyFreezeDialogCtrl import pyFreezeDialogCtrl
 from pyPetriConfigureView import pyPetriConfigureView
 from pyWriteGenesisEvent import pyWriteGenesisEvent
 from pyWriteToFreezer import pyWriteToFreezer
+from pyNewIconView import pyNewIconViewItem
 
 from AvidaCore import cGenesis, cString
 
 from qt import *
-
-imageAncestor_data = [
-"24 16 23 1",
-"t c #3c553e",
-"n c #42a985",
-"l c #782424",
-"f c #7e9a3e",
-"i c #8c7c75",
-"d c #914c54",
-"q c #a1ca5d",
-"o c #a6a8a3",
-"r c #b3b5b2",
-"s c #b5868b",
-"c c #bba4a6",
-"m c #c02a30",
-"p c #c0bebe",
-"a c #cbcccb",
-"j c #d7d7d6",
-"# c #e64d4a",
-"e c #e7c9cc",
-"u c #eb3c88",
-"b c #efefef",
-"k c #f2ddde",
-"g c #f4756e",
-"h c #f7a798",
-". c #ffffff",
-"....................#a..",
-"..................bcde..",
-"................bcdcfb..",
-"...........becghcdijca..",
-"..........kclliml#dejn..",
-"........jeddefoolooi###c",
-".......kpdjqaooipjaooole",
-".bbgbb.pdiaariosb.barr..",
-"biddstm#gdsens#s........",
-"jcatoisdsdmgggsk........",
-".renaatdooosdsb.........",
-".ba.qrl....b............",
-".jarsdg.................",
-"..roupb.................",
-".baae...................",
-"..bj...................."
-]
 
 import os, os.path, shutil
 import math
@@ -62,8 +20,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
   def __init__(self,parent = None,name = None,fl = 0):
     pyPetriConfigureView.__init__(self,parent,name,fl)
-    self.imageAncestor = QPixmap(imageAncestor_data)
     self.setAcceptDrops(1)
+    self.AncestorIconView.setVScrollBarMode(QIconView.AlwaysOff)
 
   def setAvidaSlot(self, avida):
     old_avida = self.m_avida
@@ -74,7 +32,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       pass
     
   def construct(self, session_mdl):
-    descr()
     self.m_session_mdl = session_mdl
     self.m_session_petri_view = pyPetriConfigureView()
     self.m_avida = None
@@ -143,7 +100,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.populated = False
     
   def destruct(self):
-    descr()
     self.m_session_petri_view = None
     self.m_avida = None
     self.full_petri_dict = {}
@@ -273,13 +229,13 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.m_session_mdl.m_update_to_pause = self.StopAtSpinBox.value()
      
   def FillDishSlot(self, dish_name, petri_dict):
-    descr()
     
     self.full_petri_dict = petri_dict.dictionary
     settings_dict =  petri_dict.dictionary["SETTINGS"]
 
-    # Erase all items for the ancestor list (largest to smallest index)
+    # Erase all items for the ancestor list 
 
+    self.AncestorIconView.clearGenomeDict()
     self.AncestorIconView.clear()
 
     # Find all ancestors with the name of the form START_CREATUREi
@@ -287,8 +243,12 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     i = 0
     while(settings_dict.has_key("START_CREATURE" + str(i))):
       start_creature = settings_dict["START_CREATURE" + str(i)]
-      tmp_item = QIconViewItem(self.AncestorIconView, start_creature, 
-                self.imageAncestor)
+
+      # Read the genome from the petri dish file
+
+      org_string = settings_dict["START_GENOME" + str(i)]
+      tmp_name=self.AncestorIconView.addGenomeToDict(start_creature, org_string)
+      tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name )
       i = i + 1
     if settings_dict.has_key("MAX_UPDATES") == True:
       max_updates = int(settings_dict["MAX_UPDATES"])
@@ -388,7 +348,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       PYSIGNAL("finishedPetriDishSig"), ())
 
   def DisablePetriConfigureSlot(self):
-    descr()
     self.ConfigTitleTextLabel.setText("Environmental Settings Disabled During Run")
 
     # Turn off the controls 
@@ -440,7 +399,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       PYSIGNAL("doDisablePetriDishSig"), ())
 
   def EnablePetriConfigureSlot(self):
-    descr()
     self.ConfigTitleTextLabel.setText("Environmental Settings")
 
     # Turn on the controls 
@@ -487,7 +445,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
 
   def CreateFilesFromPetriSlot(self, out_dir = None):
-    descr()
 
     # The input files will be placed in a python generated temporary directory
     # ouput files will be stored in tmp_dir/output until the data is frozen
@@ -504,7 +461,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       (os.path.join(self.m_session_mdl.m_tempdir, "genesis.avida"),))
       
   def Form2Dictionary(self):
-    descr()
     settings_dict = {}
     
     # Write START_CREATUREi for all the organisms in the Ancestor Icon View
@@ -513,6 +469,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     i = 0
     while (curr_item):
       settings_dict["START_CREATURE" + str(i)] = str(curr_item.text())
+ 
+      settings_dict["START_GENOME" + str(i)] = self.AncestorIconView.getGenomeFromDict(str(curr_item.text()))
       i = i + 1
       curr_item = curr_item.nextItem()
     if (self.StopAtRadioButton.isChecked() == True):
@@ -575,7 +533,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     return settings_dict
     
   def FreezePetriSlot(self, population_dict = None, ancestor_dict = None, send_reset_signal = False, send_quit_signal = False):
-    descr()
     if len(population_dict) == 0:
       freeze_empty_only_flag = True;
     else:
@@ -632,7 +589,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
 
   def doLoadPetriDishConfigFileSlot(self, genesisFileName = None):
-    descr()
     genesis = cGenesis()
     genesis.Open(cString(genesisFileName))
     if 0 == genesis.IsOpen():
@@ -655,9 +611,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.setAvidaSlot)
 
   def dragEnterEvent( self, e ):
-    descr("BDB")
-    descr(e)
-    descr("BDB")
 
     freezer_item_name = QString()
  
@@ -673,10 +626,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
       
   def dropEvent( self, e ):
-    descr()
-    descr("BDB -- e.pos()")
-    tmp_pos = self.mapToGlobal(e.pos())
-    descr("x = " + str(tmp_pos.x()) + "  y = " + str(tmp_pos.y()))
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
       freezer_item_name = str(e.encodedData("text/plain"))
@@ -687,10 +636,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
   # The function petriDroppedSlot and petriAncestorDroppedSlot are identical
   # at some point petriDroppedSlot should not allow creatures dropped outside
-  # the AncestorIconView to be added to the Ancestort List
+  # the AncestorIconView to be added to the Ancestor List
 
   def petriDroppedSlot(self, e):
-    descr()
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
@@ -698,14 +646,27 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
-        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
-        #initialize Avida (which repaints the dish)
+
+        # Read the genome from the organism file
+
+        org_file = open(os.path.join(self.m_session_mdl.m_current_freezer,
+                        core_name+".organism"))
+        org_string = org_file.readline()
+        org_string = org_string.rstrip()
+        org_string = org_string.lstrip()
+        org_file.close
+
+        tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
+        tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
+
+
+      # initialize Avida (which repaints the dish)
+
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doInitializeAvidaPhaseISig"),
         (self.m_session_mdl.m_tempdir,))
 
   def petriAncestorDroppedSlot(self, e):
-    descr()
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
@@ -713,7 +674,18 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if freezer_item_name[-8:] == 'organism':
         core_name = freezer_item_name[:-9]
         core_name = os.path.basename(str(freezer_item_name[:-9]))
-        tmp_item = QIconViewItem(self.AncestorIconView, core_name, self.imageAncestor)
+
+        # Read the genome from the organism file
+
+        org_file = open(os.path.join(self.m_session_mdl.m_current_freezer,
+                        core_name+".organism"))
+        org_string = org_file.readline()
+        org_string = org_string.rstrip()
+        org_string = org_string.lstrip()
+        org_file.close
+
+        tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
+        tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
         return
 
   # Find the first item in the AncestorView with the name ancestor_item_name
@@ -721,15 +693,13 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
   # correct item should be deleted.
 
   def deleteAncestorSlot(self, ancestor_item_name):
-    descr()
     curr_item = self.AncestorIconView.firstItem()
     while (curr_item):
       curr_item_name = str(curr_item.text())
-      descr("BDB -- curr_item_name = " + curr_item_name + " ancestor_item_name = " + ancestor_item_name)
       if (str(curr_item_name) == ancestor_item_name):
-        descr("BDB -- in if curr_item_name = " + curr_item_name + " ancestor_item_name = " + ancestor_item_name)
         self.AncestorIconView.takeItem(curr_item)
         # curr_item.~QIconViewItem()
+        self.AncestorIconView.removeGenomeFromDict(curr_item_name)
         break
       curr_item = curr_item.nextItem()
 

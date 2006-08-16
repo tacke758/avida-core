@@ -73,14 +73,9 @@ class pyWriteGenesisEvent:
           self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
 
-          # Read the genome from the organism file 
+          # Read the genome from the dictionary
 
-          org_file = open(os.path.join(freeze_dir, start_creature+".organism"))
-          org_string = org_file.readline()
-          org_string = org_string.rstrip()
-          org_string = org_string.lstrip()
-          org_file.close
-          organisms_dict[str(i)] = org_string
+          organisms_dict[str(i)] = settings_dict["START_GENOME" + str(i)]
 
 
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))

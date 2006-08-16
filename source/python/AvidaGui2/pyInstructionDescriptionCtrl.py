@@ -5,11 +5,11 @@ from qt import *
 from AvidaCore import *
 
 descriptions_dict = {
-  'a':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modifiy the behavior of the instruction preceeding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+  'a':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
   
-  'b':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modifiy the behavior of the instruction preceeding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+  'b':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
   
-  'c':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modifiy the behavior of the instruction preceeding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+  'c':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
   
   'd':"""This instruction compares the BX register to its complement. If they are not equal, the next instruction (after a modifying no-operation instruction, if one is present) is executed. If they are equal, that next instruction is skipped.""",
   
@@ -41,11 +41,11 @@ descriptions_dict = {
   
   'r':"""This instruction allocates additional memory for the organism up to the maximum it is allowed to use for its offspring.""",
   
-  's':"""This instruction is used for an organism to divide off an finnished offspring. The original organism keeps the state of its memory up until the read-head. The offspring's memory is initialized to everything between the read-head and the write-head. All memory past the write-head is removed entirely.""",
+  's':"""This instruction is used for an organism to divide off an finished offspring. The original organism keeps the state of its memory up until the read-head. The offspring's memory is initialized to everything between the read-head and the write-head. All memory past the write-head is removed entirely.""",
   
   't':"""This instruction reads the contents of the organism's memory at the position of the read-head, and copy that to the position of the write-head. If a non-zero copy mutation rate is set, a test will be made based on this probability to determine if a mutation occurs. If so, a random instruction (chosen from the full set with equal probability) will be placed at the write-head instead.""",
   
-  'u':"""This instruction will read in the template the follows it, and find the location of a complement template in the code. The BX register will be set to the distance to the complement from the current position of the instruction-pointer, and the CX register will be set to the size of the template. The flow-head will also be placed at the beginning of the complement template. If no template follows, both BX and CX will be set to zero, and the flow-head will be placed on the instruction immediatly following the h-search.""",
+  'u':"""This instruction will read in the template the follows it, and find the location of a complement template in the code. The BX register will be set to the distance to the complement from the current position of the instruction-pointer, and the CX register will be set to the size of the template. The flow-head will also be placed at the beginning of the complement template. If no template follows, both BX and CX will be set to zero, and the flow-head will be placed on the instruction immediately following the h-search.""",
   
   'v':"""This instruction will cause the IP to jump to the position in memory of the flow-head.""",
   
