@@ -30,8 +30,10 @@ class pyMapProfile:
     GestationTimeIdx = lambda c: c.GetOrganism().GetPhenotype().GetGestationTime()
     SizeIdx = lambda c: c.GetOrganism().GetPhenotype().GetGenomeLength()
     #GenotypeIdx = lambda c: c.GetOrganism().GetGenotype()
+    #the reason we add one is because 0 is black and does not get painted
+    #the downside is that we need to add one every time we get a lineage throughout
+    #the code 
     LineageIdx = lambda c: c.GetOrganism().GetLineageLabel()+1
-
 
     class ancestorLinScaleUpdater:
       def __init__(self, range):
@@ -141,7 +143,72 @@ class pyMapProfile:
           return self.resetRange(population)
 
         (inf, sup) = self.m_range.getRange()
-        descr("(inf, sup)", (inf, sup))
+        #descr("(inf, sup)", (inf, sup))
+
+        if (sup < (1 - self.m_sup_tolerance_coeff) * self.m_target_sup) or (self.m_target_sup < sup):
+          new_target_sup = sup * (1 + self.m_sup_tolerance_coeff)
+          #self.m_sup_rescale_rate = float(new_target_sup - self.m_sup)
+          self.m_sup_rescale_rate = float(new_target_sup - self.m_sup) / self.m_updates_to_rescale
+          self.m_target_sup = new_target_sup
+
+        #descr("self.m_sup", self.m_sup)
+#        if self.m_sup <= 0:
+        if self.m_sup_rescale_rate != 0:
+          if inf <= self.m_sup:
+            #self.m_sup = self.m_target_sup
+            self.m_sup += self.m_sup_rescale_rate
+          else:
+            max_rate = self.m_sup * self.m_max_rescale_factor
+            self.m_sup += min(self.m_sup_rescale_rate, max_rate)
+          if abs(self.m_target_sup - self.m_sup) < abs(self.m_sup_rescale_rate):
+            self.m_sup = self.m_target_sup
+            self.m_sup_rescale_rate = 0
+
+        return self.getRange()
+
+    class gradualLinScaleUpdater:
+      def __init__(self, range):
+        self.m_range = range
+        self.m_inf = 0.0
+        self.m_sup = 0.0
+        self.m_target_inf = 0.0
+        self.m_target_sup = 0.0
+        self.m_inf_tolerance_coeff = 0.1
+        self.m_sup_tolerance_coeff = 0.1
+        self.m_inf_rescale_rate = 0.0
+        self.m_sup_rescale_rate = 0.0
+        self.m_max_rescale_factor = 0.03
+        self.m_updates_to_rescale = 40
+        self.m_should_reset = True
+
+      def reset(self, should_reset):
+        self.m_should_reset = should_reset
+
+      def shouldReset(self):
+        return self.m_should_reset 
+
+      def getRange(self):
+        #descr()
+        return self.m_inf, self.m_sup
+
+      def resetRange(self, population):
+        #descr(population)
+        (inf, sup) = self.m_range.getRange()
+        #descr("(inf, sup)", (inf, sup))
+        #(self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (inf, sup)
+        (self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (0, sup)
+        self.m_inf_rescale_rate = self.m_sup_rescale_rate = 0
+
+        return self.getRange()
+
+      def updateRange(self, population):
+        #descr(population)
+        #descr("self.m_should_reset",self.m_should_reset)
+        if self.m_should_reset:
+          return self.resetRange(population)
+
+        (inf, sup) = self.m_range.getRange()
+        #descr("(inf, sup)", (inf, sup))
 
         if (sup < (1 - self.m_sup_tolerance_coeff) * self.m_target_sup) or (self.m_target_sup < sup):
           new_target_sup = sup * (1 + self.m_sup_tolerance_coeff)

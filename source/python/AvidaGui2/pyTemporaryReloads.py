@@ -52,6 +52,9 @@ nontest_module_names = [
 
   "AvidaGui2.pyAnalyzeControlsView",
   "AvidaGui2.pyAnalyzeControlsCtrl",
+  "AvidaGui2.pyAncestorLegendView",
+  "AvidaGui2.pyAncestorLegendCtrl",
+  "AvidaGui2.pyAncestorLegendObjectCtrl",
   "AvidaGui2.pyAvidaStatsInterface",
   "AvidaGui2.pyBeforeStartingView",
   "AvidaGui2.pyBeforeStartingCtrl",
@@ -154,6 +157,10 @@ nontest_module_names = [
   "AvidaGui2.pyEduSessionMenuBarHdlr",
   
   "AvidaGui2.pyAvida",
+  #"AvidaGui2.pyAncestorLegendView",
+  #"AvidaGui2.pyAncestorLegendCtrl",
+  "AvidaGui2.pyMapLegendView",
+  "AvidaGui2.pyMapLegendCtrl"
 #  "AvidaGui2.pyAvidaThreadHdlr",
 ]
 

@@ -21,11 +21,11 @@ class pyOrgSquareCtrl(QWidget):
   def __init__(self,parent = None,name = None,fl = 0):
     QWidget.__init__(self,parent,name,fl)
 
-  def construct(self, session_mdl):
+  def construct(self):
     self.m_canvas = QCanvas(25,25)
     self.m_canvas.setBackgroundColor(Qt.darkGray)
     self.m_canvas_view = QCanvasView(self.m_canvas, self,"m_canvas_view")
-
+    
   def paint(self, color):
     self.m_canvas.setBackgroundColor(color)
  

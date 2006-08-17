@@ -66,7 +66,8 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.m_founding_cells_dict = None
 
     # set a global lookup table mapping lineage labels to ancestor names
-    self.m_session_mdl.m_ancestors_dict = None
+#    self.m_session_mdl.m_ancestors_dict = None
+    self.m_session_mdl.m_ancestors_dict = {'1': 'default'}
 
     # set a global variable for locking the ancestor lineage map mode max range
     self.m_session_mdl.m_max_lineages_ever = 0

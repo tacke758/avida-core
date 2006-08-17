@@ -1,6 +1,7 @@
 
 # -*- coding: utf-8 -*-
 
+from descr import descr
 from AvidaCore import cInitFile, cString
 from qt import *
 from pyOnePop_StatsView import pyOnePop_StatsView
@@ -15,7 +16,8 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
-    self.m_org_square_ctrl.construct(self.m_session_mdl)
+    self.m_stat_task_button_states = [0,0,0,0,0,0,0,0,0]
+    self.m_org_square_ctrl.construct()
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
@@ -29,6 +31,26 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       PYSIGNAL("freezerItemDoubleClickedOnInOnePopSig"),
       self.freezerItemDoubleClickedOn)  
     self.m_clicked_cell_number = -99
+    self.connect(self.m_not_button, SIGNAL("clicked()"),
+      self.notButtonClickedSlot)
+    self.connect(self.m_nand_button, SIGNAL("clicked()"),
+      self.nandButtonClickedSlot)
+    self.connect(self.m_and_button, SIGNAL("clicked()"),
+      self.andButtonClickedSlot)
+    self.connect(self.m_ornot_button, SIGNAL("clicked()"),
+      self.ornotButtonClickedSlot)
+    self.connect(self.m_or_button, SIGNAL("clicked()"),
+      self.orButtonClickedSlot)
+    self.connect(self.m_andnot_button, SIGNAL("clicked()"),
+      self.andnotButtonClickedSlot)
+    self.connect(self.m_nor_button, SIGNAL("clicked()"),
+      self.norButtonClickedSlot)
+    self.connect(self.m_xor_button, SIGNAL("clicked()"),
+      self.xorButtonClickedSlot)
+    self.connect(self.m_equals_button, SIGNAL("clicked()"),
+      self.equalsButtonClickedSlot)
+
+    
 
   def setAvidaSlot(self, avida):
     print "pyOnePop_StatsCtrl.setAvidaSlot() ..."
@@ -99,75 +121,92 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     #TASK OUTLOOK 
 
-#    #if num_orgs_doing_a_given_task is above this number, we say the pop is doing this task
-#    m_org_threshold = 1   
- 
     num_not = str(stats.GetTaskLastCount(0))
-#    if num_not > m_org_threshold:
-#      self.m_num_not.setText(QString("yes"))
-#    else:
-#      self.m_num_not.setText(QString("no"))
     self.m_num_not.setText(num_not)
     
     num_nand = str(stats.GetTaskLastCount(1))
-#    if num_nand > m_org_threshold:
-#      self.m_num_nand.setText(QString("yes"))
-#    else:
-#      self.m_num_nand.setText(QString("no"))
     self.m_num_nand.setText(num_nand)
 
     num_and = str(stats.GetTaskLastCount(2))
-#    if num_and > m_org_threshold:
-#      self.m_num_and.setText(QString("yes"))
-#    else:
-#      self.m_num_and.setText(QString("no"))
     self.m_num_and.setText(num_and)
 
     num_ornot = str(stats.GetTaskLastCount(3))
-#    if num_ornot > m_org_threshold:
-#      self.m_num_ornot.setText(QString("yes"))
-#    else:
-#      self.m_num_ornot.setText(QString("no"))
     self.m_num_ornot.setText(num_ornot)
 
     num_or = str(stats.GetTaskLastCount(4))
-#    if num_or > m_org_threshold:
-#      self.m_num_or.setText(QString("yes"))
-#    else:
-#      self.m_num_or.setText(QString("no"))
     self.m_num_or.setText(num_or)
 
     num_andnot = str(stats.GetTaskLastCount(5))
-#    if num_andnot > m_org_threshold:
-#      self.m_num_andnot.setText(QString("yes"))
-#    else:
-#      self.m_num_andnot.setText(QString("no"))
     self.m_num_andnot.setText(num_andnot)
 
     num_nor = str(stats.GetTaskLastCount(6))
-#    if num_nor > m_org_threshold:
-#      self.m_num_nor.setText(QString("yes"))
-#    else:
-#      self.m_num_nor.setText(QString("no"))
     self.m_num_nor.setText(num_nor)
 
     num_xor = str(stats.GetTaskLastCount(7))
-#    if num_xor > m_org_threshold:
-#      self.m_num_xor.setText(QString("yes"))
-#    else:
-#      self.m_num_xor.setText(QString("no"))
     self.m_num_xor.setText(num_xor)
 
     num_equals = str(stats.GetTaskLastCount(8))
-#    if num_equals > m_org_threshold:
-#      self.m_num_equals.setText(QString("yes"))
-#    else:
-#      self.m_num_equals.setText(QString("no"))
     self.m_num_equals.setText(num_equals)
     
     if self.m_clicked_cell_number>= 0: 
       self.updateOrgReportSlot(self.m_clicked_cell_item)
 
+  def notButtonClickedSlot(self):
+    print "NOT BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[0] = self.m_not_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def nandButtonClickedSlot(self):
+    print "NAND BUTTON CLICKED---------------------------------------------------------------->"
+    self.m_stat_task_button_states[1] = self.m_nand_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def andButtonClickedSlot(self):
+    print "AND BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[2] = self.m_and_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def ornotButtonClickedSlot(self):
+    print "ORNOT BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[3] = self.m_ornot_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def orButtonClickedSlot(self):
+    print "OR BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[4] = self.m_or_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def andnotButtonClickedSlot(self):
+    print "ANDNOT BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[5] = self.m_andnot_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def norButtonClickedSlot(self):
+    print "NOR BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[6] = self.m_nor_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def xorButtonClickedSlot(self):
+    print "XOR BUTTON CLICKED------------------------------------------------------------------>"
+    self.m_stat_task_button_states[7] = self.m_xor_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+  def equalsButtonClickedSlot(self):
+    print "EQUALS BUTTON CLICKED--------------------------------------------------------------->"
+    self.m_stat_task_button_states[8] = self.m_equals_button.state()
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
+
+
+    
 
 
   def updateOrgReportSlot(self, clicked_cell_item = None):
@@ -175,6 +214,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_clicked_cell_item = clicked_cell_item
     if clicked_cell_item:
       clicked_cell_num = clicked_cell_item.m_population_cell.GetID()
+#      descr("m_population_cell.GetID() just clicked on ", clicked_cell_item.m_population_cell.GetID(), clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())
       self.m_clicked_cell_number = clicked_cell_num
     if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(clicked_cell_num)).IsOccupied():
 

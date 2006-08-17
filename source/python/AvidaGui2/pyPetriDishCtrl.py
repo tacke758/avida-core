@@ -39,6 +39,7 @@ class pyPetriDishCtrl(QWidget):
     self.m_h_scrollbar_offset = 0
     self.m_v_scrollbar_offset = 0
     self.m_zoom_old_value = self.m_zoom_factor
+    self.m_stat_task_button_states = [0,0,0,0,0,0,0,0,0]
 
     self.m_petri_dish_layout = pySquareVBoxLayout(self,0,0,"m_petri_dish_layout")
     print "pyPetriDishCtrl.construct() self.m_petri_dish_layout.heightForWidth(20) :", self.m_petri_dish_layout.heightForWidth(20)
@@ -79,6 +80,8 @@ class pyPetriDishCtrl(QWidget):
       PYSIGNAL("orgClickedOnSig"), self.updateOrgClickedOutlineCellNumberSlot)
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("orgClickedOnSig"), self.setDragSlot)
+    self.connect( self.m_session_mdl.m_session_mdtr, 
+      PYSIGNAL("statsViewTaskButtonStateChangeSig"), self.statsViewTaskButtonStateChangeSlot)
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("petriCanvasResizedSig"),
       self.petriCanvasResizedSlot)
@@ -112,6 +115,11 @@ class pyPetriDishCtrl(QWidget):
     self.m_change_list = None
     self.m_org_clicked_on_item = None
     self.m_occupied_cells_ids = []
+
+  def statsViewTaskButtonStateChangeSlot(self, stat_task_button_states):
+    self.m_stat_task_button_states = stat_task_button_states
+    descr("self.m_stat_task_button_states is: ", self.m_stat_task_button_states)
+    self.updateCellItems(True)
 
   def petriCanvasResizedSlot(self,petriCanvasSize):
     descr()
@@ -225,13 +233,14 @@ class pyPetriDishCtrl(QWidget):
     self.m_org_clicked_on_item = org_clicked_on_item
     if self.m_org_clicked_on_item:
       self.m_last_cell_outlined_color = self.m_org_clicked_on_item.pen()
-      self.updateCellItems(self.m_org_clicked_on_item.m_population_cell.GetID())
+      self.updateCellItems(True)
       self.m_last_m_org_clicked_on_item = self.m_org_clicked_on_item
     else:
       if hasattr(self,"m_last_cell_outlined"):
         if self.m_last_cell_outlined is not None:
             self.m_last_cell_outlined.setPen(self.m_last_cell_outlined_color)
-            self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
+#            self.updateCellItems(self.m_last_m_org_clicked_on_item.m_population_cell.GetID())
+            self.updateCellItems(True)
 
   def updateCellItem(self, cell_id):
     if self.m_cell_info[cell_id] is None:
@@ -242,17 +251,35 @@ class pyPetriDishCtrl(QWidget):
     #for speed efficiency. currenly it is checked every time a cell is updated
     if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_avida_has_started == True):
       cell_info_item.setPen(QPen(Qt.NoPen))
+    if not (cell_info_item.pen().color() == QColor(0,255,0)):
+      cell_info_item.setPen(QPen(Qt.NoPen))
+
+    if(self.m_avida.m_population.GetCell(cell_id).GetOrganism() is not None):
+      passedATest = False      #refers to tests regarding whether a task button is on and that task is performed
+      failedATest = False      #refers to tests regarding whether a task button is on and that task is performed
+      for i in range(len(self.m_stat_task_button_states)):
+        if (self.m_stat_task_button_states[i]):
+#          print "IN THE STATE LOOP, WITH I = ", i
+          if(self.m_avida.m_population.GetCell(cell_id).GetOrganism().GetPhenotype().GetCurTaskCount()[i]>=1):
+            passedATest = True
+          else:
+            failedATest = True
+          paint = False
+      if (passedATest and not failedATest):  
+        cell_info_item.setPen(QPen(QColor(0,255,255))) 
 
     cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
 
     if self.m_org_clicked_on_item:
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
-        cell_info_item.setPen(QPen(QColor(0,255,0)))
+        cell_info_item.setPen(QPen(QColor(0,255,0),2))
+      else:
+#        cell_info_item.setPen(QPen(Qt.NoPen))
         self.m_last_cell_outlined = cell_info_item      
     return cell_info_item
 
   def updateCellItems(self, should_update_all = False):
-    descr(should_update_all)
+    #descr(should_update_all)
     if self.m_cell_info:
 
       #descr("self.m_cell_info:", self.m_cell_info)

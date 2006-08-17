@@ -64,7 +64,9 @@ Priority Low
 Priority High
 -make the org report give the name of the ancestor when they are clicked on
 -make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)
--add task information to petri dish
+
+
+
 
 Priority Medium
 -make the getting rid of the outline of the cells something that doesn't slow down the code at every step
@@ -264,5 +266,14 @@ June
 
 
 July
+
 -fix the prerun crashes for clicking around petri dish ancestors
 -fix the problem that the gray outline of ancestors is going away if they are clicked on then off again pre-run
+
+
+August
+-a user can now click on a button on the population stats report and all the organisms that are doing that task are highlighted (works with multiple tasks at once, showing the overlap)
+-work continues on the ancestor map mode=======
+-fix the prerun crashes for clicking around petri dish ancestors
+-fix the problem that the gray outline of ancestors is going away if they are clicked on then off again pre-run
+
