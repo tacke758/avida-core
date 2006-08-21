@@ -37,6 +37,7 @@
       </p>
       <ul>
 	<li>subversion (under Devel)</li>
+        <li>cvs (under Devel)</li>
 	<li>openssh (under Net)</li>
 	<li>wget (under Web)</li>
 	<li>make (under Devel)</li>
@@ -63,6 +64,10 @@
           Read more detailed instructions at
           <a href="http://svnbook.red-bean.com/en/1.1/">red-bean.com's online Subversion pages.</a>
 	</p>
+
+        <p>
+          
+        </p>
       </section>
     </section>
 
@@ -76,7 +81,8 @@
 	<p>
 	  The MinGW project provides a native compiler for Windows
 	  based on GCC.  If we compiled with Cygwin, the executable
-	  would need the Cygwin compatibility DLL.
+	  would need the Cygwin compatibility DLL.  Compiling with
+	  MinGW generates a native Windows executable.
 	</p>
 	<p><strong>Installation:</strong></p>
 	<p>
@@ -91,10 +97,14 @@
 	  page, you will need to download each component seperately,
 	  or use the following link:<br/>
 	  <a
-	      href="http://prdownloads.sourceforge.net/mingw/MinGW-5.0.0.exe">MinGW-5.0.0.exe</a>
+	      href="http://easynews.dl.sourceforge.net/mingw/MinGW-5.0.3.exe">MinGW-5.0.3.exe</a>
 	  <br/>
-	  I haven't tested this release yet.
+	  Choose to install g++ and MinGW-make
 	</p>
+        <p>
+          Then install MSYS, which includes a bash shell for MinGW.
+          For the installer, the MinGW executable is located in C:/MinGW
+        </p>
 	<ul>
 	  <li>http://prdownloads.sf.net/mingw/MSYS-1.0.10.exe?download</li>
 	  <li>http://prdownloads.sf.net/mingw/msysDTK-1.0.1.exe?download</li>
@@ -169,8 +179,8 @@
         <p><strong>Installation:</strong></p>
         <p>
           Download and install Python
-          <a href="http://www.python.org/ftp/python/2.4.1/python-2.4.1.msi">
-	    http://www.python.org/ftp/python/2.4.1/python-2.4.1.msi
+          <a href="http://www.python.org/ftp/python/2.4.3/python-2.4.3.msi">
+	    http://www.python.org/ftp/python/2.4.3/python-2.4.3.msi
 	  </a>
         </p>
 	<p>
@@ -180,6 +190,9 @@
 	  href="http://www.mingw.org/MinGWiki/index.php/Python%20extensions">Instructions
 	  for generating GCC compatible Python library</a>
 	</p>
+        <p>
+          First download pexports: <a href="http://starship.python.net/crew/kernr/mingw32/pexports-0.42h.zip">pexports</a>.  Then dump the bin contents into C:\MinGW\bin
+        </p>
 	<p>
 	  <code>
 	    pexports.exe /c/WINDOWS/system32/python24.dll > python24.def
@@ -192,7 +205,7 @@
 	</p>
 	<p>
 	  <code>
-	    cp libpython24.a c:\python24\libs
+	    cp libpython24.a /c/Python24/libs
 	  </code>
 	</p>
 	<p><strong>Where things are installed:</strong></p>
@@ -247,10 +260,10 @@
         </p>
         <p>
           <code>
-            $ wget http://prdownloads.sourceforge.net/qtwin/qt-win-free-3.3.4-3-src.tar.bz2?download
+            $ wget http://easynews.dl.sourceforge.net/qtwin/qt-win-free-3.3.6-6-src.tar.bz2
 	  </code>
           <br/>
-          <code>$ tar xvfj qt-win-free-3.3.4-3.src.tar.bz2</code>
+          <code>$ tar xvfj qt-win-free-3.3.6-6.src.tar.bz2</code>
 	</p>
         <p>
           Qt/Win and some of the third-party software that depends on
@@ -260,13 +273,13 @@
         <p>
           <code>$ cd qt-3</code>          
           <br/>
-          <code>$ export QTDIR=`pwd`</code>          
+          <code>$ set QTDIR=C:\g</code>
           <br/>
-	  <code>$ export MINGW=/c/MinGW</code>
+	  <code>$ set MINGW=C:\MinGW</code>
 	  <br/>
-          <code>$ export PATH=$PATH:$QTDIR/bin:$QTDIR/lib:$MINGW/bin:/c/Python24</code>          
+          <code>$ set PATH=%PATH%;%QTDIR%\bin;%QTDIR%\lib;%MINGW%\bin;C:\Python24</code>          
           <br/>
-          <code>$ export QMAKESPEC=win32-g++</code>          
+          <code>$ set QMAKESPEC=win32-g++</code>          
         </p>
         <note label="Important">
           Record the value of <code>$QTDIR</code>.
@@ -309,9 +322,14 @@
           <code>$ export PATH=$PATH:$QTDIR/bin:$QTDIR/lib:/c/Python24</code>
         </p>
         <p>
+          <code>C:\>set QTDIR=C:\cygwin\home\kaben\Projects\Software\qt-3</code>
+          <code>C:\>set MINGW=C:\MinGW</code>
+          <code>C:\>set PATH=%PATH%;%QTDIR%\bin;%QTDIR%\lib;C:\Python24;C:\MinGW\bin</code>
+        </p>
+        <p>
           Download and unpack the SIP source archive
-	  <a href="http://www.river-bank.demon.co.uk/download/sip/sip-4.3.tar.gz">
-	    http://www.river-bank.demon.co.uk/download/sip/sip-4.1.1.tar.gz
+	  <a href="http://www.river-bank.demon.co.uk/download/sip/sip-4.4.5.tar.gz">
+	    http://www.river-bank.demon.co.uk/download/sip/sip-4.4.5.tar.gz
           </a>
           into the directory of your choice using MSYS; for example:
         </p>
@@ -319,10 +337,10 @@
           <code>$ cd /c/cygwin/home/josh/src</code>
           <br/>
           <code>
-            $ wget http://www.river-bank.demon.co.uk/download/sip/sip-4.3.tar.gz
+            $ wget http://www.river-bank.demon.co.uk/download/sip/sip-4.4.5.tar.gz
           </code>
           <br/>
-          <code>$ tar xvfz sip-4.3.tar.gz</code>
+          <code>$ tar xvfz sip-4.4.5.tar.gz</code>
         </p>
 	<p>
 	  Patch to build on Windows.  As documented on this page: <a href="http://kscraft.sourceforge.net/convert_xhtml.php?doc=pyqt-windows-install.xhtml">
@@ -436,7 +454,10 @@
 	  <br/>
           <code>$ mingw32-make install</code>
         </p>
-
+        <note label="Important">
+          If python configure.py complains about not being able to find
+          qt3-mt.dll, you can copy it to the C:\WINDOWS\system32 directory.
+        </note>
       </section>
       
       <section id="win32_numeric">
@@ -585,6 +606,9 @@
 	  installed.
         </p>
         <p>
+          Use cygwin to pull the source from cvs.  Then use MSYS to build it.
+        </p>
+        <p>
           <code>$ cd ~/src</code>
           <br/>
           <code>
@@ -628,19 +652,18 @@
           <code>$ tar xvfz boost_1_33_1.tar.gz</code>
         </p>
         <p>
-          Build Boost.Jam, the Boost Build system.  Use the Windows
-          command shell to build it.
+          Build Boost.Jam, the Boost Build system.  Use MSYS to build
+          it.
         </p>
         <p>
           <code>$ cd boost_1_33_1</code>
           <br/>
-          <code>$ cd tools\build\jam_src</code>
+          <code>$ cd tools/build/jam_src</code>
           <br/>
-          <code>$ build.bat mingw</code>
+          <code>$ start build.bat mingw</code>
         </p>
         <p>
-	  Switch back over to MSYS.  copy bin.ntx86/* to
-	  /usr/local/bin
+	  copy bin.ntx86/* to /usr/local/bin
 	</p>
         <p>
           <code>$ cp tools/build/jam_src/bin.ntx86/bjam /usr/local/bin</code>
@@ -710,6 +733,10 @@
           <code>$ tar xvfz ipython-0.6.15.tar.gz</code>
         </p>
         <p>
+          This didn't work when downloaded via cygwin, try downloading
+          it in a web browser.
+        </p>
+        <p>
           Install:
         </p>
         <p>
@@ -736,18 +763,8 @@
 	  <code>$ cd build</code>
 	  <br/>
 	  <code>$ cmake -G"Unix Makefiles" \</code>
-	  <code>   -DAVD_CONSISTENCY_TEST_PRIMITIVE:BOOL=OFF \</code>
-	  <code>   -DAVD_PRIMITIVE:BOOL=ON \</code>
-	  <code>   -DAVD_UNIT_TESTS:BOOL=OFF \</code>
-	  <code>   -DCMAKE_BUILD_TYPE:STRING=Debug \</code>
-	  <code>   -DAVD_GUI_NCURSES:BOOL=ON \</code>
-	  <code>   -DAVD_PY_BINDINGS:BOOL=ON \</code>
-	  <code>   -DBOOST_INCLUDE_PATH:PATH=/usr/local/include/boost-1_33_1 \</code>
-	  <code>   -DBOOST_LIBRARY:FILEPATH=/usr/local/lib/libboost_python-gcc.lib \</code>
-	  <code>   -DPYTHON_INCLUDE_PATH:PATH=/c/Python24/include \</code>
-	  <code>   -DPYTHON_LIBRARY:FILEPATH=/c/Python24/libs/python24.lib \</code>
-	  <code>   -DAVD_GUI_PYQT:BOOL=ON \</code>
-	  <code>..</code>
+	  <code>   -DAVD_CONSISTENCY_TEST_PRIMITIVE:BOOL=OFF -DAVD_PRIMITIVE:BOOL=ON -DAVD_UNIT_TESTS:BOOL=OFF -DCMAKE_BUILD_TYPE:STRING=Debug -DAVD_GUI_NCURSES:BOOL=OFF -DAVD_PY_BINDINGS:BOOL=ON -DBOOST_INCLUDE_PATH:PATH=/usr/local/include/boost-1_33_1 -DBOOST_LIBRARY:FILEPATH=/usr/local/lib/libboost_python-gcc.lib -DPYTHON_INCLUDE_PATH:PATH=/c/Python24/include -DPYTHON_LIBRARY:FILEPATH=/c/Python24/libs/python24.lib -DAVD_GUI_PYQT:BOOL=ON ..
+          </code>
 	  <br/>
 	</p>
 	<p>
@@ -756,9 +773,6 @@
 	  of MinGW (GCC 3.4.2)
 	</p>
 	<p>
-	  <code>
-	    export GCCXML_FLAGS="-D__DBL_MIN_EXP__='(-1021)' -D__FLT_MIN__='1.17549435e-38F' -D__CHAR_BIT__='8' -D__WCHAR_MAX__='65535U' -D__DBL_DENORM_MIN__='4.9406564584124654e-324' -D__FLT_EVAL_METHOD__='2' -D__DBL_MIN_10_EXP__='(-307)' -D__FINITE_MATH_ONLY__='0' -D__GNUC_PATCHLEVEL__='2' -D_stdcall='__attribute__((__stdcall__))' -D__SHRT_MAX__='32767' -D__LDBL_MAX__='1.18973149535723176502e+4932L' -D__LDBL_MAX_EXP__='16384' -D__SCHAR_MAX__='127' -D__USER_LABEL_PREFIX__='_' -D__STDC_HOSTED__='1' -D__WIN32='1' -D__LDBL_HAS_INFINITY__='1' -D__DBL_DIG__='15' -D__FLT_EPSILON__='1.19209290e-7F' -D__GXX_WEAK__='1' -D__tune_i686__='1' -D__LDBL_MIN__='3.36210314311209350626e-4932L' -D__DECIMAL_DIG__='21' -D__LDBL_HAS_QUIET_NAN__='1' -D__GNUC__='3' -D_cdecl='__attribute__((__cdecl__))' -D__DBL_MAX__='1.7976931348623157e+308' -D__WINNT='1' -D__DBL_HAS_INFINITY__='1' -D__WINNT__='1' -D_fastcall='__attribute__((__fastcall__))' -D__cplusplus='1' -D__USING_SJLJ_EXCEPTIONS__='1' -D__DEPRECATED='1' -D__DBL_MAX_EXP__='1024' -D__WIN32__='1' -D__GNUG__='3' -D__LONG_LONG_MAX__='9223372036854775807LL' -D__GXX_ABI_VERSION='1002' -D__FLT_MIN_EXP__='(-125)' -D__DBL_MIN__='2.2250738585072014e-308' -D__FLT_MIN_10_EXP__='(-37)' -D__DBL_HAS_QUIET_NAN__='1' -D__REGISTER_PREFIX__='' -D__cdecl='__attribute__((__cdecl__))' -D__NO_INLINE__='1' -D__i386='1' -D__FLT_MANT_DIG__='24' -D__VERSION__='3.4.2 (mingw-special)' -D_WIN32='1' -D_X86_='1' -Di386='1' -D__i386__='1' -D__SIZE_TYPE__='unsigned int' -D__FLT_RADIX__='2' -D__LDBL_EPSILON__='1.08420217248550443401e-19L' -D__MSVCRT__='1' -D__FLT_HAS_QUIET_NAN__='1' -D__FLT_MAX_10_EXP__='38' -D__LONG_MAX__='2147483647L' -D__FLT_HAS_INFINITY__='1' -D__stdcall='__attribute__((__stdcall__))' -D__EXCEPTIONS='1' -D__LDBL_MANT_DIG__='64' -D__WCHAR_TYPE__='short unsigned int' -D__FLT_DIG__='6' -D__INT_MAX__='2147483647' -DWIN32='1' -D__MINGW32__='1' -D__FLT_MAX_EXP__='128' -D__DBL_MANT_DIG__='53' -D__WINT_TYPE__='short unsigned int' -D__LDBL_MIN_EXP__='(-16381)' -D__WCHAR_UNSIGNED__='1' -D__LDBL_MAX_10_EXP__='4932' -D__DBL_EPSILON__='2.2204460492503131e-16' -D__tune_pentiumpro__='1' -D__fastcall='__attribute__((__fastcall__))' -DWINNT='1' -D__FLT_DENORM_MIN__='1.40129846e-45F' -D__FLT_MAX__='3.40282347e+38F' -D__GNUC_MINOR__='4' -D__DBL_MAX_10_EXP__='308' -D__LDBL_DENORM_MIN__='3.64519953188247460253e-4951L' -D__PTRDIFF_TYPE__='int' -D__LDBL_MIN_10_EXP__='(-4931)' -D__LDBL_DIG__='18' -D__declspec(x)=__attribute__((x)) -iwrapper c:/cygwin/home/gerrishj/src/gccxml/GCC_XML/Support/GCC/3.4 -I/mingw/include -I/mingw/include/c++/3.4.2 -I/mingw/include/c++/3.4.2/mingw32 -I/mingw/lib/gcc/mingw32/3.4.2/include -include c:/cygwin/home/gerrishj/src/gccxml/GCC_XML/Support/GCC/3.4/gccxml_builtins.h"
-	  </code>
 	</p>
 	<p>
 	  Then compile Avida
@@ -769,21 +783,54 @@
       </section>
 
       <section id="issues">
-	<title>Build issues</title>
-	<p>
-	  There are some problems with the makefiles that CMake generates.
-	</p>
-	<p>
-	  Included in the source/python/scripts/win32 directory are
-	  some scripts that will fix these issues.
-	</p>
-	<p>
-	  There are also some import errors related to vtable
-	  imports.  The mingw-fix-vtable-import.sh script will define
-	  the -enable-runtime-pseudo-reloc switch which eliminates
-	  these errors.
-	</p>
+        <title>Issues with the Build</title>
+        <p>
+          Errors about __EH_FRAME_BEGIN__ indicate a problem with including -lgcc on the command line.  Edit the file c:\Program Files\CMake206\Modules\CMakeDefaultMakeRuleVariables.cmake and remove the -lgcc.
+        </p>
       </section>
+    </section>
+
+    <section id="win32_package">
+      <title>Packaging Avida for Distribution</title>
+      <p>
+        There are two software packages needed to package up Avida for distribution.  py2exe generates an executable from the Python files, and NSIS is used to package up all of the support files and generate an installer that cleans up after itself.
+      </p>
+
+      <section id="win32_py2exe">
+        <title>Installing py2exe</title>
+        <p>
+          py2exe can be downloaded and installed from the following website:
+          <a href="http://www.py2exe.org/">http://www.py2exe.org/"</a>
+          <br/>
+          Then install it with the following:
+          <br/>
+          <code>C:\> python setup.py install</code>
+        </p>
+      </section>
+
+      <section id="win32_nsis">
+        <title>Installing NSIS</title>
+        <p>
+          Download and install NSIS from the following:
+          <a href="http://nsis.sourceforge.net/Download">http://nsis.sourceforge.net/Download</a>
+        </p>
+      </section>
+
+      <section id="win32_make_exec">
+        <title>Generating the Executable</title>
+        <p>
+          Change to the source/python/scripts/win32 directory and run
+          the following:
+          <br/>
+          <code>C:\> py2exe setup.py py2exe</code>
+          <br/>
+          <code>C:\> makensis setup.nsi</code>
+        </p>
+        <p>
+          This will generate an executable called Avida-ED.exe.
+        </p>
+      </section>
+
     </section>
 
   </body>
