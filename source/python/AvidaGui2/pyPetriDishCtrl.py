@@ -251,7 +251,12 @@ class pyPetriDishCtrl(QWidget):
     #for speed efficiency. currenly it is checked every time a cell is updated
     if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_avida_has_started == True):
       cell_info_item.setPen(QPen(Qt.NoPen))
-    if not (cell_info_item.pen().color() == QColor(0,255,0)):
+      
+    #if it is not the pre-run outline color (gray) or the org_clicked_on highlight
+    #color (bright green) then take away the outline (it will be added back later
+    #in this section if it is a cell that does a task)  
+    if not (cell_info_item.pen().color() == QColor(0,255,0)\
+        or cell_info_item.pen().color() == QColor(Qt.gray)):
       cell_info_item.setPen(QPen(Qt.NoPen))
 
     if(self.m_avida.m_population.GetCell(cell_id).GetOrganism() is not None):

@@ -63,7 +63,8 @@ Priority Low
 
 Priority High
 -make the org report give the name of the ancestor when they are clicked on
-
+-Provide the ability to click on an org and have its name pop up pre-run in stats view
+-bring the ability to see the org square outlined in gray back
 
 Priority Medium
 
