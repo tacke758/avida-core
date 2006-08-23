@@ -151,14 +151,25 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         num_ancestor_object_counter = num_ancestor_object_counter+1
         continue
 
-      #another test
-      #alo = pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport())
       alo = pyAncestorLegendObjectCtrl(self.m_big_hbox)
  #     a.append(alo)
 #      self.pyAncestorLegendCtrlLayout.addWidget(alo)
 #      self.m_ancestor_legend_ctrl.addChild(alo)
 #      alo.setMaximumSize(QSize(100,100))
+
+#     in the psuedo working version
       alo.setAncestorName(name)
+#     end in the pseudo
+
+#      alo.setAncestorName(name)
+#      lineage_range = len(self.m_session_mdl.m_ancestors_dict)
+#      non_normalized_index = label + 1
+#      normalized_index = float(non_normalized_index) / float(lineage_range)
+#      a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
+#      alo.setAncestorColor(a_sensible_color)
+
+
+
 #      a.append(pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport()))
 #      self.pyAncestorLegendCtrlLayout.addWidget(a[len(a)-1])
 #      a[len(a)-1].setMaximumSize(QSize(100,100))
@@ -173,6 +184,19 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.m_num_ancestor_objects_added = len(self.a)
       
     print "len(a) is ", len(self.a)
+
+    k = 0
+    for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
+
+      lineage_range = len(self.m_session_mdl.m_ancestors_dict)
+      non_normalized_index = label + 1
+      normalized_index = float(non_normalized_index) / float(lineage_range)
+      a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
+      self.a[k].setAncestorColor(a_sensible_color)
+      k = k+1
+                                    
+
+
 #      alo = pyAncestorLegendObjectCtrl(self.m_kgn_hbox)
 #      alo.setMaximumSize(QSize(100,100))
 #      alo.setAncestorName(name)

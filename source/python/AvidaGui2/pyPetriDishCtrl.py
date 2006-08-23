@@ -268,14 +268,17 @@ class pyPetriDishCtrl(QWidget):
       if (passedATest and not failedATest):  
         cell_info_item.setPen(QPen(QColor(0,255,255))) 
 
-    cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
+    brush_color = cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
 
     if self.m_org_clicked_on_item:
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
         cell_info_item.setPen(QPen(QColor(0,255,0),2))
       else:
 #        cell_info_item.setPen(QPen(Qt.NoPen))
-        self.m_last_cell_outlined = cell_info_item      
+        self.m_last_cell_outlined = cell_info_item
+
+
+
     return cell_info_item
 
   def updateCellItems(self, should_update_all = False):

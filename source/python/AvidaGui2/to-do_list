@@ -63,13 +63,10 @@ Priority Low
 
 Priority High
 -make the org report give the name of the ancestor when they are clicked on
--make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)
-
-
 
 
 Priority Medium
--make the getting rid of the outline of the cells something that doesn't slow down the code at every step
+
 -Use warning system
    -make a warning that says you can't drag orgs into this view (1/26/06)
    -the "that was a bad path" or "file does not exist" warnings for dragging and dropping should use this (10/01/05)
@@ -80,7 +77,7 @@ Priority Medium
 
 Priority Low
 -color the scales (1/10/05)
-
+-make the getting rid of the outline of the cells something that doesn't slow down the code at every step
 
 
 ************Kaben******************
@@ -276,4 +273,6 @@ August
 -work continues on the ancestor map mode=======
 -fix the prerun crashes for clicking around petri dish ancestors
 -fix the problem that the gray outline of ancestors is going away if they are clicked on then off again pre-run
-
+-made the highlight of the clicked on cell twice as thick
+-ancestor map mode now loads the names of the organisms and has the size of the name label correctly, scrolling also works, but the color of the ancestor is not being painted correctly (and the layout needs to be improved)
+--make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)

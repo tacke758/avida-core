@@ -33,6 +33,7 @@ class pyPopulationCellItem(QCanvasRectangle):
   def updateColorUsingFunctor(self, functor):
     color = (self.m_population_cell.IsOccupied() and functor) and functor(self.m_index) or self.s_empty_color
     self.setBrush(QBrush(color))
+    return color
 
  
 

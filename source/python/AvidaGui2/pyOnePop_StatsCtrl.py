@@ -281,7 +281,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     #   print the tasks the clicked on organism is doing 
  
     # get the Tarray of tasks
-    m_clickedOrg_task_count = phenotype.GetCurTaskCount()
+    m_clickedOrg_task_count = phenotype.GetLastTaskCount()
 
     num_not_clickedOrg = m_clickedOrg_task_count[0]
     self.m_num_not_clickedOrg.setText(str(num_not_clickedOrg))
