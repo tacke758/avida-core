@@ -84,39 +84,40 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       self.m_one_pop_graph_ctrl.exportSlot)
 
   def dragEnterEvent( self, e ):
-    descr(e)
-    #e.acceptAction(True)
-    #if e.isAccepted():
-    #  descr("isAccepted.")
-    #else:
-    #  descr("not isAccepted.")
 
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        descr("that was not a valid path (1)")
-      else: 
+    freezer_item_list = QString()
+
+    # freezer_item_list is a string...tab delimited list of file names
+
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      errors = False
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+            errors = True
+            warningNoMethodName(freezer_item_name + " does not exist.")
+      if not(errors):
         e.acceptAction(True)
-        descr("accepted.")
-
 
   def dropEvent( self, e ):
-    freezer_item_name = QString()
+    freezer_item_list = QString()
 
     #freezer_item_name is a string...the file name 
 
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        warning("that was not a valid path (1)" )
-      else: 
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      errors = False
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+            errors = True
+            warningNoMethodName(freezer_item_name + " does not exist.")
+      if not(errors): 
         self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
     
     # Check if item is icon
 
     if (pyNewIconView.canDecode(e)):
-      descr("caught icon")
+      warningNoMethodNames("You can not drop Ancestors here")
 
   def freezerItemDoubleClickedSlot(self, freezer_item_name):
    if self.isVisible():

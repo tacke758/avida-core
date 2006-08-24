@@ -65,6 +65,17 @@ def warning(*details):
     QMessageBox.NoButton
   )
 
+def warningNoMethodName(*details):
+  pfx, fun, txt = _details(*details)
+  QMessageBox.warning(
+    None,
+    "Avida-ED Warning",
+    "%s" % (txt),
+    QMessageBox.Ok,
+    QMessageBox.NoButton,
+    QMessageBox.NoButton
+  )
+
 def critical(*details):
   pfx, fun, txt = _details(*details)
   QMessageBox.critical(

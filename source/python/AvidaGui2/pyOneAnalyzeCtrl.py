@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
+from descr import *
 
 from qt import *
 from pyOneAnalyzeView import pyOneAnalyzeView
@@ -64,39 +64,49 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       self.m_one_ana_graph_ctrl.exportSlot)
 
   def dragEnterEvent( self, e ):
-    descr(e)
-
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        descr("that was not a valid path (1)")
-      else: 
+    freezer_item_list = QString()
+    # freezer_item_list is a string...a tab delimited list of file names 
+    if ( QTextDrag.decode( e, freezer_item_list ) ) : 
+      freezer_item_list = str(e.encodedData("text/plain"))
+      errors = False
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+          errors = True
+      if not(errors): 
         e.acceptAction(True)
-        descr("accepted.")
 
   def dropEvent( self, e ):
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        print "that was not a valid path(3)" 
-      else:
-        if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
-          self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
-          self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
-        self.emit(PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"), (e,))
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+          warningNoMethodName(freezer_item_name + " does not exist.")
+        else:
+          if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
+            self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
+            self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
+            self.emit(PYSIGNAL("freezerItemDroppedInOneAnalyzeSig"), 
+                      (freezer_item_name,))
+          else:
+            warningNoMethodName(freezer_item_name + 
+              " does not seem to be a full petri dish.")
 
-  def freezerItemDoubleClicked(self, freezer_item_name):
-    if os.path.exists( str(freezer_item_name)) == False:
-      print "that was not a valid path(3)"
-    else:
-      if self.isVisible():
-        if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
-          self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
-          self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
-        self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"), 
-          (freezer_item_name,))
+  def freezerItemDoubleClicked(self, freezer_item_list):
+    descr("BDB")
+    for freezer_item_name in freezer_item_list.split("\t")[1:]:
+      if os.path.exists( str(freezer_item_name)) == False:
+         warningNoMethodName(freezer_item_name + " does not exist.")
+      else:
+        if self.isVisible():
+          if self.m_one_ana_graph_ctrl.check_file(freezer_item_name):
+            self.m_one_ana_petri_ctrl.m_one_ana_pop_name.setText("")
+            self.m_one_ana_petri_ctrl.pixmapLabel1.hide()
+            self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOneAnaSig"), 
+              (freezer_item_name,))
+          else:
+            warningNoMethodName(freezer_item_name + 
+              " does not seem to be a full petri dish.")
 
   def saveImagesSlot(self):
     "Save image of graph"

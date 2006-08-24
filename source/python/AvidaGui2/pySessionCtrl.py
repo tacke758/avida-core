@@ -18,7 +18,7 @@ class pySessionCtrl(qt.QObject):
 
   def __del__(self):
     # Clean this session's temporary subdirectory.
-    print 'pySessionCtrl.__del__() about to remove %s...' % self.m_session_mdl.m_tempdir
+    # print 'pySessionCtrl.__del__() about to remove %s...' % self.m_session_mdl.m_tempdir
     for root, dirs, files in os.walk(self.m_session_mdl.m_tempdir, topdown=False):
       for name in files:
         os.remove(os.path.join(root, name))
@@ -28,9 +28,9 @@ class pySessionCtrl(qt.QObject):
     self.disconnect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
-    print "pySessionCtrl.__del__() sending setAvidaSig(None) ..."
+    # print "pySessionCtrl.__del__() sending setAvidaSig(None) ..."
 
-    print 'pySessionCtrl.__del__() done.'
+    # print 'pySessionCtrl.__del__() done.'
 
   def construct(self, main_mdl):
     print("""

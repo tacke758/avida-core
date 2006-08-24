@@ -43,7 +43,7 @@ class pyFreezerListView(QListView):
     # Check if item is icon
 
     if (pyNewIconView.canDecode(e)):
-      warning("You can not drag an ancestor back into the freezer")
+      warningNoMethodName("You can not drag an ancestor back into the freezer")
 
     
   def FreezeOrganism(self, freezer_item_name):
@@ -141,7 +141,7 @@ class pyFreezerCtrl(QWidget):
     self.m_list_view.setSelectionMode(QListView.Extended)
     self.connect(self.m_list_view, 
       SIGNAL("doubleClicked(QListViewItem*, const QPoint &, int)"),
-      self.clicked_itemSlot)
+      self.double_clicked_itemSlot)
     self.connect(self.m_list_view, 
       SIGNAL("pressed(QListViewItem*, const QPoint &, int )"),
       self.pressed_itemSlot)
@@ -234,26 +234,59 @@ class pyFreezerCtrl(QWidget):
   def pressed_itemSlot(self, item):
 
     if item != None and item.depth() > 0:
-      top_level = item
-      while top_level.parent():
-        top_level = top_level.parent()
+      file_list = ""
+      parent_view = item.listView()
 
-      # Rebuild the file name
+      # walk the tree to find all freezer sections
 
-      if str(top_level.text(0)).startswith(" Empty Petri"):
-        file_name = str(item.text(0)) + ".empty"
-      elif str(top_level.text(0)).startswith(" Full Petri"):
-        file_name = str(item.text(0)) + ".full"
-      elif str(top_level.text(0)).startswith(" Organism"):
-        file_name = str(item.text(0)) + ".organism"
-      file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
+      top_level = parent_view.firstChild()
+      while top_level:
+        if str(top_level.text(0)).startswith(" Empty Petri"):
+          file_suffix = ".empty"
+        elif str(top_level.text(0)).startswith(" Full Petri"):
+          file_suffix = ".full"
+        elif str(top_level.text(0)).startswith(" Organism"):
+          file_suffix = ".organism"
 
-      dragHolder = self.itemDrag( file_name, self )
+        # walk each item in the freezer section to see if it selected
+
+        second_level = top_level.firstChild()
+        while second_level:
+          if second_level.isSelected():
+            file_name = str(second_level.text(0)) + file_suffix
+            file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
+            file_list = file_list + "\t" + file_name
+          second_level = second_level.nextSibling()
+        top_level = top_level.nextSibling()
+
+      descr("BDB -- about to set up dragHolder: " + str(file_list))
+      dragHolder = self.itemDrag( file_list, self )
       dragHolder.dragCopy()
+
+  # def pressed_itemSlot(self, item):
+
+  #   if item != None and item.depth() > 0:
+  #     top_level = item
+  #     while top_level.parent():
+  #       top_level = top_level.parent()
+
+  #     # Rebuild the file name
+
+  #     if str(top_level.text(0)).startswith(" Empty Petri"):
+  #       file_name = str(item.text(0)) + ".empty"
+  #     elif str(top_level.text(0)).startswith(" Full Petri"):
+  #       file_name = str(item.text(0)) + ".full"
+  #     elif str(top_level.text(0)).startswith(" Organism"):
+  #       file_name = str(item.text(0)) + ".organism"
+  #     file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
+
+   #    descr("BDB -- about to set up dragHolder: " + str(file_name))
+   #    dragHolder = self.itemDrag( file_name, self )
+   #    dragHolder.dragCopy()
 
   # if freezer item is clicked read file/directory assocatied with item
 
-  def clicked_itemSlot(self, item):
+  def double_clicked_itemSlot(self, item):
    
     # check that the item is not at the top level 
     
@@ -275,7 +308,6 @@ class pyFreezerCtrl(QWidget):
       thawed_item = pyReadFreezer(file_name)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
-      print "BDB -- in clicked_item slot File name is " + file_name
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
         (file_name,))
 
@@ -306,7 +338,7 @@ class pyFreezerCtrl(QWidget):
         self.m_session_mdl.m_session_mdtr.emit(
           PYSIGNAL("doRefreshFreezerInventorySig"), ())
       if open_obj == True:
-        self.clicked_itemSlot(item)
+        self.double_clicked_itemSlot(item)
 
   class itemDrag(QTextDrag):
     def __init__(self, item_name, parent=None, name=None):

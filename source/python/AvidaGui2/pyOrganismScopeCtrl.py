@@ -5,7 +5,7 @@ from AvidaCore import cAnalyzeGenotype, cGenome, cInstruction, cInstUtil, cRando
 from pyHardwareTracer import pyHardwareTracer
 from pyTimeline import pyTimeline, TimelineFlag
 
-from descr import descr, warning
+from descr import *
 
 
 from qt import *
@@ -72,31 +72,38 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
   def dragEnterEvent( self, e ):
     e.acceptAction(True)
 
-    freezer_item_name = str(e.encodedData("text/plain"))
-    if os.path.exists(freezer_item_name) == False:
-      print "pyOrganismScopeCtrl.dragEnterEvent(e): that was not a valid path."
-    else:
-      print "pyOrganismScopeCtrl.dragEnterEvent(e): that was a valid path."
-      print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name", freezer_item_name
-      if freezer_item_name.endswith('.organism'):
-        print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name ends with .organism."
-        e.accept()
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      freezer_item_names = freezer_item_list.split("\t")[1:]
+      descr("BDB -- if decode true" + freezer_item_list)
+      if (len(freezer_item_names) > 1):
+         pass
       else:
-        print "pyOrganismScopeCtrl.dragEnterEvent(e): freezer_item_name doesn't end with .organism."
+        freezer_item_name = freezer_item_names[0]
+        if freezer_item_name.endswith('.organism'):
+          e.accept()
+        else:
+          pass
 
   def dropEvent( self, e ):
-    freezer_item_name = str(e.encodedData("text/plain"))
-    if os.path.exists(freezer_item_name) == False:
-      print "pyOrganismScopeCtrl.dropEvent(e): that was not a valid path."
-    else:
-      print "pyOrganismScopeCtrl.dropEvent(e): that was a valid path."
-      if freezer_item_name.endswith('.organism'):
-        print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name ends with .organism."
-        e.accept()
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      freezer_item_names = freezer_item_list.split("\t")[1:]
+      descr("BDB -- if decode true" + freezer_item_list)
+      if (len(freezer_item_names) > 1):
+         warningNoMethodName("Only one organism can be dragged here")
       else:
-        print "pyOrganismScopeCtrl.dropEvent(e): freezer_item_name doesn't end with .organism."
-
+        freezer_item_name = freezer_item_names[0]
+        if os.path.exists(freezer_item_name) == False:
+          warningNoMtehodName(freezer_item_name + " does not exist")
+        else:
+          if freezer_item_name.endswith('.organism'):
+            e.accept()
+            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
+          else:
+            warningNoMethodName("Only organisms can be dragged here")
 
   def setAvidaSlot(self, avida):
     print "pyOrganismScopeCtrl.setAvidaSlot() ..."

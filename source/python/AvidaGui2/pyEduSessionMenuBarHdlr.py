@@ -13,7 +13,7 @@ class pyEduSessionMenuBarHdlr(qt.QObject):
   def __init__(self):
     qt.QObject.__init__(self, None, self.__class__.__name__)
   def __del__(self):
-    print("pyEduSessionMenuBarHdlr.__del__()...")
+    #print("pyEduSessionMenuBarHdlr.__del__()...")
     ## painfully find and raise the top menu bar.
     #for widget in qt.QApplication.topLevelWidgets():
     #  widget.hide()
@@ -35,7 +35,8 @@ class pyEduSessionMenuBarHdlr(qt.QObject):
     ##qt.QApplication.desktop().raiseW()
     ##qt.QApplication.desktop().show()
 
-    print("pyEduSessionMenuBarHdlr.__del__() done.")
+    #print("pyEduSessionMenuBarHdlr.__del__() done.")
+    pass
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl

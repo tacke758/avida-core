@@ -55,10 +55,6 @@ Priority Low
 
 09-Aug-06 Deactivate Ancestor Icon Drag when there is a full population
 
-09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View
-
-09-Aug-06 Ask Charles about running test CPU on each org. 
-
 ************Jeff*******************
 
 Priority High
@@ -207,9 +203,17 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 29-Jun-06 change name of restart petri dish
 
+09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View -- 16-Aug-06
+
 August - 06
 
  - Fixed problems with IconView to get trash can to work 
+
+ - Moved ancestor genomic information into the petri dish file -- solving
+   problems where a ancestor is in a different directory than the petri-dish
+   (or the ancestor file has been deleted from the freezer)
+
+ - fixed a few spelling errors in instruction descriptions
 
 ************Kaben******************
 

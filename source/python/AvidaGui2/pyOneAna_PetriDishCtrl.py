@@ -26,7 +26,7 @@ class pyOneAna_PetriDishCtrl(pyOneAna_PetriDishView):
 
 
   def freezerItemDropped(self, e):
-
+    descr("BDB")
     # Try to decode to the data you understand...
     freezer_item_name = QString()
     if ( QTextDrag.decode( e, freezer_item_name ) ) :
@@ -35,6 +35,7 @@ class pyOneAna_PetriDishCtrl(pyOneAna_PetriDishView):
       self.m_one_ana_pop_name.setText(short_name)
 
   def freezerItemDoubleClickedOn(self, freezer_item_name):
+    descr("BDB")
     short_name = os.path.split(os.path.splitext(os.path.split(freezer_item_name)[0])[0])[1]
     self.m_one_ana_pop_name.setText(short_name)
 

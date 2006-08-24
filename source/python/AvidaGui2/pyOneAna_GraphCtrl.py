@@ -9,6 +9,7 @@ from qt import *
 from qwt import *
 import os.path
 import heapq
+from descr import *
 
 # holds color information
 class PriorityColor:
@@ -361,60 +362,36 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       self.m_avida_stats_interface.export(paths)
 
 
-  def petriDropped(self, e): 
-      # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path
-      self.m_petri_dish_dir_exists_flag = True
-      # Try to decode to the data you understand...
-      freezer_item_name = QString()
-      if ( QTextDrag.decode( e, freezer_item_name ) ) :
-        freezer_item_name = str(e.encodedData("text/plain"))
-        short_name = os.path.splitext(os.path.split(freezer_item_name)[1])[0]
-        if short_name in self.m_combo_boxes:
-          print "Already being graphed"
-          return
-        if self.check_file(freezer_item_name):
-          self.m_combo_boxes[short_name] = pyPopulationGraph(self, short_name)
-          if self.m_combo_boxes[short_name]:
-            self.construct_box(self.m_combo_boxes[short_name])
-            self.m_combo_boxes[short_name].m_petri_dish_dir_path = \
-                freezer_item_name
-            self.modeActivatedSlot(None, short_name)
-        return
+  def petriDropped(self, freezer_item_name): 
+    descr("BDB")
 
-      pm = QPixmap()
-      if ( QImageDrag.decode( e, pm ) ) :
-        print "it was a pixmap"
-        return
+    # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path
 
-      # QStrList strings
-      #strings = QStrList()
-      strings = []
-      if ( QUriDrag.decode( e, strings ) ) :
-        print "it was a uri"
-        m = QString("Full URLs:\n")
-        for u in strings:
-            m = m + "   " + u + '\n'
-        # QStringList files
-        files = []
-        if ( QUriDrag.decodeLocalFiles( e, files ) ) :
-            print "it was a file"
-            m += "Files:\n"
-            # for (QStringList.Iterator i=files.begin() i!=files.end() ++i)
-            for i in files:
-                m = m + "   " + i + '\n'
-        return
+    self.m_petri_dish_dir_exists_flag = True
 
-      decode_str = decode( e ) 
-      if decode_str:
-        print " in if decode_str"
+    # Try to decode to the data you understand...
+
+    short_name = os.path.splitext(os.path.split(freezer_item_name)[1])[0]
+    if short_name in self.m_combo_boxes:
+      # print "Already being graphed"
+      return
+    if self.check_file(freezer_item_name):
+      self.m_combo_boxes[short_name] = pyPopulationGraph(self, short_name)
+      if self.m_combo_boxes[short_name]:
+        self.construct_box(self.m_combo_boxes[short_name])
+        self.m_combo_boxes[short_name].m_petri_dish_dir_path = \
+            freezer_item_name
+        self.modeActivatedSlot(None, short_name)
+    return
 
   def freezerItemDoubleClickedOn(self, freezer_item_name): 
+    descr("BDB")
     # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path
     self.m_petri_dish_dir_exists_flag = True
     short_name = os.path.split(os.path.splitext(os.path.split(freezer_item_name)[0])[0])[1]
 
     if short_name in self.m_combo_boxes:
-      print "Already being graphed"
+      # print "Already being graphed"
       return
 
     self.m_combo_boxes[short_name] = pyPopulationGraph(self, short_name)

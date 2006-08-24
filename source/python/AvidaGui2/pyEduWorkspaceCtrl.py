@@ -141,7 +141,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     # If the user drags something into the trash can
 
-    self.connect(self.AutoclaveIconView, PYSIGNAL("DroppedOnNewIconViewSig"),
+    self.connect(self.TrashCanIconView, PYSIGNAL("DroppedOnNewIconViewSig"),
       self.DroppedInTrashSlot)
 
     # Start the program with the population viewer
@@ -149,6 +149,16 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
     self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
     self.splitter1.setSizes([150,500,100])
+
+    # set up the trash can ot have one trash can icon that can not be selected
+
+    self.TrashCanIconView.setItemTextPos(QIconView.Right)
+    self.TrashCanIconView.setSpacing(1)
+    self.TrashCanIconView.setVScrollBarMode(QIconView.AlwaysOff)
+    self.TrashCanIconView.setHScrollBarMode(QIconView.AlwaysOff)
+    self.TrashCanIconView.setSelectionMode(QIconView.NoSelection)
+    self.TrashCanIconView.setAutoArrange(False)
+    TCIcon = pyNewIconView.TrashIconViewItem(self.TrashCanIconView)
 
     self.show()
 
@@ -177,11 +187,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
 
   def __del__(self):
-    print "pyEduWorkspaceCtrl.__del__(): Not implemented yet"
+    pass
+    # print "pyEduWorkspaceCtrl.__del__(): Not implemented yet"
 
   def __init__(self, parent = None, name = None, fl = 0):
     pyEduWorkspaceView.__init__(self,parent,name,fl)
-    print "pyEduWorkspaceCtrl.__init__(): Not implemented yet"
+    # print "pyEduWorkspaceCtrl.__init__(): Not implemented yet"
 
   # public slot
 
@@ -462,6 +473,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
       "@default.empty")
+    if not(os.path.exists(file_name)):
+      warningNoMethodName(file_name + 
+       " does not exist -- please start experiment by dragging dish")
+      return
     thawed_item = pyReadFreezer(file_name)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
       ())
@@ -500,11 +515,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     # Try to decode to the data you understand...
 
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name)) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("DeleteFromFreezerSig"),
-        (freezer_item_name, ))
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list)) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("DeleteFromFreezerSig"),
+          (freezer_item_name, ))
     elif (pyNewIconView.canDecode(e)):
       ancestor_item_name = str(e.encodedData("application/x-qiconlist"))
       self.m_session_mdl.m_session_mdtr.emit(

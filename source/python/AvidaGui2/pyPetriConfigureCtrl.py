@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
+from descr import *
 
 from pyAvida import pyAvida
 from pyFreezeDialogCtrl import pyFreezeDialogCtrl
 from pyPetriConfigureView import pyPetriConfigureView
 from pyWriteGenesisEvent import pyWriteGenesisEvent
 from pyWriteToFreezer import pyWriteToFreezer
+from pyReadFreezer import pyReadFreezer
 from pyNewIconView import pyNewIconViewItem
 
 from AvidaCore import cGenesis, cString
@@ -79,12 +80,14 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("petriDishDroppedInPopViewSig"))
     self.connect( self.m_session_mdl.m_session_mdtr, 
-      PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDroppedSlot)
+      PYSIGNAL("petriDishDroppedInPetriConfigSig"), self.petriDroppedSlot)
 
     # If the user drops something in the Ancestor Box
 
     self.connect(self.AncestorIconView, PYSIGNAL("DroppedOnNewIconViewSig"),
       self.petriAncestorDroppedSlot)
+    self.connect( self.m_session_mdl.m_session_mdtr, 
+      PYSIGNAL("petriDishDroppedAncestorSig"), self.petriAncestorDroppedSlot)
 
     # If an ancestor was dropped into the trash can
 
@@ -592,7 +595,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     genesis = cGenesis()
     genesis.Open(cString(genesisFileName))
     if 0 == genesis.IsOpen():
-      print "Warning: Unable to find file '", genesisFileName
+      warningNoMethodName("Unable to find file " +  genesisFileName)
       return
     avida = pyAvida()
     avida.construct(genesis)
@@ -612,53 +615,96 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
   def dragEnterEvent( self, e ):
 
-    freezer_item_name = QString()
+    freezer_item_list = QString()
  
-    # freezer_item_name is a string...the file name 
+    # freezer_item_list is a string...tab delimited list of file names 
 
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        descr("that was not a valid path (1)")
-      else: 
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      errors = False
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+            errors = True
+            warningNoMethodName(freezer_item_name + " does not exist.")
+      if not(errors):
         e.acceptAction(True)
-        descr("accepted.")
 
-      
+  # When an item (or list of items) is dropped checked that all the items
+  # exist before sending out the signal to process
+
   def dropEvent( self, e ):
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if os.path.exists(freezer_item_name) == False:
-        print "that was not a valid path (2)" 
-      else: 
-        self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
-
-  # The function petriDroppedSlot and petriAncestorDroppedSlot are identical
-  # at some point petriDroppedSlot should not allow creatures dropped outside
-  # the AncestorIconView to be added to the Ancestor List
+    descr("BDB")
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      descr("BDB -- if decode true" + freezer_item_list)
+      errors = False
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if os.path.exists(freezer_item_name) == False:
+            errors = True
+            warningNoMethodName(freezer_item_name + " does not exist.")
+      if not(errors): 
+        # self.emit(PYSIGNAL("petriDishDroppedInPopViewSig"), (e,))
+        self.petriDroppedSlot(e)
 
   def petriDroppedSlot(self, e):
+    descr("BDB")
     # Try to decode to the data you understand...
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if freezer_item_name[-8:] == 'organism':
-        core_name = freezer_item_name[:-9]
-        core_name = os.path.basename(str(freezer_item_name[:-9]))
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      freezer_item_names = freezer_item_list.split("\t")[1:]
+      descr("BDB -- if decode true" + freezer_item_list)
+      if (len(freezer_item_names) > 1):
+         warningNoMethodName("Only one petri dish can be dragged here")
+      else:
+        freezer_item_name = freezer_item_names[0]
+        if freezer_item_name[-8:] == 'organism':
+          warningNoMethodName("Organisms should be placed in the Ancestor Box")
+          return
+        elif freezer_item_name[-4:] == 'full':
+          freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
+          self.m_session_mdl.new_full_dish = True
+        else:
+          freezer_item_name_temp = freezer_item_name
+          self.m_session_mdl.new_empty_dish = True
+        thawed_item = pyReadFreezer(freezer_item_name_temp)
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
+          (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
 
-        # Read the genome from the organism file
+        # initialize Avida (which repaints the dish)
 
-        org_file = open(os.path.join(self.m_session_mdl.m_current_freezer,
-                        core_name+".organism"))
-        org_string = org_file.readline()
-        org_string = org_string.rstrip()
-        org_string = org_string.lstrip()
-        org_file.close
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("doInitializeAvidaPhaseISig"),
+          (self.m_session_mdl.m_tempdir,))
 
-        tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
-        tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
+  def petriAncestorDroppedSlot(self, e):
+    descr("BDB")
+    # Try to decode to the data you understand...
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+      freezer_item_names = freezer_item_list.split("\t")[1:]
+      descr("BDB -- if decode true" + freezer_item_list)
+      for freezer_item_name in freezer_item_list.split("\t")[1:]:
+        if freezer_item_name[-8:] == 'organism':
+          core_name = freezer_item_name[:-9]
+          core_name = os.path.basename(str(freezer_item_name[:-9]))
+          descr("BDB: core_name = " + core_name)
 
+          # Read the genome from the organism file
+
+          org_file = open(os.path.join(self.m_session_mdl.m_current_freezer,
+                          core_name+".organism"))
+          org_string = org_file.readline()
+          org_string = org_string.rstrip()
+          org_string = org_string.lstrip()
+          org_file.close
+
+          tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
+          tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
+        else:
+          warningNoMethodName("Dishes should not be dragged into Ancestor Box")
 
       # initialize Avida (which repaints the dish)
 
@@ -666,27 +712,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         PYSIGNAL("doInitializeAvidaPhaseISig"),
         (self.m_session_mdl.m_tempdir,))
 
-  def petriAncestorDroppedSlot(self, e):
-    # Try to decode to the data you understand...
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) and not self.DishDisabled) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if freezer_item_name[-8:] == 'organism':
-        core_name = freezer_item_name[:-9]
-        core_name = os.path.basename(str(freezer_item_name[:-9]))
-
-        # Read the genome from the organism file
-
-        org_file = open(os.path.join(self.m_session_mdl.m_current_freezer,
-                        core_name+".organism"))
-        org_string = org_file.readline()
-        org_string = org_string.rstrip()
-        org_string = org_string.lstrip()
-        org_file.close
-
-        tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
-        tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
-        return
 
   # Find the first item in the AncestorView with the name ancestor_item_name
   # and remove it. Items in AncestorVeiw should have unique names so the 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
+from descr import *
 
 from qt import *
 from pyMapProfile import pyMapProfile
@@ -98,6 +98,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDropped)  
     self.connect(self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("finishedPetriDishSig"), self.finishedPetriDishSlot)  
+    # self.connect( self.m_session_mdl.m_session_mdtr,
+    #   PYSIGNAL("petriDishDroppedInPopViewSig"), self.petriDroppedSlot)
+
     self.m_mode_combobox.clear()
     self.m_mode_combobox.setInsertionPolicy(QComboBox.AtBottom)
     self.m_map_profile = pyMapProfile(self.m_session_mdl)
@@ -158,6 +161,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 #      alo.setMaximumSize(QSize(100,100))
 
 #     in the psuedo working version
+      descr("BDB: name = " + str(name))
       alo.setAncestorName(name)
 #     end in the pseudo
 
@@ -189,9 +193,10 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
 
       lineage_range = len(self.m_session_mdl.m_ancestors_dict)
-      non_normalized_index = label + 1
+      non_normalized_index = int(label) + 1
       normalized_index = float(non_normalized_index) / float(lineage_range)
       a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
+      descr("BDB: k = " + str(k) + " label = " + str(label) + " name = " + name)
       self.a[k].setAncestorColor(a_sensible_color)
       k = k+1
                                     
@@ -333,26 +338,65 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.PopulationTextLabel.setText(dishName)
     
   def petriDropped(self, e):
-    descr()
-    # Try to decode to the data you understand...
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      freezer_item_name = str(e.encodedData("text/plain"))
-      if freezer_item_name[-8:] == 'organism':
-        # We can't yet deal with organims in the population view
-        return
-      elif freezer_item_name[-4:] == 'full':
-        freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
-        self.m_session_mdl.new_full_dish = True
-      else:
-        freezer_item_name_temp = freezer_item_name
-        self.m_session_mdl.new_empty_dish = True
-      thawed_item = pyReadFreezer(freezer_item_name_temp)
-      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),  
-        (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
+    descr("BDB")
 
-      current_page = self.m_petri_dish_widget_stack.visibleWidget()
-      current_page_int = self.m_petri_dish_widget_stack.id(current_page)
+    current_page = self.m_petri_dish_widget_stack.visibleWidget()
+    current_page_int = self.m_petri_dish_widget_stack.id(current_page)
+
+    # if the petri dish control panel is visiable let it's drop methods
+    # do the work
+
+    if (current_page_int == 1):
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("petriDishDroppedInPetriConfigSig"), (e,))
+      return
+
+    freezer_item_list = QString()
+    if ( QTextDrag.decode( e, freezer_item_list ) ) :
+      freezer_item_list = str(e.encodedData("text/plain"))
+
+      # Do a quick look at the list and be sure the user is not mixing up
+      # petri dish files and organisms
+
+      if freezer_item_list.find('.organism') > -1:
+        list_has_orgs = True
+      else:
+        list_has_orgs = False
+      if (freezer_item_list.find('.empty') > -1 or 
+          freezer_item_list.find('.full') > -1):
+        list_has_dishes = True
+      else:
+        list_has_dishes = False
+      if (list_has_orgs and list_has_dishes):
+        warningNoMethodName("You can not drag both petri dishes and organisms at the same time")
+        return
+
+      # if the user only has organism let the Ancestor box drop method handle
+      # the list
+
+      elif list_has_orgs:
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("petriDishDroppedAncestorSig"), (e,))
+        return
+
+      freezer_item_names = freezer_item_list.split("\t")[1:]
+      descr("BDB -- if decode true" + freezer_item_list)
+      if (len(freezer_item_names) == 1):
+        freezer_item_name = freezer_item_names[0]
+
+        # Organisms should not be dragged from the freezer to the main 
+
+        if freezer_item_name[-8:] == 'organism':
+          return
+        elif freezer_item_name[-4:] == 'full':
+          freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
+          self.m_session_mdl.new_full_dish = True
+        else:
+          freezer_item_name_temp = freezer_item_name
+          self.m_session_mdl.new_empty_dish = True
+        thawed_item = pyReadFreezer(freezer_item_name_temp)
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),  
+          (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
 
   def SetMapModeAndGraphModeToDefaultsSlot(self):
     descr()
