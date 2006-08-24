@@ -133,6 +133,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
           self.qobj = qobj
           # FIXME : remove hard-coding of 2000 below. @kgn
           self.progress_bar = QProgressBar(2000)
+          self.progress_bar.setMaximumHeight(13)
           QToolTip.add(self.progress_bar,"Loading movie")
           self.qobj.emit(PYSIGNAL("addStatusBarWidgetSig"), (self.progress_bar, 0, True))
         def clear(self):

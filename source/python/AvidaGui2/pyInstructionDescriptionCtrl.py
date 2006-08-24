@@ -66,9 +66,9 @@ class pyInstructionDescriptionCtrl(QTextEdit):
     if not name: self.setName("pyInstructionDescriptionCtrl")
 
     font = QFont(qApp.font())
-    font.setPointSize(9)
     self.setFont(font)
-
+    font.setPointSize(8)
+    self.setMaximumHeight(60)
     self.setAlignment(Qt.WordBreak)
     self.setReadOnly(True)
     self.read_fn = None
