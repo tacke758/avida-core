@@ -23,17 +23,17 @@ class pyGradientScaleCtrl(pyGradientScaleView):
 
 
   def setAvidaSlot(self, avida):
-    print "pyGradientScaleCtrl.setAvidaSlot() ..."
+    # print "pyGradientScaleCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
-      print "pyGradientScaleCtrl.setAvidaSlot() disconnecting old_avida ..."
+      # print "pyGradientScaleCtrl.setAvidaSlot() disconnecting old_avida ..."
       self.disconnect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
       del old_avida
     if(self.m_avida):
-      print "pyGradientScaleCtrl.setAvidaSlot() connecting self.m_avida ..."
+      # print "pyGradientScaleCtrl.setAvidaSlot() connecting self.m_avida ..."
       self.connect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
@@ -45,7 +45,7 @@ class pyGradientScaleCtrl(pyGradientScaleView):
     pass
 
   def destruct(self):
-    print "*** called pyGradientScaleCtrl.py:destruct ***"
+    # print "*** called pyGradientScaleCtrl.py:destruct ***"
     self.m_avida = None
     self.disconnect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),

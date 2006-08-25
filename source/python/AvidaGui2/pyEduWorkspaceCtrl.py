@@ -152,13 +152,13 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     # set up the trash can ot have one trash can icon that can not be selected
 
-    self.TrashCanIconView.setItemTextPos(QIconView.Right)
-    self.TrashCanIconView.setSpacing(1)
+    # self.TrashCanIconView.setItemTextPos(QIconView.Right)
+    # self.TrashCanIconView.setSpacing(1)
     self.TrashCanIconView.setVScrollBarMode(QIconView.AlwaysOff)
     self.TrashCanIconView.setHScrollBarMode(QIconView.AlwaysOff)
     self.TrashCanIconView.setSelectionMode(QIconView.NoSelection)
     self.TrashCanIconView.setAutoArrange(False)
-    TCIcon = pyNewIconView.TrashIconViewItem(self.TrashCanIconView)
+    # TCIcon = pyNewIconView.TrashIconViewItem(self.TrashCanIconView)
 
     self.show()
 
@@ -513,6 +513,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def DroppedInTrashSlot(self, e):
 
+    descr("BDB")
+    if self.m_session_mdl.m_warn_about_trash:
+      self.m_session_mdl.m_warn_about_trash = False
+      warningNoMethodName("Anything dropped in the trash can will be pemenently deleted")
     # Try to decode to the data you understand...
 
     freezer_item_list = QString()

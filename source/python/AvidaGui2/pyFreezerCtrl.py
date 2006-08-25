@@ -259,32 +259,10 @@ class pyFreezerCtrl(QWidget):
           second_level = second_level.nextSibling()
         top_level = top_level.nextSibling()
 
-      descr("BDB -- about to set up dragHolder: " + str(file_list))
       dragHolder = self.itemDrag( file_list, self )
       dragHolder.dragCopy()
 
-  # def pressed_itemSlot(self, item):
-
-  #   if item != None and item.depth() > 0:
-  #     top_level = item
-  #     while top_level.parent():
-  #       top_level = top_level.parent()
-
-  #     # Rebuild the file name
-
-  #     if str(top_level.text(0)).startswith(" Empty Petri"):
-  #       file_name = str(item.text(0)) + ".empty"
-  #     elif str(top_level.text(0)).startswith(" Full Petri"):
-  #       file_name = str(item.text(0)) + ".full"
-  #     elif str(top_level.text(0)).startswith(" Organism"):
-  #       file_name = str(item.text(0)) + ".organism"
-  #     file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
-
-   #    descr("BDB -- about to set up dragHolder: " + str(file_name))
-   #    dragHolder = self.itemDrag( file_name, self )
-   #    dragHolder.dragCopy()
-
-  # if freezer item is clicked read file/directory assocatied with item
+  # if freezer item is doubled clicked read file/directory assocatied with item
 
   def double_clicked_itemSlot(self, item):
    

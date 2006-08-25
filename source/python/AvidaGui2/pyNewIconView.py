@@ -171,14 +171,17 @@ class pyNewIconView(QIconView):
         return
       item = item.nextItem()
 
-  def dragEnterEvent( self, e ):
-
-    # Check if you want the drag...
-     
-    if (canDecode(e)):
-      e.accept()
+#   def dragEnterEvent( self, e ):
+# 
+#     descr("BDB")
+#     # Check if you want the drag...
+#      
+#     if (canDecode(e)):
+#       descr("BDB -- canDecode")
+#       e.accept()
 
   def contentsDropEvent(self, e):
+    descr("BDB")
     if e.source() is self:
       return
     self.emit(PYSIGNAL("DroppedOnNewIconViewSig"),(e,))
@@ -228,14 +231,18 @@ class TrashIconViewItem(QIconViewItem):
     self.moveBy(15,0)
 
   def contentsDropEvent(self, e):
+    descr("BDB -- TrashIconViewItem")
     if e.source() is self:
       return
     self.QIconView.emit(PYSIGNAL("DroppedOnNewIconViewSig"),(e,))
 
-  def dragEnterEvent( self, e ):
-    e.acceptAction(True)
-    if e.isAccepted():
-      pass
-    else:
-      pass
+#   def dragEnterEvent( self, e ):
+# 
+#     descr("BDB -- TrashIconViewItem")
+#     # Check if you want the drag...
+# 
+#     if (canDecode(e) and not (e.source is self)):
+#       descr("BDB -- TrashIconViewItem -- canDecode")
+#       e.accept()
+
 

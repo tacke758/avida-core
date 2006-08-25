@@ -77,6 +77,10 @@ class pySessionCtrl(qt.QObject):
 
     self.m_session_mdl.m_update_to_pause = -99
 
+    # Variable to tell that Trash Can is permenent just once
+
+    self.m_session_mdl.m_warn_about_trash = True
+
     # Create a temporary subdirectory for general use in this session. Add a 
     # subdirectory to that for output files -- these files will only get 
     # put into named directories when frozen

@@ -8,134 +8,101 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>307</width>
-            <height>168</height>
+            <width>507</width>
+            <height>113</height>
         </rect>
-    </property>
-    <property name="paletteBackgroundColor">
-        <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>100</blue>
-        </color>
     </property>
     <property name="caption">
         <string>Chose Active Workspace</string>
     </property>
-    <widget class="QButtonGroup">
+    <vbox>
         <property name="name">
-            <cstring>BeforeStartingButtonGroup</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>310</width>
-                <height>203</height>
-            </rect>
-        </property>
-        <property name="title">
-            <string></string>
-        </property>
-        <vbox>
+        <widget class="QLabel">
             <property name="name">
-                <cstring>unnamed</cstring>
+                <cstring>BeforeStartTextLabel</cstring>
             </property>
-            <widget class="QLabel">
+            <property name="text">
+                <string>&lt;p align="center"&gt;Before you can freeze a petri dish or organism&lt;br&gt; you must choose a workspace to work with&lt;/p&gt;</string>
+            </property>
+            <property name="textFormat">
+                <enum>AutoText</enum>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout21</cstring>
+            </property>
+            <hbox>
                 <property name="name">
-                    <cstring>BeforeStartTextLabel</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="font">
-                    <font>
-                        <pointsize>12</pointsize>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>&lt;p align="center"&gt;Before you can freeze a petri dish or organism&lt;br&gt; you must choose a workspace to work with&lt;/p&gt;</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>OpenExistingPushButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>Open Existing Workspace</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="on">
-                    <bool>false</bool>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>&lt;p&gt;Use a workspace that has already been created&lt;/P&gt;</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>CreateNewPushButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>Create New Workspace</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>&lt;P&gt;Create a new workspace to save your work&lt;/P&gt;</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>CancelPushButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>Cancel</string>
-                </property>
-                <property name="toggleButton">
-                    <bool>true</bool>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>&lt;p&gt;Don't freeze; return to the program&lt;/P&gt;</string>
-                </property>
-            </widget>
-        </vbox>
-    </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>OpenExistingPushButton</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Open Existing Workspace</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Use a workspace that has already been created&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>CreateNewPushButton</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Crreate New Workspace</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Create a new workspace to save your work&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Don't freeze; return to the program&lt;/P&gt;</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
-<tabstops>
-    <tabstop>OpenExistingPushButton</tabstop>
-    <tabstop>CreateNewPushButton</tabstop>
-    <tabstop>CancelPushButton</tabstop>
-</tabstops>
+<connections>
+    <connection>
+        <sender>OpenExistingPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyBeforeStartingView</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>CancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyBeforeStartingView</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>CreateNewPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyBeforeStartingView</receiver>
+        <slot>accept()</slot>
+    </connection>
+</connections>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
