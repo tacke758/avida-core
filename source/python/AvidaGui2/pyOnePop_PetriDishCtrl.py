@@ -19,46 +19,14 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
   def __init__(self,parent = None,name = None,fl = 0):
     pyOnePop_PetriDishView.__init__(self,parent,name,fl)
     self.m_gradient_scale_view = pyGradientScaleView(self,"m_gradient_scale_ctrl")
-#    self.m_ancestor_legend_view = pyAncestorLegendView(self,"m_ancestor_legend_ctrl")
     self.m_gradient_scale_is_rescaling = False
-
-#   deleteme
-#    self.m_kgn_sv = QScrollView()
-#    self.m_kgn_sv.show()
-#    self.m_kgn_hbox = QHBox(self.m_kgn_sv.viewport())
-#    self.m_kgn_hbox.show()
-#    self.m_kgn_sv.addChild(self.m_kgn_hbox)
-
-#    self.m_kgn_label_list = []
-#    label = QLabel("%d" % len(self.m_kgn_label_list), self.m_kgn_hbox)
-#    self.m_kgn_label_list.append(label)
-#    label.show()
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
     self.dishDisabled = False
-    self.m_num_ancestor_objects_added = 0
     self.a = []
-    print "_______________________________________________________________________________________________________________________________________________"
 
-
-    #test ancesltor_legend_object
-#    print "VIEWPORT WIDTH IS ", self.m_ancestor_legend_ctrl.viewport().size().width()
-#    self.m_ancestor_legend_object_ctrl = pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport(),)
-#    self.m_ancestor_legend_object_ctrl.setAncestorName("foo")
-
-    #a fourth
-#    self.m_ancestor_legend_object_ctrl_3 = pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport(),)
-#    self.m_ancestor_legend_object_ctrl_2.setMaximumSize(QSize(100,100))
-#    self.m_ancestor_legend_object_ctrl_3.setAncestorName("tiny----------------------------------------->")
-
-
-#    self.pyAncestorLegendCtrlLayout = QHBoxLayout(self.m_ancestor_legend_ctrl.viewport(),0,0,"pyAncestorLegendCtrlLayout")
-#    self.pyAncestorLegendCtrlLayout.addWidget(self.m_ancestor_legend_object_ctrl)
-
-
-#    pyAncestorLegendCtrlLayout.addWidget(self.m_ancestor_legend_object_ctrl_3)
     self.m_big_hbox = QHBox(self.m_ancestor_legend_ctrl.viewport())
     self.m_ancestor_legend_ctrl.addChild(self.m_big_hbox)  
         
@@ -66,10 +34,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
     self.m_gradient_scale_ctrl.construct(self.m_session_mdl)
     self.m_gradient_scale_view.construct(self.m_session_mdl)
-
-#    print "ABOUT TO CONSTRUCT ANCESTOR LEGEND *************************************"
-#    self.m_ancestor_legend_ctrl.construct(self.m_session_mdl)
-#    self.m_ancestor_legend_view.construct(self.m_session_mdl)
 
     self.m_live_controls_ctrl.construct(self.m_session_mdl)
     self.m_petri_configure_ctrl.construct(self.m_session_mdl)
@@ -136,92 +100,38 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     if self.m_avida:
       self.m_map_profile.getUpdater(self.m_mode_combobox.currentItem()).resetRange(self.m_avida.m_population)
       self.modeActivatedSlot(self.m_mode_combobox.currentItem())
-    #a third
-#    self.m_ancestor_legend_object_ctrl_2 = pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport(),)
-#    self.m_ancestor_legend_object_ctrl_2.setMaximumSize(QSize(100,100))
-#    self.m_ancestor_legend_object_ctrl_2.setAncestorName("a very lengthily described ancestor")
-#    self.m_ancestor_legend_object_ctrl_2.m_org_square.paint(Qt.blue)
-#    self.m_ancestor_legend_object_ctrl_2.setAncestorColor(Qt.yellow)
-#    self.pyAncestorLegendCtrlLayout.addWidget(self.m_ancestor_legend_object_ctrl_2)
-      
 
-    num_ancestor_object_counter = 0
+    #the setup has changed, remove the old ancestor objects from the scroll view
+    for ancestor_object in self.a:
+      self.m_big_hbox.removeChild(ancestor_object)
 
+    #now add the new ones
     for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
-      print "::::::::::::::::::::::::::::::::: Label is ",label
-      print "::::::::::::::::::::::::::::::::: Name is ", name
-      if (num_ancestor_object_counter < self.m_num_ancestor_objects_added):
-        num_ancestor_object_counter = num_ancestor_object_counter+1
-        continue
-
-      alo = pyAncestorLegendObjectCtrl(self.m_big_hbox)
- #     a.append(alo)
-#      self.pyAncestorLegendCtrlLayout.addWidget(alo)
-#      self.m_ancestor_legend_ctrl.addChild(alo)
-#      alo.setMaximumSize(QSize(100,100))
-
-#     in the psuedo working version
-      descr("BDB: name = " + str(name))
-      alo.setAncestorName(name)
-#     end in the pseudo
-
-#      alo.setAncestorName(name)
-#      lineage_range = len(self.m_session_mdl.m_ancestors_dict)
-#      non_normalized_index = label + 1
-#      normalized_index = float(non_normalized_index) / float(lineage_range)
-#      a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
-#      alo.setAncestorColor(a_sensible_color)
-
-
-
-#      a.append(pyAncestorLegendObjectCtrl(self.m_ancestor_legend_ctrl.viewport()))
-#      self.pyAncestorLegendCtrlLayout.addWidget(a[len(a)-1])
-#      a[len(a)-1].setMaximumSize(QSize(100,100))
-#      a[len(a)-1].setAncestorName(name)
-#      self.m_ancestor_legend_ctrl.repaintContents()
-      #blah = QLabel("blah", self.m_big_hbox)
-      #blah2= QLabel("blah", self.m_big_hbox)
-      #a.append(1)
-      #a.append(2)
-      self.a.append(alo)
-      alo.show()
-      self.m_num_ancestor_objects_added = len(self.a)
       
-    print "len(a) is ", len(self.a)
+      an_ancestor_legend_object = pyAncestorLegendObjectCtrl(self.m_big_hbox)
+      an_ancestor_legend_object.setAncestorName(name)
+      self.a.append(an_ancestor_legend_object)
+      an_ancestor_legend_object.show()
 
+###      descr("BDB: name = " + str(name))
+
+    print "SIZE OF ANCESTORS DICT IS" , len(self.m_session_mdl.m_ancestors_dict)
+      
     k = 0
     for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
 
       lineage_range = len(self.m_session_mdl.m_ancestors_dict)
+      print "LABEL IS " , label
       non_normalized_index = int(label) + 1
       normalized_index = float(non_normalized_index) / float(lineage_range)
       a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
+
+      #the following ugly code is brought to you by the fact that I can't delete objects
+      #out of a
+      self.a[len(self.a)-len(self.m_session_mdl.m_ancestors_dict)+k].setAncestorColor(a_sensible_color)
       descr("BDB: k = " + str(k) + " label = " + str(label) + " name = " + name)
-      self.a[k].setAncestorColor(a_sensible_color)
       k = k+1
                                     
-
-
-#      alo = pyAncestorLegendObjectCtrl(self.m_kgn_hbox)
-#      alo.setMaximumSize(QSize(100,100))
-#      alo.setAncestorName(name)
-#      label = QLabel("%d" % len(self.m_kgn_label_list), self.m_kgn_hbox)
-#      self.m_kgn_label_list.append(alo)
-#      alo.show()
-
-#    for thing in a:
-#      label = QLabel("%d" % len(a), self.m_big_hbox)
-#      label.show()
-
-#    print "self.m_big_hbox:", self.m_big_hbox
-#    for thing in self.m_big_hbox.children():
-#      print "thing:", thing
-#    print self.m_big_hbox
-#      a.append(name)
-#    print "list is ", a
-
-#/Users/jclune/Desktop/ajeff/avida/Avida-Ed/appBundles/06-07-10/workspace1.workspace/freezer/blue.organism    print "a[len(a)] is ", a[len(a)-1]
-
   def ToggleDishSlot (self):
     current_page = self.m_petri_dish_widget_stack.visibleWidget()
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)

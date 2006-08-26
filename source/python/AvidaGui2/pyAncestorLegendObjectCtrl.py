@@ -29,7 +29,16 @@ class pyAncestorLegendObjectCtrl(QWidget):
         self.m_org_square.construct()
         self.m_org_square.setMinimumSize(QSize(20,20))
         self.m_org_square.setMaximumSize(QSize(20,20))
-        self.pyAncestorLegendObjectCtrlLayout.addWidget(self.m_org_square)
+
+        self.m_centered_org_square_box = QHBoxLayout(self,0,0,"m_centered_org_square_box")
+        hspacer = QSpacerItem ( 2, 20,QSizePolicy.Expanding)
+        hspacer1 = QSpacerItem ( 2, 20,QSizePolicy.Expanding)
+        self.m_centered_org_square_box.addItem(hspacer)        
+        self.m_centered_org_square_box.addWidget(self.m_org_square)
+        self.m_centered_org_square_box.addItem(hspacer1)
+
+#        self.pyAncestorLegendObjectCtrlLayout.addWidget(self.m_org_square)
+        self.pyAncestorLegendObjectCtrlLayout.addItem(self.m_centered_org_square_box)
         self.m_org_square.paint(Qt.green)
 
         self.m_ancestor_name = QLabel(self,"m_ancestor_name")

@@ -61,7 +61,7 @@ class pyWriteGenesisEvent:
 
         for i in range(num_ancestors):
           start_creature = settings_dict["START_CREATURE" + str(i)]
-          session_mdl.m_ancestors_dict[i] = start_creature
+          session_mdl.m_ancestors_dict[str(i)] = start_creature
           ancestor_link_dict[str(i)] = str(i)
 
           self.start_cell_location = self.find_location(world_x, world_y, 

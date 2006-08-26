@@ -64,7 +64,7 @@ class pyMapProfile:
       def resetRange(self, population):
         #descr(population)
         (inf, sup) = self.m_range.getRange()
-        descr("(inf, sup)", (inf, sup))
+        #descr("(inf, sup)", (inf, sup))
         #(self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (inf, sup)
         (self.m_target_inf, self.m_target_sup) = (self.m_inf, self.m_sup) = (0, sup)
         self.m_inf_rescale_rate = self.m_sup_rescale_rate = 0
@@ -77,7 +77,7 @@ class pyMapProfile:
           return self.resetRange(population)
 
         (inf, sup) = self.m_range.getRange()
-        descr("(inf, sup)", (inf, sup))
+        #descr("(inf, sup)", (inf, sup))
 
         if (sup < (1 - self.m_sup_tolerance_coeff) * self.m_target_sup) or (self.m_target_sup < sup):
           new_target_sup = sup * (1 + self.m_sup_tolerance_coeff)
@@ -119,7 +119,7 @@ class pyMapProfile:
         self.m_should_reset = should_reset
 
       def shouldReset(self):
-        descr("Testing whether I should reset", self.m_should_reset)
+        #descr("Testing whether I should reset", self.m_should_reset)
         return self.m_should_reset 
 
       def getRange(self):
@@ -138,7 +138,7 @@ class pyMapProfile:
 
       def updateRange(self, population):
         #descr(population)
-        descr("self.m_should_reset",self.m_should_reset)
+        #descr("self.m_should_reset",self.m_should_reset)
         if self.m_should_reset:
           return self.resetRange(population)
 
