@@ -181,7 +181,6 @@ class pyNewIconView(QIconView):
 #       e.accept()
 
   def contentsDropEvent(self, e):
-    descr("BDB")
     if e.source() is self:
       return
     self.emit(PYSIGNAL("DroppedOnNewIconViewSig"),(e,))
@@ -231,7 +230,6 @@ class TrashIconViewItem(QIconViewItem):
     self.moveBy(15,0)
 
   def contentsDropEvent(self, e):
-    descr("BDB -- TrashIconViewItem")
     if e.source() is self:
       return
     self.QIconView.emit(PYSIGNAL("DroppedOnNewIconViewSig"),(e,))

@@ -16,6 +16,7 @@ from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
 from pyButtonListDialog import pyButtonListDialog
 from pyReadFreezer import pyReadFreezer
+from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
 import pyNewIconView
 import os.path, shutil
 from qt import *
@@ -513,21 +514,44 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def DroppedInTrashSlot(self, e):
 
-    descr("BDB")
-    if self.m_session_mdl.m_warn_about_trash:
-      self.m_session_mdl.m_warn_about_trash = False
-      warningNoMethodName("Anything dropped in the trash can will be pemenently deleted")
     # Try to decode to the data you understand...
 
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list)) :
       freezer_item_list = str(e.encodedData("text/plain"))
+
+      # for each item check if the flag for prompting is true then check to
+      # see if the user answer yes/no to deleting item and if they turn off
+      # the prompt
+
       for freezer_item_name in freezer_item_list.split("\t")[1:]:
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("DeleteFromFreezerSig"),
-          (freezer_item_name, ))
+        delete_item = False
+        if self.m_session_mdl.m_warn_about_trash:
+           tmp_prompt = pyWarnAboutTrashCtrl(freezer_item_name)
+           prompt_result = tmp_prompt.showDialog()
+           if prompt_result == tmp_prompt.DeleteAllCode:
+             self.m_session_mdl.m_warn_about_trash = False 
+           if (prompt_result == tmp_prompt.DeleteAllCode) or (prompt_result == tmp_prompt.DeleteCode):
+             delete_item = True
+        else:
+          delete_item = True
+        if delete_item:
+          self.m_session_mdl.m_session_mdtr.emit(
+            PYSIGNAL("DeleteFromFreezerSig"), (freezer_item_name, ))
+
     elif (pyNewIconView.canDecode(e)):
       ancestor_item_name = str(e.encodedData("application/x-qiconlist"))
-      self.m_session_mdl.m_session_mdtr.emit(
-        PYSIGNAL("DeleteFromAncestorViewSig"),
-        (ancestor_item_name,) )
+      if self.m_session_mdl.m_warn_about_trash:
+         tmp_prompt = pyWarnAboutTrashCtrl(ancestor_item_name)
+         prompt_result = tmp_prompt.showDialog()
+         if prompt_result == tmp_prompt.DeleteAllCode:
+           self.m_session_mdl.m_warn_about_trash = False
+         if (prompt_result == tmp_prompt.DeleteAllCode) or (prompt_result == tmp_prompt.DeleteCode):
+           delete_item = True
+      else:
+        delete_item = True
+      if delete_item:
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("DeleteFromAncestorViewSig"),
+          (ancestor_item_name,) )
  

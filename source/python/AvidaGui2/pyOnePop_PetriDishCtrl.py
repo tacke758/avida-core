@@ -113,10 +113,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.a.append(an_ancestor_legend_object)
       an_ancestor_legend_object.show()
 
-###      descr("BDB: name = " + str(name))
-
-    print "SIZE OF ANCESTORS DICT IS" , len(self.m_session_mdl.m_ancestors_dict)
-      
     k = 0
     for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
 
@@ -129,7 +125,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       #the following ugly code is brought to you by the fact that I can't delete objects
       #out of a
       self.a[len(self.a)-len(self.m_session_mdl.m_ancestors_dict)+k].setAncestorColor(a_sensible_color)
-      descr("BDB: k = " + str(k) + " label = " + str(label) + " name = " + name)
       k = k+1
                                     
   def ToggleDishSlot (self):
@@ -248,7 +243,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.PopulationTextLabel.setText(dishName)
     
   def petriDropped(self, e):
-    descr("BDB")
 
     current_page = self.m_petri_dish_widget_stack.visibleWidget()
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)
@@ -290,7 +284,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         return
 
       freezer_item_names = freezer_item_list.split("\t")[1:]
-      descr("BDB -- if decode true" + freezer_item_list)
       if (len(freezer_item_names) == 1):
         freezer_item_name = freezer_item_names[0]
 

@@ -3,7 +3,7 @@
 from qt import *
 from pyBeforeStartingView import pyBeforeStartingView
 
-# class to pop up a dialog box before AvidaEd starts
+# class to pop up a dialog box before someone saves for the first time
 
 class pyBeforeStartingCtrl (pyBeforeStartingView):
   def __init__(self):
@@ -11,26 +11,33 @@ class pyBeforeStartingCtrl (pyBeforeStartingView):
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
+    self.Existing_Pushed = False
+    self.New_Pushed = False
     self.connect(self.OpenExistingPushButton, SIGNAL("clicked()"),
-                 self.m_session_mdl.m_session_mdtr, 
-                 PYSIGNAL("workspaceOpenSig"))
-    self.connect(self.OpenExistingPushButton, SIGNAL("clicked()"),
-                self.closeDialog1)
+                 self.OpenExistingSlot)
     self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
-                 self.m_session_mdl.m_session_mdtr, 
-                 PYSIGNAL("workspaceNewSig"))
-    self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
-                self.closeDialog1)
-    self.connect(self.CancelPushButton, SIGNAL("clicked()"),
-                self.closeDialog0)
+                 self.CreateNewSlot)
 
   def showDialog(self):
-    self.exec_loop()
-    dialog_result = self.result()
-    return(dialog_result)
+    dialog_result = 1
+    while (dialog_result > 0):
+      self.exec_loop()
+      dialog_result = self.result()
+      if dialog_result == 0:
+        return 0
+      elif self.Existing_Pushed:
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("workspaceOpenSig"),())
+        return 1
+      elif self.New_Pushed:
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("workspaceNewSig"),())
+        return 1
+      else:
+        pass
 
-  def closeDialog0(self):
-    self.done(0)
+  def OpenExistingSlot(self):
+    self.Existing_Pushed = True
 
-  def closeDialog1(self):
-    self.done(1)
+  def CreateNewSlot(self):
+    self.New_Pushed = True
+
+ 
