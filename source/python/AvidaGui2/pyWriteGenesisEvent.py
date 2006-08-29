@@ -252,7 +252,7 @@ class pyWriteGenesisEvent:
     elif (num_ancestors == 2):
       spots = [0.5,0.33, 0.5,0.67]
     elif (num_ancestors == 3):
-      spots = [0.25,0.25, 0.5,0.5, 0.75,0.75]
+      spots = [0.5,0.25, 0.25,0.75, 0.75,0.75]
     elif (num_ancestors == 4):
       spots = [0.33,0.33, 0.33,0.67, 0.67,0.33, 0.67,0.67]
     elif (num_ancestors == 5):
