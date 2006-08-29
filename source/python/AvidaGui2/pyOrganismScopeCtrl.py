@@ -193,6 +193,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
       self.m_timeline.reset()
       self.flagEvents()
+#      self.m_timeline.addFlag(TimelineFlag("8", 0, "Test beginning"))
+#      self.m_timeline.addFlag(TimelineFlag("9", self.m_frames.getSnapshotCount(), "Test end"))
+
 
       progress_callback.clear()
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarClearSig"), ())

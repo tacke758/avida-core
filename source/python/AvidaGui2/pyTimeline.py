@@ -88,7 +88,7 @@ class pyTimeline(QwtThermo):
     def get_border_width(self):
         "Get full border width"
 	# default margin size is 10 (QwtThermo docs)
-	return self.borderWidth() + 10
+	return self.borderWidth() + 5
 
     def get_flag_pos(self, flag):
 	"Calculate where in timeline flag should appear"
@@ -98,7 +98,7 @@ class pyTimeline(QwtThermo):
 	borders = self.get_border_width()
 	a = self.width() - frame - (borders * 2)
         mult = a / (self.maxValue() - self.minValue())
-	final_pos = (flag.pos * mult) + (frame / 2) + borders - adj
+	final_pos = (flag.pos * mult) + (frame / 2) + borders - adj - 1
 	return final_pos
 
     def layout_events(self):

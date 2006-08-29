@@ -494,7 +494,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <cstring>unnamed</cstring>
                                 </property>
                                 <property name="spacing">
-                                    <number>3</number>
+                                    <number>4</number>
                                 </property>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
@@ -1409,7 +1409,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             <cstring>unnamed</cstring>
                         </property>
                         <property name="spacing">
-                            <number>3</number>
+                            <number>2</number>
                         </property>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -1471,7 +1471,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1518,7 +1518,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1560,7 +1560,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1602,7 +1602,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1644,7 +1644,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1686,7 +1686,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1728,7 +1728,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1770,7 +1770,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">
@@ -1812,7 +1812,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <pointsize>10</pointsize>
+                                            <pointsize>9</pointsize>
                                         </font>
                                     </property>
                                     <property name="text">

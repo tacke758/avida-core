@@ -131,11 +131,8 @@ Priority Low-
 
 12-Jun-06 Add documentation about saving and exporting excel data and images
 
-01-Apr-06 Get Windows automated builds working on Devolab machine
-
 08-Jun-06 Add printing/saving images to organism and population stats view.
 
-03-Jul-06 Delete extra whitespace at top of analysis-mode
 
 ************Other*****************
 a.	Under the sliders with ranges put a few values in grey that tell you the range min and max (non)
@@ -257,7 +254,8 @@ Avida-Ed can be downloaded and run -- Finished 24-Feb-06
 03-Jul-06 Remove flip arrow on analyze mode -- Finished 04-Jul-06
 03-Jul-06 Change title to y-axis vs. x-axis -- Finished 04-Jul-06
 03-Jul-06 Remove "Drag a Full Petri Dish..." after first dish is graphed -- Finished 04-Jul-06
-
+03-Jul-06 Delete extra whitespace at top of analysis-mode -- Finished 17-Aug-06
+01-Apr-06 Get Windows builds working on Devolab machine -- Finished 17-Aug-06
 
 *************Jeff********************
 June
