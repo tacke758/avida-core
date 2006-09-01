@@ -243,6 +243,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.PopulationTextLabel.setText(dishName)
     
   def petriDropped(self, e):
+    if (e.source is self):
+      return
 
     current_page = self.m_petri_dish_widget_stack.visibleWidget()
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)
@@ -258,6 +260,12 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
+      
+      # Check that this is not an organism from the petri dish acidently
+      # dropped onto itself
+
+      if freezer_item_list.startswith("organism."):
+        return
 
       # Do a quick look at the list and be sure the user is not mixing up
       # petri dish files and organisms
@@ -272,7 +280,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       else:
         list_has_dishes = False
       if (list_has_orgs and list_has_dishes):
-        warningNoMethodName("You can not drag both petri dishes and organisms at the same time")
+        info("You can not drag both petri dishes and organisms at the same time")
         return
 
       # if the user only has organism let the Ancestor box drop method handle
@@ -283,6 +291,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
           PYSIGNAL("petriDishDroppedAncestorSig"), (e,))
         return
 
+      descr("BDB -- freezer_item_list = " + str(freezer_item_list))
       freezer_item_names = freezer_item_list.split("\t")[1:]
       if (len(freezer_item_names) == 1):
         freezer_item_name = freezer_item_names[0]
@@ -300,6 +309,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         thawed_item = pyReadFreezer(freezer_item_name_temp)
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),  
           (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
+      else:
+        # pass
+        info("You can only drag one dish at a time into this viewer")
 
   def SetMapModeAndGraphModeToDefaultsSlot(self):
     descr()

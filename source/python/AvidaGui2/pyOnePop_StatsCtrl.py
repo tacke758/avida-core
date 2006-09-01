@@ -221,6 +221,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       # PAINT the stats fields empty
 
       self.m_org_name.setText('empty cell')
+      self.m_session_mdl.m_current_cell_genome = ""
       self.m_org_fitness.setText('-')
       self.m_org_merit.setText('-')
       self.m_org_genome_length.setText('-')
@@ -256,6 +257,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     # print info about the org clicked on 
 
+    self.m_session_mdl.m_current_cell_genome = str(organism.GetGenome().AsString())
     m_org_name = str(genotype.GetName())
     hyphen_position = m_org_name.find('-')
     m_org_name = m_org_name[hyphen_position+1:]   

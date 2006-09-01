@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qt import *
+from descr import *
 from pyFreezeDialogView import pyFreezeDialogView
 from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 import shutil, os, os.path
@@ -42,6 +43,13 @@ class pyFreezeDialogCtrl (pyFreezeDialogView):
       self.FullRadioButton.setEnabled(True)
       self.EmptyRadioButton.setChecked(False)
       self.FullRadioButton.setChecked(True)
+
+    # See if the freeze selected organizim should be enabled
+
+    if len(session_mdl.m_current_cell_genome) == 0:
+      self.OrganismRadioButton.setEnabled(False)
+    else:
+      self.OrganismRadioButton.setEnabled(True)
     while (found_valid_name == False and dialog_result > 0):
       self.exec_loop()
       dialog_result = self.result()
@@ -81,12 +89,25 @@ class pyFreezeDialogCtrl (pyFreezeDialogView):
 
         # Save selected organism
 
-        else:
-          # BDB -- code for saving selected organism needs to be added here
-          pass
+        elif self.OrganismRadioButton.isChecked():
+          if (tmp_name.endswith(".organism") == False):
+            tmp_name = tmp_name + ".organism"
+          tmp_name = os.path.join(session_mdl.m_current_freezer, tmp_name)
+          if os.path.exists(tmp_name):
+            found_valid_name = False
+            self.MainMessageTextLabel.setText("Organism Exists, Please Enter a Different Name")
+          else:
+            found_valid_name = True
+            return tmp_name
 
   def isEmpty(self):
     if self.EmptyRadioButton.isChecked():
+      return True
+    else:
+      return False
+
+  def isOrganism(self):
+    if self.OrganismRadioButton.isChecked():
       return True
     else:
       return False

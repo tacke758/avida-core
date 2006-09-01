@@ -551,7 +551,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     if (file_name_len > 0):
       is_empty_dish = m_pop_up_freezer_file_name.isEmpty()
-      if (not is_empty_dish):
+      is_organism = m_pop_up_freezer_file_name.isOrganism()
+      if is_organism:
+        tmp_dict = {1:self.m_session_mdl.m_current_cell_genome} 
+      elif (not is_empty_dish):
         os.mkdir(file_name)
 
         # Copy the average and count files from the teporary output directory
@@ -633,11 +636,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
   # exist before sending out the signal to process
 
   def dropEvent( self, e ):
-    descr("BDB")
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
-      descr("BDB -- if decode true" + freezer_item_list)
       errors = False
       for freezer_item_name in freezer_item_list.split("\t")[1:]:
         if os.path.exists(freezer_item_name) == False:
@@ -648,19 +649,17 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         self.petriDroppedSlot(e)
 
   def petriDroppedSlot(self, e):
-    descr("BDB")
     # Try to decode to the data you understand...
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
-      descr("BDB -- if decode true" + freezer_item_list)
       if (len(freezer_item_names) > 1):
-         warningNoMethodName("Only one petri dish can be dragged here")
+         info("Only one petri dish can be dragged here")
       else:
         freezer_item_name = freezer_item_names[0]
         if freezer_item_name[-8:] == 'organism':
-          warningNoMethodName("Organisms should be placed in the Ancestor Box")
+          info("Organisms should be placed in the Ancestor Box")
           return
         elif freezer_item_name[-4:] == 'full':
           freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
@@ -679,18 +678,15 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
           (self.m_session_mdl.m_tempdir,))
 
   def petriAncestorDroppedSlot(self, e):
-    descr("BDB")
     # Try to decode to the data you understand...
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
-      descr("BDB -- if decode true" + freezer_item_list)
       for freezer_item_name in freezer_item_list.split("\t")[1:]:
         if freezer_item_name[-8:] == 'organism':
           core_name = freezer_item_name[:-9]
           core_name = os.path.basename(str(freezer_item_name[:-9]))
-          descr("BDB: core_name = " + core_name)
 
           # Read the genome from the organism file
 
@@ -704,7 +700,7 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
           tmp_name = self.AncestorIconView.addGenomeToDict(core_name, org_string)
           tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name)
         else:
-          warningNoMethodName("Dishes should not be dragged into Ancestor Box")
+          info("Dishes should not be dragged into Ancestor Box")
 
       # initialize Avida (which repaints the dish)
 

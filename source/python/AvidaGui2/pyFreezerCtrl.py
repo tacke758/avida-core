@@ -43,7 +43,7 @@ class pyFreezerListView(QListView):
     # Check if item is icon
 
     if (pyNewIconView.canDecode(e)):
-      warningNoMethodName("You can not drag an ancestor back into the freezer")
+      info("You can not drag an ancestor back into the freezer")
 
     
   def FreezeOrganism(self, freezer_item_name):

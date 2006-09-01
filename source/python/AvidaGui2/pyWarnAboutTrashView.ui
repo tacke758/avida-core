@@ -47,7 +47,7 @@
                         <enum>StrongFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Yes, and delete all future items</string>
+                        <string>Yes, don't ask again</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;p&gt;Don't quit; return to the program&lt;/P&gt;</string>
@@ -105,5 +105,10 @@
         <slot>reject()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>DeletePushButton</tabstop>
+    <tabstop>IgnorePushButton</tabstop>
+    <tabstop>DeleteAllPushButton</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -93,7 +93,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       freezer_item_names = freezer_item_list.split("\t")[1:]
       descr("BDB -- if decode true" + freezer_item_list)
       if (len(freezer_item_names) > 1):
-         warningNoMethodName("Only one organism can be dragged here")
+         info("Only one organism can be dragged here")
       else:
         freezer_item_name = freezer_item_names[0]
         if os.path.exists(freezer_item_name) == False:
@@ -103,7 +103,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
             e.accept()
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
           else:
-            warningNoMethodName("Only organisms can be dragged here")
+            info("Only organisms can be dragged here")
 
   def setAvidaSlot(self, avida):
     print "pyOrganismScopeCtrl.setAvidaSlot() ..."

@@ -117,7 +117,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     # Check if item is icon
 
     if (pyNewIconView.canDecode(e)):
-      warningNoMethodNames("You can not drop Ancestors here")
+      info("You can not drop Ancestors here")
 
   def freezerItemDoubleClickedSlot(self, freezer_item_name):
    if self.isVisible():

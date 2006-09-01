@@ -8,6 +8,7 @@ class pyNavBarCtrl(pyNavBarView):
 
   def __init__(self,parent = None,name = None,fl = 0):
     pyNavBarView.__init__(self,parent,name,fl)
+    self.setAcceptDrops( True )
 
   def construct(self, session_mdl):
     self.m_list_view.setSelectionMode(QListView.Single)
@@ -21,3 +22,4 @@ class pyNavBarCtrl(pyNavBarView):
     self.m_one_population_cli.setPixmap(0, self.image0)
     self.m_one_organism_cli.setPixmap(0, self.image1)
     self.m_one_analyze_cli.setPixmap(0, self.image2)
+

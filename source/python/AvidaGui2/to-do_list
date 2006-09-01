@@ -9,6 +9,8 @@ Priority High
 
 11-Jul-06 Fix problem where user drags in in a new population, clicks on freeze and then clicks cancel the program loads the new population without saving.
 
+31-Aug-06 E-Mail Josh about state of resize at beginning of run
+
 Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
@@ -20,6 +22,12 @@ Priority Medium
 07-Jul-06 Save lineage of creature as well as genotype
 
 13-Jul-06 Single click on dish/creature to rename it.
+
+31-Aug-06 What to do when user double clicks organism in population viewer.
+
+31-Aug-06 Remove full path name
+
+31-Aug-06 Make active/deactive more clear on petri dish configuration
 
 Priority Low
 
@@ -54,6 +62,8 @@ Priority Low
 13-Jul-06 Change the patterns of dots for multiple ancestors
 
 09-Aug-06 Deactivate Ancestor Icon Drag when there is a full population
+
+31-Aug-06 Turn on drag accept on for left side of genoscope
 
 ************Jeff*******************
 
@@ -202,6 +212,8 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View -- 16-Aug-06
 
+31-Aug-06 Talk to Jeff about how to get information from selected org to freeze org  -- 31-Aug-06
+
 August - 06
 
  - Fixed problems with IconView to get trash can to work 
@@ -211,6 +223,12 @@ August - 06
    (or the ancestor file has been deleted from the freezer)
 
  - fixed a few spelling errors in instruction descriptions
+
+ - Got mutiple drag to work out of freezer
+
+September - 06
+
+ - Got freeze selected organism to work when clicking snowflake
 
 ************Kaben******************
 

@@ -69,9 +69,15 @@ class pySessionCtrl(qt.QObject):
 #    self.m_session_mdl.m_ancestors_dict = None
     self.m_session_mdl.m_ancestors_dict = {'1': 'default'}
 
+    self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
+
     # set a global variable for locking the ancestor lineage map mode max range
     self.m_session_mdl.m_max_lineages_ever = 0
     self.m_session_mdl.m_lock_max_lineages_ever = False
+
+    # set a global variable for the current cell's genome
+
+    self.m_session_mdl.m_current_cell_genome = ""
 
     # BDB -- hack to overcome problem with program crashing when Core ends
 

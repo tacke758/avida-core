@@ -41,8 +41,10 @@ class pyWriteGenesisEvent:
         ancestor_link_dict = {}
       self.m_session_mdl.m_founding_cells_dict = cells_dict
       self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
-      for tmp_cell, tmp_lin_lab in ancestor_link_dict.iteritems():
-        session_mdl.m_cell_num_ancestor_name_dict[tmp_cell] = session_mdl.m_ancestors_dict[ancestor_link_dict[tmp_cell]]
+      for tmp_cell, org_in_cell in cells_dict.iteritems():
+        linage_lable_in_cell = ancestor_link_dict[org_in_cell]
+        ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
+        session_mdl.m_cell_num_ancestor_name_dict[tmp_cell] = ann_name_in_cell
 
 
     #if it is not a full petri dish
