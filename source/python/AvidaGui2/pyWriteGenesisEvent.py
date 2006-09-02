@@ -66,7 +66,6 @@ class pyWriteGenesisEvent:
 
         # Process all the ancestors
 
-        self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
         for i in range(num_ancestors):
           start_creature = settings_dict["START_CREATURE" + str(i)]
           session_mdl.m_ancestors_dict[str(i)] = start_creature
@@ -82,8 +81,6 @@ class pyWriteGenesisEvent:
 
           self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
-          # BDB -- Junk should be the name of the ancestor
-          self.m_session_mdl.m_cell_num_ancestor_name_dict[str(i)] = "junk"
 
           # Read the genome from the dictionary
 

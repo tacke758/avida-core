@@ -195,10 +195,13 @@ class pyPetriDishCtrl(QWidget):
 
     if self.m_avida is not None:
       m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
-
+      self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
       for k, v in m_founding_cells_dict.iteritems():
         cell_info_item = self.updateCellItem(int(k))
+        self.m_session_mdl.m_cell_num_ancestor_name_dict[k] = \
+          self.m_session_mdl.m_ancestors_dict[v]
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
+      descr("BDB" + str(self.m_session_mdl.m_cell_num_ancestor_name_dict))
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0
