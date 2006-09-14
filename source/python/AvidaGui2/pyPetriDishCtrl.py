@@ -198,8 +198,13 @@ class pyPetriDishCtrl(QWidget):
       self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
       for k, v in m_founding_cells_dict.iteritems():
         cell_info_item = self.updateCellItem(int(k))
-        self.m_session_mdl.m_cell_num_ancestor_name_dict[k] = \
-          self.m_session_mdl.m_ancestors_dict[v]
+        # print "BDB"
+        # print m_founding_cells_dict
+        # print self.m_session_mdl.m_ancestors_dict
+        # org_in_founding_cell = v
+        # linage_lable_in_cell = ancestor_link_dict[org_in_founding_cell]
+        # ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
+        # self.m_session_mdl.m_cell_num_ancestor_name_dict[k] = ann_name_in_cell
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
       descr("BDB" + str(self.m_session_mdl.m_cell_num_ancestor_name_dict))
 

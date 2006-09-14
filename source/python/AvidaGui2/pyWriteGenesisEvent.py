@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
 import shutil, string, pyInstructionSet, os.path
 
 from AvidaCore import *
@@ -74,13 +73,14 @@ class pyWriteGenesisEvent:
           self.start_cell_location = self.find_location(world_x, world_y, 
              num_ancestors, i)
           cells_dict[str(self.start_cell_location)] = str(i)
-          descr("cells_dict ", cells_dict)
 
           # This variable is used in pyPetriDishCtrl.py to outline the 
           # founding organisms
 
           self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
+          self.m_session_mdl.m_cell_num_ancestor_name_dict[str(self.start_cell_location)] = session_mdl.m_ancestors_dict[str(i)]
+          print self.m_session_mdl.m_cell_num_ancestor_name_dict
 
           # Read the genome from the dictionary
 
