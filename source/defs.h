@@ -8,7 +8,7 @@
 #ifndef DEFS_HH
 #define DEFS_HH
 
-#define VERSION "2.4.3"
+#define VERSION "2.4.4"
 #define VERSION_TAG "Padawan"
 
 
