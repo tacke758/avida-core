@@ -1,18 +1,22 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHistogram.h
+ *  Avida
+ *
+ *  Called "histogram.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef HISTOGRAM_HH
-#define HISTOGRAM_HH
+#ifndef cHistogram_h
+#define cHistogram_h
 
 #include <iostream>
 
 extern "C" {
 #include <math.h>
 }
+
 
 class cHistogram {
 private:
@@ -51,6 +55,18 @@ public:
   inline int GetMaxBin() { return max_bin; }
   inline int GetNumBins() { return max_bin - min_bin + 1; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHistogram {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 inline void cHistogram::Clear()
 {

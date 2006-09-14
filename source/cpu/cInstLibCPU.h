@@ -1,24 +1,30 @@
-#ifndef INST_LIB_CPU_HH
-#define INST_LIB_CPU_HH
+/*
+ *  cInstLibCPU.h
+ *  Avida
+ *
+ *  Called "inst_lib_cpu.hh" prior to 11/30/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *
+ */
 
+#ifndef cInstLibCPU_h
+#define cInstLibCPU_h
 
-#ifndef INST_LIB_BASE_HH
+#ifndef cInstLibBase_h
 #include "cInstLibBase.h"
 #endif
-
-#ifndef HARDWARE_CPU_HH
+#ifndef cHardwareCPU_h
 #include "cHardwareCPU.h"
 #endif
-#ifndef INSTRUCTION_HH
+#ifndef cInstruction_h
 #include "cInstruction.h"
 #endif
 
-///////////////
-//  cInstLibCPU
-///////////////
-
 class cString;
-class cInstLibCPU : public cInstLibBase {
+
+class cInstLibCPU : public cInstLibBase
+{
+private:
   const size_t m_nopmods_array_size;
   const size_t m_function_array_size;
   cString *m_nopmod_names;
@@ -27,8 +33,10 @@ class cInstLibCPU : public cInstLibBase {
   cHardwareCPU::tHardwareCPUMethod *m_functions;
   static const cInstruction inst_error;
   static const cInstruction inst_default;
+
 protected:
   friend class cHardwareCPU;
+  
   cInstLibCPU(
     size_t nopmod_array_size,
     size_t function_array_size,
@@ -44,6 +52,7 @@ protected:
     m_functions(functions)
   {}
   cHardwareCPU::tHardwareCPUMethod *GetFunctions(void){ return m_functions; } 
+
 public:
   const cString &GetName(const unsigned int id) {
     assert(id < m_function_array_size);
@@ -71,6 +80,18 @@ public:
   const cInstruction & GetInstDefault(){ return inst_default; }
   const cInstruction & GetInstError(){ return inst_error; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nInstLibCPU {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 #endif

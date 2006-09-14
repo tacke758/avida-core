@@ -1,25 +1,28 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cMxCodeArray.h
+ *  Avida
+ *
+ *  Called "mx_code_array.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef MX_CODE_ARRAY_HH
-#define MX_CODE_ARRAY_HH
+#ifndef cMxCodeArray_h
+#define cMxCodeArray_h
 
 #include <iostream>
 #include <list>
 #include <map>
 #include <set>
 
-#ifndef INSTRUCTION_HH
+#ifndef cInstruction_h
 #include "cInstruction.h"
 #endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef STRING_UTIL_HH
+#ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
 
@@ -28,10 +31,14 @@
  * Cannot be run in a simulation.
  **/
 
+class cAvidaContext;
 class cGenome;
 class MyCodeArrayLessThan;
+class cWorld;
+
 class cMxCodeArray {
 private:
+  cWorld* m_world;
   int size;
   int max_size;
   cInstruction * data;
@@ -42,11 +49,13 @@ private:
   mutable std::map<int, double, std::less<int> > m_trans_probs;
 
 
+  cMxCodeArray(); // @not_implemented
+
 public:
-  cMxCodeArray();
-  explicit cMxCodeArray(int ninst, int in_size=0, int in_max_size=0);
+  cMxCodeArray(cWorld* world);
+  explicit cMxCodeArray(cWorld* world, int ninst, int in_size=0, int in_max_size=0);
   cMxCodeArray(const cMxCodeArray &in_code);
-  cMxCodeArray(const cGenome & in_code, int in_max_size=0);
+  cMxCodeArray(cWorld* world, const cGenome & in_code, int in_max_size=0);
   virtual ~cMxCodeArray();
 
   void operator=(const cMxCodeArray &other_code);
@@ -64,7 +73,7 @@ public:
     else return m_merit/m_gestation_time;}
   double GetMerit() const { return m_merit; }
   double GetGestationTime() const { return m_gestation_time; }
-  void CalcFitness();
+  void CalcFitness(cAvidaContext& ctx);
 
   inline const cInstruction & Get(int index) const {
     assert(index < size);
@@ -102,8 +111,20 @@ public:
   const std::map<int, double, std::less<int> >& GetTransitionList() const;
   int HammingDistance(const cMxCodeArray &other_gene) const;
   double TransitionProbability(const cMxCodeArray &other_gene, double errorRate) const;
-  void PrintTransitionList(std::ostream &fp, int size) const;
+  void PrintTransitionList(std::ostream& fp, int size) const;
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nMxCodeArray {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 cInstruction & cMxCodeArray::operator[](int index)
 {

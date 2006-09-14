@@ -1,39 +1,59 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cOrganism.h
+ *  Avida
+ *
+ *  Called "organism.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef ORGANISM_HH
-#define ORGANISM_HH
+#ifndef cOrganism_h
+#define cOrganism_h
 
 #include <fstream>
-#include <deque>
 
-#ifndef CPU_MEMORY_HH
+#ifndef cCPUMemory_h
 #include "cCPUMemory.h"
 #endif
-#ifndef CPU_STATS_HH
+#ifndef sCPUStats_h
 #include "sCPUStats.h"
 #endif
-#ifndef GENOME_HH
+#ifndef cGenome_h
 #include "cGenome.h"
 #endif
-#ifndef LOCAL_MUTATIONS_HH
+#ifndef cLocalMutations_h
 #include "cLocalMutations.h"
 #endif
-#ifndef MUTATION_RATES_HH
+#ifndef cMutationRates_h
 #include "cMutationRates.h"
 #endif
-#ifndef PHENOTYPE_HH
+#ifndef cPhenotype_h
 #include "cPhenotype.h"
 #endif
-#ifndef POPULATION_INTERFACE_HH
-#include "cPopulationInterface.h"
+#ifndef cOrgInterface_h
+#include "cOrgInterface.h"
 #endif
-#ifndef TBUFFER_HH
+#ifndef cOrgSeqMessage_h
+#include "cOrgSeqMessage.h"
+#endif
+#ifndef cOrgSourceMessage_h
+#include "cOrgSourceMessage.h"
+#endif
+#ifndef tArray_h
+#include "tArray.h"
+#endif
+#ifndef tBuffer_h
 #include "tBuffer.h"
+#endif
+#ifndef tList_h
+#include "tList.h"
+#endif
+#ifndef tSmartArray_h
+#include "tSmartArray.h"
+#endif
+#ifndef cSaleItem_h
+#include "cSaleItem.h"
 #endif
 
 /**
@@ -41,34 +61,30 @@
  * about a creature.  Effectively the chemistry acting on the genome.
  **/
 
+class cAvidaContext;
+class cCodeLabel;
 class cHardwareBase;
 class cGenotype;
-class cPhenotype; // aggregate
-class cGenome; // aggregate
 class cInjectGenotype;
-class cMutationRates; // aggregate
-class cLocalMutations; // aggregate
-class cPopulationInterface; // aggregate
-class cCPUMemory; // aggregate
-class sCPUStats; // aggregate
 class cLineage;
-template <class T> class tBuffer; // aggregate
 class cOrgMessage;
+class cOrgSinkMessage;
 class cEnvironment;
-class cOrganism;
 class cCodeLabel;
 
-class cOrganism {
+class cOrganism
+{
 protected:
-  cHardwareBase * hardware;  // The actual machinary running this organism.
-  cGenotype * genotype;      // Information about organisms with this genome.
-  cPhenotype phenotype;      // Descriptive attributes of organism.
-  const cGenome initial_genome;        // Initial genome; can never be changed!
-  std::deque<cInjectGenotype *> parasites; // List of all parasites associated with
-                                    // this organism.
-  cMutationRates mut_rates;            // Rate of all possible mutations.
-  cLocalMutations mut_info;            // Info about possible mutations;
-  cPopulationInterface pop_interface;  // Interface back to the population.
+  cWorld* m_world;
+  cHardwareBase* m_hardware;            // The actual machinary running this organism.
+  cGenotype* genotype;                  // Information about organisms with this genome.
+  cPhenotype phenotype;                 // Descriptive attributes of organism.
+  const cGenome initial_genome;         // Initial genome; can never be changed!
+  tArray<cInjectGenotype*> m_parasites; // List of all parasites associated with this organism.
+  cMutationRates mut_rates;             // Rate of all possible mutations.
+  cLocalMutations mut_info;             // Info about possible mutations;
+  cOrgInterface* m_interface;           // Interface back to the population.
+  int m_id;								// unique id for each org, is just the number it was born
 
   // Input and Output with the environment
   int input_pointer;
@@ -76,6 +92,8 @@ protected:
   tBuffer<int> output_buf;
   tBuffer<int> send_buf;
   tBuffer<int> receive_buf;
+  tBuffer<int> received_messages;
+  tList<tListNode<cSaleItem> > sold_items;
 
   // Communication
   int sent_value;         // What number is this org sending?
@@ -89,82 +107,98 @@ protected:
   int max_executed;      // Max number of instruction executed before death.
 
   int lineage_label;     // a lineages tag; inherited unchanged in offspring
-  cLineage * lineage;    // A lineage descriptor... (different from label)
+  cLineage* lineage;    // A lineage descriptor... (different from label)
 
   tBuffer<cOrgMessage> inbox;
   tBuffer<cOrgMessage> sent;
+  
+  class cNetSupport
+  {
+  public:
+    tList<cOrgSinkMessage> pending;
+    tSmartArray<cOrgSinkMessage*> received;
+    tSmartArray<cOrgSourceMessage> sent;
+    tSmartArray<cOrgSeqMessage> seq; 
+    int last_seq;
+    
+    cNetSupport() : last_seq(0) { ; }
+    ~cNetSupport();
+  };
+  cNetSupport* m_net;
 
 #ifdef DEBUG
   bool initialized;      // Has this CPU been initialized yet, w/hardware.
 #endif
   bool is_running;       // Does this organism have the CPU?
-  static int instance_count;
 
+
+  cOrganism(); // @not_implemented
+  cOrganism(const cOrganism&); // @not_implemented
+  cOrganism& operator=(const cOrganism&); // @not_implemented
+  
 public:
-  void PrintStatus(std::ostream & fp, const cString & next_name);
-
-  // Divide functions
-  bool Divide_CheckViable();
-  bool ActivateDivide();
-
-  // Other Special Functions
-  void Fault(int fault_loc, int fault_type, cString fault_desc="");
-
-public:
-  cOrganism(const cGenome & in_genome,
-	    const cPopulationInterface & in_interface,
-	    const cEnvironment & in_environment);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome);
   ~cOrganism();
 
-  cHardwareBase & GetHardware() { return *hardware; }
-  cOrganism * GetNeighbor() { return pop_interface.GetNeighbor(); }
-  int GetNeighborhoodSize() { return pop_interface.GetNumNeighbors(); }
-  void Rotate(int direction) { pop_interface.Rotate(direction); }
-  void DoBreakpoint() { pop_interface.Breakpoint(); }
-  int GetNextInput() { return pop_interface.GetInputAt(input_pointer); }
-  void Die() { pop_interface.Die(); }
-  void Kaboom() {pop_interface.Kaboom();}
-  int GetCellID() { return pop_interface.GetCellID(); }
-  int GetDebugInfo() { return pop_interface.Debug(); }
-
+  cHardwareBase& GetHardware() { return *m_hardware; }
+  cOrganism* GetNeighbor() { assert(m_interface); return m_interface->GetNeighbor(); }
+  int GetNeighborhoodSize() { assert(m_interface); return m_interface->GetNumNeighbors(); }
+  void Rotate(int direction) { assert(m_interface); m_interface->Rotate(direction); }
+  void DoBreakpoint() { assert(m_interface); m_interface->Breakpoint(); }
+  int GetNextInput() { assert(m_interface); return m_interface->GetInputAt(input_pointer); }
+  void Die() { assert(m_interface); m_interface->Die(); }
+  void Kaboom(int dist) { assert(m_interface); m_interface->Kaboom(dist);}
+  int GetCellID() { assert(m_interface); return m_interface->GetCellID(); }
+  int GetDebugInfo() { assert(m_interface); return m_interface->Debug(); }
+  int GetID() { return m_id; }
   bool GetSentActive() { return sent_active; }
   void SendValue(int value) { sent_active = true; sent_value = value; }
   int RetrieveSentValue() { sent_active = false; return sent_value; }
   int ReceiveValue();
-
-  void UpdateMerit(double new_merit) { pop_interface.UpdateMerit(new_merit); }
+  void SellValue(const int data, const int label, const int sell_price);
+  int BuyValue(const int label, const int buy_price);
+  tListNode<tListNode<cSaleItem> >* AddSoldItem(tListNode<cSaleItem>* );
+  tList<tListNode<cSaleItem> >* GetSoldItems() { return &sold_items; }
+  void UpdateMerit(double new_merit) { assert(m_interface); m_interface->UpdateMerit(new_merit); }
   
   // Input & Output Testing
   void DoInput(const int value);
-  void DoOutput(const int value);
+  void DoOutput(cAvidaContext& ctx, const int value);
 
   // Message stuff
   void SendMessage(cOrgMessage & mess);
   bool ReceiveMessage(cOrgMessage & mess);
+  
+  // Network Stuff
+  void NetGet(cAvidaContext& ctx, int& value, int& seq);
+  void NetSend(cAvidaContext& ctx, int value);
+  cOrgSinkMessage* NetPop() { return m_net->pending.PopRear(); }
+  bool NetReceive(int& value);
+  bool NetValidate(cAvidaContext& ctx, int value);
+  bool NetRemoteValidate(cAvidaContext& ctx, int value);
+  int NetLast() { return m_net->last_seq; }
+  void NetReset();
 
-  bool InjectParasite(const cGenome & genome);
-  bool InjectHost(const cCodeLabel & in_label, const cGenome & genome);
-  void AddParasite(cInjectGenotype * cur);
-  cInjectGenotype & GetParasite(int x);
-  int GetNumParasites();
-  void ClearParasites();
+  bool InjectParasite(const cGenome& genome);
+  bool InjectHost(const cCodeLabel& in_label, const cGenome& genome);
+  void AddParasite(cInjectGenotype* cur) { m_parasites.Push(cur); }
+  cInjectGenotype& GetParasite(int x) { return *m_parasites[x]; }
+  int GetNumParasites() { return m_parasites.GetSize(); }
+  void ClearParasites() { m_parasites.Resize(0); }
 		      
   int OK();
 
-  double GetTestFitness();
+  double GetTestFitness(cAvidaContext& ctx);
   double CalcMeritRatio();
 
-  cCPUMemory & ChildGenome() { return child_genome; }
-  sCPUStats & CPUStats() { return cpu_stats; }
+  cCPUMemory& ChildGenome() { return child_genome; }
+  sCPUStats& CPUStats() { return cpu_stats; }
 
-  bool TestCopyMut() const { return MutationRates().TestCopyMut(); }
-  bool TestDivideMut() const { return MutationRates().TestDivideMut(); }
-  bool TestDivideIns() const { return MutationRates().TestDivideIns(); }
-  bool TestDivideDel() const { return MutationRates().TestDivideDel(); }
-  bool TestParentMut() const { return MutationRates().TestParentMut(); }
-  bool TestCrossover() const { return MutationRates().TestCrossover(); }
-  bool TestAlignedCrossover() const
-    { return MutationRates().TestAlignedCrossover(); }
+  bool TestCopyMut(cAvidaContext& ctx) const { return MutationRates().TestCopyMut(ctx); }
+  bool TestDivideMut(cAvidaContext& ctx) const { return MutationRates().TestDivideMut(ctx); }
+  bool TestDivideIns(cAvidaContext& ctx) const { return MutationRates().TestDivideIns(ctx); }
+  bool TestDivideDel(cAvidaContext& ctx) const { return MutationRates().TestDivideDel(ctx); }
+  bool TestParentMut(cAvidaContext& ctx) const { return MutationRates().TestParentMut(ctx); }
   
   double GetCopyMutProb() const { return MutationRates().GetCopyMutProb(); }
   void SetCopyMutProb(double _p) { return MutationRates().SetCopyMutProb(_p); }
@@ -175,6 +209,10 @@ public:
   double GetDivMutProb() const { return MutationRates().GetDivMutProb(); }
   double GetParentMutProb() const { return MutationRates().GetParentMutProb();}
 
+  double GetInjectInsProb() const { return MutationRates().GetInjectInsProb(); }
+  double GetInjectDelProb() const { return MutationRates().GetInjectDelProb(); }
+  double GetInjectMutProb() const { return MutationRates().GetInjectMutProb(); }
+  
 
   bool GetTestOnDivide() const;
   bool GetFailImplicit() const;
@@ -188,7 +226,8 @@ public:
   bool GetSterilizeNeg() const;
   bool GetSterilizeNeut() const;
   bool GetSterilizePos() const;
-
+  double GetNeutralMin() const;
+  double GetNeutralMax() const;
 
   // Access to private variables
   int GetMaxExecuted() const { return max_executed; }
@@ -202,14 +241,16 @@ public:
   void SetGenotype(cGenotype * in_genotype) { genotype = in_genotype; }
   cGenotype * GetGenotype() const { return genotype; }
 
-  const cMutationRates & MutationRates() const { return mut_rates; }
-  cMutationRates & MutationRates() { return mut_rates; }
-  const cLocalMutations & GetLocalMutations() const { return mut_info; }
-  cLocalMutations & GetLocalMutations() { return mut_info; }
-  const cPopulationInterface & PopInterface() const { return pop_interface; }
-  cPopulationInterface & PopInterface() { return pop_interface; }
+  const cMutationRates& MutationRates() const { return mut_rates; }
+  cMutationRates& MutationRates() { return mut_rates; }
+  const cLocalMutations& GetLocalMutations() const { return mut_info; }
+  cLocalMutations& GetLocalMutations() { return mut_info; }
   
-  const cGenome & GetGenome() const { return initial_genome; }
+  const cOrgInterface& GetOrgInterface() const { assert(m_interface); return *m_interface; }
+  cOrgInterface& GetOrgInterface() { assert(m_interface); return *m_interface; }
+  void SetOrgInterface(cOrgInterface* interface);
+  
+  const cGenome& GetGenome() const { return initial_genome; }
   
   /*
   int GetCurGestation() const;
@@ -217,14 +258,32 @@ public:
   const cPhenotype & GetPhenotype() const { return phenotype; }
   cPhenotype & GetPhenotype() { return phenotype; }
 
-  void SaveState(std::ofstream & fp);
-  void LoadState(std::ifstream & fp);
-
   // --------  DEBUG ---------
-  static int GetInstanceCount() { return instance_count; }
   void SetRunning(bool in_running) { is_running = in_running; }
   bool GetIsRunning() { return is_running; }
+
+
+  void PrintStatus(std::ostream& fp, const cString & next_name);
+  
+  // Divide functions
+  bool Divide_CheckViable();
+  bool ActivateDivide(cAvidaContext& ctx);
+  
+  // Other Special Functions
+  void Fault(int fault_loc, int fault_type, cString fault_desc="");
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nOrganism {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif
 

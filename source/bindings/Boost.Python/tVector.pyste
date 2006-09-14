@@ -1,11 +1,4 @@
 
-tVector = Template("tVector", "tVector_instantiations.hh")
-
-template_specializers = [
-  "int",
-  ]
-
-for typename in template_specializers:
-  vector_type = tVector(typename)
+tVector = Class("tVector", "tVector.h")
 
 # vim: set ft=python:

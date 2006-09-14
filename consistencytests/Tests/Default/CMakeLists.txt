@@ -8,7 +8,7 @@
 # i.e., .../build/Tests/Default/.
 #
 
-SET(TestsName "default")
+SET(TestsName "Default-CPU")
 
 #
 # Avida configuration
@@ -21,14 +21,14 @@ SET(EventFile "${CMAKE_CURRENT_BINARY_DIR}/events.cfg")
 CONFIGURE_FILE(${EventFileTemplate} ${EventFile} IMMEDIATE)
 
 # Where to find default configure files.
-SET(ConfigDir "${AVIDA_SOURCE_DIR}/source/support")
+SET(ConfigDir "${AVIDA_BINARY_DIR}/work")
 # Configure files (other than the event file, generated above).
-SET(GenesisFile "${ConfigDir}/genesis")
-SET(InstSetFile "${ConfigDir}/inst_set.default")
+SET(GenesisFile "${ConfigDir}/avida.cfg")
+SET(InstSetFile "${ConfigDir}/instset-classic.cfg")
 SET(EnvironmentFile "${ConfigDir}/environment.cfg")
-SET(StartCreatureFile "${ConfigDir}/organism.default")
+SET(StartCreatureFile "${ConfigDir}/default-classic.org")
 # Command-line arguments passed to Avida.
-SET(AvidaArgs "-seed %d -set WORLD-X 40 -set WORLD-Y 40 -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile}")
+SET(AvidaArgs "-c ${GenesisFile} -seed %d -set WORLD_X 40 -set WORLD_Y 40 -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile} -set DATA_DIR .")
 
 #
 # Consistency checks configuration
@@ -81,6 +81,18 @@ CONFIGURE_FILE(${GenerateTailsScriptTemplate} ${GenerateTailsScript} IMMEDIATE)
 # I think it's safer to require that these steps be performed by hand in order
 # to reduce the chance of inadvertently clobbering existing consistency-check suites.
 #
+
+
+# Fast version of test, checking only first seed.
+SET(SeedSet "range(100,101)")
+
+SET(CheckTailsScriptTemplate "${PROJECT_SOURCE_DIR}/CMakeModules/Templates/check_tails.py.in") 
+SET(CheckTailsScript "${CMAKE_CURRENT_BINARY_DIR}/fast_check_tails.py") 
+CONFIGURE_FILE(${CheckTailsScriptTemplate} ${CheckTailsScript} IMMEDIATE)
+
+IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
+  ADD_TEST("Consistency-Check--Fast--${TestsName}" "${_PythonExePath}" "${CheckTailsScript}")
+ENDIF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 
 # Vim modeline to tell Vim that this is a configuration script.
 # vim: set ft=config:

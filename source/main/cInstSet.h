@@ -1,38 +1,32 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cInstSet.h
+ *  Avida
+ *
+ *  Called "inst_set.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef INST_SET_HH
-#define INST_SET_HH
+#ifndef cInstSet_h
+#define cInstSet_h
 
 #include <iostream>
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
-#ifndef INSTRUCTION_HH
+#ifndef cInstruction_h
 #include "cInstruction.h"
 #endif
-#ifndef INST_LIB_BASE_HH
+#ifndef cInstLibBase_h
 #include "cInstLibBase.h"
 #endif
 
 using namespace std;
-
-// A typdef to simplify having an instruction point to methods in the
-// cHardwareBase object and its dirivitives...
-class cHardwareBase;
-
-// moved to cpu/hardware_method.hh for porting to gcc 3.1 -- k
-//typedef bool (cHardwareBase::*tHardwareMethod)();
-
-class cInstLibBase;
 
 /**
  * This class is used to create a mapping from the command strings in
@@ -42,15 +36,15 @@ class cInstLibBase;
  * attach different cInstSet objects to different hardware.
  **/
 
-class cInstLibBase; // access
-template <class T> class tArray; // aggregate
-class cInstruction; // access
-class cString; // access
+class cAvidaContext;
+class cWorld;
 
-class cInstSet {
+class cInstSet
+{
 public:
+  cWorld* m_world;
   cInstLibBase *m_inst_lib;
-  class cInstEntry2 {
+  class cInstEntry {
   public:
     int lib_fun_id;
     int redundancy;           // Weight in instruction set (not impl.)
@@ -58,120 +52,99 @@ public:
     int ft_cost;              // time spent first time exec (in add to cost)
     double prob_fail;         // probability of failing to execute inst
   };
-  tArray<cInstEntry2> m_lib_name_map;
+  tArray<cInstEntry> m_lib_name_map;
   tArray<int> m_lib_nopmod_map;
-  tArray<int> mutation_chart2;     // ID's represented by redundancy values.
+  tArray<int> m_mutation_chart;     // ID's represented by redundancy values.
+
   // Static components...
   static cInstruction inst_error2;
-  // static const cInstruction inst_none;
   static cInstruction inst_default2;
-
-  // Static components...
-  //static const cInstruction inst_error;
-  // static const cInstruction inst_none;
   static const cInstruction inst_default;
+  
+  
+  cInstSet(); // @not_implemented
 
 public:
-  cInstSet();
-  cInstSet(const cInstSet & in_inst_set);
-  ~cInstSet();
+  inline cInstSet(cWorld* world) : m_world(world) { ; }
+  inline cInstSet(const cInstSet& is);
+  inline ~cInstSet() { ; }
 
-  cInstSet & operator=(const cInstSet & _in);
+  inline cInstSet& operator=(const cInstSet& _in);
 
   bool OK() const;
 
   // Accessors
-  const cString & GetName(int id) const
-  { 
-    return m_inst_lib->GetName(m_lib_name_map[id].lib_fun_id);
-  }
-  const cString & GetName(const cInstruction & inst) const
+  const cString& GetName(int id) const { return m_inst_lib->GetName(m_lib_name_map[id].lib_fun_id); }
+  const cString& GetName(const cInstruction& inst) const { return GetName(inst.GetOp()); }
+  int GetCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].cost; }
+  int GetFTCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].ft_cost; }
+  double GetProbFail(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].prob_fail; }
+  int GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
+  int GetLibFunctionIndex(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].lib_fun_id; }
+
+  int GetNopMod(const cInstruction& inst) const
   {
-    return GetName(inst.GetOp());
-  }
-  int GetCost(const cInstruction & inst) const
-  {
-    return m_lib_name_map[inst.GetOp()].cost;
-  }
-  int GetFTCost(const cInstruction & inst) const
-  {
-    return m_lib_name_map[inst.GetOp()].ft_cost;
-  }
-  double GetProbFail(const cInstruction & inst) const
-  {
-    return m_lib_name_map[inst.GetOp()].prob_fail;
-  }
-  int GetRedundancy(const cInstruction & inst) const
-  {
-    return m_lib_name_map[inst.GetOp()].redundancy;
+    int nopmod = m_lib_nopmod_map[inst.GetOp()];
+    return m_inst_lib->GetNopMod(nopmod);
   }
 
-  int GetLibFunctionIndex(const cInstruction & inst) const
-  {
-    return m_lib_name_map[inst.GetOp()].lib_fun_id;
-  }
+  cInstruction GetRandomInst(cAvidaContext& ctx) const;
+  int GetRandFunctionIndex(cAvidaContext& ctx) const { return m_lib_name_map[ GetRandomInst(ctx).GetOp() ].lib_fun_id; }
 
-  int GetNopMod(const cInstruction & inst) const
-  {
-    return m_inst_lib->GetNopMod(m_lib_nopmod_map[inst.GetOp()]);
-  }
-
-  cInstruction GetRandomInst() const;
-  int GetRandFunctionIndex() const
-  {
-    return m_lib_name_map[ GetRandomInst().GetOp() ].lib_fun_id;
-  }
-
-  int GetSize() const {
-    return m_lib_name_map.GetSize();
-  }
-  int GetNumNops() const {
-    return m_lib_nopmod_map.GetSize();
-  }
+  int GetSize() const { return m_lib_name_map.GetSize(); }
+  int GetNumNops() const { return m_lib_nopmod_map.GetSize(); }
 
   // Instruction Analysis.
-  int IsNop(const cInstruction & inst) const
-  {
-    return (inst.GetOp() < m_lib_nopmod_map.GetSize());
-  }
+  int IsNop(const cInstruction& inst) const { return (inst.GetOp() < m_lib_nopmod_map.GetSize()); }
 
   // Insertion of new instructions...
-  int Add2(
-    const int lib_fun_id,
-    const int redundancy=1,
-    const int ft_cost=0,
-    const int cost=0,
-    const double prob_fail=0.0
-  );
-  int AddNop2(
-    const int lib_nopmod_id,
-    const int redundancy=1,
-    const int ft_cost=0,
-    const int cost=0,
-    const double prob_fail=0.0
-  );
+  int AddInst(int lib_fun_id, int redundancy = 1, int ft_cost = 0, int cost = 0, double prob_fail = 0.0);
+  int AddNop(int lib_nopmod_id, int redundancy = 1, int ft_cost = 0, int cost = 0, double prob_fail = 0.0);
 
   // accessors for instruction library
-  cInstLibBase *GetInstLib(){ return m_inst_lib; }
-  void SetInstLib(cInstLibBase *inst_lib){
+  cInstLibBase* GetInstLib() { return m_inst_lib; }
+  void SetInstLib(cInstLibBase* inst_lib)
+  {
     m_inst_lib = inst_lib;
     inst_error2 = inst_lib->GetInstError();
     inst_default2 = inst_lib->GetInstDefault();
   }
 
-  inline cInstruction GetInst(const cString & in_name) const;
-  cString FindBestMatch(const cString & in_name) const;
+  inline cInstruction GetInst(const cString& in_name) const;
+  cString FindBestMatch(const cString& in_name) const;
 
   // Static methods..
-  static const cInstruction & GetInstDefault() {
-    return inst_default2;
-  }
-  static const cInstruction & GetInstError()   {
-    return inst_error2;
-  }
-  // static const cInstruction & GetInstNone()    { return inst_none; }
+  static const cInstruction& GetInstDefault() { return inst_default2; }
+  static const cInstruction & GetInstError() { return inst_error2; }
 };
 
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nInstSet {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
+
+
+inline cInstSet::cInstSet(const cInstSet& is)
+: m_world(is.m_world), m_inst_lib(is.m_inst_lib), m_lib_name_map(is.m_lib_name_map)
+,m_lib_nopmod_map(is.m_lib_nopmod_map), m_mutation_chart(is.m_mutation_chart)
+{
+}
+
+inline cInstSet& cInstSet::operator=(const cInstSet& _in)
+{
+  m_inst_lib = _in.m_inst_lib;
+  m_lib_name_map = _in.m_lib_name_map;
+  m_lib_nopmod_map = _in.m_lib_nopmod_map;
+  m_mutation_chart = _in.m_mutation_chart;
+  return *this;
+}
 
 inline cInstruction cInstSet::GetInst(const cString & in_name) const
 {

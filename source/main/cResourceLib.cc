@@ -1,19 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cResourceLib.cc
+ *  Avida
+ *
+ *  Called "resource_lib.cc" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef RESOURCE_LIB_HH
 #include "cResourceLib.h"
-#endif
 
-#ifndef RESOURCE_HH
 #include "cResource.h"
-#endif
 
 using namespace std;
+
 
 cResourceLib::~cResourceLib()
 {

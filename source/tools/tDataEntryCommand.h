@@ -1,25 +1,27 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tDataEntryCommand.h
+ *  Avida
+ *
+ *  Called "tDataEntryCommand.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef TDATAENTRYCOMMAND_HH
-#define TDATAENTRYCOMMAND_HH
+#ifndef tDataEntryCommand_h
+#define tDataEntryCommand_h
 
 #include <iostream>
 
-#ifndef STRING_LIST_HH
+#ifndef cStringList_h
 #include "cStringList.h"
 #endif
-#ifndef TDATAENTRYBASE_HH
+#ifndef tDataEntryBase_h
 #include "tDataEntryBase.h"
 #endif
 
 class cString;
-class cStringList; // aggregate
-template <class T> class tDataEntryBase; // access
+
 
 template <class T> class tDataEntryCommand {
 private:
@@ -40,10 +42,10 @@ public:
     { return data_entry->GetHtmlCellFlags(); }
 
   void SetTarget(T * _target) { data_entry->SetTarget(_target); }
-  bool Print(std::ostream & fp) const { return data_entry->Print(fp); }
+  bool Print(std::ostream& fp) const { return data_entry->Print(fp); }
   int Compare(T * other) const { return data_entry->Compare(other); }
   bool SetValue(const cString & value) { return data_entry->Set(value); }
-  void HTMLPrint(std::ostream & fp, int compare=0, bool print_text=true)
+  void HTMLPrint(std::ostream& fp, int compare=0, bool print_text=true)
     { data_entry->HTMLPrint(fp, compare, print_text); }
 };
 

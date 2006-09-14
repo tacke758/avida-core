@@ -1,20 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cTools.h
+ *  Avida
+ *
+ *  Called "tools.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-// This file is for misc. objects which are of general use...
-
-#ifndef TOOLS_HH
-#define TOOLS_HH
-
-#ifndef cRandom_h
-#include "cRandom.h"
-#endif
-
-extern cRandom g_random;
+#ifndef cTools_h
+#define cTools_h
 
 /*
  *   Filesystem tools...
@@ -22,9 +17,25 @@ extern cRandom g_random;
 
 class cString;
 
-class cTools {
+class cTools
+{
+private:
+  cTools(); // @not_implemented
+
 public:
-  static bool MkDir(const cString & dirname, bool verbose=false);
+  static bool MkDir(const cString& dirname, bool verbose=false);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTools {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

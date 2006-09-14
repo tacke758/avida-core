@@ -1,32 +1,52 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2001 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cReactionLib.h
+ *  Avida
+ *
+ *  Called "reaction_lib.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef REACTION_LIB_HH
-#define REACTION_LIB_HH
+#ifndef cReactionLib_h
+#define cReactionLib_h
 
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
 class cReaction;
 class cString;
 
-class cReactionLib {
+class cReactionLib
+{
 private:
-  tArray<cReaction *> reaction_array;
+  tArray<cReaction*> reaction_array;
+
+  cReactionLib(const cReactionLib&); // @not_implemented
+  cReactionLib& operator=(const cReactionLib&); // @not_implemented
+
 public:
   cReactionLib() { ; }
   ~cReactionLib();
 
   int GetSize() const { return reaction_array.GetSize(); }
   
-  cReaction * AddReaction(const cString & name);
-  cReaction * GetReaction(const cString & name) const;
-  cReaction * GetReaction(int id) const;
+  cReaction* AddReaction(const cString& name);
+  cReaction* GetReaction(const cString& name) const;
+  cReaction* GetReaction(int id) const;
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nReactionLib {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif
 
 #endif

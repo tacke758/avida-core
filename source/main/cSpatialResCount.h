@@ -1,51 +1,55 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2001 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cSpatialResCount.h
+ *  Avida
+ *
+ *  Called "spatial_res_count.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef SPATIAL_RES_COUNT_HH
-#define SPATIAL_RES_COUNT_HH
+#ifndef cSpatialResCount_h
+#define cSpatialResCount_h
 
-#ifndef SPATIAL_COUNT_ELEM_HH
+#ifndef cSpatialCountElem_h
 #include "cSpatialCountElem.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
-class cSpatialResCount {
+class cSpatialResCount
+{
+private:
   tArray<cSpatialCountElem> grid;
   double xdiffuse, xgravity, ydiffuse, ygravity;
   int    inflowX1, inflowX2, inflowY1, inflowY2;
   int    outflowX1, outflowX2, outflowY1, outflowY2;
   int    geometry;
   int    world_x, world_y, num_cells;
+  
 public:
   cSpatialResCount();
   cSpatialResCount(int inworld_x, int inworld_y, int ingeometry);
-  cSpatialResCount(int inworld_x, int inworld_y, int ingeometry, 
-        double inxdiffuse,
-        double inydiffuse, double inxgravity, double inygravity);
+  cSpatialResCount(int inworld_x, int inworld_y, int ingeometry, double inxdiffuse, double inydiffuse,
+                   double inxgravity, double inygravity);
+  
   void ResizeClear(int inworld_x, int inworld_y, int ingeometry);
   void SetPointers();
   void CheckRanges();
-  int GetSize () {return grid.GetSize();}
-  int GetX () {return world_x;}
-  int GetY () {return world_y;}
-  cSpatialCountElem Element(int x) {return grid[x];}
-  void Rate (int x, double ratein) const {grid[x].Rate(ratein);}
-  void Rate (int x, int y, double ratein) const 
-      {grid[y * world_x + x].Rate(ratein);}
-  void State (int x) {grid[x].State();}
-  void State (int x, int y) {grid[y*world_x + x].State();}
-  const double GetAmount (int x) const {return grid[x].GetAmount();}
-  const double GetAmount (int x, int y) const 
-                           {return grid[y*world_x + x].GetAmount();}
-  void RateAll (double ratein);
-  void StateAll ();
-  void FlowAll ();
+  int GetSize() { return grid.GetSize(); }
+  int GetX() { return world_x; }
+  int GetY() { return world_y; }
+  cSpatialCountElem Element(int x) { return grid[x]; }
+  void Rate(int x, double ratein) const { grid[x].Rate(ratein); }
+  void Rate(int x, int y, double ratein) const { grid[y * world_x + x].Rate(ratein); }
+  void State(int x) { grid[x].State(); }
+  void State(int x, int y) { grid[y*world_x + x].State(); }
+  const double GetAmount(int x) const { return grid[x].GetAmount(); }
+  const double GetAmount(int x, int y) const { return grid[y*world_x + x].GetAmount(); }
+  void RateAll(double ratein);
+  void StateAll();
+  void FlowAll();
   const double SumAll() const;
   void Source(double amount) const;
   void Sink(double percent) const;
@@ -63,5 +67,17 @@ public:
   void SetOutflowY1(int in_outflowY1) { outflowY1 = in_outflowY1; }
   void SetOutflowY2(int in_outflowY2) { outflowY2 = in_outflowY2; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nSpatialResCount {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

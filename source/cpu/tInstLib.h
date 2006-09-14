@@ -1,25 +1,27 @@
 /*
  *  tInstLib.h
- *  Avida2
+ *  Avida
  *
- *  Created by David on 6/4/05.
- *  Copyright 2005 Michigan State University. All rights reserved.
+ *  Called "tInstLib.hh" prior to 6/4/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
  *
  */
 
-#ifndef TINSTLIB_H
-#define TINSTLIB_H
+#ifndef tInstLib_h
+#define tInstLib_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef INST_LIB_BASE_HH
+#ifndef cInstLibBase_h
 #include "cInstLibBase.h"
 #endif
 
 class cInstruction;
 
-template <class MethodType> class tInstLib : public cInstLibBase {
+template <class MethodType> class tInstLib : public cInstLibBase
+{
+private:
   const size_t m_nopmods_array_size;
   const size_t m_function_array_size;
   cString* m_nopmod_names;
@@ -28,6 +30,7 @@ template <class MethodType> class tInstLib : public cInstLibBase {
   MethodType* m_functions;
   const cInstruction inst_error;
   const cInstruction inst_default;
+
 public:
 		tInstLib(
 						 size_t nopmod_array_size,

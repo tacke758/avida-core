@@ -1,12 +1,4 @@
-declaration_code("""
-#ifndef ENVIRONMENT_HH
-#include "cEnvironment.h"
-#endif
-#ifndef POPULATION_INTERFACE_HH
-#include "cPopulationInterface.h"
-#endif
-""")
 
-Function("SetupAvidaPython", "avida-fixups.hh")
+avida = Class("avida", "avida.h")
 
 # vim: set ft=python:

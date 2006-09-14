@@ -1,12 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cDoubleSum.h
+ *  Avida
+ *
+ *  Called "double_sum.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef DOUBLE_SUM_HH
-#define DOUBLE_SUM_HH
+#ifndef cDoubleSum_h
+#define cDoubleSum_h
 
 #include <math.h>
 #include <limits.h>
@@ -22,9 +25,9 @@ private:
 public:
   static const double INF_ERR;  // Value Returned by StdError if Infinate
 
-  cDoubleSum(){ Clear(); }
+  cDoubleSum() { Clear(); }
 
-  void Clear(){ s1=0; s2=0; s3=0; s4=0; n=0; }
+  void Clear() { s1 = s2 = s3 = s4 = n = 0; }
 
   double Count()        const { return n; }
   double N()            const { return n; }
@@ -85,5 +88,17 @@ public:
     s4 -= w_val * w_val * w_val * w_val;
   }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nDoubleSum {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

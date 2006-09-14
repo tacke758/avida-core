@@ -1,9 +1,14 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2005 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tHashTable.h
+ *  Avida
+ *
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
+
+#ifndef tHashTable_h
+#define tHashTable_h
 
 /*
  * This template is used to look up objects of the desired type by an integer
@@ -44,18 +49,22 @@
  * the lookup finds an entry not in the current cell (lookup fails).
  */
 
-#ifndef THASH_TABLE_HH
-#define THASH_TABLE_HH
-
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
-#ifndef TLIST_HH
+#ifndef tList_h
 #include "tList.h"
 #endif
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 #define HASH_TABLE_SIZE_DEFAULT 23
 #define HASH_TABLE_SIZE_MEDIUM  331
@@ -65,13 +74,26 @@ template <class DATA_TYPE> class tList; // access
 template <class DATA_TYPE> class tListIterator; // aggregate
 
 template <class HASH_TYPE, class DATA_TYPE> class tHashTable {
+#if USE_tMemTrack
+  tMemTrack<tHashTable<HASH_TYPE, DATA_TYPE> > mt;
+#endif
   
   // We create a structure with full information about each entry stored in
   // this dictionary.
   template <class E_HASH_TYPE, class E_DATA_TYPE> struct tHashEntry {
+  #if USE_tMemTrack
+    tMemTrack<tHashEntry<E_HASH_TYPE, E_DATA_TYPE> > mt;
+  #endif
     E_HASH_TYPE key;
     int id;
     E_DATA_TYPE data;
+
+    template<class Archive>
+    void serialize(Archive & a, const unsigned int version){
+      a.ArkvObj("key", key);
+      a.ArkvObj("id", id);
+      a.ArkvObj("data", data);
+    }
   };
   
 private:
@@ -85,7 +107,7 @@ private:
   tArray< tListNode< tHashEntry<HASH_TYPE, DATA_TYPE> > * > cell_array;
   
   // Create an iterator for entry_list
-  tListIterator< tHashEntry<HASH_TYPE, DATA_TYPE> > list_it;
+  mutable tListIterator< tHashEntry<HASH_TYPE, DATA_TYPE> > list_it;
   
   // Create a set of HashKey methods for each of the basic data types that
   // we allow:
@@ -101,7 +123,7 @@ private:
   // that string and modding by the hash size.  For most applications this
   // will work fine (and reasonably fast!) but some patterns will cause all
   // strings to go into the same cell.  For example, "ABC"=="CBA"=="BBB".
-  int HashKey(const cString & key) const {
+  int HashKey(const cString& key) const {
     unsigned int out_hash = 0;
     for (int i = 0; i < key.GetSize(); i++)
       out_hash += (unsigned int) key[i];
@@ -110,7 +132,7 @@ private:
   
   // Function to find the appropriate tHashEntry for a key that is passed
   // in and return it.
-  tHashEntry<HASH_TYPE, DATA_TYPE> * FindEntry(const HASH_TYPE & key) {
+  tHashEntry<HASH_TYPE, DATA_TYPE> * FindEntry(const HASH_TYPE& key) const {
     const int bin = HashKey(key);
     if (cell_array[bin] == NULL) return NULL;
     
@@ -153,7 +175,7 @@ public:
   }
   
   
-  bool OK() {
+  bool OK() const {
     std::cout << "ENTRY_COUNT = " << entry_count << std::endl;
     std::cout << "TABLE_SIZE = " << table_size << std::endl;
     int count = 0;
@@ -183,7 +205,7 @@ public:
     return true;
   }
   
-  int GetSize() { return entry_count; }
+  int GetSize() const { return entry_count; }
   
   // This function is used to add a new entry...
   void Add(const HASH_TYPE & key, DATA_TYPE data) {
@@ -222,11 +244,11 @@ public:
   }
   
   
-  bool HasEntry(const HASH_TYPE & key) {
+  bool HasEntry(const HASH_TYPE & key) const {
     return FindEntry(key) != NULL;
   }
   
-  bool Find(const HASH_TYPE & key, DATA_TYPE & out_data) {
+  bool Find(const HASH_TYPE & key, DATA_TYPE & out_data) const {
     tHashEntry<HASH_TYPE, DATA_TYPE> * found_entry = FindEntry(key);
     if (found_entry != NULL) {
       out_data = found_entry->data;
@@ -301,7 +323,7 @@ public:
   // The following method allows the user to convert the dictionary contents
   // into lists.  Empty lists show be passed in as arguments and the method
   // will fill in their contents.
-  void AsLists(tList<HASH_TYPE> & key_list, tList<DATA_TYPE> & value_list) {
+  void AsLists(tList<HASH_TYPE> & key_list, tList<DATA_TYPE> & value_list) const {
     // Setup the lists to fill in.
     assert(key_list.GetSize() == 0);
     assert(value_list.GetSize() == 0);
@@ -326,6 +348,13 @@ public:
       key_list.Insert(key_it, &cur_key);
       value_list.Insert(value_it, &cur_value);
     }
+  }
+  template<class Archive> 
+  void serialize(Archive & a, const unsigned int version){
+    a.ArkvObj("entry_count", entry_count);
+    a.ArkvObj("table_size", table_size);
+    a.ArkvObj("entry_list", entry_list);
+    a.ArkvObj("cell_array", cell_array);
   }
 };
 

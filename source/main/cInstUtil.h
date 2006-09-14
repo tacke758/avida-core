@@ -1,23 +1,32 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cInstUtil.h
+ *  Avida
+ *
+ *  Called "inst_util.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef INST_UTIL_HH
-#define INST_UTIL_HH
+#ifndef cInstUtil_h
+#define cInstUtil_h
 
 #include <iostream>
 
-#ifndef GENOME_HH
+#ifndef cGenome_h
 #include "cGenome.h"
 #endif
 
+class cAvidaContext;
 class cInitFile;
 class cInstSet;
 class cString;
-class cInstUtil {
+
+class cInstUtil
+{
+private:
+  cInstUtil(); // @not_implemented
+  
 public:
 
   // ========= Genome-File Interaction =========
@@ -27,13 +36,25 @@ public:
 
   static cGenome LoadGenome(const cString &filename, const cInstSet &inst_set);
   static cGenome LoadInternalGenome(std::istream & fp, const cInstSet &inst_set);
-  static void SaveGenome(std::ostream &fp, const cInstSet & inst_set,
+  static void SaveGenome(std::ostream& fp, const cInstSet & inst_set,
 			 const cGenome &gen);
-  static void SaveInternalGenome(std::ostream &fp, const cInstSet &inst_set,
+  static void SaveInternalGenome(std::ostream& fp, const cInstSet &inst_set,
 				 const cGenome &gen);
 
   // ========= Genome Construction =========
-  static cGenome RandomGenome(int length, const cInstSet & inst_set);
+  static cGenome RandomGenome(cAvidaContext& ctx, int length, const cInstSet & inst_set);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nInstUtil {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

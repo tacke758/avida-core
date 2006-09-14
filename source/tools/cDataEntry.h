@@ -1,22 +1,32 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cDataEntry.h
+ *  Avida
+ *
+ *  Called "data_entry.hh" prior to 12/2/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef DATA_ENTRY_HH
-#define DATA_ENTRY_HH
+#ifndef cDataEntry_h
+#define cDataEntry_h
+
+#ifndef cString_h
+#include "cString.h"
+#endif
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 #include <iostream>
 
-#ifndef STRING_HH
-#include "cString.h"
-#endif
-
-class cString; // aggregate
-
 class cDataEntry {
+#if USE_tMemTrack
+  tMemTrack<cDataEntry> mt;
+#endif
 private:
   cString name;            // Short Name
   cString desc;            // Descriptive Name
@@ -35,9 +45,35 @@ public:
   const cString & GetNull() const { return null_value; }
   const cString & GetHtmlCellFlags() const { return html_table_flags; }
 
-  virtual bool Print(std::ostream & fp) const { (void) fp;  return false; }
+  virtual bool Print(std::ostream& fp) const { (void) fp;  return false; }
+
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version)
+  { 
+    a.ArkvObj("name", name);
+    a.ArkvObj("desc", desc);
+    a.ArkvObj("null_value", null_value);
+    a.ArkvObj("html_table_flags", html_table_flags);
+  }   
+
 };
 
-std::ostream & operator << (std::ostream & out, cDataEntry & entry);
+inline std::ostream& operator << (std::ostream& out, cDataEntry & entry)
+{
+  entry.Print(out);
+  return out;
+}
+
+  
+#ifdef ENABLE_UNIT_TESTS
+namespace nDataEntry {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

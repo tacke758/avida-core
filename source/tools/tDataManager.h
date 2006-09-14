@@ -1,22 +1,25 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tDataManager.h
+ *  Avida
+ *
+ *  Called "tDataManager.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef TDATAMANAGER_HH
-#define TDATAMANAGER_HH
+#ifndef tDataManager_h
+#define tDataManager_h
 
 #include <iostream>
 
-#ifndef DATA_MANAGER_BASE_HH
+#ifndef cDataManager_Base_h
 #include "cDataManager_Base.h"
 #endif
-#ifndef TDATAENTRYBASE_HH
+#ifndef tDataEntryBase_h
 #include "tDataEntryBase.h"
 #endif
-#ifndef TDICTIONARY_HH
+#ifndef tDictionary_h
 #include "tDictionary.h"
 #endif
 
@@ -27,8 +30,6 @@
 
 class cString;
 template <class T, class U> class tDataEntry;
-template <class T> class tDataEntryBase; // access
-template <class T> class tDictionary; // aggregate
 
 template <class T> class tDataManager : public cDataManager_Base {
 private:
@@ -52,7 +53,7 @@ public:
     return true;
   }
 
-  bool Print(const cString & name, std::ostream & fp) {
+  bool Print(const cString & name, std::ostream& fp) {
     tDataEntryBase<T> * cur_entry = NULL;
     if (entry_dict.Find(name, cur_entry) == false) return false;
     cur_entry->Print(fp);

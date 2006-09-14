@@ -1,6 +1,4 @@
 
-Include("nHardwareCPU.h")
-
-cHardwareCPUDefs = Class("cHardwareCPUDefs", "nHardwareCPU-fixups.h")
+nHardwareCPU = Class("nHardwareCPU", "nHardwareCPU.h")
 
 # vim: set ft=python:

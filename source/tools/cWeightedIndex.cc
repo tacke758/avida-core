@@ -1,15 +1,16 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2002 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cWeighedIndex.cc
+ *  Avida
+ *
+ *  Called "weighted_index.cc" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef WEIGHTED_INDEX_HH
 #include "cWeightedIndex.h"
-#endif
-#include <iostream>
 
+#include <iostream>
 
 using namespace std;
 
@@ -66,13 +67,6 @@ void cWeightedIndex::SetWeight(int id, double in_weight)
 
 int cWeightedIndex::FindPosition(double position, int root_id)
 {
-//   cout << "Seeking " << position
-//        << " at root " << root_id 
-//        << " subtree size = " << subtree_weight[root_id]
-//        << " (left=" << subtree_weight[GetLeftChild(root_id)]
-//        << " , right=" << subtree_weight[GetRightChild(root_id)]
-//        << " , this=" << item_weight[root_id] << ")"
-//        << endl;
   assert(position < subtree_weight[root_id]);
 
   // First, see if we should just return this node.

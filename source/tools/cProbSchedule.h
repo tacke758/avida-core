@@ -1,17 +1,23 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cProbSchedule.h
+ *  Avida
+ *
+ *  Called "prob_schedule.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef PROB_SCHEDULE_HH
-#define PROB_SCHEDULE_HH
+#ifndef cProbSchedule_h
+#define cProbSchedule_h
 
-#ifndef SCHEDULE_HH
+#ifndef cRandom_h
+#include "cRandom.h"
+#endif
+#ifndef cSchedule_h
 #include "cSchedule.h"
 #endif
-#ifndef WEIGHTED_INDEX_HH
+#ifndef cWeightedIndex_h
 #include "cWeightedIndex.h"
 #endif
 
@@ -20,18 +26,36 @@
  * be scheduled proportional to the merit of that item.
  **/
 
-class cWeightedIndex; // aggregate
 class cMerit;
 
-class cProbSchedule : public cSchedule {
+class cProbSchedule : public cSchedule
+{
 private:
+  cRandom m_rng;
   cWeightedIndex chart;
-public:
-  cProbSchedule(int num_cells);
-  ~cProbSchedule();
+  
+  
+  cProbSchedule(const cProbSchedule&); // @not_implemented
+  cProbSchedule& operator=(const cProbSchedule&); // @not_implemented
 
-  void Adjust(int item_id, const cMerit & merit);
+public:
+  cProbSchedule(int num_cells, int seed) : cSchedule(num_cells), m_rng(seed), chart(num_cells) { ; }
+  ~cProbSchedule() { ; }
+
+  void Adjust(int item_id, const cMerit& merit);
   int GetNextID();
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nProbSchedule {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

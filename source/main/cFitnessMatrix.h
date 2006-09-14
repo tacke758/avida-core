@@ -1,12 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cFitnessMatrix.h
+ *  Avida
+ *
+ *  Called "fitness_matrix.hh" prior to 12/2/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef FITNESS_MATRIX_HH
-#define FITNESS_MATRIX_HH
+#ifndef cFitnessMatrix_h
+#define cFitnessMatrix_h
 
 #include <numeric>
 #include <iomanip>
@@ -17,33 +20,37 @@
 #include <list>
 #include <sys/timeb.h>
 
-#ifndef DEFS_HH
+#ifndef defs_h
 #include "defs.h"
 #endif
-#ifndef MX_CODE_ARRAY_HH
+#ifndef cMxCodeArray_h
 #include "cMxCodeArray.h"
 #endif
-#ifndef MY_CODE_ARRAY_LESS_THAN_HH
+#ifndef MyCodeArrayLessThan_h
 #include "MyCodeArrayLessThan.h"
 #endif
-#ifndef ORGANISM_HH
+#ifndef cOrganism_h
 #include "cOrganism.h"
 #endif
-#ifndef STATS_HH
+#ifndef cStats_h
 #include "cStats.h"
 #endif
-#ifndef STRING_UTIL_HH
+#ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
-#ifndef TOOLS_HH
+#ifndef cTools_h
 #include "cTools.h"
 #endif
 
 class cGenome;
 class cInstSet;
 class MyCodeArrayLessThan;
-class cFitnessMatrix {
+class cWorld;
+
+class cFitnessMatrix
+{
 private:
+  cWorld* m_world;
 
   /* genome data */
   cMxCodeArray m_start_genotype;
@@ -84,28 +91,26 @@ private:
 
 
   /* Methods for Diagonalization of Transition Matrix */
-
-  double Diagonalize(std::vector<double>& randomVect, int hamDistThresh,
-                      double errorRate, std::ofstream& logfile);
+  double Diagonalize(std::vector<double>& randomVect, int hamDistThresh, double errorRate, std::ofstream& logfile);
   void MakeRandomVector(std::vector<double>& newVect, int size);
   void VectorDivideBy(std::vector<double>& vect, double div);
   double VectorNorm(const std::vector<double> &vect);
   void MatrixVectorMultiply(const std::vector<double>& vect, std::vector<double>& result);
-  void MakeTransitionProbabilities(int hamDistThresh, double errorRate,
-                                      std::ofstream& logfile);
-
+  void MakeTransitionProbabilities(int hamDistThresh, double errorRate, std::ofstream& logfile);
 
   /* Data Output */
-
-  void PrintGenotypes(std::ostream &fp);
+  void PrintGenotypes(std::ostream& fp);
   void PrintTransitionMatrix(std::ostream& fp, int hamDistThresh, double errorRate, double avg_fitness, bool printMatrix=false);
   void PrintHammingVector(std::ostream& fp,const std::vector<double>& dataVect, double errProb, double avgFit);
   void PrintFitnessVector(std::ostream& fp,const std::vector<double>& dataVect, double errProb, double avgFit, double maxFit, double step);
   void PrintFullVector(std::ostream& fp, const std::vector<double>& dataVect, double errProb, double avgFit);
 
+  cFitnessMatrix(); // @not_implemented
+  cFitnessMatrix(const cFitnessMatrix&); // @not_implemented
+  cFitnessMatrix& operator=(const cFitnessMatrix&); // @not_implemented
 
 public:
-  cFitnessMatrix(const cGenome &, cInstSet * inst_set);
+  cFitnessMatrix(cWorld* world, const cGenome&, cInstSet* inst_set);
   ~cFitnessMatrix();
 
   /**
@@ -145,7 +150,18 @@ public:
    * vector?
    **/
   void CalcFitnessMatrix( int depth_limit, double fitness_threshold_ratio, int ham_thresh, double error_rate_min, double error_rate_max, double error_rate_step, double vect_fmax, double vect_fstep, int diag_iters, bool write_ham_vector, bool write_full_vector );
-
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nFitnessMatrix {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

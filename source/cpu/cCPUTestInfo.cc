@@ -1,9 +1,12 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cCPUTestInfo.h
+ *  Avida
+ *
+ *  Called "cpu_test_info.hh" prior to 11/29/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2003 California Institute of Technology.
+ *
+ */
 
 #include "cCPUTestInfo.h"
 
@@ -13,14 +16,8 @@
 
 #include <assert.h>
 
-/////////////////
-// cCPUTestInfo
-/////////////////
-
 cCPUTestInfo::cCPUTestInfo(int max_tests)
   : generation_tests(max_tests)  // These vars not reset on Clear()
-  , test_threads(false)
-  , print_threads(false)
   , trace_execution(false)
   , trace_task_order(false)
   , use_random_inputs(false)
@@ -74,4 +71,10 @@ double cCPUTestInfo::GetColonyFitness()
 {
   if (IsViable()) return GetColonyOrganism()->GetPhenotype().GetFitness();
   return 0.0;
+}
+
+cPhenotype& cCPUTestInfo::GetTestPhenotype(int level)
+{
+  assert(org_array[level] != NULL);
+  return org_array[level]->GetPhenotype();
 }

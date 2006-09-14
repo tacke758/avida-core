@@ -1,12 +1,22 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cSchedule.h
+ *  Avida
+ *
+ *  Called "schedule.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef SCHEDULE_HH
-#define SCHEDULE_HH
+#ifndef cSchedule_h
+#define cSchedule_h
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 /**
  * This class is the base object to handle time-slicing. All other schedulers
@@ -16,10 +26,21 @@
 
 class cMerit;
 class cChangeList;
-class cSchedule {
+
+class cSchedule
+{
+#if USE_tMemTrack
+  tMemTrack<cSchedule> mt;
+#endif
 protected:
   int item_count;
-  cChangeList *m_change_list;
+  cChangeList* m_change_list;
+  
+
+  cSchedule(); // @not_implemented
+  cSchedule(const cSchedule&); // @not_implemented
+  cSchedule& operator=(const cSchedule&); // @not_implemented
+  
 public:
   cSchedule(int _item_count);
   virtual ~cSchedule();
@@ -33,5 +54,17 @@ public:
 
   void SetSize(int _item_count);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nSchedule {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

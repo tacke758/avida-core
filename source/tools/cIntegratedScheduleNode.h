@@ -1,14 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cIntegratedScheduleNode.h
+ *  Avida
+ *
+ *  Called "integrated_schedule_node.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef INTEGRATED_SCHEDULE_NODE_HH
-#define INTEGRATED_SCHEDULE_NODE_HH
+#ifndef cIntegratedScheduleNode_h
+#define cIntegratedScheduleNode_h
 
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
@@ -27,9 +30,8 @@
  * each item should be included in.
  **/
 
-template <class T> class tArray; // aggregate
-
-class cIntegratedScheduleNode {
+class cIntegratedScheduleNode
+{
 private:
   tArray<int> active_array; // Each cell in this array corressponds to the
                       //  item with the same ID.  If creature is not in the
@@ -47,11 +49,21 @@ private:
   int process_count;  // Number of times this node has been executed.
   bool execute;       // Should this node execute or pass?
 
-  cIntegratedScheduleNode * next;
-  cIntegratedScheduleNode * prev;
+  cIntegratedScheduleNode* next;
+  cIntegratedScheduleNode* prev;
+  
+  
+  cIntegratedScheduleNode(const cIntegratedScheduleNode&); // @not_implemented
+  cIntegratedScheduleNode& operator=(const cIntegratedScheduleNode&); // @not_implemented
+  
 public:
-  cIntegratedScheduleNode(int _item_count = 0, int in_id = -1);
-  ~cIntegratedScheduleNode();
+  cIntegratedScheduleNode(int _item_count = 0, int in_id = -1)
+    : active_array(_item_count), first_entry(-1), active_entry(-1), node_id(in_id), size(0)
+    , process_size(1), process_count(0), execute(true), next(NULL), prev(NULL)
+  {
+      active_array.SetAll(0);
+  }
+  ~cIntegratedScheduleNode() { ; }
 
   void Insert(int item_id);
   void Remove(int item_id);
@@ -70,5 +82,17 @@ public:
   inline cIntegratedScheduleNode * GetNext() { return next; }
   inline cIntegratedScheduleNode * GetPrev() { return prev; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nIntegratedScheduleNode {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

@@ -1,22 +1,21 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cDefaultMessageDisplay.cc
+ *  Avida
+ *
+ *  Called "default_message_display.cc" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef DEFAULT_MESSAGE_DISPLAY_HH
 #include "cDefaultMessageDisplay.h"
-#endif
 
-#ifndef STRING_HH
 #include "cString.h"
-#endif
 
 using namespace std;
 
-void cDefaultMessageDisplay::out(cString &final_msg)
-{ *_out << final_msg << endl; _out->flush(); }
+
+void cDefaultMessageDisplay::out(cString& final_msg) { *m_out << final_msg << endl; m_out->flush(); }
 
 /*
 default instantiations of cDefaultMessageDisplay...

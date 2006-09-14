@@ -1,18 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2004 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cReactionResult.h
+ *  Avida
+ *
+ *  Called "reaction_result.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2004 California Institute of Technology.
+ *
+ */
 
-#ifndef REACTION_RESULT_HH
-#define REACTION_RESULT_HH
+#ifndef cReactionResult_h
+#define cReactionResult_h
 
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
-
-template <class T> class tArray; // aggregate
 
 class cReactionResult {
 private:
@@ -21,8 +22,6 @@ private:
   tArray<double> resources_detected;  //Initialize to -1.0
   tArray<bool> tasks_done;
   tArray<double> tasks_quality;
-  tArray<bool> receive_tasks_done;
-  tArray<bool> send_tasks_done;
   tArray<bool> reactions_triggered;
   double bonus_add;
   double bonus_mult;
@@ -30,11 +29,16 @@ private:
   bool lethal;
   bool active_reaction;
 
+
   inline void ActivateReaction();
+  
+  cReactionResult(); // @not_implemented
+  cReactionResult(const cReactionResult&); // @not_implemented
+  cReactionResult& operator=(const cReactionResult&); // @not_implemented
+
 public:
-  cReactionResult(const int num_resources, const int num_tasks,
-		  const int num_reactions);
-  ~cReactionResult();
+  cReactionResult(const int num_resources, const int num_tasks, const int num_reactions);
+  ~cReactionResult() { ; }
 
   bool GetActive() { return active_reaction; }
 
@@ -42,9 +46,8 @@ public:
   void Produce(int id, double num);
   void Detect(int id, double num);
   void Lethal(bool flag);
-  void MarkTask(int id, double quality=1);
-  void MarkReceiveTask(int id);
-  void MarkSendTask(int id);
+  void MarkTask(int id, const double quality=1);
+
   void MarkReaction(int id);
   void AddBonus(double value);
   void MultBonus(double value);
@@ -57,9 +60,21 @@ public:
   bool ReactionTriggered(int id);
   bool TaskDone(int id);
   double TaskQuality(int id);
-  double GetAddBonus();
-  double GetMultBonus();
-  tArray<int> & GetInstArray();
+  double GetAddBonus() { return bonus_add; }
+  double GetMultBonus() { return bonus_mult; }
+  tArray<int>& GetInstArray() { return insts_triggered; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nReactionResult {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

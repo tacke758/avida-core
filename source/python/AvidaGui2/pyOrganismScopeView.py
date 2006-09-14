@@ -120,54 +120,6 @@ class instructionsAnimator:
         ellipse.setSize(2*a.r, 2*a.r)
         ellipse.setZ(10.)
 
-    #if hasattr(a, "legend_hack_ellipses"):
-    #  for item in a.legend_hack_ellipses: item.setCanvas(None)
-    #  del a.legend_hack_ellipses
-    #if hasattr(a, "legend_hack_instructions"):
-    #  for item in a.legend_hack_instructions: item.setCanvas(None)
-    #  del a.legend_hack_instructions
-
-    #if a.ops_dict is not None:
-    #  l = len(a.ops_dict)
-    #  descr(l)
-
-    #  a.legend_hack_ellipses = [QCanvasEllipse(a.canvas) for i in xrange(l)]
-    #  for ellipse in a.legend_hack_ellipses:
-    #    ellipse.setSize(2*a.r, 2*a.r)
-    #    ellipse.setZ(10.)
-
-    #  a.legend_hack_instructions = [QCanvasText(a.canvas) for i in xrange(l)]
-
-    #  a.legend_hack_e_x = 20
-    #  a.legend_hack_i_x = a.legend_hack_e_x + 3*a.r
-    #  a.legend_hack_y = 20
-
-    #  for key in a.ops_dict.keys():
-    #    op_id = a.ops_dict[key]
-    #    instr_name = a.inst_names_dict[key]
-    #    descr(instr_name, (op_id * 360)/l)
-
-    #    ellipse = a.legend_hack_ellipses[op_id]
-    #    a.color.setHsv(
-    #      (op_id * 360)/l,
-    #      a.default_color_saturation,
-    #      a.default_color_value
-    #    )
-    #    ellipse.setBrush(QBrush(a.color))
-    #    ellipse.setX(a.legend_hack_e_x)
-    #    ellipse.setY(a.legend_hack_y)
-    #    ellipse.show()
-
-    #    instruction = a.legend_hack_instructions[op_id]
-    #    instruction.setTextFlags(Qt.AlignVCenter)
-    #    instruction.setFont(a.font)
-    #    instruction.setText(instr_name)
-    #    instruction.setX(a.legend_hack_i_x)
-    #    instruction.setY(a.legend_hack_y)
-    #    instruction.show()
-
-    #    a.legend_hack_y = a.legend_hack_y + 3*a.r
-
   def _placeEllipses(self, circle_pts, rng):
     a = self.anim
     for i in rng:
@@ -177,14 +129,9 @@ class instructionsAnimator:
 
   def _brushEllipses(self, circle_pts, rng):
     a = self.anim
-    l = len(a.ops_dict)
     for i in rng:
       ellipse = a.canvas_ellipses[i]
-      a.color.setHsv(
-        (a.ops_dict[a.current_genome_str[i]] * 360) / l,
-        a.default_color_saturation,
-        a.default_color_value
-      )
+      a.color.setHsv((a.ops_dict[a.current_genome_str[i]] * 360) / len(a.ops_dict), 85, 248)
       ellipse.setBrush(QBrush(a.color))
       ellipse.show()
 
@@ -277,7 +224,7 @@ class bufAnimator:
     descr()
     self.anim = anim
     self.indicator_items = []
-    self.indicator_policy = indicatorPolicy(self.anim)
+    self.indicator_policy = indicatorPolicy()
   def width(self):
     return 32 * anim.hardware_indicator_size
   def height(self):
@@ -312,23 +259,22 @@ class regsAnimator:
   def __init__(self, anim):
     descr()
     self.anim = anim
-    self.buf_anim = bufAnimator(self.anim)
   def size(self):
     descr()
     if not self.anim.show_registers_flag:
       return 0, 0
   def setFrames(self, frames):
     descr()
-    #if self.anim.show_hardware_flag and self.anim.show_registers_flag:
-    #  pass
-    #else:
-    #  pass
+    if self.anim.show_hardware_flag and self.anim.show_registers_flag:
+      pass
+    else:
+      pass
   def showFrame(self, frame_number):
     descr()
-    #if self.anim.show_hardware_flag and self.anim.show_registers_flag:
-    #  pass
-    #else:
-    #  pass
+    if self.anim.show_hardware_flag and self.anim.show_registers_flag:
+      pass
+    else:
+      pass
 
 class stackAnimator:
   def __init__(self, anim):
@@ -386,20 +332,11 @@ class hwAnimator:
     descr()
     self.x = self.anim.layout_margin
     self.y = self.anim.layout_margin
+
     self.regs_anim.x = self.x
     self.regs_anim.y = self.y
+
     self.regs_anim.setFrames(frames)
-
-    #a = self.anim
-
-    #killus = [
-    #  "lh_hw_ra_label",
-    #  "lh_hw_rb_label",
-    #  "lh_hw_rc_label",
-    #  "lh_hw_ra_label",
-    #  "lh_hw_rb_label",
-    #  "lh_hw_rc_label",
-    #]
 
   def showFrame(self, frame_number):
     descr()
@@ -492,9 +429,6 @@ class pyOrganismAnimator:
 
     self.font = QFont(qApp.font())
 
-    self.default_color_saturation = 100
-    self.default_color_value = 248
-
     self.on_brush = QBrush(Qt.white)
     self.off_brush = QBrush(Qt.black)
     self.on_pen = QPen(Qt.white)
@@ -530,18 +464,10 @@ class pyOrganismAnimator:
   def setOps(self, ops = None):
     self.ops_dict = ops
 
-  def setInstNames(self, inst_names = None):
-    self.inst_names_dict = inst_names
-
   def setCanvas(self, canvas = None):
     descr()
     self.canvas = canvas
   def setFrames(self, frames = None):
-    """
-    Preps pyOrganismAnimator for displaying organism movie frames.
-    
-    frames - sequence of hardware snapshots from organism analysis.
-    """
     descr()
     self.frames = frames
     if frames is None:
@@ -561,34 +487,17 @@ class pyOrganismAnimator:
     self.heads_anim.setFrames(frames)
     self.hw_anim.setFrames(frames)
   def showFrame(self, frame_number):
-    """
-    Forwards call to .showFrame() of various subanimators, then updates
-    canvas.
-    """
     descr()
     self.instructions_anim.showFrame(frame_number)
     self.heads_anim.showFrame(frame_number)
     self.hw_anim.showFrame(frame_number)
     self.canvas.update()
   def animateFrame(self, frame_number):
-    """
-    Doesn't do anything yet. I was planning to use this call to animate
-    transitions between adjacent frames.
-    """
     descr()
     pass
 
 
   def setSize(self, width, height):
-    """
-    Called when canvas dimensions have changed.
-
-    XXX
-
-    This has become hackish. It was supposed to manage required layout
-    changes, but the code that does this has been scattered all over the
-    place, and needs reconsolidation. @kgn
-    """
     descr()
     self.canvas_width = width
     self.canvas_height = height
@@ -610,38 +519,20 @@ class pyOrganismAnimator:
 
 
   def setAnimateHeadMovementCBToggled(self, bool):
-    """
-    Enables or disables animation of instr, read, write, and flow heads.
-
-    This doesn't do anything yet. I may remove it. @kgn
-    """
     descr()
     if self.animate_head_movement_flag != bool:
       self.animate_head_movement_flag = bool
   def setAnimateInstructionCopyCBToggled(self, bool):
-    """
-    Enables or disables animation of copying instruction.
-
-    This doesn't do anything yet. I may remove it. @kgn
-    """
     descr()
     if self.animate_instruction_copy_flag != bool:
       self.animate_instruction_copy_flag = bool
   def setAnimateOrganismDivideCBToggled(self, bool):
-    """
-    Enables or disables animation of organism division.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.animate_organism_divide_flag != bool:
       self.animate_organism_divide_flag = bool
 
 
   def setDisplayHeadsAs(self, head_type_index):
-    """
-    Sets display method for organism hardware heads.
-    """
     descr()
     heads_shape_policy_table = (
       headsDotShapePolicy,
@@ -654,99 +545,48 @@ class pyOrganismAnimator:
       self.heads_anim.showFrame(self.current_frame_number)
 
   def setShowHardwareCBToggled(self, bool):
-    """
-    Enables or disables display of organism's hardware.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_hardware_flag != bool:
       self.show_hardware_flag = bool
       self.hw_anim.setFrames(self.frames)
       self.hw_anim.showFrame(self.current_frame_number)
   def setShowRegistersCBToggled(self, bool):
-    """
-    Enables or disables display of organism's hardware's registers.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_registers_flag != bool:
       self.show_registers_flag = bool
   def setShowStacksCBToggled(self, bool):
-    """
-    Enables or disables display of tops of organism's hardware's stacks.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_stacks_flag != bool:
       self.show_stacks_flag = bool
   def setShowFullStacksCBToggled(self, bool):
-    """
-    Enables or disables display of organism's hardware's full stacks.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_full_stacks_flag != bool:
       self.show_full_stacks_flag = bool
   def setShowInputsAndOutputsCBToggled(self, bool):
-    """
-    Enables or disables display of organism's hardware's inputs and
-    outputs.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_io_flag != bool:
       self.show_io_flag = bool
   def setShowTaskTestsCBToggled(self, bool):
-    """
-    Enables or disables display of status of organism's tasks.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_task_tests_flag != bool:
       self.show_task_tests_flag = bool
   def setShowInstructionNamesCBToggled(self, bool):
-    """
-    Enables or disables display of name of next instruction.
-
-    This doesn't do anything yet. @kgn
-    """
     descr()
     if self.show_instruction_names_flag != bool:
       self.show_instruction_names_flag = bool
 
 
   def setHardwareIndicatorSBValueChanged(self, value):
-    """
-    Resizes the binary indicator squares in the hardware display.
-
-    This doesn't do anything yet. I may remove it. @kgn
-    """
     descr()
     if self.hardware_indicator_size != value:
       self.hardware_indicator_size = value
 
 
   def setLayoutSpacingSBValueChanged(self, value):
-    """
-    Changes layout spacing in the hardware display.
-
-    This doesn't do anything yet. I may remove it. @kgn
-    """
     descr()
     if self.layout_spacing != value:
       self.layout_spacing = value
   def setLayoutMarginSBValueChanged(self, value):
-    """
-    Changes layout margin in the hardware display.
-
-    This doesn't do anything yet. I may remove it. @kgn
-    """
     descr()
     if self.layout_margin != value:
       self.layout_margin = value
@@ -862,7 +702,6 @@ class pyOrganismScopeView(QCanvasView):
 
   def setInstNames(self, inst_names = None):
     self.m_inst_names = inst_names
-    self.anim.setInstNames(inst_names)
 
   def setOps(self, ops = None):
     self.m_ops_dict = ops
@@ -870,11 +709,6 @@ class pyOrganismScopeView(QCanvasView):
 
   def setFrames(self, frames = None):
     self.reset()
-
-    # XXX XXX
-    self.anim.setFrames(frames)
-    self.anim.showFrame(0)
-
     self.m_frames = frames
     if self.m_frames is not None:
       if self.m_frames.m_genome_info is not None:
@@ -925,6 +759,10 @@ class pyOrganismScopeView(QCanvasView):
       self.updateCircle()
       self.showFrame(0)
 
+    # XXX XXX
+    self.anim.setFrames(frames)
+    self.anim.showFrame(0)
+
   def viewportResizeEvent(self, resize_event):
     QCanvasView.viewportResizeEvent(self, resize_event)
     # XXX Fragility: If the top-level Avida-ED window is allowed to change height, this is going to cause a painful slow-down
@@ -955,30 +793,30 @@ class pyOrganismScopeView(QCanvasView):
         item.setFont(font)
       for item in self.m_instruction_bg_items:
         item.setSize(point_size_float, point_size_float)
-      #self.m_circles = []
-      #self.m_head_circles = []
-      #self.m_circle_radii = []
-      #for frame_no in xrange(self.m_frames.m_gestation_time):
-      #  organism_current_size = max(self.m_frames.m_last_copy_info[frame_no] + 1, self.m_frames.m_size)
-      #  circumference = text_height * organism_current_size
-      #  radius = circumference / (2 * 3.14159)
-      #  dt = 2 * 3.14159 / (organism_current_size + 1)
-      #  angle_offset = 3.14159 / 2
-      #  circle_pts = []
-      #  head_circle_pts = []
-      #  for i in xrange(organism_current_size + 1):
-      #    theta = i * dt + angle_offset
-      #    c = math.cos(theta)
-      #    s = -math.sin(theta)
-      #    x = radius * c + self.m_circle_center_x
-      #    y = radius * s + self.m_circle_center_y
-      #    h_x = (radius + 10) * c + self.m_circle_center_x
-      #    h_y = (radius + 10) * s + self.m_circle_center_y
-      #    circle_pts.append((x,y))
-      #    head_circle_pts.append((h_x,h_y))
-      #  self.m_circles.append(circle_pts)
-      #  self.m_head_circles.append(head_circle_pts)
-      #  self.m_circle_radii.append(radius)
+      self.m_circles = []
+      self.m_head_circles = []
+      self.m_circle_radii = []
+      for frame_no in xrange(self.m_frames.m_gestation_time):
+        organism_current_size = max(self.m_frames.m_last_copy_info[frame_no] + 1, self.m_frames.m_size)
+        circumference = text_height * organism_current_size
+        radius = circumference / (2 * 3.14159)
+        dt = 2 * 3.14159 / (organism_current_size + 1)
+        angle_offset = 3.14159 / 2
+        circle_pts = []
+        head_circle_pts = []
+        for i in xrange(organism_current_size + 1):
+          theta = i * dt + angle_offset
+          c = math.cos(theta)
+          s = -math.sin(theta)
+          x = radius * c + self.m_circle_center_x
+          y = radius * s + self.m_circle_center_y
+          h_x = (radius + 10) * c + self.m_circle_center_x
+          h_y = (radius + 10) * s + self.m_circle_center_y
+          circle_pts.append((x,y))
+          head_circle_pts.append((h_x,h_y))
+        self.m_circles.append(circle_pts)
+        self.m_head_circles.append(head_circle_pts)
+        self.m_circle_radii.append(radius)
 
   def debug_displayHardwareCPUSnapshot(self, frame_number):
     print "pyOrganismScopeView.debug_displayHardwareCPUSnapshot()..."
@@ -1063,12 +901,9 @@ class pyOrganismScopeView(QCanvasView):
       #self.debug_displayHardwareCPUSnapshot(frame_number)
 
       self.m_current_frame_number = frame_number
-      displayed_genome_size = max(self.anim.last_copied_instruction_cache[frame_number] + 1, self.anim.frames.m_size)
-      #self.m_current_radius = self.m_circle_radii[frame_number]
-      self.m_current_radius = self.anim.circle_radii[displayed_genome_size]
-      #circle_pts = self.m_circles[frame_number]
-      circle_pts = self.anim.circles[displayed_genome_size]
-      #head_circle_pts = self.m_head_circles[frame_number]
+      self.m_current_radius = self.m_circle_radii[frame_number]
+      circle_pts = self.m_circles[frame_number]
+      head_circle_pts = self.m_head_circles[frame_number]
       #if self.m_frames.m_genome_info is not None:
       #  self.m_current_genome = self.m_frames.m_genome_info[frame_number]
       #  if old_genome is None:
@@ -1141,82 +976,88 @@ class pyOrganismScopeView(QCanvasView):
 
 
 
-      if self.m_frames.m_ihead_moves_info is not None:
-        self.m_current_ihead_move = self.m_frames.m_ihead_moves_info[frame_number]
-        if old_ihead_move is None:
-          # Update all ihead_move_items.
-          for i in xrange(self.m_current_ihead_move):
-            if len(self.m_ihead_move_items) < i:
-              print "pyOrganismScopeView.showFrame(): i", i, ", len(self.m_ihead_move_items)", len(self.m_ihead_move_items)
-            ihead_move_item = self.m_ihead_move_items[self.m_current_ihead_move]
-            anchor_radius = float(self.m_current_radius - 10)
-            anchor_radii_ratio = anchor_radius / self.m_current_radius
-            control_radii_ratio = 0.4 + 0.5 * pow(2., -float(self.m_frames.m_ihead_moves[i][2])/25)
-            point_array = QPointArray(3)
-            if len(circle_pts) > self.m_frames.m_ihead_moves[i][0]:
-              from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
-            else:
-              from_circle_pt = circle_pts[-1]
-            if len(circle_pts) > self.m_frames.m_ihead_moves[i][1]:
-              to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
-            else:
-              to_circle_pt = circle_pts[-1]
-            point_array[0] = QPoint(
-              self.anim.c_x + anchor_radii_ratio * (from_circle_pt[0] - self.anim.c_x),
-              self.anim.c_y + anchor_radii_ratio * (from_circle_pt[1] - self.anim.c_y)
-            )
-            point_array[1] = QPoint(
-              self.anim.c_x + control_radii_ratio * ((from_circle_pt[0] + to_circle_pt[0])/2 - self.anim.c_x),
-              self.anim.c_y + control_radii_ratio * ((from_circle_pt[1] + to_circle_pt[1])/2 - self.anim.c_y),
-            )
-            point_array[2] = QPoint(
-              self.anim.c_x + anchor_radii_ratio * (to_circle_pt[0] - self.anim.c_x),
-              self.anim.c_y + anchor_radii_ratio * (to_circle_pt[1] - self.anim.c_y)
-            )
-            ihead_move_item.setControlPoints(point_array, False)
-            if self.m_frames.m_ihead_moves[i][0] < self.m_frames.m_ihead_moves[i][1]:
-              ihead_move_item.setPen(QPen(Qt.blue))
-            else:
-              ihead_move_item.setPen(QPen(Qt.red))
-            ihead_move_item.show()
-        else:
-          # Update changed ihead_move_items.
-          for i in xrange(self.m_current_ihead_move):
-            ihead_move_item = self.m_ihead_move_items[i]
-            anchor_radius = float(self.m_current_radius - 10)
-            anchor_radii_ratio = anchor_radius / self.m_current_radius
-            control_radii_ratio = 0.4 + 0.5 * pow(2., -float(self.m_frames.m_ihead_moves[i][2])/25)
-            point_array = QPointArray(3)
-            if len(circle_pts) > self.m_frames.m_ihead_moves[i][0]:
-              from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
-            else:
-              from_circle_pt = circle_pts[-1]
-            if len(circle_pts) > self.m_frames.m_ihead_moves[i][1]:
-              to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
-            else:
-              to_circle_pt = circle_pts[-1]
-            point_array.setPoint(0, QPoint(
-              self.anim.c_x + anchor_radii_ratio * (from_circle_pt[0] - self.anim.c_x),
-              self.anim.c_y + anchor_radii_ratio * (from_circle_pt[1] - self.anim.c_y)
-            ) )
-            point_array.setPoint(1, QPoint(
-              self.anim.c_x + control_radii_ratio * ((from_circle_pt[0] + to_circle_pt[0])/2 - self.anim.c_x),
-              self.anim.c_y + control_radii_ratio * ((from_circle_pt[1] + to_circle_pt[1])/2 - self.anim.c_y),
-            ) )
-            point_array.setPoint(2, QPoint(
-              self.anim.c_x + anchor_radii_ratio * (to_circle_pt[0] - self.anim.c_x),
-              self.anim.c_y + anchor_radii_ratio * (to_circle_pt[1] - self.anim.c_y)
-            ) )
-            ihead_move_item.setControlPoints(point_array, False)
-            if self.m_frames.m_ihead_moves[i][0] < self.m_frames.m_ihead_moves[i][1]:
-              ihead_move_item.setPen(QPen(Qt.blue))
-            else:
-              ihead_move_item.setPen(QPen(Qt.red))
-            ihead_move_item.show()
-          if self.m_current_ihead_move < old_ihead_move:
-            for i in xrange(self.m_current_ihead_move, old_ihead_move):
-              self.m_ihead_move_items[i].hide()
-          pass
+      # if self.m_frames.m_ihead_moves_info is not None:
+      #   self.m_current_ihead_move = self.m_frames.m_ihead_moves_info[frame_number]
+      #   if old_ihead_move is None:
+      #     # Update all ihead_move_items.
+      #     for i in xrange(self.m_current_ihead_move):
+      #       if len(self.m_ihead_move_items) < i:
+      #         print "pyOrganismScopeView.showFrame(): i", i, ", len(self.m_ihead_move_items)", len(self.m_ihead_move_items)
+      #       ihead_move_item = self.m_ihead_move_items[self.m_current_ihead_move]
+      #       anchor_radius = float(m_current_radius - 10)
+      #       anchor_radii_ratio = anchor_radius / self.m_current_radius
+      #       control_radii_ratio = 0.4 + 0.5 * pow(2., -float(self.m_frames.m_ihead_moves[i][2])/25)
+      #       #control_radii_ratio = 0.4 + 0.5 * pow(2., -float((1 + self.m_frames.m_ihead_moves[i][2]))/8)
+      #       point_array = QPointArray(3)
+      #       #from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
+      #       #to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
+      #       if len(circle_pts) > self.m_frames.m_ihead_moves[i][0]:
+      #         from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
+      #       else:
+      #         from_circle_pt = circle_pts[-1]
+      #       if len(circle_pts) > self.m_frames.m_ihead_moves[i][1]:
+      #         to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
+      #       else:
+      #         to_circle_pt = circle_pts[-1]
+      #       point_array[0] = QPoint(
+      #         self.m_circle_center_x + anchor_radii_ratio * (from_circle_pt[0] - self.m_circle_center_x),
+      #         self.m_circle_center_y + anchor_radii_ratio * (from_circle_pt[1] - self.m_circle_center_y)
+      #       )
+      #       point_array[1] = QPoint(
+      #         self.m_circle_center_x + control_radii_ratio * ((from_circle_pt[0] + to_circle_pt[0])/2 - self.m_circle_center_x),
+      #         self.m_circle_center_y + control_radii_ratio * ((from_circle_pt[1] + to_circle_pt[1])/2 - self.m_circle_center_y),
+      #       )
+      #       point_array[2] = QPoint(
+      #         self.m_circle_center_x + anchor_radii_ratio * (to_circle_pt[0] - self.m_circle_center_x),
+      #         self.m_circle_center_y + anchor_radii_ratio * (to_circle_pt[1] - self.m_circle_center_y)
+      #       )
+      #       ihead_move_item.setControlPoints(point_array, False)
+      #       if self.m_frames.m_ihead_moves[i][0] < self.m_frames.m_ihead_moves[i][1]:
+      #         ihead_move_item.setPen(QPen(Qt.blue))
+      #       else:
+      #         ihead_move_item.setPen(QPen(Qt.red))
+      #       ihead_move_item.show()
+      #   else:
+      #     # Update changed ihead_move_items.
+      #     for i in xrange(self.m_current_ihead_move):
+      #       ihead_move_item = self.m_ihead_move_items[i]
+      #       anchor_radius = float(self.m_current_radius - 10)
+      #       anchor_radii_ratio = anchor_radius / self.m_current_radius
+      #       control_radii_ratio = 0.4 + 0.5 * pow(2., -float(self.m_frames.m_ihead_moves[i][2])/25)
+      #       #control_radii_ratio = 0.4 + 0.5 * pow(2., -float((1 + self.m_frames.m_ihead_moves[i][2]))/8)
+      #       point_array = QPointArray(3)
+      #       #from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
+      #       #to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
+      #       if len(circle_pts) > self.m_frames.m_ihead_moves[i][0]:
+      #         from_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][0]]
+      #       else:
+      #         from_circle_pt = circle_pts[-1]
+      #       if len(circle_pts) > self.m_frames.m_ihead_moves[i][1]:
+      #         to_circle_pt = circle_pts[self.m_frames.m_ihead_moves[i][1]]
+      #       else:
+      #         to_circle_pt = circle_pts[-1]
+      #       point_array.setPoint(0, QPoint(
+      #         self.m_circle_center_x + anchor_radii_ratio * (from_circle_pt[0] - self.m_circle_center_x),
+      #         self.m_circle_center_y + anchor_radii_ratio * (from_circle_pt[1] - self.m_circle_center_y)
+      #       ) )
+      #       point_array.setPoint(1, QPoint(
+      #         self.m_circle_center_x + control_radii_ratio * ((from_circle_pt[0] + to_circle_pt[0])/2 - self.m_circle_center_x),
+      #         self.m_circle_center_y + control_radii_ratio * ((from_circle_pt[1] + to_circle_pt[1])/2 - self.m_circle_center_y),
+      #       ) )
+      #       point_array.setPoint(2, QPoint(
+      #         self.m_circle_center_x + anchor_radii_ratio * (to_circle_pt[0] - self.m_circle_center_x),
+      #         self.m_circle_center_y + anchor_radii_ratio * (to_circle_pt[1] - self.m_circle_center_y)
+      #       ) )
+      #       ihead_move_item.setControlPoints(point_array, False)
+      #       if self.m_frames.m_ihead_moves[i][0] < self.m_frames.m_ihead_moves[i][1]:
+      #         ihead_move_item.setPen(QPen(Qt.blue))
+      #       else:
+      #         ihead_move_item.setPen(QPen(Qt.red))
+      #       ihead_move_item.show()
+      #     if self.m_current_ihead_move < old_ihead_move:
+      #       for i in xrange(self.m_current_ihead_move, old_ihead_move):
+      #         self.m_ihead_move_items[i].hide()
+      #     pass
 
 
 

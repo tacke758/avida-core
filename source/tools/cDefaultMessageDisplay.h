@@ -1,16 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cDefaultMessageDisplay.h
+ *  Avida
+ *
+ *  Called "default_message_display.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef DEFAULT_MESSAGE_DISPLAY_HH
-#define DEFAULT_MESSAGE_DISPLAY_HH
+#ifndef cDefaultMessageDisplay_h
+#define cDefaultMessageDisplay_h
 
 #include <iostream>
 
-#ifndef MESSAGE_DISPLAY_HH
+#ifndef cMessageDisplay_h
 #include "cMessageDisplay.h"
 #endif
 
@@ -31,13 +34,32 @@ with expected results.
 
 class cString;
 
-class cDefaultMessageDisplay : public cMessageDisplay{
+class cDefaultMessageDisplay : public cMessageDisplay
+{
 private:
-  std::ostream *_out;
+  std::ostream* m_out;
+
+
+  cDefaultMessageDisplay(); // @not_implemented
+  cDefaultMessageDisplay(const cDefaultMessageDisplay&); // @not_implemented
+  cDefaultMessageDisplay& operator=(const cDefaultMessageDisplay&); // @not_implemented
+
 public:
-  cDefaultMessageDisplay(std::ostream *stream):_out(stream){}
-  void out(cString &final_msg);
+  cDefaultMessageDisplay(std::ostream* stream) : m_out(stream) { ; }
+  void out(cString& final_msg);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nDefaultMessageDisplay {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 extern cDefaultMessageDisplay s_info_msg_cout;
 extern cDefaultMessageDisplay s_debug_msg_cerr;

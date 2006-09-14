@@ -1,17 +1,20 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2001 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cMerit.cc
+ *  Avida
+ *
+ *  Called "merit.cc" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology
+ *
+ */
 
 #include "cMerit.h"
-
 
 using namespace std;
 
 
-void cMerit::UpdateValue(double in_value){
+void cMerit::UpdateValue(double in_value)
+{
   const int max_bits = sizeof(unsigned int)*8;
   static double mult[max_bits];
   static bool mult_initilalized = false;
@@ -21,20 +24,15 @@ void cMerit::UpdateValue(double in_value){
 
   // Initilize multipliers only once
   if( mult_initilalized == false ){
-    //cout<<"initializing multipliers"<<endl;
     mult_initilalized = true;
     for( int i=0; i<max_bits; ++i ){
       mult[i] = pow((double)2,i);
-      //cout<<"  mult["<<i<<"] = "<<mult[i]<<endl;
     }
   }
-
 
   value = in_value;
 
   double mant = frexp (value , &bits);
-
-  //cout<<value<<" = "<<mant<<" * 2 ^ "<<bits<<endl;
 
   if( bits > max_bits ){
     offset = bits - max_bits;
@@ -43,13 +41,10 @@ void cMerit::UpdateValue(double in_value){
   }
 
   base = (unsigned int) (mant * mult[bits-offset-1] * 2 );
-
-  //cout<<value<<" = "<<base<<" ["<<bits<<" bits] "<<" * 2 ^ "<<offset;
-  //cout<<" = "<<(base * pow((double)2,offset))<<endl;
 }
 
 
-ostream & cMerit::BinaryPrint(ostream & os) const {
+ostream& cMerit::BinaryPrint(ostream& os) const {
   for( int i=GetNumBits()-1; i>=0; --i ){
     os<<GetBit(i);
   }
@@ -82,7 +77,7 @@ bool cMerit::OK() const {
 
 
 
-ostream & operator<<(ostream & os, const cMerit & merit){
+ostream& operator<<(ostream& os, const cMerit & merit){
   os<<merit.GetDouble();
   return os;
 }

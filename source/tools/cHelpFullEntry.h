@@ -1,26 +1,28 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHelpFullEntry.h
+ *  Avida
+ *
+ *  Called "help_full_type.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef HELP_FULL_ENTRY_HH
-#define HELP_FULL_ENTRY_HH
+#ifndef cHelpFullEntry_h
+#define cHelpFullEntry_h
 
-#ifndef HELP_ENTRY_HH
+#ifndef cHelpEntry_h
 #include "cHelpEntry.h"
 #endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
 
 class cHelpType;
-class cString; // aggregate
 
 class cHelpFullEntry : public cHelpEntry {
 private:
-  cHelpType * type;
+  cHelpType* type;
   cString desc;
 public:
   cHelpFullEntry(const cString & _name, cHelpType * _type, const cString _desc)
@@ -37,9 +39,21 @@ public:
 
   const cString & GetKeyword() const { return name; }
   const cString & GetDesc() const { return desc; }
-  cHelpType * GetType() const { return type; }
+  cHelpType* GetType() const { return type; }
 
   bool IsAlias() const { return false; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHelpFullEntry {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

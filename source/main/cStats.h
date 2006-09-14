@@ -1,75 +1,61 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2002 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cStats.h
+ *  Avida
+ *
+ *  Called "stats.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2002 California Institute of Technology.
+ *
+ */
 
-#ifndef STATS_HH
-#define STATS_HH
+#ifndef cStats_h
+#define cStats_h
 
 #include <assert.h>
 #include <fstream>
 #include <iostream>
 
-#ifndef DEFS_HH
+#ifndef defs_h
 #include "defs.h"
 #endif
-#ifndef DATA_FILE_MANAGER_HH
-#include "cDataFileManager.h"
-#endif
-#ifndef DOUBLE_SUM_HH
+#ifndef cDoubleSum_h
 #include "cDoubleSum.h"
 #endif
-#ifndef FUNCTIONS_HH
+#ifndef functions_h
 #include "functions.h"
 #endif
-#ifndef INT_SUM_HH
+#ifndef cIntSum_h
 #include "cIntSum.h"
 #endif
-#ifndef RUNNING_AVERAGE_HH
+#ifndef cRunningAverage_h
 #include "cRunningAverage.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
-#ifndef TDATAMANAGER_HH
+#ifndef tDataManager_h
 #include "tDataManager.h"
 #endif
+#ifndef nGeometry_h
 #include "nGeometry.h"
+#endif
 
-template <class T> class tDataManager; // aggregate
-class cDataFileManager; // aggregate
-class cDoubleSum; // aggregate
-class cRunningAverage; // aggregate
-class cIntSum; // aggregate
-template <class T> class tArray; // aggregate
 class cGenotype;
-class cString; // aggregate
 class cInjectGenotype;
-class cDataFile;
+class cWorld;
 
-class cStats {
+class cStats
+{
 private:
-  cStats(const cStats &); // not implemented.
-private:
+  cWorld* m_world;
+  
   // Time scales...
-  int current_update;
+  int m_update;
   int sub_update;
   double avida_time;
 
   // The data manager handles printing user-formated output files.
   tDataManager<cStats> data_manager;
-
-  // Log files are recorded every time a specified event occurs.
-  cDataFileManager data_file_manager;
-
-  std::ofstream fp_creature_log;
-  std::ofstream fp_genotype_log;
-  std::ofstream fp_threshold_log;
-  std::ofstream fp_species_log;
-  std::ofstream fp_lineage_log;
-
 
   //// By Creature Sums ////  (Cleared and resummed by population each update)
   cDoubleSum sum_merit;
@@ -117,27 +103,6 @@ private:
   cDoubleSum sum_species_age;
 
 
-  //// Sums cleard on output only ////
-  cIntSum isum_parent_dist;
-  cIntSum isum_parent_size;
-  cIntSum isum_child_size;
-  cIntSum isum_point_mut;
-  cIntSum isum_copy_mut;
-  cIntSum isum_insert_mut;
-  cIntSum isum_point_mut_line;
-  cIntSum isum_copy_mut_line;
-  cIntSum isum_delete_mut;
-  cIntSum isum_divide_mut;
-  cIntSum isum_divide_insert_mut;
-  cIntSum isum_divide_delete_mut;
-  cIntSum isum_copied_size;
-  cIntSum isum_executed_size;
-  cIntSum isum_copies_exec;
-  cDoubleSum dsum_copy_mut_by_copies_exec;
-  cDoubleSum dsum_copied_size_by_copies_exec;
-  cDoubleSum dsum_copy_mut_lines_by_copied_size;
-  cDoubleSum dsum_copy_mut_lines_by_copy_mut;
-
   // Instruction Counts (DM)
   tArray<cIntSum> sum_exe_inst_array;
 
@@ -179,7 +144,6 @@ private:
   int dom_gene_depth;
   cString dom_sequence;
   int coal_depth;
-  
 
   // Dominant Parasite
   cInjectGenotype * dom_inj_genotype;
@@ -238,39 +202,41 @@ private:
   tArray<cString> reaction_names;
   tArray<cString> resource_names;
 
+  // Resampling Statistics @AWC - 06/29/06
+  int num_resamplings;
+  int num_failedResamplings;
+  
+  
+  // State variables
+  int last_update;
+
+  // Stats for market econ
+  int num_bought;
+  int num_sold;
+  int num_used;
+  int num_own_used;
+
+  cStats(); // @not_implemented
+  cStats(const cStats&); // @not_implemented
+  cStats& operator=(const cStats&); // @not_implemented
+
 public:
-  cStats();
-  ~cStats();
+  cStats(cWorld* world);
+  ~cStats() { ; }
 
   void SetupPrintDatabase();
-
   void ProcessUpdate();
 
-
-  // GLOBAL STATS
-
-  inline void SetCurrentUpdate(int new_update) {
-    current_update = new_update;
-    sub_update = 0;
-  }
-
-  inline void IncCurrentUpdate() {
-    current_update++;
-    sub_update = 0;
-  }
-
-  void IncSubUpdate() { sub_update++; }
-
-  bool OK() { return true; }  // @CAO FIX!!!!
-
-  void FlushFP(); // Flush all the files
+  inline void SetCurrentUpdate(int new_update) { m_update = new_update; sub_update = 0; }
+  inline void IncCurrentUpdate() { m_update++; sub_update = 0; }
+  inline void IncSubUpdate() { sub_update++; }
 
   // Accessors...
-  int GetUpdate() const { return current_update; }
+  int GetUpdate() const { return m_update; }
   int GetSubUpdate() const { return sub_update; }
   double GetGeneration() const { return SumGeneration().Average(); }
 
-  cGenotype * GetDomGenotype() const { return dom_genotype; }
+  cGenotype* GetDomGenotype() const { return dom_genotype; }
   double GetDomMerit() const { return dom_merit; }
   double GetDomGestation() const { return dom_gestation; }
   double GetDomReproRate() const { return dom_repro_rate; }
@@ -317,23 +283,15 @@ public:
   void SetDomGeneDepth(int in_depth) { dom_gene_depth = in_depth; }
   void SetDomSequence(const cString & in_seq) { dom_sequence = in_seq; }
 
-  void SetDomInjGenotype(cInjectGenotype * in_inj_genotype) 
-  {dom_inj_genotype = in_inj_genotype;}
-  void SetDomInjSize(int in_inj_size)
-  {dom_inj_size = in_inj_size;}
-  void SetDomInjID(int in_inj_ID)
-  {dom_inj_genotype_id = in_inj_ID;}
-  void SetDomInjName(const cString & in_name)
-  {dom_inj_name = in_name;}
-  void SetDomInjBirths(int in_births)
-  {dom_inj_births=in_births;}
-  void SetDomInjAbundance(int in_inj_abundance)
-  {dom_inj_abundance=in_inj_abundance;}
-  void SetDomInjSequence(const cString & in_inj_sequence)
-  {dom_inj_sequence = in_inj_sequence;}
+  void SetDomInjGenotype(cInjectGenotype * in_inj_genotype) { dom_inj_genotype = in_inj_genotype; }
+  void SetDomInjSize(int in_inj_size) { dom_inj_size = in_inj_size; }
+  void SetDomInjID(int in_inj_ID) { dom_inj_genotype_id = in_inj_ID; }
+  void SetDomInjName(const cString & in_name) { dom_inj_name = in_name; }
+  void SetDomInjBirths(int in_births) { dom_inj_births = in_births; }
+  void SetDomInjAbundance(int in_inj_abundance) { dom_inj_abundance = in_inj_abundance; }
+  void SetDomInjSequence(const cString & in_inj_sequence) { dom_inj_sequence = in_inj_sequence; }
 
   void SetGenoMapElement(int i, int in_geno) { genotype_map[i] = in_geno; }
-  // Generic data
   void SetCoalescentGenotypeDepth(int in_depth) {coal_depth = in_depth;}
 
   inline void SetNumGenotypes(int new_genotypes);
@@ -346,101 +304,95 @@ public:
   inline void SetNumMultiThreadCreatures(int in_num_multi_thread_creatures);
   inline void SetNumModified(int in_num_modified);
 
-  inline void SetMaxFitness(double in_max_fitness)
-    { max_fitness = in_max_fitness; }
-  inline void SetMaxMerit(double in_max_merit)
-    { max_merit = in_max_merit; }
-  inline void SetMaxGestationTime(int in_max_gestation_time)
-    { max_gestation_time = in_max_gestation_time; }
-  inline void SetMaxGenomeLength(int in_max_genome_length)
-    { max_genome_length = in_max_genome_length; }
+  void SetMaxFitness(double in_max_fitness) { max_fitness = in_max_fitness; }
+  void SetMaxMerit(double in_max_merit) { max_merit = in_max_merit; }
+  void SetMaxGestationTime(int in_max_gestation_time) { max_gestation_time = in_max_gestation_time; }
+  void SetMaxGenomeLength(int in_max_genome_length) { max_genome_length = in_max_genome_length; }
 
-  inline void SetMinFitness(double in_min_fitness)
-    { min_fitness = in_min_fitness; }
-  inline void SetMinMerit(double in_min_merit)
-    { min_merit = in_min_merit; }
-  inline void SetMinGestationTime(int in_min_gestation_time)
-    { min_gestation_time = in_min_gestation_time; }
-  inline void SetMinGenomeLength(int in_min_genome_length)
-    { min_genome_length = in_min_genome_length; }
+  void SetMinFitness(double in_min_fitness) { min_fitness = in_min_fitness; }
+  void SetMinMerit(double in_min_merit) { min_merit = in_min_merit; }
+  void SetMinGestationTime(int in_min_gestation_time) { min_gestation_time = in_min_gestation_time; }
+  void SetMinGenomeLength(int in_min_genome_length) { min_genome_length = in_min_genome_length; }
 
-  inline void SetEntropy(double in_entropy)
-    { entropy = in_entropy; }
-  inline void SetSpeciesEntropy(double in_ent)
-    { species_entropy = in_ent; }
+  void SetEntropy(double in_entropy) { entropy = in_entropy; }
+  void SetSpeciesEntropy(double in_ent) { species_entropy = in_ent; }
 
-  cDoubleSum & SumFitness()       { return sum_fitness; }
-  cDoubleSum & SumGestation()     { return sum_gestation; }
-  cDoubleSum & SumMerit()         { return sum_merit; }
-  cDoubleSum & SumReproRate()     { return sum_repro_rate; }
+  cDoubleSum& SumFitness()       { return sum_fitness; }
+  cDoubleSum& SumGestation()     { return sum_gestation; }
+  cDoubleSum& SumMerit()         { return sum_merit; }
+  cDoubleSum& SumReproRate()     { return sum_repro_rate; }
 
-  cDoubleSum & SumCreatureAge()   { return sum_creature_age; }
-  cDoubleSum & SumGenotypeAge()   { return sum_genotype_age; }
-  cDoubleSum & SumGeneration()    { return sum_generation; }
-  cDoubleSum & SumAbundance()     { return sum_abundance; }
-  cDoubleSum & SumGenotypeDepth() { return sum_genotype_depth; }
-  cDoubleSum & SumThresholdAge()  { return sum_threshold_age; }
-  cDoubleSum & SumSpeciesAge()    { return sum_species_age; }
+  cDoubleSum& SumCreatureAge()   { return sum_creature_age; }
+  cDoubleSum& SumGenotypeAge()   { return sum_genotype_age; }
+  cDoubleSum& SumGeneration()    { return sum_generation; }
+  cDoubleSum& SumAbundance()     { return sum_abundance; }
+  cDoubleSum& SumGenotypeDepth() { return sum_genotype_depth; }
+  cDoubleSum& SumThresholdAge()  { return sum_threshold_age; }
+  cDoubleSum& SumSpeciesAge()    { return sum_species_age; }
 
-  cDoubleSum & SumNeutralMetric() { return sum_neutral_metric; }
-  cDoubleSum & SumLineageLabel()  { return sum_lineage_label; }
-  cDoubleSum & SumCopyMutRate()   { return sum_copy_mut_rate; }
-  cDoubleSum & SumLogCopyMutRate()   { return sum_log_copy_mut_rate; }
-  cDoubleSum & SumDivMutRate()   { return sum_div_mut_rate; }
-  cDoubleSum & SumLogDivMutRate()   { return sum_log_div_mut_rate; }
+  cDoubleSum& SumNeutralMetric() { return sum_neutral_metric; }
+  cDoubleSum& SumLineageLabel()  { return sum_lineage_label; }
+  cDoubleSum& SumCopyMutRate()   { return sum_copy_mut_rate; }
+  cDoubleSum& SumLogCopyMutRate()   { return sum_log_copy_mut_rate; }
+  cDoubleSum& SumDivMutRate()   { return sum_div_mut_rate; }
+  cDoubleSum& SumLogDivMutRate()   { return sum_log_div_mut_rate; }
 
-  cDoubleSum & SumSize()          { return sum_size; }
-  cDoubleSum & SumCopySize()      { return sum_copy_size; }
-  cDoubleSum & SumExeSize()       { return sum_exe_size; }
-  cDoubleSum & SumMemSize()       { return sum_mem_size; }
+  cDoubleSum& SumSize()          { return sum_size; }
+  cDoubleSum& SumCopySize()      { return sum_copy_size; }
+  cDoubleSum& SumExeSize()       { return sum_exe_size; }
+  cDoubleSum& SumMemSize()       { return sum_mem_size; }
 
-#ifdef INSTRUCTION_COUNT
+#if INSTRUCTION_COUNT
   void ZeroInst();
 #endif
-  tArray<cIntSum> & SumExeInst() { return sum_exe_inst_array; }
+  tArray<cIntSum>& SumExeInst() { return sum_exe_inst_array; }
 
   // And constant versions of the above...
-  const cDoubleSum & SumFitness() const       { return sum_fitness; }
-  const cDoubleSum & SumGestation() const     { return sum_gestation; }
-  const cDoubleSum & SumMerit() const         { return sum_merit; }
-  const cDoubleSum & SumReproRate() const     { return sum_repro_rate; }
+  const cDoubleSum& SumFitness() const       { return sum_fitness; }
+  const cDoubleSum& SumGestation() const     { return sum_gestation; }
+  const cDoubleSum& SumMerit() const         { return sum_merit; }
+  const cDoubleSum& SumReproRate() const     { return sum_repro_rate; }
 
-  const cDoubleSum & SumCreatureAge() const   { return sum_creature_age; }
-  const cDoubleSum & SumGenotypeAge() const   { return sum_genotype_age; }
-  const cDoubleSum & SumGeneration() const    { return sum_generation; }
-  const cDoubleSum & SumAbundance() const     { return sum_abundance; }
-  const cDoubleSum & SumGenotypeDepth() const { return sum_genotype_depth; }
-  const cDoubleSum & SumThresholdAge() const  { return sum_threshold_age; }
-  const cDoubleSum & SumSpeciesAge() const    { return sum_species_age; }
+  const cDoubleSum& SumCreatureAge() const   { return sum_creature_age; }
+  const cDoubleSum& SumGenotypeAge() const   { return sum_genotype_age; }
+  const cDoubleSum& SumGeneration() const    { return sum_generation; }
+  const cDoubleSum& SumAbundance() const     { return sum_abundance; }
+  const cDoubleSum& SumGenotypeDepth() const { return sum_genotype_depth; }
+  const cDoubleSum& SumThresholdAge() const  { return sum_threshold_age; }
+  const cDoubleSum& SumSpeciesAge() const    { return sum_species_age; }
 
-  const cDoubleSum & SumNeutralMetric() const { return sum_neutral_metric; }
-  const cDoubleSum & SumLineageLabel() const  { return sum_lineage_label; }
-  const cDoubleSum & SumCopyMutRate() const   { return sum_copy_mut_rate; }
-  const cDoubleSum & SumLogCopyMutRate() const{ return sum_log_copy_mut_rate; }
-  const cDoubleSum & SumDivMutRate() const   { return sum_div_mut_rate; }
-  const cDoubleSum & SumLogDivMutRate() const{ return sum_log_div_mut_rate; }
+  const cDoubleSum& SumNeutralMetric() const { return sum_neutral_metric; }
+  const cDoubleSum& SumLineageLabel() const  { return sum_lineage_label; }
+  const cDoubleSum& SumCopyMutRate() const   { return sum_copy_mut_rate; }
+  const cDoubleSum& SumLogCopyMutRate() const{ return sum_log_copy_mut_rate; }
+  const cDoubleSum& SumDivMutRate() const   { return sum_div_mut_rate; }
+  const cDoubleSum& SumLogDivMutRate() const{ return sum_log_div_mut_rate; }
 
-  const cDoubleSum & SumSize() const          { return sum_size; }
-  const cDoubleSum & SumCopySize() const      { return sum_copy_size; }
-  const cDoubleSum & SumExeSize() const       { return sum_exe_size; }
-  const cDoubleSum & SumMemSize() const       { return sum_mem_size; }
+  const cDoubleSum& SumSize() const          { return sum_size; }
+  const cDoubleSum& SumCopySize() const      { return sum_copy_size; }
+  const cDoubleSum& SumExeSize() const       { return sum_exe_size; }
+  const cDoubleSum& SumMemSize() const       { return sum_mem_size; }
+
+  
+  void IncResamplings() { ++num_resamplings; }  // @AWC 06/29/06
+  void IncFailedResamplings() { ++num_failedResamplings; }  // @AWC 06/29/06
 
   void CalcEnergy();
   void CalcFidelity();
 
   void RecordBirth(int cell_id, int genotype_id, bool breed_true);
-  void RecordDeath(int genotype_id, int num_divides, int age);
-  void AddGenotype(int id_num);
+  void RecordDeath() { num_deaths++; }
+  void AddGenotype() { tot_genotypes++; }
   void RemoveGenotype(int id_num, int parent_id,
 			     int parent_distance, int depth, int max_abundance,
 			     int parasite_abundance, int age, int length);
   void AddThreshold(int id_num, const char * name,
 				  int species_num=-1);
-  void RemoveThreshold(int id_num);
-  void AddSpecies(int id_num);
+  void RemoveThreshold() { num_threshold--; }
+  void AddSpecies() { tot_species++; num_species++; }
   void RemoveSpecies(int id_num, int parent_id,
 			 int max_gen_abundance, int max_abundance, int age);
-  void AddLineage();
+  void AddLineage() { tot_lineages++; num_lineages++; }
   void RemoveLineage(int id_num, int parent_id, int update_born,
 		     double generation_born, int total_CPUs,
 		     int total_genotypes, double fitness, 
@@ -450,15 +402,17 @@ public:
 
   void AddCurTask(int task_num) { task_cur_count[task_num]++; }
   void AddCurTaskQuality(int task_num, double quality) 
-  { task_cur_quality[task_num] += quality;
-	if (quality > task_cur_max_quality[task_num])
-		task_cur_max_quality[task_num] = quality;
+  {  
+	  task_cur_quality[task_num] += quality;
+	  if (quality > task_cur_max_quality[task_num])
+		  task_cur_max_quality[task_num] = quality;
   }
   void AddLastTask(int task_num) { task_last_count[task_num]++; }
   void AddLastTaskQuality(int task_num, double quality) 
-  { task_last_quality[task_num] += quality;
-	if (quality > task_last_max_quality[task_num])
-		task_last_max_quality[task_num] = quality;
+  { 
+	  task_last_quality[task_num] += quality; 
+	  if (quality > task_last_max_quality[task_num])
+		  task_last_max_quality[task_num] = quality;
   }
   void IncTaskExeCount(int task_num, int task_count) 
     { task_exe_count[task_num] += task_count; }
@@ -478,6 +432,12 @@ public:
   }
   void SetReactionName(int id, const cString & name) { reaction_names[id] = name; }
   void SetResourceName(int id, const cString & name) { resource_names[id] = name; }
+
+  //market info
+  void AddMarketItemBought() { num_bought++;}
+  void AddMarketItemSold() { num_sold++; }
+  void AddMarketItemUsed() { num_used++; }
+  void AddMarketOwnItemUsed() { num_own_used++; }
 
   // Information retrieval section...
 
@@ -506,8 +466,8 @@ public:
   int GetTotLineages() const        { return tot_lineages; }
 
   int GetTaskCurCount(int task_num) const { return task_cur_count[task_num]; }
+  double GetTaskCurQuality(int task_num) const { return task_cur_quality[task_num]/(double)task_cur_count[task_num]; }  
   int GetTaskLastCount(int task_num) const {return task_last_count[task_num];}
-  double GetTaskCurQuality(int task_num) const { return task_cur_quality[task_num]/(double)task_cur_count[task_num]; }
   double GetTaskLastQuality(int task_num) const {return task_last_quality[task_num]/(double)task_last_count[task_num];}
   double GetTaskMaxCurQuality(int task_num) const { return task_cur_max_quality[task_num];}
   double GetTaskMaxLastQuality(int task_num) const { return task_last_max_quality[task_num];}
@@ -515,6 +475,12 @@ public:
 
   const tArray<double> & GetReactions() const { return reaction_count; }
   const tArray<double> & GetResources() const { return resource_count; }
+
+  // market info
+  int GetMarketNumBought() const { return num_bought; }
+  int GetMarketNumSold() const { return num_sold; }
+  int GetMarketNumUsed() const { return num_used; }
+  int GetMarketNumOwnUsed() const { return num_own_used; }
 
   double GetAveReproRate() const  { return sum_repro_rate.Average(); }
 
@@ -558,44 +524,53 @@ public:
   int GetMinGenomeLength() const { return min_genome_length; }
 
 
+  int GetResamplings() const { return num_resamplings;}  //AWC 06/29/06
+  int GetFailedResamplings() const { return num_failedResamplings;}  //AWC 06/29/06
+
+
   // this value gets recorded when a creature with the particular
   // fitness value gets born. It will never change to a smaller value,
   // i.e., when the maximum fitness in the population drops, this value will
   // still stay up.
   double GetMaxViableFitness() const { return max_viable_fitness; }
 
-  // Access to data_file_manager (so cPopulation can output files)
-  std::ofstream & GetDataFileOFStream(const cString & fname){
-    return data_file_manager.GetOFStream(fname); }
-  cDataFile & GetDataFile(const cString & fname){
-    return data_file_manager.Get(fname); }
-
-
   // User-defined datafile...
-  void PrintDataFile(const cString & filename, const cString & format,
-		     char sep=' ');
+  void PrintDataFile(const cString& filename, const cString& format, char sep=' ');
 
   // Public calls to output data files (for events)
-  void PrintAverageData(const cString & filename);
-  void PrintErrorData(const cString & filename);
-  void PrintVarianceData(const cString & filename);
-  void PrintDominantData(const cString & filename);
-  void PrintDominantParaData(const cString & filename);
-  void PrintStatsData(const cString & filename);
-  void PrintCountData(const cString & filename);
-  void PrintTotalsData(const cString & filename);
-  void PrintTasksData(const cString & filename);
-  void PrintTasksExeData(const cString & filename);
-  void PrintReactionData(const cString & filename);
-  void PrintResourceData(const cString & filename);
-  void PrintSpatialResData(const cString & filename, int i);
-  void PrintTimeData(const cString & filename);
-  void PrintMutationData(const cString & filename);
-  void PrintDivideMutData(const cString & filename);
-  void PrintMutationRateData(const cString & filename);
-  void PrintInstructionData(const cString & filename);
-  void PrintGenotypeMap(const cString & filename);
+  void PrintAverageData(const cString& filename);
+  void PrintErrorData(const cString& filename);
+  void PrintVarianceData(const cString& filename);
+  void PrintDominantData(const cString& filename);
+  void PrintDominantParaData(const cString& filename);
+  void PrintStatsData(const cString& filename);
+  void PrintCountData(const cString& filename);
+  void PrintTotalsData(const cString& filename);
+  void PrintTasksData(const cString& filename);
+  void PrintTasksExeData(const cString& filename);
+  void PrintTasksQualData(const cString& filename);
+  void PrintReactionData(const cString& filename);
+  void PrintResourceData(const cString& filename);
+  void PrintSpatialResData(const cString& filename, int i);
+  void PrintTimeData(const cString& filename);
+  void PrintDivideMutData(const cString& filename);
+  void PrintMutationRateData(const cString& filename);
+  void PrintInstructionData(const cString& filename);
+  void PrintGenotypeMap(const cString& filename);
+  void PrintMarketData(const cString& filename);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nStats {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 inline void cStats::SetNumGenotypes(int new_genotypes)

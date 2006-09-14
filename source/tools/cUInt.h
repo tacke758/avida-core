@@ -1,32 +1,33 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cUInt.h
+ *  Avida
+ *
+ *  Called "uint.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef UINT_HH
-#define UINT_HH
+#ifndef cUInt_h
+#define cUInt_h
 
 #include <stdio.h>
-
-#ifndef UCHAR
-#define UCHAR unsigned char
-#endif
 
 // Should this just use a long?  For testing only...
 #define LONG_C_UINT
 
 #ifdef LONG_C_UINT
-class cUInt {
+class cUInt
+{
 private:
   long value;
   int size;
+
 public:
   inline cUInt() { size = 0; value = 0; }
   inline cUInt(int in_size) { size = in_size, value = 0; }
   inline cUInt(int in_size, int in_value) { size = in_size, value = in_value; }
-  inline ~cUInt() {;}
+  inline ~cUInt() { ; }
 
   inline void Print() const { printf ("%ld", value); }
   inline int AsInt() const { return (int) value; }
@@ -35,7 +36,7 @@ public:
   inline void ShiftLeft(int num_bytes = 1) { value = value << (8 * num_bytes);}
   inline void ShiftRight(int num_bytes = 1){ value = value >> (8 * num_bytes);}
 
-  inline cUInt& operator=(const UCHAR in_char) {
+  inline cUInt& operator=(const unsigned char in_char) {
     value = (long) in_char;
     return *this;
   }
@@ -48,7 +49,7 @@ public:
     return *this;
   }
 
-  inline cUInt& operator*=(const UCHAR in_char){
+  inline cUInt& operator*=(const unsigned char in_char){
     value *= (long) in_char;
     return *this;
   }
@@ -186,12 +187,10 @@ public:
   inline int operator>=(const cUInt& in_cUInt) const {
     return (value >= in_cUInt.AsLong());
   }
-
 };
-#endif
 
 
-#ifndef LONG_C_UINT
+#else /* LONG_C_UINT */
 
 /**
  * This class constructs an arbitrary (pre-set) large integer.  Not all of the
@@ -200,7 +199,7 @@ public:
 
 class cUInt {
 private:
-  UCHAR * value;
+  unsigned char * value;
   int size;
 
 public:
@@ -217,17 +216,17 @@ public:
 
   inline int GetSize() const { return size; }
   inline int GetSizeUsed() const;
-  inline UCHAR GetByte(int byte_num) const { return value[byte_num]; }
-  inline void SetByte(int byte_num, UCHAR in_char) {value[byte_num] = in_char;}
+  inline unsigned char GetByte(int byte_num) const { return value[byte_num]; }
+  inline void SetByte(int byte_num, unsigned char in_char) {value[byte_num] = in_char;}
 
   inline void ShiftLeft(int num_bytes = 1);
   inline void ShiftRight(int num_bytes = 1);
 
-  inline cUInt& operator=(const UCHAR in_char);
+  inline cUInt& operator=(const unsigned char in_char);
   inline cUInt& operator=(const int in_int);
   inline cUInt& operator=(const cUInt& in_cUInt);
 
-  inline cUInt& operator*=(const UCHAR in_char);
+  inline cUInt& operator*=(const unsigned char in_char);
 
   inline cUInt& operator+=(const int in_int);
   inline cUInt& operator-=(const int in_int);
@@ -314,7 +313,7 @@ inline cUInt::cUInt()
 {
   int i;
   size = 10;
-  value = new UCHAR[size];
+  value = new unsigned char[size];
   for (i = 0; i < size; i++) {
     value[i] = 0;
   }
@@ -325,7 +324,7 @@ inline cUInt::cUInt(int in_size)
   int i;
 
   size = in_size;
-  value = new UCHAR[size];
+  value = new unsigned char[size];
   for (i = 0; i < size; i++) {
     value[i] = 0;
   }
@@ -336,9 +335,9 @@ inline cUInt::cUInt(int in_size, int in_value)
   int i;
 
   size = in_size;
-  value = new UCHAR[size];
+  value = new unsigned char[size];
   for (i = 0; i < size && i < 4; i++) {
-    value[i] = (UCHAR) (in_value >> (8 * i));
+    value[i] = static_cast<unsigned char>(in_value >> (8 * i));
   }
   while (i < size) {
     value[i++] = 0;
@@ -352,7 +351,7 @@ inline cUInt::~cUInt()
 
 inline void cUInt::Resize(int new_size)
 {
-  UCHAR * new_value = new UCHAR[new_size];
+  unsigned char * new_value = new unsigned char[new_size];
 
   int i;
   for (i = 0; i < new_size && i < size; i++) {
@@ -462,7 +461,7 @@ inline void cUInt::ShiftRight(int num_bytes)
   }
 }
 
-inline cUInt& cUInt::operator=(const UCHAR in_char)
+inline cUInt& cUInt::operator=(const unsigned char in_char)
 {
   int i;
   value[0] = in_char;
@@ -477,7 +476,7 @@ inline cUInt& cUInt::operator=(const int in_int)
 {
   int i;
   for (i = 0; i < 4 && i < size; i++) {
-    value[i] = (UCHAR) (in_int >> (8*i));
+    value[i] = static_cast<unsigned char>(in_int >> (8*i));
   }
   for (i = 4; i < size; i++) {
     value[i] = 0;
@@ -501,7 +500,7 @@ inline cUInt& cUInt::operator=(const cUInt& in_cUInt)
   return *this;
 }
 
-inline cUInt& cUInt::operator*=(const UCHAR in_char)
+inline cUInt& cUInt::operator*=(const unsigned char in_char)
 {
   int this_byte = 0, carry = 0;
   int i;
@@ -565,14 +564,14 @@ inline cUInt& cUInt::operator+=(const cUInt& in_cUInt)
   for (i = 0; i < size && i < in_cUInt.GetSize(); i++) {
     cur_sum += value[i];
     cur_sum += in_cUInt.GetByte(i);
-    value[i] = (UCHAR) (cur_sum & 255);
+    value[i] = static_cast<unsigned char>(cur_sum & 255);
     cur_sum = cur_sum >> 8;
   }
 
   // If there is still a remainder, and room for it, continue.
 
   while (cur_sum && i < size) {
-    value[i++] = (UCHAR) (cur_sum & 255);
+    value[i++] = static_cast<unsigned char>(cur_sum & 255);
   }
 
   return *this;
@@ -587,11 +586,11 @@ inline cUInt& cUInt::operator-=(const cUInt& in_cUInt)
     byte1 = (int) value[i];
     byte2 = (int) in_cUInt.GetByte(i);
     if (byte1 + next_byte >= byte2) {
-      value[i] = (UCHAR) (byte1 + next_byte - byte2);
+      value[i] = static_cast<unsigned char>(byte1 + next_byte - byte2);
       next_byte = 0;
     }
     else {
-      value[i] = (UCHAR) (256 + byte1 + next_byte - byte2);
+      value[i] = static_cast<unsigned char>(256 + byte1 + next_byte - byte2);
       next_byte = -1;
     }
   }
@@ -604,7 +603,7 @@ inline cUInt& cUInt::operator-=(const cUInt& in_cUInt)
       next_byte = 0;
     }
     else {
-      value[i] = (UCHAR) (256 + next_byte + (int) value[i]);
+      value[i] = static_cast<unsigned char>(256 + next_byte + (int) value[i]);
       next_byte = -1;
     }
   }
@@ -780,6 +779,18 @@ inline cUInt::operator>=(const cUInt& in_cUInt) const
   return !operator<(in_cUInt);
 }
 
+#endif
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nUInt {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
 #endif
 
 #endif

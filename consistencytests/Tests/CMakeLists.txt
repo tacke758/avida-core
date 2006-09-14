@@ -1,2 +1,2 @@
-SUBDIRS(Default)
-SUBDIRS(Researchers)
+SUBDIRS(Default SMT)
+#SUBDIRS(Researchers)

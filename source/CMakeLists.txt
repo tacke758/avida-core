@@ -1,5 +1,11 @@
 
-SUBDIRS(third-party tools cpu event main viewers testsuites support utils/task_events)
+SUBDIRS(actions analyze classification cpu drivers main platform targets third-party tools utils/task_events)
+IF(AVD_SERIALIZATION)
+  SUBDIRS(archive)
+ENDIF(AVD_SERIALIZATION)
 IF(AVD_PY_BINDINGS)
   SUBDIRS(bindings python)
 ENDIF(AVD_PY_BINDINGS)
+IF(AVD_UNIT_TESTS)
+  SUBDIRS(testsuites)
+ENDIF(AVD_UNIT_TESTS)

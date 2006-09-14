@@ -1,12 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  sCPUStats.h
+ *  Avida
+ *
+ *  Called "cpu_stats.hh" prior to 11/30/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef CPU_STATS_HH
-#define CPU_STATS_HH
+#ifndef sCPUStats_h
+#define sCPUStats_h
 
 /**
  * Class to facilitate passing information from CPU to Stats.
@@ -49,19 +52,26 @@ public:
     }
   };
 
-
   // Contiually Set
   sMutationStats mut_stats;
 
-
-  void Setup(int num_instructions) {
-    (void) num_instructions;
-    mut_stats.Clear();
-  }
+  void Setup() { mut_stats.Clear(); }
 
   void Clear() {  // Called on any New Creature
     mut_stats.Clear();
   }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nCPUStats {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

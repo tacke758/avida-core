@@ -1,25 +1,34 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tDataEntryBase.h
+ *  Avida
+ *
+ *  Called "tDataEntryBase.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef TDATAENTRYBASE_HH
-#define TDATAENTRYBASE_HH
+#ifndef tDataEntryBase_h
+#define tDataEntryBase_h
 
 #include <iostream>
 #include <sstream>
 
-#ifndef DATA_ENTRY_HH
+#ifndef cDataEntry_h
 #include "cDataEntry.h"
 #endif
-
-using namespace std;
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
 class cString;
 
 template <class T> class tDataEntryBase : public cDataEntry {
+#if USE_tMemTrack
+  tMemTrack<tDataEntryBase<T> > mt;
+#endif
 protected:
   T * target;
 public:
@@ -30,11 +39,11 @@ public:
   
   void SetTarget(T * _target) { target = _target; }
 
-  virtual bool Print(std::ostream & fp) const { (void) fp;  return false; }
+  virtual bool Print(std::ostream& fp) const { (void) fp;  return false; }
   virtual int Compare(T * other) const { (void) other; return 0; }
   virtual bool Set(const cString & value) { (void) value; return false; }
 
-  void HTMLPrint(std::ostream & fp, int compare=0, bool print_text=true) {
+  void HTMLPrint(std::ostream& fp, int compare=0, bool print_text=true) {
     fp << "<td " << GetHtmlCellFlags() << " ";
     if (compare == -2) {
       fp << "bgcolor=\"#FF0000\">";
@@ -57,7 +66,7 @@ public:
   }
 
   cString AsString() {
-    stringstream tmp_stream;
+    std::stringstream tmp_stream;
     tmp_stream << *this;
     cString out_str;
     tmp_stream >> out_str;

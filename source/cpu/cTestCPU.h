@@ -1,93 +1,146 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cTestCPU.h
+ *  Avida
+ *
+ *  Called "test_cpu.hh" prior to 11/30/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef TEST_CPU_HH
-#define TEST_CPU_HH
+#ifndef cTestCPU_h
+#define cTestCPU_h
 
 #include <fstream>
 
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-
-#ifndef RESOURCE_COUNT_HH
+#ifndef cResourceCount_h
 #include "cResourceCount.h"
 #endif
 
+class cAvidaContext;
 class cInstSet;
-class cEnvironment;
-class cPopulationInterface;
-template <class T> class tArray; // aggregate
 class cResourceCount;
 class cCPUTestInfo;
 class cGenome;
-class cString; // aggregate
+class cGenotype;
+class cWorld;
 
-class cTestCPU {
+class cTestResources
+{
+  friend class cTestCPU;
 private:
-  static cInstSet * inst_set;
-  static cEnvironment * environment;
-  static cPopulationInterface test_interface;
-  static tArray<int> input_array;
-  static tArray<int> receive_array;
-  static int cur_input;
-  static int cur_receive;
-  static cResourceCount resource_count;
-  static bool d_useResources;
-  static tArray<double> d_emptyDoubleArray;
-  static tArray<double> d_resources;
+  cResourceCount resource_count;
+  bool d_useResources;
+  tArray<double> d_emptyDoubleArray;
+  tArray<double> d_resources;
   
-  static bool initialized;
-
-  static bool ProcessGestation(cCPUTestInfo & test_info, int cur_depth);
-
-  static bool TestGenome_Body(cCPUTestInfo & test_info, const cGenome & genome,
-			      int cur_depth);
-
 public:
-  static void Setup(cInstSet * in_inst_set,
-  		    cEnvironment * in_env,
-		    int resourceSize,
-		    const cPopulationInterface & in_interface
-		    );
-  static void SetInstSet(cInstSet * in_inst_set);
-
-  static bool TestGenome(cCPUTestInfo & test_info, const cGenome & genome);
-  static bool TestGenome(cCPUTestInfo & test_info, const cGenome & genome,
-			 std::ofstream & out_fp);
-
-//  static void TraceGenome(const cGenome &genome, cString filename="trace.dat");
-
-  static void TestThreads(const cGenome & genome);
-  static void PrintThreads(const cGenome & genome);
-
-  // Test if a genome has any chance of being a replicator (i.e., in the
-  // default set, has an allocate, a copy, and a divide).
-  static bool TestIntegrity(const cGenome & test_genome);
-
-  static cInstSet * GetInstSet() { return inst_set; }
-  static cEnvironment * GetEnvironment() { return environment; }
-  static void SetEnvironment(cEnvironment *);
-  static int GetInput();
-  static int GetInputAt(int & input_pointer);
-  static int GetReceiveValue();
-  static const tArray<double> & GetResources();
-  static void UpdateResources(const tArray<double> & res_change);
-  static void UpdateResource(int id, double change);
-  static void UpdateCellResources(const tArray<double> & res_change,
-				  const int cell_id);
-  static void SetResource(int id, double new_level);
-  static void SetupResources(void);
-  static void SetupResourceArray(const tArray<double> &resources);
-  static bool &UseResources(void) { return d_useResources; }
-  static cResourceCount &GetResourceCount(void) {return resource_count;}
+  cTestResources(cWorld* world);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTestResources {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif
+
+class cTestCPU
+{
+private:
+  cWorld* m_world;
+  tArray<int> input_array;
+  tArray<int> receive_array;
+  int cur_input;
+  int cur_receive;
+  
+  cTestResources* m_res;
+  bool m_localres;
+
+  bool ProcessGestation(cAvidaContext& ctx, cCPUTestInfo& test_info, int cur_depth);
+  bool TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome, int cur_depth);
+
+  cTestCPU(); // @not_implemented
+  cTestCPU(const cTestCPU&); // @not_implemented
+  cTestCPU& operator=(const cTestCPU&); // @not_implemented
+  
+public:
+  cTestCPU(cWorld* world) : m_world(world), m_res(new cTestResources(world)), m_localres(true) { ; }
+  cTestCPU(cWorld* world, cTestResources* res) : m_world(world), m_res(res), m_localres(false) { ; }
+  ~cTestCPU() { if (m_localres) delete m_res; }
+  
+  bool TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome);
+  bool TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome, std::ofstream& out_fp);
+  
+  void PrintGenome(cAvidaContext& ctx, const cGenome& genome, cString filename,
+                   cGenotype* genotype = NULL, int update = -1);
+
+  inline int GetInput();
+  inline int GetInputAt(int & input_pointer);
+  inline int GetReceiveValue();
+  inline const tArray<double>& GetResources();
+  inline void SetResource(int id, double new_level);
+  void SetupResourceArray(const tArray<double> &resources);
+  void SetUseResources(bool use);
+  bool GetUseResources() { return m_res->d_useResources; }
+  cResourceCount& GetResourceCount(void) { return m_res->resource_count; }
+};
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTestCPU {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif
+
+
+
+// Inline Methods
+
+inline int cTestCPU::GetInput()
+{
+  if (cur_input >= input_array.GetSize()) cur_input = 0;
+  return input_array[cur_input++];
+}
+
+inline int cTestCPU::GetInputAt(int & input_pointer)
+{
+  if (input_pointer >= input_array.GetSize()) input_pointer = 0;
+  return input_array[input_pointer++];
+}
+
+inline int cTestCPU::GetReceiveValue()
+{
+  if (cur_receive >= receive_array.GetSize()) cur_receive = 0;
+  return receive_array[cur_receive++];
+}
+
+inline const tArray<double>& cTestCPU::GetResources()
+{
+  if(m_res->d_useResources) return m_res->d_resources;
+  
+  return m_res->d_emptyDoubleArray;
+}
+
+inline void cTestCPU::SetResource(int id, double new_level)
+{
+  if (!m_localres) m_res = new cTestResources(*m_res);  // copy resources locally
+  m_res->resource_count.Set(id, new_level);
+}
 
 #endif

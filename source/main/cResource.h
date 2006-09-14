@@ -1,20 +1,22 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cResource.h
+ *  Avida
+ *
+ *  Called "resource.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef RESOURCE_HH
-#define RESOURCE_HH
+#ifndef cResource_h
+#define cResource_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
 
-class cString; // aggregate
-
-class cResource {
+class cResource
+{
 private:
   cString name;
   int id;
@@ -35,8 +37,11 @@ private:
   double ydiffuse;
   double ygravity;
  
+  
+  cResource(); // @not_implemented
+  
 public:
-  cResource(const cString & _name, int _id);
+  cResource(const cString& _name, int _id);
   ~cResource() { ; }
 
   const cString & GetName() const { return name; }
@@ -76,5 +81,17 @@ public:
   void SetYDiffuse(double _ydiffuse) { ydiffuse = _ydiffuse; }
   void SetYGravity(double _ygravity) { ygravity = _ygravity; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nResource {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

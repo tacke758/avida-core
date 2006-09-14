@@ -1,29 +1,37 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tDataEntry.h
+ *  Avida
+ *
+ *  Called "tDataEntry.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef TDATAENTRY_HH
-#define TDATAENTRY_HH
+#ifndef tDataEntry_h
+#define tDataEntry_h
 
 #include <iostream>
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef STRING_UTIL_HH
+#ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
-#ifndef TDATAENTRYBASE_HH
+#ifndef tDataEntryBase_h
 #include "tDataEntryBase.h"
 #endif
-
-class cString;
-struct cStringUtil; // access
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
 template <class T, class OUT> class tDataEntry : public tDataEntryBase<T> {
+#if USE_tMemTrack
+  tMemTrack<tDataEntry<T, OUT> > mt;
+#endif
 protected:
   OUT  (T::*DataRetrieval)() const;
   void (T::*DataSet)(OUT);
@@ -41,7 +49,7 @@ public:
     : tDataEntryBase<T>(_name, _desc, _null, _html_cell), DataRetrieval(_funR),
       DataSet(_funS), DataCompare(_funC) { ; }
 
-  bool Print(std::ostream & fp) const {
+  bool Print(std::ostream& fp) const {
     if (this->target == NULL) return false;
     fp << (this->target->*DataRetrieval)();
     return true;

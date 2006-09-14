@@ -1,20 +1,18 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2001 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cSpatialResCount.cc
+ *  Avida
+ *
+ *  Called "spatial_res_count.cc" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef SPATIAL_RES_COUNT_HH
 #include "cSpatialResCount.h"
-#endif
 
-#ifndef CONFIG_HH
-#include "cConfig.h"
-#endif
-#ifndef FUNCTIONS_HH
 #include "functions.h"
-#endif
+#include "nGeometry.h"
+
 
 cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, 
                   int ingeometry, 

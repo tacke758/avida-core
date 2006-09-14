@@ -1,71 +1,55 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2004 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHardwareStatusPrinter.h
+ *  Avida
+ *
+ *  Called "hardware_status_printer.hh" prior to 11/30/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2004 California Institute of Technology.
+ *
+ */
 
-#ifndef HARDWARE_STATUS_PRINTER_HH
-#define HARDWARE_STATUS_PRINTER_HH
+#ifndef cHardwareStatusPrinter_h
+#define cHardwareStatusPrinter_h
 
 #include <iostream>
 
-#ifndef HARDWARE_TRACER_HH
+#ifndef cHardwareTracer_h
 #include "cHardwareTracer.h"
 #endif
-#ifndef HARDWARE_TRACER_4STACK_HH
-#include "cHardwareTracer_4Stack.h"
-#endif
-#ifndef HARDWARE_TRACER_SMT_H
-#include "cHardwareTracer_SMT.h"
-#endif
-#ifndef HARDWARE_TRACER_CPU_HH
-#include "cHardwareTracer_CPU.h"
-#endif
-#ifndef HARDWARE_TRACER_TEST_CPU_HH
-#include "cHardwareTracer_TestCPU.h"
-#endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
 
-
-using namespace std;
-
-
 class cHardwareBase;
 
-class cHardwareStatusPrinter :
-  public cHardwareTracer,
-  public cHardwareTracer_CPU,
-  public cHardwareTracer_4Stack,
-  public cHardwareTracer_SMT,
-  public cHardwareTracer_TestCPU
+class cHardwareStatusPrinter : public cHardwareTracer
 {
 protected:
-  ostream &m_trace_fp;
-protected:
-  const cString & GetNextInstName(cHardwareCPU& hardware);
-  const cString & GetNextInstName(cHardware4Stack& hardware);
-  const cString & GetNextInstName(cHardwareSMT& hardware);
-  cString Bonus(const cString &next_name);
-  void PrintStatus(cHardwareBase& hardware, const cString& next_name);
-public:
-  cHardwareStatusPrinter(ostream& trace_fp) : m_trace_fp(trace_fp) {;}
+  std::ostream& m_trace_fp;
 
-  virtual void TraceHardware_CPU(cHardwareCPU &hardware);
-  virtual void TraceHardware_4Stack(cHardware4Stack &hardware);
-  virtual void TraceHardware_SMT(cHardwareSMT &hardware);
-  virtual void TraceHardware_CPUBonus(cHardwareCPU &hardware);
-  virtual void TraceHardware_4StackBonus(cHardware4Stack &hardware);
-  virtual void TraceHardware_SMTBonus(cHardwareSMT &hardware);
-  virtual void TraceHardware_TestCPU(
-    int time_used,
-    int time_allocated,
-    int size,
-    const cString &final_memory,
-    const cString &child_memory
-  );
+
+private: 
+  cHardwareStatusPrinter(); // @not_implemented
+
+
+public:
+  cHardwareStatusPrinter(std::ostream& trace_fp) : m_trace_fp(trace_fp) { ; }
+
+  virtual void TraceHardware(cHardwareBase& hardware, bool bonus);
+  virtual void TraceTestCPU(int time_used, int time_allocated, int size,
+                            const cString& final_memory, const cString& child_memory);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHardwareStatusPrinter {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

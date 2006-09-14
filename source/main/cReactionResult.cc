@@ -1,13 +1,14 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2004 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cReactionResult.cc
+ *  Avida
+ *
+ *  Called "reaction_result.cc" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2004 California Institute of Technology.
+ *
+ */
 
 #include "cReactionResult.h"
-#include <iostream>
-using namespace std;
 
 
 cReactionResult::cReactionResult(const int num_resources,
@@ -18,8 +19,6 @@ cReactionResult::cReactionResult(const int num_resources,
   , resources_detected(num_resources)
   , tasks_done(num_tasks)
   , tasks_quality(num_tasks)
-  , receive_tasks_done(num_tasks)
-  , send_tasks_done(num_tasks)
   , reactions_triggered(num_reactions)
   , bonus_add(0.0)
   , bonus_mult(1.0)
@@ -28,11 +27,6 @@ cReactionResult::cReactionResult(const int num_resources,
   , active_reaction(false)
 {
 }
-
-cReactionResult::~cReactionResult()
-{
-}
-
 
 void cReactionResult::ActivateReaction()
 {
@@ -45,8 +39,6 @@ void cReactionResult::ActivateReaction()
   resources_detected.SetAll(-1.0);
   tasks_done.SetAll(false);
   tasks_quality.SetAll(0.0);
-  receive_tasks_done.SetAll(false);
-  send_tasks_done.SetAll(false);
   reactions_triggered.SetAll(false);
 
   // And finally note that this is indeed already active.
@@ -80,25 +72,11 @@ void cReactionResult::Lethal(bool flag)
  lethal = flag;
 }
 
-void cReactionResult::MarkTask(int id, double quality)
+void cReactionResult::MarkTask(int id, const double quality)
 {
   ActivateReaction();
   tasks_done[id] = true;
   tasks_quality[id] = quality;
-}
-
-
-void cReactionResult::MarkReceiveTask(int id)
-{
-  ActivateReaction();
-  receive_tasks_done[id] = true;
-}
-
-
-void cReactionResult::MarkSendTask(int id)
-{
-  ActivateReaction();
-  send_tasks_done[id] = true;
 }
 
 
@@ -168,22 +146,5 @@ double cReactionResult::TaskQuality(int id)
 {
 	if (GetActive() == false) return 0;
 	return tasks_quality[id];
-}
-
-double cReactionResult::GetAddBonus()
-{
-  if (GetActive() == false) return 0.0;
-  return bonus_add;
-}
-
-double cReactionResult::GetMultBonus()
-{
-  if (GetActive() == false) return 1.0;
-  return bonus_mult;
-}
-
-tArray<int> & cReactionResult::GetInstArray()
-{
-  return insts_triggered;
 }
 

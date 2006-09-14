@@ -1,9 +1,11 @@
 /*
-Copyright (C) 1993 - 2004 California Institute of Technology
-
-Read the COPYING and README files, or contact 'avida@alife.org',
-before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.
-*/
+ *  cCycleCheck.cc
+ *  Avida
+ *
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2004 California Institute of Technology.
+ *
+ */
 
 #include "cCycleCheck.h"
 #include "cID.h"

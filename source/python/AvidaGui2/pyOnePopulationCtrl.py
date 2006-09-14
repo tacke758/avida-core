@@ -32,19 +32,11 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
   def dragEnterEvent( self, e ):
     descr(e)
-    #e.acceptAction(True)
-    #if e.isAccepted():
-    #  descr("isAccepted.")
-    #else:
-    #  descr("not isAccepted.")
-
-    freezer_item_name = QString()
-    if ( QTextDrag.decode( e, freezer_item_name ) ) : #freezer_item_name is a string...the file name 
-      if os.path.exists(str(freezer_item_name)) == False:
-        descr("that was not a valid path (1)")
-      else: 
-        e.acceptAction(True)
-        descr("accepted.")
+    e.acceptAction(True)
+    if e.isAccepted():
+      descr("isAccepted.")
+    else:
+      descr("not isAccepted.")
 
 
   def dropEvent( self, e ):

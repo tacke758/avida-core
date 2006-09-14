@@ -1,35 +1,37 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cMessageClosure.h
+ *  Avida
+ *
+ *  Called "message_closure.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef MESSAGE_CLOSURE_HH
-#define MESSAGE_CLOSURE_HH
+#ifndef cMessageClosure_h
+#define cMessageClosure_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
 
 class cMessageType;
-class cString; // aggregate
 class QString;
 
 class cMessageClosure{
 private:
-  cMessageType &_type;
-  const char *_function;
-  const char *_file;
+  cMessageType& _type;
+  const char* _function;
+  const char* _file;
   int _line;
   int _error;
   int _op_count;
   cString _msg;
 public:
   cMessageClosure(
-    cMessageType &type,
-    const char *function_name,
-    const char *file_name,
+    cMessageType& type,
+    const char* function_name,
+    const char* file_name,
     int line_number
   );
   ~cMessageClosure(void);
@@ -72,9 +74,15 @@ public:
   cMessageClosure &operator()(unsigned long i){ return operator<<(i); }
   cMessageClosure &operator()(float f){ return operator<<(f); }
   cMessageClosure &operator()(double f){ return operator<<(f); }
-  cMessageClosure &operator()(const void *p){ return operator<<(p); }
+  /*
+  @kgn : I've disabled void* and QString& versions below because they
+  aren't Pyste-friendly; but they're still enabled in the operator<<
+  calls above, which are more convenient for c++ use (and we aren't
+  using them from Python).
+  */
+  //cMessageClosure &operator()(const void *p){ return operator<<(p); }
   cMessageClosure &operator()(const char *s){ return operator<<(s); }
-  cMessageClosure &operator()(const QString &s){ return operator<<(s); }
+  //cMessageClosure &operator()(const QString &s){ return operator<<(s); }
 
   /*
   cMessageClosure::va():
@@ -88,6 +96,18 @@ public:
 private:
   void prefix(void);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nMessageClosure {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 /*
 you probably don't need to change these macros...

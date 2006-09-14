@@ -1,23 +1,24 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHelpEntry.h
+ *  Avida
+ *
+ *  Called "help_entry.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef HELP_ENTRY_HH
-#define HELP_ENTRY_HH
+#ifndef cHelpEntry_h
+#define cHelpEntry_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef STRING_UTIL_HH
+#ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
 
 class cHelpType;
-class cString; // aggregate
-class cStringUtil; // accessed
 
 class cHelpEntry {
 protected:
@@ -33,8 +34,19 @@ public:
 
   virtual bool IsAlias() const = 0;
 
-  cString GetHTMLFilename() const
-    { return cStringUtil::Stringf("help.%s.html", GetKeyword()()); }
+  cString GetHTMLFilename() const { return cStringUtil::Stringf("help.%s.html", static_cast<const char*>(GetKeyword())); }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHelpEntry {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

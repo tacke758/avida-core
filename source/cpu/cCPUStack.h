@@ -1,12 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cCPUStack.h
+ *  Avida
+ *
+ *  Called "cpu_stack.hh" prior to 11/17/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef CPU_STACK_HH
-#define CPU_STACK_HH
+#ifndef cCPUStack_h
+#define cCPUStack_h
 
 #include <iostream>
 
@@ -14,25 +17,23 @@
 #include "nHardware.h"
 #endif
 
-/**
- * A CPU stack, used by various hardware components.
- *
- * @see cCPUThread, cHeadCPU, cHardware
- **/
-
-class cCPUStack {
+class cCPUStack
+{
 private:
   int stack[nHardware::STACK_SIZE];
   unsigned char stack_pointer;
-public:
-  cCPUStack();
-  cCPUStack(const cCPUStack & in_stack);
-  ~cCPUStack();
 
-  void operator=(const cCPUStack & in_stack);
+public:
+  cCPUStack() { Clear(); }
+  cCPUStack(const cCPUStack& in_stack);
+  ~cCPUStack() { ; }
+
+  void operator=(const cCPUStack& in_stack);
 
   inline void Push(int value);
   inline int Pop();
+  inline int& Peek() { return stack[stack_pointer]; }
+  inline const int Peek() const { return stack[stack_pointer]; }
   inline int Get(int depth=0) const;
   inline void Clear();
   inline int Top();
@@ -40,9 +41,21 @@ public:
 
   bool OK();
 
-  void SaveState(std::ostream & fp);
+  void SaveState(std::ostream& fp);
   void LoadState(std::istream & fp);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nCPUStack {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 inline void cCPUStack::Push(int value)
@@ -70,7 +83,7 @@ inline int cCPUStack::Get(int depth) const
 
 inline void cCPUStack::Clear()
 {
-  for (int i =0; i < nHardware::STACK_SIZE; i++) { stack[i] = 0; }
+  for (int i = 0; i < nHardware::STACK_SIZE; i++) stack[i] = 0;
   stack_pointer = 0;
 }
 

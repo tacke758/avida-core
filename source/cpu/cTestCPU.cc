@@ -1,76 +1,43 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cTestCPU.cc
+ *  Avida
+ *
+ *  Called "test_cpu.cc" prior to 11/30/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2003 California Institute of Technology.
+ *
+ */
 
 #include "cTestCPU.h"
 
+#include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
-#include "cConfig.h"
 #include "cEnvironment.h"
 #include "functions.h"
+#include "cGenotype.h"
 #include "cHardwareBase.h"
+#include "cHardwareManager.h"
 #include "cHardwareStatusPrinter.h"
 #include "cInstSet.h"
 #include "cInstUtil.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
-#include "cPopulationInterface.h"
+#include "cTestCPUInterface.h"
 #include "cResourceCount.h"
 #include "cResourceLib.h"
 #include "cResource.h"
 #include "cStringUtil.h"
+#include "cWorld.h"
 #include "tMatrix.h"
 
 #include <iomanip>
 
 using namespace std;
 
-
-// Static Variables
-cInstSet * cTestCPU::inst_set(NULL);
-cEnvironment * cTestCPU::environment(NULL);
-cPopulationInterface cTestCPU::test_interface;
-tArray<int> cTestCPU::input_array;
-tArray<int> cTestCPU::receive_array;
-int cTestCPU::cur_input;
-int cTestCPU::cur_receive;
-cResourceCount cTestCPU::resource_count;
-
-bool cTestCPU::initialized(false);
-bool cTestCPU::d_useResources(false);
-tArray<double> cTestCPU::d_emptyDoubleArray;
-tArray<double> cTestCPU::d_resources;
-
-
-//////////////////////////////
-//  cTestCPU  (Static Class)
-//////////////////////////////
-
-void cTestCPU::Setup(cInstSet * in_inst_set,
-		     cEnvironment * in_env,
-		     int resourceSize,
-		     const cPopulationInterface & in_interface)
+cTestResources::cTestResources(cWorld* world)
 {
-  inst_set = in_inst_set;
-  environment = in_env;
-  resource_count.SetSize(in_env->GetResourceLib().GetSize());
-  //d_emptyDoubleArray.ResizeClear(in_env->GetResourceLib().GetSize());
-  //d_resources.ResizeClear(in_env->GetResourceLib().GetSize());
-  SetupResources();
-  test_interface = in_interface;
-  initialized = true;
-
-}
-
-void cTestCPU::SetupResources(void) {
-
-    // Setup the resources...
-  assert(environment);
-
-  const cResourceLib & resource_lib = environment->GetResourceLib();
+  // Setup the resources...
+  const cResourceLib& resource_lib = world->GetEnvironment().GetResourceLib();
   assert(resource_lib.GetSize() >= 0);
 
   resource_count.SetSize(resource_lib.GetSize());
@@ -80,12 +47,11 @@ void cTestCPU::SetupResources(void) {
     d_emptyDoubleArray[i] = 0.0;
     d_resources[i] = 0.0;
   }
-  //resource_count.ResizeSpatialGrids(cConfig::GetWorldX(),
-  //				    cConfig::GetWorldY());
+
   resource_count.ResizeSpatialGrids(1, 1);
 
   for (int i = 0; i < resource_lib.GetSize(); i++) {
-    cResource * res = resource_lib.GetResource(i);
+    cResource* res = resource_lib.GetResource(i);
     const double decay = 1.0 - res->GetOutflow();
     resource_count.Setup(i, res->GetName(), res->GetInitial(), 
                            res->GetInflow(), decay,
@@ -97,106 +63,81 @@ void cTestCPU::SetupResources(void) {
                            res->GetOutflowX2(), res->GetOutflowY1(), 
                            res->GetOutflowY2() );
   }
-
-  return;
-
 }
 
-void cTestCPU::SetupResourceArray(const tArray<double> &resources) {
-  for(int i=0; i<d_resources.GetSize(); i++) {
+
+void cTestCPU::SetupResourceArray(const tArray<double> &resources)
+{
+  if (!m_localres) m_res = new cTestResources(*m_res);
+
+  for(int i = 0; i < m_res->d_resources.GetSize(); i++) {
     if(i >= resources.GetSize()) {
-      d_resources[i] = 0.0;
+      m_res->d_resources[i] = 0.0;
     } else {
-      d_resources[i] = resources[i];
+      m_res->d_resources[i] = resources[i];
     }
   }
-
-  return;
 }
 
-void cTestCPU::SetInstSet(cInstSet * in_inst_set)
+void cTestCPU::SetUseResources(bool use)
 {
-  inst_set = in_inst_set;
+  if (m_res->d_useResources != use) {
+    if (!m_localres) m_res = new cTestResources(*m_res);
+    m_res->d_useResources = use;
+  }
 }
 
-void cTestCPU::SetEnvironment(cEnvironment *e)
-{
-  environment = e;
-  return;
-}
 
 // NOTE: This method assumes that the organism is a fresh creation.
-bool cTestCPU::ProcessGestation(cCPUTestInfo & test_info, int cur_depth)
+bool cTestCPU::ProcessGestation(cAvidaContext& ctx, cCPUTestInfo& test_info, int cur_depth)
 {
-  assert(initialized == true);
   assert(test_info.org_array[cur_depth] != NULL);
 
   cOrganism & organism = *( test_info.org_array[cur_depth] );
 
   // Determine how long this organism should be tested for...
-  int time_allocated = cConfig::GetTestCPUTimeMod() *
-    organism.GetGenome().GetSize();
-
-  // Make sure this genome stands a chance...
-  if (TestIntegrity(organism.GetGenome()) == false)  time_allocated = 0;
+  int time_allocated = m_world->GetConfig().TEST_CPU_TIME_MOD.Get() * organism.GetGenome().GetSize();
 
   // Prepare the inputs...
   cur_input = 0;
   cur_receive = 0;
 
   // Determine if we're tracing and what we need to print.
-  cHardwareTracer * tracer =
-    test_info.GetTraceExecution() ? (test_info.GetTracer()) : NULL;
+  cHardwareTracer* tracer = test_info.GetTraceExecution() ? (test_info.GetTracer()) : NULL;
 
   int time_used = 0;
-  while (time_used < time_allocated &&
-	 organism.GetHardware().GetMemory().GetSize() &&
-	 organism.GetPhenotype().GetNumDivides() == 0) {
+  organism.GetHardware().SetTrace(tracer);
+  while (time_used < time_allocated && organism.GetHardware().GetMemory().GetSize() &&
+         organism.GetPhenotype().GetNumDivides() == 0)
+  {
     time_used++;
-    organism.GetHardware().SetTrace(tracer);
-    organism.GetHardware().SingleProcess();
-    organism.GetHardware().SetTrace(NULL);
-    //resource_count.Update(1/cConfig::GetAveTimeslice());
+    organism.GetHardware().SingleProcess(ctx);
     // @CAO Need to watch out for parasites.
   }
+  organism.GetHardware().SetTrace(NULL);
 
   // Print out some final info in trace...
-  if (tracer != NULL) {
-    if (cHardwareTracer_TestCPU * tracer_test_cpu
-        = dynamic_cast<cHardwareTracer_TestCPU *>(tracer)
-    ){
-      tracer_test_cpu->TraceHardware_TestCPU(
-        time_used,
-        time_allocated,
-        organism.GetHardware().GetMemory().GetSize(),
-        organism.GetHardware().GetMemory().AsString(),
-        organism.ChildGenome().AsString()
-      );
-    }
-  }
+  if (tracer != NULL) tracer->TraceTestCPU(time_used, time_allocated, organism.GetHardware().GetMemory().GetSize(),
+                                           organism.GetHardware().GetMemory().AsString(), organism.ChildGenome().AsString());
 
   // For now, always return true.
   return true;
 }
 
 
-bool cTestCPU::TestGenome(cCPUTestInfo & test_info, const cGenome & genome)
+bool cTestCPU::TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome)
 {
-  assert(initialized == true);
-
   test_info.Clear();
-  TestGenome_Body(test_info, genome, 0);
+  TestGenome_Body(ctx, test_info, genome, 0);
 
   return test_info.is_viable;
 }
 
-bool cTestCPU::TestGenome(cCPUTestInfo & test_info, const cGenome & genome,
-		       ofstream & out_fp)
+bool cTestCPU::TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome,
+                          ofstream& out_fp)
 {
-  assert(initialized == true);
-
   test_info.Clear();
-  TestGenome_Body(test_info, genome, 0);
+  TestGenome_Body(ctx, test_info, genome, 0);
 
   ////////////////////////////////////////////////////////////////
   // IsViable() == false
@@ -224,10 +165,9 @@ bool cTestCPU::TestGenome(cCPUTestInfo & test_info, const cGenome & genome,
   return test_info.is_viable;
 }
 
-bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
-			       const cGenome & genome, int cur_depth)
+bool cTestCPU::TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info,
+                               const cGenome& genome, int cur_depth)
 {
-  assert(initialized == true);
   assert(cur_depth < test_info.generation_tests);
 
   if (test_info.GetUseRandomInputs() == false) {
@@ -247,8 +187,8 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
     receive_array[1] = 0x33083ee5;  // 00110011 00001000 00111110 11100101
     receive_array[2] = 0x5562eb41;  // 01010101 01100010 11101011 01000001
   } else {
-    environment->SetupInputs(input_array);
-    environment->SetupInputs(receive_array);
+    m_world->GetEnvironment().SetupInputs(ctx, input_array);
+    m_world->GetEnvironment().SetupInputs(ctx, receive_array);
   }
 
   if (cur_depth > test_info.max_depth) test_info.max_depth = cur_depth;
@@ -257,13 +197,13 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
   if (test_info.org_array[cur_depth] != NULL) {
     delete test_info.org_array[cur_depth];
   }
-  test_info.org_array[cur_depth] =
-    new cOrganism(genome, test_interface, *environment);
+  test_info.org_array[cur_depth] = new cOrganism(m_world, ctx, genome);
   cOrganism & organism = *( test_info.org_array[cur_depth] );
+  organism.SetOrgInterface(new cTestCPUInterface(this));
   organism.GetPhenotype().SetupInject(genome.GetSize());
 
   // Run the current organism.
-  ProcessGestation(test_info, cur_depth);
+  ProcessGestation(ctx, test_info, cur_depth);
 
   // Must be able to divide twice in order to form a successful colony,
   // assuming the CPU doesn't get reset on divides.
@@ -304,7 +244,7 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
   // If we haven't reached maximum depth yet, check out the child.
   if (cur_depth+1 < test_info.generation_tests) {
     // Run the child's genome.
-    return TestGenome_Body(test_info, organism.ChildGenome(), cur_depth+1);
+    return TestGenome_Body(ctx, test_info, organism.ChildGenome(), cur_depth+1);
   }
 
   // All options have failed; just return false.
@@ -312,138 +252,77 @@ bool cTestCPU::TestGenome_Body(cCPUTestInfo & test_info,
 }
 
 
-void cTestCPU::TestThreads(const cGenome & genome)
+void cTestCPU::PrintGenome(cAvidaContext& ctx, const cGenome& genome, cString filename,
+                           cGenotype* genotype, int update)
 {
-  assert(initialized == true);
-
-  static ofstream fp("threads.dat");
-
+  if (filename == "") filename.Set("archive/%03d-unnamed.org", genome.GetSize());
+    
   cCPUTestInfo test_info;
-  test_info.TestThreads();
-  cTestCPU::TestGenome(test_info, genome);
-
-//  fp << cStats::GetUpdate()             << " "    // 1
-//     << genome.GetSize()                << " ";   // 2
-//       << cStats::GetAveNumThreads()      << " "   // 3
-//       << cStats::GetAveThreadDist()      << " ";  // 4
-
-//    fp << test_info.GetGenotypeMerit()          << " "   // 5
-//       << test_info.GetGenotypeGestation()      << " "   // 6
-//       << test_info.GetGenotypeFitness()        << " "   // 7
-//       << test_info.GetGenotypeThreadFrac()     << " "   // 8
-//       << test_info.GetGenotypeThreadTimeDiff() << " "   // 9
-//       << test_info.GetGenotypeThreadCodeDiff() << " ";  // 10
-
-//    fp << test_info.GetColonyMerit()          << " "   // 11
-//       << test_info.GetColonyGestation()      << " "   // 12
-//       << test_info.GetColonyFitness()        << " "   // 13
-//       << test_info.GetColonyThreadFrac()     << " "   // 14
-//       << test_info.GetColonyThreadTimeDiff() << " "   // 15
-//       << test_info.GetColonyThreadCodeDiff() << " ";  // 16
-
-  fp << endl;
-}
-
-
-void cTestCPU::PrintThreads(const cGenome & genome)
-{
-  assert(initialized == true);
-
-  cCPUTestInfo test_info;
-  test_info.TestThreads();
-  test_info.PrintThreads();
-  cTestCPU::TestGenome(test_info, genome);
-}
-
-
-bool cTestCPU::TestIntegrity(const cGenome & test_genome)
-{
-#ifdef QUICK_BASE_TEST_CPU
-  // This checks to make sure a 'copy', 'divide', and 'allocate' are all in
-  // the creatures, and if not doesn't even bother to test it.
-  static UCHAR copy_id  = inst_set->GetInstID("copy");
-  static UCHAR div_id   = inst_set->GetInstID("divide");
-  static UCHAR alloc_id = inst_set->GetInstID("allocate");
-#endif
-
-#ifdef QUICK_HEAD_TEST_CPU
-  // This checks to make sure a 'copy', 'divide', and 'allocate' are all in
-  // the creatures, and if not doesn't even bother to test it.
-  static UCHAR copy_id  = inst_set->GetInstID("h-copy");
-  static UCHAR div_id   = inst_set->GetInstID("h-divide");
-  static UCHAR alloc_id = inst_set->GetInstID("h-alloc");
-#endif
-
-
-#ifdef QUICK_TEST_CPU
-  bool copy_found = false;
-  bool div_found = false;
-  bool alloc_found = false;
-
-  for (int i = 0; i < test_genome.GetSize(); i++) {
-    if (test_genome[i].GetOp() == copy_id)  copy_found  = true;
-    if (test_genome[i].GetOp() == div_id)   div_found   = true;
-    if (test_genome[i].GetOp() == alloc_id) alloc_found = true;
+  TestGenome(ctx, test_info, genome);
+  
+  // Open the file...
+  cDataFile& df = m_world->GetDataFile(filename);
+  
+  // Print the useful info at the top...
+  df.WriteTimeStamp();  
+  cString c("");
+  
+  df.WriteComment(c.Set("Filename........: %s", static_cast<const char*>(filename)));
+  
+  if (update >= 0) df.WriteComment(c.Set("Update Output...: %d", update));
+  else df.WriteComment("Update Output...: N/A");
+  
+  df.WriteComment(c.Set("Is Viable.......: %d", test_info.IsViable()));
+  df.WriteComment(c.Set("Repro Cycle Size: %d", test_info.GetMaxCycle()));
+  df.WriteComment(c.Set("Depth to Viable.: %d", test_info.GetDepthFound()));
+  
+  if (genotype != NULL) {
+    df.WriteComment(c.Set("Update Created..: %d", genotype->GetUpdateBorn()));
+    df.WriteComment(c.Set("Genotype ID.....: %d", genotype->GetID()));
+    df.WriteComment(c.Set("Parent Gen ID...: %d", genotype->GetParentID()));
+    df.WriteComment(c.Set("Tree Depth......: %d", genotype->GetDepth()));
+    df.WriteComment(c.Set("Parent Distance.: %d", genotype->GetParentDistance()));
   }
 
-  if (copy_found == false || div_found == false || alloc_found == false) {
-    return false;
+  df.WriteComment("");
+  
+  const int num_levels = test_info.GetMaxDepth() + 1;
+  for (int j = 0; j < num_levels; j++) {
+    df.WriteComment(c.Set("Generation: %d", j));
+
+    cOrganism* organism = test_info.GetTestOrganism(j);
+    assert(organism != NULL);
+    cPhenotype& phenotype = organism->GetPhenotype();
+    
+    df.WriteComment(c.Set("Merit...........: %f", phenotype.GetMerit().GetDouble()));
+    df.WriteComment(c.Set("Gestation Time..: %d", phenotype.GetGestationTime()));
+    df.WriteComment(c.Set("Fitness.........: %f", phenotype.GetFitness()));
+    df.WriteComment(c.Set("Errors..........: %d", phenotype.GetLastNumErrors()));
+    df.WriteComment(c.Set("Genome Size.....: %d", organism->GetGenome().GetSize()));
+    df.WriteComment(c.Set("Copied Size.....: %d", phenotype.GetCopiedSize()));
+    df.WriteComment(c.Set("Executed Size...: %d", phenotype.GetExecutedSize()));
+    
+    if (phenotype.GetNumDivides() == 0) df.WriteComment("Offspring.......: NONE");
+    else if (phenotype.CopyTrue() == true) df.WriteComment("Offspring.......: SELF");
+    else if (test_info.GetCycleTo() != -1) df.WriteComment(c.Set("Offspring.......: %d", test_info.GetCycleTo()));
+    else df.WriteComment(c.Set("Offspring.......: %d", j + 1));
+    
+    df.WriteComment("");
   }
-#endif
-
-  return true;
-}
-
-
-
-int cTestCPU::GetInput()
-{
-  if (cur_input >= input_array.GetSize()) cur_input = 0;
-  return input_array[cur_input++];
-}
-
-int cTestCPU::GetInputAt(int & input_pointer)
-{
-  if (input_pointer >= input_array.GetSize()) input_pointer = 0;
-  return input_array[input_pointer++];
-}
-
-int cTestCPU::GetReceiveValue()
-{
-  if (cur_receive >= receive_array.GetSize()) cur_receive = 0;
-  return receive_array[cur_receive++];
-}
-
-const tArray<double> & cTestCPU::GetResources()
-{
-  if(d_useResources) {
-    //return resource_count.GetResources();  // Changed to use my own vector
-    return d_resources;
+  
+  df.WriteComment("Tasks Performed:");
+  cPhenotype& phenotype = test_info.GetTestPhenotype();
+  for (int i = 0; i < m_world->GetEnvironment().GetTaskLib().GetSize(); i++) {
+    df.WriteComment(c.Set("%s %d",
+                          static_cast<const char*>(m_world->GetEnvironment().GetTaskLib().GetTask(i).GetName()),
+                          phenotype.GetLastTaskCount()[i]));
   }
 
-  return d_emptyDoubleArray;
-  //assert(resource_count != NULL);       // Original line
-  //return resource_count.GetResources();   // Original line
+  df.Endl();
+  
+  // Display the genome
+  cInstUtil::SaveGenome(df.GetOFStream(), test_info.GetTestOrganism()->GetHardware().GetInstSet(), genome);
+  
+  m_world->GetDataFileManager().Remove(filename);
 }
 
-
-void cTestCPU::UpdateResources(const tArray<double> & res_change)
-{
-  //resource_count.Modify(res_change);
-}
-
-void cTestCPU::UpdateResource(int id, double change)
-{
-  //resource_count.Modify(id, change);
-}
-
-void cTestCPU::UpdateCellResources(const tArray<double> & res_change, 
-                                      const int cell_id)
-{
-  //resource_count.ModifyCell(res_change, cell_id);
-}
-
-void cTestCPU::SetResource(int id, double new_level)
-{
-  resource_count.Set(id, new_level);
-}

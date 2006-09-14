@@ -1,9 +1,10 @@
 /*
  *  cAvidaConfig.cc
- *  Avida2
+ *  Avida
  *
  *  Created by David on 10/16/05.
- *  Copyright 2005 Michigan State University. All rights reserved.
+ *  Designed by Charles.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
  *
  */
 
@@ -11,9 +12,9 @@
 
 #include <fstream>
 #include "defs.h"
-#include "cEventFactoryManager.h"
+#include "cActionLibrary.h"
+#include "cDriverManager.h"
 #include "cInitFile.h"
-#include "cPopulationEventFactory.h"
 #include "tDictionary.h"
 
 tList<cAvidaConfig::cBaseConfigGroup> cAvidaConfig::global_group_list;
@@ -301,24 +302,21 @@ cAvidaConfig* cAvidaConfig::LoadWithCmdLineArgs(int argc, char * argv[])
     cString cur_arg = args[arg_num];
     
     // Test against the possible inputs.
-    if (cur_arg == "-events" || cur_arg == "-e") {
-      cout << "Known events:" << endl;
-      // @DMB - A cleaner way of constructing the cEventFactoryManager should be created
-      cEventFactoryManager event_manager;
-      event_manager.AddFactory(new cPopulationEventFactory(NULL));
-      event_manager.PrintAllEventDescriptions();
+
+    if (cur_arg == "-e") {
+      cout << endl << "Supported Actions:" << endl;
+      cout << cDriverManager::GetActionLibrary()->DescribeAll() << endl;
       exit(0);
-    }
-    else if (cur_arg == "--help" || cur_arg == "-help" || cur_arg == "-h") {
+    } else if (cur_arg == "--help" || cur_arg == "-help" || cur_arg == "-h") {
       cout << "Options:"<<endl
       << "  -c[onfig] <filename>  Set config file to be <filename>"<<endl
       << "  -h[elp]               Help on options (this listing)"<<endl
-      << "  -e[vents]             Print a list of all known events"<< endl
+      << "  -e                    Print a list of all known actions"<< endl
       << "  -s[eed] <value>       Set random seed to <value>"<<endl
       << "  -v[ersion]            Prints the version number"<<endl
+      << "  -v0 -v1 -v2 -v3 -v4   Set output verbosity to 0..4"
       << "  -set <name> <value>   Overide the genesis file"<<endl
       << "  -l[oad] <filename>    Load a clone file"<<endl
-      << "  -loadpop <filename>   Load a saved population file (precedence over load)"<<endl
       << "  -a[nalyze]            Process analyze.cfg instead of normal run."<<endl
       << "  -i[nteractive]        Run analyze mode interactively."
       << endl;
@@ -351,17 +349,15 @@ cAvidaConfig* cAvidaConfig::LoadWithCmdLineArgs(int argc, char * argv[])
         arg_num++;  if (arg_num < argc) cur_arg = args[arg_num];
         cfg->CLONE_FILE.Set(cur_arg);
       }
-    } else if (cur_arg == "-loadpop" || cur_arg == "-lp") {
-      if (arg_num + 1 == argc || args[arg_num + 1][0] == '-') {
-        cerr << "Error: Must include a filename to load from." << endl;
-        exit(0);
-      } else {
-        arg_num++;  if (arg_num < argc) cur_arg = args[arg_num];
-        cfg->POPULATION_FILE.Set(cur_arg);
-      }
-    } else if (cur_arg == "-version" || cur_arg == "-v") {
-      cout << " For more information, see: http://devolab.cse.msu.edu/software/avida/" << endl;
+    } else if (cur_arg == "-version") {
       exit(0);
+    } else if (cur_arg.Substring(0, 2) == "-v") {
+      if (cur_arg.GetSize() == 2) { // equivalent to -version
+        exit(0);
+      } else { // set verbosity
+        int level = cur_arg.Substring(2, cur_arg.GetSize() - 2).AsInt();
+        cfg->VERBOSITY.Set(level);
+      }
     } else if (cur_arg == "-set") {
       if (arg_num + 1 == argc || arg_num + 2 == argc) {
         cerr << "'-set' option must be followed by name and value" << endl;
@@ -390,14 +386,18 @@ cAvidaConfig* cAvidaConfig::LoadWithCmdLineArgs(int argc, char * argv[])
   
   // Loop through all groups, then all entrys, and try to load each one.
   tListIterator<cBaseConfigGroup> group_it(cfg->group_list);
-  cBaseConfigGroup * cur_group;
+  cBaseConfigGroup* cur_group;
   cString val;
   while ((cur_group = group_it.Next()) != NULL) {
     // Loop through entries for this group...
     tListIterator<cBaseConfigEntry> entry_it(cur_group->GetEntryList());
-    cBaseConfigEntry * cur_entry;
+    cBaseConfigEntry* cur_entry;
     while ((cur_entry = entry_it.Next()) != NULL) {
-      if (sets.Find(cur_entry->GetName(), val)) cur_entry->LoadString(val);
+      if (sets.Find(cur_entry->GetName(), val)) {
+        cur_entry->LoadString(val);
+        if (cfg->VERBOSITY.Get() > VERBOSE_NORMAL)
+          cout << "CmdLine Set: " << cur_entry->GetName() << " " << val << endl;
+      }
     }
   }
   

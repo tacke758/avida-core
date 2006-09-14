@@ -1,21 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2001 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cReactionLib.cc
+ *  Avida
+ *
+ *  Called "reaction_lib.cc" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2001 California Institute of Technology.
+ *
+ */
 
-#ifndef REACTION_LIB_HH
 #include "cReactionLib.h"
-#endif
 
-#ifndef REACTION_HH
 #include "cReaction.h"
-#endif
 
-//////////////////
-//  cReactionLib
-//////////////////
 
 cReactionLib::~cReactionLib()
 {

@@ -1,12 +1,14 @@
 /*
-Copyright (C) 1993 - 2004 California Institute of Technology
+ *  cCycleCheck.h
+ *  Avida
+ *
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2004 California Institute of Technology.
+ *
+ */
 
-Read the COPYING and README files, or contact 'avida@alife.org',
-before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.
-*/
-
-#ifndef CYCLE_CHECK_HH
-#define CYCLE_CHECK_HH
+#ifndef cCycleCheck_h
+#define cCycleCheck_h
 
 class cID;
 
@@ -62,5 +64,17 @@ public:
   */
   ~cCycleCheck();
 };
+
+  
+#ifdef ENABLE_UNIT_TESTS
+namespace nCycleCheck {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

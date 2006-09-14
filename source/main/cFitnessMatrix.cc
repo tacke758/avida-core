@@ -1,27 +1,30 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cFitnessMatrix.cc
+ *  Avida
+ *
+ *  Called "fitness_matrix.cc" prior to 12/2/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef FITNESS_MATRIX_HH
 #include "cFitnessMatrix.h"
-#endif
 
-#ifndef INST_SET_HH
+#include "cAvidaContext.h"
 #include "cInstSet.h"
-#endif
+#include "cWorld.h"
 
 using namespace std;
 
 
-cFitnessMatrix::cFitnessMatrix( const cGenome & code,  cInstSet * inst_set)
-  :  m_start_genotype(code), m_inst_set( inst_set ), m_DFS_MaxDepth(0),
+cFitnessMatrix::cFitnessMatrix(cWorld* world, const cGenome& code,  cInstSet* inst_set)
+  :  m_world(world), m_start_genotype(m_world, code), m_inst_set( inst_set ), m_DFS_MaxDepth(0),
      m_DFS_NumRecorded(0)
 {
+  cAvidaContext& ctx = world->GetDefaultContext();
+  
   m_start_genotype.SetNumInstructions( m_inst_set->GetSize());
-  m_start_genotype.CalcFitness();
+  m_start_genotype.CalcFitness(ctx);
   m_data_set.insert(m_start_genotype);
 }
 
@@ -121,6 +124,8 @@ void cFitnessMatrix::DepthLimitedSearch(const cMxCodeArray& startNode, ofstream&
 
   // MyCodeArrayLessThan myLess;
 
+  cAvidaContext& ctx = m_world->GetDefaultContext();
+
   for (list_iter = theMutants.begin(); list_iter != theMutants.end(); list_iter++)
     {
       // check if its already in the data set
@@ -135,7 +140,7 @@ void cFitnessMatrix::DepthLimitedSearch(const cMxCodeArray& startNode, ofstream&
       if (data_iter == m_data_set.end())
 	{
 
-	  list_iter->CalcFitness();
+	  list_iter->CalcFitness(ctx);
 	  double fitness = list_iter->GetFitness();
 	
 	  if (fitness == 0.0)
@@ -347,7 +352,7 @@ void cFitnessMatrix::MatrixVectorMultiply(const vector<double> &vect, vector<dou
 
 }
 
-void cFitnessMatrix::PrintGenotypes(ostream &fp)
+void cFitnessMatrix::PrintGenotypes(ostream& fp)
 {
   int totNumDead=0, totNumBelowThresh=0, totNumOK=0;
   int totNumNew=0, totNumVisited=0, totDepth=0;
@@ -465,7 +470,7 @@ void cFitnessMatrix::PrintGenotypes(ostream &fp)
 
  */
 
-void cFitnessMatrix::PrintTransitionMatrix(ostream &fp, int hamDistThresh, double errorRate, double avg_fitness, bool printMatrix)
+void cFitnessMatrix::PrintTransitionMatrix(ostream& fp, int hamDistThresh, double errorRate, double avg_fitness, bool printMatrix)
 {
 
   fp << endl << endl;
@@ -617,53 +622,22 @@ void cFitnessMatrix::CalcFitnessMatrix( int depth_limit, double fitness_threshol
 
   m_fitness_threshhold = m_start_genotype.GetFitness() * m_fitness_threshold_ratio;
 
-  /* open files for output */
-
-  ofstream log_file("fitness_matrix.log");
-  ofstream genotype_file("found_genotypes.dat");
-  ofstream fit_vect_file("fitness_vect.dat");
-
-  ofstream ham_vect_file;
-  if (write_ham_vector)
-    ham_vect_file.open("hamming_vect.dat");
-  ofstream full_vect_file;
-  if (write_full_vector)
-    full_vect_file.open("full_vect.dat");
-
-
   /* do the depth first search */
-
-  CollectData(log_file);
-  PrintGenotypes(genotype_file);
-  genotype_file.close();
-
+  CollectData(m_world->GetDataFileOFStream("fitness_matrix.log"));
+  PrintGenotypes(m_world->GetDataFileOFStream("found_genotypes.dat"));
 
   /* diagonalize transition matrices at different copy error rates */
-
   for (double error = m_error_rate_min; error <= m_error_rate_max; error += m_error_rate_step)
-    {
-      vector<double> dataVect;
+  {
+    vector<double> dataVect;
+    double avg_fitness = Diagonalize(dataVect, m_ham_thresh, error, m_world->GetDataFileOFStream("fitness_matrix.log"));
 
-      double avg_fitness = Diagonalize(dataVect, m_ham_thresh, error, log_file);
+    PrintFitnessVector(m_world->GetDataFileOFStream("fitness_vect.dat"), dataVect, error, avg_fitness, output_start, output_step);
 
-      PrintFitnessVector(fit_vect_file, dataVect, error, avg_fitness, output_start, output_step);
-
-      if ( write_ham_vector )
-	PrintHammingVector(ham_vect_file, dataVect, error, avg_fitness);
-
-      if ( write_full_vector )
-	PrintFullVector(full_vect_file, dataVect, error, avg_fitness);
-
-    }
-
-
-  /* close remaining files */
-
-  log_file.close();
-  fit_vect_file.close();
-  if ( write_ham_vector )
-    ham_vect_file.close();
-  if ( write_full_vector )
-    full_vect_file.close();
+    if (write_ham_vector)
+      PrintHammingVector(m_world->GetDataFileOFStream("hamming_vect.dat"), dataVect, error, avg_fitness);
+    if (write_full_vector)
+      PrintFullVector(m_world->GetDataFileOFStream("full_vect.dat"), dataVect, error, avg_fitness);
+  }
 }
 

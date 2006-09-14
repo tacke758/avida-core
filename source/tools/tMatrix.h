@@ -1,12 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tMatrix.h
+ *  Avida
+ *
+ *  Called "tMatrix.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
+
+#ifndef tMatrix_h
+#define tMatrix_h
 
 /*
-   tMatrix.h
    Matrix Templates
 
    Constructor:
@@ -33,22 +38,26 @@
 
 */
 
-#ifndef TMATRIX_HH
-#define TMATRIX_HH
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
-#include <assert.h>
-
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
+
+#include <assert.h>
 
 /**
  * This class provides a matrix template.
  **/ 
 
-template <class T> class tArray; // access
-
 template <class T> class tMatrix {
+#if USE_tMemTrack
+  tMemTrack<tMatrix<T> > mt;
+#endif
 protected:
   // Internal Variables
   tArray<T> * data;  // Data Elements
@@ -138,6 +147,43 @@ public:
 
   // Destructor
   virtual ~tMatrix(){ if(data!=NULL) delete [] data; }
+
+  // Save to archive
+  template<class Archive>
+  void save(Archive & a, const unsigned int version) const {
+    // Save number of elements.
+    unsigned int rows = GetNumRows();
+    unsigned int cols = GetNumCols();
+    a.ArkvObj("rows", rows);
+    a.ArkvObj("cols", cols);
+    // Save elements.
+    while(rows-- > 0){
+      a.ArkvObj("row", (*this)[rows]);
+    }
+  } 
+
+  
+  // Load from archive
+  template<class Archive>
+  void load(Archive & a, const unsigned int version){
+    // Retrieve number of elements.
+    unsigned int rows;
+    unsigned int cols;
+    a.ArkvObj("rows", rows);
+    a.ArkvObj("cols", cols);
+    ResizeClear(rows, cols);
+    // Retrieve elements.
+    while(rows-- > 0){
+      a.ArkvObj("row", (*this)[rows]);
+    }
+  }   
+      
+      
+  // Ask archive to handle loads and saves separately
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version){
+    a.SplitLoadSave(*this, version);
+  } 
 };
 
-#endif // TARRAY_HH
+#endif

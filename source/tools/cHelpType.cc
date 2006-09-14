@@ -1,30 +1,24 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHelpType.cc
+ *  Avida
+ *
+ *  Called "help_type.cc" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef HELP_TYPE_HH
 #include "cHelpType.h"
-#endif
 
-#ifndef HELP_ALIAS_HH
 #include "cHelpAlias.h"
-#endif
-#ifndef HELP_ENTRY_HH
 #include "cHelpEntry.h"
-#endif
-#ifndef HELP_FULL_ENTRY_HH
 #include "cHelpFullEntry.h"
-#endif
-#ifndef HELP_MANAGER_HH
 #include "cHelpManager.h"
-#endif
 
 #include <fstream>
 
 using namespace std;
+
 
 cHelpAlias * cHelpType::AddAlias(const cString & alias_name, cHelpFullEntry * entry) {
   cHelpAlias * new_alias = new cHelpAlias(alias_name, entry);
@@ -106,12 +100,10 @@ void cHelpType::PrintHTML()
 	    cerr << "  Warning: unknown help keyword \""
 		 << keyword << "\"." << endl;
 	  }
-	  new_word.Set("<a href=\"help.%s.html\">%s</a>%c",
-		       keyword(), keyword(), end_char);
+	  new_word.Set("<a href=\"help.%s.html\">%s</a>%c", static_cast<const char*>(keyword), static_cast<const char*>(keyword), end_char);
 	}
 	else {
-	  new_word.Set("<a href=\"%s\">%s</a>%c",
-		  found_entry->GetHTMLFilename()(), keyword(), end_char);
+	  new_word.Set("<a href=\"%s\">%s</a>%c", static_cast<const char*>(found_entry->GetHTMLFilename()), static_cast<const char*>(keyword), end_char);
 	}
 
 	// Rebuild the description with the new word...

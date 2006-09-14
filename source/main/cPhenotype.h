@@ -1,22 +1,25 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2004 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cPhenotype.h
+ *  Avida
+ *
+ *  Called "phenotype.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef PHENOTYPE_HH
-#define PHENOTYPE_HH
+#ifndef cPhenotype_h
+#define cPhenotype_h
 
 #include <fstream>
 
-#ifndef MERIT_HH
+#ifndef cMerit_h
 #include "cMerit.h"
 #endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
@@ -47,16 +50,17 @@
  *
  *************************************************************************/
 
+class cAvidaContext;
 class cEnvironment;
-class cMerit;                    // aggregate
-template <class T> class tArray; // aggregate
-class cString;                   // aggregate
 template <class T> class tBuffer;
 template <class T> class tList;
+class cTaskContext;
+class cWorld;
 
-class cPhenotype {
+class cPhenotype
+{
 private:
-  const cEnvironment & environment;
+  cWorld* m_world;
   bool initialized;
 
   // 1. These are values calculated at the last divide (of self or offspring)
@@ -126,8 +130,13 @@ private:
   bool last_child_fertile;  // Was the child being born to be fertile?
   int child_copied_size; // Instruction copied into child.
 
+
+  cPhenotype(); // @not_implemented
+  cPhenotype(const cPhenotype&); // @not_implemented
+  cPhenotype& operator=(const cPhenotype&); // @not_implemented
+  
 public:
-  cPhenotype(const cEnvironment & environment);
+  cPhenotype(cWorld* world);
   ~cPhenotype();
 
   bool OK();
@@ -149,103 +158,64 @@ public:
   void SetupClone(const cPhenotype & clone_phenotype);
 
   // Input and Output Reaction Tests
-  bool TestInput(tBuffer<int> & inputs, tBuffer<int> & outputs);
-  bool TestOutput(tBuffer<int> & input_buf, tBuffer<int> & output_buf,
-		  tBuffer<int> & send_buf, tBuffer<int> & receive_buf,
-		  const tArray<double> & res_in, tArray<double> & res_change,
-		  tArray<int> & insts_triggered,
-		  tList<tBuffer<int> > & other_inputs,
-		  tList<tBuffer<int> > & other_outputs);
+  bool TestInput(tBuffer<int>& inputs, tBuffer<int>& outputs);
+  bool TestOutput(cAvidaContext& ctx, cTaskContext& taskctx, tBuffer<int>& send_buf, tBuffer<int>& receive_buf,
+                  const tArray<double>& res_in, tArray<double>& res_change, tArray<int>& insts_triggered);
 
   // State saving and loading, and printing...
-  bool SaveState(std::ofstream & fp);
+  bool SaveState(std::ofstream& fp);
   bool LoadState(std::ifstream & fp);
-  void PrintStatus(std::ostream & fp);
+  void PrintStatus(std::ostream& fp);
 
   // Some useful methods...
-  static int CalcSizeMerit(int full_size, int copied_size, int exe_size);
+  int CalcSizeMerit() const;
   double CalcFitnessRatio() {
-    const int merit_base =
-      CalcSizeMerit(genome_length,copied_size,executed_size);
+    const int merit_base = CalcSizeMerit();
     const double cur_fitness = merit_base * cur_bonus / time_used;
     return cur_fitness / last_fitness;
   }
 
   /////////////////////  Accessors -- Retrieving  ////////////////////
-  const cEnvironment & GetEnvironment() const { return environment; };
+  const cMerit & GetMerit() const { assert(initialized == true); return merit; }
+  int GetGenomeLength() const { assert(initialized == true); return genome_length; }
+  int GetCopiedSize() const { assert(initialized == true); return copied_size; }
+  int GetExecutedSize() const { assert(initialized == true); return executed_size; }
+  int GetGestationTime() const { assert(initialized == true); return gestation_time; }
+  int GetGestationStart() const { assert(initialized == true); return gestation_start; }
+  double GetFitness() const { assert(initialized == true); return fitness; }
+  double GetDivType() const { assert(initialized == true); return div_type; }
 
-  const cMerit & GetMerit() const
-    { assert(initialized == true); return merit; }
-  int GetGenomeLength() const
-    { assert(initialized == true); return genome_length; }
-  int GetCopiedSize() const
-    { assert(initialized == true); return copied_size; }
-  int GetExecutedSize() const
-    { assert(initialized == true); return executed_size; }
-  int GetGestationTime() const
-    { assert(initialized == true); return gestation_time; }
-  int GetGestationStart() const
-    { assert(initialized == true); return gestation_start; }
-  double GetFitness() const
-    { assert(initialized == true); return fitness; }
-  double GetDivType() const
-    { assert(initialized == true); return div_type; }
-
-  double GetCurBonus() const
-    { assert(initialized == true); return cur_bonus; }
-  double GetCurMeritBase() const
-    { assert(initialized == true); return CalcSizeMerit(genome_length,copied_size,executed_size); }
-  bool GetToDie() const
-    { assert(initialized == true); return to_die; }
-  bool GetToDelete() const
-    { assert(initialized == true); return to_delete; }
-  int GetCurNumErrors() const
-    { assert(initialized == true); return cur_num_errors; }
-  int GetCurNumDonates() const
-    { assert(initialized == true); return cur_num_donates; }
-  const tArray<int> & GetCurTaskCount() const
-    { assert(initialized == true); return cur_task_count; }
-  const tArray<double> & GetCurTaskQuality() const
-    { assert(initialized == true); return cur_task_quality; }
-  const tArray<int> & GetCurReactionCount() const
-    { assert(initialized == true); return cur_reaction_count;}
-  const tArray<int> & GetCurInstCount() const
-    { assert(initialized == true); return cur_inst_count; }
+  double GetCurBonus() const { assert(initialized == true); return cur_bonus; }
+  double GetCurMeritBase() const { assert(initialized == true); return CalcSizeMerit(); }
+  bool GetToDie() const { assert(initialized == true); return to_die; }
+  bool GetToDelete() const { assert(initialized == true); return to_delete; }
+  int GetCurNumErrors() const { assert(initialized == true); return cur_num_errors; }
+  int GetCurNumDonates() const { assert(initialized == true); return cur_num_donates; }
+  const tArray<int>& GetCurTaskCount() const { assert(initialized == true); return cur_task_count; }
+  const tArray<double> & GetCurTaskQuality() const { assert(initialized == true); return cur_task_quality; }
+  const tArray<int>& GetCurReactionCount() const { assert(initialized == true); return cur_reaction_count;}
+  const tArray<int>& GetCurInstCount() const { assert(initialized == true); return cur_inst_count; }
   
-  double GetSensedResource(int _in)
-  { assert(initialized == true); return sensed_resources[_in]; }
+  double GetSensedResource(int _in) { assert(initialized == true); return sensed_resources[_in]; }
 
-  double GetLastMeritBase() const
-    { assert(initialized == true); return last_merit_base; }
-  double GetLastBonus() const
-    { assert(initialized == true); return last_bonus; }
-  const double GetLastMerit() const
-    { assert(initialized == true); return last_merit_base*last_bonus; }
-  int GetLastNumErrors() const
-    { assert(initialized == true); return last_num_errors; }
-  int GetLastNumDonates() const
-    { assert(initialized == true); return last_num_donates; }
-  const tArray<int> & GetLastTaskCount() const
-    { assert(initialized == true); return last_task_count; }
-  const tArray<double> & GetLastTaskQuality() const
-    { assert(initialized == true); return last_task_quality; }
-  const tArray<int> & GetLastReactionCount() const
-    { assert(initialized == true); return last_reaction_count; }
-  const tArray<int> & GetLastInstCount() const
-    { assert(initialized == true); return last_inst_count; }
-  double GetLastFitness() const
-    { assert(initialized == true); return last_fitness; }
+  double GetLastMeritBase() const { assert(initialized == true); return last_merit_base; }
+  double GetLastBonus() const { assert(initialized == true); return last_bonus; }
+  const double GetLastMerit() const { assert(initialized == true); return last_merit_base*last_bonus; }
+  int GetLastNumErrors() const { assert(initialized == true); return last_num_errors; }
+  int GetLastNumDonates() const { assert(initialized == true); return last_num_donates; }
+  const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
+    const tArray<double> & GetLastTaskQuality() const { assert(initialized == true); return last_task_quality; }
+  const tArray<int>& GetLastReactionCount() const { assert(initialized == true); return last_reaction_count; }
+  const tArray<int>& GetLastInstCount() const { assert(initialized == true); return last_inst_count; }
+  double GetLastFitness() const { assert(initialized == true); return last_fitness; }
 
   int GetNumDivides() const { assert(initialized == true); return num_divides;}
   int GetGeneration() const { assert(initialized == true); return generation; }
   int GetTimeUsed()   const { assert(initialized == true); return time_used; }
   int GetAge()        const { assert(initialized == true); return age; }
-  const cString & GetFault() const
-    { assert(initialized == true); return fault_desc; }
-  double GetNeutralMetric() const
-    { assert(initialized == true); return neutral_metric; }
-  double GetLifeFitness() const
-    { assert(initialized == true); return life_fitness; }
+  const cString& GetFault() const { assert(initialized == true); return fault_desc; }
+  double GetNeutralMetric() const { assert(initialized == true); return neutral_metric; }
+  double GetLifeFitness() const { assert(initialized == true); return life_fitness; }
 
   bool IsInjected() const { assert(initialized == true); return is_injected; }
   bool IsParasite() const { assert(initialized == true); return is_parasite; }
@@ -265,16 +235,14 @@ public:
   bool DivideSex() const  { assert(initialized == true); return divide_sex; }
   int MateSelectID() const { assert(initialized == true); return mate_select_id; }
   int  CrossNum() const  { assert(initialized == true); return cross_num; }
-  bool  ChildFertile() const
-    { assert(initialized == true); return child_fertile;}
-  int GetChildCopiedSize() const
-    { assert(initialized == true); return child_copied_size; }
+  bool  ChildFertile() const { assert(initialized == true); return child_fertile;}
+  int GetChildCopiedSize() const { assert(initialized == true); return child_copied_size; }
 
 
   ////////////////////  Accessors -- Modifying  ///////////////////
-  void SetMerit(const cMerit & in_merit) { merit = in_merit; }
+  void SetMerit(const cMerit& in_merit) { merit = in_merit; }
   void SetGestationTime(int in_time) { gestation_time = in_time; }
-  void SetFault(const cString & in_fault) { fault_desc = in_fault; }
+  void SetFault(const cString& in_fault) { fault_desc = in_fault; }
   void SetNeutralMetric(double _in){ neutral_metric = _in; }
   void SetLifeFitness(double _in){ life_fitness = _in; }
   void SetLinesExecuted(int _exe_size) { executed_size = _exe_size; }
@@ -297,21 +265,33 @@ public:
   void IncTimeUsed() { assert(initialized == true); time_used++; }
   void IncErrors()   { assert(initialized == true); cur_num_errors++; }
   void IncDonates()   { assert(initialized == true); cur_num_donates++; }
-  bool & IsInjected() { assert(initialized == true); return is_injected; }
-  bool & IsParasite() { assert(initialized == true); return is_parasite; }
-  bool & IsModifier() { assert(initialized == true); return is_modifier; }
-  bool & IsModified() { assert(initialized == true); return is_modified; }
-  bool & IsFertile()  { assert(initialized == true); return is_fertile; }
-  bool & IsMutated()  { assert(initialized == true); return is_mutated; }
-  bool & ParentTrue() { assert(initialized == true); return parent_true; }
-  bool & ParentSex()  { assert(initialized == true); return parent_sex; }
-  int & ParentCrossNum()  { assert(initialized == true); return parent_cross_num; }
-  bool & CopyTrue()   { assert(initialized == true); return copy_true; }
-  bool & DivideSex()  { assert(initialized == true); return divide_sex; }
-  int & MateSelectID() { assert(initialized == true); return mate_select_id; }
-  int & CrossNum()     { assert(initialized == true); return cross_num; }
-  bool & ChildFertile() { assert(initialized == true); return child_fertile; }
-  bool & IsMultiThread() { assert(initialized == true); return is_multi_thread; }
+  bool& IsInjected() { assert(initialized == true); return is_injected; }
+  bool& IsParasite() { assert(initialized == true); return is_parasite; }
+  bool& IsModifier() { assert(initialized == true); return is_modifier; }
+  bool& IsModified() { assert(initialized == true); return is_modified; }
+  bool& IsFertile()  { assert(initialized == true); return is_fertile; }
+  bool& IsMutated()  { assert(initialized == true); return is_mutated; }
+  bool& ParentTrue() { assert(initialized == true); return parent_true; }
+  bool& ParentSex()  { assert(initialized == true); return parent_sex; }
+  int& ParentCrossNum()  { assert(initialized == true); return parent_cross_num; }
+  bool& CopyTrue()   { assert(initialized == true); return copy_true; }
+  bool& DivideSex()  { assert(initialized == true); return divide_sex; }
+  int& MateSelectID() { assert(initialized == true); return mate_select_id; }
+  int& CrossNum()     { assert(initialized == true); return cross_num; }
+  bool& ChildFertile() { assert(initialized == true); return child_fertile; }
+  bool& IsMultiThread() { assert(initialized == true); return is_multi_thread; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nPhenotype {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

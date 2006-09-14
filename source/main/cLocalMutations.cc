@@ -1,27 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cLocalMutations.cc
+ *  Avida
+ *
+ *  Called "local_mutations.cc" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef LOCAL_MUTATIONS_HH
 #include "cLocalMutations.h"
-#endif
 
-#ifndef MUTATION_HH
 #include "cMutation.h"
-#endif
-#ifndef MUTATION_LIB_HH
 #include "cMutationLib.h"
-#endif
-#ifndef nMutation_h
 #include "nMutation.h"
-#endif
 
-/////////////////////
-//  cLocalMutations
-/////////////////////
 
 cLocalMutations::cLocalMutations(const cMutationLib & _lib, int genome_length)
   : mut_lib(_lib)
@@ -41,8 +33,4 @@ cLocalMutations::cLocalMutations(const cMutationLib & _lib, int genome_length)
 
   // Setup the mutation count array.
   counts.Resize(mut_lib.GetSize(), 0);
-}
-
-cLocalMutations::~cLocalMutations()
-{
 }

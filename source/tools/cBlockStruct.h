@@ -1,23 +1,26 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cBlockStruct.h
+ *  Avida
+ *
+ *  Called "block_struct.hh" prior to 12/2/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef BLOCK_STRUCT_HH
-#define BLOCK_STRUCT_HH
+#ifndef cBlockStruct_H
+#define cBlockStruct_h
 
-#ifndef FIXEDBLOCK_HH
+#ifndef cFixedBlock_h
 #include "cFixedBlock.h"
 #endif
-#ifndef FIXEDCOORDS_HH
+#ifndef cFixedCoords_h
 #include "cFixedCoords.h"
 #endif
-#ifndef SCALED_BLOCK_HH
+#ifndef cScaledBlock_h
 #include "cScaledBlock.h"
 #endif
-#ifndef UINT_HH
+#ifndef cUInt_h
 #include "cUInt.h"
 #endif
 
@@ -126,11 +129,6 @@
  *     recalculate the fixed_size every time it is run.
  **/
 
-class cFixedCoords; // aggregate
-class cFixedBlock; // accessed
-class cScaledBlock; // accessed
-class cUInt; // aggregate
-
 class cBlockStruct {
 private:
   cFixedBlock * fixed_array;
@@ -231,6 +229,18 @@ public:
   inline int GetBlocksUsed() const { return fixed_used.GetBlockNum() + 1; }
   inline void SetFixedSize(int in_fs) { fixed_size = in_fs; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nBlockStruct {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 inline void * cBlockStruct::Find(const cFixedCoords & search_coords) const
 {

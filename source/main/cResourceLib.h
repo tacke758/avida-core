@@ -1,31 +1,52 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cResourceLib.h
+ *  Avida
+ *
+ *  Called "resource_lib.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef RESOURCE_LIB_HH
-#define RESOURCE_LIB_HH
+#ifndef cResourceLib_h
+#define cResourceLib_h
 
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
 class cResource;
 class cString;
-class cResourceLib {
+
+class cResourceLib
+{
 private:
-  tArray<cResource *> resource_array;
+  tArray<cResource*> resource_array;
+  
+  cResourceLib(const cResourceLib&); // @not_implemented
+  cResourceLib& operator=(const cResourceLib&); // @not_implemented
+  
 public:
   cResourceLib() { ; }
   ~cResourceLib();
 
   int GetSize() const { return resource_array.GetSize(); }
 
-  cResource * AddResource(const cString & res_name);
-  cResource * GetResource(const cString & res_name) const;
-  cResource * GetResource(int id) const;
+  cResource* AddResource(const cString& res_name);
+  cResource* GetResource(const cString& res_name) const;
+  cResource* GetResource(int id) const;
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nResourceLib {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

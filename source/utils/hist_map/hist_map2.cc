@@ -2,7 +2,7 @@
 // sends to standard out a matrix where each row is a histogram of the
 // relevant column.
 
-#include <iostream.h>
+#include <iostream>
 
 #include "../../tools/tMatrix.h"
 
@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
       int cur_col = 1;
       while (cur_col <= max_id) {
 	cString cur_entry(cur_line.PopWord());
-	if (cur_col == col_id) value = 100 + (int) (1.0 * cur_entry.AsDouble());
+	if (cur_col == col_id) value = 100 + (int) (3.0 * cur_entry.AsDouble());
 	else if (cur_col == count_id) count = cur_entry.AsInt();
 	cur_col++;
       }

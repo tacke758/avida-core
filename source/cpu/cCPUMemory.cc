@@ -1,13 +1,14 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cCPUMemory.cc
+ *  Avida
+ *
+ *  Called "cpu_memory.cc" prior to 11/22/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef CPU_MEMORY_HH
 #include "cCPUMemory.h"
-#endif
 
 using namespace std;
 
@@ -15,41 +16,13 @@ const int MEMORY_INCREASE_MINIMUM = 10;
 const double MEMORY_INCREASE_FACTOR = 1.5;
 const double MEMORY_SHRINK_TEST_FACTOR = 4.0;
 
-////////////////
-//  cCPUMemory
-////////////////
-
-cCPUMemory::cCPUMemory(int _size) : cGenome(_size), flag_array(_size)
-{
-  ClearFlags();
-}
-
-cCPUMemory::cCPUMemory(const cCPUMemory & in_memory)
+cCPUMemory::cCPUMemory(const cCPUMemory& in_memory)
   : cGenome(in_memory), flag_array(in_memory.GetSize())
 {
   for (int i = 0; i < flag_array.GetSize(); i++) {
     flag_array[i] = in_memory.flag_array[i];
   }
 }
-
-cCPUMemory::cCPUMemory(const cGenome & in_genome)
-  : cGenome(in_genome), flag_array(in_genome.GetSize())
-{
-  ClearFlags();
-}
-
-cCPUMemory::cCPUMemory(const cString & in_string)
-  : cGenome(in_string), flag_array(in_string.GetSize())
-{
-  ClearFlags();
-}
-
-cCPUMemory::~cCPUMemory()
-{
-}
-
-
-// ---  Private Methods ---
 
 void cCPUMemory::SloppyResize(int new_size)
 {

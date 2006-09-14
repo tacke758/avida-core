@@ -1,101 +1,57 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
-
-#ifndef DEFS_HH
-#define DEFS_HH
-
-#define VERSION "2.4.3"
-#define VERSION_TAG "Padawan"
-
-
-#define DEFAULT_DIR "../work/"
-
 /*
-FIXME:  remove asap, switching to file-configureable option
-*/
-// path to html doc files
-#ifndef HTMLDIR
-#define HTMLDIR "../work/doc_html/"
-#endif
+ *  defs.h
+ *  Avida
+ *
+ *  Called "defs.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
+#ifndef defs_h
+#define defs_h
 
-// -= Various view modes =-
-#define VIEW_NEWVIEWER
-// #define VIEW_VISTA
-// #define VIEW_PRIMITIVE
-// #define VIEW_EXTERNAL
-// #define VIEW_CURSES
-// #define VIEW_NCURSES
+#define VERSION "2.5.0"
+#define VERSION_TAG "Jedi"
+
+// -= Various view modes
 // #define VIEW_ANSI
 
 
-// -= Speedups =-     (define these to allow features to be turned on)
+// -= Configurable Features
+#ifndef BREAKPOINTS
+#define BREAKPOINTS 0
+#endif
+#ifndef INSTRUCTION_COSTS
+#define INSTRUCTION_COSTS 1
+#endif
+#ifndef INSTRUCTION_COUNT
+#define INSTRUCTION_COUNT 1
+#endif
+#ifndef CLASSIC_FULLY_ASSOCIATIVE
+#define CLASSIC_FULLY_ASSOCIATIVE 0
+#endif
+#ifndef SMT_FULLY_ASSOCIATIVE
+#define SMT_FULLY_ASSOCIATIVE 1
+#endif
+#ifndef WRITE_PROTECTION
+#define WRITE_PROTECTION 1
+#endif
+#ifndef FATAL_ERRORS
+#define FATAL_ERRORS 0
+#endif
+#ifndef FATAL_WARNINGS
+#define FATAL_WARNINGS 0
+#endif
 
-// #define BREAKPOINTS
-// #define QUICK_BASE_TEST_CPU
-// #define QUICK_HEAD_TEST_CPU
-#define INSTRUCTION_COSTS
-#define INSTRUCTION_COUNT
-
-// -= Toggles =-      (define these to actually turn features on)
-
-#define SMT_FULLY_ASSOCIATIVE
-
-#define WRITE_PROTECTION
-// #define FATAL_ERRORS
-// #define FATAL_WARNINGS
-#define SINGLE_IO_BUFFER
-
-// Test to see if search approx equals size... value is +- tolerance
-// #define TEST_SEARCH_SIZE .25
-
-// #define DEBUG
-// #define DEBUG_CHECK_OK
-// #define DEBUG_MEMTRACK
-// #define INTEGRITY_CHECK
-// #define DEBUG_MEM_CHECK
-// #define TEST
+// #define SPECIES_TEST
 
 
-////// Compiler Compatability Stuff //////////
-
-// old compiler //
-//#define explicit
-//#define LONGINT int
-
-// snazzy compiler //
+// -= Compiler Compatability Stuff
 #define LONGINT long int
 
 
 ////// Don't change anything below this line. /////
-#ifdef QUICK_BASE_TEST_CPU
-#define QUICK_TEST_CPU
-#endif
-
-#ifdef QUICK_HEAD_TEST_CPU
-#define QUICK_TEST_CPU
-#endif
-
-#ifdef VIEW_primitive
-#define VIEW_PRIMITIVE
-#endif
-#ifdef VIEW_external
-#define VIEW_EXTERNAL
-#endif
-#ifdef VIEW_curses
-#define VIEW_CURSES
-#endif
-#ifdef VIEW_ncurses
-#define VIEW_NCURSES
-#endif
-#ifdef VIEW_vista
-#define VIEW_VISTA
-#define VIEW_PRIMITIVE
-#endif
 
 #ifdef VIEW_ANSI
 #define PLATFORM_WINDOWS     // enable to compile for Win32 console
@@ -114,10 +70,6 @@ FIXME:  remove asap, switching to file-configureable option
  #undef UNIT
  #endif
 
- #ifdef UCHAR
- #undef UCHAR
- #endif
-
  #include <windows.h>	// Defines, prototypes, etc. for
 #endif
 
@@ -131,55 +83,100 @@ FIXME:  remove asap, switching to file-configureable option
  #endif
 #endif
 
-#define MAX_INT 4294967295
-#define MAX_INST_SET_SIZE 64
-
-// #ifndef FALSE
-//  #define FALSE 0
-//  #define TRUE !FALSE
-// #endif
-
 #ifndef NULL
  #define NULL 0
 #endif
 
-#ifndef _WINDEF_               // Defined by WINDOWS.H
- #define UCHAR unsigned char
- #undef UINT
- #define UINT  unsigned int
-#endif
+const int MIN_CREATURE_SIZE = 8;
+const int MAX_CREATURE_SIZE = 2048;
 
-#define TOOLS_DIR tools
-#define CPU_DIR   cpu
-#define MAIN_DIR  main
-#define VIEW_DIR  viewers
-
-#define MIN_CREATURE_SIZE 8
-#define MAX_CREATURE_SIZE 2048
-
-#define MIN_INJECT_SIZE 8
+const int MIN_INJECT_SIZE = 8;
 
 // Number of distinct input and outputs stored in the IOBufs (to test tasks)
-#define INPUT_BUF_SIZE  3
-#define OUTPUT_BUF_SIZE 3
-#define SEND_BUF_SIZE 3
-#define RECEIVE_BUF_SIZE 3
+const int INPUT_BUF_SIZE = 3;
+const int OUTPUT_BUF_SIZE = 3;
+const int SEND_BUF_SIZE = 3;
+const int RECEIVE_BUF_SIZE = 3;
+#define RECEIVED_MESSAGES_SIZE 10
+const int MARKET_SIZE = 10000;
 
-// Task Merit Method //
-#define TASK_MERIT_NONE   0
-#define TASK_MERIT_NORMAL 1  // Bonus just equals the task bonus
 
-#define MERIT_TIME_AT_TASK     0
-#define MERIT_TIME_AT_DIVIDE   1
-
-#define FILE_TYPE_TEXT 0
-#define FILE_TYPE_HTML 1
+enum tFileType
+{
+  FILE_TYPE_TEXT,
+  FILE_TYPE_HTML
+};
 
 enum tHARDWARE_TYPE
 {
 	HARDWARE_TYPE_CPU_ORIGINAL = 0,
-	HARDWARE_TYPE_CPU_4STACK,
-	HARDWARE_TYPE_CPU_SMT
+	HARDWARE_TYPE_CPU_SMT,
+	HARDWARE_TYPE_CPU_TRANSSMT
 };
+
+enum tTIMESLICE
+{
+  SLICE_CONSTANT = 0,
+  SLICE_PROB_MERIT,
+  SLICE_INTEGRATED_MERIT
+};
+
+enum tPOSITION_CHILD
+{
+  POSITION_CHILD_RANDOM = 0,
+  POSITION_CHILD_AGE,
+  POSITION_CHILD_MERIT,
+  POSITION_CHILD_EMPTY,
+  POSITION_CHILD_FULL_SOUP_RANDOM,
+  POSITION_CHILD_FULL_SOUP_ELDEST,
+  POSITION_CHILD_DEME_RANDOM
+};
+const int NUM_LOCAL_POSITION_CHILD = POSITION_CHILD_FULL_SOUP_RANDOM;
+
+enum tDEATH_METHOD
+{
+  DEATH_METHOD_OFF = 0,
+  DEATH_METHOD_CONST,
+  DEATH_METHOD_MULTIPLE
+};
+
+enum tALLOC_METHOD
+{
+  ALLOC_METHOD_DEFAULT = 0,
+  ALLOC_METHOD_NECRO,
+  ALLOC_METHOD_RANDOM
+};
+
+enum tDIVIDE_METHOD
+{
+  DIVIDE_METHOD_OFFSPRING = 0,
+  DIVIDE_METHOD_SPLIT,
+  DIVIDE_METHOD_BIRTH
+};
+
+enum tGENERATION_INCREMENT
+{
+  GENERATION_INC_OFFSPRING = 0,
+  GENERATION_INC_BOTH
+};
+
+enum tSIZE_MERIT
+{
+  SIZE_MERIT_OFF = 0,
+  SIZE_MERIT_COPIED,
+  SIZE_MERIT_EXECUTED,
+  SIZE_MERIT_FULL,
+  SIZE_MERIT_LEAST,
+  SIZE_MERIT_SQRT_LEAST
+};
+
+typedef enum eVerbosity {
+  VERBOSE_SILENT = 0,   // No output at all
+  VERBOSE_NORMAL,       // Notification at start of commands.
+  VERBOSE_ON,           // Verbose output, detailing progress
+  VERBOSE_DETAILS,      // High level of details, as available.
+  VERBOSE_DEBUG         // Print Debug Information, as applicable.
+};
+
 
 #endif

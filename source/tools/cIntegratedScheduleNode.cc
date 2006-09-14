@@ -1,43 +1,14 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cIntegratedScheduleNode.cc
+ *  Avida
+ *
+ *  Called "integrated_schedule_node.cc" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef INTEGRATED_SCHEDULE_NODE_HH
 #include "cIntegratedScheduleNode.h"
-#endif
-
-/////////////////////////////
-//  cIntegratedScheduleNode
-/////////////////////////////
-
-cIntegratedScheduleNode::cIntegratedScheduleNode(int _item_count, int in_id)
-  : active_array(_item_count)
-{
-  // Store the input variables.
-
-  node_id = in_id;
-
-  // Initialize the remaining variables.
-
-  for (int i = 0; i < active_array.GetSize(); i++) {
-    active_array[i] = 0;
-  }
-  first_entry = -1;
-  active_entry = -1;
-  size = 0;
-  process_size = 1;
-  process_count = 0;
-  execute = true;
-  next = NULL;
-  prev = NULL;
-}
-
-cIntegratedScheduleNode::~cIntegratedScheduleNode()
-{
-}
 
 
 bool cIntegratedScheduleNode::OK()
@@ -167,9 +138,6 @@ int cIntegratedScheduleNode::GetNextID()
     process_count++;
     if (process_count >= process_size) execute = false;
   }
-
-//  cout << "Running " << active_entry << " from node " << node_id
-//       << " (size = " << size << ", first = " << first_entry << ")" << endl;
 
   return active_entry;
 }

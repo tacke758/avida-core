@@ -1,37 +1,61 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cTaskEntry.h
+ *  Avida
+ *
+ *  Called "task_entry.hh" prior to 12/5/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ */
 
-#ifndef TASK_ENTRY_HH
-#define TASK_ENTRY_HH
+#ifndef cTaskEntry_h
+#define cTaskEntry_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef TASK_LIB_HH
+#ifndef cTaskLib_h
 #include "cTaskLib.h"
 #endif
 
-class cTaskEntry {
-private:
-  cString name;  // Short keyword for task
-  cString desc;  // For more human-understandable output...
-  int id;
-  tTaskTest test_fun;
-  cString info;  // extra info (like the string or whatever to match)
-public:
-  cTaskEntry(const cString & _name, const cString & _desc, int _id,
-	     tTaskTest _test_fun, const cString & info);
-  ~cTaskEntry();
+class cTaskLib;
+class cTaskContext;
 
-  const cString & GetName()    const { return name; }
-  const cString & GetDesc() const { return desc; }
-  const int       GetID()      const { return id; }
-  const tTaskTest GetTestFun() const { return test_fun; }
-  const cString & GetInfo() const { return info; }
+typedef double (cTaskLib::*tTaskTest)(cTaskContext*) const;
+
+class cTaskEntry
+{
+private:
+  cString m_name;  // Short keyword for task
+  cString m_desc;  // For more human-understandable output...
+  int m_id;
+  tTaskTest m_test_fun;
+  cString m_info;  // extra info (like the string or whatever to match)
+
+public:
+  cTaskEntry(const cString& name, const cString& desc, int in_id, tTaskTest test_fun, const cString& info)
+    : m_name(name), m_desc(desc), m_id(in_id), m_test_fun(test_fun), m_info(info)
+  {
+  }
+  ~cTaskEntry() { ; }
+
+  const cString& GetName() const { return m_name; }
+  const cString& GetDesc() const { return m_desc; }
+  const int GetID() const { return m_id; }
+  const tTaskTest GetTestFun() const { return m_test_fun; }
+  const cString& GetInfo() const { return m_info; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTaskEntry {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

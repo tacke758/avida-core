@@ -1,44 +1,73 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cInitFile.h
+ *  Avida
+ *
+ *  Called "init_file.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef INIT_FILE_HH
-#define INIT_FILE_HH
+#ifndef cInitFile_h
+#define cInitFile_h
 
-#include <iostream>
-
-#ifndef FILE_HH
+#ifndef cFile_h
 #include "cFile.h"
 #endif
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef STRING_LIST_HH
+#ifndef cStringList_h
 #include "cStringList.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
+
+#include <iostream>
 
 /**
  * A class to handle initialization files.
  **/
 
-class cString; // aggregate
-class cStringList; // aggregate
-template <class T> class tArray; // aggregate
-
-class cInitFile : public cFile {
-private:
-  cInitFile(const cInitFile &);
+class cInitFile : public cFile
+{
+#if USE_tMemTrack
+  tMemTrack<cInitFile> mt;
+#endif
 private:
   struct sFileLineInfo {
     cString line;
     int line_num;
     mutable bool used;
+
+    template<class Archive>
+    void save(Archive & a, const unsigned int version) const
+    {
+      int __used = (used == false)?(0):(1);
+      a.ArkvObj("line", line);
+      a.ArkvObj("line_num", line_num);
+      a.ArkvObj("used", __used);
+    }
+    template<class Archive>
+    void load(Archive & a, const unsigned int version)
+    {
+      int __used;
+      a.ArkvObj("line", line);
+      a.ArkvObj("line_num", line_num);
+      a.ArkvObj("used", __used);
+      used = (__used == false)?(0):(1);
+    }
+    template<class Archive>
+    void serialize(Archive & a, const unsigned int version)
+    { a.SplitLoadSave(*this, version); }
+
   };
 
   tArray<sFileLineInfo> line_array;
@@ -47,21 +76,26 @@ private:
   cStringList file_format;
 
   int active_line;
+
+
+  cInitFile(const cInitFile&); // @not_implemented
+  cInitFile& operator=(const cInitFile&); // @not_implemented
+  
 public:
   /**
    * The empty constructor constructs an object that is in a clean
    * state. You can set the file to open with @ref cFile::Open() later on.
    **/
-  cInitFile();
+  cInitFile() : filetype("unknown"), active_line(0) { ; }
   
   /**
    * Opens the file with the given name.
    * 
    * @param in_filename Name of the initialization file to open.
    **/
-  cInitFile(cString in_filename);
+  cInitFile(cString in_filename) : cFile(in_filename), filetype("unknown"), active_line(0) { ; }
   
-  ~cInitFile();
+  ~cInitFile() { ; }
   
   /**
    * Loads the file into memory.
@@ -160,6 +194,31 @@ public:
 
   const cString & GetFiletype() { return filetype; }
   cStringList & GetFormat() { return file_format; }
+
+
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version)
+  {
+    a.ArkvBase("cFile", (cFile &)(*this), *this);
+    a.ArkvObj("line_array", line_array);
+    a.ArkvObj("extra_lines", extra_lines);
+    a.ArkvObj("filetype", filetype);
+    a.ArkvObj("file_format", file_format);
+    a.ArkvObj("active_line", active_line);
+  }
+
+
 };
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nInitFile {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

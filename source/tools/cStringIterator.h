@@ -1,30 +1,39 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cStringIterator.h
+ *  Avida
+ *
+ *  Called "string_iterator.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef STRING_ITERATOR_HH
-#define STRING_ITERATOR_HH
+#ifndef cStringIterator_h
+#define cStringIterator_h
 
-#ifndef STRING_HH
+#ifndef cString_h
 #include "cString.h"
 #endif
-#ifndef TLIST_HH
+#ifndef tList_h
 #include "tList.h"
 #endif
 
-class cString; // aggregate
 class cStringList;
-template <class T> class tConstListIterator; // aggregate
 
-class cStringIterator {
+
+class cStringIterator
+{
 private:
   tConstListIterator<cString> list_it;
   static const cString null_str;
+  
+  
+  cStringIterator(); // @not_implemented
+  cStringIterator(const cStringIterator&); // @not_implemented
+  cStringIterator& operator=(const cStringIterator&); // @not_implemented
+  
 public:
-  cStringIterator(const cStringList & in_list);
+  cStringIterator(const cStringList& in_list);
 
   void Reset() { list_it.Reset(); }
   const cString & Get() {
@@ -36,5 +45,17 @@ public:
   bool AtRoot() const { return list_it.AtRoot(); }
   bool AtEnd() const { return list_it.AtEnd(); }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nStringIterator {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

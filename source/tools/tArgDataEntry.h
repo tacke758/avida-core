@@ -1,17 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  tArgDataEntry.h
+ *  Avida
+ *
+ *  Called "tArgDataEntry.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-
-#ifndef TARGDATAENTRY_HH
-#define TARGDATAENTRY_HH
+#ifndef tArgDataEntry_h
+#define tArgDataEntry_h
 
 #include <iostream>
 
-#ifndef TDATAENTRYBASE_HH
+#ifndef tDataEntryBase_h
 #include "tDataEntryBase.h"
 #endif
 
@@ -33,7 +35,7 @@ public:
     : tDataEntryBase<T>(_name, _desc, _null, _html_cell),
       DataRetrieval(_funR), DataCompare(_funC), arg(_arg) { ; }
 
-  bool Print(std::ostream & fp) const {
+  bool Print(std::ostream& fp) const {
     if (this->target == NULL) return false;
     fp << (this->target->*DataRetrieval)(arg);
     return true;

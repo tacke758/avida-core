@@ -1,14 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cHelpAlias.h
+ *  Avida
+ *
+ *  Called "help_alias.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef HELP_ALIAS_HH
-#define HELP_ALIAS_HH
+#ifndef cHelpAlias_h
+#define cHelpAlias_h
 
-#ifndef HELP_ENTRY_HH
+#ifndef cHelpEntry_h
 #include "cHelpEntry.h"
 #endif
 
@@ -30,5 +33,17 @@ public:
 
   bool IsAlias() const { return true; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHelpAlias {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

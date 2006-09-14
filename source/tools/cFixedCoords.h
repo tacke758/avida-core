@@ -1,15 +1,23 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cFixedCoords.h
+ *  Avida
+ *
+ *  Called "fixed_coords.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef FIXED_COORDS_HH
-#define FIXED_COORDS_HH
+#ifndef cFixedCoords_h
+#define cFixedCoords_h
 
-#ifndef UINT_HH
+#ifndef cUInt_h
 #include "cUInt.h"
+#endif
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
 #endif
 
 /**
@@ -19,9 +27,10 @@
  * and offset.
  **/
 
-class cUInt; // aggregate
-
 class cFixedCoords {
+#if USE_tMemTrack
+  tMemTrack<cFixedCoords> mt;
+#endif
 private:
   int block_num;
   int offset;
@@ -83,6 +92,27 @@ public:
     block_num += offset / fixed_size;
     offset %= fixed_size;
   }
+
+  /**   
+   * Serialize to and from archive.
+   **/  
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version){
+    a.ArkvObj("block_num", block_num);
+    a.ArkvObj("offset", offset);
+  }   
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nFixedCoords {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

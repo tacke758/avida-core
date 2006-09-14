@@ -1,17 +1,20 @@
-//////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 1993 - 2003 California Institute of Technology             //
-//                                                                          //
-// Read the COPYING and README files, or contact 'avida@alife.org',         //
-// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
-//////////////////////////////////////////////////////////////////////////////
+/*
+ *  cIntegratedSchedule.h
+ *  Avida
+ *
+ *  Called "integrated_schedule.hh" prior to 12/7/05.
+ *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology
+ *
+ */
 
-#ifndef INTEGRATED_SCHEDULE_HH
-#define INTEGRATED_SCHEDULE_HH
+#ifndef cIntegratedSchedule_h
+#define cIntegratedSchedule_h
 
-#ifndef SCHEDULE_HH
+#ifndef cSchedule_h
 #include "cSchedule.h"
 #endif
-#ifndef TARRAY_HH
+#ifndef tArray_h
 #include "tArray.h"
 #endif
 
@@ -28,9 +31,9 @@
 
 class cIntegratedScheduleNode;
 class cMerit;
-template <class T> class tArray; // aggregate
 
-class cIntegratedSchedule : public cSchedule {
+class cIntegratedSchedule : public cSchedule
+{
 private:
   tArray<cIntegratedScheduleNode *> node_array;
   int num_active_nodes;
@@ -39,6 +42,11 @@ private:
   void InsertNode(int node_id);
   void RemoveNode(int node_id);
   void ResizeNodes(int new_size);
+
+  cIntegratedSchedule(); // @not_implemented
+  cIntegratedSchedule(const cIntegratedSchedule&); // @not_implemented
+  cIntegratedSchedule& operator=(const cIntegratedSchedule&); // @not_implemented
+
 public:
   cIntegratedSchedule(int _item_count);
   ~cIntegratedSchedule();
@@ -49,5 +57,17 @@ public:
 
   bool OK();
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nIntegratedSchedule {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif
