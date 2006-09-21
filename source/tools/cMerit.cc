@@ -19,8 +19,8 @@ void cMerit::UpdateValue(double in_value)
   static double mult[max_bits];
   static bool mult_initilalized = false;
 
-  // Do not allow negative merits.
-  if (in_value < 0.0) in_value = 0.0;
+  // Do not allow negative merits. If less than 1, set to 0. 
+  if (in_value < 1.0) in_value = 0.0;
 
   // Initilize multipliers only once
   if( mult_initilalized == false ){
