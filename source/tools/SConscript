@@ -116,7 +116,7 @@ srcs = [
   'cTools.cc',
   'cWeightedIndex.cc',
   'cCycleCheck.cc',
-  'nTemplateTests.cc',
+  #'nTemplateTests.cc',
 ]
 
 environment.Library('tools', srcs) 
