@@ -157,7 +157,7 @@ ENDIF(AVD_PY_BINDINGS)
 # By default, build the console interface to Avida.
 OPTION(AVD_GUI_NCURSES
   "Enable building Avida console interface."
-  OFF
+  ON
 )
 # Make sure requisites are present for build of console interface.  Give
 # user feedback if they're missing.
@@ -187,7 +187,7 @@ IF(AVD_PRIMITIVE)
 	# are run via 'make test' under unix.
 	OPTION(AVD_CONSISTENCY_TEST_PRIMITIVE
 		"Enable primitive consistency test suites."
-		ON
+		OFF
 	)
 	IF(AVD_CONSISTENCY_TEST_PRIMITIVE)
 		IF(EXISTS ${PROJECT_SOURCE_DIR}/consistencytests)
