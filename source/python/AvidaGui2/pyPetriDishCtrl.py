@@ -42,7 +42,6 @@ class pyPetriDishCtrl(QWidget):
     self.m_stat_task_button_states = [0,0,0,0,0,0,0,0,0]
 
     self.m_petri_dish_layout = pySquareVBoxLayout(self,0,0,"m_petri_dish_layout")
-    print "pyPetriDishCtrl.construct() self.m_petri_dish_layout.heightForWidth(20) :", self.m_petri_dish_layout.heightForWidth(20)
     self.m_canvas_view = pyPetriCanvasView(None, self,"m_canvas_view",session_mdl)
 
     #hiding the scroll bars, the pre-packaged ones were not working so we are adding them manually elsewhere
@@ -146,11 +145,9 @@ class pyPetriDishCtrl(QWidget):
 
   def setAvidaSlot(self, avida):
     descr(avida)
-    #print "pyPetriDishCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
-      print "pyPetriDishCtrl.setAvidaSlot() deleting old_avida ..."
       self.m_org_clicked_on_item = None
       self.m_last_cell_outlined = None
       self.m_last_cell_outlined_color = (QPen(Qt.NoPen))
@@ -198,15 +195,7 @@ class pyPetriDishCtrl(QWidget):
       self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
       for k, v in m_founding_cells_dict.iteritems():
         cell_info_item = self.updateCellItem(int(k))
-        # print "BDB"
-        # print m_founding_cells_dict
-        # print self.m_session_mdl.m_ancestors_dict
-        # org_in_founding_cell = v
-        # linage_lable_in_cell = ancestor_link_dict[org_in_founding_cell]
-        # ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
-        # self.m_session_mdl.m_cell_num_ancestor_name_dict[k] = ann_name_in_cell
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
-      descr("BDB" + str(self.m_session_mdl.m_cell_num_ancestor_name_dict))
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0
@@ -272,7 +261,6 @@ class pyPetriDishCtrl(QWidget):
       failedATest = False      #refers to tests regarding whether a task button is on and that task is performed
       for i in range(len(self.m_stat_task_button_states)):
         if (self.m_stat_task_button_states[i]):
-#          print "IN THE STATE LOOP, WITH I = ", i
           if(self.m_avida.m_population.GetCell(cell_id).GetOrganism().GetPhenotype().GetCurTaskCount()[i]>=1):
             passedATest = True
           else:

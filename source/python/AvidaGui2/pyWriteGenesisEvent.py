@@ -45,8 +45,6 @@ class pyWriteGenesisEvent:
         ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
         session_mdl.m_cell_num_ancestor_name_dict[tmp_cell] = ann_name_in_cell
 
-      print session_mdl.m_cell_num_ancestor_name_dict
-
     #if it is not a full petri dish
     else:
       cells_dict = {}
@@ -61,6 +59,7 @@ class pyWriteGenesisEvent:
 
         num_ancestors = 0
         while(settings_dict.has_key("START_CREATURE" + str(num_ancestors))):
+          self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
           num_ancestors = num_ancestors + 1
 
         # Process all the ancestors
@@ -80,12 +79,10 @@ class pyWriteGenesisEvent:
           self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
           self.m_session_mdl.m_cell_num_ancestor_name_dict[str(self.start_cell_location)] = session_mdl.m_ancestors_dict[str(i)]
-          print self.m_session_mdl.m_cell_num_ancestor_name_dict
 
           # Read the genome from the dictionary
 
           organisms_dict[str(i)] = settings_dict["START_GENOME" + str(i)]
-
 
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
 

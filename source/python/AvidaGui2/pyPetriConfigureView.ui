@@ -606,7 +606,7 @@
                         </font>
                     </property>
                     <property name="text">
-                        <string>&lt;p align="center"&gt;&lt;b&gt;What rewards are available in the environment?&lt;/b&gt;&lt;br&gt;
+                        <string>&lt;p align="center"&gt;&lt;b&gt;What resources are available in the environment?&lt;/b&gt;&lt;br&gt;
 (strength of reward shown in parentheses)&lt;/p&gt;</string>
                     </property>
                     <property name="alignment">
@@ -640,11 +640,13 @@
                             <property name="name">
                                 <cstring>NandCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>nand</string>
+                                <string>nanose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -657,11 +659,13 @@
                             <property name="name">
                                 <cstring>OrnCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>ornot</string>
+                                <string>ornose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -674,11 +678,13 @@
                             <property name="name">
                                 <cstring>AndCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>and</string>
+                                <string>andose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -691,11 +697,13 @@
                             <property name="name">
                                 <cstring>OrCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>or</string>
+                                <string>orose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -708,11 +716,13 @@
                             <property name="name">
                                 <cstring>NorCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>nor</string>
+                                <string>norose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -724,6 +734,8 @@
                         <widget class="QLabel" row="0" column="0">
                             <property name="name">
                                 <cstring>EasyTextLabel</cstring>
+                            </property>
+                            <property name="paletteBackgroundColor">
                             </property>
                             <property name="font">
                                 <font>
@@ -737,6 +749,8 @@
                             <property name="name">
                                 <cstring>HardTextLabel</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="font">
                                 <font>
                                 </font>
@@ -749,11 +763,13 @@
                             <property name="name">
                                 <cstring>NotCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>not</string>
+                                <string>notose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -766,6 +782,8 @@
                             <property name="name">
                                 <cstring>ModerateTextLabel</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="font">
                                 <font>
                                 </font>
@@ -774,23 +792,11 @@
                                 <string>&lt;p align="center"&gt;Moderate&lt;br&gt;(x 4)&lt;/p&gt;</string>
                             </property>
                         </widget>
-                        <widget class="Line" row="0" column="1" rowspan="3" colspan="1">
-                            <property name="name">
-                                <cstring>line1</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>VLine</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="orientation">
-                                <enum>Vertical</enum>
-                            </property>
-                        </widget>
                         <widget class="QLabel" row="0" column="6">
                             <property name="name">
                                 <cstring>VHardTextLabel</cstring>
+                            </property>
+                            <property name="paletteBackgroundColor">
                             </property>
                             <property name="font">
                                 <font>
@@ -804,11 +810,13 @@
                             <property name="name">
                                 <cstring>XorCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>xor</string>
+                                <string>xorose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -821,11 +829,13 @@
                             <property name="name">
                                 <cstring>AndnCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>andnot</string>
+                                <string>antose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -834,51 +844,11 @@
                                 <string>Reward the &lt;b&gt;&lt;i&gt;andnot&lt;/i&gt;&lt;/b&gt; function</string>
                             </property>
                         </widget>
-                        <widget class="Line" row="0" column="3" rowspan="3" colspan="1">
-                            <property name="name">
-                                <cstring>line2</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>VLine</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="orientation">
-                                <enum>Vertical</enum>
-                            </property>
-                        </widget>
-                        <widget class="Line" row="0" column="5" rowspan="3" colspan="1">
-                            <property name="name">
-                                <cstring>line3</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>VLine</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="orientation">
-                                <enum>Vertical</enum>
-                            </property>
-                        </widget>
-                        <widget class="Line" row="0" column="7" rowspan="3" colspan="1">
-                            <property name="name">
-                                <cstring>line4</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>VLine</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="orientation">
-                                <enum>Vertical</enum>
-                            </property>
-                        </widget>
                         <widget class="QLabel" row="0" column="8">
                             <property name="name">
                                 <cstring>BrutalTextLabel</cstring>
+                            </property>
+                            <property name="paletteBackgroundColor">
                             </property>
                             <property name="font">
                                 <font>
@@ -892,11 +862,13 @@
                             <property name="name">
                                 <cstring>EquCheckBox</cstring>
                             </property>
+                            <property name="paletteBackgroundColor">
+                            </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
                             </property>
                             <property name="text">
-                                <string>equals</string>
+                                <string>equose</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>

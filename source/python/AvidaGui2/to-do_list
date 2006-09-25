@@ -11,6 +11,10 @@ Priority High
 
 31-Aug-06 E-Mail Josh about state of resize at beginning of run
 
+19-Sep-06 Change "What rewards are available in the environment?" to 
+
+19-Sep-06 Empty -> configured actually empty of organisms. Default full one organism, @Default -> @Example.  Warning when we try to start with an empty dish.
+
 Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem

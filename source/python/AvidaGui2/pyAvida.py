@@ -22,7 +22,6 @@ class pyAvida(qt.QObject):
     qt.QObject.__init__(self, None, self.__class__.__name__)
 
   def construct(self, genesis):
-    descr()
     self.m_name = genesis.GetFilename()
     self.m_environment = cEnvironment()
     cConfig.Setup(genesis)

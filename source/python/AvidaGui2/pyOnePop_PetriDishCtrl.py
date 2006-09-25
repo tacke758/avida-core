@@ -82,17 +82,14 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
 
   def setAvidaSlot(self, avida):
-    print "pyOnePop_PetriDishCtrl.setAvidaSlot() ..."
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
-      print "pyOnePop_PetriDishCtrl.setAvidaSlot() disconnecting old_avida ..."
       self.disconnect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
       del old_avida
     if(self.m_avida):
-      print "pyOnePop_PetriDishCtrl.setAvidaSlot() connecting self.m_avida ..."
       self.connect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
@@ -117,7 +114,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     for label, name in self.m_session_mdl.m_ancestors_dict.iteritems():
 
       lineage_range = len(self.m_session_mdl.m_ancestors_dict)
-      print "LABEL IS " , label
       non_normalized_index = int(label) + 1
       normalized_index = float(non_normalized_index) / float(lineage_range)
       a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
@@ -185,10 +181,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
 #    self.m_ancestor_legend_ctrl.setHScrollBarMode(QScrollView.AlwaysOn)
     self.m_ancestor_legend_ctrl.setHScrollBarMode(QScrollView.Auto)
-#    print "*********************: self.m_ancestor_legend_ctrl.horizontalScrollBar is ", self.m_ancestor_legend_ctrl.horizontalScrollBar
 #    self.m_ancestor_legend_ctrl.setHBarGeometry(self.m_ancestor_legend_ctrl.horizontalScrollBar,0,0,100,10)
-    print "ancestor label HEIGHT, Width IS---------------->", self.m_ancestor_legend_ctrl.height(),self.m_ancestor_legend_ctrl.width()
-    print "m_map_legend_widget_stack HEIGHT IS____________>", self.m_map_legend_widget_stack.height(),self.m_map_legend_widget_stack.width()
       
     self.m_petri_dish_ctrl.setIndexer(self.m_map_profile.getIndexer(self.m_mode_index))
     self.m_petri_dish_ctrl.setColorLookupFunctor(self.m_map_profile.getColorLookup(self.m_mode_index))
@@ -291,7 +284,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
           PYSIGNAL("petriDishDroppedAncestorSig"), (e,))
         return
 
-      descr("BDB -- freezer_item_list = " + str(freezer_item_list))
       freezer_item_names = freezer_item_list.split("\t")[1:]
       if (len(freezer_item_names) == 1):
         freezer_item_name = freezer_item_names[0]
