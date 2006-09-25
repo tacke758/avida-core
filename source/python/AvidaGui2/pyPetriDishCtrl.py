@@ -66,7 +66,7 @@ class pyPetriDishCtrl(QWidget):
     self.m_change_list = None
     self.m_org_clicked_on_item = None
     self.m_occupied_cells_ids = []
-    self.m_avida_has_started = False
+#    self.m_avida_has_started = False
 
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("doStartAvidaSig"),
@@ -102,7 +102,8 @@ class pyPetriDishCtrl(QWidget):
                  self.vbarScrollPrevLineSlot)    
 
   def doStartAvidaSlot (self):
-    self.m_avida_has_started = True
+#    self.m_avida_has_started = True //replacing with the session_mdl version
+    self.m_session_mdl.m_avida_has_started = True
 
 
 
@@ -164,7 +165,8 @@ class pyPetriDishCtrl(QWidget):
       self.m_world_w = 30
       self.m_world_h = 30
 
-    self.m_avida_has_started = False
+#    self.m_avida_has_started = False
+    self.m_session_mdl.m_avida_has_started = False
       
     self.m_initial_target_zoom = int(self.m_target_dish_width / self.m_world_w)
     self.emit(PYSIGNAL("zoomSig"), (self.m_initial_target_zoom,))
@@ -192,7 +194,6 @@ class pyPetriDishCtrl(QWidget):
 
     if self.m_avida is not None:
       m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
-      self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
       for k, v in m_founding_cells_dict.iteritems():
         cell_info_item = self.updateCellItem(int(k))
         cell_info_item.setPen(QPen(QColor(Qt.gray)))
@@ -209,7 +210,6 @@ class pyPetriDishCtrl(QWidget):
       clicked_cell_num = org_clicked_on_item.m_population_cell.GetID()
       clicked_cell = self.m_avida.m_population.GetCell(int(clicked_cell_num))
       organism = clicked_cell.GetOrganism()
-
       #if the organism is not an empty org (e.g. ancestor dragged in that has
       #not been run yet)
       if organism is not None:
@@ -246,7 +246,7 @@ class pyPetriDishCtrl(QWidget):
     self.m_indexer(cell_info_item, self.m_cs_min_value, self.m_cs_value_range)
     #the following could be moved to a one off function at the beginning of a run
     #for speed efficiency. currenly it is checked every time a cell is updated
-    if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_avida_has_started == True):
+    if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_session_mdl.m_avida_has_started == True):
       cell_info_item.setPen(QPen(Qt.NoPen))
       
     #if it is not the pre-run outline color (gray) or the org_clicked_on highlight

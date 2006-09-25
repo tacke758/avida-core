@@ -1,4 +1,5 @@
 
+
 # -*- coding: utf-8 -*-
 
 from descr import descr
@@ -152,79 +153,93 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.updateOrgReportSlot(self.m_clicked_cell_item)
 
   def notButtonClickedSlot(self):
-    print "NOT BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[0] = self.m_not_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def nandButtonClickedSlot(self):
-    print "NAND BUTTON CLICKED---------------------------------------------------------------->"
     self.m_stat_task_button_states[1] = self.m_nand_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def andButtonClickedSlot(self):
-    print "AND BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[2] = self.m_and_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def ornotButtonClickedSlot(self):
-    print "ORNOT BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[3] = self.m_ornot_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def orButtonClickedSlot(self):
-    print "OR BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[4] = self.m_or_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def andnotButtonClickedSlot(self):
-    print "ANDNOT BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[5] = self.m_andnot_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def norButtonClickedSlot(self):
-    print "NOR BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[6] = self.m_nor_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def xorButtonClickedSlot(self):
-    print "XOR BUTTON CLICKED------------------------------------------------------------------>"
     self.m_stat_task_button_states[7] = self.m_xor_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
   def equalsButtonClickedSlot(self):
-    print "EQUALS BUTTON CLICKED--------------------------------------------------------------->"
     self.m_stat_task_button_states[8] = self.m_equals_button.state()
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("statsViewTaskButtonStateChangeSig"), (self.m_stat_task_button_states, ))
 
 
     
-
+  def setOrgReportName(self,name):
+    self.m_org_name.setText(name)
 
   def updateOrgReportSlot(self, clicked_cell_item = None):
 
     self.m_clicked_cell_item = clicked_cell_item
     if clicked_cell_item:
-      clicked_cell_num = clicked_cell_item.m_population_cell.GetID()
-#      descr("m_population_cell.GetID() just clicked on ", clicked_cell_item.m_population_cell.GetID(), clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())
-      self.m_clicked_cell_number = clicked_cell_num
-    if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(clicked_cell_num)).IsOccupied():
+      self.clicked_cell_num = clicked_cell_item.m_population_cell.GetID()
+      if self.m_session_mdl.m_avida_has_started == True:
+        if self.m_session_mdl.m_ancestors_dict.has_key(str(clicked_cell_item.m_population_cell.\
+            GetOrganism().GetLineageLabel())):
+          if len(self.m_session_mdl.m_ancestors_dict[\
+              str(clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())])>15:
+            self.m_org_ancestor_name.setText( self.m_session_mdl.m_ancestors_dict[\
+              str(clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())][:12]\
+                  +'...')
+          else:            
+            self.m_org_ancestor_name.setText( self.m_session_mdl.m_ancestors_dict[\
+              str(clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())])
+      else: #avidda has not started
+        if self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_num)):
+          if len(self.m_session_mdl.m_cell_num_ancestor_name_dict\
+              [str(self.clicked_cell_num)])>15:
+            self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
+              str(self.clicked_cell_num)][:12]+'...')
+          else:
+            self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
+              str(self.clicked_cell_num)])
+
+      
+      self.m_clicked_cell_number = self.clicked_cell_num
+    if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(self.clicked_cell_num)).IsOccupied():
 
       # PAINT the stats fields empty
 
+#      if not self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_num)):
       self.m_org_name.setText('empty cell')
       self.m_session_mdl.m_current_cell_genome = ""
       self.m_org_fitness.setText('-')
       self.m_org_merit.setText('-')
-      self.m_org_genome_length.setText('-')
+#      self.m_org_genome_length.setText('-')
       self.m_org_gestation_time.setText('-')
       self.m_org_age.setText('-')
    
@@ -238,22 +253,21 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_num_nor_clickedOrg.setText('-')
       self.m_num_xor_clickedOrg.setText('-')
       self.m_num_equals_clickedOrg.setText('-')
+      self.m_org_ancestor_name.setText('-')
       self.m_org_square_ctrl.paint(Qt.black)
 
       return
 
+            
+
+
     self.m_org_square_ctrl.paint(clicked_cell_item.brush().color())
 
-    clicked_cell = self.m_avida.m_population.GetCell(int(clicked_cell_num))
+    clicked_cell = self.m_avida.m_population.GetCell(int(self.clicked_cell_num))
 
     organism = clicked_cell.GetOrganism()
     phenotype = organism.GetPhenotype()
     genotype = organism.GetGenotype()
- 
-    # tee up drag information
-#    dragHolder = self.itemDrag( file_name, self )
-#    dragHolder = self.itemDrag( str(genotype.GetName()), self )
-#    dragHolder.dragCopy()
 
     # print info about the org clicked on 
 
@@ -270,7 +284,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_org_merit.setText(str(m_org_merit))    
 
     m_org_genome_length = phenotype.GetGenomeLength()
-    self.m_org_genome_length.setText(str(m_org_genome_length))
+#    self.m_org_genome_length.setText(str(m_org_genome_length))
 
     m_org_gestation_time = phenotype.GetGestationTime()
     self.m_org_gestation_time.setText(QString("%1").arg(m_org_gestation_time))

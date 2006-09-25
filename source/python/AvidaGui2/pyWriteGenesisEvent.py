@@ -25,11 +25,14 @@ class pyWriteGenesisEvent:
     
     # If this is a full petri dish inject all the organisms, otherwise
     # inject the start creature in the center of the grid
+
     
     #if we have a full petri dish...
     if in_dict.has_key("CELLS"): 
       cells_dict = in_dict["CELLS"]
       organisms_dict = in_dict["ORGANISMS"]
+      self.m_session_mdl.m_founding_cells_dict = cells_dict
+
       if in_dict.has_key("ANCESTOR_NAMES"):
         session_mdl.m_ancestors_dict = in_dict["ANCESTOR_NAMES"]
       else:
@@ -40,6 +43,7 @@ class pyWriteGenesisEvent:
         ancestor_link_dict = {}
       self.m_session_mdl.m_founding_cells_dict = cells_dict
       self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
+
       for tmp_cell, org_in_cell in cells_dict.iteritems():
         linage_lable_in_cell = ancestor_link_dict[org_in_cell]
         ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
@@ -61,6 +65,7 @@ class pyWriteGenesisEvent:
         while(settings_dict.has_key("START_CREATURE" + str(num_ancestors))):
           self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
           num_ancestors = num_ancestors + 1
+          self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
 
         # Process all the ancestors
 
@@ -85,6 +90,7 @@ class pyWriteGenesisEvent:
           organisms_dict[str(i)] = settings_dict["START_GENOME" + str(i)]
 
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
+    descr("###########  self.m_session_mdl.m_cell_num_ancestor_name_dict: ", str(self.m_session_mdl.m_cell_num_ancestor_name_dict))
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")

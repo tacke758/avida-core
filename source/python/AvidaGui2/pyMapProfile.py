@@ -340,11 +340,11 @@ class pyMapProfile:
         gradualLinScaleUpdater(RangeReport(GestationTimeRng, self.m_session_mdl)),
         sigmoidColorLookup
         ),
-      ('Size',
-        continuousIndexer(SizeIdx),
-        gradualLinScaleUpdater(RangeReport(SizeRng, self.m_session_mdl)),
-        sigmoidColorLookup
-        ),
+#      ('Size',
+#        continuousIndexer(SizeIdx),
+#        gradualLinScaleUpdater(RangeReport(SizeRng, self.m_session_mdl)),
+#        sigmoidColorLookup
+#        ),
        ('Ancestor Organism',
          continuousIndexer(LineageIdx),
          #gradualLinScaleUpdater(RangeReport(LineageRng, self.m_session_mdl)),

@@ -174,15 +174,12 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_avida and self.m_avida.m_avida_threaded_driver.m_lock.acquire()
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("mapModeChangedSig"), (self.m_map_profile.getModeName(index),))
     self.m_mode_index = index
-    if (self.m_mode_index==5):
+    if (self.m_mode_index==4):
       self.m_map_legend_widget_stack.raiseWidget(1)
     else:
       self.m_map_legend_widget_stack.raiseWidget(0)
 
-#    self.m_ancestor_legend_ctrl.setHScrollBarMode(QScrollView.AlwaysOn)
     self.m_ancestor_legend_ctrl.setHScrollBarMode(QScrollView.Auto)
-#    self.m_ancestor_legend_ctrl.setHBarGeometry(self.m_ancestor_legend_ctrl.horizontalScrollBar,0,0,100,10)
-      
     self.m_petri_dish_ctrl.setIndexer(self.m_map_profile.getIndexer(self.m_mode_index))
     self.m_petri_dish_ctrl.setColorLookupFunctor(self.m_map_profile.getColorLookup(self.m_mode_index))
     self.m_petri_dish_ctrl.m_should_update_all = True

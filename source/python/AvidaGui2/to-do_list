@@ -72,13 +72,10 @@ Priority Low
 ************Jeff*******************
 
 Priority High
--make the org report give the name of the ancestor when they are clicked on (pre-run)
--get rid of genome length map mode, the graph mode, and stat view
 -work with brian to get delete working on the front of the dish (either by taking it to the can or hitting the delete key)
 -fix the problem where the arrows are pushed off the edge (talk with josh to make it happen)
 -add a None option to the analyze population color list 
 -reformat the org stat viewer so that it matches the buttons format of the task view 
--add ancestor to the org_clicked_on report during the run
 -make a ancestor graph viewer mode (to see who is winning the head to head comparisons)
 -fix the fact that the scroll bars are too highin the ancestor legend if you add a lot of orgs  
 
@@ -225,7 +222,7 @@ a.	Under the sliders with ranges put a few values in grey that tell you the rang
 
 09-Aug-06 Rename duplicate Ancestors names when they are droppeed into Ancestor View -- 16-Aug-06
 
-31-Aug-06 Talk to Jeff about how to get information from selected org to freeze org  -- 31-Aug-06
+31-Aug-06 Talk to JMC about how to get information from selected org to freeze org  -- 31-Aug-06
 
 August - 06
 
@@ -244,6 +241,8 @@ September - 06
  - Got freeze selected organism to work when clicking snowflake
  - make the org report give the name of the ancestor when they are clicked on (post run)
  - took genome length out of the gui to prevent pedalogical confusion
+ - make the org report give the name of the ancestor when they are clicked on (pre-run)
+ - ancestor names are truncated if in the org clicked on report
 
 ************Kaben******************
 
@@ -296,6 +295,7 @@ June
 -Scroll bars are working again (though hard coded)
 -Scroll bars are now dynamic (30th)
 -fix the bugs with the lineage label (typically full petri dish)
+-get rid of genome length map mode, the graph mode, and stat view
 
 
 July

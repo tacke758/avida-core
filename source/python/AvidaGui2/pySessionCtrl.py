@@ -57,6 +57,9 @@ class pySessionCtrl(qt.QObject):
 
     self.m_session_mdl.directory_chosen = False
 
+    # has avida started (set to true by doStartAvidaSlot in pyPetriDishCtrl)
+    self.m_session_mdl.m_avida_has_started = False
+
     # use the default workspace that is in the application directory
 
     self.m_session_mdl.m_current_workspace = "default.workspace"
@@ -69,7 +72,8 @@ class pySessionCtrl(qt.QObject):
 #    self.m_session_mdl.m_ancestors_dict = None
     self.m_session_mdl.m_ancestors_dict = {'1': 'default'}
 
-    self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
+    # global dictionary mapping cell number to ancestor name
+    self.m_session_mdl.m_cell_num_ancestor_name_dict = {'pySession':'thefoobear'}
 
     # set a global variable for locking the ancestor lineage map mode max range
     self.m_session_mdl.m_max_lineages_ever = 0
