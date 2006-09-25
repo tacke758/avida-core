@@ -57,7 +57,12 @@ class pySessionCtrl(qt.QObject):
 
     self.m_session_mdl.directory_chosen = False
 
+    # flag to see if the program should check that there are ancestors
+
+    self.m_session_mdl.m_global_num_of_ancestors = 0
+
     # has avida started (set to true by doStartAvidaSlot in pyPetriDishCtrl)
+
     self.m_session_mdl.m_avida_has_started = False
 
     # use the default workspace that is in the application directory
@@ -66,14 +71,13 @@ class pySessionCtrl(qt.QObject):
     self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
 
     # set a global variable for the location of starting cells
-    self.m_session_mdl.m_founding_cells_dict = None
+    self.m_session_mdl.m_founding_cells_dict = {}
 
     # set a global lookup table mapping lineage labels to ancestor names
-#    self.m_session_mdl.m_ancestors_dict = None
-    self.m_session_mdl.m_ancestors_dict = {'1': 'default'}
+    self.m_session_mdl.m_ancestors_dict = {}
 
     # global dictionary mapping cell number to ancestor name
-    self.m_session_mdl.m_cell_num_ancestor_name_dict = {'pySession':'thefoobear'}
+    self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
 
     # set a global variable for locking the ancestor lineage map mode max range
     self.m_session_mdl.m_max_lineages_ever = 0

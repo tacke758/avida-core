@@ -103,9 +103,8 @@ class pyPetriDishCtrl(QWidget):
 
   def doStartAvidaSlot (self):
 #    self.m_avida_has_started = True //replacing with the session_mdl version
+
     self.m_session_mdl.m_avida_has_started = True
-
-
 
   def restart(self):
     self.m_cell_info = None
@@ -194,9 +193,10 @@ class pyPetriDishCtrl(QWidget):
 
     if self.m_avida is not None:
       m_founding_cells_dict = self.m_session_mdl.m_founding_cells_dict
-      for k, v in m_founding_cells_dict.iteritems():
-        cell_info_item = self.updateCellItem(int(k))
-        cell_info_item.setPen(QPen(QColor(Qt.gray)))
+      if len(m_founding_cells_dict) > 0:
+        for cell_num, org_num in m_founding_cells_dict.iteritems():
+          cell_info_item = self.updateCellItem(int(cell_num))
+          cell_info_item.setPen(QPen(QColor(Qt.gray)))
 
     self.m_thread_work_cell_item_index = 0
     self.m_cs_min_value = 0

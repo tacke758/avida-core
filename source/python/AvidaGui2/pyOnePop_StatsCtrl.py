@@ -226,8 +226,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
               str(self.clicked_cell_num)][:12]+'...')
           else:
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
-              str(self.clicked_cell_num)])
+               str(self.clicked_cell_num)])
 
+        # If the user clicks on a cell not in the cell_num_ancestor_name_dict
+        # thought it would work if user click on an empty cell, but it does not
+
+        else:
+          self.m_org_ancestor_name.setText('-')
       
       self.m_clicked_cell_number = self.clicked_cell_num
     if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(self.clicked_cell_num)).IsOccupied():
@@ -253,13 +258,9 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_num_nor_clickedOrg.setText('-')
       self.m_num_xor_clickedOrg.setText('-')
       self.m_num_equals_clickedOrg.setText('-')
-      self.m_org_ancestor_name.setText('-')
       self.m_org_square_ctrl.paint(Qt.black)
 
       return
-
-            
-
 
     self.m_org_square_ctrl.paint(clicked_cell_item.brush().color())
 

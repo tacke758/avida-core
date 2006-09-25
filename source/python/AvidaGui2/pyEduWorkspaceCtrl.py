@@ -410,8 +410,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def startActionSlot(self):
     if self.startStatus:
-      self.m_session_mdl.m_session_mdtr.emit(
-        PYSIGNAL("fromLiveCtrlStartAvidaSig"), ())
+      if (self.m_session_mdl.m_global_num_of_ancestors == 0):
+        warningNoMethodName("There were no starting organism in this population " + \
+                            "please drag in at least one from the freezer.")
+      else:
+        self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("fromLiveCtrlStartAvidaSig"), ())
     else:
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("fromLiveCtrlPauseAvidaSig"), ())

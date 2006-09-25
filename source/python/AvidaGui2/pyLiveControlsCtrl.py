@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qt import *
+from descr import *
 from pyLiveControlsView import pyLiveControlsView
 
 
@@ -47,7 +48,6 @@ class pyLiveControlsCtrl(pyLiveControlsView):
         self.avidaUpdatedSlot)
       del old_avida
     if(self.m_avida):
-      print "pyLiveControlsCtrl.setAvidaSlot() connecting self.m_avida ..."
       self.connect(
         self.m_avida.m_avida_thread_mdtr, PYSIGNAL("AvidaUpdatedSig"),
         self.avidaUpdatedSlot)
@@ -66,11 +66,14 @@ class pyLiveControlsCtrl(pyLiveControlsView):
       PYSIGNAL("fromLiveCtrlPauseAvidaSig"), ())
     
   def clickedStartAvidaSlot(self):
-    self.m_session_mdl.m_session_mdtr.emit(
-      PYSIGNAL("fromLiveCtrlStartAvidaSig"), ())
+    if (self.m_session_mdl.m_global_num_of_ancestors == 0):
+      warningNoMethodName("There were no starting organism in this population " + \
+                          "please drag in at least one from the freezer.")
+    else:
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("fromLiveCtrlStartAvidaSig"), ())
 
   def restart(self):
-    print "*** called pyLiveControlsCtrl.py:restart ***"
     self.m_avida = None
     self.disconnect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),

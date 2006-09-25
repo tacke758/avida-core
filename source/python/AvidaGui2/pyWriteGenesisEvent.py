@@ -13,7 +13,7 @@ class pyWriteGenesisEvent:
 
   def __init__(self, in_dict = None, session_mdl = None, workspace_dir = None, freeze_dir = None,
     tmp_in_dir = None, tmp_out_dir = None):
-  
+    
     self.m_session_mdl = session_mdl
 
     settings_dict = in_dict["SETTINGS"]
@@ -48,9 +48,14 @@ class pyWriteGenesisEvent:
         linage_lable_in_cell = ancestor_link_dict[org_in_cell]
         ann_name_in_cell = session_mdl.m_ancestors_dict[linage_lable_in_cell]
         session_mdl.m_cell_num_ancestor_name_dict[tmp_cell] = ann_name_in_cell
+      self.m_session_mdl.m_global_num_of_ancestors = \
+        len(session_mdl.m_cell_num_ancestor_name_dict)
 
     #if it is not a full petri dish
     else:
+      self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
+      self.m_session_mdl.m_global_num_of_ancestors = 0
+      self.m_session_mdl.m_founding_cells_dict = {}
       cells_dict = {}
       organisms_dict = {}
       session_mdl.m_ancestors_dict = {}
@@ -63,9 +68,8 @@ class pyWriteGenesisEvent:
 
         num_ancestors = 0
         while(settings_dict.has_key("START_CREATURE" + str(num_ancestors))):
-          self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
           num_ancestors = num_ancestors + 1
-          self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
+        self.m_session_mdl.m_global_num_of_ancestors = num_ancestors
 
         # Process all the ancestors
 
@@ -81,16 +85,15 @@ class pyWriteGenesisEvent:
           # This variable is used in pyPetriDishCtrl.py to outline the 
           # founding organisms
 
-          self.m_session_mdl.m_founding_cells_dict = None
           self.m_session_mdl.m_founding_cells_dict = cells_dict
-          self.m_session_mdl.m_cell_num_ancestor_name_dict[str(self.start_cell_location)] = session_mdl.m_ancestors_dict[str(i)]
+          self.m_session_mdl.m_cell_num_ancestor_name_dict[str(self.start_cell_location)] = \
+            session_mdl.m_ancestors_dict[str(i)]
 
           # Read the genome from the dictionary
 
           organisms_dict[str(i)] = settings_dict["START_GENOME" + str(i)]
 
     shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
-    descr("###########  self.m_session_mdl.m_cell_num_ancestor_name_dict: ", str(self.m_session_mdl.m_cell_num_ancestor_name_dict))
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")
@@ -129,7 +132,6 @@ class pyWriteGenesisEvent:
       analyze_genotype = cAnalyzeGenotype(cString(genome), inst_set) 
       analyze_genotype.Recalculate()
       merit = analyze_genotype.GetMerit()
-      #descr("key", key, "genome", genome, "merit", merit)
       merits_dict[key] = merit
 
     self.modifyEventFile(cells_dict, organisms_dict, ancestor_link_dict,

@@ -29,8 +29,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.m_avida = avida
     if old_avida:
       del old_avida
-    if self.m_avida:
-      pass
     
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
@@ -593,6 +591,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       if send_quit_signal:
         qApp.quit()
 
+
+  # Routine to load data from Avida-ED into Avida Core
 
   def doLoadPetriDishConfigFileSlot(self, genesisFileName = None):
     genesis = cGenesis()
