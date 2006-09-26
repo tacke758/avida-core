@@ -118,7 +118,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_avg_age.setText(QString("%1").arg(avg_age))
 
     avg_genome_length = "%d" %(stats.GetAveSize())
-    self.m_avg_genome_length.setText(QString("%1").arg(avg_genome_length))
+#    self.m_avg_genome_length.setText(QString("%1").arg(avg_genome_length))
 
 
     #TASK OUTLOOK 
@@ -230,7 +230,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     
     if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(self.clicked_cell_number)).IsOccupied():
 
-      # PAINT the stats fields empty
+      # PAINT the clickedOnOrg stats fields empty
 
 #      if not self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_number)):
       self.m_org_name.setText('empty cell')
@@ -252,6 +252,15 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_num_xor_clickedOrg.setText('-')
       self.m_num_equals_clickedOrg.setText('-')
       self.m_org_ancestor_name.setText('-')
+      self.m_not_name.setText('Not-')
+      self.m_nan_name.setText('Nan-')
+      self.m_and_name.setText('And-')
+      self.m_orn_name.setText('Orn-')
+      self.m_oro_name.setText('Oro-')
+      self.m_ant_name.setText('Ant-')
+      self.m_nor_name.setText('Nor-')
+      self.m_xor_name.setText('Xor-')
+      self.m_equ_name.setText('Equ-')
 
       #why is this code necessary? 
       if clicked_cell_item is not None:    
@@ -314,30 +323,66 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     num_not_clickedOrg = m_clickedOrg_task_count[0]
     self.m_num_not_clickedOrg.setText(str(num_not_clickedOrg))
+    if num_not_clickedOrg>0:
+      self.m_not_name.setText('Not+')
+    else:
+      self.m_not_name.setText('Not-')
 
     num_nand_clickedOrg = m_clickedOrg_task_count[1]
     self.m_num_nand_clickedOrg.setText(str(num_nand_clickedOrg))
+    if num_nand_clickedOrg>0:
+      self.m_nan_name.setText('Nan+')
+    else:
+      self.m_nan_name.setText('Nan-')
 
     num_and_clickedOrg = m_clickedOrg_task_count[2]
     self.m_num_and_clickedOrg.setText(str(num_and_clickedOrg))
+    if num_and_clickedOrg>0:
+      self.m_and_name.setText('And+')
+    else:
+      self.m_and_name.setText('And-')
 
     num_ornot_clickedOrg = m_clickedOrg_task_count[3]
     self.m_num_ornot_clickedOrg.setText(str(num_ornot_clickedOrg))
+    if num_ornot_clickedOrg>0:
+      self.m_orn_name.setText('Orn+')
+    else:
+      self.m_orn_name.setText('Orn-')
 
     num_or_clickedOrg = m_clickedOrg_task_count[4]
     self.m_num_or_clickedOrg.setText(str(num_or_clickedOrg))
+    if num_or_clickedOrg>0:
+      self.m_oro_name.setText('Oro+')
+    else:
+      self.m_oro_name.setText('Oro-')
 
     num_andnot_clickedOrg = m_clickedOrg_task_count[5]
     self.m_num_andnot_clickedOrg.setText(str(num_andnot_clickedOrg))
+    if num_andnot_clickedOrg>0:
+      self.m_ant_name.setText('Ant+')
+    else:
+      self.m_ant_name.setText('Ant-')
 
     num_nor_clickedOrg = m_clickedOrg_task_count[6]
     self.m_num_nor_clickedOrg.setText(str(num_nor_clickedOrg))
+    if num_nor_clickedOrg>0:
+      self.m_nor_name.setText('Nor+')
+    else:
+      self.m_nor_name.setText('Nor-')
 
     num_xor_clickedOrg = m_clickedOrg_task_count[7]
     self.m_num_xor_clickedOrg.setText(str(num_xor_clickedOrg))
+    if num_xor_clickedOrg>0:
+      self.m_xor_name.setText('Xor+')
+    else:
+      self.m_xor_name.setText('Xor-')
 
     num_equals_clickedOrg = m_clickedOrg_task_count[8]
     self.m_num_equals_clickedOrg.setText(str(num_equals_clickedOrg))
+    if num_equals_clickedOrg>0:
+      self.m_equ_name.setText('Equ+')
+    else:
+      self.m_equ_name.setText('Equ-')
 
 
   def petriDropped(self, e):
