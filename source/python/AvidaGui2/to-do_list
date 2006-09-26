@@ -15,6 +15,8 @@ Priority High
 
 19-Sep-06 Empty -> configured actually empty of organisms. Default full one organism, @Default -> @Example.  Warning when we try to start with an empty dish.
 
+26-Sep-06 Add @example.full with just one organism.
+
 Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
@@ -132,6 +134,9 @@ Priority High-
 
 - in petri dish, indication of each mutation as it occurs.
 - see tasks on timeline (josh)
+
+25-Sep-06 Change task names in Org View to 3 letter codes.
+
 
 Priority Medium-
 - animation of organism divide
