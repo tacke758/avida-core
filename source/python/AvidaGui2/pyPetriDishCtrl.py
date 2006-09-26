@@ -117,7 +117,7 @@ class pyPetriDishCtrl(QWidget):
 
   def statsViewTaskButtonStateChangeSlot(self, stat_task_button_states):
     self.m_stat_task_button_states = stat_task_button_states
-    descr("self.m_stat_task_button_states is: ", self.m_stat_task_button_states)
+#    descr("self.m_stat_task_button_states is: ", self.m_stat_task_button_states)
     self.updateCellItems(True)
 
   def petriCanvasResizedSlot(self,petriCanvasSize):
@@ -261,7 +261,7 @@ class pyPetriDishCtrl(QWidget):
       failedATest = False      #refers to tests regarding whether a task button is on and that task is performed
       for i in range(len(self.m_stat_task_button_states)):
         if (self.m_stat_task_button_states[i]):
-          if(self.m_avida.m_population.GetCell(cell_id).GetOrganism().GetPhenotype().GetCurTaskCount()[i]>=1):
+          if(self.m_avida.m_population.GetCell(cell_id).GetOrganism().GetPhenotype().GetLastTaskCount()[i]>=1):
             passedATest = True
           else:
             failedATest = True
