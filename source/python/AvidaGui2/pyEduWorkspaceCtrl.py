@@ -224,7 +224,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             os.mkdir(os.path.join(new_dir,"freezer"))
             filesToCopy = ["environment.default", "inst_set.default", 
                            "events.default", "genesis.default", 
-                           os.path.join("freezer", "@default.empty"), 
+                           os.path.join("freezer", "@example.empty"), 
                            os.path.join("freezer", "@ancestor.organism")]
             for fileName in filesToCopy:
               sourceName = os.path.join(self.m_session_mdl.m_current_workspace,
@@ -477,7 +477,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # click the default empty petri dish from the freezer
 
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
-      "@default.empty")
+      "@example.empty")
     if not(os.path.exists(file_name)):
       warningNoMethodName(file_name + 
        " does not exist -- please start experiment by dragging dish")
@@ -486,7 +486,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
       ())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
-      ("@default.empty", thawed_item,))
+      ("@example.empty", thawed_item,))
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
 
