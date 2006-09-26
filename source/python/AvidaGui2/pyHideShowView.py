@@ -20,7 +20,7 @@ class pyHideShowView(QWidget):
     # temporary
     self.m_label = QLabel(self)
     font = QFont(qApp.font())
-    font.setPointSize(9)
+    font.setPointSize(8)
     self.m_label.setFont(font)
     h_layout1.addWidget(self.m_label)
 

@@ -46,7 +46,7 @@ def taskDescrSetup(parent, layout, name):
   return task_descr
 def labelSetup(parent, layout, name):
   font = QFont(qApp.font())
-  font.setPointSize(9)
+  font.setPointSize(8)
   label = QLabel(parent.getSubwidget(), name)
   label.setFont(font)
   layout.addWidget(label)

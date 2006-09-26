@@ -72,6 +72,7 @@ class pyInstructionDescriptionCtrl(QTextEdit):
     self.setAlignment(Qt.WordBreak)
     self.setReadOnly(True)
     self.read_fn = None
+    self.setMaximumHeight(60)
 
   def setReadFn(self, sender, read_fn):
     self.read_fn = read_fn
