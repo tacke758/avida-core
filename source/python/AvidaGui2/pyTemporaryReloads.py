@@ -49,6 +49,8 @@ nontest_module_names = [
   "AvidaGui2.pyQuitDialogCtrl",
   "AvidaGui2.pyRightClickDialogView",
   "AvidaGui2.pyRightClickDialogCtrl",
+  "AvidaGui2.pyStdTaskDescriptionCtrl",
+  "AvidaGui2.pyTaskDescriptionCtrl",
 
   "AvidaGui2.pyAnalyzeControlsView",
   "AvidaGui2.pyAnalyzeControlsCtrl",
@@ -98,7 +100,6 @@ nontest_module_names = [
   "AvidaGui2.pyPetriDishCtrl",
   "AvidaGui2.pyPopulationCellItem",
   "AvidaGui2.pyReadFreezer",
-  "AvidaGui2.pyTaskDescriptionCtrl",
   "AvidaGui2.pyTimeline",
   "AvidaGui2.pyTimelineView",
   "AvidaGui2.pyTimelineCtrl",

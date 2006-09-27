@@ -35,6 +35,10 @@ class pyTaskDescriptionCtrl(QLabel):
       task_num = self.read_fn(frames, frame_no)
       task_name = frames.m_task_names[task_num]
       task_text = '%s' % task_name
+
+      if hasattr(self, 'm_task_renamings'):
+        task_text = self.m_task_renamings[task_text]
+
       tasks_frame = frames.m_tasks_info[frame_no]
       task_count = tasks_frame[task_num]
       self.setFont(task_count > 0 and self.bold_font or self.normal_font)

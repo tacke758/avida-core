@@ -494,6 +494,7 @@ class pyOrganismScopeView2(QCanvasView):
 
       if self.m_current_frame_number >= (self.m_frames.m_gestation_time - 1) and self.m_frames.m_is_viable:
         self.m_child_circle.setCenterX(self.m_child_circle.centerX() + 2 * self.m_instruction_spot_radius)
+        self.m_child_circle.setOTheta(self.m_child_circle.oTheta() + math.pi)
 
       ###
       muts_item_idx = 0

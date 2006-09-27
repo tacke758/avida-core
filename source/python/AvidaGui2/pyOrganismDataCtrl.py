@@ -1,7 +1,7 @@
 from pyBufferCtrl import pyBufferCtrl
 from pyInstructionDescriptionCtrl import pyInstructionDescriptionCtrl
 from pyTaskDataCtrl import pyTaskDataCtrl
-from pyTaskDescriptionCtrl import pyTaskDescriptionCtrl
+from pyStdTaskDescriptionCtrl import pyStdTaskDescriptionCtrl
 from pyHideShowCtrl import pyHideShowCtrl
 from descr import descr
 from qt import *
@@ -40,7 +40,7 @@ def instDescrSetup(parent, layout, name):
   parent.updateMinWidth(inst_descr.maximumWidth())
   return inst_descr
 def taskDescrSetup(parent, layout, name):
-  task_descr = pyTaskDescriptionCtrl(parent.getSubwidget(), name)
+  task_descr = pyStdTaskDescriptionCtrl(parent.getSubwidget(), name)
   layout.addWidget(task_descr)
   parent.updateMinWidth(task_descr.maximumWidth())
   return task_descr
