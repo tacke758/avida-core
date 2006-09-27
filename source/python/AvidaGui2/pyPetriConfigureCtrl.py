@@ -617,7 +617,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.setAvidaSlot)
 
   def dragEnterEvent( self, e ):
-
     freezer_item_list = QString()
  
     # freezer_item_list is a string...tab delimited list of file names 
@@ -651,7 +650,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
   def petriDroppedSlot(self, e):
     # Try to decode to the data you understand...
     freezer_item_list = QString()
-    if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
+
+#    if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
+    if ( QTextDrag.decode( e, freezer_item_list )) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
       if (len(freezer_item_names) > 1):
@@ -659,7 +660,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       else:
         freezer_item_name = freezer_item_names[0]
         if freezer_item_name[-8:] == 'organism':
-          info("Organisms should be placed in the Ancestor Box")
+          if (not self.DishDisabled) :
+            info("Organisms should be placed in the Ancestor Box")
+          else :
+            info("Organisms can't be dragged into a running population")
           return
         elif freezer_item_name[-4:] == 'full':
           freezer_item_name_temp = os.path.join(freezer_item_name, 'petri_dish')
@@ -680,7 +684,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
   def petriAncestorDroppedSlot(self, e):
     # Try to decode to the data you understand...
     freezer_item_list = QString()
-    if ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
+    if (QTextDrag.decode( e, freezer_item_list ) and self.DishDisabled) :
+      info("Organisms can't be dragged into a running population")
+    elif ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
       for freezer_item_name in freezer_item_list.split("\t")[1:]:
