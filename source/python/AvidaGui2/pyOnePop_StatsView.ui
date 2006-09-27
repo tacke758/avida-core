@@ -1472,7 +1472,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>not</string>
+                                        <string>Not</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1519,7 +1519,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>nand</string>
+                                        <string>Nan</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1561,7 +1561,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>and</string>
+                                        <string>And</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1603,7 +1603,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>ornot</string>
+                                        <string>Orn</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1645,7 +1645,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>or</string>
+                                        <string>Oro</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1687,7 +1687,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>andnot</string>
+                                        <string>Ant</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1729,7 +1729,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>nor</string>
+                                        <string>Nor</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1771,7 +1771,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>xor</string>
+                                        <string>Xor</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
@@ -1813,7 +1813,7 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                         </font>
                                     </property>
                                     <property name="text">
-                                        <string>equals</string>
+                                        <string>Equ</string>
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
