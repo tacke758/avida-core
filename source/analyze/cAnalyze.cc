@@ -7232,7 +7232,6 @@ void cAnalyze::LoadCommandList(cInitFile & init_file,
   while (init_file.GetLineNum() < init_file.GetNumLines()) {
     cString cur_string = init_file.GetNextLine();
     cString command = cur_string.PopWord();
-    command.ToUpper();
     
     cAnalyzeCommand* cur_command;
     cAnalyzeCommandDefBase* command_def = FindAnalyzeCommandDef(command);
