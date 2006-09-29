@@ -126,7 +126,7 @@ public:
    * @return The pseudo random number.
    * @param max The upper bound for the random numbers (will never be returned).
    **/
-  unsigned int GetUInt(const unsigned int max) { return static_cast<unsigned int>(GetDouble()) * max); }
+  unsigned int GetUInt(const unsigned int max) { return static_cast<unsigned int>(GetDouble()) * max; }
   
   /**
    * Generate an unsigned int out of an interval.
@@ -145,7 +145,7 @@ public:
    * @param max The upper bound for the random numbers (will never be returned).
    **/
   int GetInt(const int max) { return static_cast<int>(GetUInt(max)); }
-  int GetInt(const int min, const int max) { return (static_cast<int>(GetUInt(max - min)) + min; }
+  int GetInt(const int min, const int max) { return static_cast<int>(GetUInt(max - min)) + min; }
   
   
   // Random Event Generation //////////////////////////////////////////////////
