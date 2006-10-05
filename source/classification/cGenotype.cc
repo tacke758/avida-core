@@ -214,7 +214,11 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
   if (GetID() == test_genotype->GetAncestorID(0) ||  // Parent of test
       GetID() == test_genotype->GetAncestorID(1) ||  // Parent of test
       test_genotype->GetID() == GetAncestorID(0) ||  // Child of test
-      test_genotype->GetID() == GetAncestorID(1)     // Child of test
+      test_genotype->GetID() == GetAncestorID(1) ||    // Child of test
+      GetAncestorID(0) == test_genotype->GetAncestorID(0) || // Sibling of test
+      GetAncestorID(0) == test_genotype->GetAncestorID(1) || // Sibling of test
+      GetAncestorID(1) == test_genotype->GetAncestorID(0) || // Sibling of test
+      GetAncestorID(1) == test_genotype->GetAncestorID(1)    // Sibling of test
       ) {
     return 1;
   }
@@ -226,14 +230,7 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       test_genotype->GetID() == GetAncestorID(3) ||  // Grandchild of test
       test_genotype->GetID() == GetAncestorID(4) ||  // Grandchild of test
       test_genotype->GetID() == GetAncestorID(5) ||  // Grandchild of test
-      GetAncestorID(0) == test_genotype->GetAncestorID(0) || // Sibling of test
-      GetAncestorID(0) == test_genotype->GetAncestorID(1) || // Sibling of test
-      GetAncestorID(1) == test_genotype->GetAncestorID(0) || // Sibling of test
-      GetAncestorID(1) == test_genotype->GetAncestorID(1)    // Sibling of test
-      ) {
-    return 2;
-  }
-  if (GetAncestorID(0) == test_genotype->GetAncestorID(2) || // Uncle of test
+      GetAncestorID(0) == test_genotype->GetAncestorID(2) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(3) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(4) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(5) || // Uncle of test
@@ -250,9 +247,10 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       test_genotype->GetAncestorID(1) == GetAncestorID(4) || // Nephew of test
       test_genotype->GetAncestorID(1) == GetAncestorID(5)    // Nephew of test
       ) {
-    return 3;
+    return 2;
   }
-
+  /*@JMC If you really want this to be accurate it should include great-grandchildren
+    and great-grandparents
   if (GetAncestorID(2) == test_genotype->GetAncestorID(2) || // First Cousins
       GetAncestorID(2) == test_genotype->GetAncestorID(3) ||
       GetAncestorID(2) == test_genotype->GetAncestorID(4) ||
@@ -270,8 +268,8 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       GetAncestorID(5) == test_genotype->GetAncestorID(4) ||
       GetAncestorID(5) == test_genotype->GetAncestorID(5)
       ) {
-    return 4;
+    return 3;
   }
-  
-  return 5;
+  */  
+  return 3;
 }

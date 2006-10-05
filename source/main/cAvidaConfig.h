@@ -157,8 +157,8 @@ public:
   CONFIG_ADD_VAR(VERBOSITY, int, 1, "Control output verbosity");
   
   CONFIG_ADD_GROUP(ARCH_GROUP, "Architecture Variables");
-  CONFIG_ADD_VAR(WORLD_X, int, 100, "Width of the Avida world");
-  CONFIG_ADD_VAR(WORLD_Y, int, 100, "Height of the Avida world");
+  CONFIG_ADD_VAR(WORLD_X, int, 60, "Width of the Avida world");
+  CONFIG_ADD_VAR(WORLD_Y, int, 60, "Height of the Avida world");
   CONFIG_ADD_VAR(WORLD_GEOMETRY, int, 2, "1 = Bounded Grid\n2 = Torus");
   CONFIG_ADD_VAR(NUM_DEMES, int, 0, "Number of independed groups in the population; 0=off");
   CONFIG_ADD_VAR(RANDOM_SEED, int, 0, "Random number seed (0 for based on time)");
@@ -240,7 +240,7 @@ public:
   CONFIG_ADD_VAR(DEFAULT_BONUS, double, 1.0, "The bonus an organism gets before any tasks");
   CONFIG_ADD_VAR(MERIT_GIVEN, double, 0.0, "Amount of merit donated with 'donoate' command.");
   CONFIG_ADD_VAR(MERIT_RECEIVED, double, 0.0, "Amount of merit received with 'donate' command");
-  CONFIG_ADD_VAR(MAX_DONATE_KIN_DIST, int, -1, "Limit on distance of relation for donate; -1=no max");
+  CONFIG_ADD_VAR(MAX_DONATE_KIN_DIST, int, -1, "Limit on distance of relation donated to (in terms of hamilton's r. 1=50% shared genes, 2=25% shared genes, etc.; -1=no max");
   CONFIG_ADD_VAR(MAX_DONATE_EDIT_DIST, int, -1, "Limit on edit distance for donate; -1=no max");
   CONFIG_ADD_VAR(MAX_DONATES, int, 1000000, "Limit on number of donates organisms are allowed.");
   
