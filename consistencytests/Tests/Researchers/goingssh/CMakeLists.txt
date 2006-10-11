@@ -1,1 +1,1 @@
-SUBDIRS(Kazi)
+#SUBDIRS(Kazi)

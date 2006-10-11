@@ -29,7 +29,7 @@ SET(InstSetFile "${ConfigDir}/inst_set.kazi")
 SET(EnvironmentFile "${ConfigDir}/environment.cfg")
 SET(StartCreatureFile "${ConfigDir}/kazi.org")
 # Command-line arguments passed to Avida.
-SET(AvidaArgs "-seed %d -set WORLD-X 40 -set WORLD-Y 40 -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile}")
+SET(AvidaArgs "-c ${GenesisFile} -seed %d -set WORLD-X 40 -set WORLD-Y 40 -set INST_SET ${InstSetFile} -set EVENT_FILE ${EventFile} -set ENVIRONMENT_FILE ${EnvironmentFile} -set START_CREATURE ${StartCreatureFile} -set DATA_DIR .")
 
 #
 # Consistency checks configuration
