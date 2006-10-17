@@ -44,7 +44,7 @@ AGE_DEVIATION 0   # Modified DEATH_METHOD
 ALLOC_METHOD 0    # 0 = Allocated space is set to default instruction.
                   # 1 = Set to section of dead genome (Necrophilia)
                   # 2 = Allocated space is set to random instruction.
-DIVIDE_METHOD 1   # 0 = Divide leaves state of mother untouched.
+DIVIDE_METHOD 0   # 0 = Divide leaves state of mother untouched.
                   # 1 = Divide resets state of mother
                   #     (after the divide, we have 2 children)
 
