@@ -205,8 +205,20 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     created = False
     dialog_caption = "Enter the name of a new workspace"
     while (created == False):
+
+      # if user has not yet selected a dir try for the ~/Documents on the Mac
+      # ~ on Linux and $HOME/My Documents on Windows
+
+      if not self.m_session_mdl.directory_chosen:
+        initial_dir = os.path.expanduser("~")
+        if os.path.exists(os.path.join(initial_dir,"Documents")):
+          initial_dir = os.path.join(initial_dir,"Documents")
+        elif os.path.exists(os.path.join(initial_dir,"My Documents")):
+          initial_dir = os.path.join(initial_dir,"My Documents")
+      else:
+        initial_dir = ""
       new_dir = QFileDialog.getSaveFileName(
-                    "",
+                    initial_dir,
                     "Workspace (*.workspace)",
                     None,
                     "new workspace",
@@ -255,9 +267,22 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     while (foundFile == False):
 
+      # if user has not yet selected a dir try for the ~/Documents on the Mac
+      # ~ on Linux and $HOME/My Documents on Windows
+
+      if not self.m_session_mdl.directory_chosen:
+        initial_dir = os.path.expanduser("~")
+        print "BDB: " + os.path.join(initial_dir,"Documents")
+        if os.path.exists(os.path.join(initial_dir,"Documents")):
+          initial_dir = os.path.join(initial_dir,"Documents")
+        elif os.path.exists(os.path.join(initial_dir,"My Documents")):
+          initial_dir = os.path.join(initial_dir,"My Documents")
+      else:
+        initial_dir = ""
+
       workspace_dir = QFileDialog.getExistingDirectory(
                     # self.m_session_mdl.m_current_workspace,
-                    "",
+                    initial_dir,
                     None,
                     "get existing workspace",
                     tmpDialogCap,

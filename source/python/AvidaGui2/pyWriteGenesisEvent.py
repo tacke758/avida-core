@@ -11,12 +11,18 @@ from descr import *
 
 class pyWriteGenesisEvent:
 
-  def __init__(self, in_dict = None, session_mdl = None, workspace_dir = None, freeze_dir = None,
-    tmp_in_dir = None, tmp_out_dir = None):
+  def __init__(self, in_dict = None, session_mdl = None, workspace_dir = None, 
+    freeze_dir = None, tmp_in_dir = None, tmp_out_dir = None):
     
     self.m_session_mdl = session_mdl
 
-    settings_dict = in_dict["SETTINGS"]
+    # If the file "research.version" exists in the current workspace we
+    # are going to ignore any settings in the petri dish
+
+    if os.path.exists(os.path.join(workspace_dir,"research.version")):
+      settings_dict = {}
+    else:
+      settings_dict = in_dict["SETTINGS"]
 	
     # Copies default event file and add to the 
     # temporary dictionary where the input files will live
@@ -28,7 +34,8 @@ class pyWriteGenesisEvent:
 
     
     #if we have a full petri dish...
-    if in_dict.has_key("CELLS"): 
+    if in_dict.has_key("CELLS") and \
+       (not (os.path.exists(os.path.join(workspace_dir,"research.version")))): 
       cells_dict = in_dict["CELLS"]
       organisms_dict = in_dict["ORGANISMS"]
       self.m_session_mdl.m_founding_cells_dict = cells_dict
@@ -93,14 +100,15 @@ class pyWriteGenesisEvent:
 
           organisms_dict[str(i)] = settings_dict["START_GENOME" + str(i)]
 
-    shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), os.path.join(tmp_in_dir, "inst_set.default"))
+    shutil.copyfile(os.path.join(workspace_dir, "inst_set.default"), \
+                    os.path.join(tmp_in_dir, "inst_set.default"))
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")
     self.writeEnvironmentFile(workspace_dir, settings_dict)
     settings_dict["INST_SET"] = os.path.join(tmp_in_dir, "inst_set.default")
-    # settings_dict["START_CREATURE"] = os.path.join(tmp_in_dir, settings_dict["START_CREATURE"])
-    genesis_file_name = self.writeGenesisFile(workspace_dir, tmp_in_dir, settings_dict)
+    genesis_file_name = self.writeGenesisFile(workspace_dir, tmp_in_dir, \
+                                              settings_dict)
     
     # There's a loop around organisms_dict
     #   organism number is key, sequence is value.
@@ -162,7 +170,8 @@ class pyWriteGenesisEvent:
 
         # BDB -- added second if statment clause to support pause_at hack
 
-        if (settings_dict.has_key(var_name) == True) and (var_name != "MAX_UPDATES"):
+        if (settings_dict.has_key(var_name) == True) and \
+           (var_name != "MAX_UPDATES"):
           out_genesis_file.write(var_name + " " + str(settings_dict[var_name]) + "\n")
         else:
           out_genesis_file.write(line)
