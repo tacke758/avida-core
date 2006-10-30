@@ -75,7 +75,7 @@ Python:from pyOnePop_StatsCtrl import pyOnePop_StatsCtrl
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>3</hsizetype>
-                            <vsizetype>3</vsizetype>
+                            <vsizetype>7</vsizetype>
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>

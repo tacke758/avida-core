@@ -90,7 +90,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
                       (freezer_item_name,))
           else:
             warningNoMethodName(freezer_item_name + 
-              " does not seem to be a full petri dish.")
+              " does not seem to be a populated dish.")
 
   def freezerItemDoubleClicked(self, freezer_item_list):
     descr("BDB")
@@ -106,7 +106,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
               (freezer_item_name,))
           else:
             warningNoMethodName(freezer_item_name + 
-              " does not seem to be a full petri dish.")
+              " does not seem to be a populated dish.")
 
   def saveImagesSlot(self):
     "Save image of graph"

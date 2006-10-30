@@ -97,7 +97,7 @@ class pyOrganismDataCtrl(QWidget):
     self.widget_factory.setWidgetFn(taskDescrSetup)
 
     self.hideshow_tasks = self.hideshow_factory.newWidget()
-    self.hideshow_tasks.getLabel().setText("Task Counts")
+    self.hideshow_tasks.getLabel().setText("Function Counts")
     self.widget_factory.setParent(self.hideshow_tasks)
     self.task0_label = self.widget_factory.newWidget('task0').setReadFn(self, lambda f, fn: 0)
     self.task1_label = self.widget_factory.newWidget('task1').setReadFn(self, lambda f, fn: 1)

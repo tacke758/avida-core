@@ -15,6 +15,7 @@
     </property>
     <property name="font">
         <font>
+            <family>Arial</family>
             <pointsize>9</pointsize>
         </font>
     </property>
@@ -34,7 +35,7 @@
             </property>
             <property name="font">
                 <font>
-                    <pointsize>14</pointsize>
+                    <pointsize>13</pointsize>
                     <bold>1</bold>
                 </font>
             </property>
@@ -641,6 +642,11 @@
                                 <cstring>NandCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -660,6 +666,11 @@
                                 <cstring>OrnCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -679,6 +690,11 @@
                                 <cstring>AndCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -698,6 +714,11 @@
                                 <cstring>OrCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -717,6 +738,11 @@
                                 <cstring>NorCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -736,6 +762,11 @@
                                 <cstring>EasyTextLabel</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="font">
                                 <font>
@@ -750,6 +781,11 @@
                                 <cstring>HardTextLabel</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="font">
                                 <font>
@@ -764,6 +800,11 @@
                                 <cstring>NotCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -783,6 +824,11 @@
                                 <cstring>ModerateTextLabel</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="font">
                                 <font>
@@ -797,6 +843,11 @@
                                 <cstring>VHardTextLabel</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="font">
                                 <font>
@@ -811,6 +862,11 @@
                                 <cstring>XorCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -830,6 +886,11 @@
                                 <cstring>AndnCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -849,6 +910,11 @@
                                 <cstring>BrutalTextLabel</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="font">
                                 <font>
@@ -863,6 +929,11 @@
                                 <cstring>EquCheckBox</cstring>
                             </property>
                             <property name="paletteBackgroundColor">
+                                <color>
+                                    <red>255</red>
+                                    <green>255</green>
+                                    <blue>255</blue>
+                                </color>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -1198,7 +1269,7 @@
                 <string>Freeze Petri Dish</string>
             </property>
             <property name="toolTip" stdset="0">
-                <string>&lt;p&gt;Save either an empty or full petri dish to the freezer&lt;/p&gt;</string>
+                <string>&lt;p&gt;Save either an configured or populated dish to the freezer&lt;/p&gt;</string>
             </property>
         </widget>
     </vbox>

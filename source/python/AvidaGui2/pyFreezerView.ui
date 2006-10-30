@@ -44,7 +44,7 @@
             </column>
         <item>
             <property name="text">
-                <string> Empty Petri Dishes</string>
+                <string> Configured Dishes</string>
             </property>
             <property name="pixmap">
                 <pixmap>image0</pixmap>
@@ -52,7 +52,7 @@
         </item>
         <item>
             <property name="text">
-                <string> Full Petri Dishes</string>
+                <string> Populated Dishes</string>
             </property>
             <property name="pixmap">
                 <pixmap>image1</pixmap>
@@ -79,6 +79,7 @@
             </property>
             <property name="font">
                 <font>
+                    <family>Arial</family>
                     <pointsize>9</pointsize>
                 </font>
             </property>

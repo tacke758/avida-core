@@ -62,11 +62,12 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
                     </property>
                     <property name="font">
                         <font>
+                            <family>Arial</family>
                             <pointsize>11</pointsize>
                         </font>
                     </property>
                     <property name="text">
-                        <string>[drag an organism into this window for analysis]</string>
+                        <string>[drag an organism into the center of this window for analysis]</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Name of organism being analyzed (dragged in from freezer)</string>
@@ -78,6 +79,7 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
                     </property>
                     <property name="font">
                         <font>
+                            <family>Arial</family>
                             <pointsize>9</pointsize>
                         </font>
                     </property>
@@ -241,13 +243,15 @@ Python:from pyTimelineCtrl import pyTimelineCtrl
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>5</hordata>
+            <hordata>0</hordata>
             <verdata>0</verdata>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image2</pixmap>
         <property type="0">3</property>
+        <property type="1">pyOrganismConfigureCtrl</property>
+        <property type="3">-1</property>
         <property type="1">pyOrganismConfigureCtrl</property>
         <property type="3">-1</property>
         <property type="pyOrganismConfigureCtrl"></property>

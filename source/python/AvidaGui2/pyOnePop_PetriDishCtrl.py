@@ -55,7 +55,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.connect(self.m_zoom_spinbox, SIGNAL("valueChanged(int)"), 
        self.m_petri_dish_ctrl.zoomSlot)
     self.connect(self.m_petri_dish_ctrl, PYSIGNAL("zoomSig"), 
-       self.m_zoom_spinbox.setValue)
+       self.setZoomSlot)
     self.connect(self.m_mode_combobox, SIGNAL("activated(int)"), 
        self.modeActivatedSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, 
@@ -396,3 +396,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       painter = QPainter(printer)
       painter.drawPixmap(0, 0, self.getPetriDishPixmap())
       painter.end()
+
+  def setZoomSlot(self, zoomValue):
+    print("BDB, zoom set to " + str(zoomValue))
+    self.m_zoom_spinbox.setValue(zoomValue)
+    self.m_zoom_spinbox.setFont(QFont("Arial",13))

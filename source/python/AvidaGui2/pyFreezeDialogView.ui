@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>500</width>
-            <height>177</height>
+            <width>510</width>
+            <height>179</height>
         </rect>
     </property>
     <property name="caption">
@@ -23,6 +23,11 @@
             <property name="name">
                 <cstring>MainMessageTextLabel</cstring>
             </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                </font>
+            </property>
             <property name="text">
                 <string>Enter Name of Item to Freeze</string>
             </property>
@@ -33,6 +38,12 @@
         <widget class="QLineEdit">
             <property name="name">
                 <cstring>FileNameLineEdit</cstring>
+            </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                </font>
             </property>
             <property name="frameShape">
                 <enum>LineEditPanel</enum>
@@ -65,11 +76,17 @@
                     <property name="name">
                         <cstring>EmptyRadioButton</cstring>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
-                        <enum>StrongFocus</enum>
+                        <enum>TabFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Empty Petri Dish</string>
+                        <string>Configured Dish</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -85,11 +102,17 @@
                     <property name="enabled">
                         <bool>false</bool>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
-                        <enum>StrongFocus</enum>
+                        <enum>NoFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Full Petri Dish</string>
+                        <string>Populated Dish</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;p&gt;Save the envrionmental settings and all the organisms in the population&lt;/P&gt;</string>
@@ -102,8 +125,14 @@
                     <property name="enabled">
                         <bool>false</bool>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
-                        <enum>StrongFocus</enum>
+                        <enum>NoFocus</enum>
                     </property>
                     <property name="text">
                         <string>Highlighted Organism</string>
@@ -135,6 +164,11 @@
                     <property name="name">
                         <cstring>SaveToFreezerPushButton</cstring>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
                         <enum>StrongFocus</enum>
                     </property>
@@ -148,6 +182,11 @@
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>StrongFocus</enum>
