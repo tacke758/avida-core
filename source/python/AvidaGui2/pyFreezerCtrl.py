@@ -196,8 +196,13 @@ class pyFreezerCtrl(QWidget):
 
   def createFreezerIndexSlot(self):
 
+    # Creates the liste of items in the freezer by reading the names from the
+    # current freezer directory
+    #
     # Freezer is hardcoded to list in order :
     #   Configured Dishes, Populated Dishes, Organisms
+
+    # First empty out the existing indexes
 
     self.m_empty_item = self.m_list_view.firstChild()
     while self.m_empty_item.firstChild():
@@ -214,22 +219,37 @@ class pyFreezerCtrl(QWidget):
       tmp_child = self.m_organism_item.firstChild()
       self.m_organism_item.takeItem(tmp_child)
       del (tmp_child)
+
+    # Find the current directory -- if it doesn't exist (which should never
+    # happen) create a new directory
+
     if os.path.exists(self.m_session_mdl.m_current_freezer) == False:
       os.mkdir(self.m_session_mdl.m_current_freezer)
     freezer_dir =  os.listdir(self.m_session_mdl.m_current_freezer)
+
+    # Go through each item in the current freezer directory and see if it is
+    # an empty (configured) dish, full (populated) dish or organism and add
+    # name to the end of the correct list
+
+    last_empty = None
+    last_full = None
+    last_org = None
     for file in freezer_dir:
       if file.endswith(".empty"):
         dish_name = file[:-6]
-        tmp_item = QListViewItem(self.m_empty_item)
+        tmp_item = QListViewItem(self.m_empty_item, last_empty)
         tmp_item.setText(0,dish_name)
+        last_empty = tmp_item
       if file.endswith(".full"):
         dish_name = file[:-5]
-        tmp_item = QListViewItem(self.m_full_item)
+        tmp_item = QListViewItem(self.m_full_item, last_full)
         tmp_item.setText(0,dish_name)
+        last_full = tmp_item
       if file.endswith(".organism"):
         organism_name = file[:-9]
-        tmp_item = QListViewItem(self.m_organism_item)
+        tmp_item = QListViewItem(self.m_organism_item, last_org)
         tmp_item.setText(0,organism_name)
+        last_org = tmp_item
 
   # if mouse is pressed on list item prepare its info to be dragged        
 

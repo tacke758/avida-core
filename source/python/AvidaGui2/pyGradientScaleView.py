@@ -22,7 +22,7 @@ class pyGradientScaleView(QWidget):
   s_empty_text_width = 0
   s_off_scale_text_width = 0
   s_label_text_width = 0
-  s_map_mode_name_label_width = 100
+  s_map_mode_name_label_width = 120
   s_text_height = 0
 
   def __init__(self,parent = None,name = None,fl = 0):
@@ -47,7 +47,6 @@ class pyGradientScaleView(QWidget):
     self.s_off_scale_text_width = self.fontMetrics().width(self.s_off_scale_text)
     self.s_label_text_width = self.fontMetrics().width("0.00000")
     self.s_text_height = self.fontMetrics().height()
-    print "pyGradientScaleView.intiailized"
 
     if not name:
       setName("pyGradientScaleView")
@@ -55,7 +54,6 @@ class pyGradientScaleView(QWidget):
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
-    print "pyGradientScaleView.constructing"
 
 
   def doubleToColor(self, x): return self.m_color_lookup and self.m_color_lookup(x) or QColor(Qt.black)

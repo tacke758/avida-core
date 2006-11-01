@@ -23,6 +23,12 @@
             <property name="name">
                 <cstring>BeforeStartTextLabel</cstring>
             </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                </font>
+            </property>
             <property name="text">
                 <string>&lt;p align="center"&gt;Before you can freeze a petri dish or organism&lt;br&gt; you must choose a workspace to work with&lt;/p&gt;</string>
             </property>
@@ -42,6 +48,11 @@
                     <property name="name">
                         <cstring>OpenExistingPushButton</cstring>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
                         <enum>StrongFocus</enum>
                     </property>
@@ -56,6 +67,11 @@
                     <property name="name">
                         <cstring>CreateNewPushButton</cstring>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
                     <property name="focusPolicy">
                         <enum>StrongFocus</enum>
                     </property>
@@ -69,6 +85,11 @@
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
                     </property>
                     <property name="focusPolicy">
                         <enum>StrongFocus</enum>
