@@ -1,8 +1,7 @@
 
 from pyOrganismConfigureView import pyOrganismConfigureView
-
+from descr import *
 from qt import *
-
 import math
 
 class pyOrganismConfigureCtrl(pyOrganismConfigureView):
@@ -16,6 +15,9 @@ class pyOrganismConfigureCtrl(pyOrganismConfigureView):
       self.ChangeMutationTextSlot)
     self.connect(self.m_mutation_rate_lineedit, SIGNAL("returnPressed()"), 
       self.ChangeMutationSliderSlot)
+
+    self.connect(self.RandomGeneratedRadioButton, SIGNAL("toggled(bool)"), 
+      self.ChangeRandomGeneratedRadioButtonSlot)
 
     #self.connect(self.m_mutation_slider, SIGNAL("valueChanged(int)"), self.m_session_mdl.m_session_mdtr,
     #  PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"))
@@ -115,3 +117,8 @@ class pyOrganismConfigureCtrl(pyOrganismConfigureView):
 
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),(mutValue,))
   
+  def SetRandomGeneratedRadioButton(self, is_down):
+    self.RandomGeneratedRadioButton.setDown(is_down);
+
+  def ChangeRandomGeneratedRadioButtonSlot(self, value):
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("ScopeConfig_RandomSeedSig"),(value,))

@@ -21,6 +21,8 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     self.connect(self.m_organism_scope_toggle, SIGNAL("clicked()"),
       self.ToggleScopeSlot)
 
+    self.m_organism_configure_ctrl.SetRandomGeneratedRadioButton(True);
+
   def aboutToBeLowered(self):
     """does nothing yet."""
     descr()

@@ -24,6 +24,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     if not name: self.setName("pyOrganismScopeCtrl")
 
     self.m_test_cpu_mutation_rate = 0.0
+    self.m_seed_based_on_time = True
 
   def construct(self, session_mdl):
     print "pyOrganismScopeCtrl.construct()."
@@ -36,6 +37,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),
       self.MutationSliderValueChangedSlot)
+
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_RandomSeedSig"),
+      self.RandomSeedSlot)
 
     #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HeadsTypeCBActivatedSig"),
     #  self.HeadsTypeCBActivatedSlot)
@@ -161,6 +165,11 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
       # Save random number generator state.
       random_number_generator_state = cRandom(cTools.globalRandom())
+      # Reset random number generator state.
+      if self.m_seed_based_on_time:
+        cTools.globalRandom().ResetSeed(-1)
+      else:
+        cTools.globalRandom().ResetSeed(1)
 
       # Tell user we're about to start organism analysis.
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"), (organism_filename,))
@@ -224,6 +233,10 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
   def MutationSliderValueChangedSlot(self, value):
     self.m_test_cpu_mutation_rate = value / 100.
     descr("self.m_test_cpu_mutation_rate", self.m_test_cpu_mutation_rate)
+
+  def RandomSeedSlot(self, value):
+    self.m_seed_based_on_time = value
+    descr("self.m_seed_based_on_time", self.m_seed_based_on_time)
 
   #def HeadsTypeCBActivatedSlot(self, index):
   #  self.anim.setDisplayHeadsAs(index)
