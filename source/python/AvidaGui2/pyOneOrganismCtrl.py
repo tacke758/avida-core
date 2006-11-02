@@ -22,6 +22,8 @@ class pyOneOrganismCtrl(pyOneOrganismView):
       self.ToggleScopeSlot)
 
     self.m_organism_configure_ctrl.SetRandomGeneratedRadioButton(True);
+    self.m_organism_configure_ctrl.ChangeMutationSliderSlot();
+    self.m_organism_configure_ctrl.setAnalysisNeeded(False)
 
   def aboutToBeLowered(self):
     """does nothing yet."""
@@ -46,4 +48,7 @@ class pyOneOrganismCtrl(pyOneOrganismView):
        self.m_flip_button_text_label.setText("<p align=\"right\">Flip to<br>Settings</p>")
        QToolTip.remove(self.m_organism_scope_toggle)
        QToolTip.add(self.m_organism_scope_toggle,"Flip to see <b><i>Organism Viewer Settings</i></b>")
+       if self.m_organism_configure_ctrl.isAnalysisNeeded():
+          self.m_one_org_scope_ctrl.m_organism_scope_ctrl.analyzeLoadedOrganism()
+          self.m_organism_configure_ctrl.setAnalysisNeeded(False)
 

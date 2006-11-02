@@ -8,6 +8,14 @@ class pyOrganismConfigureCtrl(pyOrganismConfigureView):
   def __init__(self, parent = None, name = None, fl = 0):
     pyOrganismConfigureView.__init__(self, parent, name, fl)
 
+    self.setAnalysisNeeded(False)
+
+  def setAnalysisNeeded(self, is_analysis_needed):
+    self.m_is_analysis_needed = is_analysis_needed
+
+  def isAnalysisNeeded(self):
+    return self.m_is_analysis_needed
+
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
 
@@ -77,6 +85,9 @@ class pyOrganismConfigureCtrl(pyOrganismConfigureView):
     self.m_mutation_rate_lineedit.setText(slide_value_txt)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),(slide_value,))
 
+    self.setAnalysisNeeded(True)
+
+
   # When the user changes the mutation slider (which has a log scale) change the
   # text next to it (which is liner). Must check if the text entered is a 
   # valid real number
@@ -116,9 +127,11 @@ class pyOrganismConfigureCtrl(pyOrganismConfigureView):
         self.m_mutation_slider.setValue(-30000)
 
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),(mutValue,))
+    self.setAnalysisNeeded(True)
   
   def SetRandomGeneratedRadioButton(self, is_down):
     self.RandomGeneratedRadioButton.setDown(is_down);
 
   def ChangeRandomGeneratedRadioButtonSlot(self, value):
+    self.setAnalysisNeeded(True)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("ScopeConfig_RandomSeedSig"),(value,))

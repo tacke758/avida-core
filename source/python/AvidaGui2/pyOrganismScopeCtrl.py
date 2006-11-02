@@ -25,6 +25,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
     self.m_test_cpu_mutation_rate = 0.0
     self.m_seed_based_on_time = True
+    self.m_debug_organism_file = None
 
   def construct(self, session_mdl):
     print "pyOrganismScopeCtrl.construct()."
@@ -33,7 +34,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.setAcceptDrops(1)
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), self.setAvidaSlot)
-    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setDebugOrganismFileSig"), self.setDebugOrganismFileSlot)
+    #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setDebugOrganismFileSig"), self.setDebugOrganismFileSlot)
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),
       self.MutationSliderValueChangedSlot)
@@ -105,7 +106,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
         else:
           if freezer_item_name.endswith('.organism'):
             e.accept()
-            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
+            #self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
+            self.setDebugOrganismFile(freezer_item_name)
+            self.analyzeLoadedOrganism()
           else:
             info("Only organisms can be dragged here")
 
@@ -117,8 +120,18 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       print "pyOrganismScopeCtrl.setAvidaSlot() deleting old_avida ..."
       del old_avida
 
-  def setDebugOrganismFileSlot(self, organism_filename):
-    print "pyOrganismScopeCtrl.setDebugOrganismFileSlot"
+  def setDebugOrganismFile(self, organism_filename):
+    self.m_debug_organism_file = organism_filename
+    
+
+  def analyzeLoadedOrganism(self):
+    organism_filename = self.m_debug_organism_file
+    descr(organism_filename)
+
+    # early exit if there's not organism to analyze
+    if organism_filename is None:
+      return
+
     if self.m_avida:
       self.setFrames()
 
