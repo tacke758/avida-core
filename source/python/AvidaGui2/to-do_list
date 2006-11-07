@@ -76,6 +76,11 @@ Priority Low
 ************Jeff*******************
 
 Priority High
+-When I click on an org the color block, name and stats for that org 
+come up correctly (or at least I assume they are correct).  However, 
+on my version the color block, name and stats stay the same even when 
+the org on the petri dish changes.  If I click on the org in question 
+the stats are updated.
 -work with brian to get delete working on the front of the dish (either by taking it to the can or hitting the delete key)
 -fix the problem where the arrows are pushed off the edge (talk with josh to make it happen)
 -add a None option to the analyze population color list 
@@ -322,3 +327,6 @@ August
 --make tasks reflect parent tasks (not real time) in org report (pending group decision) (1/26/06)
 -bring the ability to see the org square outlined in gray back (works now)
 -ancestor legend view now works
+
+November:
+-Fixed: A new run will not start from initial conditions if the Petri Dish view is set to "None".

@@ -116,6 +116,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       lineage_range = len(self.m_session_mdl.m_ancestors_dict)
       non_normalized_index = int(label) + 1
       normalized_index = float(non_normalized_index) / float(lineage_range)
+      print "self.m_petri_dish_ctrl is: ", self.m_petri_dish_ctrl
       a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
 
       #the following ugly code is brought to you by the fact that I can't delete objects
@@ -174,7 +175,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_avida and self.m_avida.m_avida_threaded_driver.m_lock.acquire()
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("mapModeChangedSig"), (self.m_map_profile.getModeName(index),))
     self.m_mode_index = index
-    if (self.m_mode_index==4):
+    if (self.m_mode_index==3):
       self.m_map_legend_widget_stack.raiseWidget(1)
     else:
       self.m_map_legend_widget_stack.raiseWidget(0)

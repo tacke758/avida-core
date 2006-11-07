@@ -293,11 +293,11 @@ class pyMapProfile:
 
     self.m_entries = (
     #  Mode Name,        Indexer
-      ('None',
-        continuousIndexer(NullIdx),
-        gradualLinScaleUpdater(RangeReport(NullRng, self.m_session_mdl)),
-        None
-        ),
+#      ('None',
+#        continuousIndexer(NullIdx),
+#        gradualLinScaleUpdater(RangeReport(NullRng, self.m_session_mdl)),
+#        None
+#        ),
       ('Metabolic Rate',
         continuousIndexer(MeritIdx),
         gradualLinScaleUpdater(RangeReport(MeritRng, self.m_session_mdl)),
