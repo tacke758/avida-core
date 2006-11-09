@@ -73,8 +73,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("initializeWithDefaultPetriDishSig"),())
 
  
-    # Start with second map mode -- "Fitness".
-    self.m_mode_combobox.setCurrentItem(2)
+    # Start with first map mode -- "Fitness".
+    self.m_mode_combobox.setCurrentItem(1)
     self.m_mode_index = self.m_mode_combobox.currentItem()
     self.modeActivatedSlot(self.m_mode_index)
     # self.m_petri_dish_ctrl.emit(PYSIGNAL("zoomSig"), 
