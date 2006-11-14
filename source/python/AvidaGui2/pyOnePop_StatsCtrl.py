@@ -150,7 +150,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     num_equals = str(stats.GetTaskLastCount(8))
     self.m_num_equals.setText(num_equals)
     
-    if self.m_clicked_cell_number>= 0: 
+    if self.m_clicked_cell_number>= 0:
       self.updateOrgReportSlot(self.m_clicked_cell_item)
 
   def notButtonClickedSlot(self):
@@ -204,10 +204,12 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_org_name.setText(name)
 
   def updateOrgReportSlot(self, clicked_cell_item = None):
+    #this line is probably redundant
+    self.m_clicked_cell_number = clicked_cell_item
     self.m_clicked_cell_item = clicked_cell_item
     if clicked_cell_item:
-      self.clicked_cell_number = clicked_cell_item.m_population_cell.GetID()
-      if self.m_session_mdl.m_avida_has_started == True:
+      self.m_clicked_cell_number = clicked_cell_item.m_population_cell.GetID()
+      if (self.m_session_mdl.m_avida_has_started == True) and (clicked_cell_item.m_population_cell.GetOrganism()):
         if self.m_session_mdl.m_ancestors_dict.has_key(str(clicked_cell_item.m_population_cell.\
             GetOrganism().GetLineageLabel())):
           if len(self.m_session_mdl.m_ancestors_dict[\
@@ -219,20 +221,20 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_ancestors_dict[\
               str(clicked_cell_item.m_population_cell.GetOrganism().GetLineageLabel())])
       else: #avidda has not started
-        if self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_number)):
+        if self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.m_clicked_cell_number)):
           if len(self.m_session_mdl.m_cell_num_ancestor_name_dict\
-              [str(self.clicked_cell_number)])>15:
+              [str(self.m_clicked_cell_number)])>15:
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
-              str(self.clicked_cell_number)][:12]+'...')
+              str(self.m_clicked_cell_number)][:12]+'...')
           else:
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
-              str(self.clicked_cell_number)])
+              str(self.m_clicked_cell_number)])
     
-    if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(self.clicked_cell_number)).IsOccupied():
+    if clicked_cell_item is None or not self.m_avida.m_population.GetCell(int(self.m_clicked_cell_number)).IsOccupied():
 
       # PAINT the clickedOnOrg stats fields empty
 
-#      if not self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_number)):
+#      if not self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.m_clicked_cell_number)):
       self.m_org_name.setText('empty cell')
       self.m_session_mdl.m_current_cell_genome = ""
       self.m_org_fitness.setText('-')
@@ -264,20 +266,19 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
       #why is this code necessary? 
       if clicked_cell_item is not None:    
-        self.clicked_cell_number = clicked_cell_item.m_population_cell.GetID()
+        self.m_clicked_cell_number = clicked_cell_item.m_population_cell.GetID()
       else:
-        self.clicked_cell_number = -99
-        print "$$$clicked_cell_item is none"
+        self.m_clicked_cell_number = -99
 
       if self.m_session_mdl.m_avida_has_started == False:
-        if self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.clicked_cell_number)):
+        if self.m_session_mdl.m_cell_num_ancestor_name_dict.has_key(str(self.m_clicked_cell_number)):
           if len(self.m_session_mdl.m_cell_num_ancestor_name_dict\
-              [str(self.clicked_cell_number)])>15:
+              [str(self.m_clicked_cell_number)])>15:
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
-              str(self.clicked_cell_number)][:12]+'...')
+              str(self.m_clicked_cell_number)][:12]+'...')
           else:
             self.m_org_ancestor_name.setText( self.m_session_mdl.m_cell_num_ancestor_name_dict[\
-              str(self.clicked_cell_number)])
+              str(self.m_clicked_cell_number)])
             
       self.m_org_square_ctrl.paint(Qt.black)
 
@@ -285,7 +286,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     self.m_org_square_ctrl.paint(clicked_cell_item.brush().color())
 
-    clicked_cell = self.m_avida.m_population.GetCell(int(self.clicked_cell_number))
+    clicked_cell = self.m_avida.m_population.GetCell(int(self.m_clicked_cell_number))
 
     organism = clicked_cell.GetOrganism()
     phenotype = organism.GetPhenotype()
