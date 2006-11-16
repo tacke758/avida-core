@@ -400,6 +400,65 @@ void cOrganism::NetReset()
   }
 }
 
+/// UML Functions /// 
+/// This function is a copy of DoOutput /// 
+void cOrganism::ModelCheck(cAvidaContext& ctx)
+{
+  assert(m_interface);
+  const tArray<double> & resource_count = m_interface->GetResources();
+
+  tList<tBuffer<int> > other_input_list;
+  tList<tBuffer<int> > other_output_list;
+
+  // If tasks require us to consider neighbor inputs, collect them...
+  if (m_world->GetEnvironment().GetTaskLib().UseNeighborInput() == true) {
+    const int num_neighbors = m_interface->GetNumNeighbors();
+    for (int i = 0; i < num_neighbors; i++) {
+      m_interface->Rotate();
+      cOrganism * cur_neighbor = m_interface->GetNeighbor();
+      if (cur_neighbor == NULL) continue;
+
+      other_input_list.Push( &(cur_neighbor->input_buf) );
+    }
+  }
+
+  // If tasks require us to consider neighbor outputs, collect them...
+  if (m_world->GetEnvironment().GetTaskLib().UseNeighborOutput() == true) {
+    const int num_neighbors = m_interface->GetNumNeighbors();
+    for (int i = 0; i < num_neighbors; i++) {
+      m_interface->Rotate();
+      cOrganism * cur_neighbor = m_interface->GetNeighbor();
+      if (cur_neighbor == NULL) continue;
+
+      other_output_list.Push( &(cur_neighbor->output_buf) );
+    }
+  }
+  
+//  bool net_valid = false;
+//  if (m_net) net_valid = NetValidate(ctx, value);
+
+  // Do the testing of tasks performed...
+ // output_buf.Add(value);
+  tArray<double> res_change(resource_count.GetSize());
+  tArray<int> insts_triggered;
+
+  tBuffer<int>* received_messages_point = &received_messages;
+  if (!m_world->GetConfig().SAVE_RECEIVED.Get())
+	  received_messages_point = NULL; 
+// change task context eventually	  
+  cTaskContext taskctx(input_buf, output_buf, other_input_list, other_output_list, false, 0, received_messages_point, this);
+  phenotype.TestOutput(ctx, taskctx, send_buf, receive_buf, resource_count, res_change, insts_triggered);
+  m_interface->UpdateResources(res_change);
+
+  for (int i = 0; i < insts_triggered.GetSize(); i++) {
+    const int cur_inst = insts_triggered[i];
+    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
+  }
+  
+  
+}
+
+
 
 bool cOrganism::InjectParasite(const cGenome& injected_code)
 {

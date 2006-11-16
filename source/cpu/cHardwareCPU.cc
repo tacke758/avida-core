@@ -268,6 +268,14 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
                   "If copied label compl., exec next inst; else SKIP W/NOPS"),
     cInstEntryCPU("set-flow",  &cHardwareCPU::Inst_SetFlow, true,
                   "Set flow-head to position in ?CX?"),
+				  
+    // UML Element Creation
+	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
+					"Create a state"), 
+	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
+					"Create a transition"), 
+	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
+					"Model check the model"), 
     
     cInstEntryCPU("h-copy2",    &cHardwareCPU::Inst_HeadCopy2),
     cInstEntryCPU("h-copy3",    &cHardwareCPU::Inst_HeadCopy3),
@@ -345,7 +353,6 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
     cInstEntryCPU("kazi",	&cHardwareCPU::Inst_Kazi),
     cInstEntryCPU("kazi5",	&cHardwareCPU::Inst_Kazi5),
     cInstEntryCPU("die",	&cHardwareCPU::Inst_Die),
-    
     
     
     // Placebo instructions
@@ -3353,6 +3360,58 @@ bool cHardwareCPU::Inst_SetFlow(cAvidaContext& ctx)
   const int reg_used = FindModifiedRegister(REG_CX);
   GetHead(nHardware::HEAD_FLOW).Set(GetRegister(reg_used));
 return true; 
+}
+
+//// UML Element Construction ////
+bool cHardwareCPU::Inst_CreateState(cAvidaContext& ctx)
+{
+	const int reg_used = FindModifiedRegister(REG_AX);
+// currently, we are only allowing for 3 states, nop-A, nop-B, nop-C	
+	organism->uml_states[reg_used]=reg_used;
+	if (organism->uml_states.size() > 2) 
+		return true; 
+	 
+	
+	return true;
+}
+
+bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
+{
+	// a transition should consist of 3 nops; all of which are optional....
+	// must figure out how to do that...
+	const int trans = FindModifiedRegister(REG_AX);
+	const int orig_state = FindModifiedRegister(REG_AX);
+	const int dest_state = FindModifiedRegister(REG_BX);
+	
+	pair<int, int> st;
+	st = make_pair (orig_state, dest_state);
+	
+	//m.insert(pair<const char* const, int>("a", 1));
+	organism->uml_transitions.insert(pair<int, pair<int, int> >(trans, st));
+	if ((trans == 1) && (orig_state == 1) && (dest_state == 2))
+		return true;
+	
+	return true;
+}
+
+
+/// This function is the same as the Inst_TaskIO function ///
+/// It should be modified to update the fitness value for the organism without performing IO. ///
+bool cHardwareCPU::Inst_ModelCheck(cAvidaContext& ctx)
+{
+//  const int reg_used = FindModifiedRegister(REG_BX);
+  
+  // Do the "put" component
+//  const int value_out = GetRegister(reg_used);
+  organism->ModelCheck(ctx); // , value_out);  // Check for tasks completed.
+  
+// Do the "get" component
+//  const int value_in = organism->GetNextInput();
+//  GetRegister(reg_used) = value_in;
+//  organism->DoInput(value_in);
+  return true;
+
+
 }
 
 

@@ -12,6 +12,12 @@
 #define cOrganism_h
 
 #include <fstream>
+#include <map>
+#include <utility>
+//#include <multimap>
+//#include <string>
+//using namespace std;
+
 
 #ifndef cCPUMemory_h
 #include "cCPUMemory.h"
@@ -74,6 +80,14 @@ class cCodeLabel;
 
 class cOrganism
 {
+public:
+
+//!Types of the UML maps for states and transitions
+	typedef std::map<int,int> t_stateMap; //!< state map type
+	typedef t_stateMap::iterator sm_it; //!< state map iterator type
+	typedef std::multimap<int,std::pair<int,int> > t_transitionMap; //!< transition map type
+	typedef t_transitionMap::iterator tr_it; //<! transition map iterator type
+	
 protected:
   cWorld* m_world;
   cHardwareBase* m_hardware;            // The actual machinary running this organism.
@@ -178,6 +192,13 @@ public:
   bool NetRemoteValidate(cAvidaContext& ctx, int value);
   int NetLast() { return m_net->last_seq; }
   void NetReset();
+  
+  // UML Stuff
+  t_stateMap uml_states;
+  t_transitionMap uml_transitions;
+  void ModelCheck(cAvidaContext& ctx);
+
+
 
   bool InjectParasite(const cGenome& genome);
   bool InjectHost(const cCodeLabel& in_label, const cGenome& genome);

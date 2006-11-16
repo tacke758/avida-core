@@ -26,8 +26,12 @@
 #ifndef cStats_h
 #include "cStats.h"
 #endif
+#ifndef cOrganism_h
+#include "cOrganism.h"
+#endif
 
 
+class cOrganism;
 class cString;
 class cWorld;
 
@@ -224,6 +228,15 @@ private:  // Direct task related methods
   
   double Task_NetSend(cTaskContext* ctx) const;
   double Task_NetReceive(cTaskContext* ctx) const;
+  
+  // UML Tasks... 
+  double Task_CreateStateA(cTaskContext* ctx) const;
+  double Task_CreateStateB(cTaskContext* ctx) const;
+  double Task_CreateStateC(cTaskContext* ctx) const;
+  double Task_CreateTransA(cTaskContext* ctx) const;
+  double Task_CreateTransB(cTaskContext* ctx) const;
+  double Task_CreateTransC(cTaskContext* ctx) const;
+
 };
 
 

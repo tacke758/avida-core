@@ -10,6 +10,7 @@
 
 #include "cTaskLib.h"
 
+
 extern "C" {
 #include <math.h>
 #include <limits.h>
@@ -322,8 +323,20 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
   else if (name == "net_receive")
 	  NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
   
-  
-  
+  // UML tasks
+  if (name == "uml_stA")
+	NewTask(name, "Successfully Created State A", &cTaskLib::Task_CreateStateA);
+  else if (name == "uml_stB")
+	NewTask(name, "Successfully Created State B", &cTaskLib::Task_CreateStateB);	
+  else if (name == "uml_stC")
+	NewTask(name, "Successfully Created State C", &cTaskLib::Task_CreateStateC);  
+  else if (name == "uml_trA") 
+	NewTask(name, "Successfully Created Transition A", &cTaskLib::Task_CreateTransA);  
+  else if (name == "uml_trB") 
+	NewTask(name, "Successfully Created Transition B", &cTaskLib::Task_CreateTransB);  	
+  else if (name == "uml_trC") 
+	NewTask(name, "Successfully Created Transition C", &cTaskLib::Task_CreateTransC);  
+	
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
     cerr << "Unknown task entry '" << name << "'." << endl;
@@ -1826,4 +1839,100 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 {
   if (ctx->net_valid) return 1.0;
   return 0.0;
+}
+
+double cTaskLib::Task_CreateStateA(cTaskContext* ctx) const
+{
+	cOrganism* org = ctx->organism; 
+	cOrganism::t_stateMap::iterator i;
+
+	if ( (i = org->uml_states.find(0)) != org->uml_states.end()) {
+		return 1.0;	
+		}
+	return 0.0;	
+}
+
+double cTaskLib::Task_CreateStateB(cTaskContext* ctx) const
+{
+	cOrganism* org = ctx->organism; 
+	cOrganism::t_stateMap::iterator i;
+	
+	if ( (i = org->uml_states.find(1)) != org->uml_states.end()) {
+		return 1.0;
+		}
+	return 0.0;	
+}
+
+double cTaskLib::Task_CreateStateC(cTaskContext* ctx) const
+{
+	
+	cOrganism* org = ctx->organism; 
+	cOrganism::t_stateMap::iterator i;
+	
+	if ( (i = org->uml_states.find(2)) != org->uml_states.end()) {
+		return 1.0;
+		}
+	return 0.0;	
+}
+
+
+double cTaskLib::Task_CreateTransA(cTaskContext* ctx) const
+{
+	std::pair<cOrganism::tr_it, cOrganism::tr_it> trans_range;
+	std::pair<int, int> st;
+	cOrganism* org = ctx->organism; 
+	cOrganism::tr_it i;
+	
+	trans_range = org->uml_transitions.equal_range(0);
+	for(i=trans_range.first; i!=trans_range.second; ++i) {
+		st = i->second;
+		
+		if ((st.first == 0) && (st.second == 1)) {
+			return 1.0;
+		}
+		
+	}
+	
+	return 0.0;	
+}
+
+double cTaskLib::Task_CreateTransB(cTaskContext* ctx) const
+{
+	std::pair<cOrganism::tr_it, cOrganism::tr_it> trans_range;
+	std::pair<int, int> st;
+	cOrganism* org = ctx->organism; 
+	cOrganism::tr_it i;
+	
+	trans_range = org->uml_transitions.equal_range(1);
+	for(i=trans_range.first; i!=trans_range.second; ++i) {
+		st = i->second;
+		
+		if ((st.first == 1) && (st.second == 2)) {
+			return 1.0;
+		}
+		
+	}
+	
+	return 0.0;	
+
+}
+
+double cTaskLib::Task_CreateTransC(cTaskContext* ctx) const
+{
+	std::pair<cOrganism::tr_it, cOrganism::tr_it> trans_range;
+	std::pair<int, int> st;
+	cOrganism* org = ctx->organism; 
+	cOrganism::tr_it i;
+	
+	trans_range = org->uml_transitions.equal_range(2);
+	for(i=trans_range.first; i!=trans_range.second; ++i) {
+		st = i->second;
+		
+		if ((st.first == 2) && (st.second == 0)) {
+			return 1.0;
+		}
+		
+	}
+	
+	return 0.0;	
 }
