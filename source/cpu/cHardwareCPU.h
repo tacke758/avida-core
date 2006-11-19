@@ -468,13 +468,14 @@ private:
   bool Inst_HeadDivide0_01(cAvidaContext& ctx);
   bool Inst_HeadDivide0_001(cAvidaContext& ctx);
 
-  //// UML Element Construction ////
+  //// Placebo ////
+  bool Inst_Skip(cAvidaContext& ctx);
+  
+    //// UML Element Construction ////
   bool Inst_CreateState(cAvidaContext& ctx);
   bool Inst_CreateTransition(cAvidaContext& ctx);
   bool Inst_ModelCheck(cAvidaContext& ctx);
-
-  //// Placebo ////
-  bool Inst_Skip(cAvidaContext& ctx);
+  bool Inst_CreateTransitionIntStates(cAvidaContext& ctx);
 };
 
 

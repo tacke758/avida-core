@@ -233,9 +233,12 @@ private:  // Direct task related methods
   double Task_CreateStateA(cTaskContext* ctx) const;
   double Task_CreateStateB(cTaskContext* ctx) const;
   double Task_CreateStateC(cTaskContext* ctx) const;
+  double Task_CreateStates(cTaskContext* ctx) const;
   double Task_CreateTransA(cTaskContext* ctx) const;
   double Task_CreateTransB(cTaskContext* ctx) const;
   double Task_CreateTransC(cTaskContext* ctx) const;
+  double Task_CreateTransX(cTaskContext* ctx) const;
+  double Task_CreateTranss(cTaskContext* ctx) const;
 
 };
 

@@ -268,15 +268,7 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
                   "If copied label compl., exec next inst; else SKIP W/NOPS"),
     cInstEntryCPU("set-flow",  &cHardwareCPU::Inst_SetFlow, true,
                   "Set flow-head to position in ?CX?"),
-				  
-    // UML Element Creation
-	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
-					"Create a state"), 
-	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
-					"Create a transition"), 
-	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
-					"Model check the model"), 
-    
+				
     cInstEntryCPU("h-copy2",    &cHardwareCPU::Inst_HeadCopy2),
     cInstEntryCPU("h-copy3",    &cHardwareCPU::Inst_HeadCopy3),
     cInstEntryCPU("h-copy4",    &cHardwareCPU::Inst_HeadCopy4),
@@ -357,7 +349,17 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
     
     // Placebo instructions
     // nop-x (included with nops)
-    cInstEntryCPU("skip",      &cHardwareCPU::Inst_Skip)
+    cInstEntryCPU("skip",      &cHardwareCPU::Inst_Skip),
+	
+	    // UML Element Creation
+	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
+					"Create a state"), 
+	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
+					"Create a transition"), 
+	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
+					"Model check the model"), 
+	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
+					"Create a transition; States read from registers")
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3105,6 +3107,8 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
+  // modified for UML branch
+  organism->ModelCheck(ctx);	
   return Inst_HeadDivideMut(ctx, 1);
   
 }
@@ -3362,6 +3366,15 @@ bool cHardwareCPU::Inst_SetFlow(cAvidaContext& ctx)
 return true; 
 }
 
+
+//// Placebo insts ////
+bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
+{
+  IP().Advance();
+  return true;
+}
+
+
 //// UML Element Construction ////
 bool cHardwareCPU::Inst_CreateState(cAvidaContext& ctx)
 {
@@ -3414,11 +3427,34 @@ bool cHardwareCPU::Inst_ModelCheck(cAvidaContext& ctx)
 
 }
 
-
-//// Placebo insts ////
-bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
 {
-  IP().Advance();
-  return true;
+
+// a transition should consist of an integer in a nop.
+	int reg_used = FindModifiedRegister(REG_AX);
+	int trans = GetRegister(reg_used);
+	
+// the origin and destination states are determined by the values in reg a and reg b.
+// both registers could be modified by a nop...
+	reg_used = FindModifiedRegister(REG_BX);
+    int orig_state = GetRegister(reg_used);
+	reg_used = FindNextRegister(reg_used);
+	int dest_state = GetRegister(reg_used);
+	
+	// add states to set of states 
+	organism->uml_state_set.insert(orig_state);
+	organism->uml_state_set.insert(dest_state);
+	
+	// add trans to set of transitions
+	organism->uml_trans_set.insert(trans);
+	
+	// add transition to multipmap
+	pair<int, int> st;
+	st = make_pair (orig_state, dest_state);	
+	organism->uml_transitions.insert(pair<int, pair<int, int> >(trans, st));
+
+	
+	return true;
+
 }
 

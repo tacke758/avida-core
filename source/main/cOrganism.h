@@ -14,6 +14,7 @@
 #include <fstream>
 #include <map>
 #include <utility>
+#include <set>
 //#include <multimap>
 //#include <string>
 //using namespace std;
@@ -196,6 +197,8 @@ public:
   // UML Stuff
   t_stateMap uml_states;
   t_transitionMap uml_transitions;
+  std::set <int> uml_state_set;
+  std::set <int> uml_trans_set;
   void ModelCheck(cAvidaContext& ctx);
 
 
