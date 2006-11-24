@@ -15,9 +15,8 @@
 #include <map>
 #include <utility>
 #include <set>
-//#include <multimap>
-//#include <string>
-//using namespace std;
+#include <string>
+#include <vector>
 
 
 #ifndef cCPUMemory_h
@@ -197,10 +196,15 @@ public:
   // UML Stuff
   t_stateMap uml_states;
   t_transitionMap uml_transitions;
+  t_transitionMap uml_trans_by_state;
   std::set <int> uml_state_set;
-  std::set <int> uml_trans_set;
+  std::map <int, std::string> uml_trans_set;
   void ModelCheck(cAvidaContext& ctx);
-
+  void printXMI(cAvidaContext& ctx);
+  void printHIL(cAvidaContext& ctx);
+  std::vector<std::string> trans_info;
+  void InitTransForXMI();
+  void InitTransForHIL();
 
 
   bool InjectParasite(const cGenome& genome);

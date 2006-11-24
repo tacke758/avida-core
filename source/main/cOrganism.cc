@@ -78,6 +78,10 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
+
+  // initialize the transition information vector w/ the XMI info for transitions
+  InitTransForHIL();
+
 }
 
 
@@ -404,6 +408,10 @@ void cOrganism::NetReset()
 /// This function is a copy of DoOutput /// 
 void cOrganism::ModelCheck(cAvidaContext& ctx)
 {
+
+//  printXMI(ctx);
+	printHIL(ctx);
+
   assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
 
@@ -433,6 +441,7 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
       other_output_list.Push( &(cur_neighbor->output_buf) );
     }
   }
+ 
   
 //  bool net_valid = false;
 //  if (m_net) net_valid = NetValidate(ctx, value);
@@ -458,7 +467,168 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
   
 }
 
+void cOrganism::printHIL(cAvidaContext& ctx)
+{
+	int curr_state;
+	std::map <int, std::string>::iterator itr;
+	InitTransForHIL();
+	
+	for (t_transitionMap::iterator it = uml_trans_by_state.begin(); it != uml_trans_by_state.end(); ++it) {
+	
+		// initialize the value of current state... 
+		if (it == uml_trans_by_state.begin() ) {
+			curr_state = (*it).first;
+			cout << "Initial  \"\" " << (*it).first << ";" << endl;
+			cout << "State " << (*it).first << " {" << endl;
+		}
+		// what to do when the state we are processing transitions for changes...
+		if (curr_state != (*it).first) {
+			curr_state = (*it).first;
+			// finish previous state
+			cout << "}" << endl;
+			// add into for next state
+			cout << "State " << (*it).first << " {" << endl;
+		}
+		
+		// print out transition information....
+		// find trans in set of trans
+		if ( (itr = uml_trans_set.find((*it).second.first)) != uml_trans_set.end()) {
+			cout << "Transition \"" << (*itr).second << "\" to " << (*it).second.second << ";" << endl;
+		} 
+		
+		uml_state_set.erase((*it).first);
+		
+	}
+	cout << "}" << endl;
+	
+	// print info for states with no outgoing transitions
+	for (std::set<int>::iterator its = uml_state_set.begin(); its!= uml_state_set.end(); ++its) {
+		cout << "State " << (*its) << endl;
+		cout << "}" << endl;
+	}
+	
+}
 
+void cOrganism::printXMI(cAvidaContext& ctx)
+{
+
+// UML pretty print part....
+  std::set<int>::iterator it_st_start;
+  std::set<int>::iterator it_st_end;
+  std::set<int>::iterator i;
+
+  
+  it_st_start = uml_state_set.begin();
+  it_st_end = uml_state_set.end();
+  int count;
+
+  // print state XMI information
+  cout << "<UML:StateMachine xmi.id=\"XDE-BACD03B9-FA04-4C7F-B464-748CB92A47B2\"";
+  cout << "name=\"StateMachine1\" isSpecification=\"false\">" << endl;
+  cout << "<UML:StateMachine.top>" << endl;  
+  cout << "<UML:CompositeState xmi.id=\"XDE-3C5902C0-E8A6-4E0C-88D5-4ACB7E0EDF15\"";
+  cout << "isConcurrent=\"false\" name=\"TOP\" isSpecification=\"false\">" << endl;
+  cout << "<UML:CompositeState.subvertex>" << endl;
+
+  for(i = it_st_start; i!=it_st_end; ++i){
+    if (i == it_st_start) { 
+		  // initial state 
+//		cout << "<UML:Pseudostate xmi.id=\"" << *i << "\" kind=\"initial\" outgoing=\"\"";
+		cout << "<UML:Pseudostate xmi.id=\"" << *i << "\" kind=\"initial\" ";
+		cout << "name=\"\" isSpecification=\"false\"/>" << endl;
+
+	} else {
+//		cout << "<UML:CompositeState xmi.id=\"" << *i << "\" isConcurrent=\"false\" outgoing=\"\" name=\"";
+		cout << "<UML:CompositeState xmi.id=\"" << *i << "\" isConcurrent=\"false\" name=\"";
+		cout << *i << "\" isSpecification=\"false\"/>" << endl;
+	}
+  }
+  cout << "</UML:CompositeState.subvertex>" << endl;
+  cout << "</UML:CompositeState>" << endl;
+  cout << "</UML:StateMachine.top>" << endl;
+
+
+  count = 0;
+  cout << "<UML:StateMachine.transitions>" << endl;
+  for (t_transitionMap::iterator it = uml_transitions.begin(); it != uml_transitions.end(); ++it) {
+	 cout << "<UML:Transition xmi.id=\"" << (*it).first << "\" source=\"" << (*it).second.first;
+	 cout << "\" target=\"" <<  (*it).second.second << "\" name=\"" <<  (*it).first;
+	 cout << "\" isSpecification=\"false\">" << endl;
+	 
+	 if (trans_info.size() > count) {
+		 cout << trans_info[count] << endl;
+	 }
+	 cout << "</UML:Transition>" << endl;
+
+	 count ++;
+  }
+  
+  cout << "</UML:StateMachine.transitions>" << endl;
+  cout << "</UML:StateMachine>" << endl;
+
+// end of UML pretty printing... 
+
+}
+
+
+void cOrganism::InitTransForXMI()
+{
+	//  0 - init state to state 1
+	trans_info.push_back("");
+	// 1 - state 1 to state 2 - getOperationalState()
+	trans_info.push_back("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-7126ED39-5D5D-4160-924B-303514B17EAB\" operation=\"XDE-1266DA8A-61C0-43B4-A77C-200F54A6585D\" name=\"getOperationalState\" isSpecification=\"false\"/> </UML:Namespace.ownedElement></UML:Namespace> </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ");
+	// 2 - state 2 to state 1 - opState = True
+	trans_info.push_back("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-D9BCD8D1-7FC4-4B14-9E76-D3A642799013\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"operationalState:=1;^ComputingComponent.ccTRUE\"/>` </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	// 3 - state 2 to state 1 - opState = False
+	trans_info.push_back ("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-9F00136E-D61D-4BB0-B7D6-1E795238FD1E\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"operationalState:=0;^ComputingComponent.ccFALSE\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	// 4 - state 1 to state 3 - getBrightnessValue()
+	trans_info.push_back ("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-A28463C5-2F9F-457C-B6F3-241526CA4791\" operation=\"XDE-E84A5762-CA92-4E03-A237-FE5AE2C99D9A\" name=\"getBrightnessValue\" isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>"); 
+	// 5 - state 3 to state 4 - Environment.getBrightnessValue();
+	trans_info.push_back ("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-6C3D3042-5C7A-4746-8A90-BEDB86FD2FF4\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"^Environment.getBrightnessValue\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>" ) ;
+	// 6 - state 4 to state 5 - setBrightnessValue();
+	trans_info.push_back ("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-79243838-9C4E-4908-9637-9F9583043BE4\" operation=\"XDE-C8BD0DBA-E427-41A0-95F4-98FAA920ACA9\" name=\"setBrightnessValue\" isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>  </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>");
+	// 7 - state 5 to state 6 - value < min
+	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue&lt;0\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=0\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	// 8 - state 5 to state 6 - value > max
+	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue&gt;1000\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	// 9 - state 5 to state 6 - value > min && value < max
+	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	// 10 - state 6 to state 1 - set Computing Component brightness value
+	trans_info.push_back("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
+	
+}
+
+void cOrganism::InitTransForHIL()
+{
+
+	// assign transition values to map elements
+	std::map <int, std::string>::iterator it;
+	 
+	if (uml_trans_set.size() >= 6) {
+	it = uml_trans_set.begin();
+	(*it).second = "";
+	++it;
+	(*it).second = "^Environment.getBrightnessValue";
+	++it;
+	(*it).second = "/operationalState:=1^ComputingComponent.ccTRUE";
+	++it;
+	(*it).second = "/operationalState:=0^ComputingComponent.ccFALSE";
+	++it;
+	(*it).second = "getOperationalState";
+	++it;
+	(*it).second = "getBrightnessValue";
+/*	++it;
+	(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
+	++it;
+	(*it).second = "[brightnessValue<0]/correctedBrightnessValue:=0";
+	++it;
+	(*it).second = "[brightnessValue >=0 & brightnessValue<=1000]/correctedBrightnessValue:=brightnessValue";
+	++it;
+	(*it).second = "[brightnessValue>1000]/correctedBrightnessValue:=1000";
+	++it;
+	(*it).second = "setBrightnessValue(brightnessValue)";*/
+	}
+}
 
 bool cOrganism::InjectParasite(const cGenome& injected_code)
 {

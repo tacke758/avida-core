@@ -3434,7 +3434,7 @@ bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
 	int reg_used = FindModifiedRegister(REG_AX);
 	int trans = GetRegister(reg_used);
 	
-// the origin and destination states are determined by the values in reg a and reg b.
+// the origin and destination states are determined by the values in reg b and reg c.
 // both registers could be modified by a nop...
 	reg_used = FindModifiedRegister(REG_BX);
     int orig_state = GetRegister(reg_used);
@@ -3444,15 +3444,16 @@ bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
 	// add states to set of states 
 	organism->uml_state_set.insert(orig_state);
 	organism->uml_state_set.insert(dest_state);
-	
-	// add trans to set of transitions
-	organism->uml_trans_set.insert(trans);
+	organism->uml_trans_set.insert(pair<int, std::string>(trans, ""));
 	
 	// add transition to multipmap
 	pair<int, int> st;
 	st = make_pair (orig_state, dest_state);	
 	organism->uml_transitions.insert(pair<int, pair<int, int> >(trans, st));
 
+	// add transition to mapping by state
+	st = make_pair (trans, dest_state);
+	organism->uml_trans_by_state.insert(pair<int, pair<int, int> >(orig_state, st));
 	
 	return true;
 
