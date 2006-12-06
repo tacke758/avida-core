@@ -839,6 +839,7 @@ std::string cOrganism::getHil()
 
 void cOrganism::InitHILBandE()
 {
+/*
 	hil_begin = "Formalize as promela ;\n \
 	Model XDEModel{\n \
 	Class BrightnessSensor {\n \
@@ -848,9 +849,8 @@ void cOrganism::InitHILBandE()
         Signal getBrightnessValue( ) ;\n \
         Signal getOperationalState( ) ;\n \
         Signal setBrightnessValue(int ) ;\n ";
-
-
-	hil_end = " } \n \
+	
+	hil_end = "}\n\
 	Class ComputingComponent {\n \
         InstanceVar bool automaticMode ;\n \
         InstanceVar int brightnessValue ;\n \
@@ -1077,6 +1077,7 @@ Class UserInterface {\n \
 }\n \
 \n \
 }\n \ "; 
+*/
 	return;
 }
 

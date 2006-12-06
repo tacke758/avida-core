@@ -256,7 +256,7 @@ public:
   // on its placement in the trans_set, but this has already been solved by HIL printing. Check there after dinner.
  // stl::set<int> getTransBetweenVertices(State, State);
   std::string StringifyAnInt (int x);
-  std::string cOrganism::getHil();
+  std::string getHil();
 
   
 
