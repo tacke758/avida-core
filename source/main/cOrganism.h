@@ -17,6 +17,13 @@
 #include <set>
 #include <string>
 #include <vector>
+//#include <boost/config.hpp>
+//#include <boost/graph/edge_list.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_utility.hpp>
+//#include <boost/graph/filtered_graph.hpp>
+using namespace boost;
+
 
 
 #ifndef cCPUMemory_h
@@ -78,15 +85,35 @@ class cOrgSinkMessage;
 class cEnvironment;
 class cCodeLabel;
 
+// structures used to label vertices and edges 
+struct edge_info {
+        int edge_label;
+		std::string edge_info;
+};
+
+struct state_info {
+        int state_label;
+};
+
+
 class cOrganism
 {
 public:
 
-//!Types of the UML maps for states and transitions
-	typedef std::map<int,int> t_stateMap; //!< state map type
-	typedef t_stateMap::iterator sm_it; //!< state map iterator type
-	typedef std::multimap<int,std::pair<int,int> > t_transitionMap; //!< transition map type
-	typedef t_transitionMap::iterator tr_it; //<! transition map iterator type
+//!Types of the UML types for states and transitions
+// define graph -- multisetS - allows for the sorting of out edges by target vertex
+typedef adjacency_list<multisetS, vecS, directedS, state_info, edge_info> Graph;
+// map the graph's vertex's to their descriptors
+typedef graph_traits<Graph>::vertex_descriptor State;
+typedef std::map<int, State> NameStateMap;
+typedef NameStateMap::iterator nsm_it; 
+// A map from the integer representing a transition to the string representing its label
+typedef std::map<int, std::string> TransMeaning;
+// map the graph's edge's to their descriptors
+typedef graph_traits<Graph>::edge_descriptor Transition;
+typedef graph_traits<Graph>::out_edge_iterator oei;
+
+
 	
 protected:
   cWorld* m_world;
@@ -125,6 +152,15 @@ protected:
 
   tBuffer<cOrgMessage> inbox;
   tBuffer<cOrgMessage> sent;
+  
+  // UML internal state diagram components
+  Graph uml_state_diagram;		// the overall graph of the UML state diagram
+  Transition transitions;		// map of transition descriptors to transitions
+  NameStateMap states;			// map of the state names 
+  TransMeaning transGuardActionInfo; // map of transition integers to the string representing their label
+  std::string hil_begin;
+  std::string hil;
+  std::string hil_end;
   
   class cNetSupport
   {
@@ -194,17 +230,39 @@ public:
   void NetReset();
   
   // UML Stuff
-  t_stateMap uml_states;
-  t_transitionMap uml_transitions;
-  t_transitionMap uml_trans_by_state;
-  std::set <int> uml_state_set;
-  std::map <int, std::string> uml_trans_set;
+//  t_stateMap uml_states;
+//  t_transitionMap uml_transitions;
+//  t_transitionMap uml_trans_by_state;
+//  std::set <int> uml_state_set;
+//  std::map <int, std::string> uml_trans_set;
   void ModelCheck(cAvidaContext& ctx);
-  void printXMI(cAvidaContext& ctx);
+//  void printXMI(cAvidaContext& ctx);
   void printHIL(cAvidaContext& ctx);
-  std::vector<std::string> trans_info;
-  void InitTransForXMI();
+//  std::vector<std::string> trans_info;
+//  void InitTransForXMI();
   void InitTransForHIL();
+  void InitHILBandE();
+  bool AddTrans(int trans, int orig, int dest);
+  double NumStates();
+  double NumTrans();
+  void AssignTransMeaning(int trans);
+  Graph& GetGraph();
+  State& getStateInPosition (int num);
+  bool isTrans(State, State, int);
+  int getTransNumber (int pos);
+  bool findTrans(int s0_pos, int s1_pos, int t_pos);
+  
+  // This returns the list of transitions between two states. What I want is to look up one based
+  // on its placement in the trans_set, but this has already been solved by HIL printing. Check there after dinner.
+ // stl::set<int> getTransBetweenVertices(State, State);
+  std::string StringifyAnInt (int x);
+  std::string cOrganism::getHil();
+
+  
+
+//  NameStateMap::iterator pos;
+
+
 
 
   bool InjectParasite(const cGenome& genome);

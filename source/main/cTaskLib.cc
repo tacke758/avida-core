@@ -324,13 +324,37 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	  NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
   
   // UML tasks
-  if (name == "uml_sts")
-	NewTask(name, "Successfully Created the right number of states", &cTaskLib::Task_CreateStates);  
-  else if (name == "uml_trX") 
-	NewTask(name, "Successfully Created all transitions", &cTaskLib::Task_CreateTransX);  	
-  else if (name == "uml_trs")
+  if (name == "uml_ns")
+	NewTask(name, "Successfully Created the right number of states", &cTaskLib::Task_NumberOfState);
+  else if (name == "uml_nt")
+	NewTask(name, "Successfully Created the right number of transitions", &cTaskLib::Task_NumberOfTrans);
+  else if (name == "uml_hy")
+	NewTask(name, "Ran Hydra... Returning bonus proportional to the number of errors", &cTaskLib::Task_Hydra);
+  else if (name == "uml_tr0") 
+	NewTask(name, "Successfully Created transition 0", &cTaskLib::Task_Transition0);
+  else if (name == "uml_tr1") 
+	NewTask(name, "Successfully Created transition 1", &cTaskLib::Task_Transition1);
+  else if (name == "uml_tr2") 
+	NewTask(name, "Successfully Created transition 2", &cTaskLib::Task_Transition2);
+  else if (name == "uml_tr3") 
+	NewTask(name, "Successfully Created transition 3", &cTaskLib::Task_Transition3);
+  else if (name == "uml_tr4") 
+	NewTask(name, "Successfully Created transition 4", &cTaskLib::Task_Transition4);
+  else if (name == "uml_tr5") 
+	NewTask(name, "Successfully Created transition 5", &cTaskLib::Task_Transition5);
+  else if (name == "uml_tr6") 
+	NewTask(name, "Successfully Created transition 6", &cTaskLib::Task_Transition6);
+  else if (name == "uml_tr7") 
+	NewTask(name, "Successfully Created transition 7", &cTaskLib::Task_Transition7);
+  else if (name == "uml_tr8") 
+	NewTask(name, "Successfully Created transition 8", &cTaskLib::Task_Transition8);
+  else if (name == "uml_tr9") 
+	NewTask(name, "Successfully Created transition 9", &cTaskLib::Task_Transition9);
+  else if (name == "uml_tr10") 
+	NewTask(name, "Successfully Created transition 10", &cTaskLib::Task_Transition10);	  	
+/*  else if (name == "uml_trs")
     NewTask(name, "Successfully Created the right number of transitions", &cTaskLib::Task_CreateTranss);
-	
+*/	
 	
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -1837,6 +1861,7 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 }
 
 
+/*
 double cTaskLib::Task_CreateStates(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism; 
@@ -2056,4 +2081,249 @@ double cTaskLib::Task_CreateTranss(cTaskContext* ctx) const
 
 	return bonus;
 }
+*/
+
+// Count the number of states. Give rewards for upto 7. 7 is the number the brightness sensor needs...
+double cTaskLib::Task_NumberOfState(cTaskContext* ctx) const
+{
+	cOrganism* organism = ctx->organism;
+	double bonus = 0.0;
+	double numStates = organism->NumStates();
+	
+	// reward for constructing 7 states - brightness sensor
+	if (organism->NumStates() <= 7) {
+		bonus += numStates;
+	} 
+
+	return bonus;
+}
+
+double cTaskLib::Task_NumberOfTrans(cTaskContext* ctx) const
+{
+	cOrganism* organism = ctx->organism;
+	double bonus = 0.0;
+	double numTrans = organism->NumTrans();
+	
+	// reward for constructing 7 states - brightness sensor
+	if (organism->NumTrans() <= 11) {
+		bonus += numTrans;
+	} 
+
+	return bonus;
+}
+
+double cTaskLib::Task_Transition0(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(0, 1, 0)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition1(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(1, 2, 1)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition2(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(2, 1, 2)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition3(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(2, 1, 3)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition4(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(1, 3, 4)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition5(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(3, 4, 5)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition6(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(4, 5, 6)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition7(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(5, 6, 7)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition8(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(5, 6, 8)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition9(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(5, 6, 9)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+double cTaskLib::Task_Transition10(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(6, 1, 10)) { 
+		bonus = 1.0;
+	}
+	return bonus;
+}
+
+
+double cTaskLib::Task_Hydra(cTaskContext* ctx) const
+{
+	cOrganism* organism = ctx->organism;
+	double bonus = 0.0;
+	std::string temp;
+	unsigned int status_total = 0;
+	int status=0;
+
+	int to_subavida[2]={0};
+	int from_subavida[2]={0};
+	
+	pipe(to_subavida); //write to 1, read from 0
+	pipe(from_subavida);
+	
+	pid_t subavida = fork();
+	if(subavida == 0) {
+		//child
+		close(to_subavida[1]);
+		close(from_subavida[0]);
+		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
+		dup2(from_subavida[1], STDOUT_FILENO);
+    // HJG - change to call hydra...
+//		execl("./subavida", "subavida", "-c", "runtime_test.cfg", NULL);
+		execl("./hydralite/hydra", NULL);
+		// We don't ever get here.
+	} 
+
+	temp = organism->getHil();
+	do {
+		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
+		if (status < 0) {
+			break;
+		} else {
+			 status_total += status;
+		}
+	} while (status_total < temp.size());
+	//parent
+	close(to_subavida[0]);
+	close(from_subavida[1]);
+	close(to_subavida[1]);
+
+	std::string subavida_output;
+	char line[32]={0};
+	//do {
+		status = read(from_subavida[0], line, 31);
+//		cout << "BEFORE PRINT" << endl;
+//		cout << line << endl;
+//		cout << "AFTER PRINT" << endl;
+	//	if(status > 0) {
+	//		subavida_output += line;
+	//		memset(line, 0, 32);
+	//	}
+	//} while(((status==-1) && (errno == EINTR)) || (status>0));
+	
+
+
+	close(from_subavida[0]);
+
+// not pertinent for the UML project
+/*	
+	//write the genome of this organism to_avida[1].
+	const cInstSet& isa = ctx->GetOrganism()->GetHardware().GetInstSet();
+	const cGenome& genome = ctx->GetOrganism()->GetGenome();
+	for(int i=0; i<genome.GetSize(); ++i) {
+		//for each instruction in the genome, look up its textual representation.
+		const cString& inst = isa.GetName(genome[i]);
+		write(to_subavida[1], (const void*)((const char*)inst), inst.GetSize());
+		write(to_subavida[1], "\n", 1);
+	}
+	
+	close(to_subavida[1]);
+	std::string subavida_output;
+	char line[32]={0};
+	int status=0;
+	do {
+		status = read(from_subavida[0], line, 31);
+		if(status > 0) {
+			subavida_output += line;
+			memset(line, 0, 32);
+		}
+	} while(((status==-1) && (errno == EINTR)) || (status>0));
+	
+	close(from_subavida[0]);
+	pid_t done=0;
+	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
+	assert(done==subavida);
+	
+	//interpret the data that was read.
+	boost::regex fitness("fitness=(\\d+\\.\\d+)");
+	boost::match_results<std::string::const_iterator> match;
+	double ret=0.0;
+	
+	if(boost::regex_search(subavida_output, match, fitness)) {
+		std::istringstream iss(match[1]);
+		iss >> std::dec >> ret;
+	}
+*/	
+	
+	return bonus;
+
+
+}
+
 

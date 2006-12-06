@@ -1971,6 +1971,7 @@
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include/ $(inherited)";
 				WARNING_CFLAGS = (
 					"-Wextra",
 					"-Wno-four-char-constants",
@@ -1993,6 +1994,7 @@
 				GCC_STRICT_ALIASING = YES;
 				GCC_UNROLL_LOOPS = YES;
 				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include/ $(inherited)";
 				WARNING_CFLAGS = (
 					"-Wextra",
 					"-Wno-four-char-constants",
@@ -2143,6 +2145,7 @@
 				GCC_STRICT_ALIASING = YES;
 				GCC_UNROLL_LOOPS = YES;
 				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include/ $(inherited)";
 				WARNING_CFLAGS = (
 					"-Wextra",
 					"-Wno-four-char-constants",
@@ -2167,6 +2170,7 @@
 				GCC_UNROLL_LOOPS = YES;
 				OTHER_CFLAGS = "-falign-loops=16";
 				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include/ $(inherited)";
 				WARNING_CFLAGS = (
 					"-Wextra",
 					"-Wno-four-char-constants",
@@ -2239,6 +2243,7 @@
 				GCC_UNROLL_LOOPS = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include/ $(inherited)";
 				WARNING_CFLAGS = (
 					"-Wextra",
 					"-Wno-four-char-constants",

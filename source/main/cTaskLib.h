@@ -230,9 +230,25 @@ private:  // Direct task related methods
   double Task_NetReceive(cTaskContext* ctx) const;
   
   // UML Tasks... 
-  double Task_CreateStates(cTaskContext* ctx) const;
-  double Task_CreateTransX(cTaskContext* ctx) const;
-  double Task_CreateTranss(cTaskContext* ctx) const;
+//  double Task_CreateStates(cTaskContext* ctx) const;
+//  double Task_CreateTransX(cTaskContext* ctx) const;
+//  double Task_CreateTranss(cTaskContext* ctx) const;
+	double Task_NumberOfState(cTaskContext* ctx) const;
+	double Task_NumberOfTrans(cTaskContext* ctx) const;
+	double Task_Hydra(cTaskContext* ctx) const;
+	double Task_Transition0(cTaskContext* ctx) const;
+	double Task_Transition1(cTaskContext* ctx) const;
+	double Task_Transition2(cTaskContext* ctx) const;
+	double Task_Transition3(cTaskContext* ctx) const;
+	double Task_Transition4(cTaskContext* ctx) const;
+	double Task_Transition5(cTaskContext* ctx) const;
+	double Task_Transition6(cTaskContext* ctx) const;
+	double Task_Transition7(cTaskContext* ctx) const;
+	double Task_Transition8(cTaskContext* ctx) const;
+	double Task_Transition9(cTaskContext* ctx) const;
+	double Task_Transition10(cTaskContext* ctx) const;
+
+
 
 };
 

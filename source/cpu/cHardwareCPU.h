@@ -472,10 +472,11 @@ private:
   bool Inst_Skip(cAvidaContext& ctx);
   
     //// UML Element Construction ////
-  bool Inst_CreateState(cAvidaContext& ctx);
+//  bool Inst_CreateState(cAvidaContext& ctx);
+//  bool Inst_CreateTransition(cAvidaContext& ctx);
+//  bool Inst_ModelCheck(cAvidaContext& ctx);
   bool Inst_CreateTransition(cAvidaContext& ctx);
-  bool Inst_ModelCheck(cAvidaContext& ctx);
-  bool Inst_CreateTransitionIntStates(cAvidaContext& ctx);
+//  bool Inst_CreateTransitionIntStates(cAvidaContext& ctx);
 };
 
 

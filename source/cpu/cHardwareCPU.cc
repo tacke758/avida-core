@@ -352,14 +352,14 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
     cInstEntryCPU("skip",      &cHardwareCPU::Inst_Skip),
 	
 	    // UML Element Creation
-	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
-					"Create a state"), 
+//	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
+//					"Create a state"), 
 	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
 					"Create a transition"), 
-	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
-					"Model check the model"), 
-	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
-					"Create a transition; States read from registers")
+//	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
+//					"Model check the model"), 
+//	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
+//					"Create a transition; States read from registers")
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3376,6 +3376,8 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 
 
 //// UML Element Construction ////
+
+/*
 bool cHardwareCPU::Inst_CreateState(cAvidaContext& ctx)
 {
 	const int reg_used = FindModifiedRegister(REG_AX);
@@ -3408,8 +3410,6 @@ bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
 }
 
 
-/// This function is the same as the Inst_TaskIO function ///
-/// It should be modified to update the fitness value for the organism without performing IO. ///
 bool cHardwareCPU::Inst_ModelCheck(cAvidaContext& ctx)
 {
 //  const int reg_used = FindModifiedRegister(REG_BX);
@@ -3423,9 +3423,8 @@ bool cHardwareCPU::Inst_ModelCheck(cAvidaContext& ctx)
 //  GetRegister(reg_used) = value_in;
 //  organism->DoInput(value_in);
   return true;
-
-
 }
+
 
 bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
 {
@@ -3458,4 +3457,29 @@ bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
 	return true;
 
 }
+*/
+
+bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
+{
+	// a transition should consist of an integer in a nop.
+	int reg_used = FindModifiedRegister(REG_AX);
+	int trans = GetRegister(reg_used);
+	
+// the origin and destination states are determined by the values in reg b and reg c.
+// both registers could be modified by a nop...
+	reg_used = FindModifiedRegister(REG_BX);
+    int orig_state = GetRegister(reg_used);
+	reg_used = FindNextRegister(reg_used);
+	int dest_state = GetRegister(reg_used);
+	
+	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
+	return organism->AddTrans(trans, orig_state, dest_state);	
+	// create or find destination state
+
+	// check to see if this transition already exists; else add it
+
+	 
+//	return true;
+}
+
 

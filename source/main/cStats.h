@@ -40,6 +40,8 @@
 #include "nGeometry.h"
 #endif
 
+#include "cOrganism.h"
+
 class cGenotype;
 class cInjectGenotype;
 class cWorld;
@@ -215,6 +217,10 @@ private:
   int num_sold;
   int num_used;
   int num_own_used;
+  
+  // Stats for UML state diagrams
+  cDoubleSum av_number_of_states;
+  cDoubleSum av_number_of_trans;	
 
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
@@ -528,6 +534,10 @@ public:
   int GetFailedResamplings() const { return num_failedResamplings;}  //AWC 06/29/06
 
 
+  // UML Data Function
+  void UpdateModelStats (cOrganism::Graph& g);
+
+
   // this value gets recorded when a creature with the particular
   // fitness value gets born. It will never change to a smaller value,
   // i.e., when the maximum fitness in the population drops, this value will
@@ -558,6 +568,7 @@ public:
   void PrintInstructionData(const cString& filename);
   void PrintGenotypeMap(const cString& filename);
   void PrintMarketData(const cString& filename);
+  void PrintUMLData(const cString& filename);
 };
 
 

@@ -848,3 +848,30 @@ void cStats::PrintMarketData(const cString& filename)
 	num_bought = num_sold = num_used = num_own_used = 0;
 df.Endl();
 }
+
+void cStats::PrintUMLData(const cString& filename)
+{
+	cDataFile& df = m_world->GetDataFile(filename);
+
+	df.WriteComment( "Avida uml data\n" );
+	df.WriteComment("the average number of transitions and states per organism");
+	df.WriteTimeStamp();
+	df.Write( GetUpdate(), "update" );
+	df.Write( av_number_of_states.Average(), "av num states");
+	df.Write( av_number_of_trans.Average(), "av num trans");
+	av_number_of_states.Clear();
+	av_number_of_trans.Clear();
+
+df.Endl();
+}
+
+void cStats::UpdateModelStats (cOrganism::Graph& g)
+{
+
+	av_number_of_states.Add(num_vertices(g));
+	av_number_of_trans.Add(num_edges(g));
+
+}
+
+
+

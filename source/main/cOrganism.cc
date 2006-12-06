@@ -30,6 +30,8 @@
 #include "cWorld.h"
 #include "cStats.h"
 
+
+
 #include <iomanip>
 
 using namespace std;
@@ -78,10 +80,10 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-
-  // initialize the transition information vector w/ the XMI info for transitions
-  InitTransForHIL();
-
+  
+  // UML
+  // initialize the hil string values
+  InitHILBandE();		
 }
 
 
@@ -409,8 +411,9 @@ void cOrganism::NetReset()
 void cOrganism::ModelCheck(cAvidaContext& ctx)
 {
 
-//  printXMI(ctx);
+//	cout << "Model check begin " << endl;
 	printHIL(ctx);
+//	cout << "Model check end " << endl;
 
   assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
@@ -464,51 +467,12 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
     m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
   }
   
+  m_world->GetStats().UpdateModelStats(uml_state_diagram);
   
 }
 
-void cOrganism::printHIL(cAvidaContext& ctx)
-{
-	int curr_state;
-	std::map <int, std::string>::iterator itr;
-	InitTransForHIL();
-	
-	for (t_transitionMap::iterator it = uml_trans_by_state.begin(); it != uml_trans_by_state.end(); ++it) {
-	
-		// initialize the value of current state... 
-		if (it == uml_trans_by_state.begin() ) {
-			curr_state = (*it).first;
-			cout << "Initial  \"\" " << (*it).first << ";" << endl;
-			cout << "State " << (*it).first << " {" << endl;
-		}
-		// what to do when the state we are processing transitions for changes...
-		if (curr_state != (*it).first) {
-			curr_state = (*it).first;
-			// finish previous state
-			cout << "}" << endl;
-			// add into for next state
-			cout << "State " << (*it).first << " {" << endl;
-		}
-		
-		// print out transition information....
-		// find trans in set of trans
-		if ( (itr = uml_trans_set.find((*it).second.first)) != uml_trans_set.end()) {
-			cout << "Transition \"" << (*itr).second << "\" to " << (*it).second.second << ";" << endl;
-		} 
-		
-		uml_state_set.erase((*it).first);
-		
-	}
-	cout << "}" << endl;
-	
-	// print info for states with no outgoing transitions
-	for (std::set<int>::iterator its = uml_state_set.begin(); its!= uml_state_set.end(); ++its) {
-		cout << "State " << (*its) << endl;
-		cout << "}" << endl;
-	}
-	
-}
 
+/*
 void cOrganism::printXMI(cAvidaContext& ctx)
 {
 
@@ -597,14 +561,59 @@ void cOrganism::InitTransForXMI()
 	trans_info.push_back("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
 	
 }
-
+*/
 void cOrganism::InitTransForHIL()
 {
 
 	// assign transition values to map elements
 	std::map <int, std::string>::iterator it;
-	 
-	if (uml_trans_set.size() >= 6) {
+	int count = 0;
+
+	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
+	switch (count){
+		case 0:
+			(*it).second = "";
+			break;
+		case 1:
+			(*it).second = "getOperationalState";
+			break;
+		case 2:
+			(*it).second = "/operationalState:=1^ComputingComponent.ccTRUE";
+			break;	
+		case 3: 
+			(*it).second = "/operationalState:=0^ComputingComponent.ccFALSE";
+			break;
+		case 4: 
+			(*it).second = "getBrightnessValue";
+			break;
+		case 5:
+			(*it).second = "^Environment.getBrightnessValue";
+			break;
+		case 6:
+			 (*it).second = "setBrightnessValue(brightnessValue)";
+			break;
+		case 7:
+			(*it).second = "[brightnessValue<0]/correctedBrightnessValue:=0";
+			break;
+		case 8:
+			(*it).second = "[brightnessValue >=0 & brightnessValue<=1000]/correctedBrightnessValue:=brightnessValue";
+			break;
+		case 9:
+			(*it).second = "[brightnessValue>1000]/correctedBrightnessValue:=1000";
+			break;
+		case 10:
+			(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
+			break;
+		default:
+			(*it).second = "--too many trans--";
+	}
+		count++;
+	}	
+}	
+	
+	
+	
+/*	if (transGuardActionInfo.size() >= 6) {
 	it = uml_trans_set.begin();
 	(*it).second = "";
 	++it;
@@ -617,7 +626,7 @@ void cOrganism::InitTransForHIL()
 	(*it).second = "getOperationalState";
 	++it;
 	(*it).second = "getBrightnessValue";
-/*	++it;
+	++it;
 	(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
 	++it;
 	(*it).second = "[brightnessValue<0]/correctedBrightnessValue:=0";
@@ -626,9 +635,475 @@ void cOrganism::InitTransForHIL()
 	++it;
 	(*it).second = "[brightnessValue>1000]/correctedBrightnessValue:=1000";
 	++it;
-	(*it).second = "setBrightnessValue(brightnessValue)";*/
-	}
+	(*it).second = "setBrightnessValue(brightnessValue)";
+	}*/
+
+
+
+//void cOrganism::AssignTransMeaning (int trans)
+//{ 
+	
+
+//	return;
+//}
+
+
+bool cOrganism::AddTrans(int trans, int orig, int dest) 
+{
+	NameStateMap::iterator pos1, pos2;
+	bool inserted1, inserted2, inserted3;
+	bool exists = 0;
+	State u, v;
+
+
+	// create or find origin state
+	tie(pos1, inserted1) = states.insert(std::make_pair(orig, State()));
+        if (inserted1) {
+                u = add_vertex(uml_state_diagram);
+                //cout << "added state named " << orig << endl;
+                uml_state_diagram[u].state_label = orig;
+                pos1->second = u;
+        } else  {
+                u = pos1->second;
+                //cout << "found state named " << orig << endl;
+        }
+
+	// create or find dest state
+	tie(pos2, inserted2) = states.insert(std::make_pair(dest, State()));
+        if (inserted2) {
+                v = add_vertex(uml_state_diagram);
+                //cout << "added state named " << dest << endl;
+                uml_state_diagram[v].state_label = dest;
+                pos2->second = v;
+        } else  {
+                v = pos2->second;
+                //cout << "found state named " << dest << endl;
+        }
+		// call isTrans...	
+		exists = isTrans(u, v, trans);
+		if (exists == 0) {
+			tie(transitions, inserted3) = add_edge(u, v, uml_state_diagram);
+			//cout << "Adding transition " << u << " " << v << " " << trans << endl;
+			if (inserted3) {
+				uml_state_diagram[transitions].edge_label = trans;
+				//cout << "added edge labeled " << trans << endl;
+				// add trans to table...
+				transGuardActionInfo.insert(std::make_pair(trans, ""));
+			}
+		}
+	return true;
 }
+
+// similar to getTransBetweenVertices... 
+// optimization candidate perhaps using edge_range as per DBK
+bool cOrganism::isTrans(State u, State v, int trans_name)
+{
+	oei e1, e2;
+	bool exists = 0;
+
+	// check to see if another trans has the same start, dest, and label 
+	// if so, do not create trans. Else, create trans.
+	for (tie(e1, e2) = out_edges(u, uml_state_diagram); e1 != e2; ++e1) {
+		if ((target(*e1, uml_state_diagram) == v) && (uml_state_diagram[*e1].edge_label == trans_name)) {
+			 exists = 1;
+			 break;
+		} 
+	}
+	
+	return exists;
+}
+
+int cOrganism::getTransNumber (int pos) 
+{
+	int count = 0;
+	int trans_name = -1;
+	std::map <int, std::string>::iterator it;
+	
+	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
+		if (count == pos){
+			trans_name = (*it).first;
+			break;
+		}
+		count++;
+	}
+	
+	return trans_name;
+
+}
+
+bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
+{
+	int found_entry = 0;
+	int trans_name;
+	
+	trans_name = getTransNumber (t_pos); 
+	
+	if (trans_name == -1) {
+		return found_entry;
+	}
+	
+	if ((NumStates() <= s0_pos) || (NumStates() <= s1_pos)) {
+		return found_entry;
+	}
+	
+	cOrganism::State& s0 = getStateInPosition(s0_pos);
+	cOrganism::State& s1 = getStateInPosition(s1_pos);
+
+	if (isTrans(s0, s1, trans_name)) { 
+		found_entry = 1;
+	} 
+	
+	return found_entry;
+
+}
+
+
+void cOrganism::printHIL(cAvidaContext& ctx)
+{
+	Graph::vertex_iterator i, iend;
+	
+	oei e1, e2;
+	int trans_label;
+	int dest_state;
+	std::string temp;
+	int tempint;
+	
+	InitTransForHIL();
+
+	hil = "";
+	// loop through all states
+	// print initial information for the init state.
+	//cout << "Num states: " << NumStates() << endl;
+	if (NumStates() > 0) {
+		//cout << "Initial \"\" " << uml_state_diagram[0].state_label << endl;
+		hil += "Initial \"\" s"; 
+		temp = StringifyAnInt(uml_state_diagram[0].state_label);
+		hil += temp;
+		hil += " ; \n"; 
+
+	}
+	
+	for (tie(i, iend) = vertices(uml_state_diagram); i != iend; ++i) {
+//		cout << "State " << uml_state_diagram[*i].state_label << " { " << endl;
+		hil += "State s";
+		temp = StringifyAnInt(uml_state_diagram[*i].state_label);
+		hil += temp;
+		hil += " { \n"; 
+
+		// print each transition...
+		for (tie(e1, e2) = out_edges((*i), uml_state_diagram); e1 != e2; ++e1) {
+			trans_label = uml_state_diagram[*e1].edge_label;
+			dest_state = target(*e1, uml_state_diagram);
+			hil += "Transition \"" +  transGuardActionInfo[trans_label];
+//			temp = StringifyAnInt(tempint);
+			hil += "\" to s";
+			temp = StringifyAnInt( uml_state_diagram[dest_state].state_label);
+			hil += temp + " ; \n";
+		}
+		hil +=  "} \n"; 
+	}
+	//cout << "HIL : " << hil << endl;
+	
+}
+
+
+
+
+std::string cOrganism::StringifyAnInt(int x) { 
+	std::ostringstream o;
+	o << x;
+	return o.str();
+}
+
+// return the number of states in a state diagram
+double cOrganism::NumStates() 
+{
+	return (double) num_vertices(uml_state_diagram);
+}
+
+double cOrganism::NumTrans()
+{
+	return (double) num_edges(uml_state_diagram);
+}
+
+std::string cOrganism::getHil()
+{
+//	std::string temp = hil_begin + hil + hil_end;
+//	std::string temp = hil;
+
+//	cout << "PRINT HIL" << endl;
+//	cout << temp << endl;
+//	cout << "END PRINT HIL" <<endl;
+	return (hil_begin + hil + hil_end);
+}
+
+void cOrganism::InitHILBandE()
+{
+	hil_begin = "Formalize as promela ;\n \
+	Model XDEModel{\n \
+	Class BrightnessSensor {\n \
+		InstanceVar int brightnessValue ;\n \
+		InstanceVar int correctedBrightnessValue ;\n \
+        InstanceVar bool operationalState ;\n \
+        Signal getBrightnessValue( ) ;\n \
+        Signal getOperationalState( ) ;\n \
+        Signal setBrightnessValue(int ) ;\n ";
+
+
+	hil_end = " } \n \
+	Class ComputingComponent {\n \
+        InstanceVar bool automaticMode ;\n \
+        InstanceVar int brightnessValue ;\n \
+        InstanceVar int computedDimmerValue ;\n \
+        InstanceVar int desiredBrightnessValue ;\n \
+        InstanceVar bool initialized ;\n \
+        InstanceVar bool manualMode ;\n \
+        InstanceVar bool motionDetected ;\n \
+        Signal ccAck( ) ;\n \
+        Signal ccFALSE( ) ;\n \
+        Signal ccTRUE( ) ;\n \
+        Signal setBrightnessValue(int ) ;\n \
+        Signal setDesiredBrightnessValue(int ) ;\n \
+        Initial  \"\" Init ;\n \
+        State Init  {\n \
+                Transition \"\" to Initialize ;\n \
+        }\n \
+        CompositeState Initialize {\n \
+                Transition \"ccFALSE\" to PowerOff ;\n \
+        Initial  \"\" InitializationStart ;\n \
+        State BSensRec  {\n \
+                Transition \"^MotionSensor.getOperationalState\" to MSensReq ;\n \
+        }\n \
+        State BSensReq  {\n \
+                Transition \"ccTRUE\" to BSensRec ;\n \
+        }\n \
+        State DimmerRec  {\n \
+                Transition \"^BrightnessSensor.getOperationalState\" to BSensReq ;\n \
+        }\n \
+        State DimmerReq  {\n \
+                Transition \"ccTRUE\" to DimmerRec ;\n \
+        }\n \
+        State InitializationStart  {\n \
+                Transition \"^Dimmer.getOperationalState\" to DimmerReq ;\n \
+        }\n \
+        State MSensReq  {\n \
+                Transition \"ccTRUE/initialized:=1\" to NormalBehavior ;\n \
+        }\n \
+        }\n \
+        CompositeState NormalBehavior {\n \
+        Initial  \"\" NBInit ;\n \
+        CompositeState Automatic {\n \
+        Initial  \"/automaticMode:=1^UserInterface.setDisplayMode(1)\" AIdle ;\n \
+        State AIdle  {\n \
+                Transition \"ccAck^MotionSensor.isRoomOccupied\" to State1 ;\n \
+        }\n \
+        State ActualValueRequested  {\n \
+                Transition \"setBrightnessValue(brightnessValue)\" to BrightnessValueReceived ;\n \
+        }\n \
+        State BrightnessValueReceived  {\n \
+                Transition \"/computedDimmerValue:=desiredBrightnessValue-brightnessValue\" to CorrectionValueCalculated ;\n \
+        }\n \
+        State CorrectionValueCalculated  {\n \
+                Transition \"^Dimmer.changeDimmerValue(computedDimmerValue)\" to CorrectionValueSumbitted ;\n \
+        }\n \
+        State CorrectionValueSumbitted  {\n \
+                Transition \"ccAck/automaticMode:=0; motionDetected:=0\" to NBInit ;\n \
+        }\n \
+        State DesiredValueReceived  {\n \
+                Transition \"^BrightnessSensor.getBrightnessValue\" to ActualValueRequested ;\n \
+        }\n \
+        State DesiredValueRequested  {\n \
+                Transition \"setDesiredBrightnessValue(desiredBrightnessValue)\" to DesiredValueReceived ;\n \
+        }\n \
+        State MotionValueReceived  {\n \
+                Transition \"[motionDetected=1]^UserInterface.getDesiredBrightnessValue\" to DesiredValueRequested ;\n \
+                Transition \"[motionDetected=0]\" to NBInit ;\n \
+        }\n \
+        State State1  {\n \
+                Transition \"ccFALSE/motionDetected:=0\" to MotionValueReceived ;\n \
+                Transition \"ccTRUE/motionDetected:=1\" to MotionValueReceived ;\n \
+        }\n \
+        }\n \
+        State EnterAuto  {\n \
+                Transition \"\" to OpStatusAutoSet ;\n \
+        }\n \
+        State EnterManual  {\n \
+                Transition \"\" to OpStatusManualSet ;\n \
+        }\n \
+        CompositeState Manual {\n \
+        Initial  \"/manualMode:=1^UserInterface.setDisplayMode(2)\" MIdle ;\n \
+        State DimmerValueSet  {\n \
+                Transition \"ccAck\" to Done ;\n \
+        }\n \
+        State Done  {\n \
+                Transition \"/manualMode:=0\" to NBInit ;\n \
+        }\n \
+        State MIdle  {\n \
+                Transition \"ccAck^Dimmer.changeDimmerValue(1000)\" to DimmerValueSet ;\n \
+        }\n \
+        }\n \
+        State ManualModeCheck  {\n \
+                Transition \"ccTRUE\" to EnterManual ;\n \
+                Transition \"ccFALSE\" to EnterAuto ;\n \
+        }\n \
+        State NBInit  {\n \
+                Transition \"^UserInterface.isManualMode\" to ManualModeCheck ;\n \
+        }\n \
+        State OpStatusAutoSet  {\n \
+                Transition \"\" to Automatic ;\n \
+        }\n \
+        State OpStatusManualSet  {\n \
+                Transition \"\" to Manual ;\n \
+        }\n \
+        }\n \
+        State PowerOff  {\n \
+        }\n \
+}\n \
+Class Dimmer {\n \
+        InstanceVar int deltaDimmerValue ;\n \
+        InstanceVar int dimmerValue ;\n \
+        InstanceVar bool operationalState ;\n \
+        InstanceVar int tempDimmerValue ;\n \
+        Signal changeDimmerValue(int ) ;\n \
+        Signal dimmerAck( ) ;\n \
+        Signal getOperationalState( ) ;\n \
+        Initial  \"\" Idle ;\n \
+        State DetermineOS  {\n \
+                Transition \"/operationalState:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
+                Transition \"/operationalState:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
+        }\n \
+        State DimmerValueSet  {\n \
+                Transition \"dimmerAck^ComputingComponent.ccAck\" to Idle ;\n \
+        }\n \
+        State Idle  {\n \
+                Transition \"getOperationalState\" to DetermineOS ;\n \
+                Transition \"changeDimmerValue(deltaDimmerValue)/tempDimmerValue:=dimmerValue+deltaDimmerValue\" to TempValueReceived ;\n \
+        }\n \
+        State TempValueReceived  {\n \
+                Transition \"[tempDimmerValue>1000]/dimmerValue:=1000\" to ValueProcessed ;\n \
+                Transition \"[tempDimmerValue>=0 & tempDimmerValue<=1000]/dimmerValue:=tempDimmerValue\" to ValueProcessed ;\n \
+                Transition \"[tempDimmerValue<0]/dimmerValue:=0\" to ValueProcessed ;\n \
+        }\n \
+        State ValueProcessed  {\n \
+                Transition \"^Environment.setDimmerValue(dimmerValue)\" to DimmerValueSet ;\n \
+        }\n \
+}\n \
+Class Environment {\n \
+        InstanceVar int brightnessValue ;\n \
+        InstanceVar int dimmerValue ;\n \
+        InstanceVar bool motionValue ;\n \
+        InstanceVar int totalBrightnessValue ;\n \
+        Signal getBrightnessValue( ) ;\n \
+        Signal isRoomOccupied( ) ;\n \
+        Signal setDimmerValue(int ) ;\n \
+        Initial  \"\" Idle ;\n \
+        State BrightnessValueRequested  {\n \
+                Transition \"/brightnessValue:=1100\" to BrightnessValueSelected ;\n \
+                Transition \"/brightnessValue:=850\" to BrightnessValueSelected ;\n \
+                Transition \"/brightnessValue:=0\" to BrightnessValueSelected ;\n \
+                Transition \"/brightnessValue:=300\" to BrightnessValueSelected ;\n \
+        }\n \
+        State BrightnessValueSelected  {\n \
+                Transition \"/totalBrightnessValue:=brightnessValue+dimmerValue\" to TotalValueComputed ;\n \
+        }\n \
+        State DimmerValueSet  {\n \
+                Transition \"/totalBrightnessValue:=brightnessValue+dimmerValue^Dimmer.dimmerAck\" to Idle ;\n \
+        }\n \
+        State Idle  {\n \
+                Transition \"setDimmerValue(dimmerValue)\" to DimmerValueSet ;\n \
+                Transition \"isRoomOccupied\" to MotionValueRequested ;\n \
+                Transition \"getBrightnessValue\" to BrightnessValueRequested ;\n \
+        }\n \
+        State MotionValueRequested  {\n \
+                Transition \"/motionValue:=1^MotionSensor.msTRUE\" to MotionValueSelected ;\n \
+                Transition \"/motionValue:=0^MotionSensor.msFALSE\" to MotionValueSelected ;\n \
+        }\n \
+        State MotionValueSelected  {\n \
+                Transition \"\" to Idle ;\n \
+        }\n \
+        State TotalValueComputed  {\n \
+                Transition \"^BrightnessSensor.setBrightnessValue(totalBrightnessValue)\" to Idle ;\n \
+        }\n \
+}\n \
+Class MotionSensor {\n \
+        InstanceVar bool motionValue ;\n \
+        InstanceVar bool operationalState ;\n \
+        Signal getOperationalState( ) ;\n \
+        Signal isRoomOccupied( ) ;\n \
+        Signal msFALSE( ) ;\n \
+        Signal msTRUE( ) ;\n \
+        Initial  \"\" Idle ;\n \
+        State DetermineOS  {\n \
+                Transition \"/operationalState:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
+                Transition \"/operationalState:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
+        }\n \
+        State Idle  {\n \
+                Transition \"getOperationalState\" to DetermineOS ;\n \
+                Transition \"isRoomOccupied^Environment.isRoomOccupied\" to MotionValueRequested ;\n \
+        }\n \
+        State MotionValueRequested  {\n \
+                Transition \"msFALSE^ComputingComponent.ccFALSE\" to Idle ;\n \
+                Transition \"msTRUE^ComputingComponent.ccTRUE\" to Idle ;\n \
+        }\n \
+}\n \
+Class UserInterface {\n \
+        InstanceVar int desiredBrightnessValue ;\n \
+        InstanceVar short displayMode ;\n \
+        InstanceVar bool manualMode ;\n \
+        Signal getDesiredBrightnessValue( ) ;\n \
+        Signal isManualMode( ) ;\n \
+        Signal setDisplayMode(short ) ;\n \
+        Initial  \"\" DesiredValueRequested ;\n \
+        State DesiredValueRequested  {\n \
+                Transition \"/desiredBrightnessValue:=1000\" to Idle ;\n \
+                Transition \"/desiredBrightnessValue:=500\" to Idle ;\n \
+                Transition \"/desiredBrightnessValue:=0\" to Idle ;\n \
+        }\n \
+        State Idle  {\n \
+                Transition \"isManualMode\" to State2 ;\n \
+                Transition \"setDisplayMode(displayMode)\" to OperationalStatusSet ;\n \
+                Transition \"getDesiredBrightnessValue\" to State1 ;\n \
+        }\n \
+        State OperationalStatusSet  {\n \
+                Transition \"^ComputingComponent.ccAck\" to Idle ;\n \
+        }\n \
+        State State1  {\n \
+                Transition \"^ComputingComponent.setDesiredBrightnessValue(desiredBrightnessValue)\" to Idle ;\n \
+        }\n \
+        State State2  {\n \
+                Transition \"/manualMode:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
+                Transition \"/manualMode:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
+        }\n \
+}\n \
+\n \
+}\n \ "; 
+	return;
+}
+
+
+// This function takes in an integer and returns the state in that position within the states map. Recall that this
+// map relates integers (the number assigned to a state) to a state in the graph.
+// ... Potential candidate for optimization as per DBK ... 
+
+cOrganism::State& cOrganism::getStateInPosition (int num)
+{
+	int count = 0;
+	nsm_it i;
+	for (i=states.begin(); i!=states.end(); ++i)
+	{
+		if (count == num) {
+			break;
+		}
+		count++;
+	}
+	return i->second;
+}
+
+cOrganism::Graph& cOrganism::GetGraph()
+{
+	return uml_state_diagram;
+}
+
 
 bool cOrganism::InjectParasite(const cGenome& injected_code)
 {
