@@ -2116,6 +2116,7 @@ double cTaskLib::Task_Transition0(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
+	// good for both bs and gsm
 	if (ctx->organism->findTrans(0, 1, 0)) { 
 		bonus = 1.0;
 	}
@@ -2126,17 +2127,27 @@ double cTaskLib::Task_Transition1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(1, 2, 1)) { 
+	// good for both bs and gsm
+	// if (ctx->organism->findTrans(1, 2, 1)) { 
+	
+	// testing the creation of multiple trans to get reward concept
+	if ((ctx->organism->findTrans(1, 2, 1)) && (ctx->organism->findTrans(2, 3, 2))) { 
+
 		bonus = 1.0;
 	}
 	return bonus;
 }
 
+
 double cTaskLib::Task_Transition2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(2, 1, 2)) { 
+	// brightness sensor
+	//	if (ctx->organism->findTrans(2, 1, 2)) { 
+	// gsm:
+	if (ctx->organism->findTrans(2, 3, 2)) { 
+	
 		bonus = 1.0;
 	}
 	return bonus;
@@ -2146,7 +2157,11 @@ double cTaskLib::Task_Transition3(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(2, 1, 3)) { 
+	//  brightness sensor
+	//	if (ctx->organism->findTrans(2, 1, 3)) { 
+	// gsm:
+	if (ctx->organism->findTrans(3, 4, 3)) { 
+
 		bonus = 1.0;
 	}
 	return bonus;
@@ -2156,7 +2171,10 @@ double cTaskLib::Task_Transition4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(1, 3, 4)) { 
+	// brightness sensor
+//		if (ctx->organism->findTrans(1, 3, 4)) { 
+	if (ctx->organism->findTrans(4, 1, 4)) { 
+
 		bonus = 1.0;
 	}
 	return bonus;

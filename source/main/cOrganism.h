@@ -114,6 +114,7 @@ typedef graph_traits<Graph>::edge_descriptor Transition;
 typedef graph_traits<Graph>::out_edge_iterator oei;
 
 
+
 	
 protected:
   cWorld* m_world;
@@ -161,6 +162,9 @@ protected:
   std::string hil_begin;
   std::string hil;
   std::string hil_end;
+  std::map<int, int>  PosToStateLabel;  // a map that relates the number in which the state was inserted
+										// to the label the organism assigns it.
+
   
   class cNetSupport
   {

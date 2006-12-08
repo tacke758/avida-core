@@ -663,6 +663,10 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
                 //cout << "added state named " << orig << endl;
                 uml_state_diagram[u].state_label = orig;
                 pos1->second = u;
+				
+				// add to the map between position and label.... 
+				PosToStateLabel[states.size()] = orig;
+				
         } else  {
                 u = pos1->second;
                 //cout << "found state named " << orig << endl;
@@ -675,6 +679,11 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
                 //cout << "added state named " << dest << endl;
                 uml_state_diagram[v].state_label = dest;
                 pos2->second = v;
+				
+				// add to map betweek positions and label.....
+				PosToStateLabel[states.size()] = orig;
+
+				
         } else  {
                 v = pos2->second;
                 //cout << "found state named " << dest << endl;
@@ -1088,7 +1097,16 @@ Class UserInterface {\n \
 
 cOrganism::State& cOrganism::getStateInPosition (int num)
 {
+	/*std::pair<vertex_iterator, vertex_iterator>
+vertices(const adjacency_list& g)*/
+//	Graph::vertex_iterator vi, vi_end;
+//	tie(vi,vi_end) = vertices(uml_state_diagram);
+//	vi+=num;
+	//graph_traits<Graph>::vertex_descriptor b = *vi;
+//	return *vi;
+
 	int count = 0;
+	// This code uses a value ordering on the states (lowest number = position 0)
 	nsm_it i;
 	for (i=states.begin(); i!=states.end(); ++i)
 	{
@@ -1098,6 +1116,14 @@ cOrganism::State& cOrganism::getStateInPosition (int num)
 		count++;
 	}
 	return i->second;
+	
+
+/*
+	int x = PosToStateLabel[num];
+	return (states[x]);
+*/
+
+	
 }
 
 cOrganism::Graph& cOrganism::GetGraph()
