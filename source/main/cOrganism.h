@@ -109,6 +109,7 @@ typedef std::map<int, State> NameStateMap;
 typedef NameStateMap::iterator nsm_it; 
 // A map from the integer representing a transition to the string representing its label
 typedef std::map<int, std::string> TransMeaning;
+typedef TransMeaning::iterator tm_it;
 // map the graph's edge's to their descriptors
 typedef graph_traits<Graph>::edge_descriptor Transition;
 typedef graph_traits<Graph>::out_edge_iterator oei;
@@ -252,6 +253,8 @@ public:
   void AssignTransMeaning(int trans);
   Graph& GetGraph();
   State& getStateInPosition (int num);
+  int getStateLabelInPosition (int num);
+  int getTransLabelInPosition (int num);
   bool isTrans(State, State, int);
   int getTransNumber (int pos);
   bool findTrans(int s0_pos, int s1_pos, int t_pos);

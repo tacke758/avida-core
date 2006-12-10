@@ -356,6 +356,10 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 //					"Create a state"), 
 	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
 					"Create a transition"), 
+	cInstEntryCPU("get-trans", &cHardwareCPU::Inst_GetTrans, false, 
+					"Get a transition"), 				
+	cInstEntryCPU("get-state", &cHardwareCPU::Inst_GetState, false, 
+					"Get a state"), 				
 //	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
 //					"Model check the model"), 
 //	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
@@ -3480,6 +3484,40 @@ bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
 
 	 
 //	return true;
+}
+
+
+bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx) 
+{
+	// get the state indexed by the number in 
+	int reg_used = FindModifiedRegister(REG_AX);
+	int state_pos = GetRegister(reg_used);
+	
+	if ((state_pos >= 0) && (state_pos < organism->NumStates())) {
+	int label = organism->getStateLabelInPosition(state_pos);
+	
+	// put value into register...
+//    FindNextRegister(reg_used) = label;
+	GetRegister(FindNextRegister(reg_used)) = label;
+	}
+
+	return true;
+}  
+  
+bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
+{
+	// get the state indexed by the number in 
+	int reg_used = FindModifiedRegister(REG_AX);
+	int trans_pos = GetRegister(reg_used);
+	
+	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
+	int label = organism->getTransLabelInPosition(trans_pos);
+	
+	// put value into register...
+	GetRegister(FindNextRegister(reg_used)) = label;
+	}
+
+	return true;
 }
 
 

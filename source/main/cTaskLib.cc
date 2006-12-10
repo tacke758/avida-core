@@ -1861,227 +1861,7 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 }
 
 
-/*
-double cTaskLib::Task_CreateStates(cTaskContext* ctx) const
-{
-	cOrganism* organism = ctx->organism; 
-	double bonus = 0.0;
-	
-	// reward for constructing 7 states - brightness sensor
-	if (organism->uml_state_set.size() <= 7) {
-		bonus += organism->uml_state_set.size();
-	} 
 
-	return bonus;
-}
-
-
-double cTaskLib::Task_CreateTransX(cTaskContext* ctx) const
-{
-	std::pair<cOrganism::tr_it, cOrganism::tr_it> trans_range;
-	std::pair<int, int> st;
-	cOrganism* organism = ctx->organism; 
-	cOrganism::tr_it i;
-	double bonus = 0.0;
-	std::set<int>::iterator it;
-	cOrganism::t_transitionMap::iterator it2; 
-	int state0, state1, state2, state3, state4, state5, state6;
-	int trans1, trans2, trans3, trans4, trans5, trans6, trans7;
-	int trans8, trans9, trans10, trans0;
-	
-
-
-	if ((organism->uml_state_set.size() > 6) && (organism->uml_transitions.size() > 10)){		
-		// get the 7 states
-		it = organism->uml_state_set.begin();
-		state0 = *it;
-		it++;
-		state1 = *it;
-		it++;
-		state2 = *it;
-		it++;
-		state3 = *it;
-		it++;
-		state4 = *it;
-		it++;
-		state5 = *it;
-		it++;
-		state6 = *it;
-
-		it2 = organism->uml_transitions.begin();
-		trans0 = (*it2).first;
-		it2++;
-		trans1 = (*it2).first;
-		it2++;
-		trans2 = (*it2).first;
-		it2++;
-		trans3 = (*it2).first;
-		it2++;
-		trans4 = (*it2).first;
-		it2++;
-		trans5 = (*it2).first;
-		it2++;
-		trans6 = (*it2).first; 
-		it2++;
-		trans7 = (*it2).first;
-		it2++;
-		trans8 = (*it2).first;
-		it2++;
-		trans9 = (*it2).first;
-
-	
-	
-	// reward for each transition 
-		// transition 0
-		trans_range = organism->uml_transitions.equal_range(trans3);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state0) && (st.second == state1)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 1
-		trans_range = organism->uml_transitions.equal_range(trans1);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state1) && (st.second == state2)) {
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 2
-		trans_range = organism->uml_transitions.equal_range(trans2);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state2) && (st.second == state1)) {
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 3
-		trans_range = organism->uml_transitions.equal_range(trans3);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state2) && (st.second == state1)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 4
-		trans_range = organism->uml_transitions.equal_range(trans4);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state1) && (st.second == state3)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 5
-		trans_range = organism->uml_transitions.equal_range(trans5);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state3) && (st.second == state4)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 6
-		trans_range = organism->uml_transitions.equal_range(trans6);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state4) && (st.second == state5)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 7 
-		trans_range = organism->uml_transitions.equal_range(trans7);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state5) && (st.second == state6)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 8
-		trans_range = organism->uml_transitions.equal_range(trans8);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state5) && (st.second == state6)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 9 
-		trans_range = organism->uml_transitions.equal_range(trans9);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state5) && (st.second == state6)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		// transition 10 
-		trans_range = organism->uml_transitions.equal_range(trans10);
-		for(i=trans_range.first; i!=trans_range.second; ++i) {
-			st = i->second;
-			
-			if ((st.first == state6) && (st.second == state1)) {
-
-				bonus += 1.0;
-				break;
-			}
-		}
-		
-		
-	
-	}
-
-	return bonus;	
-}
-
-double cTaskLib::Task_CreateTranss(cTaskContext* ctx) const
-{
-	cOrganism* organism = ctx->organism; 
-	double bonus = 0.0;
-	
-	// reward for constructing 7 states - brightness sensor
-	if (organism->uml_transitions.size() <= 11) {
-		bonus += organism->uml_transitions.size();
-	} 
-
-	return bonus;
-}
-*/
 
 // Count the number of states. Give rewards for upto 7. 7 is the number the brightness sensor needs...
 double cTaskLib::Task_NumberOfState(cTaskContext* ctx) const
@@ -2093,7 +1873,11 @@ double cTaskLib::Task_NumberOfState(cTaskContext* ctx) const
 	// reward for constructing 7 states - brightness sensor
 	if (organism->NumStates() <= 7) {
 		bonus += numStates;
-	} 
+		//bonus = 1.0;
+	} /*else {
+	
+		bonus = (7 - (numStates - 7));
+	}*/
 
 	return bonus;
 }
@@ -2104,10 +1888,15 @@ double cTaskLib::Task_NumberOfTrans(cTaskContext* ctx) const
 	double bonus = 0.0;
 	double numTrans = organism->NumTrans();
 	
-	// reward for constructing 7 states - brightness sensor
+	// reward for constructing 11 trans - brightness sensor
 	if (organism->NumTrans() <= 11) {
 		bonus += numTrans;
-	} 
+		//bonus = 1.0;
+	} /*else { 
+	
+		bonus = (11 - (numTrans -11));
+		
+	}*/
 
 	return bonus;
 }
@@ -2128,10 +1917,10 @@ double cTaskLib::Task_Transition1(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	// good for both bs and gsm
-	// if (ctx->organism->findTrans(1, 2, 1)) { 
+	 if (ctx->organism->findTrans(1, 2, 1)) { 
 	
 	// testing the creation of multiple trans to get reward concept
-	if ((ctx->organism->findTrans(1, 2, 1)) && (ctx->organism->findTrans(2, 3, 2))) { 
+//	if ((ctx->organism->findTrans(1, 2, 1)) && (ctx->organism->findTrans(2, 3, 2))) { 
 
 		bonus = 1.0;
 	}
@@ -2144,9 +1933,9 @@ double cTaskLib::Task_Transition2(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	// brightness sensor
-	//	if (ctx->organism->findTrans(2, 1, 2)) { 
+		if (ctx->organism->findTrans(2, 1, 2)) { 
 	// gsm:
-	if (ctx->organism->findTrans(2, 3, 2)) { 
+//	if (ctx->organism->findTrans(2, 3, 2)) { 
 	
 		bonus = 1.0;
 	}
@@ -2158,9 +1947,9 @@ double cTaskLib::Task_Transition3(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	//  brightness sensor
-	//	if (ctx->organism->findTrans(2, 1, 3)) { 
+		if (ctx->organism->findTrans(2, 1, 3)) { 
 	// gsm:
-	if (ctx->organism->findTrans(3, 4, 3)) { 
+	//if (ctx->organism->findTrans(3, 4, 3)) { 
 
 		bonus = 1.0;
 	}
@@ -2172,8 +1961,8 @@ double cTaskLib::Task_Transition4(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	// brightness sensor
-//		if (ctx->organism->findTrans(1, 3, 4)) { 
-	if (ctx->organism->findTrans(4, 1, 4)) { 
+		if (ctx->organism->findTrans(1, 3, 4)) { 
+//	if (ctx->organism->findTrans(4, 1, 4)) { 
 
 		bonus = 1.0;
 	}

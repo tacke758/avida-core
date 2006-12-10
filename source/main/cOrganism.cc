@@ -1126,6 +1126,56 @@ vertices(const adjacency_list& g)*/
 	
 }
 
+
+// if you ask for something greater than the number of states then you get the highest numbered state.
+int cOrganism::getStateLabelInPosition (int num)
+{
+	/*std::pair<vertex_iterator, vertex_iterator>
+vertices(const adjacency_list& g)*/
+//	Graph::vertex_iterator vi, vi_end;
+//	tie(vi,vi_end) = vertices(uml_state_diagram);
+//	vi+=num;
+	//graph_traits<Graph>::vertex_descriptor b = *vi;
+//	return *vi;
+
+	int count = 0;
+	// This code uses a value ordering on the states (lowest number = position 0)
+	nsm_it i;
+	for (i=states.begin(); i!=states.end(); ++i)
+	{
+		if (count == num) {
+			break;
+		}
+		count++;
+	}
+	return i->first;
+	
+
+/*
+	int x = PosToStateLabel[num];
+	return (states[x]);
+*/	
+}
+
+
+// if you ask for something greater than the number of trans -- you get the highest numbered one...
+int cOrganism::getTransLabelInPosition (int num)
+{
+	int count = 0;
+	tm_it i;
+	for (i=transGuardActionInfo.begin(); i!=transGuardActionInfo.end(); ++i)
+	{
+		if (count == num) {
+			break;
+		}
+		count++;
+	}
+	int test = i->first;
+
+	return i->first;
+	
+}
+
 cOrganism::Graph& cOrganism::GetGraph()
 {
 	return uml_state_diagram;
