@@ -9,7 +9,10 @@
  */
 
 #include "cTaskLib.h"
-
+#include <unistd.h>
+#include <math.h>
+#include <errno.h>
+#include <boost/regex.hpp>
 
 extern "C" {
 #include <math.h>
@@ -2032,6 +2035,9 @@ double cTaskLib::Task_Transition10(cTaskContext* ctx) const
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
+	// Sanity Check - Does hydra have a chance of succeeding?
+	if(Task_Transition10(ctx)==0.0) return 0.0; //etc.
+
 	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
 	std::string temp;
@@ -2051,12 +2057,18 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 		close(from_subavida[0]);
 		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
 		dup2(from_subavida[1], STDOUT_FILENO);
-    // HJG - change to call hydra...
-//		execl("./subavida", "subavida", "-c", "runtime_test.cfg", NULL);
 		execl("./hydralite/hydra", NULL);
 		// We don't ever get here.
 	} 
+	//parent
+	close(to_subavida[0]);
+	close(from_subavida[1]);
 
+	// At this point, forget about subavida - It's running.
+	// Write the model to to_subavida[1].  Close to_subavida[1] (which wakes up subavida).
+	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
+
+	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
 	temp = organism->getHil();
 	do {
 		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
@@ -2066,71 +2078,47 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 			 status_total += status;
 		}
 	} while (status_total < temp.size());
-	//parent
-	close(to_subavida[0]);
-	close(from_subavida[1]);
-	close(to_subavida[1]);
+	close(to_subavida[1]); // Wakes up subavida.
 
+	// Time passes...
+
+	// Read the output from subavida.  Keep reading until subavida closes the pipe.
+	const int read_size=128; // The number of bytes that we're going to try to read from subavida.
 	std::string subavida_output;
-	char line[32]={0};
-	//do {
-		status = read(from_subavida[0], line, 31);
-//		cout << "BEFORE PRINT" << endl;
-//		cout << line << endl;
-//		cout << "AFTER PRINT" << endl;
-	//	if(status > 0) {
-	//		subavida_output += line;
-	//		memset(line, 0, 32);
-	//	}
-	//} while(((status==-1) && (errno == EINTR)) || (status>0));
-	
-
-
-	close(from_subavida[0]);
-
-// not pertinent for the UML project
-/*	
-	//write the genome of this organism to_avida[1].
-	const cInstSet& isa = ctx->GetOrganism()->GetHardware().GetInstSet();
-	const cGenome& genome = ctx->GetOrganism()->GetGenome();
-	for(int i=0; i<genome.GetSize(); ++i) {
-		//for each instruction in the genome, look up its textual representation.
-		const cString& inst = isa.GetName(genome[i]);
-		write(to_subavida[1], (const void*)((const char*)inst), inst.GetSize());
-		write(to_subavida[1], "\n", 1);
-	}
-	
-	close(to_subavida[1]);
-	std::string subavida_output;
-	char line[32]={0};
-	int status=0;
+	char line[read_size]={0};
 	do {
-		status = read(from_subavida[0], line, 31);
+		status = read(from_subavida[0], line, read_size-1);
 		if(status > 0) {
 			subavida_output += line;
-			memset(line, 0, 32);
+			memset(line, 0, read_size);
 		}
 	} while(((status==-1) && (errno == EINTR)) || (status>0));
-	
+	// Done with subavida.
 	close(from_subavida[0]);
+	// Make sure that subavida dies.
 	pid_t done=0;
 	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
 	assert(done==subavida);
 	
-	//interpret the data that was read.
-	boost::regex fitness("fitness=(\\d+\\.\\d+)");
+	//Interpret the data that we read from subavida.
+	// hydra=5;spin=10 ... or whatever.
+	boost::regex hydra("hydra=(\\d+)");
+	boost::regex spin("spin=(\\d+)");
 	boost::match_results<std::string::const_iterator> match;
-	double ret=0.0;
+	double hydraval=0.0;
+	double spinval=0.0;
 	
-	if(boost::regex_search(subavida_output, match, fitness)) {
+	if(boost::regex_search(subavida_output, match, hydra)) {
 		std::istringstream iss(match[1]);
-		iss >> std::dec >> ret;
+		iss >> std::dec >> hydraval;
 	}
-*/	
+
+	if(boost::regex_search(subavida_output, match, spin)) {
+		std::istringstream iss(match[1]);
+		iss >> std::dec >> spinval;
+	}
 	
-	return bonus;
-
-
+	return pow(hydraval, spinval);
 }
 
 

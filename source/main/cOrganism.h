@@ -114,8 +114,6 @@ typedef TransMeaning::iterator tm_it;
 typedef graph_traits<Graph>::edge_descriptor Transition;
 typedef graph_traits<Graph>::out_edge_iterator oei;
 
-
-
 	
 protected:
   cWorld* m_world;
@@ -160,12 +158,15 @@ protected:
   Transition transitions;		// map of transition descriptors to transitions
   NameStateMap states;			// map of the state names 
   TransMeaning transGuardActionInfo; // map of transition integers to the string representing their label
-  std::string hil_begin;
+  static std::string hil_begin;
   std::string hil;
-  std::string hil_end;
+  static std::string hil_end;
   std::map<int, int>  PosToStateLabel;  // a map that relates the number in which the state was inserted
 										// to the label the organism assigns it.
 
+  
+  
+  
   
   class cNetSupport
   {
@@ -235,18 +236,9 @@ public:
   void NetReset();
   
   // UML Stuff
-//  t_stateMap uml_states;
-//  t_transitionMap uml_transitions;
-//  t_transitionMap uml_trans_by_state;
-//  std::set <int> uml_state_set;
-//  std::map <int, std::string> uml_trans_set;
   void ModelCheck(cAvidaContext& ctx);
-//  void printXMI(cAvidaContext& ctx);
   void printHIL(cAvidaContext& ctx);
-//  std::vector<std::string> trans_info;
-//  void InitTransForXMI();
   void InitTransForHIL();
-  void InitHILBandE();
   bool AddTrans(int trans, int orig, int dest);
   double NumStates();
   double NumTrans();

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E475AE00B2D01720022BCFB /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E475ADF0B2D01720022BCFB /* libboost_regex.a */; };
 		7005A70609BA0FA90007E16E /* cTestCPUInterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */; };
 		7005A70809BA0FA90007E16E /* cTestCPUInterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */; };
 		7005A83209BA621F0007E16E /* cOrgMessage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70B0868808F49EA800FC65FE /* cOrgMessage.cc */; };
@@ -294,6 +295,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3E475ADF0B2D01720022BCFB /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = /opt/local/lib/libboost_regex.a; sourceTree = "<absolute>"; };
 		7005A70109BA0FA90007E16E /* cTestCPUInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cTestCPUInterface.h; sourceTree = "<group>"; };
 		7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cTestCPUInterface.cc; sourceTree = "<group>"; };
 		7005A70909BA0FBE0007E16E /* cOrgInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrgInterface.h; sourceTree = "<group>"; };
@@ -817,6 +819,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				70DCF66C09D4DE6500924128 /* libtcmalloc.a in Frameworks */,
+				3E475AE00B2D01720022BCFB /* libboost_regex.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1161,6 +1164,7 @@
 		DCC30C490762532C008F7A48 = {
 			isa = PBXGroup;
 			children = (
+				3E475ADF0B2D01720022BCFB /* libboost_regex.a */,
 				DCC30C670762539A008F7A48 /* Main Source */,
 				70920C1A0A9CCE2C00757CDB /* Documentation */,
 				707AF2D209EE8501001AEA89 /* Support */,
@@ -1936,6 +1940,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -1948,6 +1953,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2069,6 +2075,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2081,6 +2088,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2196,6 +2204,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,

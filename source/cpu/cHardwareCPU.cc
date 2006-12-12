@@ -3489,32 +3489,74 @@ bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx) 
 {
+
+	ReadLabel();
+    GetLabel();
+
+	int state_pos = GetLabel().AsInt(1);
+//	cString a = GetLabel().AsString();
+
+/*	
+	a.ClipFront(<#int size#>)
+	if (a == "A") {
+		a = "a";
+	}
+
+*/
+
+	// This did not work. Time to try again.
+/*
 	// get the state indexed by the number in 
 	int reg_used = FindModifiedRegister(REG_AX);
 	int state_pos = GetRegister(reg_used);
+*/	
 	
 	if ((state_pos >= 0) && (state_pos < organism->NumStates())) {
-	int label = organism->getStateLabelInPosition(state_pos);
+	int state_label = organism->getStateLabelInPosition(state_pos);
 	
+	
+/*	
+ assert(default_register < NUM_REGISTERS);  // Reg ID too high.
+  
+  if (m_inst_set->IsNop(IP().GetNextInst())) {
+    IP().Advance();
+    default_register = m_inst_set->GetNopMod(IP().GetInst());
+    IP().SetFlagExecuted();
+  }
+  return default_register;
+*/	
 	// put value into register...
-//    FindNextRegister(reg_used) = label;
-	GetRegister(FindNextRegister(reg_used)) = label;
+//    FindNextRegister(reg_used) = state_label;
+	GetRegister(REG_CX) = state_label;
 	}
 
+
+
+// this needs to calculate a state to return based on some crazy nop calculation
+
+	// check if next instruction is nop. 
+
 	return true;
+	
+	
 }  
   
 bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
 {
-	// get the state indexed by the number in 
+/*	// get the state indexed by the number in 
 	int reg_used = FindModifiedRegister(REG_AX);
-	int trans_pos = GetRegister(reg_used);
+	int trans_pos = GetRegister(reg_used);*/
+	
+	ReadLabel();
+    GetLabel();
+
+	int trans_pos = GetLabel().AsInt(1);
 	
 	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
 	int label = organism->getTransLabelInPosition(trans_pos);
 	
 	// put value into register...
-	GetRegister(FindNextRegister(reg_used)) = label;
+	GetRegister(REG_AX) = label;
 	}
 
 	return true;

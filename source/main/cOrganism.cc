@@ -33,8 +33,28 @@
 
 
 #include <iomanip>
+#include <fstream>
 
 using namespace std;
+
+std::string loadFile(const char* filename) {
+	std::string data, line; // or maybe stringstream? (strstream?)
+	std::ifstream infile;
+	infile.open(filename);
+	assert(infile.is_open());
+	
+	while (getline (infile, line))
+	{
+		data.append(line);
+		line.erase();
+	}
+	
+	//read from file; load into string/strstream, and return it.
+	return data;
+}
+
+std::string cOrganism::hil_begin = loadFile("hil_begin");
+std::string cOrganism::hil_end = loadFile("hil_end");
 
 
 cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome)
@@ -81,9 +101,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
   
-  // UML
-  // initialize the hil string values
-  InitHILBandE();		
+	
 }
 
 
@@ -472,96 +490,6 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
 }
 
 
-/*
-void cOrganism::printXMI(cAvidaContext& ctx)
-{
-
-// UML pretty print part....
-  std::set<int>::iterator it_st_start;
-  std::set<int>::iterator it_st_end;
-  std::set<int>::iterator i;
-
-  
-  it_st_start = uml_state_set.begin();
-  it_st_end = uml_state_set.end();
-  int count;
-
-  // print state XMI information
-  cout << "<UML:StateMachine xmi.id=\"XDE-BACD03B9-FA04-4C7F-B464-748CB92A47B2\"";
-  cout << "name=\"StateMachine1\" isSpecification=\"false\">" << endl;
-  cout << "<UML:StateMachine.top>" << endl;  
-  cout << "<UML:CompositeState xmi.id=\"XDE-3C5902C0-E8A6-4E0C-88D5-4ACB7E0EDF15\"";
-  cout << "isConcurrent=\"false\" name=\"TOP\" isSpecification=\"false\">" << endl;
-  cout << "<UML:CompositeState.subvertex>" << endl;
-
-  for(i = it_st_start; i!=it_st_end; ++i){
-    if (i == it_st_start) { 
-		  // initial state 
-//		cout << "<UML:Pseudostate xmi.id=\"" << *i << "\" kind=\"initial\" outgoing=\"\"";
-		cout << "<UML:Pseudostate xmi.id=\"" << *i << "\" kind=\"initial\" ";
-		cout << "name=\"\" isSpecification=\"false\"/>" << endl;
-
-	} else {
-//		cout << "<UML:CompositeState xmi.id=\"" << *i << "\" isConcurrent=\"false\" outgoing=\"\" name=\"";
-		cout << "<UML:CompositeState xmi.id=\"" << *i << "\" isConcurrent=\"false\" name=\"";
-		cout << *i << "\" isSpecification=\"false\"/>" << endl;
-	}
-  }
-  cout << "</UML:CompositeState.subvertex>" << endl;
-  cout << "</UML:CompositeState>" << endl;
-  cout << "</UML:StateMachine.top>" << endl;
-
-
-  count = 0;
-  cout << "<UML:StateMachine.transitions>" << endl;
-  for (t_transitionMap::iterator it = uml_transitions.begin(); it != uml_transitions.end(); ++it) {
-	 cout << "<UML:Transition xmi.id=\"" << (*it).first << "\" source=\"" << (*it).second.first;
-	 cout << "\" target=\"" <<  (*it).second.second << "\" name=\"" <<  (*it).first;
-	 cout << "\" isSpecification=\"false\">" << endl;
-	 
-	 if (trans_info.size() > count) {
-		 cout << trans_info[count] << endl;
-	 }
-	 cout << "</UML:Transition>" << endl;
-
-	 count ++;
-  }
-  
-  cout << "</UML:StateMachine.transitions>" << endl;
-  cout << "</UML:StateMachine>" << endl;
-
-// end of UML pretty printing... 
-
-}
-
-
-void cOrganism::InitTransForXMI()
-{
-	//  0 - init state to state 1
-	trans_info.push_back("");
-	// 1 - state 1 to state 2 - getOperationalState()
-	trans_info.push_back("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-7126ED39-5D5D-4160-924B-303514B17EAB\" operation=\"XDE-1266DA8A-61C0-43B4-A77C-200F54A6585D\" name=\"getOperationalState\" isSpecification=\"false\"/> </UML:Namespace.ownedElement></UML:Namespace> </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ");
-	// 2 - state 2 to state 1 - opState = True
-	trans_info.push_back("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-D9BCD8D1-7FC4-4B14-9E76-D3A642799013\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"operationalState:=1;^ComputingComponent.ccTRUE\"/>` </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	// 3 - state 2 to state 1 - opState = False
-	trans_info.push_back ("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-9F00136E-D61D-4BB0-B7D6-1E795238FD1E\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"operationalState:=0;^ComputingComponent.ccFALSE\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	// 4 - state 1 to state 3 - getBrightnessValue()
-	trans_info.push_back ("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-A28463C5-2F9F-457C-B6F3-241526CA4791\" operation=\"XDE-E84A5762-CA92-4E03-A237-FE5AE2C99D9A\" name=\"getBrightnessValue\" isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>"); 
-	// 5 - state 3 to state 4 - Environment.getBrightnessValue();
-	trans_info.push_back ("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-6C3D3042-5C7A-4746-8A90-BEDB86FD2FF4\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"^Environment.getBrightnessValue\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>" ) ;
-	// 6 - state 4 to state 5 - setBrightnessValue();
-	trans_info.push_back ("<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-79243838-9C4E-4908-9637-9F9583043BE4\" operation=\"XDE-C8BD0DBA-E427-41A0-95F4-98FAA920ACA9\" name=\"setBrightnessValue\" isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>  </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>");
-	// 7 - state 5 to state 6 - value < min
-	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue&lt;0\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=0\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	// 8 - state 5 to state 6 - value > max
-	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue&gt;1000\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	// 9 - state 5 to state 6 - value > min && value < max
-	trans_info.push_back ("<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> <UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/> </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	// 10 - state 6 to state 1 - set Computing Component brightness value
-	trans_info.push_back("<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>");
-	
-}
-*/
 void cOrganism::InitTransForHIL()
 {
 
@@ -605,47 +533,13 @@ void cOrganism::InitTransForHIL()
 			(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
 			break;
 		default:
-			(*it).second = "--too many trans--";
+			(*it).second = " ";
 	}
 		count++;
 	}	
 }	
 	
 	
-	
-/*	if (transGuardActionInfo.size() >= 6) {
-	it = uml_trans_set.begin();
-	(*it).second = "";
-	++it;
-	(*it).second = "^Environment.getBrightnessValue";
-	++it;
-	(*it).second = "/operationalState:=1^ComputingComponent.ccTRUE";
-	++it;
-	(*it).second = "/operationalState:=0^ComputingComponent.ccFALSE";
-	++it;
-	(*it).second = "getOperationalState";
-	++it;
-	(*it).second = "getBrightnessValue";
-	++it;
-	(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
-	++it;
-	(*it).second = "[brightnessValue<0]/correctedBrightnessValue:=0";
-	++it;
-	(*it).second = "[brightnessValue >=0 & brightnessValue<=1000]/correctedBrightnessValue:=brightnessValue";
-	++it;
-	(*it).second = "[brightnessValue>1000]/correctedBrightnessValue:=1000";
-	++it;
-	(*it).second = "setBrightnessValue(brightnessValue)";
-	}*/
-
-
-
-//void cOrganism::AssignTransMeaning (int trans)
-//{ 
-	
-
-//	return;
-//}
 
 
 bool cOrganism::AddTrans(int trans, int orig, int dest) 
@@ -845,251 +739,6 @@ std::string cOrganism::getHil()
 //	cout << "END PRINT HIL" <<endl;
 	return (hil_begin + hil + hil_end);
 }
-
-void cOrganism::InitHILBandE()
-{
-/*
-	hil_begin = "Formalize as promela ;\n \
-	Model XDEModel{\n \
-	Class BrightnessSensor {\n \
-		InstanceVar int brightnessValue ;\n \
-		InstanceVar int correctedBrightnessValue ;\n \
-        InstanceVar bool operationalState ;\n \
-        Signal getBrightnessValue( ) ;\n \
-        Signal getOperationalState( ) ;\n \
-        Signal setBrightnessValue(int ) ;\n ";
-	
-	hil_end = "}\n\
-	Class ComputingComponent {\n \
-        InstanceVar bool automaticMode ;\n \
-        InstanceVar int brightnessValue ;\n \
-        InstanceVar int computedDimmerValue ;\n \
-        InstanceVar int desiredBrightnessValue ;\n \
-        InstanceVar bool initialized ;\n \
-        InstanceVar bool manualMode ;\n \
-        InstanceVar bool motionDetected ;\n \
-        Signal ccAck( ) ;\n \
-        Signal ccFALSE( ) ;\n \
-        Signal ccTRUE( ) ;\n \
-        Signal setBrightnessValue(int ) ;\n \
-        Signal setDesiredBrightnessValue(int ) ;\n \
-        Initial  \"\" Init ;\n \
-        State Init  {\n \
-                Transition \"\" to Initialize ;\n \
-        }\n \
-        CompositeState Initialize {\n \
-                Transition \"ccFALSE\" to PowerOff ;\n \
-        Initial  \"\" InitializationStart ;\n \
-        State BSensRec  {\n \
-                Transition \"^MotionSensor.getOperationalState\" to MSensReq ;\n \
-        }\n \
-        State BSensReq  {\n \
-                Transition \"ccTRUE\" to BSensRec ;\n \
-        }\n \
-        State DimmerRec  {\n \
-                Transition \"^BrightnessSensor.getOperationalState\" to BSensReq ;\n \
-        }\n \
-        State DimmerReq  {\n \
-                Transition \"ccTRUE\" to DimmerRec ;\n \
-        }\n \
-        State InitializationStart  {\n \
-                Transition \"^Dimmer.getOperationalState\" to DimmerReq ;\n \
-        }\n \
-        State MSensReq  {\n \
-                Transition \"ccTRUE/initialized:=1\" to NormalBehavior ;\n \
-        }\n \
-        }\n \
-        CompositeState NormalBehavior {\n \
-        Initial  \"\" NBInit ;\n \
-        CompositeState Automatic {\n \
-        Initial  \"/automaticMode:=1^UserInterface.setDisplayMode(1)\" AIdle ;\n \
-        State AIdle  {\n \
-                Transition \"ccAck^MotionSensor.isRoomOccupied\" to State1 ;\n \
-        }\n \
-        State ActualValueRequested  {\n \
-                Transition \"setBrightnessValue(brightnessValue)\" to BrightnessValueReceived ;\n \
-        }\n \
-        State BrightnessValueReceived  {\n \
-                Transition \"/computedDimmerValue:=desiredBrightnessValue-brightnessValue\" to CorrectionValueCalculated ;\n \
-        }\n \
-        State CorrectionValueCalculated  {\n \
-                Transition \"^Dimmer.changeDimmerValue(computedDimmerValue)\" to CorrectionValueSumbitted ;\n \
-        }\n \
-        State CorrectionValueSumbitted  {\n \
-                Transition \"ccAck/automaticMode:=0; motionDetected:=0\" to NBInit ;\n \
-        }\n \
-        State DesiredValueReceived  {\n \
-                Transition \"^BrightnessSensor.getBrightnessValue\" to ActualValueRequested ;\n \
-        }\n \
-        State DesiredValueRequested  {\n \
-                Transition \"setDesiredBrightnessValue(desiredBrightnessValue)\" to DesiredValueReceived ;\n \
-        }\n \
-        State MotionValueReceived  {\n \
-                Transition \"[motionDetected=1]^UserInterface.getDesiredBrightnessValue\" to DesiredValueRequested ;\n \
-                Transition \"[motionDetected=0]\" to NBInit ;\n \
-        }\n \
-        State State1  {\n \
-                Transition \"ccFALSE/motionDetected:=0\" to MotionValueReceived ;\n \
-                Transition \"ccTRUE/motionDetected:=1\" to MotionValueReceived ;\n \
-        }\n \
-        }\n \
-        State EnterAuto  {\n \
-                Transition \"\" to OpStatusAutoSet ;\n \
-        }\n \
-        State EnterManual  {\n \
-                Transition \"\" to OpStatusManualSet ;\n \
-        }\n \
-        CompositeState Manual {\n \
-        Initial  \"/manualMode:=1^UserInterface.setDisplayMode(2)\" MIdle ;\n \
-        State DimmerValueSet  {\n \
-                Transition \"ccAck\" to Done ;\n \
-        }\n \
-        State Done  {\n \
-                Transition \"/manualMode:=0\" to NBInit ;\n \
-        }\n \
-        State MIdle  {\n \
-                Transition \"ccAck^Dimmer.changeDimmerValue(1000)\" to DimmerValueSet ;\n \
-        }\n \
-        }\n \
-        State ManualModeCheck  {\n \
-                Transition \"ccTRUE\" to EnterManual ;\n \
-                Transition \"ccFALSE\" to EnterAuto ;\n \
-        }\n \
-        State NBInit  {\n \
-                Transition \"^UserInterface.isManualMode\" to ManualModeCheck ;\n \
-        }\n \
-        State OpStatusAutoSet  {\n \
-                Transition \"\" to Automatic ;\n \
-        }\n \
-        State OpStatusManualSet  {\n \
-                Transition \"\" to Manual ;\n \
-        }\n \
-        }\n \
-        State PowerOff  {\n \
-        }\n \
-}\n \
-Class Dimmer {\n \
-        InstanceVar int deltaDimmerValue ;\n \
-        InstanceVar int dimmerValue ;\n \
-        InstanceVar bool operationalState ;\n \
-        InstanceVar int tempDimmerValue ;\n \
-        Signal changeDimmerValue(int ) ;\n \
-        Signal dimmerAck( ) ;\n \
-        Signal getOperationalState( ) ;\n \
-        Initial  \"\" Idle ;\n \
-        State DetermineOS  {\n \
-                Transition \"/operationalState:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
-                Transition \"/operationalState:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
-        }\n \
-        State DimmerValueSet  {\n \
-                Transition \"dimmerAck^ComputingComponent.ccAck\" to Idle ;\n \
-        }\n \
-        State Idle  {\n \
-                Transition \"getOperationalState\" to DetermineOS ;\n \
-                Transition \"changeDimmerValue(deltaDimmerValue)/tempDimmerValue:=dimmerValue+deltaDimmerValue\" to TempValueReceived ;\n \
-        }\n \
-        State TempValueReceived  {\n \
-                Transition \"[tempDimmerValue>1000]/dimmerValue:=1000\" to ValueProcessed ;\n \
-                Transition \"[tempDimmerValue>=0 & tempDimmerValue<=1000]/dimmerValue:=tempDimmerValue\" to ValueProcessed ;\n \
-                Transition \"[tempDimmerValue<0]/dimmerValue:=0\" to ValueProcessed ;\n \
-        }\n \
-        State ValueProcessed  {\n \
-                Transition \"^Environment.setDimmerValue(dimmerValue)\" to DimmerValueSet ;\n \
-        }\n \
-}\n \
-Class Environment {\n \
-        InstanceVar int brightnessValue ;\n \
-        InstanceVar int dimmerValue ;\n \
-        InstanceVar bool motionValue ;\n \
-        InstanceVar int totalBrightnessValue ;\n \
-        Signal getBrightnessValue( ) ;\n \
-        Signal isRoomOccupied( ) ;\n \
-        Signal setDimmerValue(int ) ;\n \
-        Initial  \"\" Idle ;\n \
-        State BrightnessValueRequested  {\n \
-                Transition \"/brightnessValue:=1100\" to BrightnessValueSelected ;\n \
-                Transition \"/brightnessValue:=850\" to BrightnessValueSelected ;\n \
-                Transition \"/brightnessValue:=0\" to BrightnessValueSelected ;\n \
-                Transition \"/brightnessValue:=300\" to BrightnessValueSelected ;\n \
-        }\n \
-        State BrightnessValueSelected  {\n \
-                Transition \"/totalBrightnessValue:=brightnessValue+dimmerValue\" to TotalValueComputed ;\n \
-        }\n \
-        State DimmerValueSet  {\n \
-                Transition \"/totalBrightnessValue:=brightnessValue+dimmerValue^Dimmer.dimmerAck\" to Idle ;\n \
-        }\n \
-        State Idle  {\n \
-                Transition \"setDimmerValue(dimmerValue)\" to DimmerValueSet ;\n \
-                Transition \"isRoomOccupied\" to MotionValueRequested ;\n \
-                Transition \"getBrightnessValue\" to BrightnessValueRequested ;\n \
-        }\n \
-        State MotionValueRequested  {\n \
-                Transition \"/motionValue:=1^MotionSensor.msTRUE\" to MotionValueSelected ;\n \
-                Transition \"/motionValue:=0^MotionSensor.msFALSE\" to MotionValueSelected ;\n \
-        }\n \
-        State MotionValueSelected  {\n \
-                Transition \"\" to Idle ;\n \
-        }\n \
-        State TotalValueComputed  {\n \
-                Transition \"^BrightnessSensor.setBrightnessValue(totalBrightnessValue)\" to Idle ;\n \
-        }\n \
-}\n \
-Class MotionSensor {\n \
-        InstanceVar bool motionValue ;\n \
-        InstanceVar bool operationalState ;\n \
-        Signal getOperationalState( ) ;\n \
-        Signal isRoomOccupied( ) ;\n \
-        Signal msFALSE( ) ;\n \
-        Signal msTRUE( ) ;\n \
-        Initial  \"\" Idle ;\n \
-        State DetermineOS  {\n \
-                Transition \"/operationalState:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
-                Transition \"/operationalState:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
-        }\n \
-        State Idle  {\n \
-                Transition \"getOperationalState\" to DetermineOS ;\n \
-                Transition \"isRoomOccupied^Environment.isRoomOccupied\" to MotionValueRequested ;\n \
-        }\n \
-        State MotionValueRequested  {\n \
-                Transition \"msFALSE^ComputingComponent.ccFALSE\" to Idle ;\n \
-                Transition \"msTRUE^ComputingComponent.ccTRUE\" to Idle ;\n \
-        }\n \
-}\n \
-Class UserInterface {\n \
-        InstanceVar int desiredBrightnessValue ;\n \
-        InstanceVar short displayMode ;\n \
-        InstanceVar bool manualMode ;\n \
-        Signal getDesiredBrightnessValue( ) ;\n \
-        Signal isManualMode( ) ;\n \
-        Signal setDisplayMode(short ) ;\n \
-        Initial  \"\" DesiredValueRequested ;\n \
-        State DesiredValueRequested  {\n \
-                Transition \"/desiredBrightnessValue:=1000\" to Idle ;\n \
-                Transition \"/desiredBrightnessValue:=500\" to Idle ;\n \
-                Transition \"/desiredBrightnessValue:=0\" to Idle ;\n \
-        }\n \
-        State Idle  {\n \
-                Transition \"isManualMode\" to State2 ;\n \
-                Transition \"setDisplayMode(displayMode)\" to OperationalStatusSet ;\n \
-                Transition \"getDesiredBrightnessValue\" to State1 ;\n \
-        }\n \
-        State OperationalStatusSet  {\n \
-                Transition \"^ComputingComponent.ccAck\" to Idle ;\n \
-        }\n \
-        State State1  {\n \
-                Transition \"^ComputingComponent.setDesiredBrightnessValue(desiredBrightnessValue)\" to Idle ;\n \
-        }\n \
-        State State2  {\n \
-                Transition \"/manualMode:=1^ComputingComponent.ccTRUE\" to Idle ;\n \
-                Transition \"/manualMode:=0^ComputingComponent.ccFALSE\" to Idle ;\n \
-        }\n \
-}\n \
-\n \
-}\n \ "; 
-*/
-	return;
-}
-
 
 // This function takes in an integer and returns the state in that position within the states map. Recall that this
 // map relates integers (the number assigned to a state) to a state in the graph.
