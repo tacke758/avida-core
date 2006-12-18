@@ -11,6 +11,8 @@
 #include "cTaskLib.h"
 #include <unistd.h>
 #include <math.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <boost/regex.hpp>
 
@@ -355,6 +357,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	NewTask(name, "Successfully Created transition 9", &cTaskLib::Task_Transition9);
   else if (name == "uml_tr10") 
 	NewTask(name, "Successfully Created transition 10", &cTaskLib::Task_Transition10);	  	
+  else if (name == "spinn1")
+	NewTask(name, "Successfully ran spin for N1 (yay!)", &cTaskLib::Task_SpinN1);
 /*  else if (name == "uml_trs")
     NewTask(name, "Successfully Created the right number of transitions", &cTaskLib::Task_CreateTranss);
 */	
@@ -1904,14 +1908,17 @@ double cTaskLib::Task_NumberOfTrans(cTaskContext* ctx) const
 	return bonus;
 }
 
+// findTrans args (init state, dest state, trans )
+
 double cTaskLib::Task_Transition0(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-
-	// good for both bs and gsm
+	
+	// good for bs, gsm, & ms
 	if (ctx->organism->findTrans(0, 1, 0)) { 
 		bonus = 1.0;
 	}
+	ctx->task_failed = ctx->task_failed && bonus;
 	return bonus;
 }
 
@@ -1919,7 +1926,7 @@ double cTaskLib::Task_Transition1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// good for both bs and gsm
+	// good for bs, gsm & ms
 	 if (ctx->organism->findTrans(1, 2, 1)) { 
 	
 	// testing the creation of multiple trans to get reward concept
@@ -1927,6 +1934,7 @@ double cTaskLib::Task_Transition1(cTaskContext* ctx) const
 
 		bonus = 1.0;
 	}
+	ctx->task_failed = ctx->task_failed && bonus;
 	return bonus;
 }
 
@@ -1935,13 +1943,15 @@ double cTaskLib::Task_Transition2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// brightness sensor
+	// brightness sensor & ms
 		if (ctx->organism->findTrans(2, 1, 2)) { 
 	// gsm:
 //	if (ctx->organism->findTrans(2, 3, 2)) { 
 	
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
 	return bonus;
 }
 
@@ -1950,12 +1960,16 @@ double cTaskLib::Task_Transition3(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	//  brightness sensor
-		if (ctx->organism->findTrans(2, 1, 3)) { 
+	//	if (ctx->organism->findTrans(2, 1, 3)) { 
 	// gsm:
 	//if (ctx->organism->findTrans(3, 4, 3)) { 
+	// ms
+	if (ctx->organism->findTrans(1, 3, 3)) {
 
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
 	return bonus;
 }
 
@@ -1964,11 +1978,16 @@ double cTaskLib::Task_Transition4(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	// brightness sensor
-		if (ctx->organism->findTrans(1, 3, 4)) { 
+//		if (ctx->organism->findTrans(1, 3, 4)) { 
+	// gsm
 //	if (ctx->organism->findTrans(4, 1, 4)) { 
+	// ms
+	if (ctx->organism->findTrans(3, 4, 4)) { 
 
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
 	return bonus;
 }
 
@@ -1976,9 +1995,14 @@ double cTaskLib::Task_Transition5(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(3, 4, 5)) { 
+// bs
+//	if (ctx->organism->findTrans(3, 4, 5)) { 
+// ms
+	if (ctx->organism->findTrans(4, 1, 5)){
 		bonus = 1.0;
 	}
+
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
@@ -2035,8 +2059,11 @@ double cTaskLib::Task_Transition10(cTaskContext* ctx) const
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
-	// Sanity Check - Does hydra have a chance of succeeding?
-	if(Task_Transition10(ctx)==0.0) return 0.0; //etc.
+
+	if (ctx->task_failed == 0) {
+		return 0;
+	}
+
 
 	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
@@ -2057,7 +2084,7 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 		close(from_subavida[0]);
 		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
 		dup2(from_subavida[1], STDOUT_FILENO);
-		execl("./hydralite/hydra", NULL);
+		execl("/usr/bin/java", "-cp .", "-jar", "./hydraulic.jar", NULL);
 		// We don't ever get here.
 	} 
 	//parent
@@ -2069,7 +2096,7 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
 
 	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
-	temp = organism->getHil();
+	temp = organism->getXMI();
 	do {
 		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
 		if (status < 0) {
@@ -2100,25 +2127,28 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
 	assert(done==subavida);
 	
-	//Interpret the data that we read from subavida.
-	// hydra=5;spin=10 ... or whatever.
-	boost::regex hydra("hydra=(\\d+)");
-	boost::regex spin("spin=(\\d+)");
-	boost::match_results<std::string::const_iterator> match;
-	double hydraval=0.0;
-	double spinval=0.0;
-	
-	if(boost::regex_search(subavida_output, match, hydra)) {
-		std::istringstream iss(match[1]);
-		iss >> std::dec >> hydraval;
+	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
+	if(status != 0) {
+		ctx->task_failed = 0;
+		return 0.0;
+	} else {
+		ctx->task_failed = ctx->task_failed && 1;
+		return 1.0;
 	}
-
-	if(boost::regex_search(subavida_output, match, spin)) {
-		std::istringstream iss(match[1]);
-		iss >> std::dec >> spinval;
-	}
-	
-	return pow(hydraval, spinval);
 }
 
+double cTaskLib::SpinCoprocess(const std::string& neverclaimFile) const {
+	int status=0;
+	std::string cmd = "./spin -a tmp.pr -N " + neverclaimFile + " &> /dev/null";
+	if(system(cmd.c_str())!=0) return 0.0;
+	if(system("/usr/bin/gcc -DSAFETY pan.c -o pan &> /dev/null")!=0) return 0.0;
+	if(system("./pan &> /dev/null")!=0) return 0.0;
+	return 1.0;
+}
 
+double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
+	if (ctx->task_failed) {
+		return SpinCoprocess("N1");
+	} 
+	return 0.0;
+}

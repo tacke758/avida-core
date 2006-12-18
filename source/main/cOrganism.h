@@ -89,6 +89,8 @@ class cCodeLabel;
 struct edge_info {
         int edge_label;
 		std::string edge_info;
+		int start_state;
+		int end_state;
 };
 
 struct state_info {
@@ -155,12 +157,12 @@ protected:
   
   // UML internal state diagram components
   Graph uml_state_diagram;		// the overall graph of the UML state diagram
-  Transition transitions;		// map of transition descriptors to transitions
+  Transition transitions;		// 
   NameStateMap states;			// map of the state names 
   TransMeaning transGuardActionInfo; // map of transition integers to the string representing their label
-  static std::string hil_begin;
-  std::string hil;
-  static std::string hil_end;
+  static std::string xmi_begin;
+  std::string xmi;
+  static std::string xmi_end;
   std::map<int, int>  PosToStateLabel;  // a map that relates the number in which the state was inserted
 										// to the label the organism assigns it.
 
@@ -237,8 +239,8 @@ public:
   
   // UML Stuff
   void ModelCheck(cAvidaContext& ctx);
-  void printHIL(cAvidaContext& ctx);
-  void InitTransForHIL();
+  void printXMI(cAvidaContext& ctx);
+  void InitTransForXMI();
   bool AddTrans(int trans, int orig, int dest);
   double NumStates();
   double NumTrans();
@@ -250,12 +252,13 @@ public:
   bool isTrans(State, State, int);
   int getTransNumber (int pos);
   bool findTrans(int s0_pos, int s1_pos, int t_pos);
+  void deleteTrans (int pos);
   
   // This returns the list of transitions between two states. What I want is to look up one based
   // on its placement in the trans_set, but this has already been solved by HIL printing. Check there after dinner.
  // stl::set<int> getTransBetweenVertices(State, State);
   std::string StringifyAnInt (int x);
-  std::string getHil();
+  std::string getXMI();
 
   
 

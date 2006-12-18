@@ -53,8 +53,8 @@ std::string loadFile(const char* filename) {
 	return data;
 }
 
-std::string cOrganism::hil_begin = loadFile("hil_begin");
-std::string cOrganism::hil_end = loadFile("hil_end");
+std::string cOrganism::xmi_begin = loadFile("xmi_begin");
+std::string cOrganism::xmi_end = loadFile("xmi_end");
 
 
 cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome)
@@ -430,7 +430,7 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
 {
 
 //	cout << "Model check begin " << endl;
-	printHIL(ctx);
+	printXMI(ctx);
 //	cout << "Model check end " << endl;
 
   assert(m_interface);
@@ -490,11 +490,15 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
 }
 
 
-void cOrganism::InitTransForHIL()
+// This sets the meaning of the transitions. The only question is whether some of the operation, 
+// and action ids that have been changed to "" are needed.
+
+void cOrganism::InitTransForXMI()
 {
 
 	// assign transition values to map elements
 	std::map <int, std::string>::iterator it;
+	std::string temp;
 	int count = 0;
 
 	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
@@ -503,21 +507,47 @@ void cOrganism::InitTransForHIL()
 			(*it).second = "";
 			break;
 		case 1:
-			(*it).second = "getOperationalState";
+			temp = "";
+			temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
+			temp +=  "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
+			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
+			temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
+			temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
+			(*it).second =temp;
 			break;
 		case 2:
-			(*it).second = "/operationalState:=1^ComputingComponent.ccTRUE";
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
+			temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
+			temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
+			temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
+			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
+			temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
+			(*it).second = temp;
 			break;	
 		case 3: 
-			(*it).second = "/operationalState:=0^ComputingComponent.ccFALSE";
+			temp = "";
+			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-176F1237-1448-4226-A095-075FABD68B33\"";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">";
+			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" "; 
+			temp += "body=\"^TempSensor.getTempData()\"/>  </UML:Action.script> ";
+			temp += "</UML:UninterpretedAction> </UML:Transition.effect> \n";
+			(*it).second = temp;
 			break;
 		case 4: 
-			(*it).second = "getBrightnessValue";
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> ";
+            temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
+			temp += "<UML:CallEvent xmi.id=\"XDE-4C4256DD-D7D7-4687-AA73-761334859279\" " ;
+			temp += " operation=\"XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07\" name=\"setTempData\" ";
+			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
+			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>\n";
+			(*it).second = temp;
 			break;
 		case 5:
-			(*it).second = "^Environment.getBrightnessValue";
+			(*it).second = "";
 			break;
-		case 6:
+/*		case 6:
 			 (*it).second = "setBrightnessValue(brightnessValue)";
 			break;
 		case 7:
@@ -531,7 +561,7 @@ void cOrganism::InitTransForHIL()
 			break;
 		case 10:
 			(*it).second = "^ComputingComponent.setBrightnessValue(brightnessValue)";
-			break;
+			break;*/
 		default:
 			(*it).second = " ";
 	}
@@ -589,6 +619,11 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 			//cout << "Adding transition " << u << " " << v << " " << trans << endl;
 			if (inserted3) {
 				uml_state_diagram[transitions].edge_label = trans;
+				//uml_state_diagram[transitions].edge_info = "";
+				uml_state_diagram[transitions].start_state = orig;
+				uml_state_diagram[transitions].end_state = dest;
+				
+				
 				//cout << "added edge labeled " << trans << endl;
 				// add trans to table...
 				transGuardActionInfo.insert(std::make_pair(trans, ""));
@@ -596,6 +631,39 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 		}
 	return true;
 }
+
+
+// May eventually want to consider removing the states attached to a transition, if there are not
+// any other transitions that point to it...
+// Also, currently, this is not handling the potential that this is the only
+// transition with a certain integer label and thus it should be removed from the mapping
+// of labels to strings...
+void cOrganism::deleteTrans(int pos) 
+{
+
+	Graph::edge_iterator e, eend;
+	int count = 0;
+	int s_start_lab, s_end_lab; //, trans_lab;
+//	Transition t;
+
+	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
+		if (count == pos) {
+//			remove_edge(e, uml_state_diagram);
+			//t = uml_state_diagram[*e];
+			s_start_lab = uml_state_diagram[*e].start_state;
+			s_end_lab = uml_state_diagram[*e].end_state;
+			//trans_lab = uml_state_diagram[*e].edge_label;
+			remove_edge(*e, uml_state_diagram);
+			break;
+		}
+
+		count ++;
+	}
+	
+	return;
+}
+
+
 
 // similar to getTransBetweenVertices... 
 // optimization candidate perhaps using edge_range as per DBK
@@ -661,38 +729,92 @@ bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
 }
 
 
-void cOrganism::printHIL(cAvidaContext& ctx)
+// hjg - 12/16/2006 - States have been modified to print XMI rather than HIL; 
+// transitions have not yet been reworked
+
+void cOrganism::printXMI(cAvidaContext& ctx)
 {
+
 	Graph::vertex_iterator i, iend;
+	Graph::edge_iterator e, eend;
 	
-	oei e1, e2;
+	//oei e1, e2;
 	int trans_label;
 	int dest_state;
 	std::string temp;
 	int tempint;
 	
-	InitTransForHIL();
+	InitTransForXMI();
 
-	hil = "";
+	xmi = "";
 	// loop through all states
 	// print initial information for the init state.
 	//cout << "Num states: " << NumStates() << endl;
 	if (NumStates() > 0) {
 		//cout << "Initial \"\" " << uml_state_diagram[0].state_label << endl;
-		hil += "Initial \"\" s"; 
+	/*	hil += "Initial \"\" s"; 
 		temp = StringifyAnInt(uml_state_diagram[0].state_label);
 		hil += temp;
-		hil += " ; \n"; 
-
+		hil += " ; \n"; */
+		xmi += "<UML:Pseudostate xmi.id=\"s0\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
 	}
 	
 	for (tie(i, iend) = vertices(uml_state_diagram); i != iend; ++i) {
 //		cout << "State " << uml_state_diagram[*i].state_label << " { " << endl;
-		hil += "State s";
+/*		hil += "State s";
 		temp = StringifyAnInt(uml_state_diagram[*i].state_label);
 		hil += temp;
 		hil += " { \n"; 
+*/
+		temp = "s" + StringifyAnInt(uml_state_diagram[*i].state_label);
+		xmi+="<UML:CompositeState xmi.id=\"";
+		xmi+=temp;
+		//xmi+= uml_state_diagram[*i].state_label;
+		xmi+= "\" isConcurrent=\"false\" name=\""; 
+		xmi+= temp; 
+		xmi+= "\" isSpecification=\"false\"/>\n";
+		}
+		
+		// end the set of states....
+		xmi+= "</UML:CompositeState.subvertex>\n";
+		xmi+= "</UML:CompositeState>\n";
+		xmi+= "</UML:StateMachine.top>\n";
+		
+		// start the set of transitions...
+		xmi+="<UML:StateMachine.transitions>\n";
 
+
+
+	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
+		// info determined from the trans itself....
+		trans_label = uml_state_diagram[*e].edge_label;
+		temp = "t" + StringifyAnInt(uml_state_diagram[*e].edge_label);
+		
+		// if I manage to set edge_info, I could then use that to print...
+		// currently the start state and end state are already encoded. :)
+		
+		//xmi+=temp;
+//		s = target(uml_state_diagram[e*], uml_state_diagram);
+		
+//		temp += "s" + StringifyAnInt(target(e, uml_state_diagram));
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+		
+		
+		temp = transGuardActionInfo[trans_label];
+		xmi += temp;
+		//temp = (transGuardActionInfo[uml_state_diagram[e*].edge_label])->second;
+
+		xmi += "</UML:Transition>\n";
+
+	
+	}
+
+/*
 		// print each transition...
 		for (tie(e1, e2) = out_edges((*i), uml_state_diagram); e1 != e2; ++e1) {
 			trans_label = uml_state_diagram[*e1].edge_label;
@@ -706,7 +828,10 @@ void cOrganism::printHIL(cAvidaContext& ctx)
 		hil +=  "} \n"; 
 	}
 	//cout << "HIL : " << hil << endl;
-	
+	*/
+
+
+	//cout << "XMI : " << xmi << endl;
 }
 
 
@@ -729,15 +854,18 @@ double cOrganism::NumTrans()
 	return (double) num_edges(uml_state_diagram);
 }
 
-std::string cOrganism::getHil()
+std::string cOrganism::getXMI()
 {
-//	std::string temp = hil_begin + hil + hil_end;
+//	std::string temp = xmi_begin + xmi + xmi_end;
+//	cout << "PRINT XMI" << endl;
+//	cout << temp << endl;
+//	cout << "END PRINT XMI" << endl;
 //	std::string temp = hil;
 
 //	cout << "PRINT HIL" << endl;
 //	cout << temp << endl;
 //	cout << "END PRINT HIL" <<endl;
-	return (hil_begin + hil + hil_end);
+	return (xmi_begin + xmi + xmi_end);
 }
 
 // This function takes in an integer and returns the state in that position within the states map. Recall that this

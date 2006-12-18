@@ -360,6 +360,9 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 					"Get a transition"), 				
 	cInstEntryCPU("get-state", &cHardwareCPU::Inst_GetState, false, 
 					"Get a state"), 				
+	cInstEntryCPU("remove-tr", &cHardwareCPU::Inst_DeleteTrans, false, 
+					"Remove a transition"),
+				
 //	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
 //					"Model check the model"), 
 //	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
@@ -3493,16 +3496,10 @@ bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx)
 	ReadLabel();
     GetLabel();
 
-	int state_pos = GetLabel().AsInt(1);
+	int state_pos = GetLabel().AsInt(3);
 //	cString a = GetLabel().AsString();
 
-/*	
-	a.ClipFront(<#int size#>)
-	if (a == "A") {
-		a = "a";
-	}
 
-*/
 
 	// This did not work. Time to try again.
 /*
@@ -3561,5 +3558,29 @@ bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
 
 	return true;
 }
+
+bool cHardwareCPU::Inst_DeleteTrans(cAvidaContext& ctx) 
+{
+	ReadLabel();
+    GetLabel();
+
+	int trans_pos = GetLabel().AsInt(1);
+	
+	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
+	
+		organism->deleteTrans(trans_pos);
+		// delete the transition in this position....
+//		int label = organism->getTransLabelInPosition(trans_pos);
+
+
+	
+	}
+
+	return true;
+
+
+
+}
+
 
 
