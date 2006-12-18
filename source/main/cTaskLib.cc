@@ -1943,10 +1943,12 @@ double cTaskLib::Task_Transition2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// brightness sensor & ms
-		if (ctx->organism->findTrans(2, 1, 2)) { 
+	// brightness sensor 
+	//	if (ctx->organism->findTrans(2, 1, 2)) { 
 	// gsm:
 //	if (ctx->organism->findTrans(2, 3, 2)) { 
+	if (ctx->organism->findTrans(2, 3, 2)) { 
+
 	
 		bonus = 1.0;
 	}
@@ -1964,7 +1966,7 @@ double cTaskLib::Task_Transition3(cTaskContext* ctx) const
 	// gsm:
 	//if (ctx->organism->findTrans(3, 4, 3)) { 
 	// ms
-	if (ctx->organism->findTrans(1, 3, 3)) {
+	if (ctx->organism->findTrans(3, 1, 3)) {
 
 		bonus = 1.0;
 	}
@@ -1982,7 +1984,7 @@ double cTaskLib::Task_Transition4(cTaskContext* ctx) const
 	// gsm
 //	if (ctx->organism->findTrans(4, 1, 4)) { 
 	// ms
-	if (ctx->organism->findTrans(3, 4, 4)) { 
+	if (ctx->organism->findTrans(1, 4, 4)) { 
 
 		bonus = 1.0;
 	}

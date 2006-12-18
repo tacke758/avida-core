@@ -508,25 +508,6 @@ void cOrganism::InitTransForXMI()
 			break;
 		case 1:
 			temp = "";
-			temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
-			temp +=  "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
-			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
-			temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
-			temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
-			(*it).second =temp;
-			break;
-		case 2:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
-			temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
-			temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
-			temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
-			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
-			temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
-			(*it).second = temp;
-			break;	
-		case 3: 
-			temp = "";
 			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-176F1237-1448-4226-A095-075FABD68B33\"";
 			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">";
 			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" "; 
@@ -534,7 +515,7 @@ void cOrganism::InitTransForXMI()
 			temp += "</UML:UninterpretedAction> </UML:Transition.effect> \n";
 			(*it).second = temp;
 			break;
-		case 4: 
+		case 2:
 			temp = "";
 			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> ";
             temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
@@ -544,9 +525,28 @@ void cOrganism::InitTransForXMI()
 			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>\n";
 			(*it).second = temp;
 			break;
-		case 5:
+		case 3: 
 			(*it).second = "";
 			break;
+		case 4: 
+			temp = "";
+			temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
+			temp +=  "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
+			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
+			temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
+			temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
+			(*it).second =temp;
+			break;
+		case 5:
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
+			temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
+			temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
+			temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
+			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
+			temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
+			(*it).second = temp;
+			break;	
 /*		case 6:
 			 (*it).second = "setBrightnessValue(brightnessValue)";
 			break;
