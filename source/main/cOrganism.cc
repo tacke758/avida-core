@@ -750,16 +750,21 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	// loop through all states
 	// print initial information for the init state.
 	//cout << "Num states: " << NumStates() << endl;
+
+	tie(i, iend) = vertices(uml_state_diagram);
+	
 	if (NumStates() > 0) {
 		//cout << "Initial \"\" " << uml_state_diagram[0].state_label << endl;
-	/*	hil += "Initial \"\" s"; 
+	//	hil += "Initial \"\" s"; 
 		temp = StringifyAnInt(uml_state_diagram[0].state_label);
-		hil += temp;
-		hil += " ; \n"; */
-		xmi += "<UML:Pseudostate xmi.id=\"s0\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
+	//	hil += temp;
+	//	hil += " ; \n"; */
+		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
+		++i;
 	}
 	
-	for (tie(i, iend) = vertices(uml_state_diagram); i != iend; ++i) {
+	
+	for (; i != iend; ++i) {
 //		cout << "State " << uml_state_diagram[*i].state_label << " { " << endl;
 /*		hil += "State s";
 		temp = StringifyAnInt(uml_state_diagram[*i].state_label);
@@ -831,7 +836,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	*/
 
 
-	//cout << "XMI : " << xmi << endl;
+	cout << "XMI : " << xmi << endl;
 }
 
 
