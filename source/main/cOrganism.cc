@@ -531,7 +531,7 @@ void cOrganism::InitTransForXMI()
 		case 4: 
 			temp = "";
 			temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
-			temp +=  "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
 			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
 			temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
 			temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
