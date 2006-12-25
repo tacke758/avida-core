@@ -2061,11 +2061,11 @@ double cTaskLib::Task_Transition10(cTaskContext* ctx) const
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
-
 	if (ctx->task_failed == 0) {
 		return 0;
 	}
 
+	m_world->GetStats().HydraAttempt();
 
 	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
@@ -2135,16 +2135,23 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 		return 0.0;
 	} else {
 		ctx->task_failed = ctx->task_failed && 1;
+		m_world->GetStats().HydraPassed();
 		return 1.0;
 	}
 }
 
 double cTaskLib::SpinCoprocess(const std::string& neverclaimFile) const {
+	m_world->GetStats().SpinAttempt();
 	int status=0;
 	std::string cmd = "./spin -a tmp.pr -N " + neverclaimFile + " &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
-	if(system("/usr/bin/gcc -DSAFETY pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan &> /dev/null")!=0) return 0.0;
+	m_world->GetStats().SpinPassed();
+	m_world->GetStats().PanAttempt();
+	//-e -n -a -w19  -m100000 -c1
+	if(system("/usr/bin/gcc pan.c -e -o pan &> /dev/null")!=0) return 0.0;
+	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\s(\d+)/) {exit($1);}}'")!=0) return 0.0;
+	m_world->GetStats().PanPassed();
 	return 1.0;
 }
 

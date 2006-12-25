@@ -429,9 +429,10 @@ void cOrganism::NetReset()
 void cOrganism::ModelCheck(cAvidaContext& ctx)
 {
 
-//	cout << "Model check begin " << endl;
+	// CHECK OUT WHETHER THE IDEAL WORKS....
 	printXMI(ctx);
-//	cout << "Model check end " << endl;
+	//printIdealXMI(ctx);
+	
 
   assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
@@ -729,8 +730,160 @@ bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
 }
 
 
-// hjg - 12/16/2006 - States have been modified to print XMI rather than HIL; 
-// transitions have not yet been reworked
+void cOrganism::printIdealXMI(cAvidaContext& ctx) 
+{
+	std::string temp;
+	temp = "0";
+	xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
+	
+	for (int j = 1; j < 5; ++j) {
+		temp = "s" + StringifyAnInt(j);
+		xmi+="<UML:CompositeState xmi.id=\"";
+		xmi+=temp;
+		xmi+= "\" isConcurrent=\"false\" name=\""; 
+		xmi+= temp; 
+		xmi+= "\" isSpecification=\"false\"/>\n";
+		}
+		
+		// end the set of states....
+		xmi+= "</UML:CompositeState.subvertex>\n";
+		xmi+= "</UML:CompositeState>\n";
+		xmi+= "</UML:StateMachine.top>\n";
+		
+		// start the set of transitions...
+		xmi+="<UML:StateMachine.transitions>\n";
+
+
+	// trans 0 
+	
+		temp = "t0";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s0";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s1";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+		//xmi += temp;
+		xmi += "</UML:Transition>\n";
+
+	
+	// trans 1
+	
+		temp = "t1";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s1";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s2";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+		temp = "";
+		temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-176F1237-1448-4226-A095-075FABD68B33\"";
+		temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">";
+		temp += "<UML:Action.script> <UML:ActionExpression language=\"\" "; 
+		temp += "body=\"^TempSensor.getTempData()\"/>  </UML:Action.script> ";
+		temp += "</UML:UninterpretedAction> </UML:Transition.effect> \n";
+		xmi += temp;
+		xmi += "</UML:Transition>\n";
+	
+	// trans 2
+		temp = "t2";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s2";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s3";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+
+		temp = "";
+		temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> ";
+		temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
+		temp += "<UML:CallEvent xmi.id=\"XDE-4C4256DD-D7D7-4687-AA73-761334859279\" " ;
+		temp += " operation=\"XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07\" name=\"setTempData\" ";
+		temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
+		temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>\n";
+		xmi += temp;
+		xmi += "</UML:Transition>\n";	
+	
+	// trans 3
+		temp = "t3";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s3";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s1";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+
+		temp = "";
+		xmi += temp;
+		xmi += "</UML:Transition>\n";
+	
+	// trans 4
+		temp = "t4";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s1";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s4";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+
+		temp = "";
+		temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
+		temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
+		temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
+		temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
+		temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
+			
+		xmi += temp;
+		xmi += "</UML:Transition>\n";
+	
+	// trans 5
+		temp = "t5";
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s4";
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s1";
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+
+		temp = "";
+		temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
+		temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
+		temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
+		temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
+		temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
+		temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
+					
+		xmi += temp;
+		xmi += "</UML:Transition>\n";
+
+//	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
+/*	for (int k = 0; k < 6; ++k) {
+
+		// info determined from the trans itself....
+		//trans_label = uml_state_diagram[*e].edge_label;
+		
+		temp = "t" + StringifyAnInt(k);
+
+		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
+		xmi+= " source=\"" + temp + "\"";
+		temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
+		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+		
+		
+		temp = transGuardActionInfo[trans_label];
+		xmi += temp;
+		//temp = (transGuardActionInfo[uml_state_diagram[e*].edge_label])->second;
+
+		xmi += "</UML:Transition>\n";
+	}*/
+
+	//cout << "begin XMI" << endl;
+	//cout << xmi << endl;
+	//cout << "end XMI" << endl;
+
+
+}
 
 void cOrganism::printXMI(cAvidaContext& ctx)
 {
@@ -836,7 +989,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	*/
 
 
-	cout << "XMI : " << xmi << endl;
+	//cout << "XMI : " << xmi << endl;
 }
 
 
@@ -861,15 +1014,15 @@ double cOrganism::NumTrans()
 
 std::string cOrganism::getXMI()
 {
-//	std::string temp = xmi_begin + xmi + xmi_end;
+	std::string temp = xmi_begin + xmi + xmi_end;
 //	cout << "PRINT XMI" << endl;
 //	cout << temp << endl;
 //	cout << "END PRINT XMI" << endl;
 //	std::string temp = hil;
 
-//	cout << "PRINT HIL" << endl;
-//	cout << temp << endl;
-//	cout << "END PRINT HIL" <<endl;
+	cout << "PRINT XMI" << endl;
+	cout << temp << endl;
+	cout << "END PRINT XMI" <<endl;
 	return (xmi_begin + xmi + xmi_end);
 }
 

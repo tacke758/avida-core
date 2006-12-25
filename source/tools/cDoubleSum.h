@@ -26,6 +26,8 @@ public:
   static const double INF_ERR;  // Value Returned by StdError if Infinate
 
   cDoubleSum() { Clear(); }
+  
+  cDoubleSum& operator++() { Add(1); return *this;}
 
   void Clear() { s1 = s2 = s3 = s4 = n = 0; }
 

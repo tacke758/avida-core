@@ -221,6 +221,13 @@ private:
   // Stats for UML state diagrams
   cDoubleSum av_number_of_states;
   cDoubleSum av_number_of_trans;	
+  
+  cDoubleSum m_hydraAttempt;
+  cDoubleSum m_hydraPassed;
+  cDoubleSum m_spinAttempt;
+  cDoubleSum m_spinPassed;
+  cDoubleSum m_panAttempt;
+  cDoubleSum m_panPassed;
 
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
@@ -536,6 +543,12 @@ public:
 
   // UML Data Function
   void UpdateModelStats (cOrganism::Graph& g);
+  void HydraAttempt() { ++m_hydraAttempt; }
+  void HydraPassed() { ++m_hydraPassed; }
+  void SpinAttempt() { ++m_spinAttempt; }
+  void SpinPassed() { ++m_spinPassed; }
+  void PanAttempt() { ++m_panAttempt; }
+  void PanPassed() { ++m_panPassed; }
 
 
   // this value gets recorded when a creature with the particular
