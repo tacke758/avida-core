@@ -894,7 +894,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	//oei e1, e2;
 	int trans_label;
 	int dest_state;
-	std::string temp;
+	std::string temp, temp1, temp2;
 	int tempint;
 	
 	InitTransForXMI();
@@ -947,7 +947,9 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 		// info determined from the trans itself....
 		trans_label = uml_state_diagram[*e].edge_label;
 		temp = "t" + StringifyAnInt(uml_state_diagram[*e].edge_label);
-		
+		temp1 = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
+		temp2 = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
+		temp = temp + temp1 + temp2;
 		// if I manage to set edge_info, I could then use that to print...
 		// currently the start state and end state are already encoded. :)
 		
@@ -957,10 +959,10 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 //		temp += "s" + StringifyAnInt(target(e, uml_state_diagram));
 
 		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
+		//temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
+		xmi+= " source=\"" + temp1 + "\"";
+		//temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
+		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
 		
 		
 		temp = transGuardActionInfo[trans_label];
@@ -1020,9 +1022,9 @@ std::string cOrganism::getXMI()
 //	cout << "END PRINT XMI" << endl;
 //	std::string temp = hil;
 
-	cout << "PRINT XMI" << endl;
-	cout << temp << endl;
-	cout << "END PRINT XMI" <<endl;
+//	cout << "PRINT XMI" << endl;
+//	cout << temp << endl;
+//	cout << "END PRINT XMI" <<endl;
 	return (xmi_begin + xmi + xmi_end);
 }
 
