@@ -2061,9 +2061,10 @@ double cTaskLib::Task_Transition10(cTaskContext* ctx) const
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
-	//if (ctx->task_failed == 0) {
-	//	return 0;
-	//}
+	if (ctx->task_failed == 0) {
+		return 0;
+	}
+
 
 	m_world->GetStats().HydraAttempt();
 
@@ -2152,7 +2153,7 @@ double cTaskLib::SpinCoprocess(const std::string& neverclaimFile) const {
 //	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("/usr/bin/gcc pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
-	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\s(\d+)/) {exit($1);}}'")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 	m_world->GetStats().PanPassed();
 	return 1.0;
 }

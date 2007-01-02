@@ -856,33 +856,6 @@ void cOrganism::printIdealXMI(cAvidaContext& ctx)
 		xmi += temp;
 		xmi += "</UML:Transition>\n";
 
-//	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
-/*	for (int k = 0; k < 6; ++k) {
-
-		// info determined from the trans itself....
-		//trans_label = uml_state_diagram[*e].edge_label;
-		
-		temp = "t" + StringifyAnInt(k);
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-		
-		
-		temp = transGuardActionInfo[trans_label];
-		xmi += temp;
-		//temp = (transGuardActionInfo[uml_state_diagram[e*].edge_label])->second;
-
-		xmi += "</UML:Transition>\n";
-	}*/
-
-	//cout << "begin XMI" << endl;
-	//cout << xmi << endl;
-	//cout << "end XMI" << endl;
-
-
 }
 
 void cOrganism::printXMI(cAvidaContext& ctx)
@@ -891,7 +864,6 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	Graph::vertex_iterator i, iend;
 	Graph::edge_iterator e, eend;
 	
-	//oei e1, e2;
 	int trans_label;
 	int dest_state;
 	std::string temp, temp1, temp2;
@@ -902,32 +874,21 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	xmi = "";
 	// loop through all states
 	// print initial information for the init state.
-	//cout << "Num states: " << NumStates() << endl;
 
 	tie(i, iend) = vertices(uml_state_diagram);
 	
 	if (NumStates() > 0) {
-		//cout << "Initial \"\" " << uml_state_diagram[0].state_label << endl;
-	//	hil += "Initial \"\" s"; 
 		temp = StringifyAnInt(uml_state_diagram[0].state_label);
-	//	hil += temp;
-	//	hil += " ; \n"; */
-		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
+		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
+		xmi += temp + "\" isSpecification=\"false\"/>\n";
 		++i;
 	}
 	
 	
 	for (; i != iend; ++i) {
-//		cout << "State " << uml_state_diagram[*i].state_label << " { " << endl;
-/*		hil += "State s";
-		temp = StringifyAnInt(uml_state_diagram[*i].state_label);
-		hil += temp;
-		hil += " { \n"; 
-*/
 		temp = "s" + StringifyAnInt(uml_state_diagram[*i].state_label);
 		xmi+="<UML:CompositeState xmi.id=\"";
 		xmi+=temp;
-		//xmi+= uml_state_diagram[*i].state_label;
 		xmi+= "\" isConcurrent=\"false\" name=\""; 
 		xmi+= temp; 
 		xmi+= "\" isSpecification=\"false\"/>\n";
@@ -952,53 +913,33 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 		temp = temp + temp1 + temp2;
 		// if I manage to set edge_info, I could then use that to print...
 		// currently the start state and end state are already encoded. :)
-		
-		//xmi+=temp;
-//		s = target(uml_state_diagram[e*], uml_state_diagram);
-		
-//		temp += "s" + StringifyAnInt(target(e, uml_state_diagram));
 
 		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		//temp = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
 		xmi+= " source=\"" + temp1 + "\"";
-		//temp = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
 		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
 		
 		
 		temp = transGuardActionInfo[trans_label];
 		xmi += temp;
-		//temp = (transGuardActionInfo[uml_state_diagram[e*].edge_label])->second;
 
 		xmi += "</UML:Transition>\n";
 
 	
 	}
-
-/*
-		// print each transition...
-		for (tie(e1, e2) = out_edges((*i), uml_state_diagram); e1 != e2; ++e1) {
-			trans_label = uml_state_diagram[*e1].edge_label;
-			dest_state = target(*e1, uml_state_diagram);
-			hil += "Transition \"" +  transGuardActionInfo[trans_label];
-//			temp = StringifyAnInt(tempint);
-			hil += "\" to s";
-			temp = StringifyAnInt( uml_state_diagram[dest_state].state_label);
-			hil += temp + " ; \n";
-		}
-		hil +=  "} \n"; 
-	}
-	//cout << "HIL : " << hil << endl;
-	*/
-
-
-	//cout << "XMI : " << xmi << endl;
 }
 
 
 
-
+// print the label. Change - signs to _
 std::string cOrganism::StringifyAnInt(int x) { 
+
 	std::ostringstream o;
+
+	if (x < 0) {
+		x = abs(x);
+		o << "_";
+	} 
+	
 	o << x;
 	return o.str();
 }
@@ -1016,15 +957,10 @@ double cOrganism::NumTrans()
 
 std::string cOrganism::getXMI()
 {
-	std::string temp = xmi_begin + xmi + xmi_end;
+//	std::string temp = xmi_begin + xmi + xmi_end;
 //	cout << "PRINT XMI" << endl;
 //	cout << temp << endl;
 //	cout << "END PRINT XMI" << endl;
-//	std::string temp = hil;
-
-//	cout << "PRINT XMI" << endl;
-//	cout << temp << endl;
-//	cout << "END PRINT XMI" <<endl;
 	return (xmi_begin + xmi + xmi_end);
 }
 
