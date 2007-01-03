@@ -240,9 +240,10 @@ public:
   // UML Stuff
   void ModelCheck(cAvidaContext& ctx);
   void printXMI(cAvidaContext& ctx);
-  void printIdealXMI(cAvidaContext& ctx);
+//  void printIdealXMI(cAvidaContext& ctx);
 
-  void InitTransForXMI();
+  void InitTransForMSXMI();
+  void InitTransForBSXMI();
   bool AddTrans(int trans, int orig, int dest);
   double NumStates();
   double NumTrans();

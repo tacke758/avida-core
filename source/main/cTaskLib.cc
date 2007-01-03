@@ -335,28 +335,40 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	NewTask(name, "Successfully Created the right number of transitions", &cTaskLib::Task_NumberOfTrans);
   else if (name == "uml_hy")
 	NewTask(name, "Ran Hydra... Returning bonus proportional to the number of errors", &cTaskLib::Task_Hydra);
-  else if (name == "uml_tr0") 
-	NewTask(name, "Successfully Created transition 0", &cTaskLib::Task_Transition0);
-  else if (name == "uml_tr1") 
-	NewTask(name, "Successfully Created transition 1", &cTaskLib::Task_Transition1);
-  else if (name == "uml_tr2") 
-	NewTask(name, "Successfully Created transition 2", &cTaskLib::Task_Transition2);
-  else if (name == "uml_tr3") 
-	NewTask(name, "Successfully Created transition 3", &cTaskLib::Task_Transition3);
-  else if (name == "uml_tr4") 
-	NewTask(name, "Successfully Created transition 4", &cTaskLib::Task_Transition4);
-  else if (name == "uml_tr5") 
-	NewTask(name, "Successfully Created transition 5", &cTaskLib::Task_Transition5);
-  else if (name == "uml_tr6") 
-	NewTask(name, "Successfully Created transition 6", &cTaskLib::Task_Transition6);
-  else if (name == "uml_tr7") 
-	NewTask(name, "Successfully Created transition 7", &cTaskLib::Task_Transition7);
-  else if (name == "uml_tr8") 
-	NewTask(name, "Successfully Created transition 8", &cTaskLib::Task_Transition8);
-  else if (name == "uml_tr9") 
-	NewTask(name, "Successfully Created transition 9", &cTaskLib::Task_Transition9);
-  else if (name == "uml_tr10") 
-	NewTask(name, "Successfully Created transition 10", &cTaskLib::Task_Transition10);	  	
+  else if (name == "uml_tr_ms0") 
+	NewTask(name, "Successfully Created transition 0", &cTaskLib::Task_Transition_ms0);
+  else if (name == "uml_tr_ms1") 
+	NewTask(name, "Successfully Created transition 1", &cTaskLib::Task_Transition_ms1);
+  else if (name == "uml_tr_ms2") 
+	NewTask(name, "Successfully Created transition 2", &cTaskLib::Task_Transition_ms2);
+  else if (name == "uml_tr_ms3") 
+	NewTask(name, "Successfully Created transition 3", &cTaskLib::Task_Transition_ms3);
+  else if (name == "uml_tr_ms4") 
+	NewTask(name, "Successfully Created transition 4", &cTaskLib::Task_Transition_ms4);
+  else if (name == "uml_tr_ms5") 
+	NewTask(name, "Successfully Created transition 5", &cTaskLib::Task_Transition_ms5);
+  else if (name == "uml_tr_bs0") 
+	NewTask(name, "Successfully Created transition 0", &cTaskLib::Task_Transition_bs0);
+  else if (name == "uml_tr_bs1") 
+	NewTask(name, "Successfully Created transition 1", &cTaskLib::Task_Transition_bs1);
+  else if (name == "uml_tr_bs2") 
+	NewTask(name, "Successfully Created transition 2", &cTaskLib::Task_Transition_bs2);
+  else if (name == "uml_tr_bs3") 
+	NewTask(name, "Successfully Created transition 3", &cTaskLib::Task_Transition_bs3);
+  else if (name == "uml_tr_bs4") 
+	NewTask(name, "Successfully Created transition 4", &cTaskLib::Task_Transition_bs4);
+  else if (name == "uml_tr_bs5") 
+	NewTask(name, "Successfully Created transition 5", &cTaskLib::Task_Transition_bs5);	
+  else if (name == "uml_tr_bs6") 
+	NewTask(name, "Successfully Created transition 6", &cTaskLib::Task_Transition_bs6);
+  else if (name == "uml_tr_bs7") 
+	NewTask(name, "Successfully Created transition 7", &cTaskLib::Task_Transition_bs7);
+  else if (name == "uml_tr_bs8") 
+	NewTask(name, "Successfully Created transition 8", &cTaskLib::Task_Transition_bs8);
+  else if (name == "uml_tr_bs9") 
+	NewTask(name, "Successfully Created transition 9", &cTaskLib::Task_Transition_bs9);
+  else if (name == "uml_tr_bs10") 
+	NewTask(name, "Successfully Created transition 10", &cTaskLib::Task_Transition_bs10);	  	
   else if (name == "spinn1")
 	NewTask(name, "Successfully ran spin for N1 (yay!)", &cTaskLib::Task_SpinN1);
 /*  else if (name == "uml_trs")
@@ -1908,13 +1920,15 @@ double cTaskLib::Task_NumberOfTrans(cTaskContext* ctx) const
 	return bonus;
 }
 
-// findTrans args (init state, dest state, trans )
+/* 
 
-double cTaskLib::Task_Transition0(cTaskContext* ctx) const
+The following tasks check for the graph topology of the multisensor
+
+*/
+double cTaskLib::Task_Transition_ms0(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 	
-	// good for bs, gsm, & ms
 	if (ctx->organism->findTrans(0, 1, 0)) { 
 		bonus = 1.0;
 	}
@@ -1922,15 +1936,11 @@ double cTaskLib::Task_Transition0(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition1(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_ms1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// good for bs, gsm & ms
 	 if (ctx->organism->findTrans(1, 2, 1)) { 
-	
-	// testing the creation of multiple trans to get reward concept
-//	if ((ctx->organism->findTrans(1, 2, 1)) && (ctx->organism->findTrans(2, 3, 2))) { 
 
 		bonus = 1.0;
 	}
@@ -1939,14 +1949,10 @@ double cTaskLib::Task_Transition1(cTaskContext* ctx) const
 }
 
 
-double cTaskLib::Task_Transition2(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_ms2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// brightness sensor 
-	//	if (ctx->organism->findTrans(2, 1, 2)) { 
-	// gsm:
-//	if (ctx->organism->findTrans(2, 3, 2)) { 
 	if (ctx->organism->findTrans(2, 3, 2)) { 
 
 	
@@ -1957,15 +1963,10 @@ double cTaskLib::Task_Transition2(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition3(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_ms3(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	//  brightness sensor
-	//	if (ctx->organism->findTrans(2, 1, 3)) { 
-	// gsm:
-	//if (ctx->organism->findTrans(3, 4, 3)) { 
-	// ms
 	if (ctx->organism->findTrans(3, 1, 3)) {
 
 		bonus = 1.0;
@@ -1975,15 +1976,10 @@ double cTaskLib::Task_Transition3(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition4(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_ms4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	// brightness sensor
-//		if (ctx->organism->findTrans(1, 3, 4)) { 
-	// gsm
-//	if (ctx->organism->findTrans(4, 1, 4)) { 
-	// ms
 	if (ctx->organism->findTrans(1, 4, 4)) { 
 
 		bonus = 1.0;
@@ -1993,13 +1989,10 @@ double cTaskLib::Task_Transition4(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition5(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_ms5(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-// bs
-//	if (ctx->organism->findTrans(3, 4, 5)) { 
-// ms
 	if (ctx->organism->findTrans(4, 1, 5)){
 		bonus = 1.0;
 	}
@@ -2008,7 +2001,88 @@ double cTaskLib::Task_Transition5(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition6(cTaskContext* ctx) const
+
+/* 
+The following tasks check for the graph topology of the brightness sensor. 
+The order of the transitions has been changed from the original runs to enable the min/max
+transitions to come last. The objective is to enable Avida to evolve these using Spin/Hydra.
+
+*/
+double cTaskLib::Task_Transition_bs0(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+	
+	if (ctx->organism->findTrans(0, 1, 0)) { 
+		bonus = 1.0;
+	}
+	ctx->task_failed = ctx->task_failed && bonus;
+	return bonus;
+}
+
+double cTaskLib::Task_Transition_bs1(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	 if (ctx->organism->findTrans(1, 2, 1)) { 
+	
+		bonus = 1.0;
+	}
+	ctx->task_failed = ctx->task_failed && bonus;
+	return bonus;
+}
+
+
+double cTaskLib::Task_Transition_bs2(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(2, 1, 2)) { 
+
+		bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
+	return bonus;
+}
+
+double cTaskLib::Task_Transition_bs3(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(2, 1, 3)) { 
+
+		bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
+	return bonus;
+}
+
+double cTaskLib::Task_Transition_bs4(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(1, 3, 4)) { 
+		bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;
+	return bonus;
+}
+
+double cTaskLib::Task_Transition_bs5(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+
+	if (ctx->organism->findTrans(3, 4, 5)) { 
+		bonus = 1.0;
+	}
+
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
+}
+
+double cTaskLib::Task_Transition_bs6(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
@@ -2018,7 +2092,7 @@ double cTaskLib::Task_Transition6(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition7(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_bs7(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
@@ -2028,17 +2102,17 @@ double cTaskLib::Task_Transition7(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition8(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_bs8(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(5, 6, 8)) { 
+	if (ctx->organism->findTrans(6, 1, 8)) { 
 		bonus = 1.0;
 	}
 	return bonus;
 }
 
-double cTaskLib::Task_Transition9(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_bs9(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
@@ -2048,11 +2122,11 @@ double cTaskLib::Task_Transition9(cTaskContext* ctx) const
 	return bonus;
 }
 
-double cTaskLib::Task_Transition10(cTaskContext* ctx) const
+double cTaskLib::Task_Transition_bs10(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(6, 1, 10)) { 
+	if (ctx->organism->findTrans(5, 6, 10)) { 
 		bonus = 1.0;
 	}
 	return bonus;
