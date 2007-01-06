@@ -741,7 +741,15 @@ void cOrganism::deleteTrans(int pos)
 	Graph::edge_iterator e, eend;
 	int count = 0;
 	int s_start_lab, s_end_lab; //, trans_lab;
+	State* st_start;
+	State* st_end;
+	nsm_it i;
+
 //	Transition t;
+
+	if ((pos < 0) || (pos > NumTrans())) {
+		return;
+	}
 
 	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
 		if (count == pos) {
@@ -756,6 +764,24 @@ void cOrganism::deleteTrans(int pos)
 
 		count ++;
 	}
+	
+	for (i=states.begin(); i!=states.end(); ++i)
+	{
+		if (i->first == s_start_lab) {
+			st_start = &(i->second);
+		}
+		if (i->first == s_end_lab) {
+			st_end = &(i->second);
+		}
+	}
+	
+	if ((out_degree(*st_start, uml_state_diagram) == 0) && (in_degree(*st_start, uml_state_diagram) == 0)) {
+		remove_vertex(*st_start, uml_state_diagram);
+	}
+
+	if ((out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
+		remove_vertex(*st_end, uml_state_diagram);
+	}	
 	
 	return;
 }
@@ -1098,16 +1124,11 @@ vertices(const adjacency_list& g)*/
 }
 
 
+
+
 // if you ask for something greater than the number of states then you get the highest numbered state.
 int cOrganism::getStateLabelInPosition (int num)
 {
-	/*std::pair<vertex_iterator, vertex_iterator>
-vertices(const adjacency_list& g)*/
-//	Graph::vertex_iterator vi, vi_end;
-//	tie(vi,vi_end) = vertices(uml_state_diagram);
-//	vi+=num;
-	//graph_traits<Graph>::vertex_descriptor b = *vi;
-//	return *vi;
 
 	int count = 0;
 	// This code uses a value ordering on the states (lowest number = position 0)
@@ -1120,12 +1141,7 @@ vertices(const adjacency_list& g)*/
 		count++;
 	}
 	return i->first;
-	
 
-/*
-	int x = PosToStateLabel[num];
-	return (states[x]);
-*/	
 }
 
 
@@ -1141,7 +1157,6 @@ int cOrganism::getTransLabelInPosition (int num)
 		}
 		count++;
 	}
-	int test = i->first;
 
 	return i->first;
 	

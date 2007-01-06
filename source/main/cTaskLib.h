@@ -32,6 +32,7 @@
 
 
 class cOrganism;
+class cGenotype;
 class cString;
 class cWorld;
 
@@ -254,7 +255,7 @@ private:  // Direct task related methods
 	double Task_Transition_bs9(cTaskContext* ctx) const;
 	double Task_Transition_bs10(cTaskContext* ctx) const;
 
-	double SpinCoprocess(const std::string& neverclaimFile) const;
+	double SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const;
 	double Task_SpinN1(cTaskContext* ctx) const;
 };
 

@@ -104,7 +104,9 @@ public:
 
 //!Types of the UML types for states and transitions
 // define graph -- multisetS - allows for the sorting of out edges by target vertex
-typedef adjacency_list<multisetS, vecS, directedS, state_info, edge_info> Graph;
+//bidirectionalS
+//typedef adjacency_list<multisetS, vecS, directedS, state_info, edge_info> Graph;
+typedef adjacency_list<multisetS, vecS, bidirectionalS, state_info, edge_info> Graph;
 // map the graph's vertex's to their descriptors
 typedef graph_traits<Graph>::vertex_descriptor State;
 typedef std::map<int, State> NameStateMap;

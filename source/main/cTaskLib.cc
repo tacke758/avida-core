@@ -9,6 +9,8 @@
  */
 
 #include "cTaskLib.h"
+#include "cGenotype.h"
+#include <iostream>
 #include <unistd.h>
 #include <math.h>
 #include <sys/types.h>
@@ -2215,7 +2217,8 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	}
 }
 
-double cTaskLib::SpinCoprocess(const std::string& neverclaimFile) const {
+double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const {
+	cOrganism* organism = ctx->organism;
 	m_world->GetStats().SpinAttempt();
 	int status=0;
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
@@ -2228,13 +2231,18 @@ double cTaskLib::SpinCoprocess(const std::string& neverclaimFile) const {
 	if(system("/usr/bin/gcc pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
+	//cmd = "cp tmp.xmi " + organism->GetGenotype()->GetID() + ".xml"; 
+	std::ostringstream strstrm;
+	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() 
+		<< "." + organism->GetID() << "." << organism->GetGenotype()->GetID() << ".xml";
+	if(system(strstrm.str().c_str())!=0) return 0.0;
 	m_world->GetStats().PanPassed();
 	return 1.0;
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
 	if (ctx->task_failed) {
-		return SpinCoprocess("N1");
+		return SpinCoprocess(ctx, "N1");
 	} 
 	return 0.0;
 }
