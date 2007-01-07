@@ -621,9 +621,7 @@ void cOrganism::InitTransForBSXMI()
 			break;
 		case 7:
 			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
+			temp += " <UML:Transition.effect> ";
 			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
 			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
 			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
@@ -657,6 +655,17 @@ void cOrganism::InitTransForBSXMI()
 			temp += " <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" ";
 			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
 			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> ";
+			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;
+		case 11:
+			temp = "";
+			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
+			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
+			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
+			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
 			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
 			(*it).second = temp;
 			break;
@@ -993,7 +1002,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	std::string temp, temp1, temp2;
 	int tempint;
 	
-	InitTransForMSXMI();
+	InitTransForBSXMI();
 
 	xmi = "";
 	// loop through all states
