@@ -993,7 +993,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	std::string temp, temp1, temp2;
 	int tempint;
 	
-	InitTransForBSXMI();
+	InitTransForMSXMI();
 
 	xmi = "";
 	// loop through all states

@@ -2137,6 +2137,8 @@ double cTaskLib::Task_Transition_bs10(cTaskContext* ctx) const
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
+	cOrganism* organism = ctx->organism;
+
 	if (ctx->task_failed == 0) {
 		return 0;
 	}
@@ -2144,7 +2146,6 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 
 	m_world->GetStats().HydraAttempt();
 
-	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
 	std::string temp;
 	unsigned int status_total = 0;
@@ -2232,10 +2233,18 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 	//cmd = "cp tmp.xmi " + organism->GetGenotype()->GetID() + ".xml"; 
-	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() 
-		<< "." + organism->GetID() << "." << organism->GetGenotype()->GetID() << ".xml";
-	if(system(strstrm.str().c_str())!=0) return 0.0;
+	
+	if(organism->GetGenotype() != NULL) {
+		std::ostringstream strstrm;
+		strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." + organism->GetID();
+	// << "." + organism->GetID() << ".xml";
+		//strstrm << "." << organism->GetGenotype()->GetID();
+		strstrm << ".xml";	
+		if(system(strstrm.str().c_str())!=0) return 0.0;
+	}
+	
+
+			
 	m_world->GetStats().PanPassed();
 	return 1.0;
 }
