@@ -744,21 +744,26 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 // Also, currently, this is not handling the potential that this is the only
 // transition with a certain integer label and thus it should be removed from the mapping
 // of labels to strings...
+
+// NOT WORKING
 void cOrganism::deleteTrans(int pos) 
 {
 
 	Graph::edge_iterator e, eend;
 	int count = 0;
+	int num_trans_w_lab = 0;
+	int trans_name;
 	int s_start_lab, s_end_lab; //, trans_lab;
 	State* st_start;
 	State* st_end;
 	nsm_it i;
 
 //	Transition t;
-
 	if ((pos < 0) || (pos > NumTrans())) {
 		return;
 	}
+	
+	trans_name = getTransNumber(pos);
 
 	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
 		if (count == pos) {
@@ -769,9 +774,20 @@ void cOrganism::deleteTrans(int pos)
 			//trans_lab = uml_state_diagram[*e].edge_label;
 			remove_edge(*e, uml_state_diagram);
 			break;
-		}
+		} 
+//		else {
+//			if (uml_state_diagram[*e].edge_label == trans_name) {
+//				num_trans_w_lab ++;
+//			}			
+//		}
 
 		count ++;
+	}
+	
+	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
+		if (uml_state_diagram[*e].edge_label == trans_name) {
+				num_trans_w_lab ++;
+			}	
 	}
 	
 	for (i=states.begin(); i!=states.end(); ++i)
@@ -784,13 +800,20 @@ void cOrganism::deleteTrans(int pos)
 		}
 	}
 	
+	if (num_trans_w_lab == 0){
+		// delete from transition accounts...
+		transGuardActionInfo.erase(trans_name);
+	}
+
+	
 	if ((out_degree(*st_start, uml_state_diagram) == 0) && (in_degree(*st_start, uml_state_diagram) == 0)) {
 		remove_vertex(*st_start, uml_state_diagram);
 	}
 
-	if ((out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
+	if ((s_start_lab != s_end_lab) && (out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
 		remove_vertex(*st_end, uml_state_diagram);
 	}	
+	
 	
 	return;
 }
