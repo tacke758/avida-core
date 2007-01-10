@@ -621,7 +621,9 @@ void cOrganism::InitTransForBSXMI()
 			break;
 		case 7:
 			temp = "";
-			temp += " <UML:Transition.effect> ";
+			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
+			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
+			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
 			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
 			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
 			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
@@ -657,18 +659,7 @@ void cOrganism::InitTransForBSXMI()
 			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> ";
 			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
 			(*it).second = temp;
-			break;
-		case 11:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
+			break;			
 		default:
 			(*it).second = " ";
 	}
@@ -749,7 +740,7 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 void cOrganism::deleteTrans(int pos) 
 {
 
-	Graph::edge_iterator e, eend;
+	Graph::edge_iterator e, eend, q;
 	int count = 0;
 	int num_trans_w_lab = 0;
 	int trans_name;
@@ -764,6 +755,9 @@ void cOrganism::deleteTrans(int pos)
 	}
 	
 	trans_name = getTransNumber(pos);
+	//e[pos]
+	//tie(e, eend) = edges(uml_state_diagram);
+	//q = e[pos];
 
 	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
 		if (count == pos) {

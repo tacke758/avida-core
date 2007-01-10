@@ -2098,9 +2098,14 @@ double cTaskLib::Task_Transition_bs7(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(5, 6, 7)) { 
+	// This has been modified to check if the 7th transition is present... we don't care
+	// where it is in the model. This is enough to cause the property check to fail.
+	//if (ctx->organism->findTrans(5, 6, 7)) { 
+	if (ctx->organism->NumStates() > 7) { 
 		bonus = 1.0;
 	}
+	
+	
 	return bonus;
 }
 
