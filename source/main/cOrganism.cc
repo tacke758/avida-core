@@ -1220,6 +1220,11 @@ double cOrganism::NumTrans()
 	return (double) num_edges(uml_state_diagram);
 }
 
+double cOrganism::NumUniqueTransLabels() 
+{
+	return transGuardActionInfo.size();
+}
+
 std::string cOrganism::getXMI()
 {
 //	std::string temp = xmi_begin + xmi + xmi_end;

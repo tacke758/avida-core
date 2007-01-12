@@ -249,6 +249,7 @@ public:
   bool AddTrans(int trans, int orig, int dest);
   double NumStates();
   double NumTrans();
+  double NumUniqueTransLabels(); 
   void AssignTransMeaning(int trans);
   Graph& GetGraph();
   State& getStateInPosition (int num);

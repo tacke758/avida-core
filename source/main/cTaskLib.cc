@@ -1983,7 +1983,7 @@ double cTaskLib::Task_Transition_ms4(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	//if (ctx->organism->findTrans(1, 4, 4)) { 
-	if (ctx->organism->NumTrans() > 4) {
+	if (ctx->organism->NumUniqueTransLabels() > 4) {
 
 		bonus = 1.0;
 	}
