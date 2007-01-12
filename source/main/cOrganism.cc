@@ -558,6 +558,119 @@ void cOrganism::InitTransForMSXMI()
 void cOrganism::InitTransForBSXMI()
 {
 
+	// This particular assignment of transitions is designed to evolve the ability of Avida
+	// to develop a function that checks for operational state...
+	
+	std::map <int, std::string>::iterator it;
+	std::string temp;
+	int count = 0;
+
+	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
+	switch (count){
+		case 0:
+			(*it).second = "";
+			break;
+		case 1: 
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
+			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-A28463C5-2F9F-457C-B6F3-241526CA4791\" ";
+			temp += " operation=\"XDE-E84A5762-CA92-4E03-A237-FE5AE2C99D9A\" name=\"getBrightnessValue\" ";
+			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
+			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
+			(*it).second =temp;
+			break;
+		case 2:
+			temp = "";
+			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-6C3D3042-5C7A-4746-8A90-BEDB86FD2FF4\" ";
+			temp += "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"^Environment.getBrightnessValue\"/> ";
+			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;	
+		case 3:
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
+			temp += " <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-79243838-9C4E-4908-9637-9F9583043BE4\" ";
+			temp += " operation=\"XDE-C8BD0DBA-E427-41A0-95F4-98FAA920ACA9\" name=\"setBrightnessValue\" ";
+			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
+			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
+			(*it).second = temp;
+			break;
+		case 4:
+			temp = "";
+			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
+			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
+			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
+			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
+			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;
+		case 5:
+			temp = "";
+			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
+			temp += "<UML:BooleanExpression body=\"brightnessValue&lt;0\" language=\"\"/> ";
+			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
+			temp += " <UML:UninterpretedAction xmi.id=\"XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F\" ";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=0\"/> ";
+			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;
+		case 6:
+			temp = "";
+			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
+			temp += "<UML:BooleanExpression body=\"brightnessValue&gt;1000\" language=\"\"/> ";
+			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
+			temp += " <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" ";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> ";
+			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;			
+		case 7:
+			temp = "";
+			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" ";
+			temp += "isAsynchronous=\"false\" name="" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> ";
+			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = temp;
+			break;	
+		case 8:
+			temp = "";
+			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
+			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-7126ED39-5D5D-4160-924B-303514B17EAB\" ";
+			temp += " operation=\"XDE-1266DA8A-61C0-43B4-A77C-200F54A6585D\" name=\"getOperationalState\"";
+			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
+			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>";
+			(*it).second = temp;
+			break;
+		case 9:
+			temp = "";
+			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-D9BCD8D1-7FC4-4B14-9E76-D3A642799013\"";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += "<UML:ActionExpression language=\"\" body=\"operationalState:=1;^ComputingComponent.ccTRUE\"/> ";
+			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>";
+			(*it).second = temp;
+			break;
+		case 10: 
+			temp = "";
+			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-9F00136E-D61D-4BB0-B7D6-1E795238FD1E\"";
+			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
+			temp += " <UML:ActionExpression language=\"\" body=\"operationalState:=0;^ComputingComponent.ccFALSE\"/> ";
+			temp += "</UML:Action.script>  </UML:UninterpretedAction> </UML:Transition.effect> ";
+			(*it).second = "";
+			break;
+	
+		default:
+			(*it).second = " ";
+	}
+		count++;
+	}
+
+/*	// This particular set of commented out transitions is designed to test the ability of 
+	// Avida to evolve the min/max functions that check value. 
 	// assign transition values to map elements
 	std::map <int, std::string>::iterator it;
 	std::string temp;
@@ -664,7 +777,9 @@ void cOrganism::InitTransForBSXMI()
 			(*it).second = " ";
 	}
 		count++;
-	}	
+	}
+	
+*/			
 }	
 	
 
@@ -1019,7 +1134,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	std::string temp, temp1, temp2;
 	int tempint;
 	
-	InitTransForBSXMI();
+	InitTransForMSXMI();
 
 	xmi = "";
 	// loop through all states

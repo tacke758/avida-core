@@ -1982,7 +1982,8 @@ double cTaskLib::Task_Transition_ms4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(1, 4, 4)) { 
+	//if (ctx->organism->findTrans(1, 4, 4)) { 
+	if (ctx->organism->NumTrans() > 4) {
 
 		bonus = 1.0;
 	}
@@ -2025,6 +2026,7 @@ double cTaskLib::Task_Transition_bs1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
+
 	 if (ctx->organism->findTrans(1, 2, 1)) { 
 	
 		bonus = 1.0;
@@ -2038,7 +2040,11 @@ double cTaskLib::Task_Transition_bs2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(2, 1, 2)) { 
+	// when min/max/set are at end
+	//if (ctx->organism->findTrans(2, 1, 2)) { 
+	
+	// when opset is at end
+	if (ctx->organism->findTrans(2, 3, 2)) {
 
 		bonus = 1.0;
 	}
@@ -2051,7 +2057,12 @@ double cTaskLib::Task_Transition_bs3(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(2, 1, 3)) { 
+	// when min/max/set are at end
+	//if (ctx->organism->findTrans(2, 1, 3)) { 
+	
+	// when opset is at end
+	if (ctx->organism->findTrans(3, 4, 3)) { 
+
 
 		bonus = 1.0;
 	}
@@ -2064,7 +2075,11 @@ double cTaskLib::Task_Transition_bs4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(1, 3, 4)) { 
+	// when min/max/set are at end
+	//if (ctx->organism->findTrans(1, 3, 4)) { 
+	
+	// when opset is at end
+	if (ctx->organism->findTrans(4, 5, 4)) { 
 		bonus = 1.0;
 	}
 	
@@ -2076,7 +2091,11 @@ double cTaskLib::Task_Transition_bs5(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(3, 4, 5)) { 
+	// when min/max/set are at end
+	// if (ctx->organism->findTrans(3, 4, 5)) { 
+	
+	// when opset is at end
+	if (ctx->organism->findTrans(4, 5, 5)) { 
 		bonus = 1.0;
 	}
 
@@ -2088,9 +2107,15 @@ double cTaskLib::Task_Transition_bs6(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
+	// when min/max/set are at end
+	// if (ctx->organism->findTrans(4, 5, 6)) { 
+	
+	// when opset is at end
 	if (ctx->organism->findTrans(4, 5, 6)) { 
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
@@ -2101,11 +2126,17 @@ double cTaskLib::Task_Transition_bs7(cTaskContext* ctx) const
 	// This has been modified to check if the 7th transition is present... we don't care
 	// where it is in the model. This is enough to cause the property check to fail.
 	//if (ctx->organism->findTrans(5, 6, 7)) { 
-	if (ctx->organism->NumStates() > 7) { 
+
+	// when min/max/set are at end
+	//if (ctx->organism->NumStates() > 7) { 
+	
+	// when opset is at end
+	if (ctx->organism->findTrans(5, 1, 7)) { 
+
 		bonus = 1.0;
 	}
 	
-	
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
@@ -2113,9 +2144,13 @@ double cTaskLib::Task_Transition_bs8(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
-	if (ctx->organism->findTrans(6, 1, 8)) { 
+	// when min/max/set are at end
+	//	if (ctx->organism->findTrans(6, 1, 8)) { 
+	if (ctx->organism->NumStates() > 8) {
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
@@ -2123,19 +2158,25 @@ double cTaskLib::Task_Transition_bs9(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 
+	// when min/max/set are at end
 	if (ctx->organism->findTrans(5, 6, 9)) { 
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
 double cTaskLib::Task_Transition_bs10(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-
+	
+	// when min/max/set are at end
 	if (ctx->organism->findTrans(5, 6, 10)) { 
 		bonus = 1.0;
 	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 }
 
