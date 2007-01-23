@@ -22,6 +22,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_utility.hpp>
 //#include <boost/graph/filtered_graph.hpp>
+#include <boost/graph/connected_components.hpp>
 using namespace boost;
 
 
@@ -259,6 +260,7 @@ public:
   int getTransNumber (int pos);
   bool findTrans(int s0_pos, int s1_pos, int t_pos);
   void deleteTrans (int pos);
+  bool isConnected();
   
   // This returns the list of transitions between two states. What I want is to look up one based
   // on its placement in the trans_set, but this has already been solved by HIL printing. Check there after dinner.

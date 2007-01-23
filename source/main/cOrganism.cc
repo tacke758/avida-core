@@ -1298,6 +1298,38 @@ int cOrganism::getStateLabelInPosition (int num)
 
 }
 
+bool cOrganism::isConnected () 
+{
+//	std::vector<int> component(num_vertices(uml_state_diagram));
+//	int num = connected_components(uml_state_diagram, &component[0]);
+//	if (num > 1) {
+//		return 0;
+//	}
+	Graph::vertex_iterator i, iend;
+	tie(i, iend) = vertices(uml_state_diagram);
+	int count = 0;
+	
+	
+/*	if (NumStates() > 0) {
+		temp = StringifyAnInt(uml_state_diagram[0].state_label);
+		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
+		xmi += temp + "\" isSpecification=\"false\"/>\n";
+		++i;
+	}
+*/	
+	
+	for (; i != iend; ++i) {
+			if (in_degree(*i, uml_state_diagram) == 0) {
+				count ++;
+				if (count > 1) {
+					return 0;
+				}
+			}
+	}
+	return 1;
+}
+
+
 
 // if you ask for something greater than the number of trans -- you get the highest numbered one...
 int cOrganism::getTransLabelInPosition (int num)
@@ -1320,6 +1352,8 @@ cOrganism::Graph& cOrganism::GetGraph()
 {
 	return uml_state_diagram;
 }
+
+
 
 
 bool cOrganism::InjectParasite(const cGenome& injected_code)
