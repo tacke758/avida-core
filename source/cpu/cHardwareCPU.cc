@@ -3547,7 +3547,7 @@ bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
 	ReadLabel();
     GetLabel();
 
-	int trans_pos = GetLabel().AsInt(1);
+	int trans_pos = GetLabel().AsInt(3);
 	
 	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
 	int label = organism->getTransLabelInPosition(trans_pos);
