@@ -2274,8 +2274,9 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 	m_world->GetStats().PanAttempt();
 	//-e -n -a -w19  -m100000 -c1
 //	if(system("/usr/bin/gcc pan.c -e -o pan &> /dev/null")!=0) return 0.0;
-//	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
-	if(system("/usr/bin/gcc pan.c -o pan &> /dev/null")!=0) return 0.0;
+//	if(system("./pan -a &> ./pan.out")!=0) return 0.0;  
+// -DMEMLIM=256
+	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 	//cmd = "cp tmp.xmi " + organism->GetGenotype()->GetID() + ".xml"; 

@@ -100,7 +100,12 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-  
+ 
+  // create in-memory representation of model
+  AddTrans(0,0,1);
+  AddTrans(1,1,2);
+  AddTrans(2,2,3);
+  AddTrans(3,3,1);
 	
 }
 
@@ -855,6 +860,9 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 void cOrganism::deleteTrans(int pos) 
 {
 
+
+
+/*
 	Graph::edge_iterator e, eend, q;
 	int count = 0;
 	int num_trans_w_lab = 0;
@@ -922,7 +930,7 @@ void cOrganism::deleteTrans(int pos)
 	if ((s_start_lab != s_end_lab) && (out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
 		remove_vertex(*st_end, uml_state_diagram);
 	}	
-	
+*/	
 	
 	return;
 }
