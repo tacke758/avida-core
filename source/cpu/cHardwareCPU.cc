@@ -354,6 +354,8 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 	    // UML Element Creation
 //	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
 //					"Create a state"), 
+	cInstEntryCPU("cr-trans-con", &cHardwareCPU::Inst_CreateTransitionConnect, false, 
+					"Create a connected transition"), 
 	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
 					"Create a transition"), 
 	cInstEntryCPU("get-trans", &cHardwareCPU::Inst_GetTrans, false, 
@@ -3489,6 +3491,29 @@ bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
 //	return true;
 }
 
+bool cHardwareCPU::Inst_CreateTransitionConnect(cAvidaContext& ctx)
+{
+	// a transition should consist of an integer in a nop.
+	int reg_used = FindModifiedRegister(REG_AX);
+	int trans = GetRegister(reg_used);
+	
+// the origin and destination states are determined by the values in reg b and reg c.
+// both registers could be modified by a nop...
+	reg_used = FindModifiedRegister(REG_BX);
+    int orig_state = GetRegister(reg_used);
+	reg_used = FindNextRegister(reg_used);
+	int dest_state = GetRegister(reg_used);
+	
+	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
+	return organism->AddTransConnect(trans, orig_state, dest_state);	
+	// create or find destination state
+
+	// check to see if this transition already exists; else add it
+
+	 
+//	return true;
+}
+
 
 bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx) 
 {
@@ -3568,7 +3593,7 @@ bool cHardwareCPU::Inst_DeleteTrans(cAvidaContext& ctx)
 	
 	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
 	
-		organism->deleteTrans(trans_pos);
+//		organism->deleteTrans(trans_pos);
 		// delete the transition in this position....
 //		int label = organism->getTransLabelInPosition(trans_pos);
 

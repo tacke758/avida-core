@@ -2186,10 +2186,11 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism;
 	
-	if (organism->isConnected() == 0) {
+/*	if (organism->isConnected() == 0) {
 		ctx->task_failed = 0;
 		return 0;
 	}
+*/	
 
 	if (ctx->task_failed == 0) {
 		return 0;

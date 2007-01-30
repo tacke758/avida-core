@@ -850,6 +850,23 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 }
 
 
+bool cOrganism::AddTransConnect(int trans, int orig, int dest) 
+{
+	// find either the orig int or the dest int in the map of states & names
+	/* if(grade_list.find("Tim") == grade_list.end())
+{
+    std::cout<<"Tim is not in the map!"<<endl;
+}*/
+	if ((states.find(orig) == states.end()) && (states.find(dest) == states.end()))
+	{
+		return false;
+	}
+	
+	return (AddTrans(trans,orig,dest));
+}
+
+
+
 // May eventually want to consider removing the states attached to a transition, if there are not
 // any other transitions that point to it...
 // Also, currently, this is not handling the potential that this is the only
@@ -857,12 +874,13 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 // of labels to strings...
 
 // NOT WORKING
+/*
 void cOrganism::deleteTrans(int pos) 
 {
 
 
 
-/*
+
 	Graph::edge_iterator e, eend, q;
 	int count = 0;
 	int num_trans_w_lab = 0;
@@ -930,10 +948,11 @@ void cOrganism::deleteTrans(int pos)
 	if ((s_start_lab != s_end_lab) && (out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
 		remove_vertex(*st_end, uml_state_diagram);
 	}	
-*/	
+
 	
 	return;
 }
+*/
 
 
 
@@ -1298,6 +1317,7 @@ int cOrganism::getStateLabelInPosition (int num)
 
 }
 
+/*
 bool cOrganism::isConnected () 
 {
 //	std::vector<int> component(num_vertices(uml_state_diagram));
@@ -1310,13 +1330,7 @@ bool cOrganism::isConnected ()
 	int count = 0;
 	
 	
-/*	if (NumStates() > 0) {
-		temp = StringifyAnInt(uml_state_diagram[0].state_label);
-		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
-		xmi += temp + "\" isSpecification=\"false\"/>\n";
-		++i;
-	}
-*/	
+
 	
 	for (; i != iend; ++i) {
 			if (in_degree(*i, uml_state_diagram) == 0) {
@@ -1328,7 +1342,7 @@ bool cOrganism::isConnected ()
 	}
 	return 1;
 }
-
+*/
 
 
 // if you ask for something greater than the number of trans -- you get the highest numbered one...

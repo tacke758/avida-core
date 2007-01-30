@@ -476,6 +476,7 @@ private:
 //  bool Inst_CreateTransition(cAvidaContext& ctx);
 //  bool Inst_ModelCheck(cAvidaContext& ctx);
   bool Inst_CreateTransition(cAvidaContext& ctx);
+  bool Inst_CreateTransitionConnect(cAvidaContext& ctx);
   bool Inst_GetState(cAvidaContext& ctx);
   bool Inst_GetTrans(cAvidaContext& ctx);
   bool Inst_DeleteTrans(cAvidaContext& ctx);

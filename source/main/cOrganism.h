@@ -248,6 +248,7 @@ public:
   void InitTransForMSXMI();
   void InitTransForBSXMI();
   bool AddTrans(int trans, int orig, int dest);
+  bool AddTransConnect(int trans, int orig, int dest);
   double NumStates();
   double NumTrans();
   double NumUniqueTransLabels(); 
@@ -259,8 +260,8 @@ public:
   bool isTrans(State, State, int);
   int getTransNumber (int pos);
   bool findTrans(int s0_pos, int s1_pos, int t_pos);
-  void deleteTrans (int pos);
-  bool isConnected();
+//  void deleteTrans (int pos);
+//  bool isConnected();
   
   // This returns the list of transitions between two states. What I want is to look up one based
   // on its placement in the trans_set, but this has already been solved by HIL printing. Check there after dinner.
