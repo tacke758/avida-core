@@ -853,11 +853,9 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 bool cOrganism::AddTransConnect(int trans, int orig, int dest) 
 {
 	// find either the orig int or the dest int in the map of states & names
-	/* if(grade_list.find("Tim") == grade_list.end())
-{
-    std::cout<<"Tim is not in the map!"<<endl;
-}*/
-	if ((states.find(orig) == states.end()) && (states.find(dest) == states.end()))
+	
+	// originally thought that either orig or dest could be connected, but actually, must be orig.
+	if (states.find(orig) == states.end()) // && (states.find(dest) == states.end()))
 	{
 		return false;
 	}
