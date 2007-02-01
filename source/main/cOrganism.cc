@@ -100,12 +100,14 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
- 
+
+/* 
   // create in-memory representation of model
   AddTrans(0,0,1);
   AddTrans(1,1,2);
   AddTrans(2,2,3);
   AddTrans(3,3,1);
+*/
 	
 }
 
@@ -855,7 +857,7 @@ bool cOrganism::AddTransConnect(int trans, int orig, int dest)
 	// find either the orig int or the dest int in the map of states & names
 	
 	// originally thought that either orig or dest could be connected, but actually, must be orig.
-	if (states.find(orig) == states.end()) // && (states.find(dest) == states.end()))
+	if ((states.find(orig) == states.end()) && (NumStates()>0)) // && (states.find(dest) == states.end()))
 	{
 		return false;
 	}
