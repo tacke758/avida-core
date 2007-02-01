@@ -196,7 +196,7 @@ class pyFreezerCtrl(QWidget):
 
   def createFreezerIndexSlot(self):
 
-    # Creates the liste of items in the freezer by reading the names from the
+    # Creates the list of items in the freezer by reading the names from the
     # current freezer directory
     #
     # Freezer is hardcoded to list in order :

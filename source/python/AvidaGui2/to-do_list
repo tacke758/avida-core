@@ -257,6 +257,16 @@ September - 06
  - make the org report give the name of the ancestor when they are clicked on (pre-run)
  - ancestor names are truncated if in the org clicked on report
 
+October - 06
+
+ - Relaxed size restrictions on various panes in the interface to solve problems 
+   with running program under windows when user has larger font selected as
+   default
+
+January - 07
+
+ - Added account on Angel for Harvard
+
 ************Kaben******************
 
 * 23-Jan-06 Get program to run on all Macs -- Finished 27-Jan-06
