@@ -6657,6 +6657,203 @@ void cAnalyze::AnalyzeComplexity(cString cur_string)
   delete testcpu;
 }
 
+
+
+void cAnalyze::AnalyzeEpistasis(cString cur_string)
+{
+  cout << "Analyzing epistasis..." << endl;
+  
+  // Load in the variables...
+  // This command requires at least on arguement
+  int words = cur_string.CountNumWords();
+  if(words < 1) {
+    cout << "Error: AnalyzeEpistasis has no parameters, skipping." << endl;
+    return;
+  }
+  
+  // Get the mutation rate arguement
+  double mut_rate = cur_string.PopWord().AsDouble();
+  
+  // Create the directory using the string given as the second arguement
+  cString dir = cur_string.PopWord();
+  cString defaultDirectory = "epistasis/";
+  cString directory = PopDirectory(dir, defaultDirectory);
+  
+  // Default for usage of resources is false
+  int useResources = 0;
+  // resource usage flag is an optional arguement, but is always the 3rd arg
+  if(words >= 3) {
+    useResources = cur_string.PopWord().AsInt();
+    // All non-zero values are considered false
+    if(useResources != 0 && useResources != 1) {
+      useResources = 0;
+    }
+  }
+  
+  // Batch frequency begins with the first organism, but then skips that 
+  // amount ahead in the batch.  It defaults to 1, so that default analyzes
+  // all the organisms in the batch.  It is always the 4th arg.
+  int batchFrequency = 1;
+  if(words == 4) {
+    batchFrequency = cur_string.PopWord().AsInt();
+    if(batchFrequency <= 0) {
+      batchFrequency = 1;
+    }
+  }
+  
+  cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+  testcpu->SetUseResources(useResources);
+  
+  ///////////////////////////////////////////////////////
+  // Loop through all of the genotypes in this batch...
+  
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+  cAnalyzeGenotype * genotype = NULL;
+  
+  cString lineage_filename;
+  if (batch[cur_batch].IsLineage()) {
+    lineage_filename.Set("%s%s.epistasis.dat", static_cast<const char*>(directory), "lineage");
+  } else {
+    lineage_filename.Set("%s%s.epistasis.dat", static_cast<const char*>(directory), "nonlineage");
+  }
+  ofstream& lineage_fp = m_world->GetDataFileOFStream(lineage_filename);
+  
+  while ((genotype = batch_it.Next()) != NULL) {
+    if (m_world->GetVerbosity() >= VERBOSE_ON) {
+      cout << "  Analyzing epistasis for " << genotype->GetName() << endl;
+    }
+    
+    // Construct this filename...
+    cString filename;
+    filename.Set("%s%s.epistasis.dat", static_cast<const char*>(directory), static_cast<const char*>(genotype->GetName()));
+    ofstream& fp = m_world->GetDataFileOFStream(filename);
+    
+    lineage_fp << genotype->GetID() << " ";
+    
+    int updateBorn = -1;
+    if(useResources) {
+      updateBorn = genotype->GetUpdateBorn();
+      FillResources(testcpu, updateBorn);
+    }
+    
+    // Calculate the stats for the genotype we're working with ...
+    genotype->Recalculate(m_ctx, testcpu);
+    cout << genotype->GetFitness() << endl;
+    const int num_insts = inst_set.GetSize();
+    const int max_line = genotype->GetLength();
+    const cGenome & base_genome = genotype->GetGenome();
+    double base_fitness = genotype->GetFitness();
+    cGenome mod_genome(base_genome);
+
+		// Mutation rates
+		const double mut_elitist    = (1-mut_rate)*(1-mut_rate);
+		const double mut_single_in  = (mut_rate - mut_rate*mut_rate);
+    const double mut_double_in  = (mut_rate * mut_rate);
+    
+    // Loop through all the lines of code, testing all mutations...
+    tArray< tArray<double> > test_fitness(num_insts);
+    tArray< tArray<double> > prob(num_insts);
+
+		for (int x = 0; x < max_line; x++){
+			if (x == 0){
+				test_fitness[x].Resize(num_insts);
+				prob[x].Resize(num_insts);
+			}
+    	for (int y = x+1; y < max_line; y++) {
+        int cur_inst_X = base_genome[x].GetOp();
+				int cur_inst_Y = base_genome[y].GetOp();
+        
+        // Column 1 & 2 ... the original instructions in the genome.
+        fp << cur_inst_X << " " << cur_inst_Y << " ";
+        
+        // Test fitness of each mutant.
+        for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+            mod_genome[x].SetOp(mod_A);
+						mod_genome[y].SetOp(mod_B);
+            cAnalyzeGenotype test_genotype(m_world, mod_genome, inst_set);
+            test_genotype.Recalculate(m_ctx, testcpu);
+            test_fitness[mod_A][mod_B] = test_genotype.GetFitness();
+					}
+				}
+     
+        
+      // Adjust fitness, normalizing & removing beneficials
+      double cur_inst_fitness = test_fitness[x][y];
+      for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+            if (test_fitness[mod_A][mod_B] > cur_inst_fitness)
+              test_fitness[mod_A][mod_B] = cur_inst_fitness;
+            test_fitness[mod_A][mod_B] = test_fitness[mod_A][mod_B] / cur_inst_fitness;
+        }
+      }
+
+
+      // Calculate probabilities at mut-sel balance
+      double w_bar = 1;
+
+      while(1) {
+        double sum = 0.0;
+
+
+        for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+						double Pa = 0.0;
+						double Pb = 0.0;
+						for (int k = 0; k < num_insts; k++)
+						{
+							Pa += prob[k][mod_B] * test_fitness[k][mod_B];
+							Pb += prob[mod_A][k] * test_fitness[mod_A][k];
+						}
+            double Pab = ( (prob[mod_A][mod_B] * test_fitness[mod_A][mod_B] * mut_elitist) 
+													+ Pa * mut_single_in / num_insts + Pb * mut_single_in / num_insts ) / w_bar 
+                          + mut_double_in / (num_insts*num_insts);
+            sum = sum + Pab;
+					}
+				}
+        if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+          break;
+        else
+          w_bar = w_bar - 0.000001;
+      }
+
+
+     // Write probability
+     for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+				    fp << prob[mod_A][mod_B] << " ";
+     			}
+     }
+      
+      mod_genome[x].SetOp(cur_inst_X);
+			mod_genome[y].SetOp(cur_inst_Y);
+    }
+  }  
+    m_world->GetDataFileManager().Remove(filename);
+    
+    lineage_fp << endl;
+    
+    // Always grabs the first one
+    // Skip i-1 times, so that the beginning of the loop will grab the ith one
+    // where i is the batchFrequency
+    for(int count=0; genotype != NULL && count < batchFrequency - 1; count++) {
+      genotype = batch_it.Next();
+      if(genotype != NULL && m_world->GetVerbosity() >= VERBOSE_ON) {
+        cout << "Skipping: " << genotype->GetName() << endl;
+      }
+    }
+    if(genotype == NULL) { break; }
+  }
+	
+  
+  m_world->GetDataFileManager().Remove(lineage_filename);
+
+  delete testcpu;
+}
+
+
+
+
 void cAnalyze::AnalyzePopComplexity(cString cur_string)
 {
   cout << "Analyzing population complexity ..." << endl;
@@ -7656,6 +7853,7 @@ void cAnalyze::SetupCommandDefLibrary()
   AddLibraryDef("AVERAGE_MODULARITY", &cAnalyze::CommandAverageModularity);
   AddLibraryDef("MAP_MUTATIONS", &cAnalyze::CommandMapMutations);
   AddLibraryDef("ANALYZE_COMPLEXITY", &cAnalyze::AnalyzeComplexity);
+  AddLibraryDef("ANALYZE_EPISTASIS", &cAnalyze::AnalyzeEpistasis);
   AddLibraryDef("ANALYZE_KNOCKOUTS", &cAnalyze::AnalyzeKnockouts);
   AddLibraryDef("ANALYZE_POP_COMPLEXITY", &cAnalyze::AnalyzePopComplexity);
   AddLibraryDef("MAP_DEPTH", &cAnalyze::CommandMapDepth);

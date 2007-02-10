@@ -195,6 +195,7 @@ private:
   void AnalyzeBranching(cString cur_string);
   void AnalyzeMutationTraceback(cString cur_string);
   void AnalyzeComplexity(cString cur_string);
+	void AnalyzeEpistasis(cString cur_string);
   void AnalyzeKnockouts(cString cur_string);
   void AnalyzePopComplexity(cString cur_string);
   void AnalyzeMateSelection(cString cur_string);
