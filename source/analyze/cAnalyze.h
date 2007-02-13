@@ -171,7 +171,6 @@ private:
   void CommandAnalyzeModularity(cString cur_string);
   void CommandMapMutations(cString cur_string);
   void CommandMapDepth(cString cur_string);
-  void CommandPairwiseEntropy(cString cur_string);
 
   // Population Comparison Commands...
   void CommandHamming(cString cur_string);
@@ -240,9 +239,6 @@ private:
 		       cAnalyzeGenotype * genotype2, 
 		       double mut_rate);
 
-  //Calculate covarying information between pairs of sites
-  tMatrix<double> AnalyzeEntropyPairs(cAnalyzeGenotype * genotype,
-					       double mut_rate);
 
   
   // Flow Control...
