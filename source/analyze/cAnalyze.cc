@@ -6643,7 +6643,7 @@ void cAnalyze::AnalyzeEpistasis(cString cur_string)
 	  
 	  for (int k = 0; k < num_insts; k++){
 	    Pa += prob[cur_inst_X][k] * test_fitness[cur_inst_X][k];
-	    Pb += prob[cur_inst_Y][k] * test_fitness[cur_inst_Y][k];
+	    Pb += prob[k][cur_inst_Y] * test_fitness[k][cur_inst_Y];
 	  }
 
 
