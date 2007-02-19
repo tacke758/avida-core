@@ -6569,94 +6569,122 @@ void cAnalyze::AnalyzeEpistasis(cString cur_string)
     double base_fitness = genotype->GetFitness();
     cGenome mod_genome(base_genome);
 
-		// Mutation rates
-		const double mut_elitist    = (1-mut_rate)*(1-mut_rate);
-		const double mut_single_in  = (mut_rate - mut_rate*mut_rate);
+    // Mutation rates
+    const double mut_elitist    = (1-mut_rate)*(1-mut_rate);
+    const double mut_single_in  = (mut_rate - mut_rate*mut_rate);
     const double mut_double_in  = (mut_rate * mut_rate);
     
     // Loop through all the lines of code, testing all mutations...
     tArray< tArray<double> > test_fitness(num_insts);
     tArray< tArray<double> > prob(num_insts);
 
-		for (int x = 0; x < max_line; x++){
-			if (x == 0){
-				test_fitness[x].Resize(num_insts);
-				prob[x].Resize(num_insts);
-			}
-    	for (int y = x+1; y < max_line; y++) {
+    for(int i = 0; i < num_insts; i++){
+      test_fitness[i].Resize(num_insts, 0.0);
+      prob[i].Resize(num_insts, 0.0);
+    }
+
+    for (int x = 0; x < max_line; x++){
+      //      if (x == 0){
+      //      test_fitness[x].Resize(num_insts, 0.0);
+      //      prob[x].Resize(num_insts, 0.0);
+	//      }
+
+      for (int y = x+1; y < max_line; y++) {
         int cur_inst_X = base_genome[x].GetOp();
-				int cur_inst_Y = base_genome[y].GetOp();
+	int cur_inst_Y = base_genome[y].GetOp();
         
         // Column 1 & 2 ... the original instructions in the genome.
         fp << cur_inst_X << " " << cur_inst_Y << " ";
         
         // Test fitness of each mutant.
         for (int mod_A = 0; mod_A < num_insts; mod_A++) {
-					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+	  for (int mod_B = 0; mod_B < num_insts; mod_B++){
             mod_genome[x].SetOp(mod_A);
-						mod_genome[y].SetOp(mod_B);
+	    mod_genome[y].SetOp(mod_B);
+	    //	    cerr << "Size: " << test_fitness[mod_A].GetSize() << endl;
+	    //	    cerr << "[" << mod_A << ", " << mod_B << "]: " << test_fitness[mod_A][mod_B] << endl;
             cAnalyzeGenotype test_genotype(m_world, mod_genome, inst_set);
             test_genotype.Recalculate(m_ctx, testcpu);
             test_fitness[mod_A][mod_B] = test_genotype.GetFitness();
-					}
-				}
+	    //cerr << test_fitness[mod_A][mod_B] << endl;
+	  }
+	}
      
+	//cin.ignore();
         
-      // Adjust fitness, normalizing & removing beneficials
-      double cur_inst_fitness = test_fitness[x][y];
-      for (int mod_A = 0; mod_A < num_insts; mod_A++) {
-					for (int mod_B = 0; mod_B < num_insts; mod_B++){
+	// Adjust fitness, normalizing & removing beneficials
+	cerr << cur_inst_X << " " << cur_inst_Y << endl;
+	double cur_inst_fitness = test_fitness[cur_inst_X][cur_inst_Y];
+	cerr << cur_inst_fitness << endl; cin.ignore();
+	for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+	  for (int mod_B = 0; mod_B < num_insts; mod_B++){
             if (test_fitness[mod_A][mod_B] > cur_inst_fitness)
               test_fitness[mod_A][mod_B] = cur_inst_fitness;
             test_fitness[mod_A][mod_B] = test_fitness[mod_A][mod_B] / cur_inst_fitness;
-        }
-      }
+	  }
+	}
 
 
-      // Calculate probabilities at mut-sel balance
-      double w_bar = 1;
-
-      while(1) {
-        double sum = 0.0;
-        double Pa = 0.0;
-        double Pb = 0.0;
-
-
-				//Collect our Pa & Pb data before we modify it
-				for (int j = 0; j < num_insts; j++){
-          for (int k = 0; k < num_insts; k++){
-            Pa += prob[k][j] * test_fitness[k][j];
-            Pb += prob[j][k] * test_fitness[j][k];
-          }
-				}
-
-        for (int mod_A = 0; mod_A < num_insts; mod_A++) {
-					for (int mod_B = 0; mod_B < num_insts; mod_B++){
-
-            double Pab = ( (prob[mod_A][mod_B] * test_fitness[mod_A][mod_B] * mut_elitist) 
-													+ Pa * mut_single_in / num_insts + Pb * mut_single_in / num_insts ) / w_bar 
-                          + mut_double_in / (num_insts*num_insts);
-            sum = sum + Pab;
-					}
-				}
-        if ((sum-1.0)*(sum-1.0) <= 0.0001) 
-          break;
-        else
-          w_bar = w_bar - 0.000001;
-      }
+	// Calculate probabilities at mut-sel balance
+	double w_bar = 1;
+	int count = 0;
+	while(1) {
+	  double sum = 0.0;	  
+	  //Collect our Pa & Pb data before we modify it
+	  double Pa = 0.0;
+	  double Pb = 0.0;
+	  
+	  //for (int j = 0; j < num_insts; j++){
+	  //  for (int k = 0; k < num_insts; k++){
+	  //    Pb += prob[j][k] * test_fitness[j][k];
+	  //    Pa += prob[k][j] * test_fitness[k][j];
+	  //  }
+	  //}
+	  
+	  for (int k = 0; k < num_insts; k++){
+	    Pa += prob[cur_inst_X][k] * test_fitness[cur_inst_X][k];
+	    Pb += prob[cur_inst_Y][k] * test_fitness[cur_inst_Y][k];
+	  }
 
 
-     // Write probability
-     for (int mod_A = 0; mod_A < num_insts; mod_A++) {
-					for (int mod_B = 0; mod_B < num_insts; mod_B++){
-				    fp << prob[mod_A][mod_B] << " ";
-     			}
-     }
+	  for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+	    for (int mod_B = 0; mod_B < num_insts; mod_B++){
+	      
+	      prob[mod_A][mod_B] = ( (prob[mod_A][mod_B] * test_fitness[mod_A][mod_B] * mut_elitist) 
+			     + Pa * mut_single_in / num_insts + Pb * mut_single_in / num_insts ) / w_bar 
+		+ mut_double_in / (num_insts*num_insts);
+	      sum = sum + prob[mod_A][mod_B];
+	      //cerr << Pab << endl;
+	      
+	    }
+	  }
+	  if ((sum-1.0)*(sum-1.0) <= 0.0001) 
+	    break;
+	  else
+	    w_bar = w_bar - 0.000001;
+	  
+	  if(count % 10000 == 0){
+	    cerr << "Pa: " << Pa << "Pb: " << Pb << "Pab: " << sum << endl;
+	    cerr << "iteration: " << count << " w_bar: "  << w_bar << " ssquared error: " << (sum-1.0)*(sum-1.0) << endl;
+	    //cin.ignore();
+	  }
+
+	  count++;
+	}
+	cerr << "iteration: " << count << " w_bar: " << w_bar << endl;
+	cin.ignore();
+
+	// Write probability
+	for (int mod_A = 0; mod_A < num_insts; mod_A++) {
+	  for (int mod_B = 0; mod_B < num_insts; mod_B++){
+	    fp << prob[mod_A][mod_B] << " ";
+	  }
+	}
       
-      mod_genome[x].SetOp(cur_inst_X);
-			mod_genome[y].SetOp(cur_inst_Y);
-    }
-  }  
+	mod_genome[x].SetOp(cur_inst_X);
+	mod_genome[y].SetOp(cur_inst_Y);
+      }
+    }  
     m_world->GetDataFileManager().Remove(filename);
     
     lineage_fp << endl;
