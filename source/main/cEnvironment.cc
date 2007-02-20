@@ -669,7 +669,7 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result, cTask
     if (task_quality == 0.0) continue;
     
     // Examine requisites on this reaction
-    if (TestRequisites(cur_reaction->GetRequisites(), task_cnt, reaction_count) == false) {
+    if (TestRequisites(cur_reaction->GetRequisites(), task_cnt, reaction_count)         == false) {
       continue;
     }
     
@@ -680,7 +680,6 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result, cTask
     DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, task_quality, task_cnt, result);
     
     // Mark this reaction as occuring...
-    result.MarkReaction(cur_reaction->GetID());
   }  
   
   return result.GetActive();

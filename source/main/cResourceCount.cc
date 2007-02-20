@@ -22,8 +22,8 @@ const double cResourceCount::UPDATE_STEP(1.0 / 10000.0);
 const double cResourceCount::EPSILON (1.0e-15);
 const int cResourceCount::PRECALC_DISTANCE(100);
 
-
-void FlowMatter(cSpatialCountElem &elem1, cSpatialCountElem &elem2, double inxdiffuse, 
+void FlowMatter(cSpatialCountElem &elem1, cSpatialCountElem &elem2, 
+                double inxdiffuse, 
                 double inydiffuse, double inxgravity, double inygravity,
                 int xdist, int ydist, double dist) {
 
@@ -278,6 +278,8 @@ const tArray< tArray<double> > &  cResourceCount::GetSpatialRes()
   return curr_spatial_res_cnt;
 }
 
+// Change the amount of all the global resources //
+
 void cResourceCount::Modify(const tArray<double> & res_change)
 {
   assert(resource_count.GetSize() == res_change.GetSize());
@@ -288,6 +290,7 @@ void cResourceCount::Modify(const tArray<double> & res_change)
   }
 }
 
+// Change amount of a particular (id) gloabl resource //
 
 void cResourceCount::Modify(int id, double change)
 {
@@ -297,9 +300,13 @@ void cResourceCount::Modify(int id, double change)
   assert(resource_count[id] >= 0.0);
 }
 
+// Modify Resources for a particular cell //
+
 void cResourceCount::ModifyCell(const tArray<double> & res_change, int cell_id)
 {
   assert(resource_count.GetSize() == res_change.GetSize());
+
+  // For all the resouces check if they are global or spatial //
 
   for (int i = 0; i < resource_count.GetSize(); i++) {
     if (geometry[i] == nGeometry::GLOBAL) {
