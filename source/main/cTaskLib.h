@@ -254,6 +254,9 @@ private:  // Direct task related methods
 	double Task_Transition_bs8(cTaskContext* ctx) const;
 	double Task_Transition_bs9(cTaskContext* ctx) const;
 	double Task_Transition_bs10(cTaskContext* ctx) const;
+	double Task_TransLabTest1(cTaskContext* ctx) const;
+	double Task_TransLabTest2(cTaskContext* ctx) const;
+	double Task_TransLabTest3(cTaskContext* ctx) const;
 
 	double SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const;
 	double Task_SpinN1(cTaskContext* ctx) const;

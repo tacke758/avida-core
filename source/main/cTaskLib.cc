@@ -373,6 +373,12 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	NewTask(name, "Successfully Created transition 10", &cTaskLib::Task_Transition_bs10);	  	
   else if (name == "spinn1")
 	NewTask(name, "Successfully ran spin for N1 (yay!)", &cTaskLib::Task_SpinN1);
+  else if (name == "trl-1")
+	NewTask(name, "Successfully created test transition label 1", &cTaskLib::Task_TransLabTest1);
+  else if (name == "trl-2")
+	NewTask(name, "Successfully created test transition label 1", &cTaskLib::Task_TransLabTest2);
+  else if (name == "trl-3")
+	NewTask(name, "Successfully created test transition label 1", &cTaskLib::Task_TransLabTest3);	
 /*  else if (name == "uml_trs")
     NewTask(name, "Successfully Created the right number of transitions", &cTaskLib::Task_CreateTranss);
 */	
@@ -1889,10 +1895,10 @@ double cTaskLib::Task_NumberOfState(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
-	double numStates = organism->NumStates();
+	double numStates = organism->numStates();
 	
 	// reward for constructing 7 states - brightness sensor
-	if (organism->NumStates() <= 7) {
+	if (organism->numStates() <= 7) {
 		bonus += numStates;
 		//bonus = 1.0;
 	} /*else {
@@ -1907,10 +1913,10 @@ double cTaskLib::Task_NumberOfTrans(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism;
 	double bonus = 0.0;
-	double numTrans = organism->NumTrans();
+	double numTrans = organism->numTrans();
 	
 	// reward for constructing 11 trans - brightness sensor
-	if (organism->NumTrans() <= 11) {
+	if (organism->numTrans() <= 11) {
 		bonus += numTrans;
 		//bonus = 1.0;
 	} /*else { 
@@ -1983,7 +1989,7 @@ double cTaskLib::Task_Transition_ms4(cTaskContext* ctx) const
 	double bonus = 0.0;
 
 	//if (ctx->organism->findTrans(1, 4, 4)) { 
-	if (ctx->organism->NumUniqueTransLabels() > 4) {
+	if (ctx->organism->numUniqueTransLabels() > 4) {
 
 		bonus = 1.0;
 	}
@@ -2146,7 +2152,7 @@ double cTaskLib::Task_Transition_bs8(cTaskContext* ctx) const
 
 	// when min/max/set are at end
 	//	if (ctx->organism->findTrans(6, 1, 8)) { 
-	if (ctx->organism->NumStates() > 8) {
+	if (ctx->organism->numStates() > 8) {
 		bonus = 1.0;
 	}
 	
@@ -2180,6 +2186,38 @@ double cTaskLib::Task_Transition_bs10(cTaskContext* ctx) const
 	return bonus;
 }
 
+double cTaskLib::Task_TransLabTest1(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+	// tbgbab
+	if (ctx->organism->isTransLabel("tbgbab")) {
+		bonus = 1.0;
+	}
+	
+	return bonus;
+}
+
+double cTaskLib::Task_TransLabTest2(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+	// tdgaad
+	if (ctx->organism->isTransLabel("tdgaad")) {
+		bonus = 1.0;
+	}
+	
+	return bonus;
+}
+
+double cTaskLib::Task_TransLabTest3(cTaskContext* ctx) const
+{
+	double bonus = 0.0;
+	// tagdac
+	if (ctx->organism->isTransLabel("tagdac")) {
+		bonus = 1.0;
+	}
+	
+	return bonus;
+}
 
 
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const

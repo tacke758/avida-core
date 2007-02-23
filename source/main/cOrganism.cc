@@ -108,7 +108,25 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   AddTrans(2,2,3);
   AddTrans(3,3,1);
 */
-	
+
+  // initialize the iterators to point to the first element
+  triggers.push_back("ta");
+  triggers.push_back("tb");
+  triggers.push_back("tc");
+  triggers.push_back("td");
+  guards.push_back("ga");
+  guards.push_back("gb");
+  guards.push_back("gc");
+  guards.push_back("gd");
+  actions.push_back("aa");
+  actions.push_back("ab");
+  actions.push_back("ac");
+  actions.push_back("ad");
+  
+  triggers_it = triggers.begin();
+  guards_it = guards.begin();
+  actions_it = actions.begin();
+
 }
 
 
@@ -433,7 +451,7 @@ void cOrganism::NetReset()
 
 /// UML Functions /// 
 /// This function is a copy of DoOutput /// 
-void cOrganism::ModelCheck(cAvidaContext& ctx)
+void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 
 	// CHECK OUT WHETHER THE IDEAL WORKS....
@@ -500,7 +518,7 @@ void cOrganism::ModelCheck(cAvidaContext& ctx)
 
 // This sets the meaning of the transitions to those of the Multi-Sensor Example.
 
-void cOrganism::InitTransForMSXMI()
+void cOrganism::initTransForMSXMI()
 {
 
 	// assign transition values to map elements
@@ -562,7 +580,7 @@ void cOrganism::InitTransForMSXMI()
 }	
 	
 
-void cOrganism::InitTransForBSXMI()
+void cOrganism::initTransForBSXMI()
 {
 
 	// This particular assignment of transitions is designed to evolve the ability of Avida
@@ -791,7 +809,7 @@ void cOrganism::InitTransForBSXMI()
 	
 
 
-bool cOrganism::AddTrans(int trans, int orig, int dest) 
+bool cOrganism::addTrans(int trans, int orig, int dest) 
 {
 	NameStateMap::iterator pos1, pos2;
 	bool inserted1, inserted2, inserted3;
@@ -803,7 +821,6 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 	tie(pos1, inserted1) = states.insert(std::make_pair(orig, State()));
         if (inserted1) {
                 u = add_vertex(uml_state_diagram);
-                //cout << "added state named " << orig << endl;
                 uml_state_diagram[u].state_label = orig;
                 pos1->second = u;
 				
@@ -812,14 +829,12 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 				
         } else  {
                 u = pos1->second;
-                //cout << "found state named " << orig << endl;
         }
 
 	// create or find dest state
 	tie(pos2, inserted2) = states.insert(std::make_pair(dest, State()));
         if (inserted2) {
                 v = add_vertex(uml_state_diagram);
-                //cout << "added state named " << dest << endl;
                 uml_state_diagram[v].state_label = dest;
                 pos2->second = v;
 				
@@ -829,21 +844,16 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 				
         } else  {
                 v = pos2->second;
-                //cout << "found state named " << dest << endl;
         }
 		// call isTrans...	
 		exists = isTrans(u, v, trans);
 		if (exists == 0) {
 			tie(transitions, inserted3) = add_edge(u, v, uml_state_diagram);
-			//cout << "Adding transition " << u << " " << v << " " << trans << endl;
 			if (inserted3) {
 				uml_state_diagram[transitions].edge_label = trans;
-				//uml_state_diagram[transitions].edge_info = "";
 				uml_state_diagram[transitions].start_state = orig;
 				uml_state_diagram[transitions].end_state = dest;
-				
-				
-				//cout << "added edge labeled " << trans << endl;
+		
 				// add trans to table...
 				transGuardActionInfo.insert(std::make_pair(trans, ""));
 			}
@@ -852,108 +862,18 @@ bool cOrganism::AddTrans(int trans, int orig, int dest)
 }
 
 
-bool cOrganism::AddTransConnect(int trans, int orig, int dest) 
+bool cOrganism::addTransConnect(int trans, int orig, int dest) 
 {
 	// find either the orig int or the dest int in the map of states & names
 	
 	// originally thought that either orig or dest could be connected, but actually, must be orig.
-	if ((states.find(orig) == states.end()) && (NumStates()>0)) // && (states.find(dest) == states.end()))
+	if ((states.find(orig) == states.end()) && (numStates()>0)) 
 	{
 		return false;
 	}
 	
-	return (AddTrans(trans,orig,dest));
+	return (addTrans(trans,orig,dest));
 }
-
-
-
-// May eventually want to consider removing the states attached to a transition, if there are not
-// any other transitions that point to it...
-// Also, currently, this is not handling the potential that this is the only
-// transition with a certain integer label and thus it should be removed from the mapping
-// of labels to strings...
-
-// NOT WORKING
-/*
-void cOrganism::deleteTrans(int pos) 
-{
-
-
-
-
-	Graph::edge_iterator e, eend, q;
-	int count = 0;
-	int num_trans_w_lab = 0;
-	int trans_name;
-	int s_start_lab, s_end_lab; //, trans_lab;
-	State* st_start;
-	State* st_end;
-	nsm_it i;
-
-//	Transition t;
-	if ((pos < 0) || (pos > NumTrans())) {
-		return;
-	}
-	
-	trans_name = getTransNumber(pos);
-	//e[pos]
-	//tie(e, eend) = edges(uml_state_diagram);
-	//q = e[pos];
-
-	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
-		if (count == pos) {
-//			remove_edge(e, uml_state_diagram);
-			//t = uml_state_diagram[*e];
-			s_start_lab = uml_state_diagram[*e].start_state;
-			s_end_lab = uml_state_diagram[*e].end_state;
-			//trans_lab = uml_state_diagram[*e].edge_label;
-			remove_edge(*e, uml_state_diagram);
-			break;
-		} 
-//		else {
-//			if (uml_state_diagram[*e].edge_label == trans_name) {
-//				num_trans_w_lab ++;
-//			}			
-//		}
-
-		count ++;
-	}
-	
-	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
-		if (uml_state_diagram[*e].edge_label == trans_name) {
-				num_trans_w_lab ++;
-			}	
-	}
-	
-	for (i=states.begin(); i!=states.end(); ++i)
-	{
-		if (i->first == s_start_lab) {
-			st_start = &(i->second);
-		}
-		if (i->first == s_end_lab) {
-			st_end = &(i->second);
-		}
-	}
-	
-	if (num_trans_w_lab == 0){
-		// delete from transition accounts...
-		transGuardActionInfo.erase(trans_name);
-	}
-
-	
-	if ((out_degree(*st_start, uml_state_diagram) == 0) && (in_degree(*st_start, uml_state_diagram) == 0)) {
-		remove_vertex(*st_start, uml_state_diagram);
-	}
-
-	if ((s_start_lab != s_end_lab) && (out_degree(*st_end, uml_state_diagram) == 0) && (in_degree(*st_end, uml_state_diagram) == 0)) {
-		remove_vertex(*st_end, uml_state_diagram);
-	}	
-
-	
-	return;
-}
-*/
-
 
 
 // similar to getTransBetweenVertices... 
@@ -1004,7 +924,7 @@ bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
 		return found_entry;
 	}
 	
-	if ((NumStates() <= s0_pos) || (NumStates() <= s1_pos)) {
+	if ((numStates() <= s0_pos) || (numStates() <= s1_pos)) {
 		return found_entry;
 	}
 	
@@ -1019,136 +939,6 @@ bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
 
 }
 
-/*
-void cOrganism::printIdealXMI(cAvidaContext& ctx) 
-{
-	std::string temp;
-	temp = "0";
-	xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"\" isSpecification=\"false\"/>\n";
-	
-	for (int j = 1; j < 5; ++j) {
-		temp = "s" + StringifyAnInt(j);
-		xmi+="<UML:CompositeState xmi.id=\"";
-		xmi+=temp;
-		xmi+= "\" isConcurrent=\"false\" name=\""; 
-		xmi+= temp; 
-		xmi+= "\" isSpecification=\"false\"/>\n";
-		}
-		
-		// end the set of states....
-		xmi+= "</UML:CompositeState.subvertex>\n";
-		xmi+= "</UML:CompositeState>\n";
-		xmi+= "</UML:StateMachine.top>\n";
-		
-		// start the set of transitions...
-		xmi+="<UML:StateMachine.transitions>\n";
-
-
-	// trans 0 
-	
-		temp = "t0";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s0";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s1";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-		//xmi += temp;
-		xmi += "</UML:Transition>\n";
-
-	
-	// trans 1
-	
-		temp = "t1";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s1";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s2";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-		temp = "";
-		temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-176F1237-1448-4226-A095-075FABD68B33\"";
-		temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">";
-		temp += "<UML:Action.script> <UML:ActionExpression language=\"\" "; 
-		temp += "body=\"^TempSensor.getTempData()\"/>  </UML:Action.script> ";
-		temp += "</UML:UninterpretedAction> </UML:Transition.effect> \n";
-		xmi += temp;
-		xmi += "</UML:Transition>\n";
-	
-	// trans 2
-		temp = "t2";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s2";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s3";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-
-		temp = "";
-		temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> ";
-		temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
-		temp += "<UML:CallEvent xmi.id=\"XDE-4C4256DD-D7D7-4687-AA73-761334859279\" " ;
-		temp += " operation=\"XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07\" name=\"setTempData\" ";
-		temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-		temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>\n";
-		xmi += temp;
-		xmi += "</UML:Transition>\n";	
-	
-	// trans 3
-		temp = "t3";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s3";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s1";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-
-		temp = "";
-		xmi += temp;
-		xmi += "</UML:Transition>\n";
-	
-	// trans 4
-		temp = "t4";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s1";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s4";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-
-		temp = "";
-		temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
-		temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
-		temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
-		temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
-		temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
-			
-		xmi += temp;
-		xmi += "</UML:Transition>\n";
-	
-	// trans 5
-		temp = "t5";
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		temp = "s4";
-		xmi+= " source=\"" + temp + "\"";
-		temp = "s1";
-		xmi += " target=\"" + temp + "\" name=\"\" isSpecification=\"false\">\n";
-
-		temp = "";
-		temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
-		temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
-		temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
-		temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
-		temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
-		temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
-					
-		xmi += temp;
-		xmi += "</UML:Transition>\n";
-
-}
-
-*/
 
 void cOrganism::printXMI(cAvidaContext& ctx)
 {
@@ -1161,7 +951,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	std::string temp, temp1, temp2;
 	int tempint;
 	
-	InitTransForMSXMI();
+	initTransForMSXMI();
 
 	xmi = "";
 	// loop through all states
@@ -1169,8 +959,8 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 
 	tie(i, iend) = vertices(uml_state_diagram);
 	
-	if (NumStates() > 0) {
-		temp = StringifyAnInt(uml_state_diagram[0].state_label);
+	if (numStates() > 0) {
+		temp = stringifyAnInt(uml_state_diagram[0].state_label);
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
 		xmi += temp + "\" isSpecification=\"false\"/>\n";
 		++i;
@@ -1178,7 +968,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	
 	
 	for (; i != iend; ++i) {
-		temp = "s" + StringifyAnInt(uml_state_diagram[*i].state_label);
+		temp = "s" + stringifyAnInt(uml_state_diagram[*i].state_label);
 		xmi+="<UML:CompositeState xmi.id=\"";
 		xmi+=temp;
 		xmi+= "\" isConcurrent=\"false\" name=\""; 
@@ -1199,9 +989,9 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
 		// info determined from the trans itself....
 		trans_label = uml_state_diagram[*e].edge_label;
-		temp = "t" + StringifyAnInt(uml_state_diagram[*e].edge_label);
-		temp1 = "s" + StringifyAnInt(uml_state_diagram[*e].start_state);
-		temp2 = "s" + StringifyAnInt(uml_state_diagram[*e].end_state);
+		temp = "t" + stringifyAnInt(uml_state_diagram[*e].edge_label);
+		temp1 = "s" + stringifyAnInt(uml_state_diagram[*e].start_state);
+		temp2 = "s" + stringifyAnInt(uml_state_diagram[*e].end_state);
 		temp = temp + temp1 + temp2;
 		// if I manage to set edge_info, I could then use that to print...
 		// currently the start state and end state are already encoded. :)
@@ -1223,7 +1013,7 @@ void cOrganism::printXMI(cAvidaContext& ctx)
 
 
 // print the label. Change - signs to _
-std::string cOrganism::StringifyAnInt(int x) { 
+std::string cOrganism::stringifyAnInt(int x) { 
 
 	std::ostringstream o;
 
@@ -1237,17 +1027,17 @@ std::string cOrganism::StringifyAnInt(int x) {
 }
 
 // return the number of states in a state diagram
-double cOrganism::NumStates() 
+double cOrganism::numStates() 
 {
 	return (double) num_vertices(uml_state_diagram);
 }
 
-double cOrganism::NumTrans()
+double cOrganism::numTrans()
 {
 	return (double) num_edges(uml_state_diagram);
 }
 
-double cOrganism::NumUniqueTransLabels() 
+double cOrganism::numUniqueTransLabels() 
 {
 	return transGuardActionInfo.size();
 }
@@ -1267,14 +1057,6 @@ std::string cOrganism::getXMI()
 
 cOrganism::State& cOrganism::getStateInPosition (int num)
 {
-	/*std::pair<vertex_iterator, vertex_iterator>
-vertices(const adjacency_list& g)*/
-//	Graph::vertex_iterator vi, vi_end;
-//	tie(vi,vi_end) = vertices(uml_state_diagram);
-//	vi+=num;
-	//graph_traits<Graph>::vertex_descriptor b = *vi;
-//	return *vi;
-
 	int count = 0;
 	// This code uses a value ordering on the states (lowest number = position 0)
 	nsm_it i;
@@ -1286,13 +1068,6 @@ vertices(const adjacency_list& g)*/
 		count++;
 	}
 	return i->second;
-	
-
-/*
-	int x = PosToStateLabel[num];
-	return (states[x]);
-*/
-
 	
 }
 
@@ -1317,33 +1092,6 @@ int cOrganism::getStateLabelInPosition (int num)
 
 }
 
-/*
-bool cOrganism::isConnected () 
-{
-//	std::vector<int> component(num_vertices(uml_state_diagram));
-//	int num = connected_components(uml_state_diagram, &component[0]);
-//	if (num > 1) {
-//		return 0;
-//	}
-	Graph::vertex_iterator i, iend;
-	tie(i, iend) = vertices(uml_state_diagram);
-	int count = 0;
-	
-	
-
-	
-	for (; i != iend; ++i) {
-			if (in_degree(*i, uml_state_diagram) == 0) {
-				count ++;
-				if (count > 1) {
-					return 0;
-				}
-			}
-	}
-	return 1;
-}
-*/
-
 
 // if you ask for something greater than the number of trans -- you get the highest numbered one...
 int cOrganism::getTransLabelInPosition (int num)
@@ -1362,11 +1110,115 @@ int cOrganism::getTransLabelInPosition (int num)
 	
 }
 
-cOrganism::Graph& cOrganism::GetGraph()
+cOrganism::Graph& cOrganism::getGraph()
 {
 	return uml_state_diagram;
 }
 
+bool cOrganism::nextTrigger()
+{
+	triggers_it++;
+	if (triggers_it == triggers.end()){
+		triggers_it = triggers.begin();
+	}
+}
+
+bool cOrganism::prevTrigger()
+{
+	if (triggers_it == triggers.begin()){
+		triggers_it = triggers.end();
+	} 
+	triggers_it--;
+}
+
+bool cOrganism::nextGuard()
+{
+	guards_it++;
+	if (guards_it == guards.end()){
+		guards_it = guards.begin();
+	}
+}
+
+bool cOrganism::prevGuard()
+{
+	if (guards_it == guards.begin()){
+		guards_it = guards.end();
+	} 
+	guards_it--;
+}
+
+bool cOrganism::nextAction()
+{	
+	actions_it++;
+	if (actions_it == actions.end()){
+		actions_it = actions.begin();
+	}
+}
+
+bool cOrganism::prevAction()
+{
+	if (actions_it == actions.begin()){
+		actions_it = actions.end();
+	} 
+	actions_it--;
+}
+
+std::string cOrganism::getTrigger()
+{
+	std::string tmp;
+	if (triggers.size() > 0) {
+		tmp = *triggers_it;
+	} else {
+		tmp = ""; 
+	}
+	return tmp;
+}
+
+std::string cOrganism::getGuard()
+{
+	std::string tmp;
+	if (guards.size() > 0) {
+		tmp = *guards_it;
+	} else {
+		tmp = ""; 
+	}
+	return tmp;
+}
+
+std::string cOrganism::getAction()
+{
+	std::string tmp;
+	if (actions.size() > 0) {
+		tmp = *actions_it;
+	} else {
+		tmp = ""; 
+	}
+	return tmp;
+}
+
+bool cOrganism::crTransLabel()
+{
+//	std::string tmp_trigger = getTrigger();
+//	std::string tmp_guard = getGuard();
+//	std::string tmp_action = getAction();
+	std::string tmp_label = getTrigger() + getGuard() + getAction();
+//	  std::vector<std::string> transition_labels;
+	transition_labels.push_back(tmp_label);
+
+	return true;
+}
+
+bool cOrganism::isTransLabel(std::string desired_lab)
+{
+	std::vector<std::string>::iterator tr_lab_it;
+	for(tr_lab_it = transition_labels.begin(); tr_lab_it != transition_labels.end(); tr_lab_it++)
+	{
+			if (desired_lab == *tr_lab_it) {
+				return true;
+			}
+	} 
+	return false;
+}
 
 
 

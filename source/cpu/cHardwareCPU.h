@@ -480,6 +480,9 @@ private:
   bool Inst_GetState(cAvidaContext& ctx);
   bool Inst_GetTrans(cAvidaContext& ctx);
   bool Inst_DeleteTrans(cAvidaContext& ctx);
+  bool Inst_Next(cAvidaContext& ctx);
+  bool Inst_Prev(cAvidaContext& ctx);
+  bool Inst_CreateTransitionLabel(cAvidaContext& ctx);
 //  bool Inst_CreateTransitionIntStates(cAvidaContext& ctx);
 };
 

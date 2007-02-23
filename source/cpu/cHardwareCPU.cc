@@ -364,6 +364,13 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 					"Get a state"), 				
 	cInstEntryCPU("remove-tr", &cHardwareCPU::Inst_DeleteTrans, false, 
 					"Remove a transition"),
+	cInstEntryCPU("next", &cHardwareCPU::Inst_Next, false, 
+					"Increment to the next position in the list"),
+	cInstEntryCPU("prev", &cHardwareCPU::Inst_Prev, false, 
+					"Decrement to the previous position in the list"),
+	cInstEntryCPU("cr-trans-lab", &cHardwareCPU::Inst_CreateTransitionLabel, false, 
+					"Create a transition label"),								
+				
 				
 //	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
 //					"Model check the model"), 
@@ -3117,7 +3124,7 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
   // modified for UML branch
-  organism->ModelCheck(ctx);	
+  organism->modelCheck(ctx);	
   return Inst_HeadDivideMut(ctx, 1);
   
 }
@@ -3482,7 +3489,7 @@ bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
 	int dest_state = GetRegister(reg_used);
 	
 	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
-	return organism->AddTrans(trans, orig_state, dest_state);	
+	return organism->addTrans(trans, orig_state, dest_state);	
 	// create or find destination state
 
 	// check to see if this transition already exists; else add it
@@ -3505,7 +3512,7 @@ bool cHardwareCPU::Inst_CreateTransitionConnect(cAvidaContext& ctx)
 	int dest_state = GetRegister(reg_used);
 	
 	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
-	return organism->AddTransConnect(trans, orig_state, dest_state);	
+	return organism->addTransConnect(trans, orig_state, dest_state);	
 	// create or find destination state
 
 	// check to see if this transition already exists; else add it
@@ -3533,7 +3540,7 @@ bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx)
 	int state_pos = GetRegister(reg_used);
 */	
 	
-	if ((state_pos >= 0) && (state_pos < organism->NumStates())) {
+	if ((state_pos >= 0) && (state_pos < organism->numStates())) {
 	int state_label = organism->getStateLabelInPosition(state_pos);
 	
 	
@@ -3574,7 +3581,7 @@ bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
 
 	int trans_pos = GetLabel().AsInt(3);
 	
-	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
+	if ((trans_pos >= 0) && (trans_pos < organism->numTrans())) {
 	int label = organism->getTransLabelInPosition(trans_pos);
 	
 	// put value into register...
@@ -3591,21 +3598,69 @@ bool cHardwareCPU::Inst_DeleteTrans(cAvidaContext& ctx)
 
 	int trans_pos = GetLabel().AsInt(1);
 	
-	if ((trans_pos >= 0) && (trans_pos < organism->NumTrans())) {
+	if ((trans_pos >= 0) && (trans_pos < organism->numTrans())) {
 	
 //		organism->deleteTrans(trans_pos);
 		// delete the transition in this position....
 //		int label = organism->getTransLabelInPosition(trans_pos);
 
-
-	
 	}
 
 	return true;
-
-
-
 }
 
+bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
+{
+	// by default, this instruction increments the triggers vector iterator
+	
+	int reg_used = FindModifiedRegister(REG_AX);
+	
+	switch (reg_used){
+	case 0:
+		// increment the triggers vector iterator
+		organism->nextTrigger();
+		break;
+	case 1:
+		// increment the guards vector iterator
+		organism->nextGuard();
+		break;
+	case 2:
+		// increment the actions vector iterator
+		organism->nextAction();
+		break;
+   // default:
+		// we should never get here...
+	}
+	
+	return true;
+}
+ 
+bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
+{
+	int reg_used = FindModifiedRegister(REG_AX);
+	
+	switch (reg_used){
+	case 0:
+		// increment the triggers vector iterator
+		organism->prevTrigger();
+		break;
+	case 1:
+		// increment the guards vector iterator
+		organism->prevGuard();
+		break;
+	case 2:
+		// increment the actions vector iterator
+		organism->prevAction();
+		break;
+   // default:
+		// we should never get here...
+	}
+	return true;
+}
+
+bool cHardwareCPU::Inst_CreateTransitionLabel(cAvidaContext& ctx)
+{
+	return organism->crTransLabel();
+}
 
 
