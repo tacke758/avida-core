@@ -25,17 +25,19 @@
 
 cWorld::~cWorld()
 {
-  m_data_mgr->FlushAll();
-
   // m_actlib is not owned by cWorld, DO NOT DELETE
   delete m_analyze;
-  delete m_conf;
-  delete m_data_mgr;
+  delete m_pop;
+  delete m_class_mgr;
   delete m_env;
   delete m_event_list;
   delete m_hw_mgr;
-  delete m_pop;
   delete m_stats;
+
+  m_data_mgr->FlushAll();
+  delete m_data_mgr;
+
+  delete m_conf;
 
   // cleanup driver object, if needed
   if (m_own_driver) delete m_driver;

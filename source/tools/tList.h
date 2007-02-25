@@ -30,7 +30,13 @@ public:
   tListNode<T> * next;
   tListNode<T> * prev;
   
+// @DMB - Visual Studio doesn't like usage of 'this' in initializers
+//        and throws a lot of useless warnings.
+#ifdef WIN32
+  tListNode() : data(NULL) { next = this; prev = this; }
+#else
   tListNode() : data(NULL), next(this), prev(this) { ; }
+#endif
 
   template<class Archive>
   void serialize(Archive & a, const unsigned int version){
