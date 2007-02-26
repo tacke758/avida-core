@@ -880,6 +880,7 @@ void cStats::PrintUMLData(const cString& filename)
 df.Endl();
 }
 
+/*
 void cStats::UpdateModelStats (cOrganism::Graph& g)
 {
 
@@ -887,6 +888,6 @@ void cStats::UpdateModelStats (cOrganism::Graph& g)
 	av_number_of_trans.Add(num_edges(g));
 
 }
-
+*/
 
 

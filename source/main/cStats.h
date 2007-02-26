@@ -542,7 +542,7 @@ public:
 
 
   // UML Data Function
-  void UpdateModelStats (cOrganism::Graph& g);
+//  void UpdateModelStats (cOrganism::Graph& g);
   void HydraAttempt() { ++m_hydraAttempt; }
   void HydraPassed() { ++m_hydraPassed; }
   void SpinAttempt() { ++m_spinAttempt; }

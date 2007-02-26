@@ -231,35 +231,7 @@ private:  // Direct task related methods
   double Task_NetReceive(cTaskContext* ctx) const;
   
   // UML Tasks... 
-//  double Task_CreateStates(cTaskContext* ctx) const;
-//  double Task_CreateTransX(cTaskContext* ctx) const;
-//  double Task_CreateTranss(cTaskContext* ctx) const;
-	double Task_NumberOfState(cTaskContext* ctx) const;
-	double Task_NumberOfTrans(cTaskContext* ctx) const;
-	double Task_Hydra(cTaskContext* ctx) const;
-	double Task_Transition_ms0(cTaskContext* ctx) const;
-	double Task_Transition_ms1(cTaskContext* ctx) const;
-	double Task_Transition_ms2(cTaskContext* ctx) const;
-	double Task_Transition_ms3(cTaskContext* ctx) const;
-	double Task_Transition_ms4(cTaskContext* ctx) const;
-	double Task_Transition_ms5(cTaskContext* ctx) const;
-	double Task_Transition_bs0(cTaskContext* ctx) const;
-	double Task_Transition_bs1(cTaskContext* ctx) const;
-	double Task_Transition_bs2(cTaskContext* ctx) const;
-	double Task_Transition_bs3(cTaskContext* ctx) const;
-	double Task_Transition_bs4(cTaskContext* ctx) const;
-	double Task_Transition_bs5(cTaskContext* ctx) const;
-	double Task_Transition_bs6(cTaskContext* ctx) const;
-	double Task_Transition_bs7(cTaskContext* ctx) const;
-	double Task_Transition_bs8(cTaskContext* ctx) const;
-	double Task_Transition_bs9(cTaskContext* ctx) const;
-	double Task_Transition_bs10(cTaskContext* ctx) const;
-	double Task_TransLabTest1(cTaskContext* ctx) const;
-	double Task_TransLabTest2(cTaskContext* ctx) const;
-	double Task_TransLabTest3(cTaskContext* ctx) const;
 
-	double SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const;
-	double Task_SpinN1(cTaskContext* ctx) const;
 };
 
 

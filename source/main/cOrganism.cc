@@ -50,6 +50,7 @@ std::string loadFile(const char* filename) {
 	}
 	
 	//read from file; load into string/strstream, and return it.
+	
 	return data;
 }
 
@@ -123,10 +124,12 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   actions.push_back("ac");
   actions.push_back("ad");
   
-  triggers_it = triggers.begin();
-  guards_it = guards.begin();
-  actions_it = actions.begin();
-
+  trigger_index = 0;
+  action_index = 0;
+  guard_index = 0;
+  orig_state_index = -1;
+  dest_state_index = -1;
+  total_states = 0;
 }
 
 
@@ -454,9 +457,7 @@ void cOrganism::NetReset()
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 
-	// CHECK OUT WHETHER THE IDEAL WORKS....
 	printXMI(ctx);
-	//printIdealXMI(ctx);
 	
 
   assert(m_interface);
@@ -511,715 +512,274 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
     m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
   }
   
-  m_world->GetStats().UpdateModelStats(uml_state_diagram);
+//  m_world->GetStats().UpdateModelStats(uml_state_diagram);
   
 }
 
+// For all of the next* functions
+// increment the index. If the index points to the end of the vector, it should then point to 
+// the beginning of the vector.
 
-// This sets the meaning of the transitions to those of the Multi-Sensor Example.
-
-void cOrganism::initTransForMSXMI()
-{
-
-	// assign transition values to map elements
-	std::map <int, std::string>::iterator it;
-	std::string temp;
-	int count = 0;
-
-	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
-	switch (count){
-		case 0:
-			(*it).second = "";
-			break;
-		case 1:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-176F1237-1448-4226-A095-075FABD68B33\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">";
-			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" "; 
-			temp += "body=\"^TempSensor.getTempData()\"/>  </UML:Action.script> ";
-			temp += "</UML:UninterpretedAction> </UML:Transition.effect> \n";
-			(*it).second = temp;
-			break;
-		case 2:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> ";
-            temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
-			temp += "<UML:CallEvent xmi.id=\"XDE-4C4256DD-D7D7-4687-AA73-761334859279\" " ;
-			temp += " operation=\"XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07\" name=\"setTempData\" ";
-			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>\n";
-			(*it).second = temp;
-			break;
-		case 3: 
-			(*it).second = "";
-			break;
-		case 4: 
-			temp = "";
-			temp += "<UML:Transition.effect>  <UML:UninterpretedAction xmi.id=\"XDE-8280CF2B-DA14-4989-AC7F-D83012DE3234\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
-			temp += "<UML:Action.script> <UML:ActionExpression language=\"\" ";
-			temp += " body=\"^TempSensor.getOpState()\"/>  </UML:Action.script> ";
-			temp += " </UML:UninterpretedAction> </UML:Transition.effect>\n";
-			(*it).second =temp;
-			break;
-		case 5:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace>";
-			temp += "<UML:Namespace> <UML:Namespace.ownedElement> ";
-			temp += "<UML:CallEvent xmi.id=\"XDE-C2891D3C-A49E-4DF0-BD95-A291630F4E4B\" ";
-			temp += " operation=\"XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD\" name=\"setTempOpState\"";
-			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace>";
-			temp += " </UML:ModelElement.namespace> </UML:Event>  </UML:Transition.trigger>\n";
-			(*it).second = temp;
-			break;	
-		default:
-			(*it).second = " ";
-	}
-		count++;
-	}	
-}	
-	
-
-void cOrganism::initTransForBSXMI()
-{
-
-	// This particular assignment of transitions is designed to evolve the ability of Avida
-	// to develop a function that checks for operational state...
-	
-	std::map <int, std::string>::iterator it;
-	std::string temp;
-	int count = 0;
-
-	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
-	switch (count){
-		case 0:
-			(*it).second = "";
-			break;
-		case 1: 
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-A28463C5-2F9F-457C-B6F3-241526CA4791\" ";
-			temp += " operation=\"XDE-E84A5762-CA92-4E03-A237-FE5AE2C99D9A\" name=\"getBrightnessValue\" ";
-			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
-			(*it).second =temp;
-			break;
-		case 2:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-6C3D3042-5C7A-4746-8A90-BEDB86FD2FF4\" ";
-			temp += "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"^Environment.getBrightnessValue\"/> ";
-			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;	
-		case 3:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += " <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-79243838-9C4E-4908-9637-9F9583043BE4\" ";
-			temp += " operation=\"XDE-C8BD0DBA-E427-41A0-95F4-98FAA920ACA9\" name=\"setBrightnessValue\" ";
-			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
-			(*it).second = temp;
-			break;
-		case 4:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
-		case 5:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue&lt;0\" language=\"\"/> ";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=0\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
-		case 6:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue&gt;1000\" language=\"\"/> ";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;			
-		case 7:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" ";
-			temp += "isAsynchronous=\"false\" name="" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;	
-		case 8:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-7126ED39-5D5D-4160-924B-303514B17EAB\" ";
-			temp += " operation=\"XDE-1266DA8A-61C0-43B4-A77C-200F54A6585D\" name=\"getOperationalState\"";
-			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>";
-			(*it).second = temp;
-			break;
-		case 9:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-D9BCD8D1-7FC4-4B14-9E76-D3A642799013\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += "<UML:ActionExpression language=\"\" body=\"operationalState:=1;^ComputingComponent.ccTRUE\"/> ";
-			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>";
-			(*it).second = temp;
-			break;
-		case 10: 
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-9F00136E-D61D-4BB0-B7D6-1E795238FD1E\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"operationalState:=0;^ComputingComponent.ccFALSE\"/> ";
-			temp += "</UML:Action.script>  </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = "";
-			break;
-	
-		default:
-			(*it).second = " ";
-	}
-		count++;
-	}
-
-/*	// This particular set of commented out transitions is designed to test the ability of 
-	// Avida to evolve the min/max functions that check value. 
-	// assign transition values to map elements
-	std::map <int, std::string>::iterator it;
-	std::string temp;
-	int count = 0;
-
-	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
-	switch (count){
-		case 0:
-			(*it).second = "";
-			break;
-		case 1:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-7126ED39-5D5D-4160-924B-303514B17EAB\" ";
-			temp += " operation=\"XDE-1266DA8A-61C0-43B4-A77C-200F54A6585D\" name=\"getOperationalState\"";
-			temp += " isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger>";
-			(*it).second = temp;
-			break;
-		case 2:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-D9BCD8D1-7FC4-4B14-9E76-D3A642799013\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += "<UML:ActionExpression language=\"\" body=\"operationalState:=1;^ComputingComponent.ccTRUE\"/> ";
-			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect>";
-			(*it).second = temp;
-			break;
-		case 3: 
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-9F00136E-D61D-4BB0-B7D6-1E795238FD1E\"";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"operationalState:=0;^ComputingComponent.ccFALSE\"/> ";
-			temp += "</UML:Action.script>  </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = "";
-			break;
-		case 4: 
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-A28463C5-2F9F-457C-B6F3-241526CA4791\" ";
-			temp += " operation=\"XDE-E84A5762-CA92-4E03-A237-FE5AE2C99D9A\" name=\"getBrightnessValue\" ";
-			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
-			(*it).second =temp;
-			break;
-		case 5:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-6C3D3042-5C7A-4746-8A90-BEDB86FD2FF4\" ";
-			temp += "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"^Environment.getBrightnessValue\"/> ";
-			temp += "</UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;	
-		case 6:
-			temp = "";
-			temp += "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			temp += " <UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"XDE-79243838-9C4E-4908-9637-9F9583043BE4\" ";
-			temp += " operation=\"XDE-C8BD0DBA-E427-41A0-95F4-98FAA920ACA9\" name=\"setBrightnessValue\" ";
-			temp += "isSpecification=\"false\"/> </UML:Namespace.ownedElement> </UML:Namespace> ";
-			temp += " </UML:ModelElement.namespace> </UML:Event> </UML:Transition.trigger> ";
-			(*it).second = temp;
-			break;
-		case 7:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue &gt;=0 &amp; brightnessValue&lt;=1000\" language=\"\"/>";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard> <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-8E3B2DF6-D63B-4A70-9CD3-FF0DE13EEDAD\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=brightnessValue\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
-		case 8:
-			temp = "";
-			temp += "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"XDE-101E5C46-12EA-4169-9DC9-D3661EE9836B\" ";
-			temp += "isAsynchronous=\"false\" name="" isSpecification=\"false\"> <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"^ComputingComponent.setBrightnessValue(brightnessValue)\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
-		case 9:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue&lt;0\" language=\"\"/> ";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=0\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;
-		case 10:
-			temp = "";
-			temp += "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			temp += "<UML:BooleanExpression body=\"brightnessValue&gt;1000\" language=\"\"/> ";
-			temp += " </UML:Guard.expression> </UML:Guard> </UML:Transition.guard>  <UML:Transition.effect> ";
-			temp += " <UML:UninterpretedAction xmi.id=\"XDE-7D6DDE48-7568-4043-B00A-87EFBE1A6CB3\" ";
-			temp += " isAsynchronous=\"false\" name=\"\" isSpecification=\"false\">  <UML:Action.script> ";
-			temp += " <UML:ActionExpression language=\"\" body=\"correctedBrightnessValue:=1000\"/> ";
-			temp += " </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";
-			(*it).second = temp;
-			break;			
-		default:
-			(*it).second = " ";
-	}
-		count++;
-	}
-	
-*/			
-}	
-	
-
-
-bool cOrganism::addTrans(int trans, int orig, int dest) 
-{
-	NameStateMap::iterator pos1, pos2;
-	bool inserted1, inserted2, inserted3;
-	bool exists = 0;
-	State u, v;
-
-
-	// create or find origin state
-	tie(pos1, inserted1) = states.insert(std::make_pair(orig, State()));
-        if (inserted1) {
-                u = add_vertex(uml_state_diagram);
-                uml_state_diagram[u].state_label = orig;
-                pos1->second = u;
-				
-				// add to the map between position and label.... 
-				PosToStateLabel[states.size()] = orig;
-				
-        } else  {
-                u = pos1->second;
-        }
-
-	// create or find dest state
-	tie(pos2, inserted2) = states.insert(std::make_pair(dest, State()));
-        if (inserted2) {
-                v = add_vertex(uml_state_diagram);
-                uml_state_diagram[v].state_label = dest;
-                pos2->second = v;
-				
-				// add to map betweek positions and label.....
-				PosToStateLabel[states.size()] = orig;
-
-				
-        } else  {
-                v = pos2->second;
-        }
-		// call isTrans...	
-		exists = isTrans(u, v, trans);
-		if (exists == 0) {
-			tie(transitions, inserted3) = add_edge(u, v, uml_state_diagram);
-			if (inserted3) {
-				uml_state_diagram[transitions].edge_label = trans;
-				uml_state_diagram[transitions].start_state = orig;
-				uml_state_diagram[transitions].end_state = dest;
-		
-				// add trans to table...
-				transGuardActionInfo.insert(std::make_pair(trans, ""));
-			}
-		}
-	return true;
-}
-
-
-bool cOrganism::addTransConnect(int trans, int orig, int dest) 
-{
-	// find either the orig int or the dest int in the map of states & names
-	
-	// originally thought that either orig or dest could be connected, but actually, must be orig.
-	if ((states.find(orig) == states.end()) && (numStates()>0)) 
-	{
-		return false;
-	}
-	
-	return (addTrans(trans,orig,dest));
-}
-
-
-// similar to getTransBetweenVertices... 
-// optimization candidate perhaps using edge_range as per DBK
-bool cOrganism::isTrans(State u, State v, int trans_name)
-{
-	oei e1, e2;
-	bool exists = 0;
-
-	// check to see if another trans has the same start, dest, and label 
-	// if so, do not create trans. Else, create trans.
-	for (tie(e1, e2) = out_edges(u, uml_state_diagram); e1 != e2; ++e1) {
-		if ((target(*e1, uml_state_diagram) == v) && (uml_state_diagram[*e1].edge_label == trans_name)) {
-			 exists = 1;
-			 break;
-		} 
-	}
-	
-	return exists;
-}
-
-int cOrganism::getTransNumber (int pos) 
-{
-	int count = 0;
-	int trans_name = -1;
-	std::map <int, std::string>::iterator it;
-	
-	for (it = transGuardActionInfo.begin(); it!=transGuardActionInfo.end(); ++it) { 
-		if (count == pos){
-			trans_name = (*it).first;
-			break;
-		}
-		count++;
-	}
-	
-	return trans_name;
-
-}
-
-bool cOrganism::findTrans(int s0_pos, int s1_pos, int t_pos)
-{
-	int found_entry = 0;
-	int trans_name;
-	
-	trans_name = getTransNumber (t_pos); 
-	
-	if (trans_name == -1) {
-		return found_entry;
-	}
-	
-	if ((numStates() <= s0_pos) || (numStates() <= s1_pos)) {
-		return found_entry;
-	}
-	
-	cOrganism::State& s0 = getStateInPosition(s0_pos);
-	cOrganism::State& s1 = getStateInPosition(s1_pos);
-
-	if (isTrans(s0, s1, trans_name)) { 
-		found_entry = 1;
-	} 
-	
-	return found_entry;
-
-}
-
-
-void cOrganism::printXMI(cAvidaContext& ctx)
-{
-
-	Graph::vertex_iterator i, iend;
-	Graph::edge_iterator e, eend;
-	
-	int trans_label;
-	int dest_state;
-	std::string temp, temp1, temp2;
-	int tempint;
-	
-	initTransForMSXMI();
-
-	xmi = "";
-	// loop through all states
-	// print initial information for the init state.
-
-	tie(i, iend) = vertices(uml_state_diagram);
-	
-	if (numStates() > 0) {
-		temp = stringifyAnInt(uml_state_diagram[0].state_label);
-		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
-		xmi += temp + "\" isSpecification=\"false\"/>\n";
-		++i;
-	}
-	
-	
-	for (; i != iend; ++i) {
-		temp = "s" + stringifyAnInt(uml_state_diagram[*i].state_label);
-		xmi+="<UML:CompositeState xmi.id=\"";
-		xmi+=temp;
-		xmi+= "\" isConcurrent=\"false\" name=\""; 
-		xmi+= temp; 
-		xmi+= "\" isSpecification=\"false\"/>\n";
-		}
-		
-		// end the set of states....
-		xmi+= "</UML:CompositeState.subvertex>\n";
-		xmi+= "</UML:CompositeState>\n";
-		xmi+= "</UML:StateMachine.top>\n";
-		
-		// start the set of transitions...
-		xmi+="<UML:StateMachine.transitions>\n";
-
-
-
-	for (tie(e, eend) = edges(uml_state_diagram); e != eend; ++e) { 
-		// info determined from the trans itself....
-		trans_label = uml_state_diagram[*e].edge_label;
-		temp = "t" + stringifyAnInt(uml_state_diagram[*e].edge_label);
-		temp1 = "s" + stringifyAnInt(uml_state_diagram[*e].start_state);
-		temp2 = "s" + stringifyAnInt(uml_state_diagram[*e].end_state);
-		temp = temp + temp1 + temp2;
-		// if I manage to set edge_info, I could then use that to print...
-		// currently the start state and end state are already encoded. :)
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
-		xmi+= " source=\"" + temp1 + "\"";
-		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
-		
-		
-		temp = transGuardActionInfo[trans_label];
-		xmi += temp;
-
-		xmi += "</UML:Transition>\n";
-
-	
-	}
-}
-
-
-
-// print the label. Change - signs to _
-std::string cOrganism::stringifyAnInt(int x) { 
-
-	std::ostringstream o;
-
-	if (x < 0) {
-		x = abs(x);
-		o << "_";
-	} 
-	
-	o << x;
-	return o.str();
-}
-
-// return the number of states in a state diagram
-double cOrganism::numStates() 
-{
-	return (double) num_vertices(uml_state_diagram);
-}
-
-double cOrganism::numTrans()
-{
-	return (double) num_edges(uml_state_diagram);
-}
-
-double cOrganism::numUniqueTransLabels() 
-{
-	return transGuardActionInfo.size();
-}
-
-std::string cOrganism::getXMI()
-{
-//	std::string temp = xmi_begin + xmi + xmi_end;
-//	cout << "PRINT XMI" << endl;
-//	cout << temp << endl;
-//	cout << "END PRINT XMI" << endl;
-	return (xmi_begin + xmi + xmi_end);
-}
-
-// This function takes in an integer and returns the state in that position within the states map. Recall that this
-// map relates integers (the number assigned to a state) to a state in the graph.
-// ... Potential candidate for optimization as per DBK ... 
-
-cOrganism::State& cOrganism::getStateInPosition (int num)
-{
-	int count = 0;
-	// This code uses a value ordering on the states (lowest number = position 0)
-	nsm_it i;
-	for (i=states.begin(); i!=states.end(); ++i)
-	{
-		if (count == num) {
-			break;
-		}
-		count++;
-	}
-	return i->second;
-	
-}
-
-
-
-
-// if you ask for something greater than the number of states then you get the highest numbered state.
-int cOrganism::getStateLabelInPosition (int num)
-{
-
-	int count = 0;
-	// This code uses a value ordering on the states (lowest number = position 0)
-	nsm_it i;
-	for (i=states.begin(); i!=states.end(); ++i)
-	{
-		if (count == num) {
-			break;
-		}
-		count++;
-	}
-	return i->first;
-
-}
-
-
-// if you ask for something greater than the number of trans -- you get the highest numbered one...
-int cOrganism::getTransLabelInPosition (int num)
-{
-	int count = 0;
-	tm_it i;
-	for (i=transGuardActionInfo.begin(); i!=transGuardActionInfo.end(); ++i)
-	{
-		if (count == num) {
-			break;
-		}
-		count++;
-	}
-
-	return i->first;
-	
-}
-
-cOrganism::Graph& cOrganism::getGraph()
-{
-	return uml_state_diagram;
-}
 
 bool cOrganism::nextTrigger()
 {
-	triggers_it++;
-	if (triggers_it == triggers.end()){
-		triggers_it = triggers.begin();
+	if (triggers.size() == 0) {
+		return false;
 	}
-}
 
-bool cOrganism::prevTrigger()
-{
-	if (triggers_it == triggers.begin()){
-		triggers_it = triggers.end();
-	} 
-	triggers_it--;
+	trigger_index++;
+	if (trigger_index >= triggers.size()) {
+		trigger_index = 0;
+	}
+	return true;
+
 }
 
 bool cOrganism::nextGuard()
 {
-	guards_it++;
-	if (guards_it == guards.end()){
-		guards_it = guards.begin();
+	if (guards.size() == 0) {
+		return false;
 	}
-}
-
-bool cOrganism::prevGuard()
-{
-	if (guards_it == guards.begin()){
-		guards_it = guards.end();
-	} 
-	guards_it--;
+	
+	guard_index++;
+	if (guard_index >= guards.size()) {
+		guard_index = 0;
+	}
+	
+	return true;
 }
 
 bool cOrganism::nextAction()
 {	
-	actions_it++;
-	if (actions_it == actions.end()){
-		actions_it = actions.begin();
+	if (actions.size() == 0) {
+		return false;
 	}
+	
+	action_index++;
+	if (action_index >= actions.size()) {
+		action_index = 0;
+	}
+	
+	return true;
+}
+
+/*  int orig_state_index;
+  int dest_state_index;
+  int trans_label_index;*/
+  
+bool cOrganism::nextTransitionLabel()
+{
+	if (transition_labels.size() == 0) {
+		return false;
+	}
+	trans_label_index++;
+	if (trans_label_index >= transition_labels.size()) {
+		trans_label_index = 0;
+	}
+	
+	return true;
+}
+
+bool cOrganism::nextOriginState()
+{
+	if (total_states == 0) {
+		return false;
+	}
+	orig_state_index++;
+	if (orig_state_index >= total_states) {
+		orig_state_index = 0;
+	}
+	
+	return true;
+}
+
+
+bool cOrganism::nextDestinationState()
+{
+	if (total_states == 0) {
+		return false;
+	}
+	dest_state_index++;
+	if (dest_state_index >= total_states) {
+		dest_state_index = 0;
+	}
+	return true;
+}
+
+
+bool cOrganism::prevTrigger()
+{
+	if (triggers.size() == 0) {
+		return false;
+	}
+	
+	if (trigger_index <= 0) {
+		trigger_index = triggers.size();
+	}
+	trigger_index--;
+	
+	return true;
+}
+
+
+
+bool cOrganism::prevGuard()
+{
+	if (guards.size() == 0) {
+		return false;
+	}
+	
+	if (guard_index <= 0) {
+		guard_index = guards.size();
+	}
+	guard_index--;
+	
+	return true;
 }
 
 bool cOrganism::prevAction()
 {
-	if (actions_it == actions.begin()){
-		actions_it = actions.end();
+	if (actions.size() == 0) {
+		return false;
+	}
+	if (action_index <= 0) {
+		action_index = actions.size();
+	}
+	action_index--;
+	
+	return true;
+}
+
+bool cOrganism::prevTransitionLabel()
+{
+	if (transition_labels.size() == 0) {
+		return false;
+	}
+	if (trans_label_index <= 0) {
+		trans_label_index = transition_labels.size();
+	}
+	trans_label_index--;
+	
+	return true;
+}
+
+
+bool cOrganism::prevOriginState() 
+{
+	if (total_states == 0) {
+		return false;
+	}
+	if (orig_state_index <= 0) {
+		orig_state_index = total_states;
 	} 
-	actions_it--;
+	orig_state_index--;
+	
+	return true;
+}
+
+bool cOrganism::prevDestinationState() 
+{
+	if (total_states == 0) {
+		return false;
+	}
+	if (dest_state_index <= 0) {
+		dest_state_index = total_states;
+	} 
+	dest_state_index--;
+	
+	return true;
 }
 
 std::string cOrganism::getTrigger()
 {
-	std::string tmp;
-	if (triggers.size() > 0) {
-		tmp = *triggers_it;
+	if (triggers.size() == 0) {
+		return "";
 	} else {
-		tmp = ""; 
+		return triggers[trigger_index];
 	}
-	return tmp;
 }
 
 std::string cOrganism::getGuard()
 {
-	std::string tmp;
-	if (guards.size() > 0) {
-		tmp = *guards_it;
+	if (guards.size() == 0) {
+		return "";
 	} else {
-		tmp = ""; 
+		return guards[guard_index];
 	}
-	return tmp;
 }
 
 std::string cOrganism::getAction()
 {
-	std::string tmp;
-	if (actions.size() > 0) {
-		tmp = *actions_it;
+	if (actions.size() == 0) {
+		return "";
 	} else {
-		tmp = ""; 
+		return actions[action_index];
 	}
-	return tmp;
 }
 
-bool cOrganism::crTransLabel()
+int cOrganism::getOrigState()
 {
-//	std::string tmp_trigger = getTrigger();
-//	std::string tmp_guard = getGuard();
-//	std::string tmp_action = getAction();
-	std::string tmp_label = getTrigger() + getGuard() + getAction();
-//	  std::vector<std::string> transition_labels;
-	transition_labels.push_back(tmp_label);
+	return orig_state_index;
+}
+ 
+int cOrganism::getDestState()
+{
+	return dest_state_index;
+}
 
+transition_label cOrganism::getTransLabel()
+{
+	return transition_labels[trans_label_index];
+}
+
+// State manipulation
+bool cOrganism::addState()
+{
+	total_states++;
+	// if this is the first state, point the orig and dest state indices to it
+	if (total_states == 1) {
+		orig_state_index = 0;
+		dest_state_index = 0;
+	}
 	return true;
 }
 
-bool cOrganism::isTransLabel(std::string desired_lab)
+bool cOrganism::addTransitionLabel()
 {
-	std::vector<std::string>::iterator tr_lab_it;
-	for(tr_lab_it = transition_labels.begin(); tr_lab_it != transition_labels.end(); tr_lab_it++)
-	{
-			if (desired_lab == *tr_lab_it) {
-				return true;
-			}
-	} 
-	return false;
+
+	transition_label t;
+	t.trigger = getTrigger();
+	t.guard = getGuard();
+	t.action = getAction();
+	
+	transition_labels.push_back(t);
+	
+	return true;
 }
 
+
+bool cOrganism::addTransition()
+{
+	if ((total_states == 0) || (transition_labels.size() == 0)) {
+		return false;
+	} 
+
+	transition t;
+	t.orig_state = getOrigState();
+	t.dest_state = getDestState();
+	t.trans = getTransLabel();
+
+	transitions.push_back(t);
+	return true;
+
+}
+
+
+
+void cOrganism::printXMI(cAvidaContext& ctx)
+{
+	return;
+}
 
 
 bool cOrganism::InjectParasite(const cGenome& injected_code)

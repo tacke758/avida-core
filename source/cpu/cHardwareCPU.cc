@@ -351,31 +351,17 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
     // nop-x (included with nops)
     cInstEntryCPU("skip",      &cHardwareCPU::Inst_Skip),
 	
-	    // UML Element Creation
-//	cInstEntryCPU("cr-state", &cHardwareCPU::Inst_CreateState, false, 
-//					"Create a state"), 
-	cInstEntryCPU("cr-trans-con", &cHardwareCPU::Inst_CreateTransitionConnect, false, 
-					"Create a connected transition"), 
-	cInstEntryCPU("cr-trans", &cHardwareCPU::Inst_CreateTransition, false, 
-					"Create a transition"), 
-	cInstEntryCPU("get-trans", &cHardwareCPU::Inst_GetTrans, false, 
-					"Get a transition"), 				
-	cInstEntryCPU("get-state", &cHardwareCPU::Inst_GetState, false, 
-					"Get a state"), 				
-	cInstEntryCPU("remove-tr", &cHardwareCPU::Inst_DeleteTrans, false, 
-					"Remove a transition"),
+	    // UML Element Creation			
+	cInstEntryCPU("addState", &cHardwareCPU::Inst_AddState, false, 
+					"Add a new state"),
 	cInstEntryCPU("next", &cHardwareCPU::Inst_Next, false, 
 					"Increment to the next position in the list"),
 	cInstEntryCPU("prev", &cHardwareCPU::Inst_Prev, false, 
 					"Decrement to the previous position in the list"),
-	cInstEntryCPU("cr-trans-lab", &cHardwareCPU::Inst_CreateTransitionLabel, false, 
-					"Create a transition label"),								
-				
-				
-//	cInstEntryCPU("model-ch", &cHardwareCPU::Inst_ModelCheck, false, 
-//					"Model check the model"), 
-//	cInstEntryCPU("cr-trans2", &cHardwareCPU::Inst_CreateTransitionIntStates, false, 
-//					"Create a transition; States read from registers")
+	cInstEntryCPU("addTransLab", &cHardwareCPU::Inst_AddTransitionLabel, false, 
+					"Add a transition label"),
+	cInstEntryCPU("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
+					"Add a transition")													
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3393,240 +3379,36 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 
 //// UML Element Construction ////
 
-/*
-bool cHardwareCPU::Inst_CreateState(cAvidaContext& ctx)
-{
-	const int reg_used = FindModifiedRegister(REG_AX);
-// currently, we are only allowing for 3 states, nop-A, nop-B, nop-C	
-	organism->uml_states[reg_used]=reg_used;
-	if (organism->uml_states.size() > 2) 
-		return true; 
-	 
-	
-	return true;
-}
-
-bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
-{
-	// a transition should consist of 3 nops; all of which are optional....
-	// must figure out how to do that...
-	const int trans = FindModifiedRegister(REG_AX);
-	const int orig_state = FindModifiedRegister(REG_AX);
-	const int dest_state = FindModifiedRegister(REG_BX);
-	
-	pair<int, int> st;
-	st = make_pair (orig_state, dest_state);
-	
-	//m.insert(pair<const char* const, int>("a", 1));
-	organism->uml_transitions.insert(pair<int, pair<int, int> >(trans, st));
-	if ((trans == 1) && (orig_state == 1) && (dest_state == 2))
-		return true;
-	
-	return true;
-}
-
-
-bool cHardwareCPU::Inst_ModelCheck(cAvidaContext& ctx)
-{
-//  const int reg_used = FindModifiedRegister(REG_BX);
-  
-  // Do the "put" component
-//  const int value_out = GetRegister(reg_used);
-  organism->ModelCheck(ctx); // , value_out);  // Check for tasks completed.
-  
-// Do the "get" component
-//  const int value_in = organism->GetNextInput();
-//  GetRegister(reg_used) = value_in;
-//  organism->DoInput(value_in);
-  return true;
-}
-
-
-bool cHardwareCPU::Inst_CreateTransitionIntStates(cAvidaContext& ctx)
-{
-
-// a transition should consist of an integer in a nop.
-	int reg_used = FindModifiedRegister(REG_AX);
-	int trans = GetRegister(reg_used);
-	
-// the origin and destination states are determined by the values in reg b and reg c.
-// both registers could be modified by a nop...
-	reg_used = FindModifiedRegister(REG_BX);
-    int orig_state = GetRegister(reg_used);
-	reg_used = FindNextRegister(reg_used);
-	int dest_state = GetRegister(reg_used);
-	
-	// add states to set of states 
-	organism->uml_state_set.insert(orig_state);
-	organism->uml_state_set.insert(dest_state);
-	organism->uml_trans_set.insert(pair<int, std::string>(trans, ""));
-	
-	// add transition to multipmap
-	pair<int, int> st;
-	st = make_pair (orig_state, dest_state);	
-	organism->uml_transitions.insert(pair<int, pair<int, int> >(trans, st));
-
-	// add transition to mapping by state
-	st = make_pair (trans, dest_state);
-	organism->uml_trans_by_state.insert(pair<int, pair<int, int> >(orig_state, st));
-	
-	return true;
-
-}
-*/
-
-bool cHardwareCPU::Inst_CreateTransition(cAvidaContext& ctx)
-{
-	// a transition should consist of an integer in a nop.
-	int reg_used = FindModifiedRegister(REG_AX);
-	int trans = GetRegister(reg_used);
-	
-// the origin and destination states are determined by the values in reg b and reg c.
-// both registers could be modified by a nop...
-	reg_used = FindModifiedRegister(REG_BX);
-    int orig_state = GetRegister(reg_used);
-	reg_used = FindNextRegister(reg_used);
-	int dest_state = GetRegister(reg_used);
-	
-	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
-	return organism->addTrans(trans, orig_state, dest_state);	
-	// create or find destination state
-
-	// check to see if this transition already exists; else add it
-
-	 
-//	return true;
-}
-
-bool cHardwareCPU::Inst_CreateTransitionConnect(cAvidaContext& ctx)
-{
-	// a transition should consist of an integer in a nop.
-	int reg_used = FindModifiedRegister(REG_AX);
-	int trans = GetRegister(reg_used);
-	
-// the origin and destination states are determined by the values in reg b and reg c.
-// both registers could be modified by a nop...
-	reg_used = FindModifiedRegister(REG_BX);
-    int orig_state = GetRegister(reg_used);
-	reg_used = FindNextRegister(reg_used);
-	int dest_state = GetRegister(reg_used);
-	
-	//cout << "trans: " << trans << " orig_state: " << orig_state << " dest_state: " << dest_state << endl;
-	return organism->addTransConnect(trans, orig_state, dest_state);	
-	// create or find destination state
-
-	// check to see if this transition already exists; else add it
-
-	 
-//	return true;
-}
-
-
-bool cHardwareCPU::Inst_GetState(cAvidaContext& ctx) 
-{
-
-	ReadLabel();
-    GetLabel();
-
-	int state_pos = GetLabel().AsInt(3);
-//	cString a = GetLabel().AsString();
-
-
-
-	// This did not work. Time to try again.
-/*
-	// get the state indexed by the number in 
-	int reg_used = FindModifiedRegister(REG_AX);
-	int state_pos = GetRegister(reg_used);
-*/	
-	
-	if ((state_pos >= 0) && (state_pos < organism->numStates())) {
-	int state_label = organism->getStateLabelInPosition(state_pos);
-	
-	
-/*	
- assert(default_register < NUM_REGISTERS);  // Reg ID too high.
-  
-  if (m_inst_set->IsNop(IP().GetNextInst())) {
-    IP().Advance();
-    default_register = m_inst_set->GetNopMod(IP().GetInst());
-    IP().SetFlagExecuted();
-  }
-  return default_register;
-*/	
-	// put value into register...
-//    FindNextRegister(reg_used) = state_label;
-	GetRegister(REG_CX) = state_label;
-	}
-
-
-
-// this needs to calculate a state to return based on some crazy nop calculation
-
-	// check if next instruction is nop. 
-
-	return true;
-	
-	
-}  
-  
-bool cHardwareCPU::Inst_GetTrans(cAvidaContext& ctx)
-{
-/*	// get the state indexed by the number in 
-	int reg_used = FindModifiedRegister(REG_AX);
-	int trans_pos = GetRegister(reg_used);*/
-	
-	ReadLabel();
-    GetLabel();
-
-	int trans_pos = GetLabel().AsInt(3);
-	
-	if ((trans_pos >= 0) && (trans_pos < organism->numTrans())) {
-	int label = organism->getTransLabelInPosition(trans_pos);
-	
-	// put value into register...
-	GetRegister(REG_AX) = label;
-	}
-
-	return true;
-}
-
-bool cHardwareCPU::Inst_DeleteTrans(cAvidaContext& ctx) 
-{
-	ReadLabel();
-    GetLabel();
-
-	int trans_pos = GetLabel().AsInt(1);
-	
-	if ((trans_pos >= 0) && (trans_pos < organism->numTrans())) {
-	
-//		organism->deleteTrans(trans_pos);
-		// delete the transition in this position....
-//		int label = organism->getTransLabelInPosition(trans_pos);
-
-	}
-
-	return true;
-}
-
 bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
 {
-	// by default, this instruction increments the triggers vector iterator
+	// by default, this instruction increments the triggers vector index
 	
 	int reg_used = FindModifiedRegister(REG_AX);
 	
 	switch (reg_used){
 	case 0:
-		// increment the triggers vector iterator
+		// increment the triggers vector index
 		organism->nextTrigger();
 		break;
 	case 1:
-		// increment the guards vector iterator
+		// increment the guards vector index
 		organism->nextGuard();
 		break;
 	case 2:
-		// increment the actions vector iterator
+		// increment the actions vector index
 		organism->nextAction();
+		break;
+	case 3:
+		// increment the transition labels index
+		organism->nextTransitionLabel(); 
+		break;
+	case 4:
+		// increment the origin state index
+		organism->nextOriginState();
+		break;
+	case 5:
+		// increment the destination state index
+		organism->nextDestinationState();
 		break;
    // default:
 		// we should never get here...
@@ -3641,16 +3423,28 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 	
 	switch (reg_used){
 	case 0:
-		// increment the triggers vector iterator
+		// decrement the triggers vector index
 		organism->prevTrigger();
 		break;
 	case 1:
-		// increment the guards vector iterator
+		// decrement the guards vector index
 		organism->prevGuard();
 		break;
 	case 2:
-		// increment the actions vector iterator
+		// decrement the actions vector index
 		organism->prevAction();
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->prevTransitionLabel();
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->prevOriginState();
+		break;
+	case 5:
+		// decement the destination state index
+		organism->prevDestinationState();
 		break;
    // default:
 		// we should never get here...
@@ -3658,9 +3452,19 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 	return true;
 }
 
-bool cHardwareCPU::Inst_CreateTransitionLabel(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
 {
-	return organism->crTransLabel();
+	return organism->addTransitionLabel();
+//	return true;
 }
 
+bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
+{
+	return organism->addState();
+}
+
+bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
+{
+	return organism->addTransition();
+}
 
