@@ -248,23 +248,6 @@
 		E626209E0A372C2A00C07685 /* SaveLoadActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 708051A80A1F65FE00CBB8B6 /* SaveLoadActions.cc */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		B408F0A30B7E5A8C0002069F /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Development;
-		};
-		B408F0A40B7E5A8C0002069F /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXContainerItemProxy section */
 		70DCF67509D4E10500924128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1653,12 +1636,6 @@
 		DCC30C4D0762532C008F7A48 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 702442D70859E0B00059BD9B /* Build configuration list for PBXProject "Avida" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				B408F0A30B7E5A8C0002069F /* Development */,
-				B408F0A40B7E5A8C0002069F /* Deployment */,
-			);
 			hasScannedForEncodings = 0;
 			mainGroup = DCC30C490762532C008F7A48;
 			productRefGroup = DCC3164E07626CF3008F7A48 /* Products */;

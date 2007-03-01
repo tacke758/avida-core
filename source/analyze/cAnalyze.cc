@@ -6615,7 +6615,7 @@ void cAnalyze::AnalyzeEpistasis(cString cur_string)
 	// Adjust fitness, normalizing & removing beneficials
 	cerr << cur_inst_X << " " << cur_inst_Y << endl;
 	double cur_inst_fitness = test_fitness[cur_inst_X][cur_inst_Y];
-	cerr << cur_inst_fitness << endl; cin.ignore();
+	cerr << cur_inst_fitness << endl;// cin.ignore();
 	for (int mod_A = 0; mod_A < num_insts; mod_A++) {
 	  for (int mod_B = 0; mod_B < num_insts; mod_B++){
             if (test_fitness[mod_A][mod_B] > cur_inst_fitness)
@@ -6672,7 +6672,7 @@ void cAnalyze::AnalyzeEpistasis(cString cur_string)
 	  count++;
 	}
 	cerr << "iteration: " << count << " w_bar: " << w_bar << endl;
-	cin.ignore();
+	//cin.ignore();
 
 	// Write probability
 	for (int mod_A = 0; mod_A < num_insts; mod_A++) {
