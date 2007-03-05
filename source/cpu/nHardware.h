@@ -20,7 +20,7 @@ namespace nHardware {
   static const int MAX_NOPS = 6;
   static const int MAX_LABEL_SIZE = 10;
   
-  enum tHeads { HEAD_IP = 0, HEAD_READ, HEAD_WRITE, HEAD_FLOW, NUM_HEADS };
+  enum tHeads { HEAD_IP = 0, HEAD_READ, HEAD_WRITE, HEAD_FLOW, NUM_HEADS = 6 };
   
   static const int STACK_SIZE = 10;
   static const int IO_SIZE = 3;

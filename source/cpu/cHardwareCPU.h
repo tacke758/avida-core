@@ -66,9 +66,9 @@ public:
 
 protected:
   // --------  Structure Constants  --------
-  static const int NUM_REGISTERS = 3;
+  static const int NUM_REGISTERS = 6;
   enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX };
-  static const int NUM_NOPS = 3;
+  static const int NUM_NOPS = 6;
   
   // --------  Data Structures  --------
   struct cLocalThread

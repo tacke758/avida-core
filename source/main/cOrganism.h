@@ -235,6 +235,9 @@ public:
   // UML Stuff
   void modelCheck(cAvidaContext& ctx);   // evaluate the model
   void printXMI(cAvidaContext& ctx);	 // print the XMI version of the model
+  bool findTrans(int, int); // find a transition between two states
+  int numStates();
+  int numTrans();
 
 // The next functions increment the index of the various vectors.
   bool nextTrigger();

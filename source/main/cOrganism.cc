@@ -127,6 +127,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   trigger_index = 0;
   action_index = 0;
   guard_index = 0;
+  trans_label_index = 0;
   orig_state_index = -1;
   dest_state_index = -1;
   total_states = 0;
@@ -516,6 +517,18 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
   
 }
 
+bool cOrganism::findTrans(int orig, int dest)
+{
+	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
+		if((i->orig_state == orig) && (i->dest_state == dest)) {
+			return true;
+		}
+	}
+	
+	return false;
+
+}
+
 // For all of the next* functions
 // increment the index. If the index points to the end of the vector, it should then point to 
 // the beginning of the vector.
@@ -774,7 +787,15 @@ bool cOrganism::addTransition()
 
 }
 
+int cOrganism::numStates()
+{
+	return total_states;
+}
 
+int cOrganism::numTrans()
+{
+	return transitions.size();
+}
 
 void cOrganism::printXMI(cAvidaContext& ctx)
 {

@@ -331,7 +331,22 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	  NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
   
   // UML tasks
-
+  else if (name == "trans1") // 
+	  NewTask(name, "Successfully created trans 1", &cTaskLib::Task_Trans1);
+  else if (name == "trans2") // 
+	  NewTask(name, "Successfully created trans 2", &cTaskLib::Task_Trans2);	  
+  else if (name == "trans3") // 
+	  NewTask(name, "Successfully created trans 3", &cTaskLib::Task_Trans3);
+  else if (name == "trans4") // 
+	  NewTask(name, "Successfully created trans 4", &cTaskLib::Task_Trans4);
+  else if (name == "trans5") // 
+	  NewTask(name, "Successfully created trans 5", &cTaskLib::Task_Trans5);
+  else if (name == "numStates") // 
+	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
+  else if (name == "numTrans") // 
+	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);	
+	
+	
 	
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -1836,4 +1851,62 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
   if (ctx->net_valid) return 1.0;
   return 0.0;
 }
+
+double cTaskLib::Task_Trans1(cTaskContext* ctx) const
+{
+	if (ctx->organism->findTrans(1,2)) return 1.0;
+	return 0.0;
+	
+	// check for a transition between 2 states
+
+}
+
+double cTaskLib::Task_Trans2(cTaskContext* ctx) const
+{
+	return ctx->organism->findTrans(2,3);
+
+}
+
+double cTaskLib::Task_Trans3(cTaskContext* ctx) const
+{
+	return ctx->organism->findTrans(3,4);
+
+}
+
+double cTaskLib::Task_Trans4(cTaskContext* ctx) const
+{
+	return ctx->organism->findTrans(4,5);
+
+}
+  
+double cTaskLib::Task_Trans5(cTaskContext* ctx) const
+{
+	return ctx->organism->findTrans(5,1);
+
+}
+
+double cTaskLib::Task_NumStates(cTaskContext* ctx) const
+{
+	double ns = (double) ctx->organism->numStates();
+	
+	if (ns <= 5 ) {
+		return ns; 
+	} else{
+		return 0.0;
+	}
+	
+}
+
+double cTaskLib::Task_NumTrans(cTaskContext* ctx) const
+{
+	double nt = (double) ctx->organism->numTrans();
+	
+	if (nt <= 5 ) {
+		return nt; 
+	} else{
+		return 0.0;
+	}
+}
+
+
 

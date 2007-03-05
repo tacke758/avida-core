@@ -230,7 +230,14 @@ private:  // Direct task related methods
   double Task_NetSend(cTaskContext* ctx) const;
   double Task_NetReceive(cTaskContext* ctx) const;
   
-  // UML Tasks... 
+  // UML Tasks...
+  double Task_Trans1(cTaskContext* ctx) const;
+  double Task_Trans2(cTaskContext* ctx) const;
+  double Task_Trans3(cTaskContext* ctx) const;
+  double Task_Trans4(cTaskContext* ctx) const;   
+  double Task_Trans5(cTaskContext* ctx) const;
+  double Task_NumStates(cTaskContext* ctx) const;
+  double Task_NumTrans(cTaskContext* ctx) const;
 
 };
 
