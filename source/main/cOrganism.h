@@ -255,6 +255,15 @@ public:
   bool prevOriginState();
   bool prevDestinationState();
   
+// The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
+  bool jumpGuard(int);
+  bool jumpAction(int);
+  bool jumpTrigger(int);
+  bool jumpTransitionLabel(int);
+  bool jumpOriginState(int);
+  bool jumpDestinationState(int);
+    
+  
 // The get functions get the value of the index of various vectors  
   std::string getTrigger();
   std::string getGuard();

@@ -703,6 +703,125 @@ bool cOrganism::prevDestinationState()
 	return true;
 }
 
+
+bool cOrganism::jumpTrigger(int jump_amount)
+{
+	if (triggers.size() == 0) {
+		return false;
+	}
+	
+	if (jump_amount > 0) { 
+		trigger_index = trigger_index + (jump_amount % triggers.size());
+		// index is greater than vector
+		if (trigger_index >= triggers.size()) { 
+			trigger_index -= triggers.size();
+		} else if(trigger_index < 0) { 
+			trigger_index += triggers.size();
+		}
+	}	
+	
+/*	
+	if (trigger_index <= 0) {
+		trigger_index = triggers.size();
+	}
+	trigger_index--;*/
+	
+	return true;
+}
+
+
+
+bool cOrganism::jumpGuard(int jump_amount)
+{
+	if (guards.size() == 0) {
+		return false;
+	}
+	
+	if (jump_amount > 0) { 
+		guard_index = guard_index + (jump_amount % guards.size());
+		// index is greater than vector
+		if (guard_index >= guards.size()) { 
+			guard_index -= guards.size();
+		} else if(guard_index < 0) { 
+			guard_index += guards.size();
+		}
+	}	
+	
+	return true;
+}
+
+bool cOrganism::jumpAction(int jump_amount)
+{
+	int act_size = actions.size();
+	if (actions.size() == 0) {
+		return false;
+	}
+	if (jump_amount > 0) { 
+		action_index = action_index + (jump_amount % actions.size());
+		// index is greater than vector
+		if (action_index >= actions.size()) { 
+			action_index -= actions.size();
+		} else if(action_index < 0) { 
+			action_index += actions.size();
+		}
+	}		
+	return true;
+}
+
+bool cOrganism::jumpTransitionLabel(int jump_amount)
+{
+	if (transition_labels.size() == 0) {
+		return false;
+	}
+	if (jump_amount > 0) { 
+		trans_label_index = trans_label_index + (jump_amount % transition_labels.size());
+		// index is greater than vector
+		if (trans_label_index >= transition_labels.size()) { 
+			trans_label_index -= transition_labels.size();
+		} else if(trans_label_index < 0) { 
+			trans_label_index += transition_labels.size();
+		}
+	}	
+	
+	return true;
+}
+
+
+bool cOrganism::jumpOriginState(int jump_amount) 
+{
+	if (total_states == 0) {
+		return false;
+	}
+	if (jump_amount > 0) { 
+		orig_state_index = orig_state_index + (jump_amount % total_states);
+		// index is greater than vector
+		if (orig_state_index >= total_states) { 
+			orig_state_index -= total_states;
+		} else if(orig_state_index < 0) { 
+			orig_state_index += total_states;
+		}
+	}		
+	return true;
+}
+
+bool cOrganism::jumpDestinationState(int jump_amount) 
+{
+	if (total_states == 0) {
+		return false;
+	}
+	if (jump_amount > 0) { 
+		dest_state_index = dest_state_index + (jump_amount % total_states);
+		// index is greater than vector
+		if (dest_state_index >= total_states) { 
+			dest_state_index -= total_states;
+		} else if(dest_state_index < 0) { 
+			dest_state_index += total_states;
+		}
+	}	
+	
+	return true;
+}
+
 std::string cOrganism::getTrigger()
 {
 	if (triggers.size() == 0) {

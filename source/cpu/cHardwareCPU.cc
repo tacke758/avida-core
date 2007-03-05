@@ -361,7 +361,9 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 	cInstEntryCPU("addTransLab", &cHardwareCPU::Inst_AddTransitionLabel, false, 
 					"Add a transition label"),
 	cInstEntryCPU("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
-					"Add a transition")													
+					"Add a transition"),
+	cInstEntryCPU("jump", &cHardwareCPU::Inst_JumpIndex, false, 
+					"Jump to a position in the list"),																	
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3451,6 +3453,46 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 	}
 	return true;
 }
+
+bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
+{
+	const int reg_used = FindModifiedRegister(REG_AX);
+	const int reg_jump = FindModifiedRegister(REG_BX);
+	int jump_amount = GetRegister(reg_jump);
+
+//	int jump_amount = 
+	
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->jumpTrigger(jump_amount);
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->jumpGuard(jump_amount);
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->jumpAction(jump_amount);
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->jumpTransitionLabel(jump_amount);
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->jumpOriginState(jump_amount);
+		break;
+	case 5:
+		// decement the destination state index
+		organism->jumpDestinationState(jump_amount);
+		break;
+   // default:
+		// we should never get here...
+	}
+	return true;
+}
+
 
 bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
 {
