@@ -1875,13 +1875,13 @@ double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 
 double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(4,5);
+	return ctx->organism->findTrans(0,1);
 
 }
   
 double cTaskLib::Task_Trans5(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(5,1);
+	return ctx->organism->findTrans(4,0);
 
 }
 
@@ -1890,7 +1890,7 @@ double cTaskLib::Task_NumStates(cTaskContext* ctx) const
 	double ns = (double) ctx->organism->numStates();
 	
 	if (ns <= 5 ) {
-		return ns; 
+		return (ns/5); 
 	} else{
 		return 0.0;
 	}
@@ -1902,7 +1902,7 @@ double cTaskLib::Task_NumTrans(cTaskContext* ctx) const
 	double nt = (double) ctx->organism->numTrans();
 	
 	if (nt <= 5 ) {
-		return nt; 
+		return (nt/5); 
 	} else{
 		return 0.0;
 	}
