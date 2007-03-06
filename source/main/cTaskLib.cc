@@ -1854,7 +1854,7 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 
 double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 {
-	if (ctx->organism->findTrans(1,2)) return 1.0;
+	if (ctx->organism->findTrans(1,2, "tagaaa")) return 1.0;
 	return 0.0;
 	
 	// check for a transition between 2 states
@@ -1863,25 +1863,25 @@ double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 
 double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(2,3);
+	return ctx->organism->findTrans(2,3, "tagdab");
 
 }
 
 double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(3,4);
+	return ctx->organism->findTrans(3,4, "tcgbac");
 
 }
 
 double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(0,1);
+	return ctx->organism->findTrans(0,1, "tbgcad");
 
 }
   
 double cTaskLib::Task_Trans5(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(4,0);
+	return ctx->organism->findTrans(4,0, "tdgaac");
 
 }
 

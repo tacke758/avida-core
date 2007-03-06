@@ -236,6 +236,7 @@ public:
   void modelCheck(cAvidaContext& ctx);   // evaluate the model
   void printXMI(cAvidaContext& ctx);	 // print the XMI version of the model
   bool findTrans(int, int); // find a transition between two states
+  bool findTrans(int, int, std::string); // find a transition between two states with a specific label.
   int numStates();
   int numTrans();
 

@@ -529,6 +529,21 @@ bool cOrganism::findTrans(int orig, int dest)
 
 }
 
+bool cOrganism::findTrans(int orig, int dest, std::string label) 
+{
+	std::string t_lab;
+	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
+		if((i->orig_state == orig) && (i->dest_state == dest)) {
+			t_lab = (i->trans.trigger + i->trans.guard + i->trans.action);
+			if (t_lab == label) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
 // For all of the next* functions
 // increment the index. If the index points to the end of the vector, it should then point to 
 // the beginning of the vector.
