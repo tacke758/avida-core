@@ -859,6 +859,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( GetUpdate(), "update" );
 	df.Write( av_number_of_states.Average(), "av num states");
 	df.Write( av_number_of_trans.Average(), "av num trans");
+	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
 	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
 	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
 	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
@@ -868,6 +869,7 @@ void cStats::PrintUMLData(const cString& filename)
 	
 	av_number_of_states.Clear();
 	av_number_of_trans.Clear();
+	av_number_of_trans_lab.Clear();
 
   m_hydraAttempt.Clear();
   m_hydraPassed.Clear();

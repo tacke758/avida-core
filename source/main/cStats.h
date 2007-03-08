@@ -221,7 +221,7 @@ private:
   // Stats for UML state diagrams
   cDoubleSum av_number_of_states;
   cDoubleSum av_number_of_trans;	
-  
+  cDoubleSum av_number_of_trans_lab;
   cDoubleSum m_hydraAttempt;
   cDoubleSum m_hydraPassed;
   cDoubleSum m_spinAttempt;
@@ -542,7 +542,10 @@ public:
 
 
   // UML Data Function
-//  void UpdateModelStats (cOrganism::Graph& g);
+//  void UpdateModelStats ();
+  void addState(int x) { av_number_of_states.Add(x); }
+  void addTrans(int x) { av_number_of_trans.Add(x); }
+  void addTransLabel(int x) { av_number_of_trans_lab.Add(x); }
   void HydraAttempt() { ++m_hydraAttempt; }
   void HydraPassed() { ++m_hydraPassed; }
   void SpinAttempt() { ++m_spinAttempt; }

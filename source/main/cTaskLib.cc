@@ -344,10 +344,12 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
-	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);	
-	
-	
-	
+	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);
+  else if (name == "hydra") // 
+	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
+  else if (name == "spin1") // 
+	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN1);	  
+	  
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
     cerr << "Unknown task entry '" << name << "'." << endl;
@@ -1854,34 +1856,60 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 
 double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 {
-	if (ctx->organism->findTrans(1,2, "tagaaa")) return 1.0;
-	return 0.0;
+	double bonus = 0.0;
+	if (ctx->organism->findTrans(1,2, "tagaaa")) {
+		bonus = 1.0;
+	}
 	
-	// check for a transition between 2 states
-
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
 }
 
 double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(2,3, "tagdab");
+	double bonus = 0.0;
+	if (ctx->organism->findTrans(2,3, "tagdab")){
+			bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
 
 }
 
 double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(3,4, "tcgbac");
+	double bonus = 0.0;
+	if (ctx->organism->findTrans(3,4, "tcgbac")){
+			bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
 
 }
 
 double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(0,1, "tbgcad");
+	double bonus = 0.0;
+	if (ctx->organism->findTrans(0,1, "tbgcad")){
+			bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
 
 }
   
 double cTaskLib::Task_Trans5(cTaskContext* ctx) const
 {
-	return ctx->organism->findTrans(4,0, "tdgaac");
+	double bonus = 0.0;
+	if (ctx->organism->findTrans(4,0, "tdgaac")){
+			bonus = 1.0;
+	}
+	
+	ctx->task_failed = ctx->task_failed && bonus;	
+	return bonus;
 
 }
 
@@ -1908,5 +1936,118 @@ double cTaskLib::Task_NumTrans(cTaskContext* ctx) const
 	}
 }
 
+
+
+double cTaskLib::Task_Hydra(cTaskContext* ctx) const
+{
+	cOrganism* organism = ctx->organism;
+
+// Check for task success...	
+	if (ctx->task_failed == 0) {
+		return 0;
+	}	
+
+	m_world->GetStats().HydraAttempt();
+
+	double bonus = 0.0;
+	std::string temp;
+	unsigned int status_total = 0;
+	int status=0;
+
+	int to_subavida[2]={0};
+	int from_subavida[2]={0};
+	
+	pipe(to_subavida); //write to 1, read from 0
+	pipe(from_subavida);
+	
+	pid_t subavida = fork();
+	if(subavida == 0) {
+		//child
+		close(to_subavida[1]);
+		close(from_subavida[0]);
+		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
+		dup2(from_subavida[1], STDOUT_FILENO);
+		execl("/usr/bin/java", "-cp .", "-jar", "./hydraulic.jar", NULL);
+		// We don't ever get here.
+	} 
+	//parent
+	close(to_subavida[0]);
+	close(from_subavida[1]);
+
+	// At this point, forget about subavida - It's running.
+	// Write the model to to_subavida[1].  Close to_subavida[1] (which wakes up subavida).
+	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
+
+	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
+	temp = organism->getXMI();
+	do {
+		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
+		if (status < 0) {
+			break;
+		} else {
+			 status_total += status;
+		}
+	} while (status_total < temp.size());
+	close(to_subavida[1]); // Wakes up subavida.
+
+	// Time passes...
+
+	// Read the output from subavida.  Keep reading until subavida closes the pipe.
+	const int read_size=128; // The number of bytes that we're going to try to read from subavida.
+	std::string subavida_output;
+	char line[read_size]={0};
+	do {
+		status = read(from_subavida[0], line, read_size-1);
+		if(status > 0) {
+			subavida_output += line;
+			memset(line, 0, read_size);
+		}
+	} while(((status==-1) && (errno == EINTR)) || (status>0));
+	// Done with subavida.
+	close(from_subavida[0]);
+	// Make sure that subavida dies.
+	pid_t done=0;
+	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
+	assert(done==subavida);
+	
+	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
+	if(status != 0) {
+		ctx->task_failed = 0;
+		return 0.0;
+	} else {
+		ctx->task_failed = ctx->task_failed && 1;
+		m_world->GetStats().HydraPassed();
+		return 1.0;
+	}
+}
+
+double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const {
+	cOrganism* organism = ctx->organism;
+	m_world->GetStats().SpinAttempt();
+	int status=0;
+	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
+	if(system(cmd.c_str())!=0) return 0.0;
+	m_world->GetStats().SpinPassed();
+	m_world->GetStats().PanAttempt();
+	
+	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
+	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
+	
+	std::ostringstream strstrm;
+	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
+	strstrm << ".xml";	
+	if(system(strstrm.str().c_str())!=0) return 0.0;
+			
+	m_world->GetStats().PanPassed();
+	return 3.0;
+}
+
+double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
+	if (ctx->task_failed) {
+		return SpinCoprocess(ctx, "N1");
+	} 
+	return 0.0;
+}
 
 

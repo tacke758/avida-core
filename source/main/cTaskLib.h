@@ -238,6 +238,10 @@ private:  // Direct task related methods
   double Task_Trans5(cTaskContext* ctx) const;
   double Task_NumStates(cTaskContext* ctx) const;
   double Task_NumTrans(cTaskContext* ctx) const;
+  double Task_Hydra(cTaskContext* ctx) const;
+  double SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const;
+  double Task_SpinN1(cTaskContext* ctx) const;
+
 
 };
 
