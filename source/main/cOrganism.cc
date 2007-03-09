@@ -917,6 +917,10 @@ bool cOrganism::addState()
 		orig_state_index = 0;
 		dest_state_index = 0;
 	}
+	
+	// Move the destination state to the most recently created.
+	dest_state_index = total_states - 1;
+	
 	return true;
 }
 
@@ -928,11 +932,16 @@ bool cOrganism::addTransitionLabel()
 	t.guard = getGuard();
 	t.action = getAction();
 	
-	if (findTransLabel(t)){
+	// no dupes
+/*	if (findTransLabel(t)){
 		return false;
-	 }
+	 }*/
 	
 	transition_labels.push_back(t);
+	
+	// Move the transition label index to the most recently created
+	trans_label_index = transition_labels.size() - 1;
+	
 	return true;
 }
 
@@ -948,11 +957,13 @@ bool cOrganism::addTransition()
 	t.dest_state = getDestState();
 	t.trans = getTransLabel();
 	
-    if (findTrans(t)) {
+	// no dupes
+/*    if (findTrans(t)) {
 		return false;
-	}
+	}*/
 
 	transitions.push_back(t);
+		
 	return true;
 
 }
