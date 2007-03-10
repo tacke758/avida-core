@@ -128,9 +128,9 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   action_index = 0;
   guard_index = 0;
   trans_label_index = 0;
-  orig_state_index = -1;
-  dest_state_index = -1;
-  total_states = 0;
+  orig_state_index = 0;
+  dest_state_index = 0;
+//  total_states = 0;
 }
 
 
@@ -513,11 +513,29 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
     m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
   }
   
-//  m_world->GetStats().UpdateModelStats(uml_state_diagram);
-	m_world->GetStats().addState(total_states);
+	m_world->GetStats().addState(states.size());
 	m_world->GetStats().addTrans(transitions.size());
 	m_world->GetStats().addTransLabel(transition_labels.size());
   
+}
+
+void cOrganism::seedModel() {
+	std::string data, line; 
+	std::ifstream infile;
+	infile.open("instinctModel");
+	assert(infile.is_open());
+	
+	while (getline (infile, line))
+	{
+		data.append(line);
+		line.erase();
+	}
+	
+	//read from file; load into string/strstream, and return it.
+	
+	//return data;
+	return;
+
 }
 
 bool cOrganism::findTransLabel(transition_label t) { 
@@ -571,299 +589,55 @@ bool cOrganism::findTrans(transition t)
 }
 
 
-
-
-// For all of the next* functions
-// increment the index. If the index points to the end of the vector, it should then point to 
-// the beginning of the vector.
-
-
-bool cOrganism::nextTrigger()
+template <typename T>
+bool cOrganism::moveIndex (T x, int &index, int amount )
 {
-	if (triggers.size() == 0) {
-		return false;
-	}
-
-	trigger_index++;
-	if (trigger_index >= triggers.size()) {
-		trigger_index = 0;
-	}
-	return true;
-
-}
-
-bool cOrganism::nextGuard()
-{
-	if (guards.size() == 0) {
+	if (x.size() == 0) {
 		return false;
 	}
 	
-	guard_index++;
-	if (guard_index >= guards.size()) {
-		guard_index = 0;
-	}
-	
-	return true;
-}
-
-bool cOrganism::nextAction()
-{	
-	if (actions.size() == 0) {
-		return false;
-	}
-	
-	action_index++;
-	if (action_index >= actions.size()) {
-		action_index = 0;
-	}
-	
-	return true;
-}
-
-/*  int orig_state_index;
-  int dest_state_index;
-  int trans_label_index;*/
-  
-bool cOrganism::nextTransitionLabel()
-{
-	if (transition_labels.size() == 0) {
-		return false;
-	}
-	trans_label_index++;
-	if (trans_label_index >= transition_labels.size()) {
-		trans_label_index = 0;
-	}
-	
-	return true;
-}
-
-bool cOrganism::nextOriginState()
-{
-	if (total_states == 0) {
-		return false;
-	}
-	orig_state_index++;
-	if (orig_state_index >= total_states) {
-		orig_state_index = 0;
-	}
-	
-	return true;
-}
-
-
-bool cOrganism::nextDestinationState()
-{
-	if (total_states == 0) {
-		return false;
-	}
-	dest_state_index++;
-	if (dest_state_index >= total_states) {
-		dest_state_index = 0;
-	}
-	return true;
-}
-
-
-bool cOrganism::prevTrigger()
-{
-	if (triggers.size() == 0) {
-		return false;
-	}
-	
-	if (trigger_index <= 0) {
-		trigger_index = triggers.size();
-	}
-	trigger_index--;
-	
-	return true;
-}
-
-
-
-bool cOrganism::prevGuard()
-{
-	if (guards.size() == 0) {
-		return false;
-	}
-	
-	if (guard_index <= 0) {
-		guard_index = guards.size();
-	}
-	guard_index--;
-	
-	return true;
-}
-
-bool cOrganism::prevAction()
-{
-	if (actions.size() == 0) {
-		return false;
-	}
-	if (action_index <= 0) {
-		action_index = actions.size();
-	}
-	action_index--;
-	
-	return true;
-}
-
-bool cOrganism::prevTransitionLabel()
-{
-	if (transition_labels.size() == 0) {
-		return false;
-	}
-	if (trans_label_index <= 0) {
-		trans_label_index = transition_labels.size();
-	}
-	trans_label_index--;
-	
-	return true;
-}
-
-
-bool cOrganism::prevOriginState() 
-{
-	if (total_states == 0) {
-		return false;
-	}
-	if (orig_state_index <= 0) {
-		orig_state_index = total_states;
-	} 
-	orig_state_index--;
-	
-	return true;
-}
-
-bool cOrganism::prevDestinationState() 
-{
-	if (total_states == 0) {
-		return false;
-	}
-	if (dest_state_index <= 0) {
-		dest_state_index = total_states;
-	} 
-	dest_state_index--;
-	
+	if (amount > 0) { 
+		index += (amount % x.size());
+		// index is greater than vector
+		if (index >= x.size()) { 
+			index -= x.size();
+		} else if(index < 0) { 
+			index += x.size();
+		}
+	}	
+		
 	return true;
 }
 
 
 bool cOrganism::jumpTrigger(int jump_amount)
 {
-	if (triggers.size() == 0) {
-		return false;
-	}
-	
-	if (jump_amount > 0) { 
-		trigger_index = trigger_index + (jump_amount % triggers.size());
-		// index is greater than vector
-		if (trigger_index >= triggers.size()) { 
-			trigger_index -= triggers.size();
-		} else if(trigger_index < 0) { 
-			trigger_index += triggers.size();
-		}
-	}	
-	
-/*	
-	if (trigger_index <= 0) {
-		trigger_index = triggers.size();
-	}
-	trigger_index--;*/
-	
-	return true;
+	return moveIndex(triggers, trigger_index, jump_amount);
 }
-
-
 
 bool cOrganism::jumpGuard(int jump_amount)
 {
-	if (guards.size() == 0) {
-		return false;
-	}
-	
-	if (jump_amount > 0) { 
-		guard_index = guard_index + (jump_amount % guards.size());
-		// index is greater than vector
-		if (guard_index >= guards.size()) { 
-			guard_index -= guards.size();
-		} else if(guard_index < 0) { 
-			guard_index += guards.size();
-		}
-	}	
-	
-	return true;
+	return moveIndex(guards, guard_index, jump_amount);	
 }
 
 bool cOrganism::jumpAction(int jump_amount)
 {
-	int act_size = actions.size();
-	if (actions.size() == 0) {
-		return false;
-	}
-	if (jump_amount > 0) { 
-		action_index = action_index + (jump_amount % actions.size());
-		// index is greater than vector
-		if (action_index >= actions.size()) { 
-			action_index -= actions.size();
-		} else if(action_index < 0) { 
-			action_index += actions.size();
-		}
-	}		
-	return true;
+	return moveIndex(actions, action_index, jump_amount);
 }
 
 bool cOrganism::jumpTransitionLabel(int jump_amount)
 {
-	if (transition_labels.size() == 0) {
-		return false;
-	}
-	if (jump_amount > 0) { 
-		trans_label_index = trans_label_index + (jump_amount % transition_labels.size());
-		// index is greater than vector
-		if (trans_label_index >= transition_labels.size()) { 
-			trans_label_index -= transition_labels.size();
-		} else if(trans_label_index < 0) { 
-			trans_label_index += transition_labels.size();
-		}
-	}	
-	
-	return true;
+	return moveIndex(transition_labels, trans_label_index, jump_amount);
 }
-
 
 bool cOrganism::jumpOriginState(int jump_amount) 
 {
-	if (total_states == 0) {
-		return false;
-	}
-	if (jump_amount > 0) { 
-		orig_state_index = orig_state_index + (jump_amount % total_states);
-		// index is greater than vector
-		if (orig_state_index >= total_states) { 
-			orig_state_index -= total_states;
-		} else if(orig_state_index < 0) { 
-			orig_state_index += total_states;
-		}
-	}		
-	return true;
+	return moveIndex(states, orig_state_index, jump_amount);
 }
 
 bool cOrganism::jumpDestinationState(int jump_amount) 
 {
-	if (total_states == 0) {
-		return false;
-	}
-	if (jump_amount > 0) { 
-		dest_state_index = dest_state_index + (jump_amount % total_states);
-		// index is greater than vector
-		if (dest_state_index >= total_states) { 
-			dest_state_index -= total_states;
-		} else if(dest_state_index < 0) { 
-			dest_state_index += total_states;
-		}
-	}	
-	
-	return true;
+	return moveIndex(states, dest_state_index, jump_amount);
 }
 
 std::string cOrganism::getTrigger()
@@ -911,16 +685,9 @@ transition_label cOrganism::getTransLabel()
 // State manipulation
 bool cOrganism::addState()
 {
-	total_states++;
-	// if this is the first state, point the orig and dest state indices to it
-	if (total_states == 1) {
-		orig_state_index = 0;
-		dest_state_index = 0;
-	}
-	
-	// Move the destination state to the most recently created.
-	dest_state_index = total_states - 1;
-	
+	states.push_back(states.size());
+	dest_state_index = states.size() - 1;
+		
 	return true;
 }
 
@@ -933,9 +700,9 @@ bool cOrganism::addTransitionLabel()
 	t.action = getAction();
 	
 	// no dupes
-/*	if (findTransLabel(t)){
+	if (findTransLabel(t)){
 		return false;
-	 }*/
+	 }
 	
 	transition_labels.push_back(t);
 	
@@ -948,7 +715,8 @@ bool cOrganism::addTransitionLabel()
 
 bool cOrganism::addTransition()
 {
-	if ((total_states == 0) || (transition_labels.size() == 0)) {
+	if ((states.size() == 0) || (transition_labels.size() == 0)) {
+
 		return false;
 	} 
 
@@ -958,9 +726,9 @@ bool cOrganism::addTransition()
 	t.trans = getTransLabel();
 	
 	// no dupes
-/*    if (findTrans(t)) {
+    if (findTrans(t)) {
 		return false;
-	}*/
+	}
 
 	transitions.push_back(t);
 		
@@ -970,7 +738,7 @@ bool cOrganism::addTransition()
 
 int cOrganism::numStates()
 {
-	return total_states;
+	return states.size();
 }
 
 int cOrganism::numTrans()
@@ -999,27 +767,12 @@ std::string cOrganism::getXMI()
 
 void cOrganism::printXMI()
 {
-/*	Graph::vertex_iterator i, iend;
-	Graph::edge_iterator e, eend;
-	
-	int trans_label;
-	int dest_state;
-	std::string temp, temp1, temp2;
-	int tempint;
-	
-	InitTransForMSXMI();
-*/
-
 	std::string temp, temp1, temp2;
 
 	int s_count = 0;
 	int t_count = 0;
 	xmi = "";
-	// loop through all states
-	// print initial information for the init state.
 
-//	tie(i, iend) = vertices(uml_state_diagram);
-	
 	if (numStates() > 0) {
 		temp = StringifyAnInt(s_count);
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
@@ -1049,7 +802,6 @@ void cOrganism::printXMI()
 
 	for (t_count = 0; t_count < numTrans(); ++t_count) { 
 		// info determined from the trans itself....
-//		trans_label = ;
 		temp = "t" + StringifyAnInt(t_count);
 		temp1 = "s" + StringifyAnInt(transitions[t_count].orig_state);
 		temp2 = "s" + StringifyAnInt(transitions[t_count].dest_state);
@@ -1058,10 +810,6 @@ void cOrganism::printXMI()
 		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
 		xmi+= " source=\"" + temp1 + "\"";
 		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
-		
-		// Generate transition guts here...
-		//temp = transGuardActionInfo[trans_label];
-		//xmi += temp;
 
 		// Get guard, trigger, and action
 		temp = transitions[t_count].trans.trigger;
@@ -1076,22 +824,7 @@ void cOrganism::printXMI()
 			xmi+= "</UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> ";
 			xmi+= "</UML:Event>  </UML:Transition.trigger> ";
 		}
-
-		/* // Trigger stuff 
-				<UML:Transition.trigger>                                        
-                                                      <UML:Event>                                            
-                                                      <UML:ModelElement.namespace>                                                
-                                                      <UML:Namespace>                                                    
-                                                      <UML:Namespace.ownedElement>                                                        
-                                                      <UML:CallEvent xmi.id="XDE-592D2425-ABF8-44DD-A306-97EC22A45B69" operation="XDE-7C41CD1F-6E52-4E32-9C8E-999BA1919EC6" name="getTempData" isSpecification="false"/>                                                   
-                                                       </UML:Namespace.ownedElement>                                                
-                                                       </UML:Namespace>                                            
-                                                       </UML:ModelElement.namespace>                                        
-                                                       </UML:Event>                                    
-                                                       </UML:Transition.trigger>             
 		
-		*/
-
 		// print guard, if any
 		// Note: for guard to work, '<' => '&lt'
 		if (temp1 != ""){
@@ -1099,18 +832,6 @@ void cOrganism::printXMI()
 			xmi+= "<UML:BooleanExpression body=\"" + temp1 + "\" language=\"\"/> ";
 			xmi+= "</UML:Guard.expression> </UML:Guard> </UML:Transition.guard> ";
 		}
-		
-		/* // Guard stuff
-		<UML:Transition.guard>
-                                        <UML:Guard>
-                                            <UML:Guard.expression>
-                                                <UML:BooleanExpression body="brightnessValue&lt;0" language=""/>
-                                            </UML:Guard.expression>
-                                        </UML:Guard>
-                                    </UML:Transition.guard>
-
-		
-		*/
 		
 		// print action, if any
 		if (temp2 != "") { 
@@ -1120,17 +841,6 @@ void cOrganism::printXMI()
 			xmi+= temp2 + "\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";		
 		}
 		
-		/* // Action stuff
-		<UML:Transition.effect>
-                                        <UML:UninterpretedAction xmi.id="XDE-0B7A10EB-A9FC-4DE8-BBF1-AF1C9A970E7F" isAsynchronous="false" name="" isSpecification="false">
-                                            <UML:Action.script>
-                                                <UML:ActionExpression language="" body="correctedBrightnessValue:=0"/>
-                                            </UML:Action.script>
-                                        </UML:UninterpretedAction>
-                                    </UML:Transition.effect>
-		
-		*/
-
 		xmi += "</UML:Transition>\n";
 
 	

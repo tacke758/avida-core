@@ -3387,80 +3387,7 @@ bool cHardwareCPU::Inst_Next(cAvidaContext& ctx)
 	
 	int reg_used = FindModifiedRegister(REG_AX);
 	
-	switch (reg_used){
-	case 0:
-		// increment the triggers vector index
-		organism->nextTrigger();
-		break;
-	case 1:
-		// increment the guards vector index
-		organism->nextGuard();
-		break;
-	case 2:
-		// increment the actions vector index
-		organism->nextAction();
-		break;
-	case 3:
-		// increment the transition labels index
-		organism->nextTransitionLabel(); 
-		break;
-	case 4:
-		// increment the origin state index
-		organism->nextOriginState();
-		break;
-	case 5:
-		// increment the destination state index
-		organism->nextDestinationState();
-		break;
-   // default:
-		// we should never get here...
-	}
-	
-	return true;
-}
- 
-bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
-{
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->prevTrigger();
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->prevGuard();
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->prevAction();
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->prevTransitionLabel();
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->prevOriginState();
-		break;
-	case 5:
-		// decement the destination state index
-		organism->prevDestinationState();
-		break;
-   // default:
-		// we should never get here...
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
-{
-	const int reg_used = FindModifiedRegister(REG_AX);
-	const int reg_jump = FindModifiedRegister(REG_BX);
-	int jump_amount = GetRegister(reg_jump);
-
-//	int jump_amount = 
+	int jump_amount = 1;
 	
 	switch (reg_used){
 	case 0:
@@ -3487,8 +3414,77 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->jumpDestinationState(jump_amount);
 		break;
-   // default:
-		// we should never get here...
+	}
+	return true;
+}
+ 
+bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
+{
+	int reg_used = FindModifiedRegister(REG_AX);
+	
+	int jump_amount = -1;
+		
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->jumpTrigger(jump_amount);
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->jumpGuard(jump_amount);
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->jumpAction(jump_amount);
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->jumpTransitionLabel(jump_amount);
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->jumpOriginState(jump_amount);
+		break;
+	case 5:
+		// decement the destination state index
+		organism->jumpDestinationState(jump_amount);
+		break;
+	}
+	return true;
+}
+
+bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
+{
+	const int reg_used = FindModifiedRegister(REG_AX);
+	const int reg_jump = FindModifiedRegister(REG_BX);
+	int jump_amount = GetRegister(reg_jump);
+
+	
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->jumpTrigger(jump_amount);
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->jumpGuard(jump_amount);
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->jumpAction(jump_amount);
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->jumpTransitionLabel(jump_amount);
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->jumpOriginState(jump_amount);
+		break;
+	case 5:
+		// decement the destination state index
+		organism->jumpDestinationState(jump_amount);
+		break;
 	}
 	return true;
 }
