@@ -17,6 +17,10 @@
 #ifndef cGenome_h
 #include "cGenome.h"
 #endif
+//dont really need this.
+//#ifndef cGenotype.h
+//#include "cGenotype.h"
+//#endif
 #ifndef cString_h
 #include "cString.h"
 #endif
@@ -76,6 +80,8 @@ private:
   double total_entropy;
   double complexity;
 
+  int m_genotypeID;
+
   cCPUTestInfo test_info;  // Info used for all cpu calculations.
   double neut_min;         // These two variables are a range around the base
   double neut_max;         //   fitness to be counted as neutral mutations.
@@ -97,7 +103,7 @@ private:
   cLandscape& operator=(const cLandscape&); // @not_implemented
 
 public:
-  cLandscape(cWorld* world, const cGenome& in_genome, const cInstSet& in_inst_set);
+  cLandscape(cWorld* world, const cGenome& in_genome, const cInstSet& in_inst_set, const int& genotypeID = -1);
   ~cLandscape();
 
   void Reset(const cGenome& in_genome);

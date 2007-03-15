@@ -75,13 +75,13 @@ void cPopulationCell::Rotate(cPopulationCell & new_facing)
 {
   // @CAO Note, this breaks avida if new_facing is not in connection_list
 
-#ifdef DEBUG
+  //#ifdef DEBUG
   int scan_count = 0;
-#endif
-  while (connection_list.GetFirst() != &new_facing) {
+  //#endif
+  while (connection_list.GetFirst() != &new_facing && ++scan_count < connection_list.GetSize()) {
     connection_list.CircNext();
 #ifdef DEBUG
-    assert(++scan_count < connection_list.GetSize());
+    assert(scan_count < connection_list.GetSize());
 #endif
   }
 }

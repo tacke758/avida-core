@@ -15,6 +15,7 @@
 #include "PopulationActions.h"
 #include "PrintActions.h"
 #include "SaveLoadActions.h"
+#include "LineageActions.h"
 
 
 cActionLibrary* cActionLibrary::ConstructDefaultActionLibrary()
@@ -27,6 +28,7 @@ cActionLibrary* cActionLibrary::ConstructDefaultActionLibrary()
   RegisterPopulationActions(actlib);
   RegisterPrintActions(actlib);
   RegisterSaveLoadActions(actlib);
+  RegisterLineageActions(actlib);
   
   return actlib;
 }

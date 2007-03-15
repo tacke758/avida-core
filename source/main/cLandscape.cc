@@ -24,9 +24,9 @@
 #include "cWorld.h"
 
 
-cLandscape::cLandscape(cWorld* world, const cGenome & in_genome, const cInstSet & in_inst_set)
+cLandscape::cLandscape(cWorld* world, const cGenome & in_genome, const cInstSet & in_inst_set, const int& genotypeID)
 : m_world(world), inst_set(in_inst_set), base_genome(1), peak_genome(1), trials(1), m_min_found(0),
-  m_max_trials(0), site_count(NULL)
+  m_max_trials(0), site_count(NULL), m_genotypeID(genotypeID)
 {
   Reset(in_genome);
 }
@@ -777,6 +777,7 @@ double cLandscape::TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& m
 
 void cLandscape::PrintStats(cDataFile& df, int update)
 {
+  df.Write(m_genotypeID, "Genotype ID");
   df.Write(update, "Update");
   df.Write(GetProbDead(), "Probability Lethal");
   df.Write(GetProbNeg(), "Probability Deleterious");

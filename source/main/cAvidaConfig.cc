@@ -406,3 +406,40 @@ cAvidaConfig* cAvidaConfig::LoadWithCmdLineArgs(int argc, char * argv[])
   return cfg;
 }
 
+bool cAvidaConfig::Get(const cString& entry, cString& ret) const
+{
+  // Loop through all groups, then all entries, searching for the specified entry.
+  tConstListIterator<cBaseConfigGroup> group_it(group_list);
+  const cBaseConfigGroup* cur_group;
+  while ((cur_group = group_it.Next()) != NULL) {
+    // Loop through entries for this group...
+    tConstListIterator<cBaseConfigEntry> entry_it(cur_group->GetEntryList());
+    const cBaseConfigEntry* cur_entry;
+    while ((cur_entry = entry_it.Next()) != NULL) {
+      if (cur_entry->GetName() == entry) {
+        ret = cur_entry->AsString();
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool cAvidaConfig::Set(const cString& entry, const cString& val)
+{
+  // Loop through all groups, then all entries, searching for the specified entry.
+  tListIterator<cBaseConfigGroup> group_it(group_list);
+  cBaseConfigGroup* cur_group;
+  while ((cur_group = group_it.Next()) != NULL) {
+    // Loop through entries for this group...
+    tListIterator<cBaseConfigEntry> entry_it(cur_group->GetEntryList());
+    cBaseConfigEntry* cur_entry;
+    while ((cur_entry = entry_it.Next()) != NULL) {
+      if (cur_entry->GetName() == entry) {
+        cur_entry->LoadString(val);
+        return true;
+      }
+    }
+  }
+  return false;
+}

@@ -6821,6 +6821,50 @@ void cAnalyze::VarSet(cString cur_string)
   }
 }
 
+void cAnalyze::ConfigGet(cString cur_string)
+{
+  cString cvar = cur_string.PopWord();
+  cString var = cur_string.PopWord();
+
+  cerr << cvar << " | " << var << " | " << cur_string << endl;
+ 
+  if (cvar.GetSize() == 0 || var.GetSize() == 0) {
+    cerr << "Error: Missing variable in CONFIG_GET command" << endl;
+    return;
+  }
+  
+  cString& cur_variable = GetVariable(var);
+
+  // Get Config Variable
+  if (!m_world->GetConfig().Get(cvar, cur_variable)) {
+    cerr << "Error: Configuration Variable '" << var << "' was not found." << endl;
+    return;
+  }
+  
+  if (m_world->GetVerbosity() >= VERBOSE_ON)
+    cout << "Setting variable " << var << " to " << cur_variable << endl;
+}
+
+void cAnalyze::ConfigSet(cString cur_string)
+{
+  cString cvar = cur_string.PopWord();
+  
+  if (cvar.GetSize() == 0) {
+    cerr << "Error: No variable provided in CONFIG_SET command" << endl;
+    return;
+  }
+  
+  // Get Config Variable
+  cString val = cur_string.PopWord();
+  if (!m_world->GetConfig().Set(cvar, val)) {
+    cerr << "Error: Configuration Variable '" << cvar << "' was not found." << endl;
+    return;
+  }
+  
+  if (m_world->GetVerbosity() >= VERBOSE_ON)
+    cout << "Setting configuration variable " << cvar << " to " << val << endl;
+}
+
 void cAnalyze::BatchSet(cString cur_string)
 {
   int next_batch = 0;
@@ -7747,6 +7791,8 @@ void cAnalyze::SetupCommandDefLibrary()
   
   // Control commands...
   AddLibraryDef("SET", &cAnalyze::VarSet);
+  AddLibraryDef("CONFIG_GET", &cAnalyze::ConfigGet);
+  AddLibraryDef("CONFIG_SET", &cAnalyze::ConfigSet);
   AddLibraryDef("SET_BATCH", &cAnalyze::BatchSet);
   AddLibraryDef("NAME_BATCH", &cAnalyze::BatchName);
   AddLibraryDef("TAG_BATCH", &cAnalyze::BatchTag);

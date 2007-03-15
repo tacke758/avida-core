@@ -8,6 +8,7 @@ SET(libactions_a_SOURCES
   PopulationActions.cc
   PrintActions.cc
   SaveLoadActions.cc
+  LineageActions.cc
 )
 
 ADD_LIBRARY(actions ${libactions_a_SOURCES})

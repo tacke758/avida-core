@@ -29,6 +29,7 @@ class cMutation;
 class cOrganism;
 class cString;
 class cWorld;
+class cGenotype;
 //class cStats; //AWC 06/29/06
 
 class cHardwareBase
@@ -44,8 +45,10 @@ protected:
   
   bool Divide_CheckViable(cAvidaContext& ctx, const int parent_size, const int child_size);
   unsigned Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier = 1.0, const int maxmut = INT_MAX);
+  unsigned Divide_Do2SiteMutations(cAvidaContext& ctx, double mut_multiplier = 1.0, const int maxmut = INT_MAX);
   unsigned Divide_DoExactMutations(cAvidaContext& ctx, double mut_multiplier = 1.0, const int pointmut = INT_MAX);
   bool Divide_TestFitnessMeasures(cAvidaContext& ctx);
+  bool Divide_TestFitnessMeasures1(cAvidaContext& ctx, double& fit_ratio);
   
   void TriggerMutations_Body(cAvidaContext& ctx, int type, cCPUMemory& target_memory, cHeadCPU& cur_head);
   bool TriggerMutations_ScopeGenome(cAvidaContext& ctx, const cMutation* cur_mut,

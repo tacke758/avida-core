@@ -63,8 +63,8 @@ public:                                                                       \
     }                                                                         \
     TYPE Get() const { return value; }                                /* 8 */ \
     void Set(TYPE in_value) { value = in_value; }                             \
-    cString AsString() { return cStringUtil::Convert(value); }        /* 9 */ \
-} NAME                                                               /* 10 */ \
+    cString AsString() const { return cStringUtil::Convert(value); }        /* 9 */ \
+} NAME                                                                     /* 10 */ \
 
 
 // Now we're going to make another macro to deal with groups.  This time its
@@ -102,13 +102,13 @@ private:
     
     virtual void LoadString(const cString & str_value) = 0;
     
-    const cString & GetName() { return config_name; }
+    const cString & GetName() const { return config_name; }
     const cString & GetType() { return type; }
     const cString & GetDefault() { return default_value; }
     const cString & GetDesc() { return description; }
     bool GetUseOveride() { return use_overide; }
     
-    virtual cString AsString() = 0;
+    virtual cString AsString() const = 0;
   };
   
   // The cBaseConfigGroup class is a bass class for objects that collect the
@@ -123,9 +123,10 @@ private:
       : group_name(_name), description(_desc) { global_group_list.PushRear(this); }
     ~cBaseConfigGroup() { ; }
     
-    const cString & GetName() { return group_name; }
-    const cString & GetDesc() { return description; }
+    const cString & GetName() const { return group_name; }
+    const cString & GetDesc() const { return description; }
     tList<cBaseConfigEntry> & GetEntryList() { return entry_list; }
+    const tList<cBaseConfigEntry> & GetEntryList() const { return entry_list; }
     
     void AddEntry(cBaseConfigEntry * _entry) { entry_list.PushRear(_entry); }
   };
@@ -275,12 +276,18 @@ public:
   CONFIG_ADD_VAR(SAVE_RECEIVED, bool, 0, "Enable storage of all inputs bought from other orgs");
   CONFIG_ADD_VAR(BUY_PRICE, int, 0, "price offered by organisms attempting to buy");
   CONFIG_ADD_VAR(SELL_PRICE, int, 0, "price offered by organisms attempting to sell");
+  CONFIG_ADD_VAR(ANALYZE_OPTION_1, cString, "0", "String variable accessible from analysis scripts");
+  CONFIG_ADD_VAR(ANALYZE_OPTION_2, cString, "0", "String variable accessible from analysis scripts");
 
 #endif
   
   void Load(const cString& filename);
   void Print(const cString& filename);
   void Status();
+
+  bool Get(const cString& entry, cString& ret) const;
+  bool Set(const cString& entry, const cString& val);
+
   
   void GenerateOverides();
 };

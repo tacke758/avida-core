@@ -953,7 +953,7 @@ bool cHardwareSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
 	
   // Handle Divide Mutations...
   Divide_DoMutations(ctx, mut_multiplier);
-	
+
   // Many tests will require us to run the offspring through a test CPU;
   // this is, for example, to see if mutations need to be reverted or if
   // lineages need to be updated.

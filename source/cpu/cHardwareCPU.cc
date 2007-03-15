@@ -240,6 +240,8 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
                   "Allocate maximum allowed space"),
     cInstEntryCPU("h-divide",  &cHardwareCPU::Inst_HeadDivide, true,
                   "Divide code between read and write heads."),
+    cInstEntryCPU("h-divide2Sites",  &cHardwareCPU::Inst_2SitesHeadDivide, true,
+                  "Divide code between read and write heads, but mutate only at sites 23 and 27."),
     cInstEntryCPU("h-divide1RS",  &cHardwareCPU::Inst_HeadDivide1RS, true,
 		  "Divide code between read and write heads, at most one mutation on divide, resample if reverted."),
     cInstEntryCPU("h-divide2RS",  &cHardwareCPU::Inst_HeadDivide2RS, true,
@@ -1234,6 +1236,57 @@ bool cHardwareCPU::Divide_Main(cAvidaContext& ctx, const int div_point,
 }
 
 /*
+  Divide only 2 sites in a length 50 ancestor... AWC 02/19/07
+ */
+bool cHardwareCPU::Divide_2SitesMain(cAvidaContext& ctx, const int div_point,
+                               const int extra_lines, double mut_multiplier)
+{
+  const int child_size = GetMemory().GetSize() - div_point - extra_lines;
+  
+  // Make sure this divide will produce a viable offspring.
+  const bool viable = Divide_CheckViable(ctx, div_point, child_size);
+  if (viable == false) return false;
+  
+  // Since the divide will now succeed, set up the information to be sent
+  // to the new organism
+  cGenome & child_genome = organism->ChildGenome();
+  child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+  
+  // Cut off everything in this memory past the divide point.
+  GetMemory().Resize(div_point);
+  
+  // Handle Divide Mutations...
+  Divide_Do2SiteMutations(ctx, mut_multiplier);
+  
+  // Many tests will require us to run the offspring through a test CPU;
+  // this is, for example, to see if mutations need to be reverted or if
+  // lineages need to be updated.
+  Divide_TestFitnessMeasures(ctx);
+  
+#if INSTRUCTION_COSTS
+  // reset first time instruction costs
+  for (int i = 0; i < inst_ft_cost.GetSize(); i++) {
+    inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+  }
+#endif
+  
+  m_mal_active = false;
+  if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) {
+    m_advance_ip = false;
+  }
+  
+  // Activate the child, and do more work if the parent lives through the
+  // birth.
+  bool parent_alive = organism->ActivateDivide(ctx);
+  if (parent_alive) {
+    if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) Reset();
+  }
+  
+  return true;
+}
+
+
+/*
   Almost the same as Divide_Main, but resamples reverted offspring.
 
   RESAMPLING ONLY WORKS CORRECTLY WHEN ALL MUTIONS OCCUR ON DIVIDE!!
@@ -1358,6 +1411,8 @@ bool cHardwareCPU::Divide_Main1RS(cAvidaContext& ctx, const int div_point,
   bool
     fitTest = false;
 
+  double
+    fitRatio = 1.0;
 
   // Handle Divide Mutations...
   /*
@@ -1374,11 +1429,16 @@ bool cHardwareCPU::Divide_Main1RS(cAvidaContext& ctx, const int div_point,
     else{
       mutations = Divide_DoExactMutations(ctx, mut_multiplier,1);
       m_world->GetStats().IncResamplings();
+      //cerr << "****************ERROR: resampling!" << endl;
     }
 
-    fitTest = Divide_TestFitnessMeasures(ctx);
-    //if(mutations > 1 ) cerr << "Too Many mutations!!!!!!!!!!!!!!!" << endl;
-    if(!fitTest && mutations >= totalMutations) break;
+    fitTest = Divide_TestFitnessMeasures1(ctx, fitRatio);
+    //this is a hack to make sure that deletrious mutants are replaced with neutral mutants
+    if(i){
+      if(/*fitRatio <= 1.0 && */!fitTest && mutations >= totalMutations) break;
+    }else if(!fitTest && mutations >= totalMutations) break;
+
+    fitRatio = 1.0;
 
   } 
   // think about making this mutations == totalMuations - though this may be too hard...
@@ -1448,7 +1508,6 @@ bool cHardwareCPU::Divide_Main2RS(cAvidaContext& ctx, const int div_point,
 
   bool
     fitTest = false;
-
 
   // Handle Divide Mutations...
   /*
@@ -2430,7 +2489,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
     }
   }
   Divide_DoMutations(ctx);
-  
+
   // Many tests will require us to run the offspring through a test CPU;
   // this is, for example, to see if mutations need to be reverted or if
   // lineages need to be updated.
@@ -3091,6 +3150,19 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
   if (child_end == 0) child_end = GetMemory().GetSize();
   const int extra_lines = GetMemory().GetSize() - child_end;
   bool ret_val = Divide_Main(ctx, divide_pos, extra_lines, mut_multiplier);
+  // Re-adjust heads.
+  AdjustHeads();
+  return ret_val; 
+}
+
+bool cHardwareCPU::Inst_2SitesHeadDivide(cAvidaContext& ctx)
+{
+  AdjustHeads();
+  const int divide_pos = GetHead(nHardware::HEAD_READ).GetPosition();
+  int child_end =  GetHead(nHardware::HEAD_WRITE).GetPosition();
+  if (child_end == 0) child_end = GetMemory().GetSize();
+  const int extra_lines = GetMemory().GetSize() - child_end;
+  bool ret_val = Divide_2SitesMain(ctx, divide_pos, extra_lines,1);
   // Re-adjust heads.
   AdjustHeads();
   return ret_val; 

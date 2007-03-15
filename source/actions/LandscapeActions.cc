@@ -226,7 +226,7 @@ public:
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
       while (genotype = batch_it.Next()) {
-        land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
+        land = new cLandscape(m_world, genotype->GetGenome(), inst_set, genotype->GetID());
         land->SetDistance(m_dist);
         m_batch.PushRear(land);
         jobqueue.AddJob(new tAnalyzeJob<cLandscape>(land, &cLandscape::Process));
@@ -237,7 +237,7 @@ public:
         m_world->GetDriver().NotifyComment("Full Landscaping...");
       
       land = new cLandscape(m_world, m_world->GetClassificationManager().GetBestGenotype()->GetGenome(),
-                            m_world->GetHardwareManager().GetInstSet());
+                            m_world->GetHardwareManager().GetInstSet(), m_world->GetClassificationManager().GetBestGenotype()->GetID());
       m_batch.PushRear(land);
       land->SetDistance(m_dist);
       land->Process(ctx);
@@ -829,7 +829,7 @@ public:
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
       while (genotype = batch_it.Next()) {
-        cLandscape* land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
+        cLandscape* land = new cLandscape(m_world, genotype->GetGenome(), inst_set, genotype->GetID());
         if (m_sample_size) {
           land->SetTrials(m_sample_size);
           jobqueue.AddJob(new tAnalyzeJob<cLandscape>(land, &cLandscape::TestPairs));

@@ -8,6 +8,8 @@
  *
  */
 
+//class cGenotype;
+
 #include "cHardwareBase.h"
 
 #include "cAvidaContext.h"
@@ -26,9 +28,9 @@
 #include "cWorld.h"
 #include "cWorldDriver.h"
 #include "nHardware.h"
+#include "cGenotype.h"
 
 #include "functions.h"
-
 
 int cHardwareBase::GetExecutedSize(const int parent_size)
 {
@@ -55,8 +57,7 @@ bool cHardwareBase::Divide_CheckViable(cAvidaContext& ctx, const int parent_size
     organism->Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
                     cStringUtil::Stringf("Invalid offspring length (%d)", child_size));
     return false; // (divide fails)
-  }
-  if (parent_size < min_size || parent_size > max_size) {
+  }  if (parent_size < min_size || parent_size > max_size) {
     organism->Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
                     cStringUtil::Stringf("Invalid post-divide length (%d)",parent_size));
     return false; // (divide fails)
@@ -243,6 +244,59 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
   return totalMutations;
 }
 
+unsigned cHardwareBase::Divide_Do2SiteMutations(cAvidaContext& ctx, double mut_multiplier, const int maxmut)
+{
+  int totalMutations = 0;
+  //cerr << "Maxmut: " << maxmut << endl;
+  sCPUStats& cpu_stats = organism->CPUStats();
+  cCPUMemory& child_genome = organism->ChildGenome();
+  
+  organism->GetPhenotype().SetDivType(mut_multiplier);
+  
+  // Divide Mutations (per site)
+  if (organism->GetDivMutProb() > 0 && totalMutations < maxmut) {
+    int num_mut = ctx.GetRandom().GetRandBinomial(2, 
+                                                  organism->GetDivMutProb() / mut_multiplier);
+    // If we have lines to mutate...
+    if (num_mut > 0 && totalMutations < maxmut) {
+      if(num_mut == 1){
+	int site = ctx.GetRandom().GetUInt(2);
+	if(site == 0)
+	  child_genome[23] = m_inst_set->GetRandomInst(ctx);
+	else
+	  child_genome[27] = m_inst_set->GetRandomInst(ctx);
+
+	totalMutations++;
+	++cpu_stats.mut_stats.div_mut_count;
+      }
+      else if(num_mut == 2){
+	child_genome[23] = m_inst_set->GetRandomInst(ctx);
+	child_genome[27] = m_inst_set->GetRandomInst(ctx);
+
+	totalMutations += 2;
+	cpu_stats.mut_stats.div_mut_count += 2;
+
+      }
+      
+	  
+	    
+    }
+  }
+  // Count up mutated lines
+  for (int i = 0; i < GetMemory().GetSize(); i++) {
+    if (GetMemory().FlagPointMut(i)) {
+      cpu_stats.mut_stats.point_mut_line_count++;
+    }
+  }
+  for (int i = 0; i < child_genome.GetSize(); i++) {
+    if (child_genome.FlagCopyMut(i)) {
+      cpu_stats.mut_stats.copy_mut_line_count++;
+    }
+  }
+
+  return totalMutations;
+}
+
 /*
   Return the number of mutations that occur on divide.  AWC 06/29/06
   Limit the number of mutations that occur to be less than or equat to maxmut (defaults to INT_MAX)
@@ -411,8 +465,21 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
   bool revert = false;
   bool sterilize = false;
   
+  //if you're suppose to be dead, you really are going to be dead
+  if(!test_info.IsViable()){
+    if (test_info.GetMaxDepth() > 0) sterilize = true;
+  }
+
+   if(organism->GetGenotype()->GetID() == 866367){
+     cerr << "----------------------------------------------------------------" << endl;
+     cerr << "Fail implicit: " << organism->GetFailImplicit() << endl;
+     cerr << "Max Depth: " << test_info.GetMaxDepth() << endl;
+     cerr << "Viable: " << test_info.IsViable() << endl;
+     cerr << "Steralize1: " << sterilize;
+   }
+
   // If implicit mutations are turned off, make sure this won't spawn one.
-  if (organism->GetFailImplicit() == true) {
+  if (organism->GetFailImplicit() == true ) {
     if (test_info.GetMaxDepth() > 0) sterilize = true;
   }
 
@@ -439,10 +506,107 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
 	
   if (sterilize == true) {
     organism->GetPhenotype().ChildFertile() = false;
+    if(organism->GetGenotype()->GetID() == 866367){
+      cerr << "Steralized!" << endl;
+    }
+
   }
 
   return (!sterilize) && revert;
 }
+
+// test whether the offspring creature contains an advantageous mutation.
+/*
+  Return true iff only a reversion is performed -- returns false is steralized regardless of weather or 
+  not a reversion is performed.  AWC 06/29/06
+*/
+bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx, double& fit_ratio)
+{
+  cPhenotype & phenotype = organism->GetPhenotype();
+  phenotype.CopyTrue() = ( organism->ChildGenome() == organism->GetGenome() );
+  phenotype.ChildFertile() = true;
+	
+  // Only continue if we're supposed to do a fitness test on divide...
+  if (organism->GetTestOnDivide() == false) return false;
+	
+  // If this was a perfect copy, then we don't need to worry about any other
+  // tests...  Theoretically, we need to worry about the parent changing,
+  // but as long as the child is always compared to the original genotype,
+  // this won't be an issue.
+  if (phenotype.CopyTrue() == true) return false;
+	
+  const double parent_fitness = organism->GetTestFitness(ctx);
+  const double neut_min = parent_fitness * (1.0 - organism->GetNeutralMin());//nHardware::FITNESS_NEUTRAL_MIN;
+  const double neut_max = parent_fitness * (1.0 + organism->GetNeutralMax());//nHardware::FITNESS_NEUTRAL_MAX;
+  
+  cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+  cCPUTestInfo test_info;
+  test_info.UseRandomInputs();
+  testcpu->TestGenome(ctx, test_info, organism->ChildGenome());
+  const double child_fitness = test_info.GetGenotypeFitness();
+  delete testcpu;
+  
+  bool revert = false;
+  bool sterilize = false;
+  
+  //if you're suppose to be dead, you really are going to be dead
+  if(!test_info.IsViable()){
+    //if (test_info.GetMaxDepth() > 0) sterilize = true;
+    sterilize = true;
+  }
+
+//    if(organism->GetGenotype()->GetID() == 866367){
+//      cerr << "----------------------------------------------------------------" << endl;
+//      cerr << "Fail implicit: " << organism->GetFailImplicit() << endl;
+//      cerr << "Max Depth: " << test_info.GetMaxDepth() << endl;
+//      cerr << "Viable: " << test_info.IsViable() << endl;
+//      cerr << "Steralize1: " << sterilize;
+//    }
+
+  // If implicit mutations are turned off, make sure this won't spawn one.
+  if (organism->GetFailImplicit() == true ) {
+    if (test_info.GetMaxDepth() > 0) sterilize = true;
+    //cerr << "Max Depth: " << test_info.GetMaxDepth() << endl;
+  }
+
+  if (child_fitness == 0.0) {
+    // Fatal mutation... test for reversion.
+    if (ctx.GetRandom().P(organism->GetRevertFatal())) revert = true;
+    if (ctx.GetRandom().P(organism->GetSterilizeFatal())) sterilize = true;
+  } else if (child_fitness < neut_min) {
+    if (ctx.GetRandom().P(organism->GetRevertNeg())) revert = true;
+    if (ctx.GetRandom().P(organism->GetSterilizeNeg())) sterilize = true;
+  } else if (child_fitness <= neut_max) {
+    if (ctx.GetRandom().P(organism->GetRevertNeut())) revert = true;
+    if (ctx.GetRandom().P(organism->GetSterilizeNeut())) sterilize = true;
+  } else {
+    if (ctx.GetRandom().P(organism->GetRevertPos())) revert = true;
+    if (ctx.GetRandom().P(organism->GetSterilizePos())) sterilize = true;
+    
+    //hack to force deleterious reversons to be replaced with neutral mutants
+    if (organism->GetRevertNeg() == 1.0) fit_ratio = child_fitness / parent_fitness;
+  }
+  
+  // Ideally, we won't have reversions and sterilizations turned on at the
+  // same time, but if we do, give revert the priority.
+  if (revert == true) {
+    organism->ChildGenome() = organism->GetGenome();
+    cerr << "Reverted!" << endl;
+  }
+  cerr << test_info.GetMaxDepth() << endl;
+	
+  if (sterilize == true) {
+    organism->GetPhenotype().ChildFertile() = false;
+    
+    //    if(organism->GetGenotype()->GetID() == 866367){
+    cerr << "Steralized!" << endl;
+    //}
+
+  }
+
+  return (!sterilize) && revert;
+}
+
 
 int cHardwareBase::PointMutate(cAvidaContext& ctx, const double mut_rate)
 {

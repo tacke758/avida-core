@@ -151,6 +151,7 @@ public:
   cAnalyzeGenotype(const cAnalyzeGenotype & _gen);
   ~cAnalyzeGenotype();
 
+  cInstSet& GetInstSet() {return inst_set;}
   const cStringList & GetSpecialArgs() { return special_args; }
   void SetSpecialArgs(const cStringList & _args) { special_args = _args; }
 
@@ -315,6 +316,10 @@ public:
   equality of two references means that they refer to the same object.
   */
   bool operator==(const cAnalyzeGenotype &in) const { return &in == this; }
+
+
+  //added for compatability with tArray - needed for some of AC's actions
+  cAnalyzeGenotype& operator=(const cAnalyzeGenotype &in) { cAnalyzeGenotype *temp = new cAnalyzeGenotype(in); return *temp;}
 };
 
 #ifdef ENABLE_UNIT_TESTS

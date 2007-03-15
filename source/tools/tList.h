@@ -80,9 +80,14 @@ private:
   
   const tList<T> & GetConstList() { return list; }
   const tListNode<T> * GetConstNode() { return node; }
+
+  T * _NextData();
+  T * _PrevData();
+
 public:
-    explicit tListIterator(tList<T> & _list);
+  explicit tListIterator(tList<T> & _list);
   explicit tListIterator(tList<T> & _list, tListNode<T> * start_node);
+  tListIterator(const tListIterator<T> & _it);
   ~tListIterator();
   
   void Set(tListNode<T> * in_node) { node = in_node; }
@@ -95,7 +100,12 @@ public:
   const T * GetConst() { return Get(); }
   const T * NextConst() { return Next(); }
   const T * PrevConst() { return Prev(); }
-  
+
+  T * NextData() {return _NextData();}
+  T * PrevData() {return _PrevData();}
+
+  //  const T * NextData() {return _NextData();}
+  //const T * PrevData() {return _PrevData();}
   bool Find(T * test_data);
   
   bool AtRoot() const;
@@ -208,6 +218,32 @@ protected:
     delete out_node;
     return out_data;
   }
+
+  //same as remove node but we're deleting the data...
+  void EraseNode(tListNode<T> * out_node) {
+    // Make sure we're not trying to delete the root node!
+    if (out_node == &root) return;
+    
+    // Adjust any iterators on the deleted node.
+    tListNode< tBaseIterator<T> > * test_it = it_root.next;
+    while (test_it != &it_root) {
+      // If this iterator is on this node, move it back one.
+      if (test_it->data->GetConstNode() == out_node) {
+        test_it->data->PrevConst();
+      }
+      test_it = test_it->next;
+    }
+    
+    // Save the data and patch up the linked list.
+    T * out_data = out_node->data;
+    out_node->prev->next = out_node->next;
+    out_node->next->prev = out_node->prev;
+    
+    // Cleanup and return
+    size--;
+    delete out_node;
+    delete out_data;
+  }
   
   // To be called from iterator constructor only!
   void AddIterator(tBaseIterator<T> * new_it) const {
@@ -236,6 +272,7 @@ public:
   T * PopRear() { return RemoveNode(root.prev); }
   
   void Clear() { while (size > 0) Pop(); }
+  void EraseList() { while (size > 0) EraseNode(root.next); }
   
   void Append(const tList<T> & in_list) {
     tListNode<T> * cur_node = in_list.root.next;
@@ -297,6 +334,12 @@ public:
     if (&(other.list) != this) return NULL; // @CAO make this an assert?
     return RemoveNode(other.node);
   }
+
+  //same as Remove but we delete the data ...
+  void Erase(tListIterator<T> & other) {
+    if (&(other.list) != this) return NULL; // @CAO make this an assert?
+    EraseNode(other.node);
+  }
   
   T * Insert(tListIterator<T> & list_it, T * in_data) {
     tListNode<T> * cur_node = list_it.node;
@@ -330,6 +373,18 @@ public:
     //return false;
     return NULL;
   }
+
+  //same as remove but we delete teh data instead...
+  void Erase(T * other) {
+    tListNode<T> * test = root.next;
+    while (test != &root) {
+      if (test->data == other) {
+        EraseNode(test);
+      }
+      test = test->next;
+    }
+  }
+
   
   int GetSize() const { return size; }
   
@@ -543,6 +598,13 @@ template <class T> tListIterator<T>::tListIterator(tList<T> & _list)
   list.AddIterator(this);
 }
 
+template <class T> tListIterator<T>::tListIterator(const tListIterator<T> & _it)
+: list(_it.list), node(_it.node)
+{
+  list.AddIterator(this);
+}
+
+
 template <class T> tListIterator<T>::tListIterator(tList<T> & _list,
                                                    tListNode<T> * start_node)
 : list(_list), node(start_node)
@@ -558,6 +620,14 @@ template <class T> tListIterator<T>::~tListIterator()
 template <class T> void tListIterator<T>::Reset()
 {
   node = &(list.root);
+}
+
+template <class T>  T * tListIterator<T>::_NextData(){
+  return node->next->data;
+}
+
+template <class T>  T * tListIterator<T>::_PrevData(){
+  return node->prev->data;
 }
 
 template <class T> T * tListIterator<T>::Get()
