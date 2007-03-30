@@ -237,6 +237,8 @@ public:
 
   template <typename T>
   bool moveIndex (T x, int &y, int z);
+  
+  
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
   bool jumpGuard(int);
@@ -246,6 +248,23 @@ public:
   bool jumpOriginState(int);
   bool jumpDestinationState(int);
     
+
+// The first functions jump the index to the beginning of various vectors   
+  bool firstGuard() {guard_index = 0;}
+  bool firstAction() {action_index = 0;}
+  bool firstTrigger() {trigger_index = 0;}
+  bool firstTransitionLabel() {trans_label_index = 0;}
+  bool firstOriginState() {orig_state_index = 0;}
+  bool firstDestinationState() {dest_state_index = 0;}	
+
+// The last functions jump the index to the end of various vectors   
+  bool lastGuard() {guard_index = (guards.size()-1);}
+  bool lastAction() {action_index = (actions.size()-1);}
+  bool lastTrigger() {trigger_index = (triggers.size()-1);}
+  bool lastTransitionLabel() {trans_label_index = (transition_labels.size()-1);} 
+  bool lastOriginState() {orig_state_index = (states.size()-1);}
+  bool lastDestinationState() {dest_state_index = (states.size()-1);}
+	
   
 // The get functions get the value of the index of various vectors  
   std::string getTrigger();

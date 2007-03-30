@@ -364,6 +364,10 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 					"Add a transition"),
 	cInstEntryCPU("jump", &cHardwareCPU::Inst_JumpIndex, false, 
 					"Jump to a position in the list"),																	
+	cInstEntryCPU("first", &cHardwareCPU::Inst_First, false, 
+					"Go to the first position in the list"),		
+	cInstEntryCPU("last", &cHardwareCPU::Inst_Last, false, 
+					"Go to the last position in the list"),						
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3484,6 +3488,80 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 	case 5:
 		// decement the destination state index
 		organism->jumpDestinationState(jump_amount);
+		break;
+	}
+	return true;
+}
+
+bool cHardwareCPU::Inst_First(cAvidaContext& ctx) 
+{
+	// by default, this instruction increments the triggers vector index
+	
+	int reg_used = FindModifiedRegister(REG_AX);
+	
+//	int jump_amount = 1;
+	
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->firstTrigger();
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->firstGuard();
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->firstAction();
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->firstTransitionLabel();
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->firstOriginState();
+		break;
+	case 5:
+		// decement the destination state index
+		organism->firstDestinationState();
+		break;
+	}
+	return true;
+}
+
+bool cHardwareCPU::Inst_Last(cAvidaContext& ctx) 
+{
+	// by default, this instruction increments the triggers vector index
+	
+	int reg_used = FindModifiedRegister(REG_AX);
+	
+//	int jump_amount = 1;
+	
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->lastTrigger();
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->lastGuard();
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->lastAction();
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->lastTransitionLabel();
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->lastOriginState();
+		break;
+	case 5:
+		// decement the destination state index
+		organism->lastDestinationState();
 		break;
 	}
 	return true;
