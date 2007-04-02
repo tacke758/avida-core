@@ -599,7 +599,7 @@ template <class T> tListIterator<T>::tListIterator(tList<T> & _list)
 }
 
 template <class T> tListIterator<T>::tListIterator(const tListIterator<T> & _it)
-: list(_it.list), node(_it.node)
+: tBaseIterator<T>(_it), list(_it.list), node(_it.node)
 {
   list.AddIterator(this);
 }

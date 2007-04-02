@@ -236,6 +236,8 @@
 		70DCAC9A097AF754002F8733 /* cTextViewerDriver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC6D097AF730002F8733 /* cTextViewerDriver.cc */; };
 		70DCAC9C097AF7C0002F8733 /* primitive.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC9B097AF7C0002F8733 /* primitive.cc */; };
 		70DCF66C09D4DE6500924128 /* libtcmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70AA941909D486AE006A24C8 /* libtcmalloc.a */; };
+		70E27FE20BC12D4000DE17CC /* LineageActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70E27FE00BC12D3C00DE17CC /* LineageActions.cc */; };
+		70E27FE30BC12D4400DE17CC /* LineageActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70E27FE00BC12D3C00DE17CC /* LineageActions.cc */; };
 		70F7D8CE09254787009E311D /* cFitnessMatrix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70CA6EB208DB7F8200068AC2 /* cFitnessMatrix.cc */; };
 		70F7DAF409290468009E311D /* cClassificationManager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70F7DAF009290468009E311D /* cClassificationManager.cc */; };
 		70F7DCA009293E76009E311D /* cClassificationManager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70F7DAF009290468009E311D /* cClassificationManager.cc */; };
@@ -720,6 +722,8 @@
 		70DCF57409CFBCA500924128 /* tcmalloc-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "tcmalloc-platform.h"; sourceTree = "<group>"; };
 		70DCF57F09CFBD3D00924128 /* tcmalloc-logging.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = "tcmalloc-logging.cc"; sourceTree = "<group>"; };
 		70DCF58009CFBD3D00924128 /* tcmalloc-logging.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "tcmalloc-logging.h"; sourceTree = "<group>"; };
+		70E27FE00BC12D3C00DE17CC /* LineageActions.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = LineageActions.cc; sourceTree = "<group>"; };
+		70E27FE10BC12D3C00DE17CC /* LineageActions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = LineageActions.h; sourceTree = "<group>"; };
 		70F7DAEF09290468009E311D /* cClassificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cClassificationManager.h; sourceTree = "<group>"; };
 		70F7DAF009290468009E311D /* cClassificationManager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cClassificationManager.cc; sourceTree = "<group>"; };
 		70F7DC9E09293E6F009E311D /* cGenotype.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cGenotype.cc; sourceTree = "<group>"; };
@@ -875,6 +879,8 @@
 		707AEEEE09E80699001AEA89 /* actions */ = {
 			isa = PBXGroup;
 			children = (
+				70E27FE00BC12D3C00DE17CC /* LineageActions.cc */,
+				70E27FE10BC12D3C00DE17CC /* LineageActions.h */,
 				70C054F10A4F6FF1002703C1 /* SConscript */,
 				707AF0F809EACC5E001AEA89 /* CMakeLists.txt */,
 				707AEEEF09E80725001AEA89 /* cAction.h */,
@@ -1770,6 +1776,7 @@
 				704ADBC80A6EEFC300666970 /* DriverActions.cc in Sources */,
 				705ABB3E0A8A6B4400A6A80E /* EnvironmentActions.cc in Sources */,
 				708BF3000AB65DC700A923BF /* cEventList.cc in Sources */,
+				70E27FE30BC12D4400DE17CC /* LineageActions.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1890,6 +1897,7 @@
 				704ADBF90A6EF3A300666970 /* DriverActions.cc in Sources */,
 				705ABB3C0A8A6B3D00A6A80E /* EnvironmentActions.cc in Sources */,
 				708BF2FE0AB65DC700A923BF /* cEventList.cc in Sources */,
+				70E27FE20BC12D4000DE17CC /* LineageActions.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
