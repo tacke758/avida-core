@@ -236,17 +236,24 @@ public:
   bool findTransLabel(transition_label); // find a specific transition label
 
   template <typename T>
-  bool moveIndex (T x, int &y, int z);
+  bool absoluteMoveIndex (T x, int &y, int z);
   
-  
+  template <typename T>
+  bool relativeMoveIndex (T x, int &y, int z);  
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
-  bool jumpGuard(int);
-  bool jumpAction(int);
-  bool jumpTrigger(int);
-  bool jumpTransitionLabel(int);
-  bool jumpOriginState(int);
-  bool jumpDestinationState(int);
+  bool absoluteJumpGuard(int);
+  bool absoluteJumpAction(int);
+  bool absoluteJumpTrigger(int);
+  bool absoluteJumpTransitionLabel(int);
+  bool absoluteJumpOriginState(int);
+  bool absoluteJumpDestinationState(int);
+  bool relativeJumpGuard(int);
+  bool relativeJumpAction(int);
+  bool relativeJumpTrigger(int);
+  bool relativeJumpTransitionLabel(int);
+  bool relativeJumpOriginState(int);
+  bool relativeJumpDestinationState(int);
     
 
 // The first functions jump the index to the beginning of various vectors   

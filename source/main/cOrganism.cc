@@ -590,14 +590,39 @@ bool cOrganism::findTrans(transition t)
 
 
 template <typename T>
-bool cOrganism::moveIndex (T x, int &index, int amount )
+bool cOrganism::absoluteMoveIndex (T x, int &index, int amount )
+{
+/*	if (x.size() == 0) {
+		return false;
+	}
+	
+	if (amount > 0) { 
+//		index += (amount % x.size()); // this provides relative jumping
+		index = (amount % x.size());
+
+		// index is greater than vector
+		if (index >= x.size()) { 
+			index -= x.size();
+		} else if(index < 0) { 
+			index += x.size();
+		}
+	}	
+	*/
+	index = 0;
+	return relativeMoveIndex(x, index, amount);
+}
+
+template <typename T>
+bool cOrganism::relativeMoveIndex (T x, int &index, int amount )
 {
 	if (x.size() == 0) {
 		return false;
 	}
 	
 	if (amount > 0) { 
+//		index += (amount % x.size()); // this provides relative jumping
 		index += (amount % x.size());
+
 		// index is greater than vector
 		if (index >= x.size()) { 
 			index -= x.size();
@@ -610,34 +635,64 @@ bool cOrganism::moveIndex (T x, int &index, int amount )
 }
 
 
-bool cOrganism::jumpTrigger(int jump_amount)
+bool cOrganism::absoluteJumpTrigger(int jump_amount)
 {
-	return moveIndex(triggers, trigger_index, jump_amount);
+	return absoluteMoveIndex(triggers, trigger_index, jump_amount);
 }
 
-bool cOrganism::jumpGuard(int jump_amount)
+bool cOrganism::absoluteJumpGuard(int jump_amount)
 {
-	return moveIndex(guards, guard_index, jump_amount);	
+	return absoluteMoveIndex(guards, guard_index, jump_amount);	
 }
 
-bool cOrganism::jumpAction(int jump_amount)
+bool cOrganism::absoluteJumpAction(int jump_amount)
 {
-	return moveIndex(actions, action_index, jump_amount);
+	return absoluteMoveIndex(actions, action_index, jump_amount);
 }
 
-bool cOrganism::jumpTransitionLabel(int jump_amount)
+bool cOrganism::absoluteJumpTransitionLabel(int jump_amount)
 {
-	return moveIndex(transition_labels, trans_label_index, jump_amount);
+	return absoluteMoveIndex(transition_labels, trans_label_index, jump_amount);
 }
 
-bool cOrganism::jumpOriginState(int jump_amount) 
+bool cOrganism::absoluteJumpOriginState(int jump_amount) 
 {
-	return moveIndex(states, orig_state_index, jump_amount);
+	return absoluteMoveIndex(states, orig_state_index, jump_amount);
 }
 
-bool cOrganism::jumpDestinationState(int jump_amount) 
+bool cOrganism::absoluteJumpDestinationState(int jump_amount) 
 {
-	return moveIndex(states, dest_state_index, jump_amount);
+	return absoluteMoveIndex(states, dest_state_index, jump_amount);
+}
+
+bool cOrganism::relativeJumpTrigger(int jump_amount)
+{
+	return relativeMoveIndex(triggers, trigger_index, jump_amount);
+}
+
+bool cOrganism::relativeJumpGuard(int jump_amount)
+{
+	return relativeMoveIndex(guards, guard_index, jump_amount);	
+}
+
+bool cOrganism::relativeJumpAction(int jump_amount)
+{
+	return relativeMoveIndex(actions, action_index, jump_amount);
+}
+
+bool cOrganism::relativeJumpTransitionLabel(int jump_amount)
+{
+	return relativeMoveIndex(transition_labels, trans_label_index, jump_amount);
+}
+
+bool cOrganism::relativeJumpOriginState(int jump_amount) 
+{
+	return relativeMoveIndex(states, orig_state_index, jump_amount);
+}
+
+bool cOrganism::relativeJumpDestinationState(int jump_amount) 
+{
+	return relativeMoveIndex(states, dest_state_index, jump_amount);
 }
 
 std::string cOrganism::getTrigger()
