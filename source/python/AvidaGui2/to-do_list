@@ -2,26 +2,38 @@ Click on freezer name same on clicking on expand/contract
 
 ************Brian******************
 
+Work to do before June 2007:
+
+26-Sep-06 Add @example.full with just one organism.
+
+31-Aug-06 Remove full path name from organism viewer
+
+03-Jul-06 Add some more data sets -- Default, Replication Only, All Nine, Funky Org, zoo
+
+11-Jul-06 Fix problem where user drags in in a new population, clicks on freeze and then clicks cancel the program loads the new population without saving.
+
+15-Jun-06 Drop organism/full population directly  on organism/analysis viewer icon
+
+15-May-06 Prevent program from deleting files with names beginning with "@"
+
+31-Aug-06 Turn on drag accept on for left side of genoscope
+
+29-Jun-06 Same control on front and back of petri dish.
+
+Long term projects:
 
 Priority High
 
 16-Jan-06 Get file system finished -- Make one big database file?
 
-11-Jul-06 Fix problem where user drags in in a new population, clicks on freeze and then clicks cancel the program loads the new population without saving.
-
 31-Aug-06 E-Mail Josh about state of resize at beginning of run
 
 19-Sep-06 Change "What rewards are available in the environment?" to 
 
-19-Sep-06 Empty -> configured actually empty of organisms. Default full one organism, @Default -> @Example.  Warning when we try to start with an empty dish.
-
-26-Sep-06 Add @example.full with just one organism.
 
 Priority Medium
 
 29-Apr-06 Change configuration on fly -- work with Kaben on the underlieing problem
-
-15-Jun-06 Drop organism/full population directly  on organism/analysis viewer icon
 
 15-Jun-06 Add text "environmental settings" on main screen 
 
@@ -31,11 +43,7 @@ Priority Medium
 
 31-Aug-06 What to do when user double clicks organism in population viewer.
 
-31-Aug-06 Remove full path name
-
 31-Aug-06 Make active/deactive more clear on petri dish configuration
-
-24-Oct-06 Configured/Populated dish names versus empty/full
 
 Priority Low
 
@@ -49,19 +57,9 @@ Priority Low
 
 29-Apr-06 Add "Environment Setting"/"Petri Dish" at top left of frame
 
-15-May-06 Prevent program from deleting files with names beginning with "@"
-
 15-Jun-06 Change wording on can't freeze message
 
-15-Jun-06 Create CGI script to allow users to enter information when they check out avida executable.
-
-29-Jun-06 set petri dish flag to open -- what does this mean?????
-
-29-Jun-06 Same control on front and back of petri dish.
-
 30-Jun-06 Make cell location relative to center of screen (use +/- X and Y) instead of using Avida cell location
-
-03-Jul-06 Add some more data sets -- Default, Replication Only, All Nine, Funky Org, zoo
 
 03-Jul-06 Delete item by clicking and delete
 
@@ -70,8 +68,6 @@ Priority Low
 13-Jul-06 Change the patterns of dots for multiple ancestors
 
 09-Aug-06 Deactivate Ancestor Icon Drag when there is a full population
-
-31-Aug-06 Turn on drag accept on for left side of genoscope
 
 ************Jeff*******************
 
@@ -243,13 +239,24 @@ September - 06
 
 October - 06
 
- - Relaxed size restrictions on various panes in the interface to solve problems 
+ - Relaxed size restrictions on various panes in the interface to solve problems
    with running program under windows when user has larger font selected as
    default
 
 January - 07
 
  - Added account on Angel for Harvard
+
+March - 07
+
+ - Created new web site (avida-ed.msu.edu) to support wider release
+   - Download site
+   - Discussion forum
+
+April - 07
+
+  - Changed Crreate to Create
+  - When creating a new workspace REWARD_xxx lines are added to @example.empty
 
 ************Kaben******************
 
