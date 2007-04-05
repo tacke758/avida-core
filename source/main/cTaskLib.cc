@@ -1857,7 +1857,7 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
 double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(1,2, "tagaaa")) {
+	if (ctx->organism->findTrans(0,1, "tagaaa")) {
 		bonus = 1.0;
 	}
 	
@@ -1868,7 +1868,7 @@ double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(2,3, "tagdab")){
+	if (ctx->organism->findTrans(1,2, "tagdab")){
 			bonus = 1.0;
 	}
 	
@@ -1880,7 +1880,7 @@ double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(3,4, "tcgbac")){
+	if (ctx->organism->findTrans(2,3, "tcgbac")){
 			bonus = 1.0;
 	}
 	
@@ -1892,7 +1892,7 @@ double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(0,1, "tbgcad")){
+	if (ctx->organism->findTrans(3,4, "tbgcad")){
 			bonus = 1.0;
 	}
 	

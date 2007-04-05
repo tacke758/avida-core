@@ -367,7 +367,9 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 	cInstEntryCPU("first", &cHardwareCPU::Inst_First, false, 
 					"Go to the first position in the list"),		
 	cInstEntryCPU("last", &cHardwareCPU::Inst_Last, false, 
-					"Go to the last position in the list"),						
+					"Go to the last position in the list"),	
+	cInstEntryCPU("jump-d", &cHardwareCPU::Inst_JumpDist, false, 
+					"Jump to a position in the list using labels."),
   };
   
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntryCPU);
@@ -3462,6 +3464,44 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 	const int reg_used = FindModifiedRegister(REG_AX);
 	const int reg_jump = FindModifiedRegister(REG_BX);
 	int jump_amount = GetRegister(reg_jump);
+
+	
+	switch (reg_used){
+	case 0:
+		// decrement the triggers vector index
+		organism->absoluteJumpTrigger(jump_amount);
+		break;
+	case 1:
+		// decrement the guards vector index
+		organism->absoluteJumpGuard(jump_amount);
+		break;
+	case 2:
+		// decrement the actions vector index
+		organism->absoluteJumpAction(jump_amount);
+		break;
+	case 3:
+		// decrement the transition labels index
+		organism->absoluteJumpTransitionLabel(jump_amount);
+		break;	
+	case 4:
+		// decrement the original state index
+		organism->absoluteJumpOriginState(jump_amount);
+		break;
+	case 5:
+		// decement the destination state index
+		organism->absoluteJumpDestinationState(jump_amount);
+		break;
+	}
+	return true;
+}
+
+bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
+{
+	const int reg_used = FindModifiedRegister(REG_AX);
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	//const int reg_jump = FindModifiedRegister(REG_BX);
+	//int jump_amount = GetRegister(reg_jump);
 
 	
 	switch (reg_used){
