@@ -4044,6 +4044,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
       filename.Set("%stasksites.%s.html", static_cast<const char*>(directory), static_cast<const char*>(genotype->GetName()));
     }
     ofstream& fp = m_world->GetDataFileOFStream(filename);
+				
     
     // Construct linked filenames...
     cString next_file("");
@@ -4246,6 +4247,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
     
     delete [] col_pass_count;
     delete [] col_fail_count;
+		fp.close();  //Close file pointer
   }
 }
 
