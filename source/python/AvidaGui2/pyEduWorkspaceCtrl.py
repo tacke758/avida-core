@@ -234,10 +234,14 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
           else:
             os.mkdir(new_dir)
             os.mkdir(os.path.join(new_dir,"freezer"))
+            os.mkdir(os.path.join(new_dir,"freezer","@example.full"))
             filesToCopy = ["environment.default", "inst_set.default", 
                            "events.default", "genesis.default", 
                            os.path.join("freezer", "@example.empty"), 
-                           os.path.join("freezer", "@ancestor.organism")]
+                           os.path.join("freezer", "@ancestor.organism"),
+                     os.path.join("freezer", "@example.full", "average.dat"),
+                     os.path.join("freezer", "@example.full", "count.dat"),
+                     os.path.join("freezer", "@example.full", "petri_dish")]
             for fileName in filesToCopy:
               sourceName = os.path.join(self.m_session_mdl.m_current_workspace,
                            fileName)
@@ -245,6 +249,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
               if (os.path.exists(sourceName)):
                 shutil.copyfile(sourceName, destName)
               else:
+                descr(" BDB fileName = " + fileName + "  destName = " + destName) 
                 pyDefaultFiles(fileName, destName)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")

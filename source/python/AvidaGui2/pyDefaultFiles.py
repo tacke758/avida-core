@@ -1,3 +1,5 @@
+import os.path
+
 class pyDefaultFiles:
 
   def __init__(self, out_file_name = None, full_out_file_name = None):
@@ -280,17 +282,53 @@ class pyDefaultFiles:
     lines = lines + ["inst_set.default", ""]
     lines = lines + ["inst_set.default", "# Search with no template returns current position (abs line number) in"]
     lines = lines + ["inst_set.default", "# genome."]
-    lines = lines + ["freezer/@example.empty", "*SETTINGS"]
-    lines = lines + ["freezer/@example.empty", "RANDOM_SEED 0"]
-    lines = lines + ["freezer/@example.empty", "DEATH_METHOD 2"]
-    lines = lines + ["freezer/@example.empty", "COPY_MUT_PROB 0.03"]
-    lines = lines + ["freezer/@example.empty", "WORLD-X 30"]
-    lines = lines + ["freezer/@example.empty", "WORLD-Y 30"]
-    lines = lines + ["freezer/@example.empty", "BIRTH_METHOD 0"]
-    lines = lines + ["freezer/@example.empty", "START_CREATURE0 default"]
-    lines = lines + ["freezer/@example.empty", "AGE_LIMIT 100"]
-    lines = lines + ["freezer/@example.empty", "MAX_UPDATES -1"]
-    lines = lines + ["freezer/@ancestor.organism", "rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab"]
+    tmp_file_name = os.path.join("freezer", "@example.empty")
+    lines = lines + [tmp_file_name, "*SETTINGS"]
+    lines = lines + [tmp_file_name, "RANDOM_SEED 0"]
+    lines = lines + [tmp_file_name, "DEATH_METHOD 2"]
+    lines = lines + [tmp_file_name, "COPY_MUT_PROB 0.03"]
+    lines = lines + [tmp_file_name, "WORLD-X 30"]
+    lines = lines + [tmp_file_name, "WORLD-Y 30"]
+    lines = lines + [tmp_file_name, "BIRTH_METHOD 0"]
+    lines = lines + [tmp_file_name, "START_CREATURE0 default"]
+    lines = lines + [tmp_file_name, "AGE_LIMIT 100"]
+    lines = lines + [tmp_file_name, "MAX_UPDATES -1"]
+    lines = lines + [tmp_file_name, "REWARD_NOT YES"]
+    lines = lines + [tmp_file_name, "REWARD_NAND YES"]
+    lines = lines + [tmp_file_name, "REWARD_AND YES"]
+    lines = lines + [tmp_file_name, "REWARD_ORN YES"]
+    lines = lines + [tmp_file_name, "REWARD_OR YES"]
+    lines = lines + [tmp_file_name, "REWARD_ANDN YES"]
+    lines = lines + [tmp_file_name, "REWARD_NOR YES"]
+    lines = lines + [tmp_file_name, "REWARD_XOR YES"]
+    lines = lines + [tmp_file_name, "REWARD_EQU YES"]
+    tmp_file_name = os.path.join("freezer", "@ancestor.organism")
+    lines = lines + [tmp_file_name, "rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab"]
+    tmp_file_name = os.path.join("freezer", "@example.full", "average.dat")
+    lines = lines + [tmp_file_name, "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "]
+    lines = lines + [tmp_file_name, "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "]
+    tmp_file_name = os.path.join("freezer", "@example.full", "count.dat")
+    lines = lines + [tmp_file_name, "0 30 1 1 1 0 0 1 1 0 1 1 1 1 0 0 "]
+    lines = lines + [tmp_file_name, "1 30 1 1 1 0 0 1 0 0 0 1 1 1 0 0"]
+    tmp_file_name = os.path.join("freezer", "@example.full", "petri_dish")
+    lines = lines + [tmp_file_name, "*SETTINGS"]
+    lines = lines + [tmp_file_name, "BIRTH_METHOD 0"]
+    lines = lines + [tmp_file_name, "COPY_MUT_PROB 0.02"]
+    lines = lines + [tmp_file_name, "MAX_UPDATES -1"]
+    lines = lines + [tmp_file_name, "RANDOM_SEED 0"]
+    lines = lines + [tmp_file_name, "REWARD_AND YES"]
+    lines = lines + [tmp_file_name, "REWARD_ANDN YES"]
+    lines = lines + [tmp_file_name, "REWARD_EQU YES"]
+    lines = lines + [tmp_file_name, "REWARD_NAND YES"]
+    lines = lines + [tmp_file_name, "REWARD_NOR YES"]
+    lines = lines + [tmp_file_name, "REWARD_NOT YES"]
+    lines = lines + [tmp_file_name, "REWARD_OR YES"]
+    lines = lines + [tmp_file_name, "REWARD_ORN YES"]
+    lines = lines + [tmp_file_name, "REWARD_XOR YES"]
+    lines = lines + [tmp_file_name, "START_CREATURE0 @ancestor"]
+    lines = lines + [tmp_file_name, "START_GENOME0 rucavcqgfcqapqcccccccccccccccccccccccccccutycasvab"]
+    lines = lines + [tmp_file_name, "WORLD-X 30"]
+    lines = lines + [tmp_file_name, "WORLD-Y 30"]
     out_lines = []
     num_lines = len(lines)/2
     for line_num in range(num_lines):

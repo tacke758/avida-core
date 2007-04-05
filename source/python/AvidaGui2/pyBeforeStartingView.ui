@@ -76,7 +76,7 @@
                         <enum>StrongFocus</enum>
                     </property>
                     <property name="text">
-                        <string>Crreate New Workspace</string>
+                        <string>Create New Workspace</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;P&gt;Create a new workspace to save your work&lt;/P&gt;</string>

@@ -4,8 +4,12 @@ Click on freezer name same on clicking on expand/contract
 
 Work to do before June 2007:
 
-26-Sep-06 Add @example.full with just one organism.
+Add import capability.
 
+Add bug reporing to web forum
+
+Make videos for Rob
+ 
 31-Aug-06 Remove full path name from organism viewer
 
 03-Jul-06 Add some more data sets -- Default, Replication Only, All Nine, Funky Org, zoo
@@ -257,6 +261,7 @@ April - 07
 
   - Changed Crreate to Create
   - When creating a new workspace REWARD_xxx lines are added to @example.empty
+  - When creating a new workspace add @example.full with just one organism.
 
 ************Kaben******************
 
