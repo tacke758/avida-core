@@ -362,6 +362,8 @@ cInstLibCPU *cHardwareCPU::initInstLib(void)
 					"Add a transition label"),
 	cInstEntryCPU("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
 					"Add a transition"),
+	cInstEntryCPU("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
+					"Add a transition without adding a label."),				
 	cInstEntryCPU("jump", &cHardwareCPU::Inst_JumpIndex, false, 
 					"Jump to a position in the list"),																	
 	cInstEntryCPU("first", &cHardwareCPU::Inst_First, false, 
@@ -3624,3 +3626,7 @@ bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 	return organism->addTransition();
 }
 
+bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
+{
+	return organism->addTransitionTotal();
+}

@@ -285,6 +285,7 @@ public:
   bool addState();
   bool addTransitionLabel();
   bool addTransition();
+  bool addTransitionTotal();
 
 
 

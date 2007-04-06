@@ -479,6 +479,7 @@ private:
   bool Inst_JumpDist(cAvidaContext& ctx);
   bool Inst_AddTransitionLabel(cAvidaContext& ctx);
   bool Inst_AddTransition(cAvidaContext& ctx);
+  bool Inst_AddTransitionTotal(cAvidaContext& ctx);
   bool Inst_Last(cAvidaContext& ctx);
   bool Inst_First(cAvidaContext& ctx);
 

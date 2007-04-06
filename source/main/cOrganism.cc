@@ -791,6 +791,37 @@ bool cOrganism::addTransition()
 
 }
 
+
+bool cOrganism::addTransitionTotal()
+{
+	if ((states.size() == 0)) {
+
+		return false;
+	} 
+
+	transition t;
+	t.orig_state = getOrigState();
+	t.dest_state = getDestState();
+	
+	transition_label tl;
+	tl.trigger = getTrigger();
+	tl.guard = getGuard();
+	tl.action = getAction();
+	t.trans = tl;
+	
+	
+	// no dupes
+    if (findTrans(t)) {
+		return false;
+	}
+
+	transitions.push_back(t);
+		
+	return true;
+
+}
+
+
 int cOrganism::numStates()
 {
 	return states.size();
