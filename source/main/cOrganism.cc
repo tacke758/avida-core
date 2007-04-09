@@ -740,9 +740,13 @@ transition_label cOrganism::getTransLabel()
 // State manipulation
 bool cOrganism::addState()
 {
-	states.push_back(states.size());
-	dest_state_index = states.size() - 1;
-		
+	if (states.size() < 11) {
+		states.push_back(states.size());
+		dest_state_index = states.size() - 1;
+	} else {
+		 return false;
+	}
+	
 	return true;
 }
 
