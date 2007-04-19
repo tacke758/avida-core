@@ -133,6 +133,7 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   // This is asexual who doesn't need to wait in the birth chamber
   // just build the child and return.
   child_array.Resize(1);
+//  child_array[0] = new cOrganism(m_world, ctx, child_genome);
   child_array[0] = new cOrganism(m_world, ctx, child_genome);
   merit_array.Resize(1);
   merit_array[0] = parent.GetPhenotype().GetMerit();
@@ -149,6 +150,9 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   parent.GetGenotype()->SetBreedStats(*child_genotype);
     
   child_genotype->IncDeferAdjust();
+  
+  // FOR UML branch - hjg
+  child_array[0]->setParentXMI(parent.getXMI());
 
   return true;
 }

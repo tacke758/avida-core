@@ -1944,6 +1944,13 @@ double cTaskLib::Task_NumTrans(cTaskContext* ctx) const
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism;
+	std::string temp;
+
+	temp = organism->getXMI();
+
+	if (temp == organism->getParentXMI()) {
+		return 0;
+	}
 
 // Check for task success...	
 /*	if (ctx->task_failed == 0) {
@@ -1954,7 +1961,6 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	m_world->GetStats().HydraAttempt();
 
 	double bonus = 0.0;
-	std::string temp;
 	unsigned int status_total = 0;
 	int status=0;
 
@@ -1983,7 +1989,6 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
 
 	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
-	temp = organism->getXMI();
 	do {
 		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
 		if (status < 0) {
@@ -2015,15 +2020,16 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	assert(done==subavida);
 	
 	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
-/*	if(status != 0) {
-		ctx->task_failed = 0;
+	if(status != 0) {
+//		ctx->task_failed = 0;
 		return 0.0;
 	} else {
-		ctx->task_failed = ctx->task_failed && 1;
+	//	ctx->task_failed = ctx->task_failed && 1;
+		ctx->task_success_complete += 1;
 		m_world->GetStats().HydraPassed();
 		return 1.0;
 	}
-	*/
+	
 }
 
 
@@ -2050,9 +2056,9 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
-	//if (ctx->task_failed) {
+	if (ctx->task_success_complete) {
 		return SpinCoprocess(ctx, "N1");
-	//} 
+	} 
 	return 0.0;
 }
 

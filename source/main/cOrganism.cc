@@ -81,6 +81,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_net(NULL)
   , received_messages(RECEIVED_MESSAGES_SIZE)
   , is_running(false)
+  , parent_xmi("")
 {
   // Initialization of structures...
   m_hardware = m_world->GetHardwareManager().Create(this);
@@ -110,32 +111,65 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   AddTrans(3,3,1);
 */
 
-  // initialize the iterators to point to the first element
-  triggers.push_back("ta");
-  triggers.push_back("tb");
-  triggers.push_back("tc");
-  triggers.push_back("td");
-  guards.push_back("ga");
-  guards.push_back("gb");
-  guards.push_back("gc");
-  guards.push_back("gd");
-  actions.push_back("aa");
-  actions.push_back("ab");
-  actions.push_back("ac");
-  actions.push_back("ad");
+  trigger_info trig;
+  trig.label = "<null>";
+  trig.operation_id = "<null>";
+  triggers.push_back(trig);
+  trig.label = "setTempOpState(temp_op_state)";
+  trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
+  triggers.push_back(trig);
+  trig.label = "setTempData(temp_data)";
+  trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
+  triggers.push_back(trig);
+  guards.push_back("<null>");
+  actions.push_back("<null>");
+  actions.push_back("/^TempSensor.getOpState()");
+  actions.push_back("/^TempSensor.getTempData()");
   
   // initialize w/ 10 states
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
-  states.push_back(states.size());
   
+  state s;
+  for (int i=0; i<11; i++) {
+	s.identifier = i;
+	s.num_incoming = 0;
+	s.num_outgoing = 0;
+	states.push_back(s);
+  }
+   
+  // initialize transitions
+  transition t;
+  
+  // State 0->1
+  t.orig_state = 0;
+  t.dest_state = 1;
+  states[0].num_outgoing += 1;
+  states[1].num_incoming += 1;  
+  t.trans.trigger = 0;
+  t.trans.guard = "<null>";
+  t.trans.action = "<null>";
+  transitions.push_back(t);
+
+  // State 1->2
+  t.orig_state = 1;
+  t.dest_state = 2;
+  states[1].num_outgoing += 1;
+  states[2].num_incoming += 1; 
+  t.trans.trigger = 0;
+  t.trans.guard = "<null>";
+  t.trans.action = "/^TempSensor.getTempData()";
+  transitions.push_back(t);
+  
+  // State 2->1
+  t.orig_state = 2;
+  t.dest_state = 1;
+  states[2].num_outgoing += 1;
+  states[1].num_incoming += 1; 
+  t.trans.trigger =  1;
+  t.trans.guard = "<null>";
+  t.trans.action = "<null>";
+  transitions.push_back(t);
+	
+  // initialize the iterators to point to the first element
   trigger_index = 0;
   action_index = 0;
   guard_index = 0;
@@ -143,7 +177,6 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   orig_state_index = 0;
   dest_state_index = 9;
 }
-
 
 cOrganism::~cOrganism()
 {
@@ -469,7 +502,7 @@ void cOrganism::NetReset()
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 
-	printXMI();
+  printXMI();
 	
 
   assert(m_interface);
@@ -576,7 +609,7 @@ bool cOrganism::findTrans(int orig, int dest, std::string label)
 	std::string t_lab;
 	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
 		if((i->orig_state == orig) && (i->dest_state == dest)) {
-			t_lab = (i->trans.trigger + i->trans.guard + i->trans.action);
+			t_lab = (StringifyAnInt(i->trans.trigger) + i->trans.guard + i->trans.action);
 			if (t_lab == label) {
 				return true;
 			}
@@ -706,13 +739,14 @@ bool cOrganism::relativeJumpDestinationState(int jump_amount)
 	return relativeMoveIndex(states, dest_state_index, jump_amount);
 }
 
-std::string cOrganism::getTrigger()
+int cOrganism::getTriggerIndex()
 {
-	if (triggers.size() == 0) {
-		return "";
-	} else {
-		return triggers[trigger_index];
-	}
+	/*if (triggers.size() == 0) {
+		return 0;
+	} else {*/
+	
+		return trigger_index;
+	//}
 }
 
 std::string cOrganism::getGuard()
@@ -733,12 +767,12 @@ std::string cOrganism::getAction()
 	}
 }
 
-int cOrganism::getOrigState()
+int cOrganism::getOrigStateIndex()
 {
 	return orig_state_index;
 }
  
-int cOrganism::getDestState()
+int cOrganism::getDestStateIndex()
 {
 	return dest_state_index;
 }
@@ -748,15 +782,21 @@ transition_label cOrganism::getTransLabel()
 	return transition_labels[trans_label_index];
 }
 
-// State manipulation
+// State manipulation - currently not used.
 bool cOrganism::addState()
 {
-	if (states.size() < 11) {
+/*	if (states.size() < 11) {
 		states.push_back(states.size());
 		dest_state_index = states.size() - 1;
 	} else {
 		 return false;
-	}
+	}*/
+	
+	state s;
+	s.identifier = states.size();
+	s.num_incoming = 0;
+	s.num_outgoing = 0;
+	states.push_back(s);
 	
 	return true;
 }
@@ -765,7 +805,7 @@ bool cOrganism::addTransitionLabel()
 {
 
 	transition_label t;
-	t.trigger = getTrigger();
+	t.trigger = getTriggerIndex();
 	t.guard = getGuard();
 	t.action = getAction();
 	
@@ -791,8 +831,12 @@ bool cOrganism::addTransition()
 	} 
 
 	transition t;
-	t.orig_state = getOrigState();
-	t.dest_state = getDestState();
+	t.orig_state = getOrigStateIndex();
+	t.dest_state = getDestStateIndex();
+	// increment number of edges for a state
+	states[getOrigStateIndex()].num_outgoing += 1;
+	states[getDestStateIndex()].num_incoming += 1;
+	
 	t.trans = getTransLabel();
 	
 	// no dupes
@@ -815,11 +859,22 @@ bool cOrganism::addTransitionTotal()
 	} 
 
 	transition t;
-	t.orig_state = getOrigState();
-	t.dest_state = getDestState();
+	t.orig_state = getOrigStateIndex();
+	t.dest_state = getDestStateIndex();
+	
+	
+	// Do not create transition if the origin state is unreachable.
+	if (states[getOrigStateIndex()].num_incoming == 0) {
+		return false;
+	}
+	
+	// increment number of edges for a state
+	states[getOrigStateIndex()].num_outgoing += 1;
+	states[getDestStateIndex()].num_incoming += 1;
+
 	
 	transition_label tl;
-	tl.trigger = getTrigger();
+	tl.trigger = getTriggerIndex();
 	tl.guard = getGuard();
 	tl.action = getAction();
 	t.trans = tl;
@@ -875,12 +930,15 @@ std::string cOrganism::getXMI()
 
 void cOrganism::printXMI()
 {
-	std::string temp, temp1, temp2;
+	std::string temp, temp1, temp2, temp3;
+	std::string trig_label, trig_op_label;
 
 	int s_count = 0;
 	int t_count = 0;
 	xmi = "";
 
+	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
+	// edge or not.
 	if (numStates() > 0) {
 		temp = StringifyAnInt(s_count);
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
@@ -888,15 +946,18 @@ void cOrganism::printXMI()
 		++s_count;
 	}
 	
-	
 	for (; s_count < numStates(); ++s_count) {
-		temp = "s" + StringifyAnInt(s_count);
-		xmi+="<UML:CompositeState xmi.id=\"";
-		xmi+=temp;
-		xmi+= "\" isConcurrent=\"false\" name=\""; 
-		xmi+= temp; 
-		xmi+= "\" isSpecification=\"false\"/>\n";
+	
+		// only print if this state has an incoming edge. 
+		if ((states[s_count]).num_incoming > 0) {
+			temp = "s" + StringifyAnInt(s_count);
+			xmi+="<UML:CompositeState xmi.id=\"";
+			xmi+=temp;
+			xmi+= "\" isConcurrent=\"false\" name=\""; 
+			xmi+= temp; 
+			xmi+= "\" isSpecification=\"false\"/>\n";
 		}
+	}
 		
 		// end the set of states....
 		xmi+= "</UML:CompositeState.subvertex>\n";
@@ -913,39 +974,43 @@ void cOrganism::printXMI()
 		temp = "t" + StringifyAnInt(t_count);
 		temp1 = "s" + StringifyAnInt(transitions[t_count].orig_state);
 		temp2 = "s" + StringifyAnInt(transitions[t_count].dest_state);
-		temp = temp + temp1 + temp2;
+		temp3 = temp + temp1 + temp2;
 
-		xmi+= "<UML:Transition xmi.id=\"" + temp + "\"";
+		xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
 		xmi+= " source=\"" + temp1 + "\"";
 		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
 
 		// Get guard, trigger, and action
-		temp = transitions[t_count].trans.trigger;
+//		temp = transitions[t_count].trans.trigger;
 		temp1 = transitions[t_count].trans.guard;
 		temp2 = transitions[t_count].trans.action;
+		trig_label = triggers[transitions[t_count].trans.trigger].label;
+		trig_op_label = triggers[transitions[t_count].trans.trigger].operation_id;
+
 
 		// print trigger, if any
-		if (temp != "") {
+		if (trig_label != "<null>") {
 			xmi+= "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			xmi+= "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"\"  operation=\"\" ";
-			xmi+= "name=\"" + temp + "isSpecification=\"false\"/> "; 
+			xmi+= "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"" + temp3;
+			xmi+= "tt\"  operation=\""+ trig_op_label + "\" ";
+			xmi+= "name=\"" + trig_label + "\" isSpecification=\"false\"/> "; 
 			xmi+= "</UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> ";
 			xmi+= "</UML:Event>  </UML:Transition.trigger> ";
 		}
 		
 		// print guard, if any
 		// Note: for guard to work, '<' => '&lt'
-		if (temp1 != ""){
+		if (temp1 != "<null>"){
 			xmi+= "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
 			xmi+= "<UML:BooleanExpression body=\"" + temp1 + "\" language=\"\"/> ";
 			xmi+= "</UML:Guard.expression> </UML:Guard> </UML:Transition.guard> ";
 		}
 		
 		// print action, if any
-		if (temp2 != "") { 
-			xmi+= "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"\" ";
+		if (temp2 != "<null>") { 
+			xmi+= "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"" + temp3 + "ui\" ";
 			xmi+= "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
-			xmi+= "<UML:Action.script> <UML:ActionExpression language=\"\" body=\" "; 
+			xmi+= "<UML:Action.script> <UML:ActionExpression language=\"\" body=\""; 
 			xmi+= temp2 + "\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";		
 		}
 		
