@@ -32,7 +32,7 @@ private:
   int net_completed;
   tBuffer<int>* received_messages;
   int logic_id;
-  int task_failed;
+  int task_success_complete;
   
   cTaskEntry* task_entry;
   cOrganism* organism;
@@ -44,7 +44,7 @@ public:
                tBuffer<int>* in_received_messages = NULL, cOrganism* in_org = NULL)
     : input_buffer(inputs), output_buffer(outputs), other_input_buffers(other_inputs),
     other_output_buffers(other_outputs), net_valid(in_net_valid), net_completed(in_net_completed), 
-    received_messages(in_received_messages), organism(in_org), logic_id(0), task_entry(NULL), task_failed(1)
+    received_messages(in_received_messages), organism(in_org), logic_id(0), task_entry(NULL), task_success_complete(0)
   {
   }
  

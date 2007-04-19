@@ -349,6 +349,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info)
 	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
   else if (name == "spin1") // 
 	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN1);	  
+  else if (name == "mult_trans") // 
+	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);
 	  
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -1858,10 +1860,11 @@ double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 	if (ctx->organism->findTrans(0,1, "tagaaa")) {
+		ctx->task_success_complete = 1;	
 		bonus = 1.0;
 	}
 	
-	ctx->task_failed = ctx->task_failed && bonus;	
+//	ctx->task_success_complete = 0;	
 	return bonus;
 }
 
@@ -1869,10 +1872,10 @@ double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 	if (ctx->organism->findTrans(1,2, "tagdab")){
+			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
 	
-	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 
 }
@@ -1882,9 +1885,9 @@ double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 	double bonus = 0.0;
 	if (ctx->organism->findTrans(2,3, "tcgbac")){
 			bonus = 1.0;
+			ctx->task_success_complete += 1;	
 	}
 	
-	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 
 }
@@ -1893,10 +1896,10 @@ double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 	if (ctx->organism->findTrans(3,4, "tbgcad")){
+			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
 	
-	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 
 }
@@ -1905,10 +1908,10 @@ double cTaskLib::Task_Trans5(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
 	if (ctx->organism->findTrans(4,0, "tdgaac")){
+			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
 	
-	ctx->task_failed = ctx->task_failed && bonus;	
 	return bonus;
 
 }
@@ -1932,21 +1935,22 @@ double cTaskLib::Task_NumTrans(cTaskContext* ctx) const
 	if (nt <= 5 ) {
 		return (nt/5); 
 	} else{
-		return 0.0;
+		return 1;
 	}
 }
 
 
-
+// broken - 4/11
 double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 {
 	cOrganism* organism = ctx->organism;
 
 // Check for task success...	
-	if (ctx->task_failed == 0) {
+/*	if (ctx->task_failed == 0) {
 		return 0;
 	}	
-
+	
+*/
 	m_world->GetStats().HydraAttempt();
 
 	double bonus = 0.0;
@@ -2011,7 +2015,7 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	assert(done==subavida);
 	
 	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
-	if(status != 0) {
+/*	if(status != 0) {
 		ctx->task_failed = 0;
 		return 0.0;
 	} else {
@@ -2019,7 +2023,9 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 		m_world->GetStats().HydraPassed();
 		return 1.0;
 	}
+	*/
 }
+
 
 double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimFile) const {
 	cOrganism* organism = ctx->organism;
@@ -2044,10 +2050,12 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
-	if (ctx->task_failed) {
+	//if (ctx->task_failed) {
 		return SpinCoprocess(ctx, "N1");
-	} 
+	//} 
 	return 0.0;
 }
 
-
+double cTaskLib::Task_MultTrans(cTaskContext* ctx) const {
+	return (2^ctx->task_success_complete);
+}

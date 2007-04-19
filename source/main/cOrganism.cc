@@ -124,13 +124,24 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   actions.push_back("ac");
   actions.push_back("ad");
   
+  // initialize w/ 10 states
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  states.push_back(states.size());
+  
   trigger_index = 0;
   action_index = 0;
   guard_index = 0;
   trans_label_index = 0;
   orig_state_index = 0;
-  dest_state_index = 0;
-//  total_states = 0;
+  dest_state_index = 9;
 }
 
 
@@ -820,6 +831,13 @@ bool cOrganism::addTransitionTotal()
 	}
 
 	transitions.push_back(t);
+	
+	// reset all indices
+	orig_state_index = 0;
+	dest_state_index = 0;
+	trigger_index = 0;
+	action_index = 0;
+	guard_index = 0;
 		
 	return true;
 
