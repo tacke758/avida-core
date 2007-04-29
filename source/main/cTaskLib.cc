@@ -1856,10 +1856,11 @@ double cTaskLib::Task_NetReceive(cTaskContext* ctx) const
   return 0.0;
 }
 
+
 double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(0,1, "tagaaa")) {
+	if (ctx->organism->findTrans(0,1,1, "ga", "aa")) {
 		ctx->task_success_complete = 1;	
 		bonus = 1.0;
 	}
@@ -1871,7 +1872,7 @@ double cTaskLib::Task_Trans1(cTaskContext* ctx) const
 double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(1,2, "tagdab")){
+	if (ctx->organism->findTrans(1,2,1,"gd", "ab")){
 			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -1883,7 +1884,7 @@ double cTaskLib::Task_Trans2(cTaskContext* ctx) const
 double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(2,3, "tcgbac")){
+	if (ctx->organism->findTrans(2,3,3,"gb", "ac")){
 			bonus = 1.0;
 			ctx->task_success_complete += 1;	
 	}
@@ -1895,7 +1896,7 @@ double cTaskLib::Task_Trans3(cTaskContext* ctx) const
 double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(3,4, "tbgcad")){
+	if (ctx->organism->findTrans(3,4,2,"gc", "ad")){
 			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -1907,7 +1908,7 @@ double cTaskLib::Task_Trans4(cTaskContext* ctx) const
 double cTaskLib::Task_Trans5(cTaskContext* ctx) const
 {
 	double bonus = 0.0;
-	if (ctx->organism->findTrans(4,0, "tdgaac")){
+	if (ctx->organism->findTrans(4,0,4,"ga","ac")){
 			ctx->task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -1949,7 +1950,9 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	temp = organism->getXMI();
 
 	if (temp == organism->getParentXMI()) {
-		return 0;
+		ctx->task_success_complete += organism->getParentBonusInfo("hydra");
+		organism->setBonusInfo("hydra", organism->getParentBonusInfo("hydra"));
+		return organism->getParentBonusInfo("hydra");
 	}
 
 // Check for task success...	
@@ -2022,11 +2025,13 @@ double cTaskLib::Task_Hydra(cTaskContext* ctx) const
 	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
 	if(status != 0) {
 //		ctx->task_failed = 0;
+		organism->setBonusInfo("hydra", 0.0); 
 		return 0.0;
 	} else {
 	//	ctx->task_failed = ctx->task_failed && 1;
 		ctx->task_success_complete += 1;
 		m_world->GetStats().HydraPassed();
+		organism->setBonusInfo("hydra", 1.0); 
 		return 1.0;
 	}
 	
@@ -2045,6 +2050,8 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
+	
 	
 	std::ostringstream strstrm;
 	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
@@ -2056,10 +2063,28 @@ double cTaskLib::SpinCoprocess(cTaskContext* ctx, const std::string& neverclaimF
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext* ctx) const {
-	if (ctx->task_success_complete) {
-		return SpinCoprocess(ctx, "N1");
-	} 
-	return 0.0;
+	cOrganism* organism = ctx->organism;
+	std::string temp = organism->getXMI();
+	double temp1 = 0.0;
+	
+	if (temp == organism->getParentXMI()) { 
+		ctx->task_success_complete += organism->getParentBonusInfo("spinn1");
+		organism->setBonusInfo("spinn1", organism->getParentBonusInfo("spinn1"));
+		return organism->getParentBonusInfo("spinn1");
+	}
+	
+	// check if the trigger is present
+	if (organism->findTrans(-1,-1,1,"*","*")){
+		temp += 1;
+		
+		// check property
+		if (ctx->task_success_complete) {
+			temp1 += SpinCoprocess(ctx, "N1");
+		} 
+	}
+	
+	organism->setBonusInfo("spinn1", temp1); 
+	return temp1;
 }
 
 double cTaskLib::Task_MultTrans(cTaskContext* ctx) const {

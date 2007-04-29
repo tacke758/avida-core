@@ -115,16 +115,16 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   trig.label = "<null>";
   trig.operation_id = "<null>";
   triggers.push_back(trig);
-  trig.label = "setTempOpState(temp_op_state)";
+  trig.label = "setTempOpState";
   trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
   triggers.push_back(trig);
-  trig.label = "setTempData(temp_data)";
+  trig.label = "setTempData";
   trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
   triggers.push_back(trig);
   guards.push_back("<null>");
   actions.push_back("<null>");
-  actions.push_back("/^TempSensor.getOpState()");
-  actions.push_back("/^TempSensor.getTempData()");
+  actions.push_back("^TempSensor.getOpState()");
+  actions.push_back("^TempSensor.getTempData()");
   
   // initialize w/ 10 states
   
@@ -156,7 +156,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   states[2].num_incoming += 1; 
   t.trans.trigger = 0;
   t.trans.guard = "<null>";
-  t.trans.action = "/^TempSensor.getTempData()";
+  t.trans.action = "^TempSensor.getTempData()";
   transitions.push_back(t);
   
   // State 2->1
@@ -164,7 +164,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   t.dest_state = 1;
   states[2].num_outgoing += 1;
   states[1].num_incoming += 1; 
-  t.trans.trigger =  1;
+  t.trans.trigger =  2;
   t.trans.guard = "<null>";
   t.trans.action = "<null>";
   transitions.push_back(t);
@@ -592,6 +592,24 @@ bool cOrganism::findTransLabel(transition_label t) {
 	return false;
 }
 
+bool cOrganism::findTrans(int orig, int dest, int trig, std::string gu, std::string act) 
+{
+	// the wild cards for there are 
+	// -1 for orig, dest & trigger
+	// "*" for guard, and action
+
+	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
+		if (((orig == -1) || (orig == i->orig_state)) && 
+			((dest == -1) || (dest == i->dest_state)) && 
+			((trig == -1) || (trig == i->trans.trigger)) && 
+			((gu == "*") || (gu == i->trans.guard)) &&
+			((act == "*") || (act == i->trans.action))) { 
+						return true;
+			}
+	}
+	return false;
+}
+/*
 bool cOrganism::findTrans(int orig, int dest)
 {
 	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
@@ -632,26 +650,11 @@ bool cOrganism::findTrans(transition t)
 	return false;
 }
 
+*/
 
 template <typename T>
 bool cOrganism::absoluteMoveIndex (T x, int &index, int amount )
 {
-/*	if (x.size() == 0) {
-		return false;
-	}
-	
-	if (amount > 0) { 
-//		index += (amount % x.size()); // this provides relative jumping
-		index = (amount % x.size());
-
-		// index is greater than vector
-		if (index >= x.size()) { 
-			index -= x.size();
-		} else if(index < 0) { 
-			index += x.size();
-		}
-	}	
-	*/
 	index = 0;
 	return relativeMoveIndex(x, index, amount);
 }
@@ -782,16 +785,8 @@ transition_label cOrganism::getTransLabel()
 	return transition_labels[trans_label_index];
 }
 
-// State manipulation - currently not used.
 bool cOrganism::addState()
-{
-/*	if (states.size() < 11) {
-		states.push_back(states.size());
-		dest_state_index = states.size() - 1;
-	} else {
-		 return false;
-	}*/
-	
+{	
 	state s;
 	s.identifier = states.size();
 	s.num_incoming = 0;
@@ -803,7 +798,6 @@ bool cOrganism::addState()
 
 bool cOrganism::addTransitionLabel()
 {
-
 	transition_label t;
 	t.trigger = getTriggerIndex();
 	t.guard = getGuard();
@@ -840,7 +834,7 @@ bool cOrganism::addTransition()
 	t.trans = getTransLabel();
 	
 	// no dupes
-    if (findTrans(t)) {
+    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
 		return false;
 	}
 
@@ -864,7 +858,7 @@ bool cOrganism::addTransitionTotal()
 	
 	
 	// Do not create transition if the origin state is unreachable.
-	if (states[getOrigStateIndex()].num_incoming == 0) {
+	if ((t.orig_state != 0) && (states[t.orig_state].num_incoming == 0)) {
 		return false;
 	}
 	
@@ -881,7 +875,7 @@ bool cOrganism::addTransitionTotal()
 	
 	
 	// no dupes
-    if (findTrans(t)) {
+    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
 		return false;
 	}
 
