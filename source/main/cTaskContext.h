@@ -37,13 +37,21 @@
 #ifndef tHashTable_h
 #include "tHashTable.h"
 #endif
+#ifndef cOrganism
+#include "cOrganism.h"
+#endif
+
 
 class cTaskEntry;
 class cTaskState;
+class cOrganism;
 
 
 class cTaskContext
 {
+
+  friend class cTaskLib;
+
 private:
   cOrgInterface* m_interface;
   const tBuffer<int>& m_input_buffer;
@@ -55,15 +63,19 @@ private:
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
+  int task_success_complete;
+
   
   cTaskEntry* m_task_entry;
   tHashTable<void*, cTaskState*>* m_task_states;
+  cOrganism* organism;
+
 
 public:
   cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
                bool in_net_valid, int in_net_completed, bool in_on_divide = false,
-               tBuffer<int>* in_received_messages = NULL)
+               tBuffer<int>* in_received_messages = NULL, cOrganism* in_org = NULL)
     : m_interface(interface)
     , m_input_buffer(inputs)
     , m_output_buffer(outputs)
@@ -76,6 +88,8 @@ public:
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
+	, task_success_complete(0)
+
   {
   }
   

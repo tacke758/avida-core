@@ -165,6 +165,9 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
     
   child_genotype->IncDeferAdjust();
 
+  // FOR UML branch - hjg
+  child_array[0]->setParentInfo(parent.getXMI(), parent.getBonus());
+
   return true;
 }
 

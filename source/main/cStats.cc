@@ -329,16 +329,10 @@ void cStats::CalcEnergy()
   assert(sum_fitness.Average() >= 0.0);
   assert(dom_fitness >= 0);
 
-  
-  // Note: When average fitness and dominant fitness are close in value (i.e. should be identical)
-  //       floating point rounding error can cause output variances.  To mitigate this, threshold
-  //       caps off values that differ by less than it, flushing the effective output value to zero.
-  const double ave_fitness = sum_fitness.Average();
-  const double threshold = 1.0e-14;
-  if (ave_fitness == 0.0 || dom_fitness == 0.0 || fabs(ave_fitness - dom_fitness) < threshold) {
+  if (sum_fitness.Average() == 0.0 || dom_fitness == 0.0) {
     energy = 0.0;
   } else  {
-    energy = Log(dom_fitness / ave_fitness);
+    energy = Log(dom_fitness / sum_fitness.Average());
   }
 }
 
@@ -990,4 +984,37 @@ void cStats::PrintSenseExeData(const cString& filename)
     df.Write(sense_last_exe_count[i], sense_names[i]);
   }
   df.Endl();
+}
+
+void cStats::PrintUMLData(const cString& filename)
+{
+	cDataFile& df = m_world->GetDataFile(filename);
+
+	df.WriteComment( "Avida uml data\n" );
+	df.WriteComment("the average number of transitions and states per organism");
+	df.WriteTimeStamp();
+	df.Write( GetUpdate(), "update" );
+	df.Write( av_number_of_states.Average(), "av num states");
+	df.Write( av_number_of_trans.Average(), "av num trans");
+	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
+	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
+	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
+	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
+	df.Write( m_spinPassed.Sum(), "total number of spin passes" );
+	df.Write( m_panAttempt.Sum(), "total number of pan attempts" );
+	df.Write( m_panPassed.Sum(), "total number of pan passes" );
+	
+	av_number_of_states.Clear();
+	av_number_of_trans.Clear();
+	av_number_of_trans_lab.Clear();
+
+  m_hydraAttempt.Clear();
+  m_hydraPassed.Clear();
+  m_spinAttempt.Clear();
+  m_spinPassed.Clear();
+  m_panAttempt.Clear();
+  m_panPassed.Clear();
+
+
+df.Endl();
 }

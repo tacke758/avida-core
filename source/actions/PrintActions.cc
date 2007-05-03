@@ -86,6 +86,8 @@ STATS_OUT_FILE(PrintGenotypeMap,            genotype_map.m      );
 STATS_OUT_FILE(PrintMarketData,             market.dat          );
 STATS_OUT_FILE(PrintSenseData,              sense.dat           );
 STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
+STATS_OUT_FILE(PrintUMLData,				uml.dat			    );
+
 
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
