@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "spatial_res_count.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -18,6 +33,10 @@
 #include "tArray.h"
 #endif
 
+#ifndef cResource_h
+#include "cResource.h"
+#endif
+
 class cSpatialResCount
 {
 private:
@@ -27,32 +46,40 @@ private:
   int    outflowX1, outflowX2, outflowY1, outflowY2;
   int    geometry;
   int    world_x, world_y, num_cells;
+  /* instead of creating a new array use the existing one from cResource */
+  tArray<cCellResource> *cell_list_ptr;
   
 public:
   cSpatialResCount();
   cSpatialResCount(int inworld_x, int inworld_y, int ingeometry);
-  cSpatialResCount(int inworld_x, int inworld_y, int ingeometry, double inxdiffuse, double inydiffuse,
+  cSpatialResCount(int inworld_x, int inworld_y, int ingeometry, 
+                   double inxdiffuse, double inydiffuse,
                    double inxgravity, double inygravity);
   
   void ResizeClear(int inworld_x, int inworld_y, int ingeometry);
   void SetPointers();
   void CheckRanges();
+  void SetCellList(tArray<cCellResource> *in_cell_list_ptr);
   int GetSize() { return grid.GetSize(); }
   int GetX() { return world_x; }
   int GetY() { return world_y; }
-  cSpatialCountElem Element(int x) { return grid[x]; }
-  void Rate(int x, double ratein) const { grid[x].Rate(ratein); }
-  void Rate(int x, int y, double ratein) const { grid[y * world_x + x].Rate(ratein); }
-  void State(int x) { grid[x].State(); }
-  void State(int x, int y) { grid[y*world_x + x].State(); }
-  const double GetAmount(int x) const { return grid[x].GetAmount(); }
-  const double GetAmount(int x, int y) const { return grid[y*world_x + x].GetAmount(); }
+  int GetCellListSize() { return cell_list_ptr->GetSize(); }
+  cSpatialCountElem& Element(int x) { return grid[x]; }
+  void Rate(int x, double ratein) const;
+  void Rate(int x, int y, double ratein) const;
+  void State(int x);
+  void State(int x, int y);
+  const double GetAmount(int x) const;
+  const double GetAmount(int x, int y) const;
   void RateAll(double ratein);
   void StateAll();
   void FlowAll();
   const double SumAll() const;
   void Source(double amount) const;
+  void CellInflow() const;
   void Sink(double percent) const;
+  void CellOutflow() const;
+  void SetCellAmount(int cell_id, double res);
   void SetGeometry(int in_geometry) { geometry = in_geometry; }
   void SetXdiffuse(double in_xdiffuse) { xdiffuse = in_xdiffuse; }
   void SetXgravity(double in_xgravity) { xgravity = in_xgravity; }

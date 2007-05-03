@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 12/10/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,14 +28,24 @@
 // This class is an abstract base class that is used by actions within
 // a cWorld to notify its driver of various states and conditions.
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
+#include <iostream>
+
 class cString;
 
 class cWorldDriver
 {
+#if USE_tMemTrack
+  tMemTrack<cWorldDriver> mt;
+#endif
 private:
   cWorldDriver(const cWorldDriver&); // @not_implemented
   cWorldDriver& operator=(const cWorldDriver&); // @not_implemented
-
 public:
   cWorldDriver() { ; }
   virtual ~cWorldDriver() { ; }
@@ -35,6 +60,11 @@ public:
   // Notifications
   virtual void NotifyComment(const cString& in_string) = 0;
   virtual void NotifyWarning(const cString& in_string) = 0;
+
+  // Input/Output
+  virtual bool IsInteractive() { return false; }
+  virtual void Flush() { std::cout.flush(); std::cerr.flush(); }
+  virtual bool ProcessKeypress(int keypress) { return false; }
 };
 
 

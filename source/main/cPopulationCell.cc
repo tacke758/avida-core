@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "pop_cell.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,6 +28,9 @@
 #include "nHardware.h"
 #include "cOrganism.h"
 #include "cTools.h"
+#include "cTools.h"
+#include "cWorld.h"
+#include "cEnvironment.h"
 
 using namespace std;
 
@@ -21,7 +39,6 @@ cPopulationCell::cPopulationCell()
   : m_world(NULL)
   , organism(NULL)
   , mutation_rates(NULL)
-  , cur_input(0)
   , organism_count(0)
 {
 }
@@ -29,15 +46,15 @@ cPopulationCell::cPopulationCell()
 cPopulationCell::cPopulationCell(const cPopulationCell& in_cell)
   : m_world(in_cell.m_world)
   , organism(in_cell.organism)
-  , cur_input(in_cell.cur_input)
+  , input_array(in_cell.input_array)
   , cell_id(in_cell.cell_id)
+  , deme_id(in_cell.deme_id)
   , organism_count(in_cell.organism_count)
 {
-  for (int i = 0; i < nHardware::IO_SIZE; i++) input_array[i] = in_cell.input_array[i];
   mutation_rates = new cMutationRates(*in_cell.mutation_rates);
   tConstListIterator<cPopulationCell> conn_it(in_cell.connection_list);
-  cPopulationCell * test_cell;
-  while ( (test_cell = (cPopulationCell *) conn_it.Next()) != NULL) {
+  cPopulationCell* test_cell;
+  while ( (test_cell = (cPopulationCell*) conn_it.Next()) != NULL) {
     connection_list.PushRear(test_cell);
   }
 }
@@ -46,9 +63,9 @@ void cPopulationCell::operator=(const cPopulationCell& in_cell)
 {
   m_world = in_cell.m_world;
   organism = in_cell.organism;
-  for (int i = 0; i < nHardware::IO_SIZE; i++) input_array[i] = in_cell.input_array[i];
-  cur_input = in_cell.cur_input;
+  input_array = in_cell.input_array;
   cell_id = in_cell.cell_id;
+  deme_id = in_cell.deme_id;
   organism_count = in_cell.organism_count;
   if (mutation_rates == NULL)
     mutation_rates = new cMutationRates(*in_cell.mutation_rates);
@@ -65,6 +82,8 @@ void cPopulationCell::Setup(cWorld* world, int in_id, const cMutationRates& in_r
 {
   m_world = world;
   cell_id = in_id;
+  deme_id = -1;
+  
   if (mutation_rates == NULL)
     mutation_rates = new cMutationRates(in_rates);
   else
@@ -87,23 +106,23 @@ void cPopulationCell::Rotate(cPopulationCell & new_facing)
 }
 
 
-int cPopulationCell::GetInput()
-{
-  if (cur_input >= nHardware::IO_SIZE) cur_input = 0;
-  return input_array[cur_input++];
-}
-
 int cPopulationCell::GetInputAt(int & input_pointer)
 {
-  if (input_pointer >= nHardware::IO_SIZE) input_pointer = 0;
+  input_pointer %= input_array.GetSize();
   return input_array[input_pointer++];
 }
 
 int cPopulationCell::GetInput(int id)
 {
-  assert(id >= 0 && id < nHardware::IO_SIZE);
+  assert(id >= 0 && id < input_array.GetSize());
   return input_array[id];
 }
+
+void cPopulationCell::ResetInputs(cAvidaContext& ctx) 
+{ 
+  m_world->GetEnvironment().SetupInputs(ctx, input_array); 
+}
+
 
 void cPopulationCell::InsertOrganism(cOrganism & new_org)
 {

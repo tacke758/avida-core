@@ -13,7 +13,6 @@
 #include "cPopulation.h"
 #include "cSpecies.h"
 #include "cStats.h"
-#include "cTaskEntry.h"
 
 using namespace std;
 
@@ -46,9 +45,9 @@ void cStatsScreen::Draw()
   Print(2, 50, "Fitness..:");
   Print(3, 50, "Merit....:");
   Print(4, 50, "Gestation:");
-  Print(5, 50, "Size.....:");
-  Print(6, 50, "Copy Size:");
-  Print(7, 50, "Exec Size:");
+  Print(5, 50, "Length...:");
+  Print(6, 50, "Copy Len.:");
+  Print(7, 50, "Exec Len.:");
   Print(8, 50, "Abundance:");
   Print(9, 50, "Births...:");
   Print(10, 50, "BirthRate:");
@@ -57,23 +56,24 @@ void cStatsScreen::Draw()
 
 
   int task_num = task_offset;
-  const cTaskLib & task_lib = m_world->GetEnvironment().GetTaskLib();
-  for (int col_id = 3; task_num < info.GetWorld().GetNumTasks(); col_id += 20) {
+  const cEnvironment& environment = m_world->GetEnvironment();
+  const int num_tasks = environment.GetNumTasks();
+  for (int col_id = 3; task_num < num_tasks; col_id += 20) {
     if (col_id + 16 > Width()) break;
     for (int row_id = 15;
-	 row_id < 15 + task_rows && task_num < info.GetWorld().GetNumTasks();
+	 row_id < 15 + task_rows && task_num < num_tasks;
 	 row_id++) {
       Print(row_id, col_id, ".........:");
-      Print(row_id, col_id, "%s", static_cast<const char*>(task_lib.GetTask(task_num).GetName()));
+      Print(row_id, col_id, "%s", static_cast<const char*>(environment.GetTask(task_num).GetName()));
       task_num++;
     }
   }
 
   SetColor(COLOR_WHITE);
 
-  Box(0, 14, Width(), task_rows + 2);
+  Box(14, 0, task_rows + 2, Width(), true);
 
-  if (task_num < info.GetWorld().GetNumTasks() || task_offset != 0) {
+  if (task_num < num_tasks || task_offset != 0) {
     SetBoldColor(COLOR_WHITE);
     Print(15 + task_rows, Width() - 20, " [<-] More [->] ");
     SetBoldColor(COLOR_CYAN);
@@ -95,10 +95,9 @@ void cStatsScreen::Update()
   Print(1, 13, "%7d",   stats.GetNumBirths());
   Print(2, 13, "%7d",   stats.GetBreedTrue());
   Print(3, 13, "%7d",   stats.GetNumParasites());
-  Print(4, 13, "%7.2f", stats.GetEnergy());
-  PrintFitness(5, 13, stats.GetMaxFitness());
-  // Print(5, 13, "%.1e",  stats.GetMaxFitness());
-  Print(6, 13, "%.1e",  stats.GetMaxMerit());
+  PrintDouble(4, 13, stats.GetEnergy());
+  PrintDouble(5, 13, stats.GetMaxFitness());
+  PrintDouble(6, 13, stats.GetMaxMerit());
 
   Print(9,  13, "%5d", stats.GetNumCreatures());
   Print(10, 13, "%5d", stats.GetNumGenotypes());
@@ -111,67 +110,64 @@ void cStatsScreen::Update()
 	(best_gen->GetSpecies()->GetID()) : -1);
   Print(5, 37, "%9d", stats.GetUpdate() - best_gen->GetUpdateBorn());
 
-  Print(9,  20, "%.1e", (double) stats.GetTotCreatures());
-  Print(10, 20, "%.1e", (double) stats.GetTotGenotypes());
-  Print(11, 20, "%.1e", (double) stats.GetTotThreshold());
-  Print(12, 20, "%.1e", (double) stats.GetTotSpecies());
+  PrintDouble(9,  20, (double) stats.GetTotCreatures());
+  PrintDouble(10, 20, (double) stats.GetTotGenotypes());
+  PrintDouble(11, 20, (double) stats.GetTotThreshold());
+  PrintDouble(12, 20, (double) stats.GetTotSpecies());
 
-  Print(9,  30, "%6.1f", stats.GetAveCreatureAge());
-  Print(10, 30, "%6.1f", stats.GetAveGenotypeAge());
-  Print(11, 30, "%6.1f", stats.GetAveThresholdAge());
-  Print(12, 30, "%6.1f", stats.GetAveSpeciesAge());
+  PrintDouble(9,  29, stats.GetAveCreatureAge());
+  PrintDouble(10, 29, stats.GetAveGenotypeAge());
+  PrintDouble(11, 29, stats.GetAveThresholdAge());
+  PrintDouble(12, 29, stats.GetAveSpeciesAge());
 
-  Print(9,  39, "%6.2f",
-		     log((double) stats.GetNumCreatures()));
-  Print(10, 39, "%6.2f", stats.GetEntropy());
-  Print(12, 39, "%6.2f", stats.GetSpeciesEntropy());
+  PrintDouble(9,  38, log((double) stats.GetNumCreatures()));
+  PrintDouble(10, 38, stats.GetEntropy());
+  PrintDouble(12, 38, stats.GetSpeciesEntropy());
 
-  PrintFitness(2, 62, best_gen->GetFitness());
-  // Print(2, 62, "%.1e", best_gen->GetFitness());
-  //PrintMerit(3, 62, best_gen->GetMerit());
-  Print(3, 62, "%.1e", best_gen->GetMerit());
-  Print(4, 63, "%6.2f", best_gen->GetGestationTime());
-  Print(5, 63, "%6d", best_gen->GetLength());
-  Print(6, 63, "%6.2f", best_gen->GetCopiedSize());
-  Print(7, 63, "%6.2f", best_gen->GetExecutedSize());
-  Print(8, 63, "%6d", best_gen->GetNumOrganisms());
-  Print(9, 63, "%6d", best_gen->GetThisBirths());
+  PrintDouble(2, 62, best_gen->GetFitness());
+  PrintDouble(3, 62, best_gen->GetMerit());
+  PrintDouble(4, 62, best_gen->GetGestationTime());
+  Print(5, 62, "%7d", best_gen->GetLength());
+  PrintDouble(6, 62, best_gen->GetCopiedSize());
+  PrintDouble(7, 62, best_gen->GetExecutedSize());
+  Print(8, 62, "%7d", best_gen->GetNumOrganisms());
+  Print(9, 62, "%7d", best_gen->GetThisBirths());
   if (stats.GetAveMerit() == 0) {
-    Print(10, 66, "0.0");
+    PrintDouble(10, 62, 0.0);
   } else {
-    Print(10, 63, "%6.3f", ((double) info.GetConfig().AVE_TIME_SLICE.Get()) * best_gen->GetFitness() / stats.GetAveMerit());
+    PrintDouble(10, 62, ((double) info.GetConfig().AVE_TIME_SLICE.Get()) * best_gen->GetFitness() / stats.GetAveMerit());
   }
-  Print(11, 63, "%6d", best_gen->GetDepth());
+  Print(11, 62, "%7d", best_gen->GetDepth());
   // Print(12, 63, "");
 
-  PrintFitness(2, 71, stats.GetAveFitness());
-  Print(3, 71, "%.1e", stats.GetAveMerit());
-  //PrintMerit(3, 72, stats.GetAveMerit());
-  Print(4, 72, "%6.1f", stats.GetAveGestation());
-  Print(5, 72, "%6.1f", stats.GetAveSize());
-  Print(6, 72, "%6.1f", stats.GetAveCopySize());
-  Print(7, 72, "%6.1f", stats.GetAveExeSize());
-  Print(8, 71, "%7.2f",
-		     ((double) stats.GetNumCreatures()) /
-		     ((double) stats.GetNumGenotypes()));
+  PrintDouble(2, 71, stats.GetAveFitness());
+  PrintDouble(3, 71, stats.GetAveMerit());
+  PrintDouble(4, 71, stats.GetAveGestation());
+  PrintDouble(5, 71, stats.GetAveSize());
+  PrintDouble(6, 71, stats.GetAveCopySize());
+  PrintDouble(7, 71, stats.GetAveExeSize());
+  PrintDouble(8, 71,
+	      ((double) stats.GetNumCreatures()) /
+	      ((double) stats.GetNumGenotypes()));
   // @CAO this next line should be get num births, which doesn't exist!
-  Print(9, 70, "%8.3f",
-		     ((double) stats.GetNumDeaths()) /
-		     ((double) stats.GetNumGenotypes()));
+  PrintDouble(9, 71,
+	      ((double) stats.GetNumDeaths()) /
+	      ((double) stats.GetNumGenotypes()));
   if (stats.GetAveMerit() != 0) {
-    Print(10, 71, "%7.3f", ((double) info.GetConfig().AVE_TIME_SLICE.Get()) * stats.GetAveFitness() / stats.GetAveMerit());
+    PrintDouble(10, 71, ((double) info.GetConfig().AVE_TIME_SLICE.Get()) * stats.GetAveFitness() / stats.GetAveMerit());
   } else {
-    Print(10, 71, "%7.3f", 0.0);
+    PrintDouble(10, 71, 0.0);
   }
-  Print(11, 72, "%6.2f", stats.SumGenotypeDepth().Average());
-  Print(12, 72, "%6.2f", stats.SumGeneration().Average());
+  PrintDouble(11, 71, stats.SumGenotypeDepth().Average());
+  PrintDouble(12, 71, stats.SumGeneration().Average());
 
   // This section needs to be changed to work with new task_lib @TCC
   int task_num = task_offset;
-  for (int col_id = 14; task_num < info.GetWorld().GetNumTasks(); col_id += 20) {
+  const int num_tasks = info.GetWorld().GetEnvironment().GetNumTasks();
+  for (int col_id = 14; task_num < num_tasks; col_id += 20) {
     if (col_id + 5 > Width()) break;
     for (int row_id = 15;
-	 row_id < 15 + task_rows && task_num < info.GetWorld().GetNumTasks();
+	 row_id < 15 + task_rows && task_num < num_tasks;
 	 row_id++) {
       Print(row_id, col_id, "%4d", stats.GetTaskLastCount(task_num));
       task_num++;
@@ -195,7 +191,7 @@ void cStatsScreen::DoInput(int in_char)
     break;
   case '6':
   case KEY_RIGHT:
-    if (task_rows * task_cols + task_offset < info.GetWorld().GetNumTasks()) {
+    if (task_rows * task_cols + task_offset < info.GetWorld().GetEnvironment().GetNumTasks()) {
       task_offset += 5;
       Draw();
     }

@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "genome.cc" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -36,6 +51,22 @@ cGenome::cGenome(const cString & in_string)
     genome[i].SetSymbol(tmp_string[i]);
   }
 }
+
+
+/*! This constructor is used to build a new cGenome from a range of instructions.
+It expects STL semantics for an iterator range.  We're avoiding templating this
+(for now).  Refactor if a new range type is needed.
+
+\todo Just as an aside, it looks like Push continually reallocs memory in tArray.
+*/
+cGenome::cGenome(cInstruction* begin, cInstruction* end)
+: active_size(0)
+{
+  for(cInstruction* i=begin; i!=end; ++i,++active_size) {
+    genome.Push(*i);
+  }
+}
+
 
 cGenome::~cGenome()
 {

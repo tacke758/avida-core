@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 4/10/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -18,6 +33,7 @@
 #include "cGenotype.h"
 #include "cGenotypeBatch.h"
 #include "cHardwareManager.h"
+#include "cInstSet.h"
 #include "cLandscape.h"
 #include "cMutationalNeighborhood.h"
 #include "cMutationalNeighborhoodResults.h"
@@ -27,7 +43,6 @@
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cString.h"
-#include "cTestUtil.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
 #include "tSmartArray.h"
@@ -80,7 +95,7 @@ public:
 
       cAnalyzeGenotype* genotype = NULL;
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         LoadGenome(batches, genotype->GetGenome());
         depths.Push(genotype->GetDepth());
       }
@@ -145,10 +160,11 @@ private:
 
 
 /*
- Precalculates landscape data for use in detail files.  The primary advantage of
- this is that it supports multithreaded execution, whereas lazy evaluation during
- detailing will be serialized.
+ * Precalculates landscape data for use in detail files.  The primary
+ * advantage of this is that it supports multithreaded execution, whereas
+ * lazy evaluation during detailing will be serialized.
 */
+
 class cActionPrecalcLandscape : public cAction  // @parallelized
 {
 public:
@@ -225,7 +241,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         land->SetDistance(m_dist);
         m_batch.PushRear(land);
@@ -245,7 +261,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_sfilename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       if (m_efilename.GetSize()) land->PrintEntropy(m_world->GetDataFile(m_efilename));
       if (m_cfilename.GetSize()) land->PrintSiteCount(m_world->GetDataFile(m_cfilename));
@@ -255,6 +271,84 @@ public:
       m_world->GetDataFileManager().Remove(m_sfilename);
       if (m_efilename.GetSize()) m_world->GetDataFileManager().Remove(m_efilename);
       if (m_cfilename.GetSize()) m_world->GetDataFileManager().Remove(m_cfilename);
+    }
+  }
+};
+
+
+class cActionDumpLandscape : public cAction  // @not_parallelized
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionDumpLandscape(cWorld* world, const cString& args)
+  : cAction(world, args), m_filename("land-dump.dat")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();
+  }
+  
+  static const cString GetDescription()
+  {
+    return "Arguments: [string filename='land-dump.dat']";
+  }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cInstSet& inst_set = m_world->GetHardwareManager().GetInstSet();
+    cDataFile& sdf = m_world->GetDataFile(m_filename);
+    
+    if (ctx.GetAnalyzeMode()) {
+      if (m_world->GetVerbosity() >= VERBOSE_ON) {
+        cString msg("Dumping Landscape of batch ");
+        msg += cStringUtil::Convert(m_world->GetAnalyze().GetCurrentBatchID());
+        m_world->GetDriver().NotifyComment(msg);
+      } else if (m_world->GetVerbosity() > VERBOSE_SILENT) {
+        m_world->GetDriver().NotifyComment("Dumping Landscape...");
+      }
+      
+      tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
+      cAnalyzeGenotype* genotype = NULL;
+      while ((genotype = batch_it.Next())) {        
+        // Create datafile for genotype landscape (${name}.land)
+        cString gfn(genotype->GetName());
+        gfn += ".land";
+        cDataFile& gdf = m_world->GetDataFile(gfn);
+        
+        // Create the landscape object and process the dump
+        cLandscape land(m_world, genotype->GetGenome(), inst_set);
+        land.ProcessDump(ctx, gdf);
+        land.PrintStats(sdf, -1);
+        
+        // Remove the completed datafile
+        m_world->GetDataFileManager().Remove(gfn);
+      }
+      
+      // Batch complete, close overall landscape stats file as well
+      m_world->GetDataFileManager().Remove(m_filename);
+
+    } else {
+    
+      if (m_world->GetVerbosity() >= VERBOSE_DETAILS)
+        m_world->GetDriver().NotifyComment("Dumping Landscape...");
+      
+      // Get the current best genotype
+      const cGenome& best_genome = m_world->GetClassificationManager().GetBestGenotype()->GetGenome();
+
+      // Create datafile for genotype landscape (best-${update}.land)
+      cString gfn("best-");
+      gfn += m_world->GetStats().GetUpdate();
+      gfn += ".land";
+      cDataFile& gdf = m_world->GetDataFile(gfn);
+
+      // Create the landscape object and process the dump
+      cLandscape land(m_world, best_genome, inst_set);
+      land.ProcessDump(ctx, gdf);
+      land.PrintStats(sdf, m_world->GetStats().GetUpdate());
+
+      // Remove the completed datafile
+      m_world->GetDataFileManager().Remove(gfn);
     }
   }
 };
@@ -302,7 +396,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         land->SetDistance(m_dist);
         m_batch.PushRear(land);
@@ -322,7 +416,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_sfilename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       if (m_cfilename.GetSize()) land->PrintSiteCount(m_world->GetDataFile(m_cfilename));
       delete land;
@@ -377,7 +471,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         land->SetDistance(m_dist);
         m_batch.PushRear(land);
@@ -397,7 +491,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_sfilename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       if (m_cfilename.GetSize()) land->PrintSiteCount(m_world->GetDataFile(m_cfilename));
       delete land;
@@ -444,7 +538,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape land(m_world, genotype->GetGenome(), inst_set);
         land.PredictWProcess(ctx, df);
       }
@@ -495,7 +589,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape land(m_world, genotype->GetGenome(), inst_set);
         land.PredictNuProcess(ctx, df);
       }
@@ -554,7 +648,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape* land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         land->SetDistance(m_dist);
         land->SetTrials(m_trials);
@@ -576,7 +670,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_filename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       delete land;
     }
@@ -626,7 +720,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape* land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         land->SetTrials(m_trials);
         m_batch.PushRear(land);
@@ -646,7 +740,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_filename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       delete land;
     }
@@ -689,7 +783,7 @@ public:
       cDataFile& df = m_world->GetDataFile(m_filename);
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape land(m_world, genotype->GetGenome(), inst_set);
         land.HillClimb(ctx, df);
       }
@@ -753,7 +847,7 @@ public:
       cAnalyzeJobQueue& jobqueue = m_world->GetAnalyze().GetJobQueue();
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         mutn = new cMutationalNeighborhood(m_world, genotype->GetGenome(), inst_set, m_target);
         m_batch.PushRear(new sBatchEntry(mutn, genotype->GetDepth()));
         jobqueue.AddJob(new tAnalyzeJob<cMutationalNeighborhood>(mutn, &cMutationalNeighborhood::Process));
@@ -775,7 +869,7 @@ public:
     cDataFile& df = m_world->GetDataFile(m_filename);
     df.WriteComment("IMPORTANT: Mutational Neighborhood is *EXPERIMENTAL*");
     df.WriteComment("Output data and format is subject to change in future releases.");
-    while (entry = m_batch.Pop()) {
+    while ((entry = m_batch.Pop())) {
       results = new cMutationalNeighborhoodResults(entry->mutn);
       results->PrintStats(df, entry->depth);
       delete results;
@@ -828,7 +922,7 @@ public:
       
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       cAnalyzeGenotype* genotype = NULL;
-      while (genotype = batch_it.Next()) {
+      while ((genotype = batch_it.Next())) {
         cLandscape* land = new cLandscape(m_world, genotype->GetGenome(), inst_set);
         if (m_sample_size) {
           land->SetTrials(m_sample_size);
@@ -855,7 +949,7 @@ public:
     }
     
     cDataFile& df = m_world->GetDataFile(m_filename);
-    while (land = m_batch.Pop()) {
+    while ((land = m_batch.Pop())) {
       land->PrintStats(df, update);
       delete land;
     }
@@ -947,7 +1041,7 @@ public:
 
       cDataFile& df = m_world->GetDataFile(filename);
       cTestCPU* testcpu = (m_save_genotypes) ? m_world->GetHardwareManager().CreateTestCPU() : NULL;
-      while (orgdata = batch.Pop()) {
+      while ((orgdata = batch.Pop())) {
         cOrganism* organism = orgdata->GetOrganism();
         cGenotype* genotype = organism->GetGenotype();
         cPhenotype& phenotype = organism->GetPhenotype();
@@ -986,6 +1080,7 @@ void RegisterLandscapeActions(cActionLibrary* action_lib)
   action_lib->Register<cActionAnalyzeLandscape>("AnalyzeLandscape");
   action_lib->Register<cActionPrecalcLandscape>("PrecalcLandscape");
   action_lib->Register<cActionFullLandscape>("FullLandscape");
+  action_lib->Register<cActionDumpLandscape>("DumpLandscape");
   action_lib->Register<cActionDeletionLandscape>("DeletionLandscape");
   action_lib->Register<cActionInsertionLandscape>("InsertionLandscape");
   action_lib->Register<cActionPredictWLandscape>("PredictWLandscape");

@@ -4,7 +4,22 @@
  *
  *  Created by David on 10/16/05.
  *  Designed by Charles.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -20,8 +35,16 @@
 #include <iostream>
 
 #include "cString.h"
+#include "cStringList.h"
 #include "cStringUtil.h"
 #include "tList.h"
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 using namespace std;
 
@@ -30,22 +53,25 @@ using namespace std;
 // entry for a new setting in the configuration.
 //
 // To step through what we are doing:
-// 1 - Load in four variables representing the setting name, its type, its
-//     default value, and a brief description of what its for.  The description
-//     should be a string, enclosed in quotes.
+// 1 - Load in four variables representing the setting:
+//     NAME = The name of the variable in the config file.
+//     TYPE = The type of the variable (int, double, or cString)
+//     DEFAULT = Value to use if this isn't set by user.
+//     DESC = a brief description of the setting (a string, enclosed in quotes)
 // 2 - Build a new class using the setting name with the prefix cEntry_
 //     This class will contain all of the info about this setting, and will
 //     be derived from the cBaseConfigEntry class so that we may easily refer
 //     to any of these dynamically created classes.
 // 3 - Create a private value for this setting.
 // 4 - Create a LoadString() method to load the settings in from a string.
-// 5 - Create a constructor that passes all of the information to the base
+// 5 - Create a EqualsString() method to determine if the values are the same.
+// 6 - Create a constructor that passes all of the information to the base
 //     class that it can manage to.
-// 6 - Initialize the value of this setting to its default.
-// 7 - Insert the newly built object into the full list of settings objects.
-// 8 - Create Get() and Set() methods to act as accessors.
-// 9 - Setup a method to return the value of this setting as a string.
-// 10 - Declare a variable of this class's type to use in the future.  Since
+// 7 - Initialize the value of this setting to its default.
+// 8 - Insert the newly built object into the full list of settings objects.
+// 9 - Create Get() and Set() methods to act as accessors.
+// 10 - Setup a method to return the value of this setting as a string.
+// 11 - Declare a variable of this class's type to use in the future.  Since
 //     accessors were declared above, we can refer to this setting by the
 //     setting name inside of config.
 
@@ -54,17 +80,20 @@ class cEntry_ ## NAME : public cBaseConfigEntry {                     /* 2 */ \
 private:                                                                      \
   TYPE value;                                                         /* 3 */ \
 public:                                                                       \
-    void LoadString(const cString & str_value) {                      /* 4 */ \
-      value = cStringUtil::Convert(str_value, value);                         \
-    }                                                                         \
-    cEntry_ ## NAME() : cBaseConfigEntry(#NAME, #TYPE, #DEFAULT, DESC) {/* 5 */ \
-      LoadString(GetDefault());                                       /* 6 */ \
-        global_group_list.GetLast()->AddEntry(this);                  /* 7 */ \
-    }                                                                         \
-    TYPE Get() const { return value; }                                /* 8 */ \
-    void Set(TYPE in_value) { value = in_value; }                             \
-    cString AsString() { return cStringUtil::Convert(value); }        /* 9 */ \
-} NAME                                                               /* 10 */ \
+  void LoadString(const cString& str_value) {                         /* 4 */ \
+    value = cStringUtil::Convert(str_value, value);                           \
+  }                                                                           \
+  bool EqualsString(const cString& str_value) const {                 /* 5 */ \
+    return (value == cStringUtil::Convert(str_value, value));                 \
+  }                                                                           \
+  cEntry_ ## NAME() : cBaseConfigEntry(#NAME,#TYPE,#DEFAULT,DESC) {   /* 6 */ \
+    LoadString(GetDefault());                                         /* 7 */ \
+    global_group_list.GetLast()->AddEntry(this);                      /* 8 */ \
+  }                                                                           \
+  TYPE Get() const { return value; }                                  /* 9 */ \
+  void Set(TYPE in_value) { value = in_value; }                               \
+  cString AsString() const { return cStringUtil::Convert(value); }    /* 10 */\
+} NAME                                                                /* 11 */\
 
 
 // Now we're going to make another macro to deal with groups.  This time its
@@ -80,6 +109,9 @@ public:                                                                    \
 } NAME                                                                     \
 
 class cAvidaConfig {
+#if USE_tMemTrack
+  tMemTrack<cAvidaConfig> mt;
+#endif
 private:
   // The cBaseConfigEntry class is a bass class for all configuration entries.
   // It is used to manage the various types of entries in a dynamic fashion.
@@ -95,20 +127,22 @@ private:
     // values (not changeable at run time).  Should this instance be one of
     // those classes?
     bool use_overide;
+    
   public:
-      cBaseConfigEntry(const cString & _name, const cString & _type,
-                       const cString & _def, const cString & _desc);
+    cBaseConfigEntry(const cString& _name, const cString& _type,
+		     const cString& _def, const cString& _desc);
     virtual ~cBaseConfigEntry() { ; }
     
     virtual void LoadString(const cString & str_value) = 0;
+    virtual bool EqualsString(const cString & str_value) const = 0;
     
-    const cString & GetName() { return config_name; }
-    const cString & GetType() { return type; }
-    const cString & GetDefault() { return default_value; }
-    const cString & GetDesc() { return description; }
-    bool GetUseOveride() { return use_overide; }
+    const cString& GetName() const { return config_name; }
+    const cString& GetType() const { return type; }
+    const cString& GetDefault() const { return default_value; }
+    const cString& GetDesc() const { return description; }
+    bool GetUseOveride() const { return use_overide; }
     
-    virtual cString AsString() = 0;
+    virtual cString AsString() const = 0;
   };
   
   // The cBaseConfigGroup class is a bass class for objects that collect the
@@ -119,15 +153,16 @@ private:
     cString description;
     tList<cBaseConfigEntry> entry_list;
   public:
-      cBaseConfigGroup(const cString & _name, const cString & _desc)
+      cBaseConfigGroup(const cString& _name, const cString& _desc)
       : group_name(_name), description(_desc) { global_group_list.PushRear(this); }
     ~cBaseConfigGroup() { ; }
     
-    const cString & GetName() { return group_name; }
-    const cString & GetDesc() { return description; }
-    tList<cBaseConfigEntry> & GetEntryList() { return entry_list; }
+    const cString& GetName() const { return group_name; }
+    const cString& GetDesc() const { return description; }
+    tList<cBaseConfigEntry>& GetEntryList() { return entry_list; }
+    const tList<cBaseConfigEntry>& GetEntryList() const { return entry_list; }
     
-    void AddEntry(cBaseConfigEntry * _entry) { entry_list.PushRear(_entry); }
+    void AddEntry(cBaseConfigEntry* _entry) { entry_list.PushRear(_entry); }
   };
   
   // We need to keep track of all configuration groups and the entry objects
@@ -144,6 +179,7 @@ public:
   cAvidaConfig() { group_list.Transfer(global_group_list); }  
   ~cAvidaConfig() { ; }
 
+  static cAvidaConfig* LoadWithArgs(cStringList &args);
   static cAvidaConfig* LoadWithCmdLineArgs(int argc, char* argv[]);
   
 #ifdef OVERRIDE_CONFIG
@@ -151,18 +187,16 @@ public:
 #else
   CONFIG_ADD_GROUP(GENERAL_GROUP, "General Settings");
   CONFIG_ADD_VAR(ANALYZE_MODE, int, 0, "0 = Disabled\n1 = Enabled\n2 = Interactive");
-  CONFIG_ADD_VAR(VIEW_MODE, int, 0, "Initial viewer screen");
+  CONFIG_ADD_VAR(VIEW_MODE, int, 1, "Initial viewer screen");
   CONFIG_ADD_VAR(CLONE_FILE, cString, "-", "Clone file to load");
-  CONFIG_ADD_VAR(MT_CONCURRENCY, int, 1, "Number of concurrent analyze threads");
   CONFIG_ADD_VAR(VERBOSITY, int, 1, "Control output verbosity");
   
   CONFIG_ADD_GROUP(ARCH_GROUP, "Architecture Variables");
   CONFIG_ADD_VAR(WORLD_X, int, 60, "Width of the Avida world");
   CONFIG_ADD_VAR(WORLD_Y, int, 60, "Height of the Avida world");
-  CONFIG_ADD_VAR(WORLD_GEOMETRY, int, 2, "1 = Bounded Grid\n2 = Torus");
-  CONFIG_ADD_VAR(NUM_DEMES, int, 0, "Number of independed groups in the population; 0=off");
+  CONFIG_ADD_VAR(WORLD_GEOMETRY, int, 2, "1 = Bounded Grid\n2 = Torus\n3 = Clique");
   CONFIG_ADD_VAR(RANDOM_SEED, int, 0, "Random number seed (0 for based on time)");
-  CONFIG_ADD_VAR(HARDWARE_TYPE, int, 0, "0 = Original CPUs\n1 = New SMT CPUs\n2 = Transitional SMT");
+  CONFIG_ADD_VAR(HARDWARE_TYPE, int, 0, "0 = Original CPUs\n1 = New SMT CPUs\n2 = Transitional SMT\n3 = Experimental CPU\n4 = Gene Expression CPU");
   
   CONFIG_ADD_GROUP(CONFIG_FILE_GROUP, "Configuration Files");
   CONFIG_ADD_VAR(DATA_DIR, cString, "data", "Directory in which config files are found");
@@ -172,9 +206,22 @@ public:
   CONFIG_ADD_VAR(ENVIRONMENT_FILE, cString, "environment.cfg", "File that describes the environment");
   CONFIG_ADD_VAR(START_CREATURE, cString, "default-classic.org", "Organism to seed the soup");
   
+  
+  // Deme & germline group.
+  CONFIG_ADD_GROUP(DEME_GROUP, "Demes and Germlines");
+  CONFIG_ADD_VAR(NUM_DEMES, int, 1, "Number of independent groups in the population.");
+  CONFIG_ADD_VAR(DEMES_USE_GERMLINE, int, 0, "Whether demes use a distinct germline; 0=off");
+  CONFIG_ADD_VAR(DEMES_HAVE_MERIT, int, 0, "Whether demes have merit; 0=no");
+  CONFIG_ADD_VAR(GERMLINE_COPY_MUT, double, 0.0075, "Prob. of copy mutations occuring during\ngermline replication.");
+  CONFIG_ADD_VAR(GERMLINE_REPLACES_SOURCE, int, 0, "Whether the source germline is updated\non replication; 0=no.");
+  CONFIG_ADD_VAR(GERMLINE_RANDOM_PLACEMENT, int, 0, "Whether the seed for a germline is placed\n randomly within the deme; 0=no.");
+  CONFIG_ADD_VAR(MAX_DEME_AGE, int, 500, "The maximum age of a deme (in updates) to be\nused for age-based replication (default=500).");  
+  
+  
   CONFIG_ADD_GROUP(REPRODUCTION_GROUP, "Birth and Death");
-  CONFIG_ADD_VAR(BIRTH_METHOD, int, 4, "0 = Replace random organism in neighborhood\n1 = Replace oldest organism in neighborhood\n2 = Replace largest Age/Merit in neighborhood\n3 = Place only in empty cells in neighborhood\n4 = Replace random from population (Mass Action)\n5 = Replace oldest in entire population (like Tierra)\n6 = Replace random within deme");
+  CONFIG_ADD_VAR(BIRTH_METHOD, int, 0, "Which organism should be replaced on birth?\n0 = Random organism in neighborhood\n1 = Oldest in neighborhood\n2 = Largest Age/Merit in neighborhood\n3 = None (use only empty cells in neighborhood)\n4 = Random from population (Mass Action)\n5 = Oldest in entire population\n6 = Random within deme\n7 = Organism faced by parent\n8 = Next grid cell (id+1)\n9 = Largest energy used in entire population\n10 = Largest energy used in neighborhood");
   CONFIG_ADD_VAR(PREFER_EMPTY, int, 1, "Give empty cells preference in offsping placement?");
+  CONFIG_ADD_VAR(ALLOW_PARENT, int, 1, "Allow births to replace the parent organism?");
   CONFIG_ADD_VAR(DEATH_METHOD, int, 2, "0 = Never die of old age.\n1 = Die when inst executed = AGE_LIMIT (+deviation)\n2 = Die when inst executed = length*AGE_LIMIT (+dev)");
   CONFIG_ADD_VAR(AGE_LIMIT, int, 20, "Modifies DEATH_METHOD");
   CONFIG_ADD_VAR(AGE_DEVIATION, int, 0, "Creates a distribution around AGE_LIMIT");
@@ -199,8 +246,8 @@ public:
   CONFIG_ADD_VAR(REQUIRED_TASK, int, -1, "Task ID required for successful divide.");
   CONFIG_ADD_VAR(IMMUNITY_TASK, int, -1, "Task providing immunity from the required task.");
   CONFIG_ADD_VAR(REQUIRED_REACTION, int, -1, "Reaction ID required for successful divide.");
-  CONFIG_ADD_VAR(DIE_PROB, double, 0.0, "probability of death when 'die' instruction is executed"); 
-
+  CONFIG_ADD_VAR(REQUIRED_BONUS, int, 0, "The bonus that an organism must accumulate to divide."); 
+ 
   CONFIG_ADD_GROUP(MUTATION_GROUP, "Mutations");
   CONFIG_ADD_VAR(POINT_MUT_PROB, double, 0.0, "Mutation rate (per-location per update)");
   CONFIG_ADD_VAR(COPY_MUT_PROB, double, 0.0075, "Mutation rate (per copy)");
@@ -215,7 +262,10 @@ public:
   CONFIG_ADD_VAR(INJECT_INS_PROB, double, 0.0, "Insertion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_MUT_PROB, double, 0.0, "Mutation rate (per site, applied on inject)");
-  
+  CONFIG_ADD_VAR(META_COPY_MUT, double, 0.0, "Prob. of copy mutation rate changing (per gen)");
+  CONFIG_ADD_VAR(META_STD_DEV, double, 0.0, "Standard deviation of meta mutation size.");
+  CONFIG_ADD_VAR(MUT_RATE_SOURCE, int, 1, "1 = Mutation rates determined by environment.\n2 = Mutation rates inherited from parent.");
+ 
   CONFIG_ADD_GROUP(REVERSION_GROUP, "Mutation Reversion\nThese slow down avida a lot, and should be set to 0.0 normally.");
   CONFIG_ADD_VAR(REVERT_FATAL, double, 0.0, "Should any mutations be reverted on birth?");
   CONFIG_ADD_VAR(REVERT_DETRIMENTAL, double, 0.0, "  0.0 to 1.0; Probability of reversion.");
@@ -231,19 +281,33 @@ public:
   
   CONFIG_ADD_GROUP(TIME_GROUP, "Time Slicing");
   CONFIG_ADD_VAR(AVE_TIME_SLICE, int, 30, "Ave number of insts per org per update");
-  CONFIG_ADD_VAR(SLICING_METHOD, int, 2, "0 = CONSTANT: all organisms get default...\n1 = PROBABILISTIC: Run _prob_ proportional to merit.\n2 = INTEGRATED: Perfectly integrated deterministic.");
-  CONFIG_ADD_VAR(SIZE_MERIT_METHOD, int, 4, "0 = off (merit is independent of size)\n1 = Merit proportional to copied size\n2 = Merit prop. to executed size\n3 = Merit prop. to full size\n4 = Merit prop. to min of executed or copied size\n5 = Merit prop. to sqrt of the minimum size");
+  CONFIG_ADD_VAR(SLICING_METHOD, int, 1, "0 = CONSTANT: all organisms get default...\n1 = PROBABILISTIC: Run _prob_ proportional to merit.\n2 = INTEGRATED: Perfectly integrated deterministic.");
+  CONFIG_ADD_VAR(BASE_MERIT_METHOD, int, 4, "0 = Constant (merit independent of size)\n1 = Merit proportional to copied size\n2 = Merit prop. to executed size\n3 = Merit prop. to full size\n4 = Merit prop. to min of executed or copied size\n5 = Merit prop. to sqrt of the minimum size\n6 = Merit prop. to num times MERIT_BONUS_INST is in genome.");
+  CONFIG_ADD_VAR(BASE_CONST_MERIT, int, 100, "Base merit when BASE_MERIT_METHOD set to 0");
+  CONFIG_ADD_VAR(DEFAULT_BONUS, double, 1.0, "Initial bonus before any tasks");
+  CONFIG_ADD_VAR(MERIT_DEFAULT_BONUS, int, 0, "Scale the merit of an offspring by the default bonus\nrather than the accumulated bonus of the parent?"); 
+  CONFIG_ADD_VAR(MERIT_BONUS_INST, int, 0, "in BASE_MERIT_METHOD 6, this sets which instruction counts (-1=none, 0= 1st in INST_SET.)"); 
+  CONFIG_ADD_VAR(MERIT_BONUS_EFFECT, int, 0, "in BASE_MERIT_METHOD 6, this sets how much merit is earned per INST (-1=penalty, 0= no effect.)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY, int, 0, "in BASE_MERIT_METHOD 6, this creates valleys from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP (0= off, 1=on)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY_START, int, 0, "if FITNESS_VALLEY =1, orgs with num_key_instructions from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP get fitness 1 (lowest)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY_STOP, int, 0, "if FITNESS_VALLEY =1, orgs with num_key_instructions from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP get fitness 1 (lowest)"); 
   CONFIG_ADD_VAR(MAX_CPU_THREADS, int, 1, "Number of Threads a CPU can spawn");
   CONFIG_ADD_VAR(THREAD_SLICING_METHOD, int, 0, "Formula for and organism's thread slicing\n  (num_threads-1) * THREAD_SLICING_METHOD + 1\n0 = One thread executed per time slice.\n1 = All threads executed each time slice.\n");
   CONFIG_ADD_VAR(MAX_LABEL_EXE_SIZE, int, 1, "Max nops marked as executed when labels are used");
-  CONFIG_ADD_VAR(BASE_SIZE_MERIT, int, 100, "Base merit when size is *not* used");
-  CONFIG_ADD_VAR(DEFAULT_BONUS, double, 1.0, "The bonus an organism gets before any tasks");
-  CONFIG_ADD_VAR(MERIT_GIVEN, double, 0.0, "Amount of merit donated with 'donoate' command.");
-  CONFIG_ADD_VAR(MERIT_RECEIVED, double, 0.0, "Amount of merit received with 'donate' command");
-  CONFIG_ADD_VAR(MAX_DONATE_KIN_DIST, int, -1, "Limit on distance of relation donated to (in terms of hamilton's r: 1=50% shared genes, 2=25% shared genes, etc.; -1=no max");
+  CONFIG_ADD_VAR(DONATE_SIZE, double, 5.0, "Amount of merit donated with 'donate' command");
+  CONFIG_ADD_VAR(DONATE_MULT, double, 10.0, "Multiple of merit given that the target receives.");
+  CONFIG_ADD_VAR(MAX_DONATE_KIN_DIST, int, -1, "Limit on distance of relation for donate; -1=no max");
   CONFIG_ADD_VAR(MAX_DONATE_EDIT_DIST, int, -1, "Limit on edit distance for donate; -1=no max");
   CONFIG_ADD_VAR(MAX_DONATES, int, 1000000, "Limit on number of donates organisms are allowed.");
   
+  CONFIG_ADD_GROUP(PROMOTER_GROUP, "Promoters");
+  CONFIG_ADD_VAR(PROMOTERS_ENABLED, int, 0, "Use the promoter/terminator execution scheme.\nCertain instructions must also be included.");
+  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY, double, 1.0, "Chance of not terminating after each cpu cycle.");
+  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY_INST, double, 1.0, "Chance of not terminating after each instruction.");
+  CONFIG_ADD_VAR(PROMOTER_BG_STRENGTH, double, 0, "Probability of positions that are not promoter\ninstructions initiating execution (promoters are 1).");
+  CONFIG_ADD_VAR(REGULATION_STRENGTH, double, 1, "Strength added or subtracted to a promoter by regulation.");
+  CONFIG_ADD_VAR(REGULATION_DECAY_FRAC, double, 0.1, "Fraction of regulation that decays away. \nMax regulation = 2^(REGULATION_STRENGTH/REGULATION_DECAY_FRAC)");
+
   CONFIG_ADD_GROUP(GENEOLOGY_GROUP, "Geneology");
   CONFIG_ADD_VAR(TRACK_MAIN_LINEAGE, int, 1, "Keep all ancestors of the active population?\n0=no, 1=yes, 2=yes,w/sexual population");
   CONFIG_ADD_VAR(THRESHOLD, int, 3, "Number of organisms in a genotype needed for it\n  to be considered viable.");
@@ -275,12 +339,21 @@ public:
   CONFIG_ADD_VAR(SAVE_RECEIVED, bool, 0, "Enable storage of all inputs bought from other orgs");
   CONFIG_ADD_VAR(BUY_PRICE, int, 0, "price offered by organisms attempting to buy");
   CONFIG_ADD_VAR(SELL_PRICE, int, 0, "price offered by organisms attempting to sell");
+  
+  CONFIG_ADD_GROUP(ANALYZE_GROUP, "Analysis Settings");
+  CONFIG_ADD_VAR(MT_CONCURRENCY, int, 1, "Number of concurrent analyze threads");
+  CONFIG_ADD_VAR(ANALYZE_OPTION_1, cString, "", "String variable accessible from analysis scripts");
+  CONFIG_ADD_VAR(ANALYZE_OPTION_2, cString, "", "String variable accessible from analysis scripts");
 
 #endif
   
-  void Load(const cString& filename);
+  void Load(const cString& filename, const bool& crash_if_not_found);
   void Print(const cString& filename);
   void Status();
+  void PrintReview();
+  
+  bool Get(const cString& entry, cString& ret) const;
+  bool Set(const cString& entry, const cString& val);
   
   void GenerateOverides();
 };

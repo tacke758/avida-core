@@ -3,19 +3,31 @@
  *  Avida
  *
  *  Called "file.cc" prior to 12/7/05.
- *  Copyright 1999-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cFile.h"
 
+#include <cerrno>   // needed for FOPEN error constants (MSVC)
+#include <cstdlib>
 #include <iostream>
-
-extern "C" {
-#include <stdlib.h>
-#include <errno.h>   // needed for FOPEN error constants (MSVC)
-}
 
 using namespace std;
 
@@ -43,7 +55,7 @@ bool cFile::Open(cString _fname, ios::openmode flags)
     else if (err_id == ENOENT) error_desc = "File or path not found";
 
     // Print the error.
-    cerr << "Unable to open file '" << _fname << "' : " << error_desc << endl;
+    cerr << "Error: Unable to open file '" << _fname << "' : " << error_desc << endl;
     return false;
   }
 
@@ -76,157 +88,3 @@ bool cFile::ReadLine(cString & in_string)
   in_string = cur_line;
   return true;
 }
-
-
-#ifdef ENABLE_UNIT_TESTS
-
-/*
-Unit tests
-*/
-#include "cXMLArchive.h"
-
-#include "lightweight_test.h"
-
-#include <cstdio>    // for std::remove() to remove temporary files.
-#include <iomanip>
-#include <iostream>
-#include <fstream> 
-#include <string>
-
-namespace nFile {
-  /*
-  Test-helpers.
-  */
-  template <class T>
-  void save_stuff(const T &s, const char * filename){
-    std::ofstream ofs(filename);
-    cXMLOArchive oa(ofs);
-    oa.ArkvObj("cFile_Archive", s);
-  }
-  
-  template <class T>
-  void restore_stuff(T &s, const char * filename) {
-    std::ifstream ifs(filename);
-    cXMLIArchive ia(ifs);
-    ia.ArkvObj("cFile_Archive", s);
-  }
-  
-
-  namespace utFile_hello_world {
-    void test(){
-      std::cout << CURRENT_FUNCTION << std::endl;
-      TEST(true);
-      TEST(false);
-    }
-  }
-
-  namespace utFile_archiving {
-    void test(){
-#   ifdef ENABLE_SERIALIZATION
-      std::cout << CURRENT_FUNCTION << std::endl;
-      std::string filename("./cFile_basic_serialization.xml");
-      int linecount = 3;
-      std::string data_file_name("./cFile_data.txt");
-      {
-        std::ofstream data_file(data_file_name.c_str());
-        for(int i = 0; i < linecount; i++){
-          data_file << 2 * i << std::endl;
-        }
-      }
-      
-      // Open cFile_data.txt for reading.
-      cFile f(data_file_name.c_str());
-      
-      cFile f1, f2, f3;
-      cString s1, s2, s3;
-      cString l1, l2, l3;
-      
-      // Save initial cFile state.
-      save_stuff<>(f, filename.c_str());
-      // Reload initial state into new cFile.
-      restore_stuff<>(f1, filename.c_str());
-  
-      // Save cFile state after reading first line.
-      f.ReadLine(s1);
-      save_stuff<>(f, filename.c_str());
-      // Reload second state into new cFile.
-      restore_stuff<>(f2, filename.c_str());
-    
-      // Save cFile state after reading second line.
-      f.ReadLine(s2);
-      save_stuff<>(f, filename.c_str());
-      // Reload third state into new cFile.
-      restore_stuff<>(f3, filename.c_str());
-  
-      f.ReadLine(s3);
-  
-      // Sanity checks...
-      //TEST(false);
-      TEST(cString("0") == s1);
-      TEST(cString("2") == s2);
-      TEST(cString("4") == s3);
-  
-      // Verify reading expected lines from various reloaded states.
-      f3.ReadLine(l3);
-      f2.ReadLine(l2);
-      f1.ReadLine(l1);
-      TEST(l1 == s1);
-      TEST(l2 == s2);
-      TEST(l3 == s3);
-  
-      std::remove(filename.c_str());
-      std::remove(data_file_name.c_str());
-#   endif // ENABLE_SERIALIZATION
-    }
-  } // utFile_archiving
-
-  namespace utFile_archiving_closed_file {
-    void test(){
-#   ifdef ENABLE_SERIALIZATION
-      std::cout << CURRENT_FUNCTION << std::endl;
-      std::string data_file_name("./cFile_data.txt");
-      {
-        std::ofstream data_file(data_file_name.c_str());
-        for(int i = 0; i < 3; i++){
-          data_file << 2 * i << std::endl;
-        }
-      }
-
-      std::string filename("./cFile_serialize_closed_file.xml");
-
-      // Open cFile_data.txt for reading.
-      cFile f(data_file_name.c_str());
-      // Close file.
-      f.Close();
-      TEST(!f.IsOpen());
-
-      cFile f1;
-
-      // Save cFile state.
-      save_stuff<>(f, filename.c_str());
-      // Reload state into new cFile.
-      restore_stuff<>(f1, filename.c_str());
-      // Verify new cFile has matching filename.
-      TEST(f.GetFilename() == f1.GetFilename());
-      // Verify new cFile is closed.
-      TEST(!f1.IsOpen());
-
-      std::remove(filename.c_str());
-      std::remove(data_file_name.c_str());
-#   endif // ENABLE_SERIALIZATION
-    }
-  } // utFile_archiving_closed_file
-
-
-
-
-
-  void UnitTests(bool full)
-  {
-    //if(full) utFile_hello_world::test();
-    if(full) utFile_archiving::test();
-    if(full) utFile_archiving_closed_file::test();
-  }
-} // nFile
-
-#endif // ENABLE_UNIT_TESTS

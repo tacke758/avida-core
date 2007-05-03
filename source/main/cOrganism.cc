@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "organism.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -21,8 +36,6 @@
 #include "cHardwareManager.h"
 #include "cInjectGenotype.h"
 #include "cInstSet.h"
-#include "cInstUtil.h"
-#include "cOrgMessage.h"
 #include "cOrgSinkMessage.h"
 #include "cStringUtil.h"
 #include "cTaskContext.h"
@@ -30,157 +43,56 @@
 #include "cWorld.h"
 #include "cStats.h"
 
-
-
 #include <iomanip>
-#include <fstream>
 
 using namespace std;
-
-std::string loadFile(const char* filename) {
-	std::string data, line; // or maybe stringstream? (strstream?)
-	std::ifstream infile;
-	infile.open(filename);
-	assert(infile.is_open());
-	
-	while (getline (infile, line))
-	{
-		data.append(line);
-		line.erase();
-	}
-	
-	//read from file; load into string/strstream, and return it.
-	
-	return data;
-}
-
-std::string cOrganism::xmi_begin = loadFile("xmi_begin");
-std::string cOrganism::xmi_end = loadFile("xmi_end");
 
 
 cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome)
   : m_world(world)
-  , genotype(NULL)
-  , phenotype(world)
-  , initial_genome(in_genome)
-  , mut_info(world->GetEnvironment().GetMutationLib(), in_genome.GetSize())
+  , m_genotype(NULL)
+  , m_phenotype(world)
+  , m_initial_genome(in_genome)
+  , m_mut_info(world->GetEnvironment().GetMutationLib(), in_genome.GetSize())
   , m_interface(NULL)
-  , input_pointer(0)
-  , input_buf(INPUT_BUF_SIZE)
-  , output_buf(OUTPUT_BUF_SIZE)
-  , send_buf(SEND_BUF_SIZE)
-  , receive_buf(RECEIVE_BUF_SIZE)
-  , sent_value(0)
-  , sent_active(false)
-  , test_receive_pos(0)
-  , max_executed(-1)
-  , lineage_label(-1)
-  , lineage(NULL)
-  , inbox(0)
-  , sent(0)
+  , m_lineage_label(-1)
+  , m_lineage(NULL)
+  , m_input_pointer(0)
+  , m_input_buf(world->GetEnvironment().GetInputSize())
+  , m_output_buf(world->GetEnvironment().GetOutputSize())
+  , m_received_messages(RECEIVED_MESSAGES_SIZE)
+  , m_sent_value(0)
+  , m_sent_active(false)
+  , m_test_receive_pos(0)
+  , m_max_executed(-1)
+  , m_is_running(false)
   , m_net(NULL)
-  , received_messages(RECEIVED_MESSAGES_SIZE)
-  , is_running(false)
-  , parent_xmi("")
 {
   // Initialization of structures...
   m_hardware = m_world->GetHardwareManager().Create(this);
-  cpu_stats.Setup();
+  m_cpu_stats.Setup();
 
   if (m_world->GetConfig().DEATH_METHOD.Get() > DEATH_METHOD_OFF) {
-    max_executed = m_world->GetConfig().AGE_LIMIT.Get();
+    m_max_executed = m_world->GetConfig().AGE_LIMIT.Get();
     if (m_world->GetConfig().AGE_DEVIATION.Get() > 0.0) {
-      max_executed += (int) (ctx.GetRandom().GetRandNormal() * m_world->GetConfig().AGE_DEVIATION.Get());
+      m_max_executed += (int) (ctx.GetRandom().GetRandNormal() * m_world->GetConfig().AGE_DEVIATION.Get());
     }
     if (m_world->GetConfig().DEATH_METHOD.Get() == DEATH_METHOD_MULTIPLE) {
-      max_executed *= initial_genome.GetSize();
+      m_max_executed *= m_initial_genome.GetSize();
     }
 
-    // max_executed must be positive or an organism will not die!
-    if (max_executed < 1) max_executed = 1;
+    // m_max_executed must be positive or an organism will not die!
+    if (m_max_executed < 1) m_max_executed = 1;
   }
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-
-/* 
-  // create in-memory representation of model
-  AddTrans(0,0,1);
-  AddTrans(1,1,2);
-  AddTrans(2,2,3);
-  AddTrans(3,3,1);
-*/
-
-  trigger_info trig;
-  trig.label = "<null>";
-  trig.operation_id = "<null>";
-  triggers.push_back(trig);
-  trig.label = "setTempOpState";
-  trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
-  triggers.push_back(trig);
-  trig.label = "setTempData";
-  trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
-  triggers.push_back(trig);
-  guards.push_back("<null>");
-  actions.push_back("<null>");
-  actions.push_back("^TempSensor.getOpState()");
-  actions.push_back("^TempSensor.getTempData()");
-  
-  // initialize w/ 10 states
-  
-  state s;
-  for (int i=0; i<11; i++) {
-	s.identifier = i;
-	s.num_incoming = 0;
-	s.num_outgoing = 0;
-	states.push_back(s);
-  }
-   
-  // initialize transitions
-  transition t;
-  
-  // State 0->1
-  t.orig_state = 0;
-  t.dest_state = 1;
-  states[0].num_outgoing += 1;
-  states[1].num_incoming += 1;  
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-
-  // State 1->2
-  t.orig_state = 1;
-  t.dest_state = 2;
-  states[1].num_outgoing += 1;
-  states[2].num_incoming += 1; 
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "^TempSensor.getTempData()";
-  transitions.push_back(t);
-  
-  // State 2->1
-  t.orig_state = 2;
-  t.dest_state = 1;
-  states[2].num_outgoing += 1;
-  states[1].num_incoming += 1; 
-  t.trans.trigger =  2;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-	
-  // initialize the iterators to point to the first element
-  trigger_index = 0;
-  action_index = 0;
-  guard_index = 0;
-  trans_label_index = 0;
-  orig_state_index = 0;
-  dest_state_index = 9;
 }
+
 
 cOrganism::~cOrganism()
 {
-  assert(is_running == false);
+  assert(m_is_running == false);
   delete m_hardware;
   delete m_interface;
   if (m_net != NULL) delete m_net;
@@ -202,20 +114,19 @@ void cOrganism::SetOrgInterface(cOrgInterface* interface)
 double cOrganism::GetTestFitness(cAvidaContext& ctx)
 {
   assert(m_interface);
-  return genotype->GetTestFitness(ctx);
+  return m_genotype->GetTestFitness(ctx);
 }
   
 int cOrganism::ReceiveValue()
 {
   assert(m_interface);
   const int out_value = m_interface->ReceiveValue();
-  receive_buf.Add(out_value);
   return out_value;
 }
 
 void cOrganism::SellValue(const int data, const int label, const int sell_price)
 {
-	if (sold_items.GetSize() < 10)
+	if (m_sold_items.GetSize() < 10)
 	{
 		assert (m_interface);
 		m_interface->SellValue(data, label, sell_price, m_id);
@@ -230,7 +141,7 @@ int cOrganism::BuyValue(const int label, const int buy_price)
 	if (receive_value != 0)
 	{
 		// put this value in storage place for recieved values
-		received_messages.Add(receive_value);
+		m_received_messages.Add(receive_value);
 		// update loss of buy_price to merit
 		double cur_merit = GetPhenotype().GetMerit().GetDouble();
 		cur_merit -= buy_price;
@@ -240,19 +151,14 @@ int cOrganism::BuyValue(const int label, const int buy_price)
 	return receive_value;
 }
 
-tListNode<tListNode<cSaleItem> >* cOrganism::AddSoldItem(tListNode<cSaleItem>* sold_node)
-{
-	tListNode<tListNode<cSaleItem> >* node_pt = sold_items.PushRear(sold_node);
-	return node_pt;
-}
 
 void cOrganism::DoInput(const int value)
 {
-  input_buf.Add(value);
-  phenotype.TestInput(input_buf, output_buf);
+  m_input_buf.Add(value);
+  m_phenotype.TestInput(m_input_buf, m_output_buf);
 }
 
-void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
+void cOrganism::DoOutput(cAvidaContext& ctx, const int value, const bool on_divide)
 {
   assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
@@ -261,26 +167,26 @@ void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
   tList<tBuffer<int> > other_output_list;
 
   // If tasks require us to consider neighbor inputs, collect them...
-  if (m_world->GetEnvironment().GetTaskLib().UseNeighborInput() == true) {
+  if (m_world->GetEnvironment().UseNeighborInput()) {
     const int num_neighbors = m_interface->GetNumNeighbors();
     for (int i = 0; i < num_neighbors; i++) {
       m_interface->Rotate();
       cOrganism * cur_neighbor = m_interface->GetNeighbor();
       if (cur_neighbor == NULL) continue;
 
-      other_input_list.Push( &(cur_neighbor->input_buf) );
+      other_input_list.Push( &(cur_neighbor->m_input_buf) );
     }
   }
 
   // If tasks require us to consider neighbor outputs, collect them...
-  if (m_world->GetEnvironment().GetTaskLib().UseNeighborOutput() == true) {
+  if (m_world->GetEnvironment().UseNeighborOutput()) {
     const int num_neighbors = m_interface->GetNumNeighbors();
     for (int i = 0; i < num_neighbors; i++) {
       m_interface->Rotate();
       cOrganism * cur_neighbor = m_interface->GetNeighbor();
       if (cur_neighbor == NULL) continue;
 
-      other_output_list.Push( &(cur_neighbor->output_buf) );
+      other_output_list.Push( &(cur_neighbor->m_output_buf) );
     }
   }
   
@@ -288,38 +194,27 @@ void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
   if (m_net) net_valid = NetValidate(ctx, value);
 
   // Do the testing of tasks performed...
-  output_buf.Add(value);
+
+  // if on IO add value to m_output_buf, if on divide don't need to
+  if (!on_divide) m_output_buf.Add(value);
+  
   tArray<double> res_change(resource_count.GetSize());
   tArray<int> insts_triggered;
+  bool clear_input = false;
 
-  tBuffer<int>* received_messages_point = &received_messages;
-  if (!m_world->GetConfig().SAVE_RECEIVED.Get())
-	  received_messages_point = NULL;
-  cTaskContext taskctx(input_buf, output_buf, other_input_list, other_output_list, net_valid, 0, received_messages_point);
-  phenotype.TestOutput(ctx, taskctx, send_buf, receive_buf, resource_count, res_change, insts_triggered);
+  tBuffer<int>* received_messages_point = &m_received_messages;
+  if (!m_world->GetConfig().SAVE_RECEIVED.Get()) received_messages_point = NULL;
+  
+  cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, other_output_list, net_valid, 0, on_divide, received_messages_point);
+  m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
   m_interface->UpdateResources(res_change);
 
   for (int i = 0; i < insts_triggered.GetSize(); i++) {
     const int cur_inst = insts_triggered[i];
-    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
+    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst));
   }
-}
-
-void cOrganism::SendMessage(cOrgMessage & mess)
-{
-  assert(m_interface);
-  if(m_interface->SendMessage(mess))
-    sent.Add(mess);
-  else
-    {
-      //perhaps some kind of message error buffer?
-    }
-}
-
-bool cOrganism::ReceiveMessage(cOrgMessage & mess)
-{
-  inbox.Add(mess);
-  return true;
+  
+  if (clear_input) m_input_buf.Clear();
 }
 
 
@@ -446,42 +341,43 @@ bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
     tList<tBuffer<int> > other_output_list;
     
     // If tasks require us to consider neighbor inputs, collect them...
-    if (m_world->GetEnvironment().GetTaskLib().UseNeighborInput() == true) {
+    if (m_world->GetEnvironment().UseNeighborInput()) {
       const int num_neighbors = m_interface->GetNumNeighbors();
       for (int i = 0; i < num_neighbors; i++) {
         m_interface->Rotate();
         cOrganism * cur_neighbor = m_interface->GetNeighbor();
         if (cur_neighbor == NULL) continue;
         
-        other_input_list.Push( &(cur_neighbor->input_buf) );
+        other_input_list.Push( &(cur_neighbor->m_input_buf) );
       }
     }
     
     // If tasks require us to consider neighbor outputs, collect them...
-    if (m_world->GetEnvironment().GetTaskLib().UseNeighborOutput() == true) {
+    if (m_world->GetEnvironment().UseNeighborOutput()) {
       const int num_neighbors = m_interface->GetNumNeighbors();
       for (int i = 0; i < num_neighbors; i++) {
         m_interface->Rotate();
         cOrganism * cur_neighbor = m_interface->GetNeighbor();
         if (cur_neighbor == NULL) continue;
         
-        other_output_list.Push( &(cur_neighbor->output_buf) );
+        other_output_list.Push( &(cur_neighbor->m_output_buf) );
       }
     }
         
     // Do the testing of tasks performed...
-    output_buf.Add(value);
+    m_output_buf.Add(value);
     tArray<double> res_change(resource_count.GetSize());
     tArray<int> insts_triggered;
-    cTaskContext taskctx(input_buf, output_buf, other_input_list, other_output_list, false, completed);
-    phenotype.TestOutput(ctx, taskctx, send_buf, receive_buf, resource_count, res_change, insts_triggered);
+
+    cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, other_output_list, false, completed);
+    m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
     m_interface->UpdateResources(res_change);
     
     for (int i = 0; i < insts_triggered.GetSize(); i++) {
       const int cur_inst = insts_triggered[i];
       m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
     }
-  }
+}
   
   return true;
 }
@@ -497,530 +393,11 @@ void cOrganism::NetReset()
   }
 }
 
-/// UML Functions /// 
-/// This function is a copy of DoOutput /// 
-void cOrganism::modelCheck(cAvidaContext& ctx)
-{
 
-  printXMI();
-	
-
-  assert(m_interface);
-  const tArray<double> & resource_count = m_interface->GetResources();
-
-  tList<tBuffer<int> > other_input_list;
-  tList<tBuffer<int> > other_output_list;
-
-  // If tasks require us to consider neighbor inputs, collect them...
-  if (m_world->GetEnvironment().GetTaskLib().UseNeighborInput() == true) {
-    const int num_neighbors = m_interface->GetNumNeighbors();
-    for (int i = 0; i < num_neighbors; i++) {
-      m_interface->Rotate();
-      cOrganism * cur_neighbor = m_interface->GetNeighbor();
-      if (cur_neighbor == NULL) continue;
-
-      other_input_list.Push( &(cur_neighbor->input_buf) );
-    }
-  }
-
-  // If tasks require us to consider neighbor outputs, collect them...
-  if (m_world->GetEnvironment().GetTaskLib().UseNeighborOutput() == true) {
-    const int num_neighbors = m_interface->GetNumNeighbors();
-    for (int i = 0; i < num_neighbors; i++) {
-      m_interface->Rotate();
-      cOrganism * cur_neighbor = m_interface->GetNeighbor();
-      if (cur_neighbor == NULL) continue;
-
-      other_output_list.Push( &(cur_neighbor->output_buf) );
-    }
-  }
- 
-  
-//  bool net_valid = false;
-//  if (m_net) net_valid = NetValidate(ctx, value);
-
-  // Do the testing of tasks performed...
- // output_buf.Add(value);
-  tArray<double> res_change(resource_count.GetSize());
-  tArray<int> insts_triggered;
-
-  tBuffer<int>* received_messages_point = &received_messages;
-  if (!m_world->GetConfig().SAVE_RECEIVED.Get())
-	  received_messages_point = NULL; 
-// change task context eventually	  
-  cTaskContext taskctx(input_buf, output_buf, other_input_list, other_output_list, false, 0, received_messages_point, this);
-  phenotype.TestOutput(ctx, taskctx, send_buf, receive_buf, resource_count, res_change, insts_triggered);
-  m_interface->UpdateResources(res_change);
-
-  for (int i = 0; i < insts_triggered.GetSize(); i++) {
-    const int cur_inst = insts_triggered[i];
-    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
-  }
-  
-	m_world->GetStats().addState(states.size());
-	m_world->GetStats().addTrans(transitions.size());
-	m_world->GetStats().addTransLabel(transition_labels.size());
-  
-}
-
-void cOrganism::seedModel() {
-	std::string data, line; 
-	std::ifstream infile;
-	infile.open("instinctModel");
-	assert(infile.is_open());
-	
-	while (getline (infile, line))
-	{
-		data.append(line);
-		line.erase();
-	}
-	
-	//read from file; load into string/strstream, and return it.
-	
-	//return data;
-	return;
-
-}
-
-bool cOrganism::findTransLabel(transition_label t) { 
-	for(std::vector<transition_label>::iterator i=transition_labels.begin(); i!=transition_labels.end(); ++i){
-		if ((i->trigger == t.trigger) && (i->guard == t.guard) && (i->action == t.action)) {
-//		if (i->trigger == t.trigger) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool cOrganism::findTrans(int orig, int dest, int trig, std::string gu, std::string act) 
-{
-	// the wild cards for there are 
-	// -1 for orig, dest & trigger
-	// "*" for guard, and action
-
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if (((orig == -1) || (orig == i->orig_state)) && 
-			((dest == -1) || (dest == i->dest_state)) && 
-			((trig == -1) || (trig == i->trans.trigger)) && 
-			((gu == "*") || (gu == i->trans.guard)) &&
-			((act == "*") || (act == i->trans.action))) { 
-						return true;
-			}
-	}
-	return false;
-}
-/*
-bool cOrganism::findTrans(int orig, int dest)
-{
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if((i->orig_state == orig) && (i->dest_state == dest)) {
-			return true;
-		}
-	}
-	
-	return false;
-
-}
-
-bool cOrganism::findTrans(int orig, int dest, std::string label) 
-{
-	std::string t_lab;
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if((i->orig_state == orig) && (i->dest_state == dest)) {
-			t_lab = (StringifyAnInt(i->trans.trigger) + i->trans.guard + i->trans.action);
-			if (t_lab == label) {
-				return true;
-			}
-		}
-	}
-	
-	return false;
-}
-
-bool cOrganism::findTrans(transition t) 
-{
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if((i->orig_state == t.orig_state) && (i->dest_state == t.dest_state) && 
-			(i->trans.trigger == t.trans.trigger) && (i->trans.guard == t.trans.guard) && 
-			(i->trans.action == t.trans.action)) {
-				return true;
-		}
-	}
-	
-	return false;
-}
-
-*/
-
-template <typename T>
-bool cOrganism::absoluteMoveIndex (T x, int &index, int amount )
-{
-	index = 0;
-	return relativeMoveIndex(x, index, amount);
-}
-
-template <typename T>
-bool cOrganism::relativeMoveIndex (T x, int &index, int amount )
-{
-	if (x.size() == 0) {
-		return false;
-	}
-	
-	if (amount > 0) { 
-//		index += (amount % x.size()); // this provides relative jumping
-		index += (amount % x.size());
-
-		// index is greater than vector
-		if (index >= x.size()) { 
-			index -= x.size();
-		} else if(index < 0) { 
-			index += x.size();
-		}
-	}	
-		
-	return true;
-}
-
-
-bool cOrganism::absoluteJumpTrigger(int jump_amount)
-{
-	return absoluteMoveIndex(triggers, trigger_index, jump_amount);
-}
-
-bool cOrganism::absoluteJumpGuard(int jump_amount)
-{
-	return absoluteMoveIndex(guards, guard_index, jump_amount);	
-}
-
-bool cOrganism::absoluteJumpAction(int jump_amount)
-{
-	return absoluteMoveIndex(actions, action_index, jump_amount);
-}
-
-bool cOrganism::absoluteJumpTransitionLabel(int jump_amount)
-{
-	return absoluteMoveIndex(transition_labels, trans_label_index, jump_amount);
-}
-
-bool cOrganism::absoluteJumpOriginState(int jump_amount) 
-{
-	return absoluteMoveIndex(states, orig_state_index, jump_amount);
-}
-
-bool cOrganism::absoluteJumpDestinationState(int jump_amount) 
-{
-	return absoluteMoveIndex(states, dest_state_index, jump_amount);
-}
-
-bool cOrganism::relativeJumpTrigger(int jump_amount)
-{
-	return relativeMoveIndex(triggers, trigger_index, jump_amount);
-}
-
-bool cOrganism::relativeJumpGuard(int jump_amount)
-{
-	return relativeMoveIndex(guards, guard_index, jump_amount);	
-}
-
-bool cOrganism::relativeJumpAction(int jump_amount)
-{
-	return relativeMoveIndex(actions, action_index, jump_amount);
-}
-
-bool cOrganism::relativeJumpTransitionLabel(int jump_amount)
-{
-	return relativeMoveIndex(transition_labels, trans_label_index, jump_amount);
-}
-
-bool cOrganism::relativeJumpOriginState(int jump_amount) 
-{
-	return relativeMoveIndex(states, orig_state_index, jump_amount);
-}
-
-bool cOrganism::relativeJumpDestinationState(int jump_amount) 
-{
-	return relativeMoveIndex(states, dest_state_index, jump_amount);
-}
-
-int cOrganism::getTriggerIndex()
-{
-	/*if (triggers.size() == 0) {
-		return 0;
-	} else {*/
-	
-		return trigger_index;
-	//}
-}
-
-std::string cOrganism::getGuard()
-{
-	if (guards.size() == 0) {
-		return "";
-	} else {
-		return guards[guard_index];
-	}
-}
-
-std::string cOrganism::getAction()
-{
-	if (actions.size() == 0) {
-		return "";
-	} else {
-		return actions[action_index];
-	}
-}
-
-int cOrganism::getOrigStateIndex()
-{
-	return orig_state_index;
-}
- 
-int cOrganism::getDestStateIndex()
-{
-	return dest_state_index;
-}
-
-transition_label cOrganism::getTransLabel()
-{
-	return transition_labels[trans_label_index];
-}
-
-bool cOrganism::addState()
-{	
-	state s;
-	s.identifier = states.size();
-	s.num_incoming = 0;
-	s.num_outgoing = 0;
-	states.push_back(s);
-	
-	return true;
-}
-
-bool cOrganism::addTransitionLabel()
-{
-	transition_label t;
-	t.trigger = getTriggerIndex();
-	t.guard = getGuard();
-	t.action = getAction();
-	
-	// no dupes
-	if (findTransLabel(t)){
-		return false;
-	 }
-	
-	transition_labels.push_back(t);
-	
-	// Move the transition label index to the most recently created
-	trans_label_index = transition_labels.size() - 1;
-	
-	return true;
-}
-
-
-bool cOrganism::addTransition()
-{
-	if ((states.size() == 0) || (transition_labels.size() == 0)) {
-
-		return false;
-	} 
-
-	transition t;
-	t.orig_state = getOrigStateIndex();
-	t.dest_state = getDestStateIndex();
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-	
-	t.trans = getTransLabel();
-	
-	// no dupes
-    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
-		return false;
-	}
-
-	transitions.push_back(t);
-		
-	return true;
-
-}
-
-
-bool cOrganism::addTransitionTotal()
-{
-	if ((states.size() == 0)) {
-
-		return false;
-	} 
-
-	transition t;
-	t.orig_state = getOrigStateIndex();
-	t.dest_state = getDestStateIndex();
-	
-	
-	// Do not create transition if the origin state is unreachable.
-	if ((t.orig_state != 0) && (states[t.orig_state].num_incoming == 0)) {
-		return false;
-	}
-	
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-
-	
-	transition_label tl;
-	tl.trigger = getTriggerIndex();
-	tl.guard = getGuard();
-	tl.action = getAction();
-	t.trans = tl;
-	
-	
-	// no dupes
-    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
-		return false;
-	}
-
-	transitions.push_back(t);
-	
-	// reset all indices
-	orig_state_index = 0;
-	dest_state_index = 0;
-	trigger_index = 0;
-	action_index = 0;
-	guard_index = 0;
-		
-	return true;
-
-}
-
-
-int cOrganism::numStates()
-{
-	return states.size();
-}
-
-int cOrganism::numTrans()
-{
-	return transitions.size();
-}
-
-// print the label. Change - signs to _
-std::string cOrganism::StringifyAnInt(int x) { 
-
-	std::ostringstream o;
-
-	if (x < 0) {
-		x = abs(x);
-		o << "_";
-	} 
-	
-	o << x;
-	return o.str();
-}
-
-std::string cOrganism::getXMI()
-{
-	return (xmi_begin + xmi + xmi_end);
-}
-
-void cOrganism::printXMI()
-{
-	std::string temp, temp1, temp2, temp3;
-	std::string trig_label, trig_op_label;
-
-	int s_count = 0;
-	int t_count = 0;
-	xmi = "";
-
-	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
-	// edge or not.
-	if (numStates() > 0) {
-		temp = StringifyAnInt(s_count);
-		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
-		xmi += temp + "\" isSpecification=\"false\"/>\n";
-		++s_count;
-	}
-	
-	for (; s_count < numStates(); ++s_count) {
-	
-		// only print if this state has an incoming edge. 
-		if ((states[s_count]).num_incoming > 0) {
-			temp = "s" + StringifyAnInt(s_count);
-			xmi+="<UML:CompositeState xmi.id=\"";
-			xmi+=temp;
-			xmi+= "\" isConcurrent=\"false\" name=\""; 
-			xmi+= temp; 
-			xmi+= "\" isSpecification=\"false\"/>\n";
-		}
-	}
-		
-		// end the set of states....
-		xmi+= "</UML:CompositeState.subvertex>\n";
-		xmi+= "</UML:CompositeState>\n";
-		xmi+= "</UML:StateMachine.top>\n";
-		
-		// start the set of transitions...
-		xmi+="<UML:StateMachine.transitions>\n";
-
-
-
-	for (t_count = 0; t_count < numTrans(); ++t_count) { 
-		// info determined from the trans itself....
-		temp = "t" + StringifyAnInt(t_count);
-		temp1 = "s" + StringifyAnInt(transitions[t_count].orig_state);
-		temp2 = "s" + StringifyAnInt(transitions[t_count].dest_state);
-		temp3 = temp + temp1 + temp2;
-
-		xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
-		xmi+= " source=\"" + temp1 + "\"";
-		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
-
-		// Get guard, trigger, and action
-//		temp = transitions[t_count].trans.trigger;
-		temp1 = transitions[t_count].trans.guard;
-		temp2 = transitions[t_count].trans.action;
-		trig_label = triggers[transitions[t_count].trans.trigger].label;
-		trig_op_label = triggers[transitions[t_count].trans.trigger].operation_id;
-
-
-		// print trigger, if any
-		if (trig_label != "<null>") {
-			xmi+= "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
-			xmi+= "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"" + temp3;
-			xmi+= "tt\"  operation=\""+ trig_op_label + "\" ";
-			xmi+= "name=\"" + trig_label + "\" isSpecification=\"false\"/> "; 
-			xmi+= "</UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> ";
-			xmi+= "</UML:Event>  </UML:Transition.trigger> ";
-		}
-		
-		// print guard, if any
-		// Note: for guard to work, '<' => '&lt'
-		if (temp1 != "<null>"){
-			xmi+= "<UML:Transition.guard> <UML:Guard> <UML:Guard.expression> ";
-			xmi+= "<UML:BooleanExpression body=\"" + temp1 + "\" language=\"\"/> ";
-			xmi+= "</UML:Guard.expression> </UML:Guard> </UML:Transition.guard> ";
-		}
-		
-		// print action, if any
-		if (temp2 != "<null>") { 
-			xmi+= "<UML:Transition.effect> <UML:UninterpretedAction xmi.id=\"" + temp3 + "ui\" ";
-			xmi+= "isAsynchronous=\"false\" name=\"\" isSpecification=\"false\"> ";
-			xmi+= "<UML:Action.script> <UML:ActionExpression language=\"\" body=\""; 
-			xmi+= temp2 + "\"/> </UML:Action.script> </UML:UninterpretedAction> </UML:Transition.effect> ";		
-		}
-		
-		xmi += "</UML:Transition>\n";
-
-	
-	}
-
-	return;
-}
-
-
-bool cOrganism::InjectParasite(const cGenome& injected_code)
+bool cOrganism::InjectParasite(const cCodeLabel& label, const cGenome& injected_code)
 {
   assert(m_interface);
-  return m_interface->InjectParasite(this, injected_code);
+  return m_interface->InjectParasite(this, label, injected_code);
 }
 
 bool cOrganism::InjectHost(const cCodeLabel& label, const cGenome& injected_code)
@@ -1028,44 +405,76 @@ bool cOrganism::InjectHost(const cCodeLabel& label, const cGenome& injected_code
   return m_hardware->InjectHost(label, injected_code);
 }
 
-int cOrganism::OK()
-{
-  if (m_hardware->OK() && phenotype.OK()) return true;
-  return false;
-}
-
 
 double cOrganism::CalcMeritRatio()
 {
-  const double age = (double) phenotype.GetAge();
-  const double merit = phenotype.GetMerit().GetDouble();
+  const double age = (double) m_phenotype.GetAge();
+  const double merit = m_phenotype.GetMerit().GetDouble();
   return (merit > 0.0) ? (age / merit ) : age;
 }
 
 
-bool cOrganism::GetTestOnDivide() const { return m_interface->TestOnDivide();}
+bool cOrganism::GetTestOnDivide() const { return m_interface->TestOnDivide(); }
 bool cOrganism::GetFailImplicit() const { return m_world->GetConfig().FAIL_IMPLICIT.Get(); }
 
 bool cOrganism::GetRevertFatal() const { return m_world->GetConfig().REVERT_FATAL.Get(); }
-bool cOrganism::GetRevertNeg()   const { return m_world->GetConfig().REVERT_DETRIMENTAL.Get(); }
-bool cOrganism::GetRevertNeut()  const { return m_world->GetConfig().REVERT_NEUTRAL.Get(); }
-bool cOrganism::GetRevertPos()   const { return m_world->GetConfig().REVERT_BENEFICIAL.Get(); }
+bool cOrganism::GetRevertNeg() const { return m_world->GetConfig().REVERT_DETRIMENTAL.Get(); }
+bool cOrganism::GetRevertNeut() const { return m_world->GetConfig().REVERT_NEUTRAL.Get(); }
+bool cOrganism::GetRevertPos() const { return m_world->GetConfig().REVERT_BENEFICIAL.Get(); }
 
-bool cOrganism::GetSterilizeFatal() const{return m_world->GetConfig().STERILIZE_FATAL.Get();}
-bool cOrganism::GetSterilizeNeg()  const { return m_world->GetConfig().STERILIZE_DETRIMENTAL.Get(); }
-bool cOrganism::GetSterilizeNeut() const { return m_world->GetConfig().STERILIZE_NEUTRAL.Get();}
-bool cOrganism::GetSterilizePos()  const { return m_world->GetConfig().STERILIZE_BENEFICIAL.Get(); }
-double cOrganism::GetNeutralMin() const { return m_world->GetConfig().NEUTRAL_MIN.Get();}
-double cOrganism::GetNeutralMax() const { return m_world->GetConfig().NEUTRAL_MAX.Get();}
+bool cOrganism::GetSterilizeFatal() const { return m_world->GetConfig().STERILIZE_FATAL.Get(); }
+bool cOrganism::GetSterilizeNeg() const { return m_world->GetConfig().STERILIZE_DETRIMENTAL.Get(); }
+bool cOrganism::GetSterilizeNeut() const { return m_world->GetConfig().STERILIZE_NEUTRAL.Get(); }
+bool cOrganism::GetSterilizePos() const { return m_world->GetConfig().STERILIZE_BENEFICIAL.Get(); }
+double cOrganism::GetNeutralMin() const { return m_world->GetConfig().NEUTRAL_MIN.Get(); }
+double cOrganism::GetNeutralMax() const { return m_world->GetConfig().NEUTRAL_MAX.Get(); }
 
 
-void cOrganism::PrintStatus(ostream& fp, const cString & next_name)
+void cOrganism::PrintStatus(ostream& fp, const cString& next_name)
 {
   fp << "---------------------------" << endl;
   m_hardware->PrintStatus(fp);
-  phenotype.PrintStatus(fp);
+  m_phenotype.PrintStatus(fp);
+  fp << endl;
+
+  fp << setbase(16) << setfill('0');
+  
+  fp << "Input (env):";
+  for (int i = 0; i < m_input_buf.GetCapacity(); i++) {
+    int j = i; // temp holder, because GetInputAt self adjusts the input pointer
+    fp << " 0x" << setw(8) << m_interface->GetInputAt(j);
+  }
+  fp << endl;
+  
+  fp << "Input (buf):";
+  for (int i = 0; i < m_input_buf.GetNumStored(); i++) fp << " 0x" << setw(8) << m_input_buf[i];
+  fp << endl;
+
+  fp << "Output:     ";
+  for (int i = 0; i < m_output_buf.GetNumStored(); i++) fp << " 0x" << setw(8) << m_output_buf[i];
+  fp << endl;
+  
+  fp << setfill(' ') << setbase(10);
+    
   fp << "---------------------------" << endl;
   fp << "ABOUT TO EXECUTE: " << next_name << endl;
+}
+
+void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated) const
+{
+  fp << "---------------------------" << endl;
+  m_phenotype.PrintStatus(fp);
+  fp << endl;
+
+  if (time_used == time_allocated) {
+    fp << endl << "# TIMEOUT: No offspring produced." << endl;
+  } else if (m_hardware->GetMemory().GetSize() == 0) {
+    fp << endl << "# ORGANISM DEATH: No offspring produced." << endl;
+  } else {
+    fp << endl;
+    fp << "# Final Memory: " << m_hardware->GetMemory().AsString() << endl;
+    fp << "# Child Memory: " << m_child_genome.AsString() << endl;
+  }
 }
 
 
@@ -1075,8 +484,8 @@ bool cOrganism::Divide_CheckViable()
   const int required_task = m_world->GetConfig().REQUIRED_TASK.Get();
   const int immunity_task = m_world->GetConfig().IMMUNITY_TASK.Get();
 
-  if (required_task != -1 && phenotype.GetCurTaskCount()[required_task] == 0) { 
-    if (immunity_task==-1 || phenotype.GetCurTaskCount()[immunity_task] == 0) {
+  if (required_task != -1 && m_phenotype.GetCurTaskCount()[required_task] == 0) { 
+    if (immunity_task==-1 || m_phenotype.GetCurTaskCount()[immunity_task] == 0) {
       Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
             cStringUtil::Stringf("Lacks required task (%d)", required_task));
       return false; //  (divide fails)
@@ -1084,14 +493,22 @@ bool cOrganism::Divide_CheckViable()
   }
 
   const int required_reaction = m_world->GetConfig().REQUIRED_REACTION.Get();
-  if (required_reaction != -1 && phenotype.GetCurTaskCount()[required_reaction] == 0) {
+  if (required_reaction != -1 && m_phenotype.GetCurTaskCount()[required_reaction] == 0) {
     Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Lacks required reaction (%d)", required_reaction));
     return false; //  (divide fails)
   }
+  
+  // Make sure that an organism has accumulated any required bonus
+  const int bonus_required = m_world->GetConfig().REQUIRED_BONUS.Get();
+  if (m_phenotype.GetCurBonus() < bonus_required) {
+    Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
+          cStringUtil::Stringf("Lacks required bonus to divide (has %d, needs %d)", m_phenotype.GetCurBonus(), bonus_required));
+    return false; //  (divide fails)
+  }
 
   // Make sure the parent is fertile
-  if ( phenotype.IsFertile() == false ) {
+  if ( m_phenotype.IsFertile() == false ) {
     Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR, "Infertile organism");
     return false; //  (divide fails)
   }
@@ -1106,8 +523,12 @@ bool cOrganism::Divide_CheckViable()
 bool cOrganism::ActivateDivide(cAvidaContext& ctx)
 {
   assert(m_interface);
+  // Test tasks one last time before actually dividing, pass true so 
+  // know that should only test "divide" tasks here
+  DoOutput(ctx, 0, true);
+
   // Activate the child!  (Keep Last: may kill this organism!)
-  return m_interface->Divide(ctx, this, child_genome);
+  return m_interface->Divide(ctx, this, m_child_genome);
 }
 
 
@@ -1119,19 +540,19 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 
 #if FATAL_ERRORS
   if (fault_type == FAULT_TYPE_ERROR) {
-    phenotype.IsFertile() = false;
+    m_phenotype.IsFertile() = false;
   }
 #endif
 
 #if FATAL_WARNINGS
   if (fault_type == FAULT_TYPE_WARNING) {
-    phenotype.IsFertile() = false;
+    m_phenotype.IsFertile() = false;
   }
 #endif
 
 #if BREAKPOINTS
-  phenotype.SetFault(fault_desc);
+  m_phenotype.SetFault(fault_desc);
 #endif
 
-  phenotype.IncErrors();
+  m_phenotype.IncErrors();
 }

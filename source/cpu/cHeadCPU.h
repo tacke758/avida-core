@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "head_cpu.hh" prior to 11/30/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -70,7 +85,6 @@ public:
   
   inline void Advance() { m_position++; Adjust(); }
   inline void Retreat() { m_position--; Adjust(); }
-  cHeadCPU FindLabel(const cCodeLabel& label, int direction = 1);
 
   inline const cInstruction& GetInst() const { return GetMemory()[m_position]; }
   inline const cInstruction& GetInst(int offset) const { return GetMemory()[m_position + offset]; }
@@ -147,7 +161,7 @@ inline bool cHeadCPU::operator==(const cHeadCPU& in_cpu_head) const
 
 inline const cInstruction& cHeadCPU::GetNextInst() const
 {
-  return (AtEnd()) ? cInstSet::GetInstError() : GetMemory()[m_position + 1];
+  return (AtEnd()) ? m_hardware->GetInstSet().GetInstError() : GetMemory()[m_position + 1];
 }
 
 

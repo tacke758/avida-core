@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 6/25/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,8 +28,8 @@
 #include "cActionLibrary.h"
 #include "cCodeLabel.h"
 #include "cGenome.h"
+#include "cGenomeUtil.h"
 #include "cHardwareManager.h"
-#include "cInstUtil.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cStats.h"
@@ -63,7 +78,7 @@ public:
 
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cInstUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
     m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
   }
 };
@@ -107,22 +122,64 @@ public:
 
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cInstUtil::RandomGenome(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome = cGenomeUtil::RandomGenome(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
     m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
   }
 };
 
 
 /*
+ Injects randomly generated genomes into the entire population, plus a repro inst on the end,
+ with the caveat that any instructions set to 0 probability of mutating into the genome 
+ are not included.
+ 
+ Parameters:
+   length (integer) [required]
+     Number of instructions in the randomly generated genome (actual length will be +1 with repro).
+   merit (double) default: -1
+     The initial merit of the organism. If set to -1, this is ignored.
+   lineage label (integer) default: 0
+     An integer that marks all descendants of this organism.
+   neutral metric (double) default: 0
+     A double value that randomly drifts over time.
+*/
+class cActionInjectAllRandomRepro : public cAction
+{
+private:
+  int m_length;
+  double m_merit;
+  int m_lineage_label;
+  double m_neutral_metric;
+public:
+  cActionInjectAllRandomRepro(cWorld* world, const cString& args) : cAction(world, args), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
+  {
+    cString largs(args);
+    m_length = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
+    if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
+  }
+  
+  static const cString GetDescription() { return "Arguments: <int length> [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+
+  void Process(cAvidaContext& ctx)
+  {
+	  for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
+	  {
+		  cGenome genome = cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
+		  m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+	  }
+  }
+};
+
+/*
  Injects identical organisms into all cells of the population.
  
  Parameters:
    filename (string)
-     The filename of the genotype to load. If this is left empty, or the keyword
-     "START_CREATURE" is given, than the genotype specified in the genesis
+     The filename of the genotype to load.  If empty (or the keyword
+     "START_CREATURE" is given) than the genotype specified in the genesis
      file under "START_CREATURE" is used.
-   cell ID (integer) default: 0
-     The grid-point into which the organism should be placed.
    merit (double) default: -1
      The initial merit of the organism. If set to -1, this is ignored.
    lineage label (integer) default: 0
@@ -153,7 +210,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cInstUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
       m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
   }
@@ -210,7 +267,7 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectRange has invalid range!");
     } else {
-      cGenome genome = cInstUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
       for (int i = m_cell_start; i < m_cell_end; i++) {
         m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
       }
@@ -317,7 +374,7 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectParasite has invalid range!");
     } else {
-      cGenome genome = cInstUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
       for (int i = m_cell_start; i < m_cell_end; i++) {
         m_world->GetPopulation().InjectParasite(m_label, genome, i);
       }
@@ -383,8 +440,8 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectParasitePair has invalid range!");
     } else {
-      cGenome genome = cInstUtil::LoadGenome(m_filename_genome, m_world->GetHardwareManager().GetInstSet());
-      cGenome parasite = cInstUtil::LoadGenome(m_filename_parasite, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome = cGenomeUtil::LoadGenome(m_filename_genome, m_world->GetHardwareManager().GetInstSet());
+      cGenome parasite = cGenomeUtil::LoadGenome(m_filename_parasite, m_world->GetHardwareManager().GetInstSet());
       for (int i = m_cell_start; i < m_cell_end; i++) {
         m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().InjectParasite(m_label, parasite, i);
@@ -392,6 +449,55 @@ public:
       m_world->GetPopulation().SetSyncEvents(true);
     }
   }
+};
+
+
+
+/*! Injects an organism into all demes in the population. 
+
+Parameters:
+filename (string):
+The filename of the genotype to load. If this is left empty, or the keyword
+"START_CREATURE" is given, than the genotype specified in the genesis
+file under "START_CREATURE" is used.
+cell ID (integer) default: 0
+  The grid-point into which the organism should be placed.
+  merit (double) default: -1
+    The initial merit of the organism. If set to -1, this is ignored.
+    lineage label (integer) default: 0
+      An integer that marks all descendants of this organism.
+      neutral metric (double) default: 0
+        A double value that randomly drifts over time.
+        */
+class cActionInjectDemes : public cAction
+{
+private:
+	cString m_filename;
+	double m_merit;
+	int m_lineage_label;
+	double m_neutral_metric;
+public:
+		cActionInjectDemes(cWorld* world, const cString& args) : cAction(world, args), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
+	{
+			cString largs(args);
+			if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+			if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
+			if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
+			if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
+			if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+	}
+	
+	static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+	
+	void Process(cAvidaContext& ctx)
+	{
+		cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+		for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+			m_world->GetPopulation().Inject(genome,
+                                      m_world->GetPopulation().GetDeme(i).GetCellID(0),
+                                      m_merit, m_lineage_label, m_neutral_metric);
+		}
+	}
 };
 
 
@@ -422,6 +528,61 @@ public:
       if (cell.IsOccupied() == false) continue;
       if (ctx.GetRandom().P(m_killprob))  m_world->GetPopulation().KillOrganism(cell);
     }
+  }
+};
+
+/*
+ In avida.cfg, when BASE_MERIT_METHOD is set to 6 (Merit prop. to num times MERIT_BONUS_INST is in genome), 
+ the merit is incremented by MERIT_BONUS_EFFECT if MERIT_BONUS_EFFECT is positive and decremented by
+ MERIT_BONUS_EFFECT if it is negative. For positive values the counting starts at 1, for negative values it starts
+ at genome length. This event toggles MERIT_BONUS_EFFECT from positive to negative. This creates an extremely simple
+ counting-ones type of dynamic environment.  
+*/
+class cActionToggleRewardInstruction : public cAction
+{
+private:
+public:
+  cActionToggleRewardInstruction(cWorld* world, const cString& args) : cAction(world, args) 
+  {
+    //pass
+    //@JMC: m_killprob (and other code) is a meme that hitchiked when I used gabe's event as an example. need to clean it up. 
+  }
+  
+  static const cString GetDescription() { return "Arguments: [double probability=0.9]"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    m_world->GetConfig().MERIT_BONUS_EFFECT.Set(-1* m_world->GetConfig().MERIT_BONUS_EFFECT.Get());
+  }
+};
+
+/*
+ In avida.cfg, when BASE_MERIT_METHOD is set to 6 (Merit prop. to num times MERIT_BONUS_INST is in genome), 
+ the merit is incremented by MERIT_BONUS_EFFECT if MERIT_BONUS_EFFECT is positive and decremented by
+ MERIT_BONUS_EFFECT if it is negative. For positive values the counting starts at 1, for negative values it starts
+ at genome length. This event addes fitness valleys to this extremely simple counting-ones type of dynamic environment.
+ Orgs that have #_merit_bonus_inst_in_genome >=FITNESS_VALLEY_START && <= FITNESS_VALLEY_STOP will have a fitness of one (the lowest).
+ Example.   FITNESS_VALLEY_START = 5, FITNESS_VALLEY_STOP = 7. orgs with 5, 6, or 7 MERIT_BONUS_INST in their genome have fitness = 1.
+ Specifically, this event creates these valleys or takes them away. 
+*/
+
+class cActionToggleFitnessValley : public cAction
+{
+private:
+public:
+  cActionToggleFitnessValley(cWorld* world, const cString& args) : cAction(world, args) 
+  {
+    //pass
+    //@JMC: m_killprob (and other code) is a meme that hitchiked when I used gabe's event as an example. need to clean it up. 
+  }
+  
+  static const cString GetDescription() { return "Arguments: [double probability=0.9]"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    if(m_world->GetConfig().FITNESS_VALLEY.Get()) {m_world->GetConfig().FITNESS_VALLEY.Set(0);}
+    else{m_world->GetConfig().FITNESS_VALLEY.Set(1);}
+//    m_world->GetConfig().FITNESS_VALLEY.Set(-1* m_world->GetConfig().FITNESS_VALLEY.Get());
   }
 };
 
@@ -800,6 +961,7 @@ public:
  5: deme fitness = average organism life (current, not parents) fitness (works with donations)
  6: deme fitness = strong rank selection on life (current, not parents) fitness
 */
+
 class cActionCompeteDemes : public cAction
 {
 private:
@@ -816,6 +978,83 @@ public:
   void Process(cAvidaContext& ctx)
   {
     m_world->GetPopulation().CompeteDemes(m_type);
+  }
+};
+
+
+/* This Action will check if any demes have met the critera to be replicated
+   and do so.  There are several bases this can be checked on:
+
+    'all'       - ...all non-empty demes in the population.
+    'full_deme' - ...demes that have been filled up.
+    'corners'   - ...demes with upper left and lower right corners filled.
+*/
+
+class cActionReplicateDemes : public cAction
+{
+private:
+  int m_rep_trigger;
+public:
+  cActionReplicateDemes(cWorld* world, const cString& args) : cAction(world, args), m_rep_trigger(-1)
+  {
+    cString largs(args);
+    cString in_trigger("full_deme");
+    if (largs.GetSize()) in_trigger = largs.PopWord();
+    
+    if (in_trigger == "all") m_rep_trigger = 0;
+    else if (in_trigger == "full_deme") m_rep_trigger = 1;
+    else if (in_trigger == "corners") m_rep_trigger = 2;
+    else if (in_trigger == "deme-age") m_rep_trigger = 3;
+    else {
+      cString err("Unknown replication trigger '");
+      err += in_trigger;
+      err += "' in ReplicatDemes action.";
+      m_world->GetDriver().RaiseException(err);
+      return;
+    }
+  }
+  
+  static const cString GetDescription() { return "Arguments: [string trigger=full_deme]"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    m_world->GetPopulation().ReplicateDemes(m_rep_trigger);
+  }
+};
+
+
+/*
+   This action will determine if any demes have filled up, and if so move half
+   of the members into a new deme.  Specifically, it will leave the even
+   numbered cells (0,2,4, etc.) and take the odd numbered ones (1,3,5, etc.)
+
+   @CAO This next part should be configurable
+   All replicated organisms will have their merit recalculated given the full
+   list of completed tasks, and assigned to all offspring *and* all parents.
+
+   This action should be used in combination with:
+      BIRTH_METHOD 8 (always repoduce into id+1)
+      BASE_MERIT_METHOD 0 (Constant base merit)
+      BASE_CONST_MERIT 0 (Use a base merit of zero, hence all merits = 0)
+
+   These settings will make sure that all merit will be set by this action.
+*/
+
+class cActionDivideDemes : public cAction
+{
+private:
+public:
+  cActionDivideDemes(cWorld* world, const cString& args) : cAction(world, args)
+  {
+    cString largs(args);
+    // Nothing to do here yet....
+  }
+  
+  static const cString GetDescription() { return "No arguments (yet!)"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    m_world->GetPopulation().DivideDemes();
   }
 };
 
@@ -1189,7 +1428,21 @@ public:
   }
 };
 
+class cActionSetOptimizeMinMax : public cAction
+{
 
+public:
+  cActionSetOptimizeMinMax(cWorld* world, const cString& args) : cAction(world, args) { ; }
+
+  static const cString GetDescription() { return "No Arguments"; }
+
+  void Process(cAvidaContext& ctx)
+  {
+    for (int i = 0; i < m_world->GetPopulation().GetSize(); i++) {
+      m_world->GetPopulation().GetCell(i).GetOrganism();
+    }
+  }
+};
 
 void RegisterPopulationActions(cActionLibrary* action_lib)
 {
@@ -1198,11 +1451,14 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionInjectAll>("InjectAll");
   action_lib->Register<cActionInjectRange>("InjectRange");
   action_lib->Register<cActionInjectSequence>("InjectSequence");
+  action_lib->Register<cActionInjectDemes>("InjectDemes");
 
   action_lib->Register<cActionInjectParasite>("InjectParasite");
   action_lib->Register<cActionInjectParasitePair>("InjectParasitePair");
 
   action_lib->Register<cActionKillProb>("KillProb");
+  action_lib->Register<cActionToggleRewardInstruction>("ToggleRewardInstruction");
+  action_lib->Register<cActionToggleFitnessValley>("ToggleFitnessValley");
   action_lib->Register<cActionKillProb>("KillRate");
   action_lib->Register<cActionKillRectangle>("KillRectangle");
   action_lib->Register<cActionSerialTransfer>("SerialTransfer");
@@ -1212,6 +1468,8 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionZeroMuts>("ZeroMuts");
 
   action_lib->Register<cActionCompeteDemes>("CompeteDemes");
+  action_lib->Register<cActionReplicateDemes>("ReplicateDemes");
+  action_lib->Register<cActionDivideDemes>("DivideDemes");
   action_lib->Register<cActionResetDemes>("ResetDemes");
   action_lib->Register<cActionCopyDeme>("CopyDeme");
   
@@ -1226,6 +1484,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInject>("inject");
   action_lib->Register<cActionInjectRandom>("inject_random");
+  action_lib->Register<cActionInjectAllRandomRepro>("inject_all_random_repro");
   action_lib->Register<cActionInjectAll>("inject_all");
   action_lib->Register<cActionInjectRange>("inject_range");
   action_lib->Register<cActionInject>("inject_sequence");
@@ -1238,6 +1497,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionZeroMuts>("zero_muts");
   
   action_lib->Register<cActionCompeteDemes>("compete_demes");
+  action_lib->Register<cActionReplicateDemes>("replicate_demes");
   action_lib->Register<cActionResetDemes>("reset_demes");
   action_lib->Register<cActionCopyDeme>("copy_deme");
   
@@ -1248,4 +1508,6 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 
   action_lib->Register<cActionConnectCells>("connect_cells");
   action_lib->Register<cActionDisconnectCells>("disconnect_cells");
+
+  action_lib->Register<cActionSetOptimizeMinMax>("SetOptimizeMinMax");
 }

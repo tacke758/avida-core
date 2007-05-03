@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tools.cc" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology
  *
  */
@@ -11,17 +11,28 @@
 #include "cTools.h"
 
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "cString.h"
+#include "platform.h"
 
-#ifdef WIN32
-# ifndef WIN32_MKDIR_HACK_HH
-#  include "win32_mkdir_hack.hh"
+
+// mkdir undefined in ms windows
+#if AVIDA_PLATFORM(WINDOWS)
+# include <direct.h>
+# ifndef ACCESSPERMS
+#  define ACCESSPERMS 0
+# endif
+# ifndef mkdir
+#  define mkdir(path, ignored_mode) _mkdir(path)
+# endif
+# ifndef mode_t
+#  define mode_t unsigned int
 # endif
 #endif
+
 
 using namespace std;
 

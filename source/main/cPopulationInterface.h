@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "pop_interface.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -46,20 +61,20 @@ public:
   int GetNumNeighbors();
   void Rotate(int direction = 1);
   void Breakpoint() { m_world->GetDriver().SignalBreakpoint(); }
-  int GetInput();
   int GetInputAt(int& input_pointer);
+  void ResetInputs(cAvidaContext& ctx);
   int Debug();
   const tArray<double>& GetResources();
   void UpdateResources(const tArray<double>& res_change);
   void Die();
   void Kaboom(int distance);
-  bool SendMessage(cOrgMessage& mess);
+  void SpawnDeme();
   cOrgSinkMessage* NetReceive();
   bool NetRemoteValidate(cAvidaContext& ctx, cOrgSinkMessage* msg);
   int ReceiveValue();
   void SellValue(const int data, const int label, const int sell_price, const int org_id);
   int BuyValue(const int label, const int buy_price);
-  bool InjectParasite(cOrganism* parent, const cGenome& injected_code);
+  bool InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code);
   bool UpdateMerit(double new_merit);
   bool TestOnDivide();
 };

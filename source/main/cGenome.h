@@ -3,15 +3,30 @@
  *  Avida
  *
  *  Called "genome.hh" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cGenome_h
 #define cGenome_h
 
-#include <assert.h>
+#include <cassert>
 
 #ifndef cInstruction_h
 #include "cInstruction.h"
@@ -28,7 +43,6 @@
  * a genome should not be modified; only the corresponding memory should be,
  * before creating the genome.  Keeping genome light-weight...
  **/
-
 class cGenome
 {
 protected:
@@ -36,11 +50,15 @@ protected:
   int active_size;
 
 public:
+  //! Default constructor.
   cGenome() { ; }
-  explicit cGenome(int _size);
-  cGenome(const cGenome& in_genome);
-  cGenome(const cString& in_string);
-  virtual ~cGenome();
+  explicit cGenome(int _size); //! Constructor that builds a 'blank' cGenome of the specified size.
+  cGenome(const cGenome& in_genome); //! Copy constructor.
+  cGenome(const cString& in_string); //! Constructor that builds a cGenome from a string.  
+  //! Constructor that takes a range of instructions from which to build a new cGenome.
+  cGenome(cInstruction* begin, cInstruction* end);
+  
+  virtual ~cGenome(); //! Virtual destructor; there are subclasses.
 
   virtual void operator=(const cGenome& other_genome);
   virtual bool operator==(const cGenome& other_genome) const;

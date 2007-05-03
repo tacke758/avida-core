@@ -16,7 +16,6 @@
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cStringUtil.h"
-#include "cTaskEntry.h"
 
 #include "cHardwareBase.h"
 #include "cHardwareCPU.h"
@@ -62,31 +61,19 @@ void cZoomScreen::Draw()
   // Draw the options block which is on all screens.
   
   SetBoldColor(COLOR_WHITE);
-  Print(OPTIONS_Y, OPTIONS_X, "[<]                [>]");
+  PrintOption(OPTIONS_Y, OPTIONS_X, "[<]                [>]");
   if (info.GetPauseLevel()) {
-    Print(OPTIONS_Y+2, OPTIONS_X+2, "Un-[P]ause");
-    Print(OPTIONS_Y+3, OPTIONS_X+2, "[N]ext Update");
-    Print(OPTIONS_Y+4, OPTIONS_X+2, "[Space] Next Inst");
+    PrintOption(OPTIONS_Y+2, OPTIONS_X+2, "Un-[P]ause");
+    PrintOption(OPTIONS_Y+3, OPTIONS_X+2, "[N]ext Update");
+    PrintOption(OPTIONS_Y+4, OPTIONS_X+2, "[Space] Next Inst");
   } else {
-    Print(OPTIONS_Y+2, OPTIONS_X+2, "[P]ause   ");
+    PrintOption(OPTIONS_Y+2, OPTIONS_X+2, "[P]ause   ");
     Print(OPTIONS_Y+3, OPTIONS_X+2, "             ");
     Print(OPTIONS_Y+4, OPTIONS_X+2, "                 ");
   }
   
-  SetBoldColor(COLOR_CYAN);
-  Print(OPTIONS_Y, OPTIONS_X+1, "<");
-  Print(OPTIONS_Y, OPTIONS_X+20, ">");
-  if (info.GetPauseLevel()) {
-    Print(OPTIONS_Y+2, OPTIONS_X+6, "P");
-    Print(OPTIONS_Y+3, OPTIONS_X+3, "N");
-    //Print(OPTIONS_Y+4, OPTIONS_X+3, "Space");
-  } else {
-    Print(OPTIONS_Y+2, OPTIONS_X+3, "P");
-  }
-  
   // Redirect to the proper Draw() method.
-  
-  if (mode == ZOOM_MODE_CPU)
+    if (mode == ZOOM_MODE_CPU)
   {
     if(info.GetConfig().HARDWARE_TYPE.Get() == HARDWARE_TYPE_CPU_ORIGINAL) 
       DrawCPU_Original();
@@ -151,32 +138,26 @@ void cZoomScreen::DrawStats()
   
   // --== Tasks ==--
   SetColor(COLOR_WHITE);
-  Box(TASK_X, TASK_Y, 30, Height()-TASK_Y);
+  Box(TASK_Y, TASK_X, Height()-TASK_Y, 30, true);
   
   
   int task_num = task_offset;
   int col_num = 0;
-  const cTaskLib& task_lib = population.GetEnvironment().GetTaskLib();
-  for (int cur_col = TASK_X + 2;
-       task_num < info.GetWorld().GetNumTasks();
-       cur_col += 14) {
-    for (int cur_row = TASK_Y + 1;
-         cur_row < Height() - 1 && task_num < info.GetWorld().GetNumTasks();
-         cur_row++) {
+  const cEnvironment& environment = info.GetWorld().GetEnvironment();
+  const int num_tasks = environment.GetNumTasks();
+  for (int cur_col = TASK_X + 2; task_num < num_tasks; cur_col += 14) {
+    for (int cur_row = TASK_Y + 1; cur_row < Height() - 1 && task_num < num_tasks; cur_row++) {
       Print(cur_row, cur_col, "........:");
-      Print(cur_row, cur_col, "%s", static_cast<const char*>(task_lib.GetTask(task_num).GetName()));
+      Print(cur_row, cur_col, "%s", static_cast<const char*>(environment.GetTask(task_num).GetName()));
       task_num++;
     }
     col_num++;
     if (col_num == 2) break;
   }
   
-  if (task_num < info.GetWorld().GetNumTasks() || task_offset != 0) {
+  if (task_num < num_tasks || task_offset != 0) {
     SetBoldColor(COLOR_WHITE);
-    Print(Height()-1, Width() - 23, " [<-] More [->] ");
-    SetBoldColor(COLOR_CYAN);
-    Print(Height()-1, Width() - 21, "<-");
-    Print(Height()-1, Width() - 11, "->");
+    PrintOption(Height()-1, Width() - 23, " [<-] More [->] ");
   }
 }
 
@@ -185,7 +166,7 @@ void cZoomScreen::DrawCPU_Original()
   SetColor(COLOR_WHITE);
   
   // --== Registers ==--
-  Box(REG_X, REG_Y, 19, 7);
+  Box(REG_Y, REG_X, 7, 19, true);
   Print(REG_Y + 1, REG_X + 2, "Registers");
   HLine(REG_Y + 2, REG_X, 19);
   
@@ -196,29 +177,26 @@ void cZoomScreen::DrawCPU_Original()
   SetColor(COLOR_WHITE);
   
   // --== Inputs ==--
-  Box(INPUT_X, INPUT_Y, 16, 7);
+  Box(INPUT_Y, INPUT_X, 7, 16, true);
   Print(INPUT_Y + 1, INPUT_X + 2, "Inputs");
   HLine(INPUT_Y + 2, INPUT_X, 16);
   
   // --== Mini-Map ==--
-  Box(MINI_MAP_X, MINI_MAP_Y, 17, 3);
+  Box(MINI_MAP_Y, MINI_MAP_X, 3, 17, true);
   Print(MINI_MAP_Y + 1, MINI_MAP_X + 2, "Mini-Map");
   // HLine(MINI_MAP_Y + 2, MINI_MAP_X, 19);
   
   SetBoldColor(COLOR_WHITE);
-  Print(MINI_MAP_Y + 11, MINI_MAP_X,  "[-]           [+]");
-  SetBoldColor(COLOR_CYAN);
-  Print(MINI_MAP_Y + 11, MINI_MAP_X + 1,  '-');
-  Print(MINI_MAP_Y + 11, MINI_MAP_X + 15, '+');
+  PrintOption(MINI_MAP_Y + 11, MINI_MAP_X,  "[-]           [+]");
   SetColor(COLOR_WHITE);
   
   // --== Memory ==--
-  Box(MEMORY_X, MEMORY_Y, 36, 5 + MEMORY_PRE_SIZE + MEMORY_POST_SIZE);
+  Box(MEMORY_Y, MEMORY_X, 5 + MEMORY_PRE_SIZE + MEMORY_POST_SIZE, 36, true);
   Print(MEMORY_Y + 1, MEMORY_X + 2,  "Memory:");
   HLine(MEMORY_Y + 2, MEMORY_X, 36);
   
   // --== Stack ==--
-  Box(STACK_X, STACK_Y, 15, 7);
+  Box(STACK_Y, STACK_X, 7, 15, true);
   HLine(STACK_Y + 2, STACK_X, 15);
   
   // --== Options ==--
@@ -226,29 +204,18 @@ void cZoomScreen::DrawCPU_Original()
   Print(OPTIONS_Y, OPTIONS_X+4,    "Component Zoom");
   SetBoldColor(COLOR_WHITE);
   
-  Print(OPTIONS_Y+6, OPTIONS_X+2, "[E]dit Component");
-  Print(OPTIONS_Y+7, OPTIONS_X+2, "[V]iew Component");
-  if(info.GetConfig().MAX_CPU_THREADS.Get() >1)
-    Print(OPTIONS_Y+8, OPTIONS_X+2, "Next [T]hread");
-  Print(OPTIONS_Y+9, OPTIONS_X+2, "[TAB] Shift Active");
-  
   if (info.GetPauseLevel()) {
-    Print(OPTIONS_Y+10, OPTIONS_X+2, "[Arrows] Scroll");
+    PrintOption(OPTIONS_Y+5, OPTIONS_X+2, "[Arrows] Scroll");
   } else {
-    Print(OPTIONS_Y+10, OPTIONS_X+2, "               ");
+    Print(OPTIONS_Y+5, OPTIONS_X+2, "               ");
+  }
+  PrintOption(OPTIONS_Y+6, OPTIONS_X+2, "[Enter] View/Edit");
+  PrintOption(OPTIONS_Y+7, OPTIONS_X+2, "[TAB] Shift Active");
+  
+  if(info.GetConfig().MAX_CPU_THREADS.Get() >1) {
+    PrintOption(OPTIONS_Y+8, OPTIONS_X+2, "Next [T]hread");
   }
   
-  
-  SetBoldColor(COLOR_CYAN);
-  Print(OPTIONS_Y+6, OPTIONS_X+3, "E");
-  Print(OPTIONS_Y+7, OPTIONS_X+3, "V");
-  if(info.GetConfig().MAX_CPU_THREADS.Get() >1)
-    Print(OPTIONS_Y+8, OPTIONS_X+8, "T");
-  Print(OPTIONS_Y+9, OPTIONS_X+3, "TAB");
-  
-  if (info.GetPauseLevel()) {
-    Print(OPTIONS_Y+10, OPTIONS_X+3, "Arrows");
-  }
   
   // Highlight the active section...
   SetActiveSection(active_section);
@@ -281,7 +248,7 @@ void cZoomScreen::DrawCPU_SMT()
   SetColor(COLOR_WHITE);
   
   // --== Registers ==--
-  Box(REG_X, REG_Y-1, 19, 8);
+  Box(REG_Y-1, REG_X, 8, 19, true);
   Print(REG_Y, REG_X + 2, "Stacks:");
   HLine(REG_Y + 1, REG_X, 19);
   
@@ -293,12 +260,12 @@ void cZoomScreen::DrawCPU_SMT()
   SetColor(COLOR_WHITE);
   
   // --== Inputs ==--
-  Box(INPUT_X, INPUT_Y-1, 16, 8);
+  Box(INPUT_Y-1, INPUT_X, 8, 16, true);
   Print(INPUT_Y, INPUT_X + 2, "Inputs:");
   HLine(INPUT_Y+1, INPUT_X, 16);
   
   // --== Mini-Map ==--
-  Box(MINI_MAP_X, MINI_MAP_Y, 17, 3);
+  Box(MINI_MAP_Y, MINI_MAP_X, 3, 17, true);
   Print(MINI_MAP_Y + 1, MINI_MAP_X + 2, "Mini-Map");
   //HLine(MINI_MAP_Y + 2, MINI_MAP_X, 19);
   
@@ -310,12 +277,12 @@ void cZoomScreen::DrawCPU_SMT()
   SetColor(COLOR_WHITE);
   
   // --== Memory ==--
-  Box(MEMORY_X, MEMORY_Y, 36, 5 + MEMORY_PRE_SIZE + MEMORY_POST_SIZE);
+  Box(MEMORY_Y, MEMORY_X, 5 + MEMORY_PRE_SIZE + MEMORY_POST_SIZE, 36, true);
   Print(MEMORY_Y + 1, MEMORY_X + 2,  "Memory Space");
   HLine(MEMORY_Y + 2, MEMORY_X, 36);
   
   // --== Stack ==--
-  Box(STACK_X, STACK_Y-1, 15, 8);
+  Box(STACK_Y-1, STACK_X, 8, 15, true);
   HLine(STACK_Y + 1, STACK_X, 15);
   
   // --== Options ==--
@@ -456,10 +423,10 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   
   const cMerit cur_merit(phenotype.GetCurBonus());
   
-  PrintFitness(5, 14, phenotype.GetFitness());
+  PrintDouble(5, 14, phenotype.GetFitness());
   Print(6, 15, "%6d ", phenotype.GetGestationTime());
-  PrintMerit(7, 14, phenotype.GetMerit());
-  PrintMerit(8, 14, cur_merit);
+  PrintDouble(7, 14, phenotype.GetMerit().GetDouble());
+  PrintDouble(8, 14, cur_merit.GetDouble());
   Print(9, 15, "%6d ", genotype ? genotype->GetLength() : 0);
   Print(10, 15, "%6d ", hardware.GetMemory().GetSize());
   
@@ -510,13 +477,10 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   SetColor(COLOR_CYAN);
   
   int task_num = task_offset;
+  int num_tasks = info.GetWorld().GetEnvironment().GetNumTasks();
   int col_num = 0;
-  for (int cur_col = TASK_X + 12;
-       task_num < info.GetWorld().GetNumTasks();
-       cur_col += 14) {
-    for (int cur_row = TASK_Y + 1;
-         cur_row <= Height() - 2 && task_num < info.GetWorld().GetNumTasks();
-         cur_row++) {
+  for (int cur_col = TASK_X + 12; task_num < num_tasks; cur_col += 14) {
+    for (int cur_row = TASK_Y + 1; cur_row <= Height() - 2 && task_num < num_tasks; cur_row++) {
       if (col_num < 2) {
         Print(cur_row, cur_col, "%2d", phenotype.GetCurTaskCount()[task_num]);
       }
@@ -653,7 +617,7 @@ void cZoomScreen::UpdateCPU(cHardwareBase& hardware)
   Print(INPUT_Y+3, INPUT_X+2, "%12d", info.GetActiveCell()->GetInput(0));
   
   SetColor(COLOR_CYAN);
-  for (int i = 1; i < nHardware::IO_SIZE; i++) {
+  for (int i = 1; i < info.GetActiveCell()->GetInputSize(); i++) {
     Print(INPUT_Y+3+i, INPUT_X+2, "%12d", info.GetActiveCell()->GetInput(i));
   }
   
@@ -715,7 +679,7 @@ void cZoomScreen::UpdateCPU_Original(cHardwareBase& hardware)
   Print(INPUT_Y+3, INPUT_X+2, "%12d", info.GetActiveCell()->GetInput(0));
   
   SetColor(COLOR_CYAN);
-  for (int i = 1; i < nHardware::IO_SIZE; i++) {
+  for (int i = 1; i < info.GetActiveCell()->GetInputSize(); i++) {
     Print(INPUT_Y+3+i, INPUT_X+2, "%12d", info.GetActiveCell()->GetInput(i));
   }
   
@@ -972,13 +936,13 @@ void cZoomScreen::UpdateGenotype()
     cGenotype& genotype = *(info.GetActiveGenotype());
     Print(5, 12, "%9d", genotype.GetNumOrganisms());
     Print(6, 12, "%9d", genotype.GetLength());
-    Print(7, 12, "%9d", genotype.GetCopiedSize());
-    Print(8, 12, "%9d", genotype.GetExecutedSize());
+    PrintDouble(7, 14, genotype.GetCopiedSize());
+    PrintDouble(8, 14, genotype.GetExecutedSize());
     
-    PrintFitness(10, 14, genotype.GetFitness());
-    Print(11, 12, "%9f", genotype.GetGestationTime());
-    Print(12, 14, "%9f", genotype.GetMerit());
-    Print(13, 12, "%9f", genotype.GetReproRate());
+    PrintDouble(10, 14, genotype.GetFitness());
+    PrintDouble(11, 14, genotype.GetGestationTime());
+    PrintDouble(12, 14, genotype.GetMerit());
+    PrintDouble(13, 14, genotype.GetReproRate());
     
     // Column 2
     Print(1, 40, "%9d", genotype.GetUpdateBorn());
@@ -1047,8 +1011,8 @@ void cZoomScreen::EditMemory()
   menu1.AddOption(INST_EDIT_INSERT,     "[I]nsert Instruction");
   menu1.AddOption(INST_EDIT_REMOVE,     "[D]elete Instruction");
   menu1.SetActive(INST_EDIT_CHANGE);
-  int edit_method = menu1.Activate();
-  cView::Redraw();
+  int edit_method = menu1.Activate(this);
+  info.GetView().Redraw();
   
   // If we need to choose a new instruction, bring up a window for it.
   
@@ -1060,11 +1024,11 @@ void cZoomScreen::EditMemory()
       inst_menu.AddOption(j, static_cast<const char*>(inst_set.GetName(j)));
     }
     inst_menu.SetActive(edit_head.GetInst().GetOp());
-    new_inst = inst_menu.Activate();
+    new_inst = inst_menu.Activate(this);
     
-    cView::Redraw();
+    info.GetView().Redraw();
     if (new_inst == -1) {
-      //  cView::Notify("Aborted!");
+      //  info.GetView().Notify("Aborted!");
       return;
     }
   }
@@ -1091,24 +1055,9 @@ void cZoomScreen::EditMemory()
       edit_head.RemoveInst();
       break;
     default:
-      //    cView::Notify("Aborted!");
+      //    info.GetView().Notify("Aborted!");
       break;
   }
-  
-  Update();
-}
-
-void cZoomScreen::ViewMemory()
-{
-  // Collect all of the needed variables.
-  cHardwareBase& hardware = info.GetActiveCell()->GetOrganism()->GetHardware();
-  cHeadCPU view_head(hardware.IP());
-  if (parasite_zoom == true) view_head.Set(0);
-  view_head.LoopJump(memory_offset);
-  
-  // Act on the view method!
-  if (inst_view_mode == true) inst_view_mode = false;
-  else inst_view_mode = true;
   
   Update();
 }
@@ -1123,8 +1072,8 @@ void cZoomScreen::ThreadOptions()
   menu1.AddOption(THREAD_OPTIONS_VIEW, "[V]iew Thread Info");
   menu1.AddOption(THREAD_OPTIONS_LOCK, "[T]oggle Thread Lock");
   menu1.SetActive(THREAD_OPTIONS_VIEW);
-  thread_method = menu1.Activate();
-  cView::Redraw();
+  thread_method = menu1.Activate(this);
+  info.GetView().Redraw();
   
   // Act on the view method!
   switch (thread_method) {
@@ -1217,7 +1166,7 @@ void cZoomScreen::ViewInstruction()
   }
   
   delete window;
-  cView::Redraw();
+  info.GetView().Redraw();
 }
 
 void cZoomScreen::ViewRegisters()
@@ -1261,7 +1210,7 @@ void cZoomScreen::ViewRegisters()
   }
   
   delete window;
-  cView::Redraw();
+  info.GetView().Redraw();
 }
 
 
@@ -1331,7 +1280,7 @@ void cZoomScreen::ViewStack()
   }
   
   delete window;
-  cView::Redraw();
+  info.GetView().Redraw();
 }
 
 
@@ -1374,7 +1323,7 @@ void cZoomScreen::ViewInputs()
   }
   
   delete window;
-  cView::Redraw();
+  info.GetView().Redraw();
 }
 
 
@@ -1474,7 +1423,10 @@ void cZoomScreen::SetActiveSection(int in_section)
 
 void cZoomScreen::DoInput(int in_char)
 {
-  cHardwareBase& hardware = info.GetActiveCell()->GetOrganism()->GetHardware();
+  cHardwareBase * hardware = NULL;
+  if (info.GetActiveCell()->IsOccupied()) {
+    hardware = &(info.GetActiveCell()->GetOrganism()->GetHardware());
+  }
 
   // First do the Mode specific io...
   
@@ -1483,19 +1435,16 @@ void cZoomScreen::DoInput(int in_char)
   if (mode == ZOOM_MODE_GENOTYPE && DoInputGenotype(in_char)) return;
   
   int num_threads = 0;
-  if (info.GetActiveCell()->GetOrganism() != NULL) {
-    num_threads = hardware.GetNumThreads();
-  }
+  if (hardware != NULL)  num_threads = hardware->GetNumThreads();
+
   switch(in_char) {
     case 't':
     case 'T':
-      if(num_threads>1)
-      {
+      if (num_threads > 1) {
         memory_offset=0;
         ++cur_view_thread%=num_threads;
-        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL)
-        {
-          cur_mem_space = hardware.IP(cur_view_thread).GetMemSpace();
+        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL){
+	  cur_mem_space = hardware->IP(cur_view_thread).GetMemSpace();
         }
         Update();
       }
@@ -1505,6 +1454,7 @@ void cZoomScreen::DoInput(int in_char)
       parasite_zoom = false;
       info.GetActiveCell()->GetOrganism()->GetPhenotype().SetFault("");
       info.EngageStepMode();
+      nodelay(stdscr, true); // Don't delay for input; get to processing.
       break;
     case '>':
     case '.':
@@ -1576,8 +1526,7 @@ bool cZoomScreen::DoInputCPU(int in_char)
         }
       }
       else if (active_section == ZOOM_SECTION_MEMORY) {
-        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL)
-        {
+        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL){
           cur_mem_space++;
           // @DMB - Should handle the extensibility of SMT Memory Spaces
           cur_mem_space %= 1;
@@ -1596,7 +1545,7 @@ bool cZoomScreen::DoInputCPU(int in_char)
         }
       }
       else if (active_section == ZOOM_SECTION_MEMORY) {
-        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL) {
+        if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL){
           cur_mem_space--;
           // @DMB - Should handle the extensibility of SMT Memory Spaces
           if (cur_mem_space < 0) cur_mem_space = 0;
@@ -1623,10 +1572,25 @@ bool cZoomScreen::DoInputCPU(int in_char)
       break;
     case '\n':
     case '\r':
-      if (active_section == ZOOM_SECTION_MAP) {
+      switch (active_section) {
+      case ZOOM_SECTION_MEMORY:
+	EditMemory();
+	break;
+      case ZOOM_SECTION_MAP:
         memory_offset = 0;
         info.SetActiveCell(&(population.GetCell(mini_center_id)));
+	break;
+      case ZOOM_SECTION_REGISTERS:
+	ViewRegisters();
+	break;
+      case ZOOM_SECTION_STACK:
+	ViewStack();
+	break;
+      case ZOOM_SECTION_INPUTS:
+	ViewInputs();
+	break;
       }
+      
       Update();
       break;
     case '\t':
@@ -1638,32 +1602,7 @@ bool cZoomScreen::DoInputCPU(int in_char)
       Refresh();
       break;
       
-    case 'e':
-    case 'E':
-      if( active_section == ZOOM_SECTION_MEMORY) {
-        EditMemory();
-      }
-      break;
-      
-    case 'v':
-    case 'V':
-      switch (active_section) {
-        case ZOOM_SECTION_MEMORY:
-          ViewMemory();
-          break;
-        case ZOOM_SECTION_REGISTERS:
-          ViewRegisters();
-          break;
-        case ZOOM_SECTION_STACK:
-          ViewStack();
-          break;
-        case ZOOM_SECTION_INPUTS:
-          ViewInputs();
-          break;
-      }
-      break;
-      
-      
+        
     default:
       return false;
   };
@@ -1678,7 +1617,7 @@ bool cZoomScreen::DoInputStats(int in_char)
     case KEY_RIGHT:
     {
       const int new_task_offset = task_offset + Height() - TASK_Y - 2;
-      if (new_task_offset < info.GetWorld().GetNumTasks()) {
+      if (new_task_offset < info.GetWorld().GetEnvironment().GetNumTasks()) {
         task_offset = new_task_offset;
         Draw();
       }

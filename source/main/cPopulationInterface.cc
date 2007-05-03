@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "pop_interface.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,14 +28,13 @@
 #include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cOrganism.h"
-#include "cOrgMessage.h"
 #include "cOrgSinkMessage.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cTestCPU.h"
 
-#include <assert.h>
+#include <cassert>
 
 #ifndef NULL
 #define NULL 0
@@ -59,18 +73,16 @@ void cPopulationInterface::Rotate(int direction)
   else cell.ConnectionList().CircPrev();
 }
 
-int cPopulationInterface::GetInput()
-{
-  cPopulationCell & cell = m_world->GetPopulation().GetCell(m_cell_id);
-  assert(cell.IsOccupied());
-  return cell.GetInput();
-}
-
 int cPopulationInterface::GetInputAt(int& input_pointer)
 {
   cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id);
   assert(cell.IsOccupied());
   return cell.GetInputAt(input_pointer);
+}
+
+void cPopulationInterface::ResetInputs(cAvidaContext& ctx) 
+{ 
+  m_world->GetPopulation().GetCell(m_cell_id).ResetInputs(ctx); 
 }
 
 int cPopulationInterface::Debug()
@@ -102,15 +114,14 @@ void cPopulationInterface::Kaboom(int distance)
   m_world->GetPopulation().Kaboom(cell, distance);
 }
 
-bool cPopulationInterface::SendMessage(cOrgMessage & mess)
+void cPopulationInterface::SpawnDeme()
 {
-  mess.SetSenderID(m_cell_id);
-  mess.SetTime(m_world->GetStats().GetUpdate());
-  cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id);
-  if(cell.ConnectionList().GetFirst() == NULL)
-    return false;
-  mess.SetRecipientID(cell.ConnectionList().GetFirst()->GetID());
-  return cell.ConnectionList().GetFirst()->GetOrganism()->ReceiveMessage(mess);
+  // const int num_demes = m_world->GetPopulation().GetNumDemes();
+
+  // Spawn the current deme; no target ID will put it into a random deme.
+  const int deme_id = m_world->GetPopulation().GetCell(m_cell_id).GetDemeID();
+
+  m_world->GetPopulation().SpawnDeme(deme_id);
 }
 
 cOrgSinkMessage* cPopulationInterface::NetReceive()
@@ -183,12 +194,12 @@ int cPopulationInterface::BuyValue(const int label, const int buy_price)
 	return value;
 }
 
-bool cPopulationInterface::InjectParasite(cOrganism* parent, const cGenome& injected_code)
+bool cPopulationInterface::InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code)
 {
   assert(parent != NULL);
   assert(m_world->GetPopulation().GetCell(m_cell_id).GetOrganism() == parent);
   
-  return m_world->GetPopulation().ActivateParasite(*parent, injected_code);
+  return m_world->GetPopulation().ActivateParasite(*parent, label, injected_code);
 }
 
 bool cPopulationInterface::UpdateMerit(double new_merit)

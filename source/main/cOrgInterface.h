@@ -3,9 +3,33 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
+
+// This class is responsible for establishing the interface that links an
+// organism back to its population.  It is a base class that is derived in:
+//
+//   cpu/cTestCPUInterface.{h,cc}      - Test CPU interface
+//   main/cPopulationInterface.{h,cc}  - Main population interface.
+//
+// Make sure that any new function you implment here also has versions in
+// those classes.
 
 #ifndef cOrgInterface_h
 #define cOrgInterface_h
@@ -14,7 +38,6 @@ class cAvidaContext;
 class cCodeLabel;
 class cGenome;
 class cOrganism;
-class cOrgMessage;
 class cOrgSinkMessage;
 template <class T> class tArray;
 
@@ -37,20 +60,20 @@ public:
   virtual int GetNumNeighbors() = 0;
   virtual void Rotate(int direction = 1) = 0;
   virtual void Breakpoint() = 0;
-  virtual int GetInput() = 0;
   virtual int GetInputAt(int& input_pointer) = 0;
+  virtual void ResetInputs(cAvidaContext& ctx) = 0;
   virtual int Debug() = 0;
   virtual const tArray<double>& GetResources() = 0;
   virtual void UpdateResources(const tArray<double>& res_change) = 0;
   virtual void Die() = 0;
   virtual void Kaboom(int distance) = 0;
-  virtual bool SendMessage(cOrgMessage& mess) = 0;
+  virtual void SpawnDeme() = 0;
   virtual cOrgSinkMessage* NetReceive() = 0;
   virtual bool NetRemoteValidate(cAvidaContext& ctx, cOrgSinkMessage* msg) = 0;
   virtual int ReceiveValue() = 0;
   virtual void SellValue(const int data, const int label, const int sell_price, const int org_id) = 0;
   virtual int BuyValue(const int label, const int buy_price) = 0;
-  virtual bool InjectParasite(cOrganism* parent, const cGenome& injected_code) = 0;
+  virtual bool InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code) = 0;
   virtual bool UpdateMerit(double new_merit) = 0;
   virtual bool TestOnDivide() = 0;
 };

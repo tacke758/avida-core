@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software Foundation,
+ *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -15,30 +30,41 @@
 #include "cEnvironment.h"
 #include "cEventList.h"
 #include "cHardwareManager.h"
+#include "cInstSet.h"
 #include "cPopulation.h"
 #include "cStats.h"
 #include "cTestCPU.h"
 #include "cTools.h"
 #include "cFallbackWorldDriver.h"
 
+#include <cassert>
+
 
 cWorld::~cWorld()
 {
-  m_data_mgr->FlushAll();
-
   // m_actlib is not owned by cWorld, DO NOT DELETE
-  delete m_analyze;
-  delete m_conf;
-  delete m_data_mgr;
-  delete m_env;
-  delete m_event_list;
-  delete m_hw_mgr;
-  delete m_pop;
-  delete m_stats;
+  
+  // These must be deleted first
+  delete m_analyze; m_analyze = NULL;
+  delete m_pop; m_pop = NULL;
+  
+  delete m_class_mgr; m_class_mgr = NULL;
+  delete m_env; m_env = NULL;
+  delete m_event_list; m_event_list = NULL;
+  delete m_hw_mgr; m_hw_mgr = NULL;
+  delete m_stats; m_stats = NULL;
+
+  // Delete after all classes that may be logging items
+  if (m_data_mgr) { m_data_mgr->FlushAll(); }
+  delete m_data_mgr; m_data_mgr = NULL;
+
+  // Delete Last
+  delete m_conf; m_conf = NULL;
 
   // cleanup driver object, if needed
-  if (m_own_driver) delete m_driver;
+  if (m_own_driver) { delete m_driver; m_driver = NULL; }
 }
+
 
 void cWorld::Setup()
 {
@@ -60,28 +86,40 @@ void cWorld::Setup()
   
   m_class_mgr = new cClassificationManager(this);
   m_env = new cEnvironment(this);
+  m_hw_mgr = new cHardwareManager(this);
   
   // Initialize the default environment...
-  if (m_env->Load(m_conf->ENVIRONMENT_FILE.Get()) == false) {
-    cerr << "Unable to load environment... aborting!" << endl;
+  // This must be after the HardwareManager in case REACTIONS that trigger instructions are used.
+  if (!m_env->Load(m_conf->ENVIRONMENT_FILE.Get())) {
+    cerr << "Error: Unable to load environment" << endl;
     ExitAvida(-1);
   }
-
-  m_hw_mgr = new cHardwareManager(this);
+  
+  // Setup Stats Object
   m_stats = new cStats(this);
+    
+  const cInstSet& inst_set = m_hw_mgr->GetInstSet();
+  for (int i = 0; i < inst_set.GetSize(); i++)
+    m_stats->SetInstName(i, inst_set.GetName(i));
+  
+  
   m_pop = new cPopulation(this);
-
+  
   // Setup Event List
   m_event_list = new cEventList(this);
-  m_event_list->LoadEventFile(m_conf->EVENT_FILE.Get());
-    
+  if (!m_event_list->LoadEventFile(m_conf->EVENT_FILE.Get())) {
+    cerr << "Error: Unable to load events" << endl;
+    ExitAvida(-1);
+  }
+  
+  
   const bool revert_fatal = m_conf->REVERT_FATAL.Get() > 0.0;
   const bool revert_neg = m_conf->REVERT_DETRIMENTAL.Get() > 0.0;
   const bool revert_neut = m_conf->REVERT_NEUTRAL.Get() > 0.0;
   const bool revert_pos = m_conf->REVERT_BENEFICIAL.Get() > 0.0;
   const bool fail_implicit = m_conf->FAIL_IMPLICIT.Get() > 0;
   m_test_on_div = (revert_fatal || revert_neg || revert_neut || revert_pos || fail_implicit);
-
+  
   const bool sterilize_fatal = m_conf->STERILIZE_FATAL.Get() > 0.0;
   const bool sterilize_neg = m_conf->STERILIZE_DETRIMENTAL.Get() > 0.0;
   const bool sterilize_neut = m_conf->STERILIZE_NEUTRAL.Get() > 0.0;
@@ -107,11 +145,6 @@ void cWorld::GetEvents(cAvidaContext& ctx)
 int cWorld::GetNumInstructions()
 {
   return m_hw_mgr->GetInstSet().GetSize();
-}
-
-int cWorld::GetNumTasks()
-{
-  return m_env->GetTaskLib().GetSize(); 
 }
 
 int cWorld::GetNumReactions()

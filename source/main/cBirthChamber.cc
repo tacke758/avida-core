@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "birth_chamber.cc" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -48,7 +63,7 @@ bool cBirthChamber::EvaluateEntry(const cBirthEntry & entry) const
   // If there is no organism in the entry, return false.
   if (entry.update_in == -1) return false;
 
-  // If there is an organis, determien if it is still alive.
+  // If there is an organism, determine if it is still alive.
   const int max_wait_time = m_world->GetConfig().MAX_BIRTH_WAIT_TIME.Get();
 
   // If the max_wait_time is -1, there is no timeout, so its alive.
@@ -133,7 +148,6 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   // This is asexual who doesn't need to wait in the birth chamber
   // just build the child and return.
   child_array.Resize(1);
-//  child_array[0] = new cOrganism(m_world, ctx, child_genome);
   child_array[0] = new cOrganism(m_world, ctx, child_genome);
   merit_array.Resize(1);
   merit_array[0] = parent.GetPhenotype().GetMerit();
@@ -150,9 +164,6 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   parent.GetGenotype()->SetBreedStats(*child_genotype);
     
   child_genotype->IncDeferAdjust();
-  
-  // FOR UML branch - hjg
-  child_array[0]->setParentInfo(parent.getXMI(), parent.getBonus());
 
   return true;
 }
@@ -466,8 +477,11 @@ void cBirthChamber::SetupGenotypeInfo(cOrganism* organism, cGenotype* parent0, c
   child_genotype->IncDeferAdjust();
 }
 
-bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx, const cGenome& child_genome, cOrganism& parent,
-                                    tArray<cOrganism*>& child_array, tArray<cMerit>& merit_array)
+bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
+				    const cGenome& child_genome,
+				    cOrganism& parent,
+                                    tArray<cOrganism*>& child_array,
+				    tArray<cMerit>& merit_array)
 {
   cPhenotype& parent_phenotype = parent.GetPhenotype();
 
@@ -483,7 +497,8 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx, const cGenome& child_gen
   // Find a waiting entry (locally or globally)
   cBirthEntry * old_entry = NULL;
   // First check if the birth method is one of the local ones... 
-  if (birth_method < NUM_LOCAL_POSITION_CHILD) { 
+  if (birth_method < NUM_LOCAL_POSITION_CHILD ||
+      birth_method == POSITION_CHILD_PARENT_FACING) { 
     old_entry = FindSexLocalWaiting(ctx, child_genome, parent);
   }
   // ... then check if population is split into demes

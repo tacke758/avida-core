@@ -3,48 +3,69 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cHardwareManager.h"
 
 #include "cHardwareCPU.h"
+#include "cHardwareExperimental.h"
 #include "cHardwareSMT.h"
 #include "cHardwareTransSMT.h"
+#include "cHardwareGX.h"
 #include "cInitFile.h"
-#include "cInstLibCPU.h"
 #include "cInstSet.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
 #include "tDictionary.h"
 
 cHardwareManager::cHardwareManager(cWorld* world)
-: m_world(world), m_inst_set(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()), m_testres(world)
+: m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()) /*, m_testres(world) */
 {
-  LoadInstSet(world->GetConfig().INST_SET.Get());
-}
+  cString filename = world->GetConfig().INST_SET.Get();
 
-void cHardwareManager::LoadInstSet(cString filename)
-{
   // Setup the instruction library and collect the default filename
   cString default_filename;
 	switch (m_type)
 	{
 		case HARDWARE_TYPE_CPU_ORIGINAL:
-      m_inst_set.SetInstLib(cHardwareCPU::GetInstLib());
+      m_inst_set = new cInstSet(world, cHardwareCPU::GetInstLib());
 			default_filename = cHardwareCPU::GetDefaultInstFilename();
 			break;
 		case HARDWARE_TYPE_CPU_SMT:
-      m_inst_set.SetInstLib(cHardwareSMT::GetInstLib());
+      m_inst_set = new cInstSet(world, cHardwareSMT::GetInstLib());
 			default_filename = cHardwareSMT::GetDefaultInstFilename();
 			break;
 		case HARDWARE_TYPE_CPU_TRANSSMT:
-      m_inst_set.SetInstLib(cHardwareTransSMT::GetInstLib());
+      m_inst_set = new cInstSet(world, cHardwareTransSMT::GetInstLib());
 			default_filename = cHardwareTransSMT::GetDefaultInstFilename();
 			break;
+		case HARDWARE_TYPE_CPU_EXPERIMENTAL:
+      m_inst_set = new cInstSet(world, cHardwareExperimental::GetInstLib());
+			default_filename = cHardwareExperimental::GetDefaultInstFilename();
+			break;
+    case HARDWARE_TYPE_CPU_GX:
+      m_inst_set = new cInstSet(world, cHardwareGX::GetInstLib());
+			default_filename = cHardwareGX::GetDefaultInstFilename();
+			break;      
 		default:
-			default_filename = "unknown";
+      m_world->GetDriver().RaiseFatalException(1, "Unknown/Unsupported HARDWARE_TYPE specified");
   }
   
   if (filename == "" || filename == "-") {
@@ -61,14 +82,7 @@ void cHardwareManager::LoadInstSet(cString filename)
   file.Load();
   file.Compress();
   
-  tDictionary<int> nop_dict;
-  for(int i = 0; i < m_inst_set.GetInstLib()->GetNumNops(); i++)
-    nop_dict.Add(m_inst_set.GetInstLib()->GetNopName(i), i);
-  
-  tDictionary<int> inst_dict;
-  for(int i = 0; i < m_inst_set.GetInstLib()->GetSize(); i++)
-    inst_dict.Add(m_inst_set.GetInstLib()->GetName(i), i);
-  
+  const cInstLib& inst_lib = *m_inst_set->GetInstLib();
   for (int line_id = 0; line_id < file.GetNumLines(); line_id++) {
     cString cur_line = file.GetLine(line_id);
     cString inst_name = cur_line.PopWord();
@@ -76,7 +90,8 @@ void cHardwareManager::LoadInstSet(cString filename)
     int cost = cur_line.PopWord().AsInt();
     int ft_cost = cur_line.PopWord().AsInt();
     double prob_fail = cur_line.PopWord().AsDouble();
-    
+    int addl_time_cost = cur_line.PopWord().AsInt();
+
     // If this instruction has 0 redundancy, we don't want it!
     if (redundancy < 0) continue;
     if (redundancy > 256) {
@@ -88,22 +103,20 @@ void cHardwareManager::LoadInstSet(cString filename)
     
     // Otherwise, this instruction will be in the set.
     // First, determine if it is a nop...
-    int nop_mod = -1;
-    if(nop_dict.Find(inst_name, nop_mod) == true) {
-      m_inst_set.AddNop(nop_mod, redundancy, ft_cost, cost, prob_fail);
-      continue;
+    int inst_idx = inst_lib.GetIndex(inst_name);
+    
+    if (inst_idx == -1) {
+      // Oh oh!  Didn't find an instruction!
+      cString errorstr("Could not find instruction '");
+      errorstr += inst_name + "'\n        (Best match = '" + inst_lib.GetNearMatch(inst_name) + "').";
+      m_world->GetDriver().RaiseFatalException(1, errorstr);
     }
     
-    // Otherwise, it had better be in the main dictionary...
-    int fun_id = -1;
-    if(inst_dict.Find(inst_name, fun_id) == true){
-      m_inst_set.AddInst(fun_id, redundancy, ft_cost, cost, prob_fail);
-      continue;
+    if (inst_lib[inst_idx].IsNop()) {
+      m_inst_set->AddNop(inst_idx, redundancy, ft_cost, cost, prob_fail, addl_time_cost);
+    } else {
+      m_inst_set->AddInst(inst_idx, redundancy, ft_cost, cost, prob_fail, addl_time_cost);
     }
-    
-    // Oh oh!  Didn't find an instruction!
-    m_world->GetDriver().RaiseFatalException(1, cString("Could not find instruction '") + inst_name +
-                                             "'\n       (Best match = '" + inst_dict.NearMatch(inst_name) + "').");
   }
 }
 
@@ -114,11 +127,15 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:
-      return new cHardwareCPU(m_world, in_org, &m_inst_set);
+      return new cHardwareCPU(m_world, in_org, m_inst_set);
     case HARDWARE_TYPE_CPU_SMT:
-      return new cHardwareSMT(m_world, in_org, &m_inst_set);
+      return new cHardwareSMT(m_world, in_org, m_inst_set);
     case HARDWARE_TYPE_CPU_TRANSSMT:
-      return new cHardwareTransSMT(m_world, in_org, &m_inst_set);
+      return new cHardwareTransSMT(m_world, in_org, m_inst_set);
+    case HARDWARE_TYPE_CPU_EXPERIMENTAL:
+      return new cHardwareExperimental(m_world, in_org, m_inst_set);
+    case HARDWARE_TYPE_CPU_GX:
+      return new cHardwareGX(m_world, in_org, m_inst_set);
     default:
       return NULL;
   }

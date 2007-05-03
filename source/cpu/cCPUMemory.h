@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "cpu_memory.hh" prior to 11/22/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -44,6 +59,8 @@ public:
   cCPUMemory(const cCPUMemory& in_memory);
   cCPUMemory(const cGenome& in_genome) : cGenome(in_genome), flag_array(in_genome.GetSize()) { ; }
   cCPUMemory(const cString& in_string) : cGenome(in_string), flag_array(in_string.GetSize()) { ; }
+  //! Construct a cCPUMemory object from a cInstruction range.
+  cCPUMemory(cInstruction* begin, cInstruction* end) : cGenome(begin, end), flag_array(GetSize()) { }
   ~cCPUMemory() { ; }
 
   void operator=(const cCPUMemory& other_memory);

@@ -1,5 +1,5 @@
 ##############################################################################
-## Copyright (C) 1999-2006 Michigan State University                        ##
+## Copyright (C) 1999-1999-2007 Michigan State University                        ##
 ## Based on work Copyright (C) 1993-2003 California Institute of Technology ##
 ##                                                                          ##
 ## Read the COPYING and README files, or contact 'avida@alife.org',         ##
@@ -28,6 +28,12 @@ environment.Export('environment')
 # Static help text is defined in
 # support/utils/AvidaUtils/StaticHelp.py
 #
+
+# XXX Must not use default scons signatures database; as of SCons
+# 0.96.93, default database seems to be too-easily corrupted.
+# @kgn 06-Dec-6
+import anydbm
+SConsignFile('scons-signatures', anydbm)
 AvidaUtils.Configure(ARGUMENTS, environment)
 
 if environment.subst('$enableSerialization') in ['1', 'yes']:
@@ -36,9 +42,9 @@ if environment.subst('$enableSerialization') in ['1', 'yes']:
 if environment.subst('$enablePyPkg') in ['1', 'yes']:
   environment.Append(CPPPATH = ['#/source/bindings/Boost.Python'])
 
-if environment.subst('$enableTestCode') in ['1', 'yes']:
-  environment.SetDefault(enableSharedPtr = 1)
-  environment.Append(CPPDEFINES = ['USE_tMemTrack=1', 'ENABLE_UNIT_TESTS=1'])
+if environment.subst('$enableMemTracking') in ['1', 'yes']:
+  #environment.SetDefault(enableSharedPtr = 1)
+  environment.Append(CPPDEFINES = ['USE_tMemTrack=1'])
 
 if environment['enableTCMalloc'] in ('True', '1', 1):
   environment.Append(
@@ -57,7 +63,7 @@ environment.Append(
     '#/source/drivers',
     '#/source/event',
     '#/source/main',
-    '#/source/third-party/boost',
+    #'#/source/third-party/boost',
     '#/source/tools',
   ],
   LIBPATH = [
@@ -67,21 +73,31 @@ environment.Append(
     '#$buildDir/classification',
     '#$buildDir/cpu',
     '#$buildDir/drivers',
-    '#$buildDir/event',
+    #'#$buildDir/event',
     '#$buildDir/main',
-    '#$buildDir/third-party/boost/serialization',
+    #'#$buildDir/third-party/boost/serialization',
     '#$buildDir/tools',
   ],
 )
 
 # Tell SCons where to find its subscripts.
-environment.SConscript('source/SConscript', build_dir = '$buildDir')
+environment.SConscript('source/SConscript',
+  build_dir = '$buildDir',
+  duplicate = 0,
+)
 environment.SConscript('support/config/SConscript')
 
-# XXX beginnings of consistency tests. @kgn
-environment.SConscript('consistencytests/SConscript', build_dir = 'consistencytest_output')
+# XXX beginnings of 'extras'. @kgn
+if environment.subst('$extrasDir') not in ['None', 'none', '']:
+  environment.SConscript(
+    os.path.join(environment.subst('$extrasDir'), 'SConscript'),
+    build_dir = '$extrasBuildDir',
+    duplicate = 0
+  )
+
 
 if environment['PLATFORM'] == 'win32':
+  environment.Import('avida_exe')
   script_to_build_avida = environment.File(
     os.path.join('#', os.path.basename(sys.argv[0]))
   ).abspath
@@ -91,6 +107,7 @@ if environment['PLATFORM'] == 'win32':
     incs = environment['avida_msvs_project_incs'],
     misc = environment['avida_msvs_project_misc'],
     variant = 'Release',
+    buildtarget = avida_exe,
     #runfile = avida[0].abspath,
     MSVSSCONS = '"%s" "%s"' % (sys.executable, script_to_build_avida),
     MSVSSCONSFLAGS = '-C "${MSVSSCONSCRIPT.dir.abspath}" -f "${MSVSSCONSCRIPT.name}"'

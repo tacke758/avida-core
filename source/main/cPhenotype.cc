@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "phenotype.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -12,7 +27,9 @@
 
 #include "cEnvironment.h"
 #include "cHardwareManager.h"
+#include "cInstSet.h"
 #include "cReactionResult.h"
+#include "cTaskState.h"
 #include "cTools.h"
 #include "cWorld.h"
 
@@ -24,20 +41,30 @@ using namespace std;
 cPhenotype::cPhenotype(cWorld* world)
   : m_world(world)
   , initialized(false)
-  , cur_task_count(m_world->GetEnvironment().GetTaskLib().GetSize())
-  , cur_task_quality(m_world->GetEnvironment().GetTaskLib().GetSize())
+  , cur_task_count(m_world->GetEnvironment().GetNumTasks())
+  , eff_task_count(m_world->GetEnvironment().GetNumTasks())
+  , cur_task_quality(m_world->GetEnvironment().GetNumTasks())  
   , cur_reaction_count(m_world->GetEnvironment().GetReactionLib().GetSize())
+  , cur_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())
   , cur_inst_count(world->GetHardwareManager().GetInstSet().GetSize())
+  , cur_sense_count(m_world->GetStats().GetSenseSize())
   , sensed_resources(m_world->GetEnvironment().GetResourceLib().GetSize())
-  , last_task_count(m_world->GetEnvironment().GetTaskLib().GetSize())
-  , last_task_quality(m_world->GetEnvironment().GetTaskLib().GetSize())
+  , last_task_count(m_world->GetEnvironment().GetNumTasks())
+  , last_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())  
+  , last_task_quality(m_world->GetEnvironment().GetNumTasks())
   , last_reaction_count(m_world->GetEnvironment().GetReactionLib().GetSize())
   , last_inst_count(world->GetHardwareManager().GetInstSet().GetSize())
+  , last_sense_count(m_world->GetStats().GetSenseSize())
+  , promoter_last_inst_terminated(false) 
 {
 }
 
 cPhenotype::~cPhenotype()
 {
+  // Remove Task States
+  tArray<cTaskState*> task_states(0);
+  m_task_states.GetValues(task_states);
+  for (int i = 0; i < task_states.GetSize(); i++) delete task_states[i];
 }
 
 bool cPhenotype::OK()
@@ -59,6 +86,7 @@ bool cPhenotype::OK()
   assert(last_fitness >= 0.0);
   assert(num_divides >= 0);
   assert(generation >= 0);
+  assert(cpu_cycles_used >= 0);  
   assert(time_used >= 0);
   assert(age >= 0);
   assert(child_copied_size >= 0);
@@ -77,13 +105,15 @@ bool cPhenotype::OK()
  **/
 
 void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
-				int _length)
+				const cGenome & _genome)
 {
   // Copy divide values from parent, which should already be setup.
   merit           = parent_phenotype.merit;
-  genome_length   = _length;
+  genome_length   = _genome.GetSize();
   copied_size     = parent_phenotype.child_copied_size;
   executed_size   = parent_phenotype.executed_size;
+  assert (executed_size > 0);
+  
   gestation_time  = parent_phenotype.gestation_time;
   gestation_start = 0;
   fitness         = parent_phenotype.fitness;
@@ -100,28 +130,34 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
+  cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
+  cur_sense_count.SetAll(0);  
   for (int j = 0; j < sensed_resources.GetSize(); j++)
 	      sensed_resources[j] =  parent_phenotype.sensed_resources[j];
-
-
+  SetupPromoterWeights(_genome, true);
+  
   // Copy last values from parent
-  last_merit_base     = parent_phenotype.last_merit_base;
-  last_bonus          = parent_phenotype.last_bonus;
-  last_num_errors     = parent_phenotype.last_num_errors;
-  last_num_donates    = parent_phenotype.last_num_donates;
-  last_task_count     = parent_phenotype.last_task_count;
-  last_task_quality   = parent_phenotype.last_task_quality;
-  last_reaction_count = parent_phenotype.last_reaction_count;
-  last_inst_count     = parent_phenotype.last_inst_count;
-  last_fitness        = last_merit_base * last_bonus / gestation_time;
+  last_merit_base           = parent_phenotype.last_merit_base;
+  last_bonus                = parent_phenotype.last_bonus;
+  last_num_errors           = parent_phenotype.last_num_errors;
+  last_num_donates          = parent_phenotype.last_num_donates;
+  last_task_count           = parent_phenotype.last_task_count;
+  last_task_quality         = parent_phenotype.last_task_quality;
+  last_reaction_count       = parent_phenotype.last_reaction_count;
+  last_reaction_add_reward  = parent_phenotype.last_reaction_add_reward;
+  last_inst_count           = parent_phenotype.last_inst_count;
+  last_sense_count          = parent_phenotype.last_sense_count;
+  last_fitness              = last_merit_base * last_bonus / gestation_time;
 
   // Setup other miscellaneous values...
   num_divides     = 0;
   generation      = parent_phenotype.generation;
   if (m_world->GetConfig().GENERATION_INC_METHOD.Get() != GENERATION_INC_BOTH) generation++;
+  cpu_cycles_used = 0;
   time_used       = 0;
   age             = 0;
   fault_desc      = "";
@@ -167,13 +203,13 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
  *     - This is the first method run on an otherwise freshly built phenotype.
  **/
 
-void cPhenotype::SetupInject(int _length)
+void cPhenotype::SetupInject(const cGenome & _genome)
 {
   // Setup reasonable initial values injected organism...
-  merit           = _length;
-  genome_length   = _length;
-  copied_size     = _length;
-  executed_size   = _length;
+  genome_length   = _genome.GetSize();
+  merit           = genome_length;
+  copied_size     = genome_length;
+  executed_size   = genome_length;
   gestation_time  = 0;
   gestation_start = 0;
   fitness         = 0;
@@ -184,24 +220,30 @@ void cPhenotype::SetupInject(int _length)
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
+  cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   sensed_resources.SetAll(0);
-
+  cur_sense_count.SetAll(0);
+  SetupPromoterWeights(_genome, true);
+  
   // Copy last values from parent
-  last_merit_base = _length;
+  last_merit_base = genome_length;
   last_bonus      = 1;
   last_num_errors = 0;
   last_num_donates = 0;
   last_task_count.SetAll(0);
   last_task_quality.SetAll(0);
   last_reaction_count.SetAll(0);
-  last_inst_count.SetAll(0);
+  last_reaction_add_reward.SetAll(0);
+  last_sense_count.SetAll(0);
 
   // Setup other miscellaneous values...
   num_divides     = 0;
   generation      = 0;
+  cpu_cycles_used = 0;
   time_used       = 0;
   age             = 0;
   fault_desc      = "";
@@ -242,16 +284,25 @@ void cPhenotype::SetupInject(int _length)
  * This function is run whenever an organism executes a successful divide.
  **/
 
-void cPhenotype::DivideReset(int _length)
+void cPhenotype::DivideReset(const cGenome & _genome)
 {
   assert(time_used > 0);
   assert(initialized == true);
 
   // Update these values as needed...
   int cur_merit_base = CalcSizeMerit();
-  merit = cur_merit_base * cur_bonus;
-
-  genome_length   = _length;
+  
+  // If we are resetting the current merit, do it here
+  // and it will also be propagated to the child
+  const int merit_default_bonus = m_world->GetConfig().MERIT_DEFAULT_BONUS.Get();
+  if (merit_default_bonus) {
+    merit = cur_merit_base * m_world->GetConfig().DEFAULT_BONUS.Get();
+  }
+  else { // Default
+    merit = cur_merit_base * cur_bonus;
+  }
+  
+  genome_length   = _genome.GetSize();
   (void) copied_size;          // Unchanged
   (void) executed_size;        // Unchanged
   gestation_time  = time_used - gestation_start;
@@ -259,23 +310,28 @@ void cPhenotype::DivideReset(int _length)
   fitness         = merit.GetDouble() / gestation_time;
 
   // Lock in cur values as last values.
-  last_merit_base     = cur_merit_base;
-  last_bonus          = cur_bonus;
-  last_num_errors     = cur_num_errors;
-  last_num_donates    = cur_num_donates;
-  last_task_count     = cur_task_count;
-  last_task_quality   = cur_task_quality;
-  last_reaction_count = cur_reaction_count;
-  last_inst_count     = cur_inst_count;
+  last_merit_base           = cur_merit_base;
+  last_bonus                = cur_bonus;
+  last_num_errors           = cur_num_errors;
+  last_num_donates          = cur_num_donates;
+  last_task_count           = cur_task_count;
+  last_task_quality         = cur_task_quality;
+  last_reaction_count       = cur_reaction_count;
+  last_reaction_add_reward  = cur_reaction_add_reward;
+  last_inst_count           = cur_inst_count;
+  last_sense_count          = cur_sense_count;
 
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
+  cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
+  cur_sense_count.SetAll(0);
 
   // Setup other miscellaneous values...
   num_divides++;
@@ -314,11 +370,19 @@ void cPhenotype::DivideReset(int _length)
   // a second child on the divide.
   if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) {
     gestation_start = 0;
+    cpu_cycles_used = 0;
     time_used = 0;
     neutral_metric += m_world->GetRandom().GetRandNormal();
+    SetupPromoterWeights(_genome, true);
   }
 
   if (m_world->GetConfig().GENERATION_INC_METHOD.Get() == GENERATION_INC_BOTH) generation++;
+  
+  // Reset Task States
+  tArray<cTaskState*> task_states(0);
+  m_task_states.GetValues(task_states);
+  for (int i = 0; i < task_states.GetSize(); i++) delete task_states[i];
+  m_task_states.ClearAll();
 }
 
 
@@ -328,7 +392,7 @@ void cPhenotype::DivideReset(int _length)
  * and copied size in its merit.
  **/
 
-void cPhenotype::TestDivideReset(int _length)
+void cPhenotype::TestDivideReset(const cGenome & _genome)
 {
   assert(time_used > 0);
   assert(initialized == true);
@@ -337,7 +401,7 @@ void cPhenotype::TestDivideReset(int _length)
   int cur_merit_base = CalcSizeMerit();
   merit           = cur_merit_base * cur_bonus;
 
-  genome_length   = _length;
+  genome_length   = _genome.GetSize();
   (void) copied_size;                            // Unchanged
   (void) executed_size;                          // Unchanged
   gestation_time  = time_used - gestation_start;
@@ -346,25 +410,31 @@ void cPhenotype::TestDivideReset(int _length)
   (void) div_type; 				// Unchanged
 
   // Lock in cur values as last values.
-  last_merit_base     = cur_merit_base;
-  last_bonus          = cur_bonus;
-  last_num_errors     = cur_num_errors;
-  last_num_donates    = cur_num_donates;
-  last_task_count     = cur_task_count;
-  last_task_quality   = cur_task_quality;
-  last_reaction_count = cur_reaction_count;
-  last_inst_count     = cur_inst_count;
+  last_merit_base           = cur_merit_base;
+  last_bonus                = cur_bonus;
+  last_num_errors           = cur_num_errors;
+  last_num_donates          = cur_num_donates;
+  last_task_count           = cur_task_count;
+  last_task_quality         = cur_task_quality;
+  last_reaction_count       = cur_reaction_count;
+  last_reaction_add_reward  = cur_reaction_add_reward;
+  last_inst_count           = cur_inst_count;
+  last_sense_count          = cur_sense_count;  
 
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
   cur_reaction_count.SetAll(0);
+  cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
+  cur_sense_count.SetAll(0); 
   sensed_resources.SetAll(-1.0);
-
+  SetupPromoterWeights(_genome, true);
+  
   // Setup other miscellaneous values...
   num_divides++;
   generation++;
@@ -421,6 +491,10 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   gestation_start = 0;
   fitness         = clone_phenotype.fitness;
   div_type        = clone_phenotype.div_type;
+  cur_promoter_weights = clone_phenotype.cur_promoter_weights; // @JEB Not correct if clone is not of fresh phenotype 
+  base_promoter_weights = clone_phenotype.base_promoter_weights; // @JEB Not correct if clone is not of fresh phenotype 
+  promoter_repression = clone_phenotype.promoter_repression; // @JEB Not correct if clone is not of fresh phenotype 
+  promoter_activation = clone_phenotype.promoter_activation; // @JEB Not correct if clone is not of fresh phenotype 
 
   assert(genome_length > 0);
   assert(copied_size > 0);
@@ -433,26 +507,32 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+  eff_task_count.SetAll(0);
   cur_reaction_count.SetAll(0);
+  cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
+  cur_sense_count.SetAll(0);  
   for (int j = 0; j < sensed_resources.GetSize(); j++)
 	      sensed_resources[j] =  clone_phenotype.sensed_resources[j];
-
+  //SetupPromoterWeights(_genome); Do we reset here?
 
   // Copy last values from parent
-  last_merit_base     = clone_phenotype.last_merit_base;
-  last_bonus          = clone_phenotype.last_bonus;
-  last_num_errors     = clone_phenotype.last_num_errors;
-  last_num_donates    = clone_phenotype.last_num_donates;
-  last_task_count     = clone_phenotype.last_task_count;
-  last_reaction_count = clone_phenotype.last_reaction_count;
-  last_inst_count     = clone_phenotype.last_inst_count;
-  last_fitness        = last_merit_base * last_bonus / gestation_time;
+  last_merit_base          = clone_phenotype.last_merit_base;
+  last_bonus               = clone_phenotype.last_bonus;
+  last_num_errors          = clone_phenotype.last_num_errors;
+  last_num_donates         = clone_phenotype.last_num_donates;
+  last_task_count          = clone_phenotype.last_task_count;
+  last_reaction_count      = clone_phenotype.last_reaction_count;
+  last_reaction_add_reward = clone_phenotype.last_reaction_add_reward;
+  last_inst_count          = clone_phenotype.last_inst_count;
+  last_sense_count         = clone_phenotype.last_sense_count;  
+  last_fitness             = last_merit_base * last_bonus / gestation_time;
 
   // Setup other miscellaneous values...
   num_divides     = 0;
   generation      = clone_phenotype.generation;
   if (m_world->GetConfig().GENERATION_INC_METHOD.Get() != GENERATION_INC_BOTH) generation++;
+  cpu_cycles_used = 0;
   time_used       = 0;
   age             = 0;
   fault_desc      = "";
@@ -491,28 +571,29 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
 
 
 
-bool cPhenotype::TestInput(tBuffer<int> & inputs, tBuffer<int> & outputs)
+bool cPhenotype::TestInput(tBuffer<int>& inputs, tBuffer<int>& outputs)
 {
   assert(initialized == true);
   // For the moment, lets not worry about inputs...
   return false; // Nothing happened...
 }
 
-bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx, tBuffer<int>& send_buf,
-                            tBuffer<int>& receive_buf, const tArray<double>& res_in,
-                            tArray<double>& res_change, tArray<int>& insts_triggered)
+bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
+			    const tArray<double>& res_in, tArray<double>& res_change,
+			    tArray<int>& insts_triggered)
 {
   assert(initialized == true);
+  taskctx.SetTaskStates(&m_task_states);
 
   const cEnvironment& env = m_world->GetEnvironment();
   const int num_resources = env.GetResourceLib().GetSize();
-  const int num_tasks = env.GetTaskLib().GetSize();
+  const int num_tasks = env.GetNumTasks();
   const int num_reactions = env.GetReactionLib().GetSize();
 
   cReactionResult result(num_resources, num_tasks, num_reactions);
 			
   // Run everything through the environment.
-  bool found = env.TestOutput(ctx, result, taskctx, send_buf, receive_buf, cur_task_count, cur_reaction_count, res_in);
+  bool found = env.TestOutput(ctx, result, taskctx, eff_task_count, cur_reaction_count, res_in);
 
   // If nothing was found, stop here.
   if (found == false) {
@@ -523,21 +604,21 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx, tBuffer<i
   // Update the phenotype with the results...
   // Start with updating task and reaction counters
   for (int i = 0; i < num_tasks; i++) {
-    if (result.TaskDone(i) == true) cur_task_count[i]++;
-  }
-  for (int i = 0; i < num_tasks; i++) {
-	  if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i);
+    if (result.TaskDone(i) == true) 
+    {
+      cur_task_count[i]++;
+      eff_task_count[i]++;
+    }
+    if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i);
   }
   for (int i = 0; i < num_reactions; i++) {
     if (result.ReactionTriggered(i) == true) cur_reaction_count[i]++;
+    cur_reaction_add_reward[i] += result.GetReactionAddBonus(i);
   }
 
   // Update the merit bonus
   cur_bonus *= result.GetMultBonus();
   cur_bonus += result.GetAddBonus();
-
-  // Bonus should never go negative...
-  // if (cur_bonus < 0.0) cur_bonus = 0.0;
 
   // Denote consumed resources...
   for (int i = 0; i < res_in.GetSize(); i++) {
@@ -554,7 +635,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx, tBuffer<i
 
   //Kill any cells that did lethal reactions
   to_die = result.GetLethal();
-
+  
   return true;
 }
 
@@ -605,6 +686,7 @@ bool cPhenotype::SaveState(ofstream& fp)
 
   fp << num_divides         << " ";
   fp << generation          << " ";
+  fp << cpu_cycles_used     << " ";
   fp << time_used           << " ";
   fp << age                 << " ";
   fp << neutral_metric      << " ";
@@ -681,6 +763,7 @@ bool cPhenotype::LoadState(ifstream & fp)
 
   fp >> num_divides;
   fp >> generation;
+  fp >> cpu_cycles_used;
   fp >> time_used;
   fp >> age;
   fp >> neutral_metric;
@@ -709,20 +792,39 @@ bool cPhenotype::LoadState(ifstream & fp)
   return true;
 }
 
-void cPhenotype::PrintStatus(ostream& fp)
+void cPhenotype::PrintStatus(ostream& fp) const
 {
   fp << "  MeritBase:"
      << CalcSizeMerit()
      << " Bonus: " << cur_bonus
      << " Errors:" << cur_num_errors
-     << " Donates:" << cur_num_donates
-     << " Tasks:";
-
-  for (int i = 0; i < cur_task_count.GetSize(); i++) {
-    fp << " " << cur_task_count[i];
+     << " Donates:" << cur_num_donates;
+  fp << endl;
+  
+  fp << "  Task Count (Quality):";
+  for (int i = 0; i < cur_task_count.GetSize(); i++)
+    fp << " " << cur_task_count[i] << " (" << cur_task_quality[i] << ")";
+  fp << endl;
+  
+  if (m_world->GetConfig().PROMOTERS_ENABLED.Get() == 1)
+  {
+    fp << "Promoters:     ";
+    for (int i=0; i<cur_promoter_weights.GetSize(); i++)
+    {
+      if (cur_promoter_weights[i] != m_world->GetConfig().PROMOTER_BG_STRENGTH.Get()) fp << i << " (" << cur_promoter_weights[i] << ") ";
+    }
+    fp << endl;
+    
+    if (promoter_last_inst_terminated)
+    {
+      fp << "Terminated!" << endl;
+    }
+    else
+    {
+      fp << "No termination..." << endl;
+    }
   }
 
-  fp << endl;
 }
 
 int cPhenotype::CalcSizeMerit() const
@@ -733,32 +835,102 @@ int cPhenotype::CalcSizeMerit() const
 
   int out_size;
 
-  switch (m_world->GetConfig().SIZE_MERIT_METHOD.Get()) {
-  case SIZE_MERIT_COPIED:
+  switch (m_world->GetConfig().BASE_MERIT_METHOD.Get()) {
+  case BASE_MERIT_COPIED_SIZE:
     out_size = copied_size;
     break;
-  case SIZE_MERIT_EXECUTED:
+  case BASE_MERIT_EXE_SIZE:
     out_size = executed_size;
     break;
-  case SIZE_MERIT_FULL:
+  case BASE_MERIT_FULL_SIZE:
     out_size = genome_length;
     break;
-  case SIZE_MERIT_LEAST:
+  case BASE_MERIT_LEAST_SIZE:
     out_size = genome_length;
     if (out_size > copied_size) out_size = copied_size;
     if (out_size > executed_size)    out_size = executed_size;
     break;
-  case SIZE_MERIT_SQRT_LEAST:
+  case BASE_MERIT_SQRT_LEAST_SIZE:
     out_size = genome_length;
     if (out_size > copied_size) out_size = copied_size;
     if (out_size > executed_size)    out_size = executed_size;
     out_size = (int) sqrt((double) out_size);
     break;
-  case SIZE_MERIT_OFF:
+  case BASE_MERIT_NUM_BONUS_INST:
+    if(m_world->GetConfig().FITNESS_VALLEY.Get()){
+      if (bonus_instruction_count >= m_world->GetConfig().FITNESS_VALLEY_START.Get() && 
+          bonus_instruction_count <= m_world->GetConfig().FITNESS_VALLEY_STOP.Get()){
+         out_size = 1;
+         break;
+      }            
+    }
+    if (m_world->GetConfig().MERIT_BONUS_EFFECT.Get()>0) {out_size = 1 + bonus_instruction_count;}
+    else if (m_world->GetConfig().MERIT_BONUS_EFFECT.Get()<0) {out_size = genome_length - (bonus_instruction_count -1);}
+    else {out_size = 1;}  //the extra 1 point in all these case is so the orgs are not jilted by the scheduler        
+    break;
+  case BASE_MERIT_CONST:
   default:
-    out_size = m_world->GetConfig().BASE_SIZE_MERIT.Get();
+    out_size = m_world->GetConfig().BASE_CONST_MERIT.Get();
     break;
   }
 
   return out_size;
+} 
+
+void cPhenotype::SetupPromoterWeights(const cGenome & _genome, const bool clear)
+{
+  if (!m_world->GetConfig().PROMOTERS_ENABLED.Get()) return;
+
+  // Ideally, this wouldn't be hard-coded
+  static cInstruction promoter_inst = m_world->GetHardwareManager().GetInstSet().GetInst(cStringUtil::Stringf("promoter"));
+
+  int old_size = base_promoter_weights.GetSize();
+  cur_promoter_weights.Resize(_genome.GetSize());
+  base_promoter_weights.Resize(_genome.GetSize());
+  promoter_repression.Resize(_genome.GetSize());
+  promoter_activation.Resize(_genome.GetSize());
+
+  // Only change new regions of the genome (that might have been allocated since this was last called)
+  for ( int i = (clear ? 0 : old_size); i<_genome.GetSize(); i++)
+  {
+    base_promoter_weights[i] = 1;
+    promoter_repression[i] = 0;
+    promoter_activation[i] = 0;
+
+    // Now change the weights at instructions that are not promoters if called for
+    if ( _genome[i] != promoter_inst)
+    {
+      base_promoter_weights[i] *= m_world->GetConfig().PROMOTER_BG_STRENGTH.Get(); 
+    }
+    cur_promoter_weights[i] = base_promoter_weights[i];
+  }
 }
+
+void cPhenotype::DecayAllPromoterRegulation()
+{
+  for ( int i=0; i<cur_promoter_weights.GetSize(); i++)
+  {
+    promoter_activation[i] *= (1 - m_world->GetConfig().REGULATION_DECAY_FRAC.Get());
+    promoter_repression[i] *= (1 - m_world->GetConfig().REGULATION_DECAY_FRAC.Get());
+    cur_promoter_weights[i] = base_promoter_weights[i] * exp((1+promoter_activation[i])*log(2.0)) / exp((1+promoter_repression[i])*log(2.0));
+
+  }
+}
+
+void cPhenotype::RegulatePromoter(const int i, const bool up )
+{
+  // Make sure we were initialized
+  assert ( (promoter_activation.GetSize() > 0) && (promoter_activation.GetSize() > 0) );
+  
+  if (up) {
+    promoter_activation[i] *= (1 - m_world->GetConfig().REGULATION_DECAY_FRAC.Get());
+    promoter_activation[i] += m_world->GetConfig().REGULATION_STRENGTH.Get(); 
+  }
+  else {
+    promoter_repression[i] *= (1 - m_world->GetConfig().REGULATION_DECAY_FRAC.Get());
+    promoter_repression[i] += m_world->GetConfig().REGULATION_STRENGTH.Get(); 
+  }
+  
+  cur_promoter_weights[i] = base_promoter_weights[i] * exp((1+promoter_activation[i])*log(2.0)) / exp((1+promoter_repression[i])*log(2.0));
+}
+

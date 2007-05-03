@@ -13,6 +13,15 @@
 
 using namespace std;
 
+int cBarScreen::AddMenuOption(const cString option, int max_x, int cur_x)
+{
+  if (cur_x + option.GetSize() >= max_x) return cur_x;
+
+  PrintOption(1, cur_x, option);
+
+  return cur_x+option.GetSize()+1;
+}
+
 void cBarScreen::Draw()
 {
   SetBoldColor(COLOR_WHITE);
@@ -23,34 +32,27 @@ void cBarScreen::Draw()
 
   int offset = prog_name.GetSize() + 4;
   VLine(Width() - offset - 2);
-  Print(1, Width() - offset, "%s", static_cast<const char*>(prog_name));
+  Print(1, Width() - offset+1, "%s", static_cast<const char*>(prog_name));
 
   Print(1, 2, "Update:");
 
-  if(info.GetPopulation().GetEnvironment().GetResourceLib().GetSize() > 0)
-    Print(1, 20, "[M]ap [S]tats [O]ptions [Z]oom [E]nviron [Q]uit");
-  else
-    Print(1, 20, "[M]ap  [S]tats  [O]ptions  [Z]oom  [Q]uit");
+  const int max_x = Width() - offset - 10;
+  int cur_x = 21;
 
-  SetBoldColor(COLOR_CYAN);
+  // Include options in their general order of importance.
+  cur_x = AddMenuOption("[M]ap ", max_x, cur_x);
+  cur_x = AddMenuOption("[S]tats", max_x, cur_x);
+  // cur_x = AddMenuOption("[A]nalyze", max_x, cur_x);
+  cur_x = AddMenuOption("[Z]oom", max_x, cur_x);
+  cur_x = AddMenuOption("[O]ptions", max_x, cur_x);
+  cur_x = AddMenuOption("[H]ist", max_x, cur_x);
+  cur_x = AddMenuOption("[E]nv ", max_x, cur_x);
+  cur_x = AddMenuOption("[P]ause", max_x, cur_x);
+  cur_x = AddMenuOption("[B]lank", max_x, cur_x);
+  cur_x = AddMenuOption("[C]hoose CPU", max_x, cur_x);
 
-  if(info.GetPopulation().GetEnvironment().GetResourceLib().GetSize() > 0)
-    {
-      Print(1, 21, 'M');
-      Print(1, 27, 'S');
-      Print(1, 35, 'O');
-      Print(1, 45, 'Z');
-      Print(1, 52, 'E');
-      Print(1, 62, 'Q');
-    }
-  else
-    {
-      Print(1, 21, 'M');
-      Print(1, 28, 'S');
-      Print(1, 37, 'O');
-      Print(1, 48, 'Z');
-      Print(1, 56, 'Q');
-    }
+  // Always place Quit as the last option.
+  cur_x = AddMenuOption("[Q]uit", max_x+8, cur_x);
 
   Refresh();
 }

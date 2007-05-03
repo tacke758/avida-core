@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "resource.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -14,6 +29,31 @@
 #ifndef cString_h
 #include "cString.h"
 #endif
+#ifndef tArray_h
+#include "tArray.h"
+#endif
+
+
+/* class to hold resource informations for individual cells (mini-chemostats) */
+
+class cCellResource
+{
+private:
+  int cell_id;
+  double initial;
+  double inflow;
+  double outflow;
+
+public:
+  cCellResource();
+  cCellResource(int _cell_id, double _initial, double _inflow, double _outflow);
+  int GetId() const { return cell_id; }
+  double GetInitial() const { return initial; }
+  double GetInflow() const { return inflow; }
+  double GetOutflow() const { return outflow; }
+};
+
+/* class to hold all information for a single resource */
 
 class cResource
 {
@@ -36,6 +76,7 @@ private:
   double xgravity;
   double ydiffuse;
   double ygravity;
+  tArray<cCellResource> cell_list;
  
   
   cResource(); // @not_implemented
@@ -62,6 +103,7 @@ public:
   double GetXGravity() const { return xgravity; }
   double GetYDiffuse() const { return ydiffuse; }
   double GetYGravity() const { return ygravity; }
+  tArray<cCellResource> *GetCellListPtr() { return &cell_list; }
 
 
   void SetInitial(double _initial) { initial = _initial; }
@@ -80,6 +122,7 @@ public:
   void SetXGravity(double _xgravity) { xgravity = _xgravity; }
   void SetYDiffuse(double _ydiffuse) { ydiffuse = _ydiffuse; }
   void SetYGravity(double _ygravity) { ygravity = _ygravity; }
+  void AddCellResource(cCellResource new_cell) { cell_list.Push(new_cell); }
 };
 
 

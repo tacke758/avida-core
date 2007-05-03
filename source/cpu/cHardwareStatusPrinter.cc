@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "hardware_status_printer.cc" prior to 11/30/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2004 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -26,16 +41,7 @@ void cHardwareStatusPrinter::TraceHardware(cHardwareBase& hardware, bool bonus)
   if (organism) organism->PrintStatus(m_trace_fp, next_name);
 }
 
-void cHardwareStatusPrinter::TraceTestCPU(int time_used, int time_allocated, int size, 
-                                          const cString& final_memory, const cString& child_memory)
+void cHardwareStatusPrinter::TraceTestCPU(int time_used, int time_allocated, const cOrganism& organism)
 {
-  if (time_used == time_allocated) {
-    m_trace_fp << endl << "# TIMEOUT: No offspring produced." << endl;
-  } else if (size == 0) {
-    m_trace_fp << endl << "# ORGANISM DEATH: No offspring produced." << endl;
-  } else {
-    m_trace_fp << endl;
-    m_trace_fp << "# Final Memory: " << final_memory << endl;
-    m_trace_fp << "# Child Memory: " << child_memory << endl;
-  }
+  organism.PrintFinalStatus(m_trace_fp, time_used, time_allocated);
 }

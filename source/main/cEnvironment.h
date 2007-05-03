@@ -3,17 +3,29 @@
  *  Avida
  *
  *  Called "environment.hh" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cEnvironment_h
 #define cEnvironment_h
 
-#ifndef cInstSet_h
-#include "cInstSet.h"
-#endif
 #ifndef cMutationLib_h
 #include "cMutationLib.h"
 #endif
@@ -32,9 +44,19 @@
 #ifndef cTaskLib_h
 #include "cTaskLib.h"
 #endif
+#ifndef defs_h
+#include "defs.h"
+#endif
 #ifndef tList_h
 #include "tList.h"
 #endif
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 class cAvidaContext;
 class cReaction;
@@ -47,6 +69,9 @@ class cTaskContext;
 class cWorld;
 
 class cEnvironment {
+#if USE_tMemTrack
+  tMemTrack<cEnvironment> mt;
+#endif
 private:
   cWorld* m_world;
   
@@ -55,9 +80,13 @@ private:
   cReactionLib reaction_lib;
   cMutationLib mutation_lib;
   cTaskLib m_tasklib;
-  cInstSet inst_set;
   cMutationRates mut_rates;
 
+  int m_input_size;
+  int m_output_size;
+  bool m_true_rand;
+  
+  
   static bool ParseSetting(cString entry, cString& var_name, cString& var_value, const cString& var_type);
   static bool AssertInputInt(const cString& input, const cString& name, const cString& type);
   static bool AssertInputDouble(const cString& input, const cString& name, const cString& type);
@@ -67,53 +96,68 @@ private:
   bool LoadReactionProcess(cReaction * reaction, cString desc);
   bool LoadReactionRequisite(cReaction * reaction, cString desc);
   bool LoadResource(cString desc);
+  bool LoadCell(cString desc);
   bool LoadReaction(cString desc);
   bool LoadMutation(cString desc);
 
   bool LoadSetActive(cString desc);
 
-  bool TestRequisites(const tList<cReactionRequisite>& req_list, int task_count, const tArray<int>& reaction_count) const;
+  bool TestRequisites(const tList<cReactionRequisite>& req_list, int task_count, const tArray<int>& reaction_count, const bool on_divide = false) const;
   void DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>& process_list, const tArray<double>& resource_count,
-                   const double task_quality, const int task_count, cReactionResult& result) const;
+                   const double task_quality, const int task_count, const int reaction_id, cReactionResult& result) const;
 
   cEnvironment(); // @not_implemented
   cEnvironment(const cEnvironment&); // @not_implemented
   cEnvironment& operator=(const cEnvironment&); // @not_implemented
 
 public:
-  cEnvironment(cWorld* world) : m_world(world), m_tasklib(world), inst_set(world) { mut_rates.Setup(world); }
-  ~cEnvironment() { ; }
+  inline cEnvironment(cWorld* world);
+  inline ~cEnvironment() { ; }
 
   bool Load(const cString& filename);  // Reads the environment from disk.
   bool LoadLine(cString line);  // Reads in a single environment configuration line
 
   // Interaction with the organisms
-  void SetupInputs(cAvidaContext& ctx, tArray<int>& input_array) const;
+  void SetupInputs(cAvidaContext& ctx, tArray<int>& input_array, bool random = true) const;
 
   bool TestInput(cReactionResult& result, const tBuffer<int>& inputs,
-                 const tBuffer<int>& outputs, const tArray<double>& resource_count ) const;
+                 const tBuffer<int>& outputs, const tArray<double>& resource_count) const;
 
   bool TestOutput(cAvidaContext& ctx, cReactionResult& result, cTaskContext& taskctx,
-                  const tBuffer<int>& send_buf, const tBuffer<int>& receive_buf,
                   const tArray<int>& task_count, const tArray<int>& reaction_count,
                   const tArray<double>& resource_count) const;
 
   // Accessors
+  int GetNumTasks() const { return m_tasklib.GetSize(); }
+  const cTaskEntry& GetTask(int id) const { return m_tasklib.GetTask(id); }
+  bool UseNeighborInput() const { return m_tasklib.UseNeighborInput(); }
+  bool UseNeighborOutput() const { return m_tasklib.UseNeighborOutput(); }
+
   const cResourceLib& GetResourceLib() const { return resource_lib; }
   const cReactionLib& GetReactionLib() const { return reaction_lib; }
   const cMutationLib& GetMutationLib() const { return mutation_lib; }
-  const cTaskLib& GetTaskLib() const { return m_tasklib; }
   const cMutationRates& GetMutRates() const { return mut_rates; }
 
   cResourceLib& GetResourceLib() { return resource_lib; }
   cReactionLib& GetReactionLib() { return reaction_lib; }
   cMutationRates& GetMutRates() { return mut_rates; }
+  
+  int GetInputSize() { return m_input_size; }
+  int GetOutputSize() { return m_output_size; }
 
   double GetReactionValue(int& reaction_id);
-  bool SetReactionValue(const cString& name, double value);
+  bool SetReactionValue(cAvidaContext& ctx, const cString& name, double value);
   bool SetReactionValueMult(const cString& name, double value_mult);
   bool SetReactionInst(const cString& name, cString inst_name);
 };
+
+
+inline cEnvironment::cEnvironment(cWorld* world) : m_world(world) , m_tasklib(world),
+  m_input_size(INPUT_SIZE_DEFAULT), m_output_size(OUTPUT_SIZE_DEFAULT), m_true_rand(false)
+{
+  mut_rates.Setup(world);
+}
+
 
 
 #ifdef ENABLE_UNIT_TESTS

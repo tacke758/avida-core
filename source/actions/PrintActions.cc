@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 5/11/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -11,8 +26,11 @@
 
 #include "cAction.h"
 #include "cActionLibrary.h"
+#include "cAnalyze.h"
+#include "cAnalyzeGenotype.h"
 #include "cClassificationManager.h"
 #include "cCPUTestInfo.h"
+#include "cEnvironment.h"
 #include "cGenome.h"
 #include "cGenomeUtil.h"
 #include "cGenotype.h"
@@ -21,15 +39,16 @@
 #include "cHistogram.h"
 #include "cInjectGenotype.h"
 #include "cInstSet.h"
-#include "cInstUtil.h"
 #include "cOrganism.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cSpecies.h"
 #include "cStats.h"
-#include "cTestUtil.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
+#include "tVector.h"
+#include <cmath>
+#include <cerrno>
 
 
 #define STATS_OUT_FILE(METHOD, DEFAULT)                                                   /*  1 */ \
@@ -46,25 +65,28 @@ public:                                                                         
   void Process(cAvidaContext& ctx) { m_world->GetStats().METHOD(m_filename); }            /* 12 */ \
 }                                                                                         /* 13 */ \
 
-STATS_OUT_FILE(PrintAverageData,       average.dat         );
-STATS_OUT_FILE(PrintErrorData,         error.dat           );
-STATS_OUT_FILE(PrintVarianceData,      variance.dat        );
-STATS_OUT_FILE(PrintDominantData,      dominant.dat        );
-STATS_OUT_FILE(PrintStatsData,         stats.dat           );
-STATS_OUT_FILE(PrintCountData,         count.dat           );
-STATS_OUT_FILE(PrintTotalsData,        totals.dat          );
-STATS_OUT_FILE(PrintTasksData,         tasks.dat           );
-STATS_OUT_FILE(PrintTasksExeData,      tasks_exe.dat       );
-STATS_OUT_FILE(PrintTasksQualData,     tasks_quality.dat   );
-STATS_OUT_FILE(PrintResourceData,      resource.dat        );
-STATS_OUT_FILE(PrintTimeData,          time.dat            );
-STATS_OUT_FILE(PrintMutationRateData,  mutation_rates.dat  );
-STATS_OUT_FILE(PrintDivideMutData,     divide_mut.dat      );
-STATS_OUT_FILE(PrintDominantParaData,  parasite.dat        );
-STATS_OUT_FILE(PrintInstructionData,   instruction.dat     );
-STATS_OUT_FILE(PrintGenotypeMap,       genotype_map.m      );
-STATS_OUT_FILE(PrintMarketData,		   market.dat		   );
-STATS_OUT_FILE(PrintUMLData,		   uml.dat			   );
+STATS_OUT_FILE(PrintAverageData,            average.dat         );
+STATS_OUT_FILE(PrintErrorData,              error.dat           );
+STATS_OUT_FILE(PrintVarianceData,           variance.dat        );
+STATS_OUT_FILE(PrintDominantData,           dominant.dat        );
+STATS_OUT_FILE(PrintStatsData,              stats.dat           );
+STATS_OUT_FILE(PrintCountData,              count.dat           );
+STATS_OUT_FILE(PrintTotalsData,             totals.dat          );
+STATS_OUT_FILE(PrintTasksData,              tasks.dat           );
+STATS_OUT_FILE(PrintTasksExeData,           tasks_exe.dat       );
+STATS_OUT_FILE(PrintTasksQualData,          tasks_quality.dat   );
+STATS_OUT_FILE(PrintResourceData,           resource.dat        );
+STATS_OUT_FILE(PrintReactionRewardData,     reaction_reward.dat );
+STATS_OUT_FILE(PrintTimeData,               time.dat            );
+STATS_OUT_FILE(PrintMutationRateData,       mutation_rates.dat  );
+STATS_OUT_FILE(PrintDivideMutData,          divide_mut.dat      );
+STATS_OUT_FILE(PrintDominantParaData,       parasite.dat        );
+STATS_OUT_FILE(PrintInstructionData,        instruction.dat     );
+STATS_OUT_FILE(PrintGenotypeMap,            genotype_map.m      );
+STATS_OUT_FILE(PrintMarketData,             market.dat          );
+STATS_OUT_FILE(PrintSenseData,              sense.dat           );
+STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
+
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
 class cAction ## METHOD : public cAction {                                                /*  2 */ \
@@ -392,7 +414,9 @@ public:
     cGenotype* dom = m_world->GetClassificationManager().GetBestGenotype();
     cString filename(m_filename);
     if (filename == "") filename.Set("archive/%s.org", static_cast<const char*>(dom->GetName()));
-    cTestUtil::PrintGenome(m_world, dom->GetGenome(), filename, dom, m_world->GetStats().GetUpdate());
+    cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+    testcpu->PrintGenome(ctx, dom->GetGenome(), filename, dom, m_world->GetStats().GetUpdate());
+    delete testcpu;
   }
 };
 
@@ -426,7 +450,9 @@ public:
     if (dom != NULL) {
       cString filename(m_filename);
       if (filename == "") filename.Set("archive/%s.para", static_cast<const char*>(dom->GetName()));
-      cTestUtil::PrintGenome(m_world, dom, dom->GetGenome(), filename, m_world->GetStats().GetUpdate());
+      cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+      testcpu->PrintInjectGenome(ctx, dom, dom->GetGenome(), filename, m_world->GetStats().GetUpdate());
+      delete testcpu;
     }
   }
 };
@@ -606,7 +632,6 @@ public:
       }
     }
     
-    delete testcpu;
     
     // determine the name of the maximum fitness genotype
     cString max_f_name;
@@ -627,9 +652,11 @@ public:
     
     if (m_save_max) {
       cString filename;
-      filename.Set("classmgr/%s", static_cast<const char*>(max_f_name));
-      cTestUtil::PrintGenome(m_world, max_f_genotype->GetGenome(), filename);
+      filename.Set("archive/%s", static_cast<const char*>(max_f_name));
+      testcpu->PrintGenome(ctx, max_f_genotype->GetGenome(), filename);
     }
+
+    delete testcpu;
     
     if (m_print_fitness_histo) {
       cDataFile& hdf = m_world->GetDataFile(m_filenames[1]);
@@ -654,6 +681,268 @@ public:
       tdf.Endl();
     }
   }
+};
+
+
+/*
+ @MRR March 2007
+ This function prints out fitness data. The main point is that it
+ calculates the average fitness from info from the testCPU + the actual
+ merit of the organisms, and assigns zero fitness to those organisms
+ that will never reproduce.
+ 
+ The function also determines the maximum fitness genotype, and can
+ produce fitness histograms.
+ 
+ This version of the DetailedFitnessData prints the information as a log histogram.
+ 
+ Parameters:
+ filename   (cString)     Where the fitness histogram should be written.
+ fit_mode   (cString)     Either {Current, Actual, TestCPU}, where
+															   Current is the current value in the grid.  [Default]
+                                 Actual uses the current merit, but the true gestation time.
+                                 TestCPU determined.
+ hist_fmin  (double)      The minimum fitness value for the fitness histogram.  [Default: -3]
+ hist_fmax  (double)      The maximum fitness value for the fitness histogram.  [Default: 12]
+ hist_fstep (double)      The width of the individual bins in the histogram.    [Default: 0.5]
+ */
+class cActionPrintLogFitnessHistogram : public cAction
+{
+private:
+
+  double m_hist_fmin;
+  double m_hist_fstep;
+	double m_hist_fmax;
+	string m_mode;
+  cString m_filename;
+	
+public:
+		cActionPrintLogFitnessHistogram(cWorld* world, const cString& args)
+    : cAction(world, args)
+	{
+			cString largs(args);
+		  m_filename   = (largs.GetSize()) ? largs.PopWord()           : "fitness_log_hist.dat";
+			m_mode       = (largs.GetSize()) ? largs.PopWord().ToUpper() : "CURRENT";
+			m_hist_fmin  = (largs.GetSize()) ? largs.PopWord().AsDouble(): -3.0;
+			m_hist_fstep = (largs.GetSize()) ? largs.PopWord().AsDouble(): 0.5;
+			m_hist_fmax  = (largs.GetSize()) ? largs.PopWord().AsDouble(): 12;
+	}
+  
+  static const cString GetDescription() { return  "Parameters:\n\tfilename   (cString) [fitness_log_hist.dat]    Where the fitness histogram should be written.\n\tfit_mode   (cString)     Either {Current, Actual, TestCPU}, where\n\t\t Current is the current value in the grid.  [Default]\n\tActual uses the current merit, but the true gestation time.\n\tTestCPU determined.\n\thist_fmin  (double)      The minimum fitness value for the fitness histogram.  [Default: -3]\n\thist_fmax  (double)      The maximum fitness value for the fitness histogram.  [Default: 12]\n\thist_fstep (double)      The width of the individual bins in the histogram.    [Default: 0.5]\n\n";}
+  
+  void Process(cAvidaContext& ctx)
+  {
+		
+		//Verify input parameters
+		if ( (m_mode != "ACTUAL" && m_mode != "CURRENT" && m_mode != "TESTCPU") ||
+				m_hist_fmin > m_hist_fmax)
+		{
+			cerr << "cActionPrintFitnessHistogram: Please check arguments.  Abort.\n";
+			cerr << "Parameters: " << m_filename << ", " << m_mode << ", " << m_hist_fmin << ":" << m_hist_fstep << ":" << m_hist_fmax << endl;
+			return;
+		}
+		
+		//Gather data objects
+    cPopulation& pop        = m_world->GetPopulation();
+    const int    update     = m_world->GetStats().GetUpdate();
+    const double generation = m_world->GetStats().SumGeneration().Average();
+    
+    //Set up histogram; extra columns prepended (non-viable, < m_hist_fmin) and appended ( > f_hist_fmax)
+		//If the bin size is not a multiple of the step size, the last bin is expanded to make it a multiple.
+		//All bins are [min, max)
+    tArray<int> histogram;
+		int num_bins = static_cast<int>(ceil( (m_hist_fmax - m_hist_fmin) / m_hist_fstep)) + 3;
+		m_hist_fmax  = m_hist_fmin + (num_bins - 3) * m_hist_fstep;
+		histogram.Resize(num_bins, 0);
+		
+    
+    cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+		
+    for (int i = 0; i < pop.GetSize(); i++)
+		{
+      if (pop.GetCell(i).IsOccupied() == false) continue;  //Skip unoccupied cells
+      
+      cOrganism* organism = pop.GetCell(i).GetOrganism();
+      cGenotype* genotype = organism->GetGenotype();
+      
+      cCPUTestInfo test_info;
+      testcpu->TestGenome(ctx, test_info, genotype->GetGenome());
+			
+      // We calculate the fitness based on the current merit,
+      // but with the true gestation time. Also, we set the fitness
+      // to zero if the creature is not viable.
+      const double fitness = (m_mode == "CURRENT") ? organism->GetPhenotype().GetFitness() :
+				                     (m_mode == "ACUTAL")  ? 
+																((test_info.IsViable()) ? 
+																 organism->GetPhenotype().GetMerit().CalcFitness(test_info.GetTestPhenotype().GetGestationTime()) : 0.0) :
+				                     test_info.GetColonyFitness();
+		
+			//Update the histogram
+			const double log_fitness = log10(fitness);
+			
+			int update_bin = (errno == ERANGE) ? 0 :       //If we have a log of zero, this will be true.
+				static_cast<int>((log_fitness - m_hist_fmin) / m_hist_fstep);
+			if (update_bin < 0)
+				update_bin = 1;
+			else if (update_bin >= num_bins - 3)
+				update_bin = num_bins - 1;
+			else
+				update_bin = update_bin + 2;
+		
+			histogram[update_bin]++;
+		}
+			
+		delete testcpu;
+    
+		//Output histogram
+		cDataFile& hdf = m_world->GetDataFile(m_filename);
+		hdf.Write(update, "Update");
+		hdf.Write(generation, "Generation");
+		
+		for (int k = 0; k < histogram.GetSize(); k++)
+		{ 
+			if (k == 0)
+				hdf.Write(histogram[k], "Inviable");
+			else if (k == 1)
+				hdf.Write(histogram[k], cString("< ") + cStringUtil::Convert(m_hist_fmin));
+			else if (k < histogram.GetSize() - 1)
+				hdf.Write(histogram[k], cString("(") + cStringUtil::Convert(m_hist_fmin+m_hist_fstep*(k-2)) 
+																+ cString(", ") + cStringUtil::Convert(m_hist_fmin+m_hist_fstep*(k-1)) +
+																+ cString("]"));
+			else
+				hdf.Write(histogram[k], cString("> ") + cStringUtil::Convert(m_hist_fmax));
+		}
+		hdf.Endl();
+	}
+};
+
+
+
+/*
+ @MRR March 2007
+ This function will take the initial genotype for each organism in the
+ population/batch, align them, and calculate the per-site entropy of the
+ aligned sequences.  Please note that there may be a variable number
+ of columns in each line if the runs are not fixed length.  The site
+ entropy will be measured in mers, normalized by the instruction set size.
+ This is a population/batch measure of entropy, not a mutation-selection balance
+ measure.  
+*/
+class cActionPrintGenomicSiteEntropy : public cAction
+{
+	private:
+		cString m_filename;
+		bool    m_use_gap;
+	
+	public:
+		cActionPrintGenomicSiteEntropy(cWorld* world, const cString& args) : cAction(world, args)
+		{
+			cString largs = args;
+			m_filename = (largs.GetSize()) ? largs.PopWord() : "GenomicSiteEntropy.dat";
+		}
+
+		static const cString GetDescription() { return "Arguments: [filename = \"GenomicSiteEntropyData\"] [use_gap = false]";}
+		
+		void Process(cAvidaContext& ctx)
+		{
+			
+			const int        update     = m_world->GetStats().GetUpdate();
+			const double     generation = m_world->GetStats().SumGeneration().Average();
+			const int        num_insts  = m_world->GetNumInstructions();
+			tArray<cString> aligned;  //This will hold all of our aligned sequences
+			
+			if (ctx.GetAnalyzeMode()) //We're in analyze mode, so process the current batch
+			{
+				cAnalyze& analyze = m_world->GetAnalyze();  
+				if (!analyze.GetCurrentBatch().IsAligned()) analyze.CommandAlign(""); //Let analyze take charge of aligning this batch
+				tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
+				cAnalyzeGenotype* genotype = NULL;
+				while((genotype = batch_it.Next()))
+				{
+					aligned.Push(genotype->GetAlignedSequence());
+				}
+			}
+			else //We're not in analyze mode, process the population
+			{
+				cPopulation& pop = m_world->GetPopulation();
+				for (int i = 0; i < pop.GetSize(); i++)
+				{
+					if (pop.GetCell(i).IsOccupied() == false) continue;  //Skip unoccupied cells
+					aligned.Push(pop.GetCell(i).GetOrganism()->GetGenome().AsString());
+				}
+				AlignStringArray(aligned);  //Align our population genomes
+			}
+			
+			//With all sequences aligned and stored, we can proceed to calculate per-site entropies
+			if (!aligned.GetSize())
+			{
+				m_world->GetDriver().NotifyComment("cActionPrintGenomicSiteEntropy: No sequences available.  Abort.");
+				return;
+			}
+			
+			const int gen_size = aligned[0].GetSize();
+			tArray<double> site_entropy(gen_size);
+			site_entropy.SetAll(0.0);
+			
+			tArray<int> inst_count( (m_use_gap) ? num_insts + 1 : num_insts);  //Add an extra place if we're using gaps
+			inst_count.SetAll(0);
+			for (int pos = 0; pos < gen_size; pos++)
+			{
+				inst_count.SetAll(0);  //Reset the counter for each aligned position
+				int total_count = 0;
+				for (int seq = 0; seq < aligned.GetSize(); seq++)
+				{
+					char ch = aligned[seq][pos];
+					if (ch == '_' && !m_use_gap) continue;                  //Skip gaps when applicable
+					else if (ch == '_') site_entropy[num_insts]++;          //Update gap count at end
+					else inst_count[ cInstruction::ConvertSymbol(ch) ]++;   //Update true instruction count
+					total_count++;
+				}
+				for (int c = 0; c < inst_count.GetSize(); c++)
+				{
+					double p = (inst_count[c] > 0) ? inst_count[c] / static_cast<double>(total_count) : 0.0;
+					site_entropy[pos] += (p > 0.0) ? - p * log(p) / log(inst_count.GetSize()) : 0.0;
+				}
+			}
+		}
+	
+	
+	private:
+		void AlignStringArray(tArray<cString>& unaligned)  //Taken from cAnalyze::CommandAnalyze
+		{
+			// Create an array of all the sequences we need to align.
+			const int num_sequences = unaligned.GetSize();
+			
+			// Move through each sequence an update it.
+			cString diff_info;
+			for (int i = 1; i < num_sequences; i++) {
+				// Track of the number of insertions and deletions to shift properly.
+				int num_ins = 0;
+				int num_del = 0;
+				
+				// Compare each string to the previous.
+				cStringUtil::EditDistance(unaligned[i], unaligned[i-1], diff_info, '_');
+				while (diff_info.GetSize() != 0) {
+					cString cur_mut = diff_info.Pop(',');
+					const char mut_type = cur_mut[0];
+					cur_mut.ClipFront(1); cur_mut.ClipEnd(1);
+					int position = cur_mut.AsInt();
+					if (mut_type == 'M') continue;   // Nothing to do with Mutations
+					
+					if (mut_type == 'I') {           // Handle insertions
+						for (int j = 0; j < i; j++)    // Loop back and insert an '_' into all previous sequences
+								unaligned[j].Insert('_', position + num_del);
+						num_ins++;
+					}
+					
+					else if (mut_type == 'D'){      // Handle Deletions
+						// Insert '_' into the current sequence at the point of deletions.
+						unaligned[i].Insert("_", position + num_ins);
+						num_del++;
+					}
+				}
+			}
+		}
 };
 
 
@@ -686,7 +975,7 @@ public:
       creature_file = largs.PopWord();
     else
       creature_file = m_world->GetConfig().START_CREATURE.Get();
-    m_reference = cInstUtil::LoadGenome(creature_file, world->GetHardwareManager().GetInstSet());
+    m_reference = cGenomeUtil::LoadGenome(creature_file, world->GetHardwareManager().GetInstSet());
     
     if (largs.GetSize()) m_filename = largs.PopWord();
   }
@@ -793,7 +1082,7 @@ public:
     int sum_num_organisms = 0;
     
     // load the reference genome
-    cGenome reference_genome(cInstUtil::LoadGenome(m_creature, m_world->GetHardwareManager().GetInstSet()));    
+    cGenome reference_genome(cGenomeUtil::LoadGenome(m_creature, m_world->GetHardwareManager().GetInstSet()));    
     
     // cycle over all genotypes
     cGenotype* cur_genotype = m_world->GetClassificationManager().GetBestGenotype();
@@ -815,7 +1104,9 @@ public:
       
       // save into archive
       if (m_save_genotypes) {
-        cTestUtil::PrintGenome(m_world, genome, cStringUtil::Stringf("archive/%s.org", static_cast<const char*>(cur_genotype->GetName())));
+        cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+        testcpu->PrintGenome(ctx, genome, cStringUtil::Stringf("archive/%s.org", static_cast<const char*>(cur_genotype->GetName())));
+        delete testcpu;
       }
       
       // ...and advance to the next genotype...
@@ -896,7 +1187,7 @@ public:
       cPhenotype& test_phenotype = test_info.GetTestPhenotype();
       cPhenotype& phenotype = organism->GetPhenotype();
       
-      int num_tasks = m_world->GetNumTasks();
+      int num_tasks = m_world->GetEnvironment().GetNumTasks();
       int sum_tasks_all = 0;
       int sum_tasks_rewarded = 0;
       int divide_sum_tasks_all = 0;
@@ -956,7 +1247,7 @@ public:
   {
     cDataFile& df = m_world->GetDataFile(m_filename);
     cPopulation& pop = m_world->GetPopulation();
-    const int num_tasks = m_world->GetNumTasks();
+    const int num_tasks = m_world->GetEnvironment().GetNumTasks();
     
     tArray<int> tasks(num_tasks);
     tasks.SetAll(0);
@@ -1134,7 +1425,9 @@ public:
     
     cString con_name;
     con_name.Set("archive/%03d-consensus-u%i.gen", con_genome.GetSize(),update);
-    cTestUtil::PrintGenome(m_world, con_genome, con_name);
+    cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+    testcpu->PrintGenome(ctx, con_genome, con_name);
+    delete testcpu;
     
     
     if (con_genotype) {
@@ -1243,10 +1536,41 @@ public:
     if (filename == "") filename.Set("grid_genotype_id.%d.dat", m_world->GetStats().GetUpdate());
     ofstream& fp = m_world->GetDataFileOFStream(filename);
     
-    for (int i = 0; i < m_world->GetPopulation().GetWorldX(); i++) {
-      for (int j = 0; j < m_world->GetPopulation().GetWorldY(); j++) {
+    for (int j = 0; j < m_world->GetPopulation().GetWorldY(); j++) {
+      for (int i = 0; i < m_world->GetPopulation().GetWorldX(); i++) {
         cPopulationCell& cell = m_world->GetPopulation().GetCell(j * m_world->GetPopulation().GetWorldX() + i);
         int id = (cell.IsOccupied()) ? cell.GetOrganism()->GetGenotype()->GetID() : -1;
+        fp << id << " ";
+      }
+      fp << endl;
+    }
+    m_world->GetDataFileManager().Remove(filename);
+  }
+};
+
+
+class cActionDumpPhenotypeIDGrid : public cAction
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionDumpPhenotypeIDGrid(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();  
+  }
+  static const cString GetDescription() { return "Arguments: [string fname='']"; }
+  void Process(cAvidaContext& ctx)
+  {
+    cString filename(m_filename);
+    if (filename == "") filename.Set("grid_phenotype_id.%d.dat", m_world->GetStats().GetUpdate());
+    ofstream& fp = m_world->GetDataFileOFStream(filename);
+    
+    for (int j = 0; j < m_world->GetPopulation().GetWorldY(); j++) {
+      for (int i = 0; i < m_world->GetPopulation().GetWorldX(); i++) {
+        cPopulationCell& cell = m_world->GetPopulation().GetCell(j * m_world->GetPopulation().GetWorldX() + i);
+        int id = (cell.IsOccupied()) ? cell.GetOrganism()->GetPhenotype().CalcID() : -1;
         fp << id << " ";
       }
       fp << endl;
@@ -1308,7 +1632,7 @@ public:
     cPopulation* pop = &m_world->GetPopulation();
     cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
     
-    const int num_tasks = m_world->GetNumTasks();
+    const int num_tasks = m_world->GetEnvironment().GetNumTasks();
 
     for (int i = 0; i < pop->GetWorldX(); i++) {
       for (int j = 0; j < pop->GetWorldY(); j++) {
@@ -1469,6 +1793,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintTasksExeData>("PrintTasksExeData");
   action_lib->Register<cActionPrintTasksQualData>("PrintTasksQualData");
   action_lib->Register<cActionPrintResourceData>("PrintResourceData");
+  action_lib->Register<cActionPrintReactionRewardData>("PrintReactionRewardData");
   action_lib->Register<cActionPrintTimeData>("PrintTimeData");
   action_lib->Register<cActionPrintMutationRateData>("PrintMutationRateData");
   action_lib->Register<cActionPrintDivideMutData>("PrintDivideMutData");
@@ -1476,8 +1801,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintInstructionData>("PrintInstructionData");
   action_lib->Register<cActionPrintGenotypeMap>("PrintGenotypeMap");
   action_lib->Register<cActionPrintMarketData>("PrintMarketData");
-  action_lib->Register<cActionPrintUMLData>("PrintUMLData");
-  
+  action_lib->Register<cActionPrintSenseData>("PrintSenseData");
+  action_lib->Register<cActionPrintSenseExeData>("PrintSenseExeData");
+
   // Population Out Files
   action_lib->Register<cActionPrintPhenotypeData>("PrintPhenotypeData");
   action_lib->Register<cActionPrintPhenotypeStatus>("PrintPhenotypeStatus");
@@ -1495,6 +1821,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDominantGenotype>("PrintDominantGenotype");
   action_lib->Register<cActionPrintDominantParasiteGenotype>("PrintDominantParasiteGenotype");
   action_lib->Register<cActionPrintDetailedFitnessData>("PrintDetailedFitnessData");
+	action_lib->Register<cActionPrintLogFitnessHistogram>("PrintLogFitnessHistogram");
   action_lib->Register<cActionPrintGeneticDistanceData>("PrintGeneticDistanceData");
   action_lib->Register<cActionPrintPopulationDistanceData>("PrintPopulationDistanceData");
   action_lib->Register<cActionPrintDebug>("PrintDebug");
@@ -1506,10 +1833,13 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintViableTasksData>("PrintViableTasksData");
   action_lib->Register<cActionPrintTreeDepths>("PrintTreeDepths");
   
+	action_lib->Register<cActionPrintGenomicSiteEntropy>("PrintGenomicSiteEntropy");
+	
   // Grid Information Dumps
   action_lib->Register<cActionDumpMemory>("DumpMemory");
   action_lib->Register<cActionDumpFitnessGrid>("DumpFitnessGrid");
   action_lib->Register<cActionDumpGenotypeIDGrid>("DumpGenotypeIDGrid");
+  action_lib->Register<cActionDumpPhenotypeIDGrid>("DumpPhenotypeIDGrid");
   action_lib->Register<cActionDumpLineageGrid>("DumpLineageGrid");
   action_lib->Register<cActionDumpTaskGrid>("DumpTaskGrid");
   action_lib->Register<cActionDumpDonorGrid>("DumpDonorGrid");
@@ -1568,6 +1898,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpMemory>("dump_memory");
   action_lib->Register<cActionDumpFitnessGrid>("dump_fitness_grid");
   action_lib->Register<cActionDumpGenotypeIDGrid>("dump_genotype_grid");
+  action_lib->Register<cActionDumpPhenotypeIDGrid>("dump_phenotype_grid");
   action_lib->Register<cActionDumpLineageGrid>("dump_lineage_grid");
   action_lib->Register<cActionDumpTaskGrid>("dump_task_grid");
   action_lib->Register<cActionDumpDonorGrid>("dump_donor_grid");

@@ -4,20 +4,18 @@ SET(libmain_a_SOURCES
   avida.cc
   cAvidaConfig.cc
   cBirthChamber.cc
+  cDeme.cc
   cEnvironment.cc
   cEventList.cc
   cFitnessMatrix.cc
   cGenome.cc
   cGenomeUtil.cc
   cInstruction.cc
-  cInstSet.cc
-  cInstUtil.cc
   cLandscape.cc
   cLocalMutations.cc
   cMutationLib.cc
   cMutationRates.cc
   cMxCodeArray.cc
-  cOrgMessage.cc
   cOrganism.cc
   cPhenotype.cc
   cPopulation.cc

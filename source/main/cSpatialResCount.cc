@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "spatial_res_count.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,6 +28,9 @@
 #include "functions.h"
 #include "nGeometry.h"
 
+using namespace std;
+
+/* Setup a single spatial resource with known flows */
 
 cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, 
                   int ingeometry, 
@@ -36,6 +54,8 @@ cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y,
   } 
   SetPointers();
 }
+
+/* Setup a single spatial resource using default flow amounts  */
 
 cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, int ingeometry)
                  : grid(inworld_x * inworld_y) {
@@ -136,7 +156,9 @@ void cSpatialResCount::CheckRanges() {
 
   // Check that the x, y ranges of the inflow and outflow rectangles 
   // are valid
+
   /* check range of inputs */
+
   if (inflowX1 < 0) { 
     inflowX1 = 0; 
   } else if (inflowX1 > world_x) { 
@@ -159,6 +181,7 @@ void cSpatialResCount::CheckRanges() {
   }
 
   /* allow for rectangles that cross over the zero X or zero Y boundry */
+
   if (inflowX2 < inflowX1) { inflowX2 += world_x; }
   if (inflowY2 < inflowY1) { inflowY2 += world_y; }
   if (outflowX1 < 0) { 
@@ -183,9 +206,81 @@ void cSpatialResCount::CheckRanges() {
   }
 
   /* allow for rectangles that cross over the zero X or zero Y boundry */
+
   if (outflowX2 < outflowX1) { outflowX2 += world_x; }
   if (outflowY2 < outflowY1) { outflowY2 += world_y; }
 
+}
+
+/* Set all the individual cells to their initial values */
+
+void cSpatialResCount::SetCellList(tArray<cCellResource> *in_cell_list_ptr) {
+  cell_list_ptr = in_cell_list_ptr;
+  for (int i = 0; i < cell_list_ptr->GetSize(); i++) {
+    int cell_id = (*cell_list_ptr)[i].GetId();
+    
+    /* Be sure the user entered a valid cell id or if the the program is loading
+       the resource for the testCPU that does not have a grid set up */
+       
+    if (cell_id >= 0 && cell_id <= grid.GetSize()) {
+      Rate((*cell_list_ptr)[i].GetId(), (*cell_list_ptr)[i].GetInitial());
+      State((*cell_list_ptr)[i].GetId());
+    }
+  }
+}
+
+/* Set the rate variable for one element using the array index */
+
+void cSpatialResCount::Rate(int x, double ratein) const { 
+  if (x >= 0 && x < grid.GetSize()) {
+    grid[x].Rate(ratein);
+  }
+}
+
+/* Set the rate variable for one element using the x,y coordinate */
+
+void cSpatialResCount::Rate(int x, int y, double ratein) const { 
+  if (x >= 0 && x < world_x && y>= 0 && y < world_y) {
+    grid[y * world_x + x].Rate(ratein);
+  }
+}
+
+/* Fold the rate variable into the resource state for one element using 
+   the array index */
+   
+void cSpatialResCount::State(int x) { 
+  if (x >= 0 && x < grid.GetSize()) {
+    grid[x].State();
+  }
+}
+
+/* Fold the rate variable into the resource state for one element using 
+   the x,y coordinate */
+   
+void cSpatialResCount::State(int x, int y) { 
+  if (x >= 0 && x < world_x && y >= 0 && y < world_y) {
+    grid[y*world_x + x].State();
+  }
+}
+
+/* Get the state of one element using the array index */
+
+const double cSpatialResCount::GetAmount(int x) const { 
+  if (x >= 0 && x < grid.GetSize()) {
+    return grid[x].GetAmount(); 
+  } else {
+    return -99.9;
+  }
+}
+
+/* Get the state of one element using the the x,y coordinate */
+
+const double cSpatialResCount::GetAmount(int x, int y) const { 
+  if (x >= 0 && x < world_x && y >= 0 && y < world_y) {
+    return grid[y*world_x + x].GetAmount(); 
+  } else {
+    return -99.9;
+  }
 }
 
 void cSpatialResCount::RateAll(double ratein) {
@@ -196,6 +291,9 @@ void cSpatialResCount::RateAll(double ratein) {
     grid[i].Rate(ratein);
   } 
 }
+
+/* For each cell in the grid add the changes stored in the rate variable
+   with the total of the resource */
 
 void cSpatialResCount::StateAll() {
 
@@ -229,6 +327,8 @@ void cSpatialResCount::FlowAll() {
   }
 }
 
+/* Total up all the resources in each cell */
+
 const double cSpatialResCount::SumAll() const{
 
   int i;
@@ -240,11 +340,12 @@ const double cSpatialResCount::SumAll() const{
   return sum;
 }
 
+/* Take a given amount of resource and spread it among all the cells in the 
+   inflow rectange */
 
 void cSpatialResCount::Source(double amount) const {
   int     i, j, elem;
   double  totalcells;
-
 
   totalcells = (inflowY2 - inflowY1 + 1) * (inflowX2 - inflowX1 + 1) * 1.0;
   amount /= totalcells;
@@ -256,6 +357,23 @@ void cSpatialResCount::Source(double amount) const {
     }
   }
 }
+
+/* Handle the inflow for a list of individual cells */
+
+void cSpatialResCount::CellInflow() const {
+  for (int i=0; i < cell_list_ptr->GetSize(); i++) {
+    const int cell_id = (*cell_list_ptr)[i].GetId();
+    
+    /* Be sure the user entered a valid cell id or if the the program is loading
+       the resource for the testCPU that does not have a grid set up */
+       
+    if (cell_id >= 0 && cell_id < grid.GetSize()) {
+      Rate(cell_id, (*cell_list_ptr)[i].GetInflow());
+    }
+  }
+}
+
+/* Take away a give percentage of a resource from outflow rectangle */
 
 void cSpatialResCount::Sink(double decay) const {
 
@@ -269,5 +387,33 @@ void cSpatialResCount::Sink(double decay) const {
       deltaamount = Max((GetAmount(elem) * (1.0 - decay)), 0.0);
       Rate(elem,-deltaamount); 
     }
+  }
+}
+
+/* Take away a give percentage of a resource from individual cells */
+
+void cSpatialResCount::CellOutflow() const {
+
+  double deltaamount = 0.0;
+
+  for (int i=0; i < cell_list_ptr->GetSize(); i++) {
+    const int cell_id = (*cell_list_ptr)[i].GetId();
+    
+    /* Be sure the user entered a valid cell id or if the the program is loading
+       the resource for the testCPU that does not have a grid set up */
+       
+    if (cell_id >= 0 && cell_id < grid.GetSize()) {
+      deltaamount = Max((GetAmount(cell_id) *
+                         (*cell_list_ptr)[i].GetOutflow()), 0.0);
+    }                     
+    Rate((*cell_list_ptr)[i].GetId(), -deltaamount); 
+  }
+}
+
+void cSpatialResCount::SetCellAmount(int cell_id, double res)
+{
+  if (cell_id >= 0 && cell_id < grid.GetSize())
+  {
+    Element(cell_id).SetAmount(res);
   }
 }

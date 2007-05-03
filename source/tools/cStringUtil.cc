@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "string_util.cc" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,10 +28,8 @@
 #include "functions.h"
 #include "tMatrix.h"
 
-extern "C"{
-#include <stdio.h>
-#include <stdarg.h>
-}
+#include <cstdarg>
+#include <cstdio>
 
 using namespace std;
 
@@ -267,28 +280,28 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2,
   return (int) dist_matrix(size2, size1);
 }
 
-const cString & cStringUtil::Convert(const cString & in_string,
-				     const cString & out_string)
+const cString & cStringUtil::Convert(const cString& in_string,
+				     const cString& out_string)
 {
   return in_string;
 }
 
-bool cStringUtil::Convert(const cString & in_string, bool type_bool)
+bool cStringUtil::Convert(const cString& in_string, bool type_bool)
 {
   return (in_string.AsInt() != 0);
 }
 
-int cStringUtil::Convert(const cString & in_string, int type_int)
+int cStringUtil::Convert(const cString& in_string, int type_int)
 {
   return in_string.AsInt();
 }
 
-double cStringUtil::Convert(const cString & in_string, double type_double)
+double cStringUtil::Convert(const cString& in_string, double type_double)
 {
   return in_string.AsDouble();
 }
 
-cString cStringUtil::Convert(const cString & in_string)
+cString cStringUtil::Convert(const cString& in_string)
 {
   return in_string;
 }
@@ -308,3 +321,28 @@ cString cStringUtil::Convert(double in_double)
 {
   return Stringf("%f", in_double);
 }
+
+/* Return an array of integers from a string with format x,y..z,a */
+
+tArray<int> cStringUtil::ReturnArray(cString& in_string)
+{
+  tArray<int> out_list;
+  while (in_string.GetSize() != 0) {
+    cString chunk = in_string.Pop(',');
+
+    /* if the string has a .. in it find the two numbers on either side of it */
+
+    if (chunk.Find(".") != -1) {
+      cString start_str = chunk.Pop('.');
+      chunk.RemoveChar('.');
+      cString stop_str = chunk.PopWord();
+      int start_int = start_str.AsInt();
+      int stop_int = stop_str.AsInt();
+      for (int i = start_int; i <= stop_int; i++) out_list.Push(i);
+    } else {
+      out_list.Push(chunk.AsInt());
+    }
+  }
+  return(out_list);
+}
+

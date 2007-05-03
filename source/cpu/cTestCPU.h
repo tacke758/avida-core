@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "test_cpu.hh" prior to 11/30/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -12,6 +27,7 @@
 #define cTestCPU_h
 
 #include <fstream>
+#include <vector>
 
 #ifndef tArray_h
 #include "tArray.h"
@@ -24,77 +40,73 @@
 #endif
 
 class cAvidaContext;
-class cInstSet;
-class cResourceCount;
 class cCPUTestInfo;
 class cGenome;
 class cGenotype;
+class cInjectGenotype;
+class cInstSet;
+class cResourceCount;
 class cWorld;
 
-class cTestResources
-{
-  friend class cTestCPU;
-private:
-  cResourceCount resource_count;
-  bool d_useResources;
-  tArray<double> d_emptyDoubleArray;
-  tArray<double> d_resources;
-  
-public:
-  cTestResources(cWorld* world);
-};
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nTestResources {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif
 
 class cTestCPU
 {
+public:
+  enum eTestCPUResourceMethod { RES_INITIAL = 0, RES_CONSTANT, RES_UPDATED_DEPLETABLE, RES_DYNAMIC, RES_LAST };  
+  // Modes for how the test CPU handles resources:
+  // OFF - all resources are at zero. (OLD: use_resources = 0)
+  // CONSTANT - resources stay constant at input values for the specified update. (OLD: use_resources = 1)
+  // UPDATED_DEPLETABLE - resources change every update according to resource data file (assuming an update
+  //    is an average time slice). The organism also depletes these resources when using them.
+  // DYNAMIC - UPDATED_DEPLETABLE + resources inflow/outflow (NOT IMPLEMENTED YET!)
+
 private:
   cWorld* m_world;
   tArray<int> input_array;
   tArray<int> receive_array;
   int cur_input;
-  int cur_receive;
-  
-  cTestResources* m_res;
-  bool m_localres;
+  int cur_receive;  
+  bool m_use_random_inputs;
+
+  eTestCPUResourceMethod m_res_method;
+  std::vector<std::pair<int, std::vector<double> > > * m_res;
+  int m_res_time_spent_offset;
+  int m_res_update;
+  cResourceCount m_resource_count;
 
   bool ProcessGestation(cAvidaContext& ctx, cCPUTestInfo& test_info, int cur_depth);
   bool TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome, int cur_depth);
+
+  // one copy of resources initialized from environment file
+  static std::vector<std::pair<int, std::vector<double> > > * s_resources;
 
   cTestCPU(); // @not_implemented
   cTestCPU(const cTestCPU&); // @not_implemented
   cTestCPU& operator=(const cTestCPU&); // @not_implemented
   
 public:
-  cTestCPU(cWorld* world) : m_world(world), m_res(new cTestResources(world)), m_localres(true) { ; }
-  cTestCPU(cWorld* world, cTestResources* res) : m_world(world), m_res(res), m_localres(false) { ; }
-  ~cTestCPU() { if (m_localres) delete m_res; }
+  cTestCPU(cWorld* world);
+  ~cTestCPU() { }
   
   bool TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome);
   bool TestGenome(cAvidaContext& ctx, cCPUTestInfo& test_info, const cGenome& genome, std::ofstream& out_fp);
   
   void PrintGenome(cAvidaContext& ctx, const cGenome& genome, cString filename,
                    cGenotype* genotype = NULL, int update = -1);
+  void PrintInjectGenome(cAvidaContext& ctx, cInjectGenotype* inject_genotype,
+                         const cGenome& genome, cString filename = "", int update = -1);
 
   inline int GetInput();
   inline int GetInputAt(int & input_pointer);
+  void ResetInputs(cAvidaContext& ctx);
+
   inline int GetReceiveValue();
-  inline const tArray<double>& GetResources();
+  inline const tArray<double>& GetResources();  
   inline void SetResource(int id, double new_level);
-  void SetupResourceArray(const tArray<double> &resources);
-  void SetUseResources(bool use);
-  bool GetUseResources() { return m_res->d_useResources; }
-  cResourceCount& GetResourceCount(void) { return m_res->resource_count; }
+  void InitResources(int res_method = RES_INITIAL, std::vector<std::pair<int, std::vector<double> > > * res = NULL, int update = 0, int time_spent_offset = 0);
+  void SetResourceUpdate(int update, bool round_to_closest = false);
+  void ModifyResources(const tArray<double>& res_change);
+  cResourceCount& GetResourceCount() { return m_resource_count; }
 };
 
 #ifdef ENABLE_UNIT_TESTS
@@ -132,15 +144,12 @@ inline int cTestCPU::GetReceiveValue()
 
 inline const tArray<double>& cTestCPU::GetResources()
 {
-  if(m_res->d_useResources) return m_res->d_resources;
-  
-  return m_res->d_emptyDoubleArray;
+    return m_resource_count.GetResources();
 }
 
 inline void cTestCPU::SetResource(int id, double new_level)
 {
-  if (!m_localres) m_res = new cTestResources(*m_res);  // copy resources locally
-  m_res->resource_count.Set(id, new_level);
+  m_resource_count.Set(id, new_level);
 }
 
 #endif

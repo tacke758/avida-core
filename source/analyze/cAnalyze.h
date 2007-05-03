@@ -3,14 +3,30 @@
  *  Avida
  *
  *  Called "analyze.hh" prior to 12/1/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cAnalyze_h
 #define cAnalyze_h
 
+#include <iostream>
 #include <vector>
 
 #ifndef cAnalyzeJobQueue_h
@@ -38,11 +54,19 @@
 #include "tMatrix.h"
 #endif
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
+
 const int MAX_BATCHES = 2000;
 
 class cAnalyzeCommand;
 class cAnalyzeFunction;
 class cAnalyzeCommandDefBase;
+class cAnalyzeScreen;
 template <class T> class tDataEntryBase;
 class cInstSet;
 class cAnalyzeGenotype;
@@ -52,29 +76,52 @@ class cEnvironment;
 class cTestCPU;
 class cWorld;
 
-
-class cAnalyze
-{
-private:
+class cAnalyze {
+  friend class cAnalyzeScreen;
+#if USE_tMemTrack
+  tMemTrack<cAnalyze> mt;
+#endif
+/*
+FIXME : switch back to private.
+- switched to public while I brainstorm.  @kgn 06.11.22
+*/
+//private:
+public:
   int cur_batch;
+
+  /*
+  FIXME : refactor "temporary_next_id". @kgn
+  - Added as a quick way to provide unique serial ids, per organism, in COMPETE
+    command. @kgn
+  */
+  int temporary_next_id;
+  int temporary_next_update;
+  void SetTempNextUpdate(int next){ temporary_next_update = next; }
+  void SetTempNextID(int next){ temporary_next_id = next; }
+  int GetTempNextUpdate(){ return temporary_next_update; }
+  int GetTempNextID(){ return temporary_next_id; }
+
   cGenotypeBatch batch[MAX_BATCHES];
   tList<cAnalyzeCommand> command_list;
   tList<cAnalyzeFunction> function_list;
   tList<cAnalyzeCommandDefBase> command_lib;
-  cString variables[26];
-  cString local_variables[26];
-  cString arg_variables[10];
+  tArray<cString> variables;
+  tArray<cString> local_variables;
+  tArray<cString> arg_variables;
+
+  bool exit_on_error;
 
   cWorld* m_world;
   cInstSet& inst_set;
   cTestCPU* m_testcpu;
-  cAvidaContext m_ctx;
+  cAvidaContext& m_ctx;
   cAnalyzeJobQueue m_jobqueue;
-
 
   // This is the storage for the resource information from resource.dat.  It 
   // is a pair of the update and a vector of the resource concentrations
   std::vector<std::pair<int, std::vector<double> > > resources;
+  int m_resource_time_spent_offset; // The amount to offset the time spent when 
+                                    // beginning, using resources that change
 
   int interactive_depth;  // How nested are we if in interactive mode?
 
@@ -151,6 +198,7 @@ private:
   void CommandTrace(cString cur_string);
   void CommandTraceWithResources(cString cur_string);
   void CommandPrintTasks(cString cur_string);
+  void CommandPrintTasksQuality(cString cur_string);
   void CommandDetail(cString cur_string);
   void CommandDetailTimeline(cString cur_string);
   void CommandDetailBatches(cString cur_string);
@@ -161,6 +209,7 @@ private:
   // Population Analysis Commands...
   void CommandPrintPhenotypes(cString cur_string);
   void CommandPrintDiversity(cString cur_string);
+  void CommandPrintTreeStats(cString cur_string);
   void PhyloCommunityComplexity(cString cur_string);
   void AnalyzeCommunityComplexity(cString cur_string);
 
@@ -208,6 +257,8 @@ private:
 
   // Control...
   void VarSet(cString cur_string);
+  void ConfigGet(cString cur_string);
+  void ConfigSet(cString cur_string);
   void BatchSet(cString cur_string);
   void BatchName(cString cur_string);
   void BatchTag(cString cur_string);
@@ -220,6 +271,9 @@ private:
   void IncludeFile(cString cur_string);
   void CommandSystem(cString cur_string);
   void CommandInteractive(cString cur_string);
+
+  // Uncategorized...
+  void BatchCompete(cString cur_string);
 
   // Functions...
   void FunctionCreate(cString cur_string, tList<cAnalyzeCommand> & clist);
@@ -248,8 +302,7 @@ private:
   void CommandForeach(cString cur_string, tList<cAnalyzeCommand> & clist);
   void CommandForRange(cString cur_string, tList<cAnalyzeCommand> & clist);
 
-  cAnalyze(const cAnalyze &); // @not_implemented
-
+  cAnalyze(const cAnalyze &); // Intentially not implemented
 
 public:
   cAnalyze(cWorld* world);
@@ -257,9 +310,15 @@ public:
 
   void RunFile(cString filename);
   void RunInteractive();
+  bool Send(const cString &text_input);
+  bool Send(const cStringList &list_input);
   
   int GetCurrentBatchID() { return cur_batch; }
   cGenotypeBatch& GetCurrentBatch() { return batch[cur_batch]; }
+  cGenotypeBatch& GetBatch(int id) {
+    assert(id >= 0 && id < MAX_BATCHES);
+    return batch[id];
+  }
   cAnalyzeJobQueue& GetJobQueue() { return m_jobqueue; }
 };
 

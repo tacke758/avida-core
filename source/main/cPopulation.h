@@ -1,11 +1,25 @@
-
 /*
  *  cPopulation.h
  *  Avida
  *
  *  Called "population.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -16,6 +30,9 @@
 
 #ifndef cBirthChamber_h
 #include "cBirthChamber.h"
+#endif
+#ifndef cDeme_h
+#include "cDeme.h"
 #endif
 #ifndef cOrgInterface_h
 #include "cOrgInterface.h"
@@ -39,6 +56,13 @@
 #include "tList.h"
 #endif
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
+
 class cAvidaContext;
 class cCodeLabel;
 class cChangeList;
@@ -54,6 +78,9 @@ class cSaleItem;
 
 class cPopulation
 {
+#if USE_tMemTrack
+  tMemTrack<cPopulation> mt;
+#endif
 private:
   // Components...
   cWorld* m_world;
@@ -67,15 +94,13 @@ private:
   tList<cPopulationCell> reaper_queue; // Death order in some mass-action runs
 
   // Default organism setups...
-  cEnvironment & environment;          // Physics & Chemestry description
+  cEnvironment & environment;          // Physics & Chemistry description
 
   // Other data...
   int world_x;                         // Structured population width.
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
-  int num_demes;                       // Number of sub-groups of organisms
-  int deme_size;                       // Number of organims in a deme.
-  tArray<int> deme_birth_count;        // Track number of births in each deme.
+  tArray<cDeme> deme_array;            // Deme structure of the population.
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -87,6 +112,7 @@ private:
   cPopulationCell& PositionChild(cPopulationCell& parent_cell, bool parent_ok = true);
   void PositionAge(cPopulationCell& parent_cell, tList<cPopulationCell>& found_list, bool parent_ok);
   void PositionMerit(cPopulationCell & parent_cell, tList<cPopulationCell>& found_list, bool parent_ok);
+  void PositionEnergyUsed(cPopulationCell & parent_cell, tList<cPopulationCell>& found_list, bool parent_ok);
   void FindEmptyCell(tList<cPopulationCell>& cell_list, tList<cPopulationCell>& found_list);
 
   // Update statistics collecting...
@@ -98,7 +124,7 @@ private:
 
   /**
    * Attention: InjectGenotype does *not* add the genotype to the archive.
-   * It assumes thats where you got the genotype from.
+   * It assumes that's where you got the genotype from.
    **/
   void InjectGenotype(int cell_id, cGenotype* genotype);
   void InjectGenome(int cell_id, const cGenome& genome, int lineage_label);
@@ -117,12 +143,9 @@ public:
   cPopulation(cWorld* world);
   ~cPopulation();
 
-  // Extra Setup...
-  bool SetupDemes();
-
   // Activate the offspring of an organism in the population
   bool ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, cOrganism& parent_organism);
-  bool ActivateParasite(cOrganism& parent, const cGenome& injected_code);
+  bool ActivateParasite(cOrganism& parent, const cCodeLabel& label, const cGenome& injected_code);
   
   // Inject an organism from the outside world.
   void Inject(const cGenome& genome, int cell_id = -1, double merit = -1, int lineage_label = 0,
@@ -134,10 +157,14 @@ public:
   void Kaboom(cPopulationCell& in_cell, int distance=0);
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
+
   // Deme-related methods
   void CompeteDemes(int competition_type);
+  void ReplicateDemes(int rep_trigger);
+  void DivideDemes();
   void ResetDemes();
   void CopyDeme(int deme1_id, int deme2_id);
+  void SpawnDeme(int deme1_id, int deme2_id=-1);
   void PrintDemeStats();
 
   // Process a single organism one instruction...
@@ -162,6 +189,8 @@ public:
   int GetSize() { return cell_array.GetSize(); }
   int GetWorldX() { return world_x; }
   int GetWorldY() { return world_y; }
+  int GetNumDemes() { return deme_array.GetSize(); }
+  cDeme& GetDeme(int i) { return deme_array[i]; }
 
   cPopulationCell& GetCell(int in_num);
   const tArray<double>& GetResources() const { return resource_count.GetResources(); }
@@ -173,6 +202,7 @@ public:
   void UpdateCellResources(const tArray<double>& res_change, const int cell_id);
   void SetResource(int id, double new_level);
   double GetResource(int id) const { return resource_count.Get(id); }
+  cResourceCount& GetResourceCount() { return resource_count; }
 
   cEnvironment& GetEnvironment() { return environment; }
   int GetNumOrganisms() { return num_organisms; }

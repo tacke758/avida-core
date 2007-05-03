@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "resource_count.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -12,9 +27,7 @@
 
 #include "nGeometry.h"
 
-extern "C" {
-#include <math.h>
-}
+#include <cmath>
 
 using namespace std;
 
@@ -23,7 +36,8 @@ const double cResourceCount::EPSILON (1.0e-15);
 const int cResourceCount::PRECALC_DISTANCE(100);
 
 
-void FlowMatter(cSpatialCountElem &elem1, cSpatialCountElem &elem2, double inxdiffuse, 
+void FlowMatter(cSpatialCountElem &elem1, cSpatialCountElem &elem2, 
+                double inxdiffuse, 
                 double inydiffuse, double inxgravity, double inygravity,
                 int xdist, int ydist, double dist) {
 
@@ -132,7 +146,7 @@ void cResourceCount::SetSize(int num_resources)
   resource_count.SetAll(0.0);
   decay_rate.SetAll(0.0);
   inflow_rate.SetAll(0.0);
-  decay_precalc.SetAll(0.0);
+  decay_precalc.SetAll(1.0); // This is 1-inflow, so there should be no inflow by default, JEB
   inflow_precalc.SetAll(0.0);
   geometry.SetAll(nGeometry::GLOBAL);
   curr_grid_res_cnt.SetAll(0.0);
@@ -142,6 +156,25 @@ cResourceCount::~cResourceCount()
 {
 }
 
+void cResourceCount::SetCellResources(int cell_id, const tArray<double> & res)
+{
+  assert(resource_count.GetSize() == res.GetSize());
+
+  for (int i = 0; i < resource_count.GetSize(); i++) {
+    if (geometry[i] == nGeometry::GLOBAL) {
+      // Set global quantity of resource
+    } else {
+      spatial_resource_count[i].SetCellAmount(cell_id, res[i]);
+
+      /* Ideally the state of the cell's resource should not be set till
+         the end of the update so that all processes (inflow, outflow, 
+         diffision, gravity and organism demand) have the same weight.  However
+         waiting can cause problems with negative resources so we allow
+         the organism demand to work immediately on the state of the resource */ 
+    }
+  }
+}
+
 void cResourceCount::Setup(int id, cString name, double initial, double inflow,
                            double decay, int in_geometry, double in_xdiffuse,
                            double in_xgravity, double in_ydiffuse, 
@@ -149,7 +182,8 @@ void cResourceCount::Setup(int id, cString name, double initial, double inflow,
                            int in_inflowX2, int in_inflowY1, 
                            int in_inflowY2, int in_outflowX1, 
                            int in_outflowX2, int in_outflowY1, 
-                           int in_outflowY2)
+                           int in_outflowY2, tArray<cCellResource> *in_cell_list_ptr,
+                           int verbosity_level)
 {
   assert(id >= 0 && id < resource_count.GetSize());
   assert(initial >= 0.0);
@@ -165,31 +199,34 @@ void cResourceCount::Setup(int id, cString name, double initial, double inflow,
   } else if (in_geometry == nGeometry::TORUS) {
     geo_name = "TORUS";
   }
-#if 0
-  cerr << "Setting up resource " << name
-       << "(" << geo_name 
-       << ") with initial quatity=" << initial
-       << ", decay=" << decay
-       << ", inflow=" << inflow
-       << endl;
-  if ((in_geometry == nGeometry::GRID) || (in_geometry == nGeometry::TORUS)) {
-    cerr << "  Inflow rectangle (" << in_inflowX1 
-         << "," << in_inflowY1 
-         << ") to (" << in_inflowX2 
-         << "," << in_inflowY2 
-         << ")" << endl; 
-    cerr << "  Outflow rectangle (" << in_outflowX1 
-         << "," << in_outflowY1 
-         << ") to (" << in_outflowX2 
-         << "," << in_outflowY2 
-         << ")" << endl;
-    cerr << "  xdiffuse=" << in_xdiffuse
-         << ", xgravity=" << in_xgravity
-         << ", ydiffuse=" << in_ydiffuse
-         << ", ygravity=" << in_ygravity
+
+  /* If the verbose flag is set print out information about resources */
+
+  if (verbosity_level > VERBOSE_NORMAL) {
+    cout << "Setting up resource " << name
+         << "(" << geo_name 
+         << ") with initial quatity=" << initial
+         << ", decay=" << decay
+         << ", inflow=" << inflow
          << endl;
-  }   
-#endif
+    if ((in_geometry == nGeometry::GRID) || (in_geometry == nGeometry::TORUS)) {
+      cout << "  Inflow rectangle (" << in_inflowX1 
+           << "," << in_inflowY1 
+           << ") to (" << in_inflowX2 
+           << "," << in_inflowY2 
+           << ")" << endl; 
+      cout << "  Outflow rectangle (" << in_outflowX1 
+           << "," << in_outflowY1 
+           << ") to (" << in_outflowX2 
+           << "," << in_outflowY2 
+           << ")" << endl;
+      cout << "  xdiffuse=" << in_xdiffuse
+           << ", xgravity=" << in_xgravity
+           << ", ydiffuse=" << in_ydiffuse
+           << ", ygravity=" << in_ygravity
+           << endl;
+    }   
+  }
 
   resource_count[id] = initial;
   spatial_resource_count[id].RateAll
@@ -200,10 +237,11 @@ void cResourceCount::Setup(int id, cString name, double initial, double inflow,
   geometry[id] = in_geometry;
   spatial_resource_count[id].SetGeometry(in_geometry);
   spatial_resource_count[id].SetPointers();
+  spatial_resource_count[id].SetCellList(in_cell_list_ptr);
 
   double step_decay = pow(decay, UPDATE_STEP);
   double step_inflow = inflow * UPDATE_STEP;
-
+  
   decay_precalc(id, 0) = 1.0;
   inflow_precalc(id, 0) = 0.0;
   for (int i = 1; i <= PRECALC_DISTANCE; i++) {
@@ -307,6 +345,14 @@ void cResourceCount::ModifyCell(const tArray<double> & res_change, int cell_id)
       assert(resource_count[i] >= 0.0);
     } else {
       spatial_resource_count[i].Rate(cell_id, res_change[i]);
+
+      /* Ideally the state of the cell's resource should not be set till
+         the end of the update so that all processes (inflow, outflow, 
+         diffision, gravity and organism demand) have the same weight.  However
+         waiting can cause problems with negative resources so we allow
+         the organism demand to work immediately on the state of the resource */ 
+    
+      spatial_resource_count[i].State(cell_id);
     }
   }
 }
@@ -362,6 +408,10 @@ void cResourceCount::DoUpdates() const
       if (geometry[i] != nGeometry::GLOBAL) {
         spatial_resource_count[i].Source(inflow_rate[i]);
         spatial_resource_count[i].Sink(decay_rate[i]);
+        if (spatial_resource_count[i].GetCellListSize() > 0) {
+          spatial_resource_count[i].CellInflow();
+          spatial_resource_count[i].CellOutflow();
+        }
         spatial_resource_count[i].FlowAll();
         spatial_resource_count[i].StateAll();
         resource_count[i] = spatial_resource_count[i].SumAll();

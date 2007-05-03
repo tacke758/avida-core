@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "random.hh" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2000 California Institute of Technology
  *
  */
@@ -11,16 +11,19 @@
 #ifndef cRandom_h
 #define cRandom_h
 
+#ifndef cMutex_h
+#include "cMutex.h"
+#endif
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
 # endif
 #endif
 
-#include <time.h>
-#include <limits.h>
-#include <math.h>
-#include <pthread.h>
+#include <ctime>
+#include <climits>
+#include <cmath>
 
 /**
  * A versatile and fast pseudo random number generator.
@@ -126,7 +129,7 @@ public:
    * @return The pseudo random number.
    * @param max The upper bound for the random numbers (will never be returned).
    **/
-  unsigned int GetUInt(const unsigned int max) { return static_cast<unsigned int>(GetDouble() * static_cast<double>(max)); }
+  unsigned int GetUInt(const unsigned int max) { return static_cast<int>(GetDouble() * static_cast<double>(max)); }
   
   /**
    * Generate an unsigned int out of an interval.
@@ -244,31 +247,18 @@ namespace nRandom {
 class cRandomMT : public cRandom
 {
 private:
-  pthread_mutex_t m_mutex;
+  cMutex m_mutex;
   
   unsigned int Get();
 
 public:
-  cRandomMT(const int in_seed = -1) : cRandom(in_seed) { pthread_mutex_init(&m_mutex, NULL); }
-  ~cRandomMT() { pthread_mutex_destroy(&m_mutex); }
+  cRandomMT(const int in_seed = -1) : cRandom(in_seed) { ; }
+  ~cRandomMT() { ; }
 
   void ResetSeed(const int in_seed);
 
   double GetRandNormal();
 };
-
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nRandomMT {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 
 

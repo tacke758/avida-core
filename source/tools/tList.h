@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "tList.hh" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -16,6 +31,11 @@
 #  include "tMemTrack.h"
 # endif
 #endif
+
+#ifndef platform_h
+#include "platform.h"
+#endif
+
 
 #ifndef NULL
 #define NULL 0
@@ -30,8 +50,14 @@ public:
   tListNode<T> * next;
   tListNode<T> * prev;
   
-  tListNode() : data(NULL), next(this), prev(this) { ; }
-
+// @DMB - Visual Studio doesn't like usage of 'this' in initializers 
+//        and throws a lot of useless warnings. 
+#if AVIDA_PLATFORM(WINDOWS) 
+  tListNode() : data(NULL) { next = this; prev = this; } 
+#else 
+  tListNode() : data(NULL), next(this), prev(this) { ; } 
+#endif 
+    
   template<class Archive>
   void serialize(Archive & a, const unsigned int version){
     a.ArkvObj("data", data);
@@ -226,7 +252,7 @@ protected:
   }
   
 public:
-    T * Pop() { return RemoveNode(root.next); }
+  T * Pop() { return RemoveNode(root.next); }
   T * PopRear() { return RemoveNode(root.prev); }
   
   void Clear() { while (size > 0) Pop(); }

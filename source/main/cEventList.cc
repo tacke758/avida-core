@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "event_list.cc" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -17,7 +32,7 @@
 #include "cString.h"
 #include "cWorld.h"
 
-#include <float.h>           // for DBL_MIN
+#include <cfloat>           // for DBL_MIN
 #include <iostream>
 
 using namespace std;
@@ -68,18 +83,23 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
   return false;
 }
 
-void cEventList::LoadEventFile(const cString& filename)
+bool cEventList::LoadEventFile(const cString& filename)
 {
   cInitFile event_file(filename);
   
+  if (!event_file.IsOpen()) return false;
+
   // Load in the proper event list and set it up.
   event_file.Load();
   event_file.Compress();
+  event_file.Close();
   
   // Loop through the line_list and change the lines to events.
   for (int line_id = 0; line_id < event_file.GetNumLines(); line_id++) {
     AddEventFileFormat(event_file.GetLine(line_id));
   }
+  
+  return true;
 }
 
 
@@ -109,15 +129,17 @@ double cEventList::GetTriggerValue(eTriggerType trigger) const
   // Returns TRIGGER_END if invalid, TRIGGER_BEGIN for IMMEDIATE
   double t_val = TRIGGER_END;
   switch (trigger) {
-    case IMMEDIATE:
-      t_val = TRIGGER_BEGIN;
-      break;
-    case UPDATE:
-      t_val = m_world->GetStats().GetUpdate();
-      break;
-    case GENERATION:
-      t_val = m_world->GetStats().SumGeneration().Average();
-      break;
+  case IMMEDIATE:
+    t_val = TRIGGER_BEGIN;
+    break;
+  case UPDATE:
+    t_val = m_world->GetStats().GetUpdate();
+    break;
+  case GENERATION:
+    t_val = m_world->GetStats().SumGeneration().Average();
+    break;
+  case UNDEFINED:
+    break;
   }
   return t_val;
 }

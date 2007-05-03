@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "landscape.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -85,7 +100,7 @@ private:
 
 
   void BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu);
-  void ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& in_genome);
+  double ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& in_genome);
   void ProcessBase(cAvidaContext& ctx, cTestCPU* testcpu);
   void Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cur_genome, int cur_distance, int start_line);
 
@@ -107,6 +122,7 @@ public:
   void ProcessInsert(cAvidaContext& ctx);
   void PredictWProcess(cAvidaContext& ctx, cDataFile& df, int update = -1);
   void PredictNuProcess(cAvidaContext& ctx, cDataFile& df, int update = -1);
+  void ProcessDump(cAvidaContext& ctx, cDataFile& df);
   
   inline void SetDistance(int in_distance) { distance = in_distance; }
   inline void SetTrials(int in_trials) { trials = in_trials; }
@@ -126,8 +142,6 @@ public:
   void PrintStats(cDataFile& df, int update = -1);
   void PrintEntropy(cDataFile& fp);
   void PrintSiteCount(cDataFile& fp);
-  void PrintBase(cString filename);
-  void PrintPeak(cString filename);
 
   inline const cGenome& GetPeakGenome() { return peak_genome; }
   inline double GetAveFitness() { return total_fitness / total_count; }

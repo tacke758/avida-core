@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -23,6 +38,15 @@
 #include "cRandom.h"
 #endif
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
+
+#include <cassert>
+
 class cActionLibrary;
 class cAnalyze;
 class cAvidaDriver;
@@ -37,6 +61,9 @@ class cWorldDriver;
 
 class cWorld
 {
+#if USE_tMemTrack
+  tMemTrack<cWorld> mt;
+#endif
 protected:
   cActionLibrary* m_actlib;
   cAnalyze* m_analyze;
@@ -65,7 +92,6 @@ protected:
   cWorld& operator=(const cWorld&); // @not_implemented
   
 public:
-  explicit cWorld() : m_analyze(NULL), m_conf(new cAvidaConfig()), m_ctx(m_rng) { Setup(); }
   cWorld(cAvidaConfig* cfg) : m_analyze(NULL), m_conf(cfg), m_ctx(m_rng) { Setup(); }
   ~cWorld();
   
@@ -96,7 +122,6 @@ public:
   
   // Convenience Accessors
   int GetNumInstructions();
-  int GetNumTasks();
   int GetNumReactions();
   int GetNumResources();
   inline int GetVerbosity() { return m_conf->VERBOSITY.Get(); }

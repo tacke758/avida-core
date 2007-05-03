@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "resource_count.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -22,6 +37,9 @@
 #endif
 #ifndef tMatrix_h
 #include "tMatrix.h"
+#endif
+#ifndef defs_h
+#include "defs.h"
 #endif
 
 class cResourceCount
@@ -55,11 +73,15 @@ public:
   const cResourceCount& operator=(const cResourceCount&);
 
   void SetSize(int num_resources);
+  void SetCellResources(int cell_id, const tArray<double> & res);
 
-  void Setup(int id, cString name, double initial, double inflow, double decay, int in_geometry,
-             double in_xdiffuse, double in_xgravity, double in_ydiffuse, double in_ygravity,
+  void Setup(int id, cString name, double initial, double inflow, double decay,
+             int in_geometry, double in_xdiffuse, double in_xgravity, 
+             double in_ydiffuse, double in_ygravity,
              int in_inflowX1, int in_inflowX2, int in_inflowY1, int in_inflowY2,
-             int in_outflowX1, int in_outflowX2, int in_outflowY1, int in_outflowY);
+             int in_outflowX1, int in_outflowX2, int in_outflowY1, 
+             int in_outflowY, tArray<cCellResource> *in_cell_list_ptr,
+             int verbosity_level);
   void Update(double in_time);
 
   int GetSize(void) const { return resource_count.GetSize(); }

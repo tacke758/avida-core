@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "mutation_rates.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -28,6 +43,8 @@ void cMutationRates::Setup(cWorld* world)
   inject.ins_prob = world->GetConfig().INJECT_INS_PROB.Get();
   inject.del_prob = world->GetConfig().INJECT_DEL_PROB.Get();
   inject.mut_prob = world->GetConfig().INJECT_MUT_PROB.Get();
+  meta.copy_mut_prob = world->GetConfig().META_COPY_MUT.Get();
+  meta.standard_dev = world->GetConfig().META_STD_DEV.Get();
 }
 
 void cMutationRates::Clear()
@@ -44,6 +61,8 @@ void cMutationRates::Clear()
   inject.ins_prob = 0.0;
   inject.del_prob = 0.0;
   inject.mut_prob = 0.0;
+  meta.copy_mut_prob = 0.0;
+  meta.standard_dev = 0.0;
 }
 
 void cMutationRates::Copy(const cMutationRates& in_muts)
@@ -60,4 +79,6 @@ void cMutationRates::Copy(const cMutationRates& in_muts)
   inject.ins_prob = in_muts.inject.ins_prob;
   inject.del_prob = in_muts.inject.del_prob;
   inject.mut_prob = in_muts.inject.mut_prob;
+  meta.copy_mut_prob = in_muts.meta.copy_mut_prob;
+  meta.standard_dev = in_muts.meta.standard_dev;
 }

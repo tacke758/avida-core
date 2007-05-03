@@ -2,19 +2,35 @@
  *  cString.h
  *  Avida
  *
- *  Called "string.hh" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Called "cstringh" prior to 12/7/05.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cString_h
 #define cString_h
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
-#include <string.h>
-#include <assert.h>
+#include <string>
+#include <cstring>
+#include <cassert>
 
 #if USE_tMemTrack
 # ifndef tMemTrack_h
@@ -141,6 +157,7 @@ public:
     assert( value != NULL );    // Memory Allocation Error: Out of Memory
   }
   cString(const cString& in) { CopyString(in); }
+
   virtual ~cString() { if (value->RemoveRef() == 0) delete value; }
 
 
@@ -523,8 +540,24 @@ public:
    **/
   cString Substring(int start, int size) const ;
   
+  /**
+   * Determine if in_string is a substring of this string.
+   *
+   * @return Is this a substring?
+   * @param in_string the string to test.
+   * @param start The beginning of the substring in the string.
+   **/
   bool IsSubstring(const cString & in_string, int start) const;
  
+  /**
+   * Clip a portion of the string and output it.
+   *
+   * @return Removed substring.
+   * @param pos the position to start the ejection.
+   * @param excise number of sites to eject.
+   **/
+  cString EjectStr(int pos, int excise);
+
   /*
   We have decided to not serialize information about data-sharing
   between cStrings (via cStringData). This leads to plausible memory
@@ -578,18 +611,6 @@ protected:
 
 // }}} End Internals
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nString {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 
 // {{{ ** External cString Functions **

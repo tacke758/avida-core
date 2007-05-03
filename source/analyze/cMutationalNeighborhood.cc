@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 6/13/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -18,9 +33,8 @@
 #include "cHardwareManager.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
-#include "cStats.h"             // For GetUpdate in outputs...
+#include "cStats.h"
 #include "cTestCPU.h"
-#include "cTestUtil.h"
 #include "cTools.h"
 #include "cWorld.h"
 #include "tAnalyzeJob.h"
@@ -30,10 +44,10 @@ using namespace std;
 
 void cMutationalNeighborhood::Process(cAvidaContext& ctx)
 {
-  pthread_mutex_lock(&m_mutex);
+  m_mutex.Lock();
   if (m_initialized) {
     int cur_site = m_cur_site++;
-    pthread_mutex_unlock(&m_mutex);
+    m_mutex.Unlock();
 
     if (cur_site < m_base_genome.GetSize()) {
       // Create test infrastructure
@@ -63,9 +77,9 @@ void cMutationalNeighborhood::Process(cAvidaContext& ctx)
     return;
   }
   
-  pthread_mutex_lock(&m_mutex);
+  m_mutex.Lock();
   if (++m_completed == m_base_genome.GetSize()) ProcessComplete(ctx); 
-  pthread_mutex_unlock(&m_mutex);
+  m_mutex.Unlock();
 }
 
 
@@ -101,7 +115,7 @@ void cMutationalNeighborhood::ProcessInitialize(cAvidaContext& ctx)
   
   // Unlock internal mutex (was locked on Process() entrance)
   //  - will allow workers to begin processing if job queue already active
-  pthread_mutex_unlock(&m_mutex);
+  m_mutex.Unlock();
   
   // Load enough jobs to process all sites
   cAnalyzeJobQueue& jobqueue = m_world->GetAnalyze().GetJobQueue();
@@ -350,7 +364,7 @@ void cMutationalNeighborhood::ProcessComplete(cAvidaContext& ctx)
 
   // @TODO - Do post relative fitness determination for target task counts
   sPendingTarget* pend = NULL;
-  while (pend = m_pending.Pop()) {
+  while ((pend = m_pending.Pop())) {
     double fitness = m_fitness[pend->site][pend->inst];
     
     if (fitness == 0.0)
@@ -365,7 +379,7 @@ void cMutationalNeighborhood::ProcessComplete(cAvidaContext& ctx)
     delete pend;
   }
   
-  pthread_rwlock_unlock(&m_rwlock);
+  m_rwlock.WriteUnlock();
 }
 
 

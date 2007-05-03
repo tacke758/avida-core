@@ -19,8 +19,11 @@
 #ifndef cBaseTextWindow_h
 #include "cBaseTextWindow.h"
 #endif
+#ifndef platform_h
+#include "platform.h"
+#endif
 
-#include <signal.h>
+#include <csignal>
 #include <cstdarg>
 
 // All colors are defines except black on black:
@@ -59,7 +62,7 @@ class cTextWindow : public cBaseTextWindow {
 protected:
   WINDOW * win_id;
 
-  void NoDelay();
+  void NoDelay(bool setting=true);
 public:
   cTextWindow();
   cTextWindow(int y_size, int x_size, int y_start=0, int x_start=0);
@@ -69,8 +72,15 @@ public:
 
   // These function return the number of characters wide or high
   // (respectively) that the screen is.
+#if AVIDA_PLATFORM(WINDOWS)
+  // Windows returns the screen width and height
+  inline int Width() { return win_id->_maxx; }
+  inline int Height() { return win_id->_maxy; }
+#else
+  // Elsewhere returns the max x and y coordinates, like expected
   inline int Width() { return win_id->_maxx + 1; }
   inline int Height() { return win_id->_maxy + 1; }
+#endif
 
   // Clear the screen and redraw all text on it.
   inline void RedrawMain() { touchwin(win_id); wrefresh(win_id); }
@@ -93,8 +103,9 @@ public:
   // coords and a length, they only draw the line from the specified start,
   // to the specified distance.
   inline void Box() { box(win_id, 0, 0); }
-  void Box(int x, int y, int w, int h);
+  void Box(int x, int y, int w, int h, bool test);
   void VLine(int in_x);
+  void VLine(int in_x, int start_y, int length);
   void HLine(int in_y);
   void HLine(int in_y, int start_x, int length);
 

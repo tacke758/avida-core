@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 6/13/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -12,6 +27,12 @@
 
 #ifndef cGenome_h
 #include "cGenome.h"
+#endif
+#ifndef cMutex_h
+#include "cMutex.h"
+#endif
+#ifndef cRWLock_h
+#include "cRWLock.h"
 #endif
 #ifndef cString_h
 #include "cString.h"
@@ -25,8 +46,6 @@
 #ifndef tMatrix_h
 #include "tMatrix.h"
 #endif
-
-#include <pthread.h>
 
 class cAvidaContext;
 class cCPUTestInfo;
@@ -46,8 +65,8 @@ private:
   
   // Internal state information
   // --------------------------------------------------------------------------
-  pthread_rwlock_t m_rwlock;
-  pthread_mutex_t m_mutex;
+  cRWLock m_rwlock;
+  cMutex m_mutex;
   
   bool m_initialized;
   int m_cur_site;
@@ -173,17 +192,10 @@ public:
   cMutationalNeighborhood(cWorld* world, const cGenome& genome, const cInstSet& inst_set, int target)
   : m_world(world), m_initialized(false), m_inst_set(inst_set), m_target(target), m_base_genome(genome)
   {
-    pthread_rwlock_init(&m_rwlock, NULL);
-    pthread_mutex_init(&m_mutex, NULL);
-    
     // Acquire write lock, to prevent any Results instances before computing
-    pthread_rwlock_wrlock(&m_rwlock);
+	m_rwlock.WriteLock();
   }
-  ~cMutationalNeighborhood()
-  {
-    pthread_rwlock_destroy(&m_rwlock);
-    pthread_mutex_destroy(&m_mutex);
-  }
+  ~cMutationalNeighborhood() { ; }
   
   void Process(cAvidaContext& ctx);
 

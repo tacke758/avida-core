@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "genotype.cc" prior to 11/30/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -214,11 +229,7 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
   if (GetID() == test_genotype->GetAncestorID(0) ||  // Parent of test
       GetID() == test_genotype->GetAncestorID(1) ||  // Parent of test
       test_genotype->GetID() == GetAncestorID(0) ||  // Child of test
-      test_genotype->GetID() == GetAncestorID(1) ||    // Child of test
-      GetAncestorID(0) == test_genotype->GetAncestorID(0) || // Sibling of test
-      GetAncestorID(0) == test_genotype->GetAncestorID(1) || // Sibling of test
-      GetAncestorID(1) == test_genotype->GetAncestorID(0) || // Sibling of test
-      GetAncestorID(1) == test_genotype->GetAncestorID(1)    // Sibling of test
+      test_genotype->GetID() == GetAncestorID(1)     // Child of test
       ) {
     return 1;
   }
@@ -230,7 +241,14 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       test_genotype->GetID() == GetAncestorID(3) ||  // Grandchild of test
       test_genotype->GetID() == GetAncestorID(4) ||  // Grandchild of test
       test_genotype->GetID() == GetAncestorID(5) ||  // Grandchild of test
-      GetAncestorID(0) == test_genotype->GetAncestorID(2) || // Uncle of test
+      GetAncestorID(0) == test_genotype->GetAncestorID(0) || // Sibling of test
+      GetAncestorID(0) == test_genotype->GetAncestorID(1) || // Sibling of test
+      GetAncestorID(1) == test_genotype->GetAncestorID(0) || // Sibling of test
+      GetAncestorID(1) == test_genotype->GetAncestorID(1)    // Sibling of test
+      ) {
+    return 2;
+  }
+  if (GetAncestorID(0) == test_genotype->GetAncestorID(2) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(3) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(4) || // Uncle of test
       GetAncestorID(0) == test_genotype->GetAncestorID(5) || // Uncle of test
@@ -247,10 +265,9 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       test_genotype->GetAncestorID(1) == GetAncestorID(4) || // Nephew of test
       test_genotype->GetAncestorID(1) == GetAncestorID(5)    // Nephew of test
       ) {
-    return 2;
+    return 3;
   }
-  /*@JMC If you really want this to be accurate it should include great-grandchildren
-    and great-grandparents
+
   if (GetAncestorID(2) == test_genotype->GetAncestorID(2) || // First Cousins
       GetAncestorID(2) == test_genotype->GetAncestorID(3) ||
       GetAncestorID(2) == test_genotype->GetAncestorID(4) ||
@@ -268,8 +285,8 @@ int cGenotype::GetPhyloDistance(cGenotype * test_genotype)
       GetAncestorID(5) == test_genotype->GetAncestorID(4) ||
       GetAncestorID(5) == test_genotype->GetAncestorID(5)
       ) {
-    return 3;
+    return 4;
   }
-  */  
-  return 3;
+  
+  return 5;
 }

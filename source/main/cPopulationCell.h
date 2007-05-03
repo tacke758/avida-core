@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "pop_cell.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -37,9 +52,9 @@ private:
   tList<cPopulationCell> connection_list;  // A list of neighboring cells.
   cMutationRates* mutation_rates;           // Mutation rates at this cell.
   tArray<int> input_array;                 // Environmental Inputs...
-  int cur_input;                           // Next input to give organism.
 
   int cell_id;           // Unique id for position of cell in population.
+  int deme_id;           // ID of the deme that this cell is part of.
   int organism_count;    // Total number of orgs to ever inhabit this cell.
 
 
@@ -54,17 +69,21 @@ public:
   void operator=(const cPopulationCell& in_cell);
 
   void Setup(cWorld* world, int in_id, const cMutationRates & in_rates);
+  void SetDemeID(int in_id) { deme_id = in_id; }
   void Rotate(cPopulationCell & new_facing);
 
   cOrganism* GetOrganism() const { return organism; }
   tList<cPopulationCell> & ConnectionList() { return connection_list; }
+  cPopulationCell & GetCellFaced() { return *(connection_list.GetFirst()); }
   const cMutationRates & MutationRates() const { return *mutation_rates; }
   cMutationRates & MutationRates() { return *mutation_rates; }
-  int GetInput();
   int GetInput(int);
   int GetInputAt(int & input_pointer);
+  int GetInputSize() { return input_array.GetSize(); }
+  void ResetInputs(cAvidaContext& ctx);
 
   int GetID() const { return cell_id; }
+  int GetDemeID() const { return deme_id; }
   int GetOrganismCount() const { return organism_count; }
 
   bool IsOccupied() const { return organism != NULL; }

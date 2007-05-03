@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "analyze_genotype.cc" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -12,6 +27,7 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
+#include "cHardwareBase.h"
 #include "cHardwareManager.h"
 #include "cInstSet.h"
 #include "cOrganism.h"
@@ -48,6 +64,7 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSe
   , fitness(0.0)
   , errors(0)
   , task_counts(0)
+  , task_qualities(0)
   , fitness_ratio(0.0)
   , efficiency_ratio(0.0)
   , comp_merit_ratio(0.0)
@@ -93,6 +110,7 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstS
   , fitness(0.0)
   , errors(0)
   , task_counts(0)
+  , task_qualities(0)
   , fitness_ratio(0.0)
   , efficiency_ratio(0.0)
   , comp_merit_ratio(0.0)
@@ -128,6 +146,7 @@ cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
   , fitness(_gen.fitness)
   , errors(_gen.errors)
   , task_counts(_gen.task_counts)
+  , task_qualities(_gen.task_qualities)
   , fitness_ratio(_gen.fitness_ratio)
   , efficiency_ratio(_gen.efficiency_ratio)
   , comp_merit_ratio(_gen.comp_merit_ratio)
@@ -146,6 +165,7 @@ cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
 cAnalyzeGenotype::~cAnalyzeGenotype()
 {
   if (knockout_stats != NULL) delete knockout_stats;
+  Unlink();
 }
 
 
@@ -338,10 +358,19 @@ void cAnalyzeGenotype::CalcLandscape(cAvidaContext& ctx)
   m_land->Process(ctx);
 }
 
-void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype)
+void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype, cCPUTestInfo* test_info)
 {
     // Build the test info for printing.
-  cCPUTestInfo test_info;
+  
+  //Allocate our own test info if it wasn't provided
+  cCPUTestInfo* temp_test_info = NULL;
+  if (!test_info)
+  {
+      temp_test_info = new cCPUTestInfo();
+      test_info = temp_test_info;
+  }
+  
+  //cCPUTestInfo test_info;
   // test_info.TraceTaskOrder();
 
   // @DMB - This does some 'interesting' things with the instruction set
@@ -352,15 +381,17 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnaly
   cInstSet env_inst_set_backup = m_world->GetHardwareManager().GetInstSet();
   m_world->GetHardwareManager().GetInstSet() = inst_set;
 
-  testcpu->TestGenome(ctx, test_info, genome);
+  testcpu->TestGenome(ctx, *test_info, genome);
   
   // Restore the instruction set
   m_world->GetHardwareManager().GetInstSet() = env_inst_set_backup;
 
-  viable = test_info.IsViable();
+  viable = test_info->IsViable();
 
-  cOrganism* test_organism = test_info.GetTestOrganism();
+  cOrganism* test_organism = test_info->GetTestOrganism();
   cPhenotype& test_phenotype = test_organism->GetPhenotype();
+
+  SetExecutedFlags(test_organism->GetHardware().GetMemory());
 
   length = test_organism->GetGenome().GetSize();
   copy_length = test_phenotype.GetCopiedSize();
@@ -372,6 +403,7 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnaly
   div_type = test_phenotype.GetDivType();
   mate_id = test_phenotype.MateSelectID();
   task_counts = test_phenotype.GetLastTaskCount();
+  task_qualities = test_phenotype.GetLastTaskQuality();
 
   // Setup a new parent stats if we have a parent to work with.
   if (parent_genotype != NULL) {
@@ -382,6 +414,9 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnaly
 		    parent_genotype->GetGenome().AsString(), parent_muts);
     ancestor_dist = parent_genotype->GetAncestorDist() + parent_dist;
   }
+  
+  //Deallocate if we created
+  if (temp_test_info) delete temp_test_info;
 }
 
 
@@ -394,10 +429,45 @@ void cAnalyzeGenotype::PrintTasks(ofstream& fp, int min_task, int max_task)
   }
 }
 
+void cAnalyzeGenotype::PrintTasksQuality(ofstream& fp, int min_task, int max_task)
+{
+  if (max_task == -1) max_task = task_counts.GetSize();
+
+  for (int i = min_task; i < max_task; i++) {
+    fp << task_qualities[i] << " ";
+  }
+}
+
 void cAnalyzeGenotype::SetSequence(cString _sequence)
 {
   cGenome new_genome(_sequence);
   genome = new_genome;
+}
+
+void cAnalyzeGenotype::SetExecutedFlags(cCPUMemory & cpu_memory)
+{
+  cString new_executed_flags;
+  for (int i=0; i<cpu_memory.GetSize(); i++)
+  {
+    new_executed_flags += (cpu_memory.FlagExecuted(i)) ? "+" : "-";
+  }
+  executed_flags = new_executed_flags;
+}
+
+
+cString cAnalyzeGenotype::GetAlignmentExecutedFlags() const
+{
+  // Make this on the fly from executed flags
+  // and the genome sequence, inserting gaps...
+  cString aligned_executed_flags = GetExecutedFlags();
+  cString aligned_seq = GetAlignedSequence();
+
+  for (int i=0; i<aligned_seq.GetSize(); i++)
+  {
+    if (aligned_seq[i] == '_') aligned_executed_flags.Insert("_", i);
+  }
+
+  return aligned_executed_flags;
 }
 
 int cAnalyzeGenotype::GetKO_DeadCount() const

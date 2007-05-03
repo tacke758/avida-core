@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "reaction_requisite.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -24,19 +39,21 @@ private:
   tList<cReaction> prior_noreaction_list;
   int min_task_count;
   int max_task_count;
+  int divide_only;
 
 
   cReactionRequisite(const cReactionRequisite&); // @not_implemented
   cReactionRequisite& operator=(const cReactionRequisite&);
 
 public:
-  cReactionRequisite() : min_task_count(0) , max_task_count(INT_MAX) { ; }
+  cReactionRequisite() : min_task_count(0) , max_task_count(INT_MAX), divide_only(0) { ; }
   ~cReactionRequisite() { ; }
 
   const tList<cReaction>& GetReactions() const { return prior_reaction_list; }
   const tList<cReaction>& GetNoReactions() const { return prior_noreaction_list; }
   int GetMinTaskCount() const { return min_task_count; }
   int GetMaxTaskCount() const { return max_task_count; }
+  int GetDivideOnly() const { return divide_only; }
 
   void AddReaction(cReaction* in_reaction) {
     prior_reaction_list.PushRear(in_reaction);
@@ -46,6 +63,7 @@ public:
   }
   void SetMinTaskCount(int min) { min_task_count = min; }
   void SetMaxTaskCount(int max) { max_task_count = max; }
+  void SetDivideOnly(int div) { divide_only = div; }
 
   /*
   added to satisfy Boost.Python; the semantics are fairly useless --

@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "tArray.hh" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -17,7 +32,7 @@
 # endif
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #ifndef NULL
 #define NULL 0
@@ -33,11 +48,27 @@ private:
   int m_size; // Number of Elements
 
 public:
+  typedef T* iterator; //!< STL-compatible iterator.
+  typedef const T* const_iterator; //!< STL-compatible const_iterator.
+
   explicit tArray(const int size = 0) : m_data(NULL), m_size(0) { ResizeClear(size); }
-  tArray(const tArray& rhs) : m_data(NULL), m_size(0) { this->operator=(rhs); }
+  //explicit tArray(const int size = 0, const T& init_val) : m_data(NULL), m_size(0) { Resize(size, init_val); }
+	tArray(const tArray& rhs) : m_data(NULL), m_size(0) { this->operator=(rhs); }
 
   ~tArray() { delete [] m_data; }
-
+  
+  //! Returns an iterator to the beginning of the tArray.
+  inline iterator begin() { return m_data; }
+  
+  //! Returns an iterator just past the end of the tArray.
+  inline iterator end() { return m_data + m_size; }
+  
+  //! Returns a const_iterator to the beginning of the tArray.
+  inline const_iterator begin() const { return m_data; }
+  
+  //! Returns a const_iterator just past the end of the tArray.
+  inline const_iterator end() const { return m_data + m_size; }  
+  
   tArray& operator=(const tArray& rhs) {
     if (m_size != rhs.GetSize())  ResizeClear(rhs.GetSize());
     for(int i = 0; i < m_size; i++) m_data[i] = rhs[i];

@@ -3,15 +3,30 @@
  *  Avida
  *
  *  Called "stats.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2002 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cStats_h
 #define cStats_h
 
-#include <assert.h>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 
@@ -40,7 +55,12 @@
 #include "nGeometry.h"
 #endif
 
-#include "cOrganism.h"
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 class cGenotype;
 class cInjectGenotype;
@@ -48,6 +68,9 @@ class cWorld;
 
 class cStats
 {
+#if USE_tMemTrack
+  tMemTrack<cStats> mt;
+#endif
 private:
   cWorld* m_world;
   
@@ -195,6 +218,7 @@ private:
   tArray<int> task_exe_count;
 
   tArray<double> reaction_count;
+  tArray<double> reaction_add_reward;
   tArray<double> resource_count;
   tArray<int> resource_geometry;
   tArray< tArray<double> > spatial_res_count;
@@ -218,16 +242,11 @@ private:
   int num_used;
   int num_own_used;
   
-  // Stats for UML state diagrams
-  cDoubleSum av_number_of_states;
-  cDoubleSum av_number_of_trans;	
-  cDoubleSum av_number_of_trans_lab;
-  cDoubleSum m_hydraAttempt;
-  cDoubleSum m_hydraPassed;
-  cDoubleSum m_spinAttempt;
-  cDoubleSum m_spinPassed;
-  cDoubleSum m_panAttempt;
-  cDoubleSum m_panPassed;
+  // Stats for how sense instruction is being used
+  int sense_size;
+  tArray<int> sense_last_count;
+  tArray<int> sense_last_exe_count;
+  tArray<cString> sense_names;
 
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
@@ -275,6 +294,8 @@ public:
   int GetDomInjBirths() const { return dom_inj_births; }
   int GetDomInjAbundance() const { return dom_inj_abundance; }
   const cString & GetDomInjSequence() const { return dom_inj_sequence; }
+  
+  int GetSenseSize() const { return sense_size; }
 
   // Settings...
   void SetDomGenotype(cGenotype * in_gen) { dom_genotype = in_gen; }
@@ -430,15 +451,21 @@ public:
   void IncTaskExeCount(int task_num, int task_count) 
     { task_exe_count[task_num] += task_count; }
   void ZeroTasks();
-
+  
+  void AddLastSense(int res_comb_index) { sense_last_count[res_comb_index]++; }
+  void IncLastSenseExeCount(int res_comb_index, int count) 
+    { sense_last_exe_count[res_comb_index]+= count; }
+    
   void SetReactions(const tArray<double> &_in) { reaction_count = _in; }
+  void AddLastReactionAddReward(int _id, double _reward) { reaction_add_reward[_id] += _reward; }
+  void ZeroRewards();
+  
   void SetResources(const tArray<double> &_in) { resource_count = _in; }
   void SetResourcesGeometry(const tArray<int> &_in) { resource_geometry = _in;}
   void SetSpatialRes(const tArray< tArray<double> > &_in) { 
     spatial_res_count = _in;
   }
 
-  void SetTaskName(int id, const cString & name) { task_names[id] = name; }
   void SetInstName(int id, const cString & name) {
     assert(id < inst_names.GetSize());
     inst_names[id] = name;
@@ -540,19 +567,7 @@ public:
   int GetResamplings() const { return num_resamplings;}  //AWC 06/29/06
   int GetFailedResamplings() const { return num_failedResamplings;}  //AWC 06/29/06
 
-
-  // UML Data Function
-//  void UpdateModelStats ();
-  void addState(int x) { av_number_of_states.Add(x); }
-  void addTrans(int x) { av_number_of_trans.Add(x); }
-  void addTransLabel(int x) { av_number_of_trans_lab.Add(x); }
-  void HydraAttempt() { ++m_hydraAttempt; }
-  void HydraPassed() { ++m_hydraPassed; }
-  void SpinAttempt() { ++m_spinAttempt; }
-  void SpinPassed() { ++m_spinPassed; }
-  void PanAttempt() { ++m_panAttempt; }
-  void PanPassed() { ++m_panPassed; }
-
+  int GetNumSenseSlots();
 
   // this value gets recorded when a creature with the particular
   // fitness value gets born. It will never change to a smaller value,
@@ -576,6 +591,7 @@ public:
   void PrintTasksExeData(const cString& filename);
   void PrintTasksQualData(const cString& filename);
   void PrintReactionData(const cString& filename);
+  void PrintReactionRewardData(const cString& filename);
   void PrintResourceData(const cString& filename);
   void PrintSpatialResData(const cString& filename, int i);
   void PrintTimeData(const cString& filename);
@@ -584,7 +600,9 @@ public:
   void PrintInstructionData(const cString& filename);
   void PrintGenotypeMap(const cString& filename);
   void PrintMarketData(const cString& filename);
-  void PrintUMLData(const cString& filename);
+  void PrintSenseData(const cString& filename);
+  void PrintSenseExeData(const cString& filename);
+  
 };
 
 

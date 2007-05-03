@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "analyze_genotype.hh" prior to 12/2/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -15,6 +30,9 @@
 
 #ifndef functions_h
 #include "functions.h"
+#endif
+#ifndef cCPUMemory_h
+#include "cCPUMemory.h"
 #endif
 #ifndef cGenome_h
 #include "cGenome.h"
@@ -42,7 +60,43 @@ class cInstSet;
 class cTestCPU;
 class cWorld;
 
+
+class cAnalyzeGenotype;
+class cAnalyzeGenotypeLink {
+private:
+  cAnalyzeGenotype *m_parent;
+  tList<cAnalyzeGenotype> m_child_list;
+public:
+  cAnalyzeGenotypeLink(){
+    SetParent(0);
+    m_child_list.Clear();
+  }
+  void SetParent(cAnalyzeGenotype *parent){
+    m_parent = parent;
+  }
+  cAnalyzeGenotype *GetParent(){
+    return m_parent;
+  }
+  tList<cAnalyzeGenotype> &GetChildList(){
+    return m_child_list;
+  }
+  cAnalyzeGenotype *FindChild(cAnalyzeGenotype *child){
+    return GetChildList().FindPtr(child);
+  }
+  cAnalyzeGenotype *RemoveChild(cAnalyzeGenotype *child){
+    return GetChildList().Remove(child);
+  }
+  void AddChild(cAnalyzeGenotype *child){
+    if(!FindChild(child)){
+      GetChildList().PushRear(child);
+    }
+  }
+};
+
+
 class cAnalyzeGenotype {
+private:
+  cAnalyzeGenotypeLink m_link;
 private:
   cWorld* m_world;
   cGenome genome;            // Full Genome
@@ -73,8 +127,9 @@ private:
   int errors;
   double div_type;
   int mate_id;
-
+  cString executed_flags; // converted into a string
   tArray<int> task_counts;
+  tArray<double> task_qualities;
 
   // Group 3 : Stats requiring parental genotype (Also from test CPUs)
   double fitness_ratio;
@@ -154,13 +209,14 @@ public:
   const cStringList & GetSpecialArgs() { return special_args; }
   void SetSpecialArgs(const cStringList & _args) { special_args = _args; }
 
-  void Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype = NULL);
+  void Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype = NULL, cCPUTestInfo* test_info = NULL);
   void PrintTasks(std::ofstream& fp, int min_task = 0, int max_task = -1);
+  void PrintTasksQuality(std::ofstream& fp, int min_task = 0, int max_task = -1);
   void CalcLandscape(cAvidaContext& ctx);
 
   // Set...
   void SetSequence(cString _sequence);
-  
+  void SetExecutedFlags(cCPUMemory & cpu_memory);
   void SetName(const cString & _name) { name = _name; }
   void SetAlignedSequence(const cString & _seq) { aligned_sequence = _seq; }
   void SetTag(const cString & _tag) { tag = _tag; }
@@ -200,6 +256,8 @@ public:
   const cGenome & GetGenome() const { return genome; }
   const cString & GetName() const { return name; }
   const cString & GetAlignedSequence() const { return aligned_sequence; }
+  cString GetExecutedFlags() const { return executed_flags; }
+  cString GetAlignmentExecutedFlags() const;
   const cString & GetTag() const { return tag; }
 
   bool GetViable() const { return viable; }
@@ -275,6 +333,14 @@ public:
     return task_counts;
   }
 
+  double GetTaskQuality(int task_id) const {
+	  if (task_id >= task_counts.GetSize()) return 0;
+	  return task_qualities[task_id];
+  }
+  const tArray<double> & GetTaskQualities() const {
+	  return task_qualities;
+  }
+
   // Comparisons...  Compares a genotype to the "previous" one, which is
   // passed in, in one specified phenotype.
   // Return values are:
@@ -315,17 +381,52 @@ public:
   equality of two references means that they refer to the same object.
   */
   bool operator==(const cAnalyzeGenotype &in) const { return &in == this; }
-};
 
-#ifdef ENABLE_UNIT_TESTS
-namespace nAnalyzeGenotype {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
+  cAnalyzeGenotypeLink &GetLink(){
+    return m_link;
+  }
+  cAnalyzeGenotype *GetParent(){
+    return GetLink().GetParent();
+  }
+  void LinkParent(cAnalyzeGenotype *parent){
+    if(GetParent() && GetParent() != parent){
+      GetParent()->GetLink().RemoveChild(this);
+    }
+    GetLink().SetParent(parent);
+    if(parent){
+      parent->GetLink().AddChild(this);
+    }
+  }
+  void LinkChild(cAnalyzeGenotype &child){
+    child.LinkParent(this);
+  }
+  void UnlinkParent(){
+    LinkParent(0);
+  }
+  tList<cAnalyzeGenotype> &GetChildList(){
+    return GetLink().GetChildList();
+  }
+  void UnlinkChildren(){
+    tListIterator<cAnalyzeGenotype> it(GetChildList());
+    while (it.Next() != NULL) {
+      it.Get()->UnlinkParent();
+    }
+  }
+  void Unlink(){
+    UnlinkParent();
+    UnlinkChildren();
+  }
+  bool HasChild(cAnalyzeGenotype &child){
+    return GetLink().FindChild(&child);
+  }
+  bool UnlinkChild(cAnalyzeGenotype &child){
+    if(HasChild(child)){
+      child.UnlinkParent();
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
 
 #endif

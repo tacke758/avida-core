@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -22,12 +37,13 @@
 #include "cView.h"
 #include "cWorld.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 
 
-cTextViewerDriver::cTextViewerDriver(cWorld* world) : m_world(world), m_done(false), m_view(NULL)
+cTextViewerDriver::cTextViewerDriver(cWorld* world)
+  : cTextViewerDriver_Base(world)
 {
   m_view = new cView(world);
   m_view->SetViewMode(world->GetConfig().VIEW_MODE.Get());
@@ -39,7 +55,6 @@ cTextViewerDriver::cTextViewerDriver(cWorld* world) : m_world(world), m_done(fal
 cTextViewerDriver::~cTextViewerDriver()
 {
   cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
-  delete m_world;
   
   if (m_view != NULL) EndProg(0);
 }

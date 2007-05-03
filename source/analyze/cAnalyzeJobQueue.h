@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 2/18/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,17 +28,21 @@
 #ifndef cAnalyzeJob
 #include "cAnalyzeJob.h"
 #endif
+#ifndef cConditionVariable_h
+#include "cConditionVariable.h"
+#endif
+#ifndef cMutex_h
+#include "cMutex.h"
+#endif
+#ifndef cRandom_h
+#include "cRandom.h"
+#endif
 #ifndef tArray_h
 #include "tArray.h"
 #endif
 #ifndef tList_h
 #include "tList.h"
 #endif
-#ifndef cRandom_h
-#include "cRandom.h"
-#endif
-
-#include <pthread.h>
 
 class cAnalyzeJobWorker;
 class cWorld;
@@ -42,11 +61,11 @@ private:
   tList<cAnalyzeJob> m_queue;
   int m_last_jobid;
   cRandomMT* m_rng_pool[MT_RANDOM_POOL_SIZE];
-  pthread_mutex_t m_mutex;
-  pthread_cond_t m_cond;
-  pthread_cond_t m_term_cond;
+  cMutex m_mutex;
+  cConditionVariable m_cond;
+  cConditionVariable m_term_cond;
   
-  volatile int m_jobs;      // count of waiting jobs, used in pthread_cond constructs
+  volatile int m_jobs;      // count of waiting jobs, used in condition variable constructs
   volatile int m_pending;   // count of currently executing jobs
   
   tArray<cAnalyzeJobWorker*> m_workers;

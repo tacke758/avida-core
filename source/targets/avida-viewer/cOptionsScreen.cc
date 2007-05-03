@@ -34,49 +34,38 @@ void cOptionsScreen::Draw()
 
   Print(7, 40, "Point  Mut:");
   Print(8, 40, "Copy   Mut:");
-  Print(9, 40, "Divide Mut:      Ins:      Del:");
+  Print(9, 40, "Divide Mut:");
+  Print(10,47,        "Ins:");
+  Print(11,47,        "Del:");
 
   Print(1, 0, "Current CPU..:");
   Print(2, 0, "Genotype.....:");
   Print(3, 0, "ID #.........:");
 
-  // SetBoldColor(COLOR_WHITE);
-  //  Print(Height() - 5, 2, "-- Screen --");
-  Print(Height() - 4, 2, "[H]istogram Screen");
-  Print(Height() - 3, 2, "[B]lank Screen");
-  Print(Height() - 2, 2, "[CTRL-L] Redraw Screen");
+  PrintOption(Height() - 6, 2, "[M]ap Screen");
+  PrintOption(Height() - 5, 2, "[S]tats Screen");
+  PrintOption(Height() - 4, 2, "[A]nalyze Screen");
+  PrintOption(Height() - 3, 2, "[Z]oom Screen");
+  PrintOption(Height() - 2, 2, "[H]istogram Screen");
 
-  Print(Height() - 4, 30, "[C]hoose New CPU");
-  Print(Height() - 3, 30, "E[x]tract Creature");
-  //  Print(Height() - 3, 30, "[I]nject Creature");
-  Print(Height() - 2, 30, "[W]rite Soup Clone");
+  PrintOption(Height() - 6, 30, "[E]nvironment Screen");
+  PrintOption(Height() - 5, 30, "[O]ptions Screen");
+  PrintOption(Height() - 4, 30, "[B]lank Screen");
+  PrintOption(Height() - 3, 30, "[CTRL-L] Redraw Screen");
+  PrintOption(Height() - 2, 30, "[C]hoose New CPU");
 
-  //  Print(Height() - 5, 55, "[V]iew Instructions");
+  PrintOption(Height() - 6, 55, "E[x]tract Creature");
+  PrintOption(Height() - 5, 55, "[W]rite Soup Clone");
   if (info.GetPauseLevel()) {
-    Print(Height() - 4, 55, "Un-[P]ause");
-    Print(Height() - 3, 55, "[N]ext Update");
+    PrintOption(Height() - 4, 55, "Un-[P]ause");
+    PrintOption(Height() - 3, 55, "[N]ext Update");
   } else {
-    Print(Height() - 4, 55, "[P]ause   ");
-    Print(Height() - 3, 55, "             ");
-  }
-
-  SetBoldColor(COLOR_CYAN);
-  Print(Height() - 4, 3, 'H');
-  Print(Height() - 3, 3, 'B');
-  Print(Height() - 2, 3, "CTRL-L");
-
-  Print(Height() - 4, 31, 'C');
-  Print(Height() - 3, 32, 'x');
-  Print(Height() - 2, 31, 'W');
-  if (info.GetPauseLevel()) {
-    Print(Height() - 4, 59, 'P');
-    Print(Height() - 3, 56, 'N');
-  } else {
-    Print(Height() - 4, 56, 'P');
+    PrintOption(Height() - 4, 55, "[P]ause   ");
+    PrintOption(Height() - 3, 55, "             ");
   }
 
   SetColor(COLOR_WHITE);
-  Box(0, Height() - 5, Width(), 5);
+  Box(Height() - 7, 0, 7, Width(), true);
 
   SetBoldColor(COLOR_CYAN);
   Print(6, 15, "%dx%d", info.GetPopulation().GetWorldX(),
@@ -100,20 +89,20 @@ void cOptionsScreen::Draw()
     break;
   }
 
-  switch(info.GetConfig().SIZE_MERIT_METHOD.Get()) {
-  case SIZE_MERIT_OFF:
+  switch(info.GetConfig().BASE_MERIT_METHOD.Get()) {
+  case BASE_MERIT_CONST:
     Print(3, 55, "Off");
     break;
-  case SIZE_MERIT_COPIED:
+  case BASE_MERIT_COPIED_SIZE:
     Print(3, 55, "Copied Size");
     break;
-  case SIZE_MERIT_EXECUTED:
+  case BASE_MERIT_EXE_SIZE:
     Print(3, 55, "Executed Size");
     break;
-  case SIZE_MERIT_FULL:
+  case BASE_MERIT_FULL_SIZE:
     Print(3, 55, "Full Size");
     break;
-  case SIZE_MERIT_LEAST:
+  case BASE_MERIT_LEAST_SIZE:
     Print(3, 55, "Least Size");
     break;
   }
@@ -135,11 +124,11 @@ void cOptionsScreen::Draw()
 
   Print(5, 55, "%d", info.GetConfig().AVE_TIME_SLICE.Get());
 
-  Print(7, 52, "%.3f", info.GetConfig().POINT_MUT_PROB.Get());
-  Print(8, 52, "%.3f", info.GetConfig().COPY_MUT_PROB.Get());
-  Print(9, 52, "%.3f", info.GetConfig().DIVIDE_MUT_PROB.Get());
-  Print(9, 62, "%.3f", info.GetConfig().DIVIDE_INS_PROB.Get());
-  Print(9, 72, "%.3f", info.GetConfig().DIVIDE_DEL_PROB.Get());
+  PrintDouble(7, 52, info.GetConfig().POINT_MUT_PROB.Get());
+  PrintDouble(8, 52, info.GetConfig().COPY_MUT_PROB.Get());
+  PrintDouble(9, 52, info.GetConfig().DIVIDE_MUT_PROB.Get());
+  PrintDouble(10, 52, info.GetConfig().DIVIDE_INS_PROB.Get());
+  PrintDouble(11, 52, info.GetConfig().DIVIDE_DEL_PROB.Get());
 
   SetColor(COLOR_WHITE);
 

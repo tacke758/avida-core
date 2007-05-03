@@ -3,22 +3,41 @@
  *  Avida
  *
  *  Called "stats.cc" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cStats.h"
 
 #include "cDataFile.h"
-#include "functions.h"
+#include "cEnvironment.h"
+#include "cHardwareManager.h"
+#include "cInstSet.h"
 #include "cStringUtil.h"
-#include "tDataEntry.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
+#include "tDataEntry.h"
 
-#include <float.h>
-#include <math.h>
+#include "functions.h"
+
+#include <cfloat>
+#include <cmath>
 
 
 cStats::cStats(cWorld* world)
@@ -28,11 +47,11 @@ cStats::cStats(cWorld* world)
   , avida_time(0)
   , data_manager(this, "population_data")
   , rave_true_replication_rate( 500 )
-  , entropy(0)
-  , species_entropy(0)
-  , energy(0)
-  , dom_fidelity(0)
-  , ave_fidelity(0)
+  , entropy(0.0)
+  , species_entropy(0.0)
+  , energy(0.0)
+  , dom_fidelity(0.0)
+  , ave_fidelity(0.0)
   , max_viable_fitness(0)
   , dom_genotype(NULL)
   , dom_merit(0)
@@ -82,19 +101,25 @@ cStats::cStats(cWorld* world)
   , tot_thresh_species(0)
   , tot_lineages(0)
   , tot_executed(0)
+  , num_resamplings(0)
+  , num_failedResamplings(0)
   , last_update(0)
   , num_bought(0)
   , num_sold(0)
   , num_used(0)
   , num_own_used(0)
+  , sense_size(0)
 {
-  task_cur_count.Resize( m_world->GetNumTasks() );
-  task_last_count.Resize( m_world->GetNumTasks() );
-  task_cur_quality.Resize( m_world->GetNumTasks() );
-  task_last_quality.Resize( m_world->GetNumTasks() );
-  task_cur_max_quality.Resize( m_world->GetNumTasks() );
-  task_last_max_quality.Resize( m_world->GetNumTasks() );
-  task_exe_count.Resize( m_world->GetNumTasks() );
+  const cEnvironment& env = m_world->GetEnvironment();
+  const int num_tasks = env.GetNumTasks();
+    
+  task_cur_count.Resize(num_tasks);
+  task_last_count.Resize(num_tasks);
+  task_cur_quality.Resize(num_tasks);
+  task_last_quality.Resize(num_tasks);
+  task_cur_max_quality.Resize(num_tasks);
+  task_last_max_quality.Resize(num_tasks);
+  task_exe_count.Resize(num_tasks);
   task_cur_count.SetAll(0);
   task_cur_quality.SetAll(0);
   task_cur_max_quality.SetAll(0);
@@ -111,18 +136,73 @@ cStats::cStats(cWorld* world)
 #endif
   inst_names.Resize( m_world->GetNumInstructions() );
 
-
-
   reaction_count.Resize( m_world->GetNumReactions() );
   reaction_count.SetAll(0);
+  
+  reaction_add_reward.Resize( m_world->GetNumReactions() );
+  reaction_add_reward.SetAll(0);
 
   resource_count.Resize( m_world->GetNumResources() );
   resource_count.SetAll(0);
 
-  task_names.Resize( m_world->GetNumTasks() );
+  task_names.Resize(num_tasks);
+  for (int i = 0; i < num_tasks; i++)
+    task_names[i] = env.GetTask(i).GetDesc();
+  
   reaction_names.Resize( m_world->GetNumReactions() );
   resource_names.Resize( m_world->GetNumResources() );
 
+  // This block calculates how many slots we need to
+  // make for paying attention to different label combinations 
+  // Require sense instruction to be present then die if not at least 2 NOPs
+  
+  bool sense_used = m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense") )
+                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-unit") )
+                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-m100") );
+  if (sense_used)
+  {
+    if (m_world->GetHardwareManager().GetInstSet().GetNumNops() < 2)
+    {
+      cerr << "Error: If you have a sense instruction in your instruction set, then";
+      cerr << "you MUST also include at least two NOPs in your instruction set. " << endl; exit(1);
+    }
+  
+    int on = 1;
+    int max_sense_label_length = 0;
+    while (on < m_world->GetNumResources())
+    {
+      max_sense_label_length++;
+      sense_size += on;
+      on *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+    }
+    sense_size += on;
+    
+    sense_last_count.Resize( sense_size );
+    sense_last_count.SetAll(0);
+      
+    sense_last_exe_count.Resize( sense_size );
+    sense_last_exe_count.SetAll(0);
+    
+    sense_names.Resize( sense_size );
+    int assign_index = 0;
+    int num_per = 1;
+    for (int i=0; i<= max_sense_label_length; i++)
+    {
+      for (int j=0; j< num_per; j++)
+      {
+        sense_names[assign_index] = (on > 1) ? 
+          cStringUtil::Stringf("sense_res.%i-%i", j*on, (j+1)*on-1) :
+          cStringUtil::Stringf("sense_res.%i", j);
+    
+        assign_index++;
+      }
+      on /= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+      num_per *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+    }
+  }
+  // End sense tracking initialization
+
+  
   genotype_map.Resize( m_world->GetConfig().WORLD_X.Get() * m_world->GetConfig().WORLD_Y.Get() );
   SetupPrintDatabase();
 }
@@ -229,6 +309,11 @@ void cStats::ZeroTasks()
   }
 }
 
+void cStats::ZeroRewards()
+{
+  reaction_add_reward.SetAll(0);
+}
+
 
 #if INSTRUCTION_COUNT
 void cStats::ZeroInst()
@@ -244,10 +329,16 @@ void cStats::CalcEnergy()
   assert(sum_fitness.Average() >= 0.0);
   assert(dom_fitness >= 0);
 
-  if (sum_fitness.Average() == 0.0 || dom_fitness == 0.0) {
+  
+  // Note: When average fitness and dominant fitness are close in value (i.e. should be identical)
+  //       floating point rounding error can cause output variances.  To mitigate this, threshold
+  //       caps off values that differ by less than it, flushing the effective output value to zero.
+  const double ave_fitness = sum_fitness.Average();
+  const double threshold = 1.0e-14;
+  if (ave_fitness == 0.0 || dom_fitness == 0.0 || fabs(ave_fitness - dom_fitness) < threshold) {
     energy = 0.0;
   } else  {
-    energy = Log(dom_fitness / sum_fitness.Average());
+    energy = Log(dom_fitness / ave_fitness);
   }
 }
 
@@ -367,6 +458,11 @@ void cStats::ProcessUpdate()
   task_cur_max_quality.SetAll(0);
   task_last_max_quality.SetAll(0);
   task_exe_count.SetAll(0);
+
+  sense_last_count.SetAll(0);
+  sense_last_exe_count.SetAll(0);
+
+  reaction_add_reward.SetAll(0);
 
   dom_merit = 0;
   dom_gestation = 0.0;
@@ -691,6 +787,23 @@ void cStats::PrintReactionData(const cString& filename)
   df.Endl();
 }
 
+void cStats::PrintReactionRewardData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida reaction data");
+  df.WriteTimeStamp();
+  df.WriteComment("First column gives the current update, all further columns give the add bonus reward");
+  df.WriteComment("currently living organisms have garnered from each reaction.");
+
+  df.Write(m_update,   "Update");
+  for (int i = 0; i < reaction_count.GetSize(); i++) {
+    df.Write(reaction_add_reward[i], reaction_names[i] );
+  }
+  df.Endl();
+}
+
+
 void cStats::PrintResourceData(const cString& filename)
 {
   cDataFile& df = m_world->GetDataFile(filename);
@@ -846,50 +959,35 @@ void cStats::PrintMarketData(const cString& filename)
 	df.Write(num_used, "num used" );
 	df.Write(num_own_used, "num own used" );
 	num_bought = num_sold = num_used = num_own_used = 0;
-df.Endl();
+  df.Endl();
 }
 
-void cStats::PrintUMLData(const cString& filename)
+void cStats::PrintSenseData(const cString& filename)
 {
-	cDataFile& df = m_world->GetDataFile(filename);
+  cDataFile& df = m_world->GetDataFile(filename);
 
-	df.WriteComment( "Avida uml data\n" );
-	df.WriteComment("the average number of transitions and states per organism");
-	df.WriteTimeStamp();
-	df.Write( GetUpdate(), "update" );
-	df.Write( av_number_of_states.Average(), "av num states");
-	df.Write( av_number_of_trans.Average(), "av num trans");
-	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
-	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
-	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
-	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
-	df.Write( m_spinPassed.Sum(), "total number of spin passes" );
-	df.Write( m_panAttempt.Sum(), "total number of pan attempts" );
-	df.Write( m_panPassed.Sum(), "total number of pan passes" );
-	
-	av_number_of_states.Clear();
-	av_number_of_trans.Clear();
-	av_number_of_trans_lab.Clear();
+  df.WriteComment( "Avida sense instruction usage\n" );
+  df.WriteComment("total number of organisms whose parents executed sense instructions with given labels" );
 
-  m_hydraAttempt.Clear();
-  m_hydraPassed.Clear();
-  m_spinAttempt.Clear();
-  m_spinPassed.Clear();
-  m_panAttempt.Clear();
-  m_panPassed.Clear();
+  df.Write( GetUpdate(), "update" );
 
-
-df.Endl();
+  for( int i=0; i < sense_last_count.GetSize(); i++ ){
+    df.Write(sense_last_count[i], sense_names[i]);
+  }
+  df.Endl();
 }
 
-/*
-void cStats::UpdateModelStats (cOrganism::Graph& g)
+void cStats::PrintSenseExeData(const cString& filename)
 {
+  cDataFile& df = m_world->GetDataFile(filename);
 
-	av_number_of_states.Add(num_vertices(g));
-	av_number_of_trans.Add(num_edges(g));
-
+  df.WriteComment( "Avida sense instruction usage\n" );
+  df.WriteComment("total number of sense instructions executed by the parents of current organisms with given labels" );
+  
+  df.Write( GetUpdate(), "update" );
+    
+  for( int i=0; i < sense_last_exe_count.GetSize(); i++ ){
+    df.Write(sense_last_exe_count[i], sense_names[i]);
+  }
+  df.Endl();
 }
-*/
-
-

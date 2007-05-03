@@ -2,8 +2,23 @@
  *  tHashTable.h
  *  Avida
  *
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -58,6 +73,8 @@
 #ifndef tList_h
 #include "tList.h"
 #endif
+
+#include <cstdlib>
 
 #if USE_tMemTrack
 # ifndef tMemTrack_h
@@ -114,8 +131,22 @@ private:
   
   // HASH_TYPE = int
   // Simply mod the into by the size of the hash table and hope for the best
-  int HashKey(const int & key) const {
-    return key % table_size;
+  int HashKey(const int& key) const
+  {
+    return abs(key % table_size);
+  }
+
+  // HASH_TYPE = void*
+  // Casts the pointer to an int, shift right last two bit positions, mod by
+  // the size of the hash table and hope for the best.  The shift is to account
+  // for typical 4-byte alignment of pointer values.  Depending on architecture
+  // this may not be true and could result in suboptimal hashing at higher
+  // order alignments.
+  int HashKey(const void* const& key) const
+  {
+    // Cast/Dereference of key as an int* tells the compiler that we really want
+    // to truncate the value to an integer, even if a pointer is larger.
+    return abs((*((int*)&key) >> 2) % table_size);
   }
   
   // HASH_TYPE = cString
@@ -261,7 +292,7 @@ public:
     // Determine the bin that we are going to be using.
     const int bin = HashKey(key);
     
-    DATA_TYPE out_data;
+    DATA_TYPE out_data = NULL;
     assert(cell_array[bin] != NULL);
     list_it.Set(cell_array[bin]);
     
@@ -323,7 +354,8 @@ public:
   // The following method allows the user to convert the dictionary contents
   // into lists.  Empty lists show be passed in as arguments and the method
   // will fill in their contents.
-  void AsLists(tList<HASH_TYPE> & key_list, tList<DATA_TYPE> & value_list) const {
+  void AsLists(tList<HASH_TYPE>& key_list, tList<DATA_TYPE>& value_list) const
+  {
     // Setup the lists to fill in.
     assert(key_list.GetSize() == 0);
     assert(value_list.GetSize() == 0);
@@ -335,8 +367,8 @@ public:
     list_it.Reset();
     while (list_it.Next() != NULL) {
       // Grab the info about the current entry.
-      HASH_TYPE & cur_key = list_it.Get()->key;
-      DATA_TYPE & cur_value = list_it.Get()->data;
+      HASH_TYPE& cur_key = list_it.Get()->key;
+      DATA_TYPE& cur_value = list_it.Get()->data;
       
       // Find the position to place this in the lists.
       key_it.Reset();
@@ -349,6 +381,24 @@ public:
       value_list.Insert(value_it, &cur_value);
     }
   }
+  
+  void GetValues(tList<DATA_TYPE>& value_list) const
+  {
+    list_it.Reset();
+    while (list_it.Next() != NULL) value_list.Push(&list_it.Get()->data);
+  }
+
+  void GetValues(tArray<DATA_TYPE>& value_array) const
+  {
+    value_array.Resize(entry_count);
+    int idx = 0;
+
+    list_it.Reset();
+    while (list_it.Next() != NULL) value_array[idx++] = list_it.Get()->data;
+  }
+  
+  
+  
   template<class Archive> 
   void serialize(Archive & a, const unsigned int version){
     a.ArkvObj("entry_count", entry_count);

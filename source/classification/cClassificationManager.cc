@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Created by David on 11/14/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -13,13 +28,14 @@
 #include "cDataFile.h"
 #include "cGenome.h"
 #include "cGenotype.h"
+#include "cHardwareManager.h"
 #include "cInjectGenotype.h"
 #include "cLineage.h"
 #include "cOrganism.h"
 #include "cSpecies.h"
 #include "cStats.h"
 #include "cStringList.h"
-#include "cTestUtil.h"
+#include "cTestCPU.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
 
@@ -59,6 +75,8 @@ void cClassificationManager::UpdateReset()
 {
   cGenotype* best_genotype = GetBestGenotype();
   
+  cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+
   m_species_ctl->Purge(m_world->GetStats());
   if (best_genotype && best_genotype->GetID() != m_genotype_prev_dom) {
     m_genotype_dom_time = 0;
@@ -69,8 +87,8 @@ void cClassificationManager::UpdateReset()
     if (m_genotype_dom_time == m_world->GetConfig().GENOTYPE_PRINT_DOM.Get()) {
       cString filename;
       filename.Set("archive/%s", static_cast<const char*>(best_genotype->GetName()));
-      cTestUtil::PrintGenome(m_world, best_genotype->GetGenome(), 
-                             filename, best_genotype, m_world->GetStats().GetUpdate());
+      testcpu->PrintGenome(m_world->GetDefaultContext(), best_genotype->GetGenome(), 
+                           filename, best_genotype, m_world->GetStats().GetUpdate());
     }
   }
   
@@ -86,11 +104,13 @@ void cClassificationManager::UpdateReset()
       if (m_inject_dom_time == m_world->GetConfig().GENOTYPE_PRINT_DOM.Get()) {
         cString filename;
         filename.Set("archive/%s", static_cast<const char*>(best_inject_genotype->GetName()));
-        cTestUtil::PrintGenome(m_world, best_inject_genotype, best_inject_genotype->GetGenome(), 
+        testcpu->PrintInjectGenome(m_world->GetDefaultContext(), best_inject_genotype, best_inject_genotype->GetGenome(), 
                                filename, m_world->GetStats().GetUpdate());
       }
     }
   }
+
+  delete testcpu;
 }
 
 void cClassificationManager::AddGenotype(cGenotype* in_genotype, int list_num)
@@ -362,8 +382,10 @@ void cClassificationManager::ThresholdGenotype(cGenotype & in_genotype)
       if (m_world->GetConfig().SPECIES_PRINT.Get()) {
         cString filename;
         filename.Set("archive/spec-%04d", found_species->GetID());
-        cTestUtil::PrintGenome(m_world, in_genotype.GetGenome(), filename,
-                               &in_genotype, m_world->GetStats().GetUpdate());
+        cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+        testcpu->PrintGenome(m_world->GetDefaultContext(), in_genotype.GetGenome(), filename,
+                             &in_genotype, m_world->GetStats().GetUpdate());
+        delete testcpu;
       }
     } else {
       // If we are not creating a new species, but are adding a threshold
@@ -411,8 +433,10 @@ void cClassificationManager::ThresholdGenotype(cGenotype & in_genotype)
   if (m_world->GetConfig().GENOTYPE_PRINT.Get()) {
     cString filename;
     filename.Set("archive/%s", static_cast<const char*>(in_genotype.GetName()));
-    cTestUtil::PrintGenome(m_world, in_genotype.GetGenome(), filename,
-                           &in_genotype, m_world->GetStats().GetUpdate());
+    cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+    testcpu->PrintGenome(m_world->GetDefaultContext(), in_genotype.GetGenome(), filename,
+                         &in_genotype, m_world->GetStats().GetUpdate());
+    delete testcpu;
   }
 }
 

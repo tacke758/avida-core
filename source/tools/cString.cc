@@ -3,17 +3,30 @@
  *  Avida
  *
  *  Called "string.cc" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cString.h"
 
-extern "C"{
-#include <stdio.h>
-#include <stdarg.h>
-}
+#include <cstdarg>
+#include <cstdio>
 
 
 using namespace std;
@@ -615,6 +628,36 @@ cString & cString::InsertStr(const int in_size, const char * in,
 }
 
 
+cString cString::EjectStr(int pos, int excise )
+{
+  // Delete excise characters at pos and return the substring.
+
+  // Validate inputs:
+  assert (pos >= 0);                   // Negative position
+  assert (pos <= GetSize());           // Position past end of string
+  assert (excise > 0);                 // Must excise something...
+  assert (excise <= GetSize()-pos);    // Excise number too large
+
+  // Collect substring to output.
+  cString out_string(Substring(pos, excise));
+
+  // Allocate a new string
+  const int new_size = GetSize() - excise;
+  cStringData * new_value = new cStringData(new_size);
+  assert (new_value != NULL);  // Memory Allocation Error: Out of Memory
+
+  for(int i = 0; i < pos; i++){             // Copy self up to pos
+    (*new_value)[i] = this->operator[](i);
+  }
+  for(int i=pos+excise; i<GetSize(); ++i ){  // Copy post-excise self
+    (*new_value)[i-excise] = this->operator[](i);
+  }
+
+  TakeValue(new_value);                      // Reassing data to new data
+  return out_string;
+}
+
+
 int cString::FindStr(const char * in, const int in_size, int pos) const
 {
   assert (pos>=0);         // Negative position
@@ -655,247 +698,3 @@ ostream& operator << (ostream& out, const cString& string)
   out << static_cast<const char*>(string);
   return out;
 }
-
-
-#ifdef ENABLE_UNIT_TESTS
-
-/*
-Unit tests
-*/
-#include "cXMLArchive.h"
-
-#include "lightweight_test.h"
-
-#include <cstdio>    // for std::remove() to remove temporary files.
-#include <iomanip>
-#include <iostream>
-#include <fstream> 
-#include <string>
-
-namespace nString {
-  /*
-  Test-helpers.
-  */
-  class A {
-  public:
-    cString m_s1, m_s2;
-    cString *m_ps1, *m_ps2;
-    static int s_instance_ct;
-  public:
-    A():m_s1("blah."), m_s2(m_s1), m_ps1(new cString("ick.")), m_ps2(m_ps1) { s_instance_ct++; }
-    ~A(){ s_instance_ct--; }
-  public:
-    template<class Archive>
-    void serialize(Archive & a, const unsigned int version){
-      a.ArkvObj("m_s1", m_s1);
-      a.ArkvObj("m_s2", m_s2);
-      a.ArkvObj("m_ps1", m_ps1);
-      a.ArkvObj("m_ps2", m_ps2);
-    }
-  };
-  int A::s_instance_ct(0);
-  
-  template <class T>
-  void save_stuff(const T &s, const char * filename){
-    std::ofstream ofs(filename);
-    cXMLOArchive oa(ofs);
-    oa.ArkvObj("s", s);
-  }
-  
-  template <class T>
-  void restore_stuff(T &s, const char * filename) {
-    std::ifstream ifs(filename);
-    cXMLIArchive ia(ifs);
-    ia.ArkvObj("s", s);
-  }
-
-
-
-
-  namespace utString_hello_world {
-    void test(){
-      std::cout << CURRENT_FUNCTION << std::endl;
-      TEST(true);
-      TEST(false);
-    }
-  }
-
-  namespace utString_string_manip {
-    void test() {
-      std::cout << CURRENT_FUNCTION << std::endl;
-      cString test_str("string is string 321");
-      TEST(test_str.Replace("ring", "rung", 9) != -1);
-      TEST(test_str[3] == 'i');
-      TEST(test_str[13] == 'u');
-      TEST(test_str.PopWord() == "string");
-      TEST(test_str.Pop('s') == "i");
-      TEST(test_str.LeftJustify() == 1);
-      test_str.Reverse();
-      TEST(test_str == "123 gnurts");
-      TEST(test_str.GetWord(1) == "gnurts");
-      TEST(test_str.GetWordAt(6) == "urts");
-      TEST(test_str.ToUpper() == "123 GNURTS");
-      TEST(test_str.IsWhitespace(2) == false);
-      TEST(test_str.IsWhitespace(3) == true);
-      TEST(test_str.IsWhitespace(4) == false);
-      TEST(test_str.CountNumWords() == 2);
-      TEST(test_str.PopWord().AsInt() == 123);
-      TEST(test_str.Find('T') == 4);
-      TEST((test_str += " 4fun") == "GNURTS 4fun");
-      TEST(test_str.ToLower() == "gnurts 4fun");
-      TEST(test_str.Insert("  should r", 3, 6) == "gnu  should run");
-      TEST(test_str.ClipEnd(3) == "gnu  should ");
-      test_str.CompressWhitespace();
-      TEST(test_str == "gnu should");
-      test_str.RemoveChar('u');
-      TEST(test_str == "gn shold");
-
-      std::cout << "Finished: " << CURRENT_FUNCTION << std::endl;      
-    }
-  }
-  
-  namespace utString_archiving {
-    void test() {
-#   ifdef ENABLE_SERIALIZATION
-      std::cout << CURRENT_FUNCTION << std::endl;
-      { 
-        TEST(true);
-        std::string filename("./cString_basic_serialization.xml");
-  
-        TEST(0 == A::s_instance_ct);
-        A *a(new A);
-        TEST(1 == A::s_instance_ct);
-  
-        /*
-        Both instances of cString should share a single cStringData instance.
-        */
-        TEST(cString("blah.") == a->m_s1);
-        TEST(cString("blah.") == a->m_s2);
-        const char *s1(a->m_s1);
-        const char *s2(a->m_s2);
-        TEST(s1 == s2);
-  
-        /*
-        Both pointers should point to one cString instance.
-        */
-        TEST(cString("ick.") == *a->m_ps1);
-        TEST(cString("ick.") == *a->m_ps2);
-        const char *s3(*a->m_ps1);
-        const char *s4(*a->m_ps2);
-        TEST(s3 == s4);
-  
-        save_stuff<>(a, filename.c_str());
-        delete a;
-        TEST(0 == A::s_instance_ct);
-  
-        restore_stuff<>(a, filename.c_str());
-        TEST(1 == A::s_instance_ct);
-  
-        /*
-        Both instances of cString should share a single cStringData instance.
-        */
-        TEST(cString("blah.") == a->m_s1);
-        TEST(cString("blah.") == a->m_s2);
-        /*
-        We have decided to not track cStringData instance sharing;
-        consequently we now expect that if two strings sharing data are
-        both saved and then reloaded, the reloaded versions no longer
-        share data.
-        This prevents a certain kind of memory leak.
-        @kgn
-        */
-        const char *s5(a->m_s1);
-        const char *s6(a->m_s2);
-        TEST(s5 != s6);
-  
-        /*
-        Both pointers should point to one cString instance.
-        */
-        TEST(cString("ick.") == *a->m_ps1);
-        TEST(cString("ick.") == *a->m_ps2);
-        const char *s7(*a->m_ps1);
-        const char *s8(*a->m_ps2);
-        TEST(s7 == s8);
-  
-        delete a;
-        TEST(0 == A::s_instance_ct);
-  
-        std::remove(filename.c_str());
-      }
-      {
-        TEST(true);
-        std::string filename("./cString_basic_serialization_2.xml");
-  
-        TEST(0 == A::s_instance_ct);
-        A *a(new A);
-        TEST(1 == A::s_instance_ct);
-  
-        /*
-        Both instances of cString were sharing a single cStringData
-        instance, but assigning a new string to the first should create a
-        new, unshared cStringData instance; so now each cString should
-        have its own cStringData.
-        */
-        a->m_s1 = "bleah.";
-        TEST(cString("bleah.") == a->m_s1);
-        TEST(cString("blah.") == a->m_s2);
-        const char *s1(a->m_s1);
-        const char *s2(a->m_s2);
-        TEST(s1 != s2);
-  
-        /*
-        Both pointers should point to one cString instance.
-        */
-        *a->m_ps1 = "ack.";
-        TEST(cString("ack.") == *a->m_ps1);
-        TEST(cString("ack.") == *a->m_ps2);
-        const char *s3(*a->m_ps1);
-        const char *s4(*a->m_ps2);
-        TEST(s3 == s4);
-  
-        save_stuff<>(a, filename.c_str());
-        delete a;
-        TEST(0 == A::s_instance_ct);
-  
-        restore_stuff<>(a, filename.c_str());
-        TEST(1 == A::s_instance_ct);
-  
-        /*
-        Each cString should have its own cStringData.
-        */
-        TEST(cString("bleah.") == a->m_s1);
-        TEST(cString("blah.") == a->m_s2);
-        const char *s5(a->m_s1);
-        const char *s6(a->m_s2);
-        TEST(s5 != s6);
-  
-        /*
-        Both pointers should point to one cString instance.
-        */
-        TEST(cString("ack.") == *a->m_ps1);
-        TEST(cString("ack.") == *a->m_ps2);
-        const char *s7(*a->m_ps1);
-        const char *s8(*a->m_ps2);
-        TEST(s7 == s8);
-  
-  
-        delete a;
-        TEST(0 == A::s_instance_ct);
-  
-        std::remove(filename.c_str());
-      }
-#   endif // ENABLE_SERIALIZATION
-    }
-  } // utString_archiving
-
-
-  
-  void UnitTests(bool full)
-  {
-    //if(full) utString_hello_world::test();
-    if(full) utString_string_manip::test();
-    if(full) utString_archiving::test();
-  }
-} // nString
-
-#endif // ENABLE_UNIT_TESTS

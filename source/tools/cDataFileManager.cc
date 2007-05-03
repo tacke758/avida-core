@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file_manager.cc" prior to 10/18/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2005 California Institute of Technology
  *
  */
@@ -11,11 +11,12 @@
 #include "cDataFileManager.h"
 
 #include "cTools.h"
+#include "platform.h"
 
-#ifdef WIN32
-#include <direct.h>
+#if AVIDA_PLATFORM(WINDOWS)
+# include <direct.h>
 #else
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #define MAXIMUM_DIRECTORY_LENGTH 2048

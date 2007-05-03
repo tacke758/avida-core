@@ -24,7 +24,9 @@
 using namespace std;
 
 
-cViewInfo::cViewInfo(cWorld* world) : m_world(world), alt_inst_set(world)
+cViewInfo::cViewInfo(cWorld* world, cView_Base* view)
+  : m_world(world)
+  , m_view(view)
 {
   active_cell = NULL;
   pause_level = PAUSE_OFF;

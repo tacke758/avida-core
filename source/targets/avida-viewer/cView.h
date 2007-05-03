@@ -12,6 +12,10 @@
 #include "cViewInfo.h"
 #endif
 
+#ifndef cView_Base_h
+#include "cView_Base.h"
+#endif
+
 #define MODE_BLANK   0
 #define MODE_MAP     1
 #define MODE_STATS   2
@@ -19,6 +23,7 @@
 #define MODE_OPTIONS 4
 #define MODE_ZOOM    5
 #define MODE_ENVIRONMENT 6
+#define MODE_ANALYZE 7
 
 class cScreen;
 class cTextWindow;
@@ -29,22 +34,24 @@ class cHistScreen;
 class cOptionsScreen;
 class cZoomScreen;
 class cEnvironmentScreen;
+class cAnalyzeScreen;
 class cWorld;
 
-class cView {
+class cView : public cView_Base {
 private:
   cViewInfo info;
 
   // Window information...
-  static cTextWindow * base_window;
-  static cScreen * cur_screen;
-  static cBarScreen * bar_screen;
+  cTextWindow * base_window;
+  cScreen * cur_screen;
+  cBarScreen * bar_screen;
   cMapScreen * map_screen;
   cStatsScreen * stats_screen;
   cHistScreen * hist_screen;
   cOptionsScreen * options_screen;
   cZoomScreen * zoom_screen;
   cEnvironmentScreen * environment_screen;
+  cAnalyzeScreen * analyze_screen;
 
   // Window managing functions...
 
@@ -57,7 +64,7 @@ private:
 
   // Screen helpers
   void ChangeCurScreen(cScreen * new_screen);
-  void PrintMerit(int in_y, int in_x, cMerit in_merit);
+  void PrintMerit(int in_y, int in_x, double in_merit);
   void PrintFitness(int in_y, int in_x, double in_fitness);
 
   // Map navigation
@@ -69,16 +76,19 @@ public:
   void Setup(const cString & in_name);
   void SetViewMode(int in_mode);
 
+  bool ProcessKeypress(int keypress);
+
   void NewUpdate();
   void NotifyUpdate();
   void NotifyError(const cString & in_string);
   void NotifyWarning(const cString & in_string);
   void NotifyComment(const cString & in_string);
-  inline void Pause() { info.SetPauseLevel(PAUSE_ON); }
+  void NotifyOutput(const cString & in_string);
+  void Pause() { info.SetPauseLevel(PAUSE_ON); }
   void DoBreakpoint();
-
-  static int Confirm(const cString & message);
-  static void Notify(const cString & message);
+  
+  int Confirm(const cString & message);
+  void Notify(const cString & message);
 
   int GetStepOrganism() { return info.GetStepOrganism(); }
   void SetStepOrganism(int in_id) { info.SetStepOrganism(in_id); }
@@ -86,7 +96,7 @@ public:
   void Refresh();
 
   // Methods called by sub-windows.
-  static void Redraw();
+  void Redraw();
 };
 
 

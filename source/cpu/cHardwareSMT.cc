@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 6/4/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -11,7 +26,7 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
-#include "cInstLibBase.h"
+#include "cInstLib.h"
 #include "cInstSet.h"
 #include "cHardwareTracer.h"
 #include "cMutation.h"
@@ -21,6 +36,7 @@
 #include "cRandom.h"
 #include "cTestCPU.h"
 #include "cWorld.h"
+#include "tInstLibEntry.h"
 
 #include "functions.h"
 #include "nMutation.h"
@@ -45,62 +61,57 @@ tInstLib<cHardwareSMT::tMethod>* cHardwareSMT::initInstLib(void)
     cNOPEntry("Nop-D", STACK_DX),
   };
 	
-  struct cInstEntry {
-    cInstEntry(const cString &name, tMethod function):name(name), function(function){}
-    cString name;
-    tMethod function;
-  };
-  static const cInstEntry s_f_array[] = {
-    cInstEntry("Nop-A", &cHardwareSMT::Inst_Nop),
-    cInstEntry("Nop-B", &cHardwareSMT::Inst_Nop),
-    cInstEntry("Nop-C", &cHardwareSMT::Inst_Nop),
-    cInstEntry("Nop-D", &cHardwareSMT::Inst_Nop),
-    cInstEntry("Alt", &cHardwareSMT::Inst_Alt),
-    cInstEntry("Val-Shift", &cHardwareSMT::Inst_ValShift),
-    cInstEntry("Val-Nand", &cHardwareSMT::Inst_ValNand),
-    cInstEntry("Val-Add", &cHardwareSMT::Inst_ValAdd),
-    cInstEntry("Val-Sub", &cHardwareSMT::Inst_ValSub),
-    cInstEntry("Val-Negate", &cHardwareSMT::Inst_ValNegate),
-    cInstEntry("Val-Mult", &cHardwareSMT::Inst_ValMult),
-    cInstEntry("Val-Div", &cHardwareSMT::Inst_ValDiv),
-    cInstEntry("Val-Mod", &cHardwareSMT::Inst_ValMod),
-    cInstEntry("Val-Inc", &cHardwareSMT::Inst_ValInc),
-    cInstEntry("Val-Dec", &cHardwareSMT::Inst_ValDec),
-    cInstEntry("Val-Copy", &cHardwareSMT::Inst_ValCopy),
-    cInstEntry("Val-Delete", &cHardwareSMT::Inst_ValDelete),
-    cInstEntry("Stack-Delete", &cHardwareSMT::Inst_StackDelete),
-    cInstEntry("Push-Next", &cHardwareSMT::Inst_PushNext),
-    cInstEntry("Push-Prev", &cHardwareSMT::Inst_PushPrev),
-    cInstEntry("Push-Comp", &cHardwareSMT::Inst_PushComp),
-    cInstEntry("Mem-Set", &cHardwareSMT::Inst_MemSet),
-    cInstEntry("Mem-Mark", &cHardwareSMT::Inst_MemMark),
-    cInstEntry("Mem-Split", &cHardwareSMT::Inst_MemSplit),
-    cInstEntry("Mem-Merge", &cHardwareSMT::Inst_MemMerge),
-    cInstEntry("Divide", &cHardwareSMT::Inst_Divide),
-    cInstEntry("Inject", &cHardwareSMT::Inst_Inject),
-    cInstEntry("Inst-Read", &cHardwareSMT::Inst_InstRead),
-    cInstEntry("Inst-Write", &cHardwareSMT::Inst_InstWrite),
-    cInstEntry("Block-Read", &cHardwareSMT::Inst_BlockRead),
-    cInstEntry("Block-Write", &cHardwareSMT::Inst_BlockWrite),
-    cInstEntry("If-Equal", &cHardwareSMT::Inst_IfEqual),
-    cInstEntry("If-Not-Equal", &cHardwareSMT::Inst_IfNotEqual),
-    cInstEntry("If-Less", &cHardwareSMT::Inst_IfLess),
-    cInstEntry("If-Greater", &cHardwareSMT::Inst_IfGreater),
-    cInstEntry("Head-Push", &cHardwareSMT::Inst_HeadPush),
-    cInstEntry("Head-Pop", &cHardwareSMT::Inst_HeadPop),
-    cInstEntry("Head-Move", &cHardwareSMT::Inst_HeadMove),
-    cInstEntry("Head-Set", &cHardwareSMT::Inst_HeadSet),
-    cInstEntry("Call", &cHardwareSMT::Inst_Call),
-    cInstEntry("Return", &cHardwareSMT::Inst_Return),
-    cInstEntry("Search", &cHardwareSMT::Inst_Search),
-    cInstEntry("Search-Mem", &cHardwareSMT::Inst_SearchMem),
-    cInstEntry("IO", &cHardwareSMT::Inst_IO),
-    cInstEntry("Thread-Set", &cHardwareSMT::Inst_ThreadSet),
-    cInstEntry("Thread-Get", &cHardwareSMT::Inst_ThreadGet),
+  static const tInstLibEntry<tMethod> s_f_array[] = {
+    tInstLibEntry<tMethod>("Nop-A", &cHardwareSMT::Inst_Nop, nInstFlag::NOP),
+    tInstLibEntry<tMethod>("Nop-B", &cHardwareSMT::Inst_Nop, nInstFlag::NOP),
+    tInstLibEntry<tMethod>("Nop-C", &cHardwareSMT::Inst_Nop, nInstFlag::NOP),
+    tInstLibEntry<tMethod>("Nop-D", &cHardwareSMT::Inst_Nop, nInstFlag::NOP),
+    tInstLibEntry<tMethod>("Alt", &cHardwareSMT::Inst_Alt),
+    tInstLibEntry<tMethod>("Val-Shift", &cHardwareSMT::Inst_ValShift),
+    tInstLibEntry<tMethod>("Val-Nand", &cHardwareSMT::Inst_ValNand),
+    tInstLibEntry<tMethod>("Val-Add", &cHardwareSMT::Inst_ValAdd),
+    tInstLibEntry<tMethod>("Val-Sub", &cHardwareSMT::Inst_ValSub),
+    tInstLibEntry<tMethod>("Val-Negate", &cHardwareSMT::Inst_ValNegate),
+    tInstLibEntry<tMethod>("Val-Mult", &cHardwareSMT::Inst_ValMult),
+    tInstLibEntry<tMethod>("Val-Div", &cHardwareSMT::Inst_ValDiv),
+    tInstLibEntry<tMethod>("Val-Mod", &cHardwareSMT::Inst_ValMod),
+    tInstLibEntry<tMethod>("Val-Inc", &cHardwareSMT::Inst_ValInc),
+    tInstLibEntry<tMethod>("Val-Dec", &cHardwareSMT::Inst_ValDec),
+    tInstLibEntry<tMethod>("Val-Copy", &cHardwareSMT::Inst_ValCopy),
+    tInstLibEntry<tMethod>("Val-Delete", &cHardwareSMT::Inst_ValDelete),
+    tInstLibEntry<tMethod>("Stack-Delete", &cHardwareSMT::Inst_StackDelete),
+    tInstLibEntry<tMethod>("Push-Next", &cHardwareSMT::Inst_PushNext),
+    tInstLibEntry<tMethod>("Push-Prev", &cHardwareSMT::Inst_PushPrev),
+    tInstLibEntry<tMethod>("Push-Comp", &cHardwareSMT::Inst_PushComp),
+    tInstLibEntry<tMethod>("Mem-Set", &cHardwareSMT::Inst_MemSet),
+    tInstLibEntry<tMethod>("Mem-Mark", &cHardwareSMT::Inst_MemMark),
+    tInstLibEntry<tMethod>("Mem-Split", &cHardwareSMT::Inst_MemSplit),
+    tInstLibEntry<tMethod>("Mem-Merge", &cHardwareSMT::Inst_MemMerge),
+    tInstLibEntry<tMethod>("Divide", &cHardwareSMT::Inst_Divide),
+    tInstLibEntry<tMethod>("Inject", &cHardwareSMT::Inst_Inject),
+    tInstLibEntry<tMethod>("Inst-Read", &cHardwareSMT::Inst_InstRead),
+    tInstLibEntry<tMethod>("Inst-Write", &cHardwareSMT::Inst_InstWrite),
+    tInstLibEntry<tMethod>("Block-Read", &cHardwareSMT::Inst_BlockRead),
+    tInstLibEntry<tMethod>("Block-Write", &cHardwareSMT::Inst_BlockWrite),
+    tInstLibEntry<tMethod>("If-Equal", &cHardwareSMT::Inst_IfEqual),
+    tInstLibEntry<tMethod>("If-Not-Equal", &cHardwareSMT::Inst_IfNotEqual),
+    tInstLibEntry<tMethod>("If-Less", &cHardwareSMT::Inst_IfLess),
+    tInstLibEntry<tMethod>("If-Greater", &cHardwareSMT::Inst_IfGreater),
+    tInstLibEntry<tMethod>("Head-Push", &cHardwareSMT::Inst_HeadPush),
+    tInstLibEntry<tMethod>("Head-Pop", &cHardwareSMT::Inst_HeadPop),
+    tInstLibEntry<tMethod>("Head-Move", &cHardwareSMT::Inst_HeadMove),
+    tInstLibEntry<tMethod>("Head-Set", &cHardwareSMT::Inst_HeadSet),
+    tInstLibEntry<tMethod>("Call", &cHardwareSMT::Inst_Call),
+    tInstLibEntry<tMethod>("Return", &cHardwareSMT::Inst_Return),
+    tInstLibEntry<tMethod>("Search", &cHardwareSMT::Inst_Search),
+    tInstLibEntry<tMethod>("Search-Mem", &cHardwareSMT::Inst_SearchMem),
+    tInstLibEntry<tMethod>("IO", &cHardwareSMT::Inst_IO),
+    tInstLibEntry<tMethod>("Thread-Set", &cHardwareSMT::Inst_ThreadSet),
+    tInstLibEntry<tMethod>("Thread-Get", &cHardwareSMT::Inst_ThreadGet),
     
-    cInstEntry("Apoptosis", &cHardwareSMT::Inst_Apoptosis),
+    tInstLibEntry<tMethod>("Apoptosis", &cHardwareSMT::Inst_Apoptosis),
     
-    cInstEntry("NULL", &cHardwareSMT::Inst_Nop) // Last Instruction Always NULL
+    tInstLibEntry<tMethod>("NULL", &cHardwareSMT::Inst_Nop) // Last Instruction Always NULL
   };
 	
   const int n_size = sizeof(s_n_array)/sizeof(cNOPEntry);
@@ -112,21 +123,14 @@ tInstLib<cHardwareSMT::tMethod>* cHardwareSMT::initInstLib(void)
     nop_mods[i] = s_n_array[i].nop_mod;
   }
 	
-  const int f_size = sizeof(s_f_array)/sizeof(cInstEntry);
-  static cString f_names[f_size];
+  const int f_size = sizeof(s_f_array)/sizeof(tInstLibEntry<tMethod>);
   static tMethod functions[f_size];
-  for (int i = 0; i < f_size; i++){
-    f_names[i] = s_f_array[i].name;
-    functions[i] = s_f_array[i].function;
-  }
+  for (int i = 0; i < f_size; i++) functions[i] = s_f_array[i].GetFunction();
 	
 	const cInstruction error(255);
 	const cInstruction def(0);
 	
-  tInstLib<cHardwareSMT::tMethod>* inst_lib =
-    new tInstLib<cHardwareSMT::tMethod>(n_size, f_size, n_names, f_names, nop_mods, functions, error, def);
-	
-  return inst_lib;
+  return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, error, def);
 }
 
 cHardwareSMT::cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
@@ -168,10 +172,15 @@ void cHardwareSMT::Reset()
   const int num_inst_cost = m_inst_set->GetSize();
   inst_cost.Resize(num_inst_cost);
   inst_ft_cost.Resize(num_inst_cost);
+  m_has_costs = false;
+  m_has_ft_costs = false;
 	
   for (int i = 0; i < num_inst_cost; i++) {
     inst_cost[i] = m_inst_set->GetCost(cInstruction(i));
+    if (!m_has_costs && inst_cost[i]) m_has_costs = true;
+    
     inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+    if (!m_has_ft_costs && inst_ft_cost[i]) m_has_ft_costs = true;
   }
 #endif	
   
@@ -255,17 +264,17 @@ bool cHardwareSMT::SingleProcess_PayCosts(cAvidaContext& ctx, const cInstruction
   assert(cur_inst.GetOp() < inst_cost.GetSize());
 	
   // If first time cost hasn't been paid off...
-  if ( inst_ft_cost[cur_inst.GetOp()] > 0 ) {
+  if (m_has_ft_costs && inst_ft_cost[cur_inst.GetOp()] > 0) {
     inst_ft_cost[cur_inst.GetOp()]--;       // dec cost
     return false;
   }
 	
   // Next, look at the per use cost
-  if ( m_inst_set->GetCost(cur_inst) > 0 ) {
-    if ( inst_cost[cur_inst.GetOp()] > 1 ){  // if isn't paid off (>1)
-      inst_cost[cur_inst.GetOp()]--;         // dec cost
+  if (m_has_costs && m_inst_set->GetCost(cur_inst) > 0) {
+    if (inst_cost[cur_inst.GetOp()] > 1) {  // if isn't paid off (>1)
+      inst_cost[cur_inst.GetOp()]--;        // dec cost
       return false;
-    } else {                                 // else, reset cost array
+    } else {                                // else, reset cost array
       inst_cost[cur_inst.GetOp()] = m_inst_set->GetCost(cur_inst);
     }
   }
@@ -319,7 +328,7 @@ bool cHardwareSMT::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cInstruct
 void cHardwareSMT::ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst)
 {
   // Mark this organism as running...
-  bool prev_run_state = organism->GetIsRunning();
+  bool prev_run_state = organism->IsRunning();
   organism->SetRunning(true);
 	
   // Print the status of this CPU at each step...
@@ -659,7 +668,7 @@ bool cHardwareSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier)
   Inject_DoMutations(ctx, mut_multiplier, injected_code);
 	
   bool inject_signal = false;
-  if (injected_code.GetSize() > 0) inject_signal = organism->InjectParasite(injected_code);
+  if (injected_code.GetSize() > 0) inject_signal = organism->InjectParasite(GetLabel(), injected_code);
 	
   // reset the memory space that was injected
   m_mem_array[mem_space_used] = cGenome("a"); 

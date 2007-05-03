@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "test_cpu.cc" prior to 11/30/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -14,12 +29,13 @@
 #include "cCPUTestInfo.h"
 #include "cEnvironment.h"
 #include "functions.h"
+#include "cGenomeUtil.h"
 #include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cHardwareManager.h"
 #include "cHardwareStatusPrinter.h"
+#include "cInjectGenotype.h"
 #include "cInstSet.h"
-#include "cInstUtil.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cTestCPUInterface.h"
@@ -34,57 +50,145 @@
 
 using namespace std;
 
-cTestResources::cTestResources(cWorld* world)
+std::vector<std::pair<int, std::vector<double> > > * cTestCPU::s_resources = NULL;
+
+cTestCPU::cTestCPU(cWorld* world)
 {
+  m_world = world;
+  InitResources();
+}  
+ 
+void cTestCPU::InitResources(int res_method, std::vector<std::pair<int, std::vector<double> > > * res, int update, int time_spent_offset)
+{  
+  m_res_method = (eTestCPUResourceMethod)res_method;
+  // Make sure it's valid
+  if(res_method < 0 ||  res_method >= RES_LAST) {
+    m_res_method = RES_INITIAL;
+  }
+  
   // Setup the resources...
-  const cResourceLib& resource_lib = world->GetEnvironment().GetResourceLib();
+  m_res = res;
+  m_res_time_spent_offset = time_spent_offset;
+  m_res_update = update;
+
+  // Adjust updates if time_spent_offset is greater than a time slice
+  int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
+  m_res_update += m_res_time_spent_offset / ave_time_slice;
+  m_res_time_spent_offset %= ave_time_slice;
+  assert(m_res_time_spent_offset >= 0);
+  
+  // If they didn't send anything (usually during an avida run as opposed to analyze mode),
+  // then we set up a static variable (or just point to it) that reflects the initial conditions of the run
+  // from the environment file.  (JEB -- This code moved from cAnalyze::cAnalyze).
+  if (m_res_method == RES_INITIAL)
+  {
+    // Initialize the time oriented resource list to be just the initial
+    // concentrations of the resources in the environment.  This will only
+    // be changed if LOAD_RESOURCES analyze command is called.  If there are
+    // no resources in the environment or there is no environment, the list
+    // is empty then the all resources will default to 0.0
+    if (!s_resources)
+    {
+      s_resources = new std::vector<std::pair<int, std::vector<double> > >;
+      const cResourceLib &resource_lib = m_world->GetEnvironment().GetResourceLib();
+      if(resource_lib.GetSize() > 0) 
+      {
+        vector<double> r;
+        for(int i=0; i<resource_lib.GetSize(); i++) 
+        {
+          cResource *resource = resource_lib.GetResource(i);
+          assert(resource);
+          r.push_back(resource->GetInitial());
+        }
+        s_resources->push_back(make_pair(0, r));
+      }
+    }
+    m_res = s_resources;
+  }
+  assert(m_res != NULL);
+  
+  const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
   assert(resource_lib.GetSize() >= 0);
-
-  resource_count.SetSize(resource_lib.GetSize());
-  d_emptyDoubleArray.ResizeClear(resource_lib.GetSize());
-  d_resources.ResizeClear(resource_lib.GetSize());
-  for(int i=0; i<resource_lib.GetSize(); i++) {
-    d_emptyDoubleArray[i] = 0.0;
-    d_resources[i] = 0.0;
+  
+  // Set the resource count to zero by default
+  m_resource_count.SetSize(resource_lib.GetSize());
+  for(int i=0; i<resource_lib.GetSize(); i++) 
+  {     
+     m_resource_count.Set(i, 0.0);
   }
-
-  resource_count.ResizeSpatialGrids(1, 1);
-
-  for (int i = 0; i < resource_lib.GetSize(); i++) {
-    cResource* res = resource_lib.GetResource(i);
-    const double decay = 1.0 - res->GetOutflow();
-    resource_count.Setup(i, res->GetName(), res->GetInitial(), 
-                           res->GetInflow(), decay,
-                           res->GetGeometry(), res->GetXDiffuse(),
-                           res->GetXGravity(), res->GetYDiffuse(), 
-                           res->GetYGravity(), res->GetInflowX1(), 
-                           res->GetInflowX2(), res->GetInflowY1(), 
-                           res->GetInflowY2(), res->GetOutflowX1(), 
-                           res->GetOutflowX2(), res->GetOutflowY1(), 
-                           res->GetOutflowY2() );
-  }
+    
+  SetResourceUpdate(m_res_update, true);
+  // Round down to the closest update to choose how to initializae resources
 }
 
-
-void cTestCPU::SetupResourceArray(const tArray<double> &resources)
+void cTestCPU::SetResourceUpdate(int update, bool round_to_closest)
 {
-  if (!m_localres) m_res = new cTestResources(*m_res);
+  assert(m_res != NULL);
 
-  for(int i = 0; i < m_res->d_resources.GetSize(); i++) {
-    if(i >= resources.GetSize()) {
-      m_res->d_resources[i] = 0.0;
+  m_res_update = update;
+
+  int which = -1;
+  if (round_to_closest)
+  {
+    // Assuming resource vector is sorted by update, front to back
+    
+    /*
+    if(update <= (*m_res)[0].first) {
+      which = 0;
+    } else if(update >= (*m_res).back().first) {
+      which = m_res->size() - 1;
     } else {
-      m_res->d_resources[i] = resources[i];
+      // Find the update that is closest to the born update
+      for(unsigned int i=0; i<(*m_res).size()-1; i++) {
+        if(update >= (*m_res)[i+1].first) { continue; }
+        if(update - (*m_res)[i].first <=
+           (*m_res)[i+1].first - update) {
+          which = i;
+        } else {
+          which = i + 1;
+        }
+        break;
+      */
+      // Find the update that is closest to the born update, round down instead @JEB
+      which = 0;
+      while ( which < (int)m_res->size() )
+      {
+        if ( (*m_res)[which].first > update ) break;
+        which++;
+      }
+      if (which > 0) which--;
+ // }
+    assert(which >= 0);
+  }
+  else // Only find exact update matches
+  {
+    for(unsigned int i=0; i<m_res->size(); i++)
+    {
+      if (update == (*m_res)[i].first)
+      {
+        which = i;
+        break;
+      }
+    }
+    if (which < 0) return; // Not found (do nothing)
+  }
+  
+  const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
+  for(int i=0; i<resource_lib.GetSize(); i++) 
+  {
+    if(i >= (int)(*m_res)[which].second.size()) {
+      m_resource_count.Set(i, 0.0);
+    } else {
+      // @DMB - unused - double temp = (*m_res)[which].second[i];
+      m_resource_count.Set(i, (*m_res)[which].second[i]);
     }
   }
 }
 
-void cTestCPU::SetUseResources(bool use)
+void cTestCPU::ModifyResources(const tArray<double>& res_change)
 {
-  if (m_res->d_useResources != use) {
-    if (!m_localres) m_res = new cTestResources(*m_res);
-    m_res->d_useResources = use;
-  }
+  //We only let the testCPU modify the resources if we are using a DEPLETABLE options. @JEB
+  if (m_res_method >= RES_UPDATED_DEPLETABLE) m_resource_count.Modify(res_change);
 }
 
 
@@ -97,6 +201,7 @@ bool cTestCPU::ProcessGestation(cAvidaContext& ctx, cCPUTestInfo& test_info, int
 
   // Determine how long this organism should be tested for...
   int time_allocated = m_world->GetConfig().TEST_CPU_TIME_MOD.Get() * organism.GetGenome().GetSize();
+  time_allocated += m_res_time_spent_offset; // If the resource offset has us starting at a different time, adjust @JEB
 
   // Prepare the inputs...
   cur_input = 0;
@@ -104,21 +209,64 @@ bool cTestCPU::ProcessGestation(cAvidaContext& ctx, cCPUTestInfo& test_info, int
 
   // Determine if we're tracing and what we need to print.
   cHardwareTracer* tracer = test_info.GetTraceExecution() ? (test_info.GetTracer()) : NULL;
+  std::ostream * tracerStream = NULL;
+  if (tracer != NULL) tracerStream = tracer->GetStream();
 
-  int time_used = 0;
+  int time_used = m_res_time_spent_offset; // Note: this is zero by default if no resources being used @JEB
+  int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
+  
   organism.GetHardware().SetTrace(tracer);
   while (time_used < time_allocated && organism.GetHardware().GetMemory().GetSize() &&
          organism.GetPhenotype().GetNumDivides() == 0)
   {
     time_used++;
-    organism.GetHardware().SingleProcess(ctx);
+    
     // @CAO Need to watch out for parasites.
+    
+    // Assume an update is based on the average time slice for updating test cpu resources @JEB
+    if ((m_res_method >= RES_UPDATED_DEPLETABLE) && (time_used % ave_time_slice == 0))
+    {
+      SetResourceUpdate(m_res_update+1);
+    }
+    
+    // Add extra info to trace files so that we can watch resource changes. 
+    // This is a clumsy way to insert it in the trace file, but works for my purposes @JEB
+    if ( (m_res_method >= RES_UPDATED_DEPLETABLE) && (tracerStream != NULL) ) 
+    {
+      const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
+      assert(resource_lib.GetSize() >= 0);
+      *tracerStream << "Resources:";
+      // Print out resources
+      for(int i=0; i<resource_lib.GetSize(); i++) 
+      {     
+         *tracerStream << " " << m_resource_count.Get(i);
+      }
+      *tracerStream << endl;
+     }
+     
+     organism.GetHardware().SingleProcess(ctx);
   }
+  
+  
+  // Output final resource information @JEB
+  if ( (m_res_method >= RES_UPDATED_DEPLETABLE) && (tracerStream != NULL) ) 
+  {
+    const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
+    assert(resource_lib.GetSize() >= 0);
+    *tracerStream << "Resources:";
+    // Print out resources
+    for(int i=0; i<resource_lib.GetSize(); i++) 
+    {     
+       *tracerStream << " " << m_resource_count.Get(i);
+    }
+    *tracerStream << endl;
+   }
+
+  
   organism.GetHardware().SetTrace(NULL);
 
   // Print out some final info in trace...
-  if (tracer != NULL) tracer->TraceTestCPU(time_used, time_allocated, organism.GetHardware().GetMemory().GetSize(),
-                                           organism.GetHardware().GetMemory().AsString(), organism.ChildGenome().AsString());
+  if (tracer != NULL) tracer->TraceTestCPU(time_used, time_allocated, organism);
 
   // For now, always return true.
   return true;
@@ -170,27 +318,21 @@ bool cTestCPU::TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info,
 {
   assert(cur_depth < test_info.generation_tests);
 
-  if (test_info.GetUseRandomInputs() == false) {
-    // We make sure that all combinations of inputs are present.  This is
-    // done explicitly in the key columns... (0f, 33, and 55)
-    input_array.Resize(3);
-    //    input_array[0] = 0x130f149f;  // 00010011 00001111 00010100 10011111
-    //    input_array[1] = 0x0833e53e;  // 00001000 00110011 11100101 00111110
-    //    input_array[2] = 0x625541eb;  // 01100010 01010101 01000001 11101011
-
-    input_array[0] = 0x0f13149f;  // 00001111 00010011 00010100 10011111
-    input_array[1] = 0x3308e53e;  // 00110011 00001000 11100101 00111110
-    input_array[2] = 0x556241eb;  // 01010101 01100010 01000001 11101011
-
-    receive_array.Resize(3);
+  // Input sizes can vary based on environment settings, must at least initialize
+  m_use_random_inputs = test_info.GetUseRandomInputs(); // save this value in case ResetInputs is used.
+  m_world->GetEnvironment().SetupInputs(ctx, input_array, m_use_random_inputs);
+  
+  receive_array.Resize(3);
+  if (test_info.GetUseRandomInputs()) {
+    receive_array[0] = (15 << 24) + ctx.GetRandom().GetUInt(1 << 24);  // 00001111
+    receive_array[1] = (51 << 24) + ctx.GetRandom().GetUInt(1 << 24);  // 00110011
+    receive_array[2] = (85 << 24) + ctx.GetRandom().GetUInt(1 << 24);  // 01010101
+  } else {
     receive_array[0] = 0x0f139f14;  // 00001111 00010011 10011111 00010100
     receive_array[1] = 0x33083ee5;  // 00110011 00001000 00111110 11100101
     receive_array[2] = 0x5562eb41;  // 01010101 01100010 11101011 01000001
-  } else {
-    m_world->GetEnvironment().SetupInputs(ctx, input_array);
-    m_world->GetEnvironment().SetupInputs(ctx, receive_array);
   }
-
+  
   if (cur_depth > test_info.max_depth) test_info.max_depth = cur_depth;
 
   // Setup the organism we're working with now.
@@ -200,7 +342,7 @@ bool cTestCPU::TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info,
   test_info.org_array[cur_depth] = new cOrganism(m_world, ctx, genome);
   cOrganism & organism = *( test_info.org_array[cur_depth] );
   organism.SetOrgInterface(new cTestCPUInterface(this));
-  organism.GetPhenotype().SetupInject(genome.GetSize());
+  organism.GetPhenotype().SetupInject(genome);
 
   // Run the current organism.
   ProcessGestation(ctx, test_info, cur_depth);
@@ -302,27 +444,80 @@ void cTestCPU::PrintGenome(cAvidaContext& ctx, const cGenome& genome, cString fi
     df.WriteComment(c.Set("Copied Size.....: %d", phenotype.GetCopiedSize()));
     df.WriteComment(c.Set("Executed Size...: %d", phenotype.GetExecutedSize()));
     
-    if (phenotype.GetNumDivides() == 0) df.WriteComment("Offspring.......: NONE");
-    else if (phenotype.CopyTrue() == true) df.WriteComment("Offspring.......: SELF");
-    else if (test_info.GetCycleTo() != -1) df.WriteComment(c.Set("Offspring.......: %d", test_info.GetCycleTo()));
-    else df.WriteComment(c.Set("Offspring.......: %d", j + 1));
+    if (phenotype.GetNumDivides() == 0)
+      df.WriteComment("Offspring.......: NONE");
+    else if (phenotype.CopyTrue())
+      df.WriteComment("Offspring.......: SELF");
+    else if (test_info.GetCycleTo() != -1)
+      df.WriteComment(c.Set("Offspring.......: %d", test_info.GetCycleTo()));
+    else
+      df.WriteComment(c.Set("Offspring.......: %d", j + 1));
     
     df.WriteComment("");
   }
   
   df.WriteComment("Tasks Performed:");
-  cPhenotype& phenotype = test_info.GetTestPhenotype();
-  for (int i = 0; i < m_world->GetEnvironment().GetTaskLib().GetSize(); i++) {
-    df.WriteComment(c.Set("%s %d",
-                          static_cast<const char*>(m_world->GetEnvironment().GetTaskLib().GetTask(i).GetName()),
-                          phenotype.GetLastTaskCount()[i]));
+  
+  const cEnvironment& env = m_world->GetEnvironment();
+  const tArray<int>& task_count = test_info.GetTestPhenotype().GetLastTaskCount();
+  const tArray<double>& task_qual = test_info.GetTestPhenotype().GetLastTaskQuality();
+  for (int i = 0; i < task_count.GetSize(); i++) {
+    df.WriteComment(c.Set("%s %d (%f)", static_cast<const char*>(env.GetTask(i).GetName()),
+                          task_count[i], task_qual[i]));
   }
 
   df.Endl();
   
   // Display the genome
-  cInstUtil::SaveGenome(df.GetOFStream(), test_info.GetTestOrganism()->GetHardware().GetInstSet(), genome);
+  cGenomeUtil::SaveGenome(df.GetOFStream(), test_info.GetTestOrganism()->GetHardware().GetInstSet(), genome);
   
   m_world->GetDataFileManager().Remove(filename);
+}
+
+
+void cTestCPU::PrintInjectGenome(cAvidaContext& ctx, cInjectGenotype* inject_genotype,
+                                 const cGenome& genome, cString filename, int update)
+{
+  if (filename == "") filename.Set("p%03d-unnamed", genome.GetSize());
+  
+  // Build the test info for printing.
+  cCPUTestInfo test_info;
+  TestGenome(ctx, test_info, genome);
+  
+  // Open the file...
+  ofstream& fp = m_world->GetDataFileOFStream(filename);
+  
+  // @CAO Fix!!!!!!
+  if( fp.good() == false ) {
+    cerr << "Unable to open output file '" <<  filename << "'" << endl;
+    return;
+  }
+  
+  // Print the useful info at the top...
+  
+  fp << "# Filename........: " << filename << endl;
+  
+  if (update >= 0) fp << "# Update Output...: " << update << endl;
+  else fp << "# Update Output...: N/A" << endl;
+  
+  
+  if (inject_genotype != NULL) {
+    fp << "# Update Created..: " << inject_genotype->GetUpdateBorn() << endl;
+    fp << "# Genotype ID.....: " << inject_genotype->GetID() << endl;
+    fp << "# Parent Gen ID...: " << inject_genotype->GetParentID() << endl;
+    fp << "# Tree Depth......: " << inject_genotype->GetDepth() << endl;
+  }
+  fp << endl;
+  
+  // Display the genome
+  cGenomeUtil::SaveGenome(fp, test_info.GetTestOrganism()->GetHardware().GetInstSet(), genome);
+  
+  m_world->GetDataFileManager().Remove(filename);
+}
+
+
+void cTestCPU::ResetInputs(cAvidaContext& ctx) 
+{ 
+  m_world->GetEnvironment().SetupInputs(ctx, input_array, m_use_random_inputs);
 }
 

@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "hardware_cpu.hh" prior to 11/17/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -14,14 +29,8 @@
 #include <iomanip>
 #include <vector>
 
-#ifndef defs_h
-#include "defs.h"
-#endif
 #ifndef cCodeLabel_h
 #include "cCodeLabel.h"
-#endif
-#ifndef nHardware_h
-#include "nHardware.h"
 #endif
 #ifndef cHeadCPU_h
 #include "cHeadCPU.h"
@@ -38,11 +47,21 @@
 #ifndef cString_h
 #include "cString.h"
 #endif
+#ifndef cStats_h
+#include "cStats.h"
+#endif
 #ifndef tArray_h
 #include "tArray.h"
 #endif
-#ifndef cStats_h
-#include "cStats.h"
+#ifndef tInstLib_h
+#include "tInstLib.h"
+#endif
+
+#ifndef defs_h
+#include "defs.h"
+#endif
+#ifndef nHardware_h
+#include "nHardware.h"
 #endif
 
 /**
@@ -53,22 +72,23 @@
  **/
 
 class cInjectGenotype;
-class cInstLibBase;
-class cInstLibCPU;
+class cInstLib;
 class cInstSet;
 class cMutation;
 class cOrganism;
 
+
 class cHardwareCPU : public cHardwareBase
 {
 public:
-  typedef bool (cHardwareCPU::*tHardwareCPUMethod)(cAvidaContext& ctx);
+  typedef bool (cHardwareCPU::*tMethod)(cAvidaContext& ctx);
 
 protected:
   // --------  Structure Constants  --------
-  static const int NUM_REGISTERS = 6;
+  static const int NUM_REGISTERS = 3;
+  static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
   enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX };
-  static const int NUM_NOPS = 6;
+  static const int NUM_NOPS = 3;
   
   // --------  Data Structures  --------
   struct cLocalThread
@@ -78,7 +98,7 @@ protected:
     
   public:
     int reg[NUM_REGISTERS];
-    cHeadCPU heads[nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS];
+    cHeadCPU heads[NUM_HEADS];
     cCPUStack stack;
     unsigned char cur_stack;              // 0 = local stack, 1 = global stack.
     unsigned char cur_head;
@@ -99,12 +119,12 @@ protected:
 
     
   // --------  Static Variables  --------
-  static cInstLibCPU* s_inst_slib;
-  static cInstLibCPU* initInstLib(void);
+  static tInstLib<tMethod>* s_inst_slib;
+  static tInstLib<tMethod>* initInstLib(void);
 
 
   // --------  Member Variables  --------
-  tHardwareCPUMethod* m_functions;
+  const tMethod* m_functions;
 
   cCPUMemory m_memory;          // Memory...
   cCPUStack m_global_stack;     // A stack that all threads share.
@@ -122,6 +142,8 @@ protected:
 #if INSTRUCTION_COSTS
   tArray<int> inst_cost;
   tArray<int> inst_ft_cost;
+  bool m_has_costs;
+  bool m_has_ft_costs;
 #endif
   
   
@@ -142,6 +164,8 @@ protected:
   
   
   // --------  Label Manipulation  -------
+  const cCodeLabel& GetLabel() const { return m_threads[m_cur_thread].next_label; }
+  cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
   void ReadLabel(int max_size=nHardware::MAX_LABEL_SIZE);
   cHeadCPU FindLabel(int direction);
   int FindLabel_Forward(const cCodeLabel & search_label, const cGenome& search_genome, int pos);
@@ -175,6 +199,7 @@ protected:
   bool Divide_Main1RS(cAvidaContext& ctx, const int divide_point, const int extra_lines=0, double mut_multiplier=1); //AWC 07/28/06
   bool Divide_Main2RS(cAvidaContext& ctx, const int divide_point, const int extra_lines=0, double mut_multiplier=1); //AWC 07/28/06
 
+  void Divide_DoTransposons(cAvidaContext& ctx);
   
   void InjectCode(const cGenome& injection, const int line_num);
   
@@ -190,7 +215,7 @@ public:
   cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   explicit cHardwareCPU(const cHardwareCPU&);
   ~cHardwareCPU() { ; }
-  static cInstLibCPU* GetInstLib() { return s_inst_slib; }
+  static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-classic.cfg"; }
 
   void Reset();
@@ -214,17 +239,12 @@ public:
   cHeadCPU& GetHead(int head_id) { return m_threads[m_cur_thread].heads[head_id];}
   const cHeadCPU& GetHead(int head_id, int thread) const { return m_threads[thread].heads[head_id]; }
   cHeadCPU& GetHead(int head_id, int thread) { return m_threads[thread].heads[head_id];}
-  int GetNumHeads() const { return nHardware::NUM_HEADS; }
+  int GetNumHeads() const { return NUM_HEADS; }
   
   const cHeadCPU& IP() const { return m_threads[m_cur_thread].heads[nHardware::HEAD_IP]; }
   cHeadCPU& IP() { return m_threads[m_cur_thread].heads[nHardware::HEAD_IP]; }
   const cHeadCPU& IP(int thread) const { return m_threads[thread].heads[nHardware::HEAD_IP]; }
   cHeadCPU& IP(int thread) { return m_threads[thread].heads[nHardware::HEAD_IP]; }
-  
-  
-  // --------  Label Manipulation  -------
-  const cCodeLabel& GetLabel() const { return m_threads[m_cur_thread].next_label; }
-  cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
   
   
   // --------  Memory Manipulation  --------
@@ -288,7 +308,17 @@ private:
   bool Inst_JumpB(cAvidaContext& ctx);
   bool Inst_Call(cAvidaContext& ctx);
   bool Inst_Return(cAvidaContext& ctx);
-
+  
+  bool Inst_Throw(cAvidaContext& ctx);
+  bool Inst_ThrowIf0(cAvidaContext& ctx);
+  bool Inst_ThrowIfNot0(cAvidaContext& ctx);  
+  bool Inst_Catch(cAvidaContext& ctx) { ReadLabel(); return true; };
+ 
+  bool Inst_Goto(cAvidaContext& ctx);
+  bool Inst_GotoIf0(cAvidaContext& ctx);
+  bool Inst_GotoIfNot0(cAvidaContext& ctx);  
+  bool Inst_Label(cAvidaContext& ctx) { ReadLabel(); return true; };
+    
   // Stack and Register Operations
   bool Inst_Pop(cAvidaContext& ctx);
   bool Inst_Push(cAvidaContext& ctx);
@@ -364,19 +394,27 @@ private:
   bool Inst_CAlloc(cAvidaContext& ctx);
   bool Inst_CDivide(cAvidaContext& ctx);
   bool Inst_MaxAlloc(cAvidaContext& ctx);
+  bool Inst_MaxAllocMoveWriteHead(cAvidaContext& ctx);
   bool Inst_Inject(cAvidaContext& ctx);
   bool Inst_InjectRand(cAvidaContext& ctx);
   bool Inst_InjectThread(cAvidaContext& ctx);
+  bool Inst_Transposon(cAvidaContext& ctx);
   bool Inst_Repro(cAvidaContext& ctx);
+  bool Inst_TaskPutRepro(cAvidaContext& ctx);
+  bool Inst_TaskPutResetInputsRepro(cAvidaContext& ctx);
+
+  bool Inst_SpawnDeme(cAvidaContext& ctx);
   bool Inst_Kazi(cAvidaContext& ctx);
   bool Inst_Kazi5(cAvidaContext& ctx);
   bool Inst_Die(cAvidaContext& ctx);
 
   // I/O and Sensory
   bool Inst_TaskGet(cAvidaContext& ctx);
+  bool Inst_TaskGet2(cAvidaContext& ctx);
   bool Inst_TaskStackGet(cAvidaContext& ctx);
   bool Inst_TaskStackLoad(cAvidaContext& ctx);
   bool Inst_TaskPut(cAvidaContext& ctx);
+  bool Inst_TaskPutResetInputs(cAvidaContext& ctx);
   bool Inst_TaskIO(cAvidaContext& ctx);
   bool Inst_TaskIO_Feedback(cAvidaContext& ctx);
   bool Inst_MatchStrings(cAvidaContext& ctx);
@@ -384,7 +422,10 @@ private:
   bool Inst_Buy(cAvidaContext& ctx);
   bool Inst_Send(cAvidaContext& ctx);
   bool Inst_Receive(cAvidaContext& ctx);
-  bool Inst_Sense(cAvidaContext& ctx);
+  bool Inst_SenseLog2(cAvidaContext& ctx);
+  bool Inst_SenseUnit(cAvidaContext& ctx);
+  bool Inst_SenseMult100(cAvidaContext& ctx);
+  bool DoSense(cAvidaContext& ctx, int conversion_method, double base);
 
   void DoDonate(cOrganism * to_org);
   bool Inst_DonateRandom(cAvidaContext& ctx);
@@ -396,12 +437,19 @@ private:
   bool Inst_SearchB(cAvidaContext& ctx);
   bool Inst_MemSize(cAvidaContext& ctx);
 
+  bool Inst_IOBufAdd1(cAvidaContext& ctx);
+  bool Inst_IOBufAdd0(cAvidaContext& ctx);
+
   // Environment
 
   bool Inst_RotateL(cAvidaContext& ctx);
   bool Inst_RotateR(cAvidaContext& ctx);
   bool Inst_SetCopyMut(cAvidaContext& ctx);
   bool Inst_ModCopyMut(cAvidaContext& ctx);
+
+  // Energy use
+  
+  bool Inst_ZeroEnergyUsed(cAvidaContext& ctx); 
 
   // Multi-threading...
 
@@ -468,21 +516,23 @@ private:
   bool Inst_HeadDivide0_01(cAvidaContext& ctx);
   bool Inst_HeadDivide0_001(cAvidaContext& ctx);
 
+  //// Promoter Model ////
+  void GetPromoterPattern(tArray<int>& promoter);
+  void RegulatePromoter(cAvidaContext& ctx, bool up);
+  bool Inst_UpRegulatePromoter(cAvidaContext& ctx) { RegulatePromoter(ctx, true); return true; }
+  bool Inst_DownRegulatePromoter(cAvidaContext& ctx) { RegulatePromoter(ctx, false); return true; }
+  void RegulatePromoterNop(cAvidaContext& ctx, bool up);
+  bool Inst_UpRegulatePromoterNop(cAvidaContext& ctx) { RegulatePromoterNop(ctx, true); return true; }
+  bool Inst_DownRegulatePromoterNop(cAvidaContext& ctx) { RegulatePromoterNop(ctx, false); return true; }
+  void RegulatePromoterNopIfGT0(cAvidaContext& ctx, bool up); 
+  bool Inst_UpRegulatePromoterNopIfGT0(cAvidaContext& ctx) { RegulatePromoterNopIfGT0(ctx, true); return true; }
+  bool Inst_DownRegulatePromoterNopIfGT0(cAvidaContext& ctx) { RegulatePromoterNopIfGT0(ctx, false); return true; } 
+  bool Inst_Terminate(cAvidaContext& ctx);
+  bool Inst_Promoter(cAvidaContext& ctx);
+  bool Inst_DecayRegulation(cAvidaContext& ctx);
+  
   //// Placebo ////
   bool Inst_Skip(cAvidaContext& ctx);
-  
-    //// UML Element Construction ////
-  bool Inst_AddState(cAvidaContext& ctx);
-  bool Inst_Next(cAvidaContext& ctx);
-  bool Inst_Prev(cAvidaContext& ctx);
-  bool Inst_JumpIndex(cAvidaContext& ctx);
-  bool Inst_JumpDist(cAvidaContext& ctx);
-  bool Inst_AddTransitionLabel(cAvidaContext& ctx);
-  bool Inst_AddTransition(cAvidaContext& ctx);
-  bool Inst_AddTransitionTotal(cAvidaContext& ctx);
-  bool Inst_Last(cAvidaContext& ctx);
-  bool Inst_First(cAvidaContext& ctx);
-
 };
 
 

@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "mutation_rates.hh" prior to 12/5/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -57,7 +72,13 @@ private:
   };
   sInjectMuts inject;
   
-  
+  // Mutations in mutation rates...
+  struct sMetaMuts {
+    double copy_mut_prob;  // Prob of copy mut changing.
+    double standard_dev;   // Standard dev. on meta muts.
+  };
+  sMetaMuts meta;
+
   cMutationRates& operator=(const cMutationRates&); // @not_implemented
 
 public:
@@ -75,6 +96,13 @@ public:
   bool TestDivideIns(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_ins_prob); }
   bool TestDivideDel(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_del_prob); }
   bool TestParentMut(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.parent_mut_prob); }
+  double DoMetaCopyMut(cAvidaContext& ctx) {
+    if (ctx.GetRandom().P(meta.copy_mut_prob) == false) return 1.0;
+    const double exp = ctx.GetRandom().GetRandNormal() * meta.standard_dev;
+    const double change = pow(2.0, exp);
+    copy.mut_prob *= change;
+    return change;
+  }
 
   double GetPointMutProb() const     { return exec.point_mut_prob; }
   double GetCopyMutProb() const      { return copy.mut_prob; }
@@ -88,9 +116,11 @@ public:
   double GetInjectInsProb() const    { return inject.ins_prob; }
   double GetInjectDelProb() const    { return inject.del_prob; }
   double GetInjectMutProb() const    { return inject.mut_prob; }
+  double GetMetaCopyMutProb() const  { return meta.copy_mut_prob; }
+  double GetMetaStandardDev() const  { return meta.standard_dev; }
   
   void SetPointMutProb(double in_prob)  { exec.point_mut_prob    = in_prob; }
-  void SetCopyMutProb(double in_prob)   { copy.mut_prob     = in_prob; }
+  void SetCopyMutProb(double in_prob)   { copy.mut_prob          = in_prob; }
   void SetInsMutProb(double in_prob)    { divide.ins_prob        = in_prob; }
   void SetDelMutProb(double in_prob)    { divide.del_prob        = in_prob; }
   void SetDivMutProb(double in_prob)    { divide.mut_prob        = in_prob; }
@@ -101,6 +131,8 @@ public:
   void SetInjectInsProb(double in_prob) { inject.ins_prob        = in_prob; }
   void SetInjectDelProb(double in_prob) { inject.del_prob        = in_prob; }
   void SetInjectMutProb(double in_prob) { inject.mut_prob        = in_prob; }
+  void SetMetaCopyMutProb(double in_prob) { meta.copy_mut_prob   = in_prob; }
+  void SetMetaStandardDev(double in_dev) { meta.standard_dev     = in_dev; }
 };
 
 

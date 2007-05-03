@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David on 6/4/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -93,7 +108,7 @@ protected:
     
 
   // --------  Member Variables  --------
-  tMethod* m_functions;
+  const tMethod* m_functions;
 
   // Stacks
   cCPUStack m_global_stacks[NUM_GLOBAL_STACKS];
@@ -112,6 +127,8 @@ protected:
 #if INSTRUCTION_COSTS
   tArray<int> inst_cost;
   tArray<int> inst_ft_cost;
+  bool m_has_costs;
+  bool m_has_ft_costs;
 #endif
   
   int m_cur_child;
@@ -143,6 +160,8 @@ protected:
   
   
   // --------  Label Manipulation  -------
+  const cCodeLabel& GetLabel() const { return m_threads[m_cur_thread].next_label; }
+  cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
   void ReadLabel(int max_size=nHardware::MAX_LABEL_SIZE);
   cHeadCPU FindLabel(int direction);
   int FindLabel_Forward(const cCodeLabel& search_label, const cGenome& search_genome, int pos);
@@ -190,7 +209,7 @@ protected:
 public:
   cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareSMT() { ; }
-  static cInstLibBase* GetInstLib() { return s_inst_slib; }
+  static cInstLib* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-smt.cfg"; }
 	
   void Reset();
@@ -220,11 +239,6 @@ public:
   const cHeadCPU& IP(int thread) const { return m_threads[thread].heads[nHardware::HEAD_IP]; }
   cHeadCPU& IP(int thread) { return m_threads[thread].heads[nHardware::HEAD_IP]; }
 	  
-  
-  // --------  Label Manipulation  -------
-  const cCodeLabel& GetLabel() const { return m_threads[m_cur_thread].next_label; }
-  cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
-	
   
   // --------  Memory Manipulation  --------
   cCPUMemory& GetMemory() { return m_mem_array[0]; }

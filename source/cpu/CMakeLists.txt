@@ -5,14 +5,16 @@ SET(libcpu_a_SOURCES
   cCPUTestInfo.cc
   cHardwareBase.cc
   cHardwareCPU.cc
+  cHardwareExperimental.cc
+  cHardwareGX.cc
   cHardwareManager.cc
   cHardwareSMT.cc
   cHardwareStatusPrinter.cc
   cHardwareTransSMT.cc
   cHeadCPU.cc
+  cInstSet.cc
   cTestCPU.cc
   cTestCPUInterface.cc
-  cTestUtil.cc
 )
 
 INCLUDE_DIRECTORIES(${ALL_INC_DIRS})

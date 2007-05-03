@@ -3,7 +3,22 @@
  *  Avida
  *
  *  Created by David Bryson on 8/9/06.
- *  Copyright 2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -133,6 +148,54 @@ public:
   }
 };
 
+class cActionSetCellResource : public cAction
+{
+private:
+  tArray<int> m_cell_list;
+  cString m_res_name;
+  double m_res_count;
+  int m_res_id;
+  
+public:
+  cActionSetCellResource(cWorld* world, const cString& args) : cAction(world, args), m_cell_list(0), m_res_name(""), m_res_count(0.0)
+  {
+    cString largs(args);
+    if (largs.GetSize()) 
+    {
+      cString s = largs.PopWord();
+      m_cell_list = cStringUtil::ReturnArray(s);    
+    }
+    if (largs.GetSize()) m_res_name = largs.PopWord();
+    if (largs.GetSize()) m_res_count = largs.PopWord().AsDouble();
+    
+    cResource* res = m_world->GetEnvironment().GetResourceLib().GetResource(m_res_name);
+    assert(res);
+    m_res_id = res->GetID(); // Save the id so we don't have to do many string conversions
+  }
+
+  static const cString GetDescription() { return "Arguments: <int cell_id> <string res_name> <double res_count>"; }
+
+  void Process(cAvidaContext& ctx)
+  {
+    cResource* res = m_world->GetEnvironment().GetResourceLib().GetResource(m_res_id);
+    for(int i=0; i<m_cell_list.GetSize(); i++)
+    {
+      int m_cell_id = m_cell_list[i];
+      tArray<double> counts = m_world->GetPopulation().GetResourceCount().GetCellResources(m_cell_id);
+      if ((res != NULL) && (res->GetID() < counts.GetSize()))
+      {
+        counts[res->GetID()] = m_res_count;
+        m_world->GetPopulation().GetResourceCount().SetCellResources(m_cell_id, counts);
+      }
+    }
+  }
+};
+
+
+// Set the values associated with a specified reaction.  If the name of the
+// reaction used is "ALL" then all reactions will be changed.  If the name is
+// "RANDOM:3" then random reactions will be set to the specified value.  The
+// number after the colon indicated the number of reactions to set.
 
 class cActionSetReactionValue : public cAction
 {
@@ -152,7 +215,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetEnvironment().SetReactionValue(m_name, m_value);
+    m_world->GetEnvironment().SetReactionValue(ctx, m_name, m_value);
   }
 };
 
@@ -203,6 +266,98 @@ public:
 };
 
 
+class cActionSetTaskArgInt : public cAction
+{
+private:
+  int m_task;
+  int m_arg;
+  int m_value;
+  
+public:
+  cActionSetTaskArgInt(cWorld* world, const cString& args) : cAction(world, args), m_task(0), m_arg(0), m_value(0)
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_task = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_arg = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_value = largs.PopWord().AsInt();
+  }
+  
+  static const cString GetDescription() { return "Arguments: <int task> <int arg> <int value>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cEnvironment& env = m_world->GetEnvironment();
+    if (m_task >= 0 && m_task < env.GetNumTasks()) {
+      env.GetTask(m_task).GetArguments().SetInt(m_arg, m_value);
+    } else {
+      m_world->GetDriver().RaiseFatalException(-2,"Task specified in SetTaskArgInt action does not exist");
+    }
+  }
+};
+
+
+class cActionSetTaskArgDouble : public cAction
+{
+private:
+  int m_task;
+  int m_arg;
+  double m_value;
+  
+public:
+  cActionSetTaskArgDouble(cWorld* world, const cString& args) : cAction(world, args), m_task(0), m_arg(0), m_value(0.0)
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_task = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_arg = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_value = largs.PopWord().AsDouble();
+  }
+  
+  static const cString GetDescription() { return "Arguments: <int task> <int arg> <double value>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cEnvironment& env = m_world->GetEnvironment();
+    if (m_task >= 0 && m_task < env.GetNumTasks()) {
+      env.GetTask(m_task).GetArguments().SetDouble(m_arg, m_value);
+    } else {
+      m_world->GetDriver().RaiseFatalException(-2,"Task specified in SetTaskArgDouble action does not exist");
+    }
+  }
+};
+
+
+class cActionSetTaskArgString : public cAction
+{
+private:
+  int m_task;
+  int m_arg;
+  cString m_value;
+  
+public:
+  cActionSetTaskArgString(cWorld* world, const cString& args) : cAction(world, args), m_task(0), m_arg(0), m_value("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_task = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_arg = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_value = largs;
+  }
+  
+  static const cString GetDescription() { return "Arguments: <int task> <int arg> <string value>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cEnvironment& env = m_world->GetEnvironment();
+    if (m_task >= 0 && m_task < env.GetNumTasks()) {
+      env.GetTask(m_task).GetArguments().SetString(m_arg, m_value);
+    } else {
+      m_world->GetDriver().RaiseFatalException(-2,"Task specified in SetTaskArgString action does not exist");
+    }
+  }
+};
+
+
+
+
 
 void RegisterEnvironmentActions(cActionLibrary* action_lib)
 {
@@ -210,10 +365,15 @@ void RegisterEnvironmentActions(cActionLibrary* action_lib)
   action_lib->Register<cActionInjectScaledResource>("InjectScaledResource");
   action_lib->Register<cActionOutflowScaledResource>("OutflowScaledResource");
   action_lib->Register<cActionSetResource>("SetResource");
+  action_lib->Register<cActionSetCellResource>("SetCellResource");
 
   action_lib->Register<cActionSetReactionValue>("SetReactionValue");
   action_lib->Register<cActionSetReactionValueMult>("SetReactionValueMult");
   action_lib->Register<cActionSetReactionInst>("SetReactionInst");
+
+  action_lib->Register<cActionSetTaskArgInt>("SetTaskArgInt");
+  action_lib->Register<cActionSetTaskArgDouble>("SetTaskArgDouble");
+  action_lib->Register<cActionSetTaskArgString>("SetTaskArgString");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInjectResource>("inject_resource");
@@ -224,4 +384,5 @@ void RegisterEnvironmentActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSetReactionValue>("set_reaction_value");
   action_lib->Register<cActionSetReactionValueMult>("set_reaction_value_mult");
   action_lib->Register<cActionSetReactionInst>("set_reaction_inst");
+  
 }

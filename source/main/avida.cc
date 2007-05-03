@@ -2,8 +2,23 @@
  *  avida.cc
  *  Avida
  *
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -17,8 +32,8 @@
 #endif
 
 #include <iostream>
-#include <signal.h>
-#include <stdio.h>
+#include <csignal>
+#include <cstdio>
 
 using namespace std;
 
@@ -52,12 +67,6 @@ cString getAvidaVersion()
 #if SMT_FULLY_ASSOCIATIVE
   version += " smt_fa";
 #endif
-#if CLASSIC_FULLY_ASSOCIATIVE
-  version += " c_fa";
-#endif
-#if WRITE_PROTECTION
-  version += " wp";
-#endif
 #ifdef ENABLE_UNIT_TESTS
   version += " ut";
 #endif
@@ -71,16 +80,32 @@ cString getAvidaVersion()
 void printVersionBanner()
 {
   // output copyright message
-  cout << getAvidaVersion() << endl;
   cout << "----------------------------------------------------------------------" << endl;
-  cout << "Copyright (C) 1999-2006 Michigan State University." << endl;
-  cout << "Copyright (C) 1993-2005 California Institute of Technology." << endl << endl;
+  cout << getAvidaVersion() << endl << endl;
+
+  cout << "by Charles Ofria" << endl << endl;
+
+  cout << "Lead Developers: David Bryson (Avida) and Kaben Nanlohy (Avida-ED)" << endl << endl;
+
+  cout << "Active contributors include:  Christoph Adami, Brian Baer, Jeffrey Barrick," << endl
+       << "Benjamin Beckmann, Jeffrey Clune, Art Covert, Santiago Elena, Sherri Goings," << endl
+       << "Heather Goldsby, David Knoester, Richard Lenski, Philip McKinley," << endl
+       << "Dusan Misevic, Elizabeth Ostrowski, Robert Pennock, Matthew Rupp, Eric Torng," << endl
+       << "Bess Walker, and Gabriel Yedid" << endl << endl;
+
+  cout << "For a more complete list of contributors, see the CONTRIBUTORS file." << endl;
+
+  cout << endl;
+
+  cout << "Copyright (C) 1999-2007 Michigan State University." << endl;
+  cout << "Copyright (C) 1993-2003 California Institute of Technology." << endl << endl;
   
   cout << "Avida comes with ABSOLUTELY NO WARRANTY." << endl;
   cout << "This is free software, and you are welcome to redistribute it" << endl;
   cout << "under certain conditions. See file COPYING for details." << endl << endl;
 
-  cout << "For more information, see: http://devolab.cse.msu.edu/software/avida/" << endl << endl;
+  cout << "For more information, see: http://devolab.cse.msu.edu/software/avida/" << endl;
+  cout << "----------------------------------------------------------------------" << endl << endl;
 }
 
 void ExitAvida(int exit_code)

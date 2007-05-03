@@ -3,8 +3,23 @@
  *  Avida
  *
  *  Called "string_list.cc" prior to 12/7/05.
- *  Copyright 2005-2006 Michigan State University. All rights reserved.
- *  Copyright 1993-2003 California Institute of Technology
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1993-2003 California Institute of Technology.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -71,122 +86,3 @@ cString cStringList::PopString(const cString & test_string)
   }
   return "";
 }
-
-
-#ifdef ENABLE_UNIT_TESTS
-
-/*
-Unit tests
-*/
-#include "cXMLArchive.h"
-
-#include "lightweight_test.h"
-
-#include <cstdio>    // for std::remove() to remove temporary files.
-#include <iomanip>
-#include <iostream>
-#include <fstream> 
-#include <string>
-
-namespace nStringList {
-  /*
-  Test-helpers.
-  */
-  template <class T>
-  void save_stuff(const T &s, const char * filename){
-    std::ofstream ofs(filename);
-    cXMLOArchive oa(ofs);
-    oa.ArkvObj("cStringList_Archive", s);
-  }
-  
-  template <class T>
-  void restore_stuff(T &s, const char * filename) {
-    std::ifstream ifs(filename);
-    cXMLIArchive ia(ifs);
-    ia.ArkvObj("cStringList_Archive", s);
-  }
-  
-
-  namespace utStringList_hello_world {
-    void test(){
-      std::cout << CURRENT_FUNCTION << std::endl;
-      TEST(true);
-      TEST(false);
-    }
-  }
-
-  namespace utStringList_archiving {
-    void test() {
-#   ifdef ENABLE_SERIALIZATION
-      std::cout << CURRENT_FUNCTION << std::endl;
-      char numstr[] = "number 0";
-      cString s;
-      cStringList sl;
-      cStringIterator it(sl);
-      std::string filename("./cStringList_basic_serialization.xml");
-      int i, listsize = 10;
-      
-      /*
-      Construct basic list.
-      */
-      TEST(0 == sl.GetSize());
-      for(i=0; i<listsize; i++){
-        numstr[7] = '0' + i; 
-        s = cString(numstr);
-        sl.PushRear(s);
-      }
-      TEST(listsize == sl.GetSize());
-    
-      /*
-      Verify basic list contents.
-      */
-      it.Reset();
-      for(i=0; !it.AtEnd(); i++){
-        s = it.Next();
-        numstr[7] = '0' + i;
-        TEST(cString(numstr) == s);
-      }
-      TEST(i == listsize);
-
-      /*
-      Save basic list.
-      */
-      save_stuff<>(sl, filename.c_str());
-      sl.Clear();
-      TEST(0 == sl.GetSize());
-
-      /*
-      Reload basic list.
-      */
-      restore_stuff<>(sl, filename.c_str());
-      TEST(listsize == sl.GetSize());
-
-      /*
-      Verify contents of reloaded basic list.
-      */
-      it.Reset();
-      for(i=0; !it.AtEnd(); i++){
-        s = it.Next();
-        numstr[7] = '0' + i;
-        TEST(cString(numstr) == s);
-      }
-      TEST(i == listsize);
-
-      sl.Clear();
-      TEST(0 == sl.GetSize());
-
-      std::remove(filename.c_str());
-#   endif // ENABLE_SERIALIZATION
-    }
-  } // utStringList_archiving
-
-
-
-  void UnitTests(bool full)
-  {
-    //if(full) utStringList_hello_world::test();
-    if(full) utStringList_archiving::test();
-  }
-} // nStringList
-
-#endif // ENABLE_UNIT_TESTS
