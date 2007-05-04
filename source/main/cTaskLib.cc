@@ -2643,7 +2643,7 @@ double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->findTrans(0,1,1, "ga", "aa")) {
+	if (ctx.organism->getStateDiagram()->findTrans(0,1,1, "ga", "aa")) {
 		ctx.task_success_complete = 1;	
 		bonus = 1.0;
 	}
@@ -2655,7 +2655,7 @@ double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->findTrans(1,2,1,"gd", "ab")){
+	if (ctx.organism->getStateDiagram()->findTrans(1,2,1,"gd", "ab")){
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -2667,7 +2667,7 @@ double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->findTrans(2,3,3,"gb", "ac")){
+	if (ctx.organism->getStateDiagram()->findTrans(2,3,3,"gb", "ac")){
 			bonus = 1.0;
 			ctx.task_success_complete += 1;	
 	}
@@ -2679,7 +2679,7 @@ double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->findTrans(3,4,2,"gc", "ad")){
+	if (ctx.organism->getStateDiagram()->findTrans(3,4,2,"gc", "ad")){
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -2691,7 +2691,7 @@ double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->findTrans(4,0,4,"ga","ac")){
+	if (ctx.organism->getStateDiagram()->findTrans(4,0,4,"ga","ac")){
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -2702,7 +2702,7 @@ double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 
 double cTaskLib::Task_NumStates(cTaskContext& ctx) const
 {
-	double ns = (double) ctx.organism->numStates();
+	double ns = (double) ctx.organism->getStateDiagram()->numStates();
 	
 	if (ns <= 5 ) {
 		return (ns/5); 
@@ -2714,7 +2714,7 @@ double cTaskLib::Task_NumStates(cTaskContext& ctx) const
 
 double cTaskLib::Task_NumTrans(cTaskContext& ctx) const
 {
-	double nt = (double) ctx.organism->numTrans();
+	double nt = (double) ctx.organism->getStateDiagram()->numTrans();
 	
 	if (nt <= 5 ) {
 		return (nt/5); 
@@ -2730,7 +2730,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	cOrganism* organism = ctx.organism;
 	std::string temp;
 
-	temp = organism->getXMI();
+	temp = organism->getStateDiagram()->getXMI();
 
 	if (temp == organism->getParentXMI()) {
 		ctx.task_success_complete += organism->getParentBonusInfo("hydra");
@@ -2849,7 +2849,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.organism;
-	std::string temp = organism->getXMI();
+	std::string temp = organism->getStateDiagram()->getXMI();
 	double temp1 = 0.0;
 	
 	if (temp == organism->getParentXMI()) { 
@@ -2859,7 +2859,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	}
 	
 	// check if the trigger is present
-	if (organism->findTrans(-1,-1,1,"*","*")){
+	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
 		temp += 1;
 		
 		// check property

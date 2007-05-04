@@ -887,6 +887,24 @@ void cPopulation::ReplicateDemes(int rep_trigger)
         if(source_deme.GetAge() < m_world->GetConfig().MAX_DEME_AGE.Get()) continue;
         break;
       }
+	  
+	  case 4: { 
+		// Replicate demes with working models:
+		
+		// Need for a deme to have a UML model.
+		
+		// Checks for working model: 
+			// 1) Should include the sequence diagram scenarios (if any)
+			// 2) Should satisfy the properties (if any)
+				// To conserve CPU time, only check properties if scnearios pass
+				
+			// Should be awarded partial merit for satisfying parts of some scenarios or
+			// partially satisfying a property.
+			
+			
+	  
+	  }
+	  
 			default: {
 				cerr << "ERROR: Invalid replication trigger " << rep_trigger
 				<< " in cPopulation::ReplicateDemes()" << endl;

@@ -25,7 +25,7 @@
 
 #include "cGermline.h"
 #include "tArray.h"
-
+#include "cUMLModel.h"
 
 
 /*! Demes are groups of cells in the population that are somehow bound together
@@ -71,6 +71,9 @@ public:
     updates since the last time Reset() was called. */
   int GetAge() const { return _age; }
   
+  // UML Model functions
+  cUMLModel* getUMLModel() { return &umlMod; }
+  
 private:
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
@@ -79,6 +82,7 @@ private:
   int _age; //!< Age of this deme, in updates.
   
   cGermline _germline; //!< The germline for this deme, if used.
+  cUMLModel umlMod; // !< The UML model for this deme, if used.
 };
 
 #endif

@@ -3879,27 +3879,27 @@ bool cHardwareCPU::Inst_Next(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
+		organism->getStateDiagram()->relativeJumpTrigger(jump_amount);
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
+		organism->getStateDiagram()->relativeJumpGuard(jump_amount);
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
+		organism->getStateDiagram()->relativeJumpAction(jump_amount);
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
+		organism->getStateDiagram()->relativeJumpTransitionLabel(jump_amount);
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
+		organism->getStateDiagram()->relativeJumpOriginState(jump_amount);
 		break;
 	case 5:
 		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
+		organism->getStateDiagram()->relativeJumpDestinationState(jump_amount);
 		break;
 	}
 	return true;
@@ -3914,27 +3914,27 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
+		organism->getStateDiagram()->relativeJumpTrigger(jump_amount);
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
+		organism->getStateDiagram()->relativeJumpGuard(jump_amount);
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
+		organism->getStateDiagram()->relativeJumpAction(jump_amount);
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
+		organism->getStateDiagram()->relativeJumpTransitionLabel(jump_amount);
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
+		organism->getStateDiagram()->relativeJumpOriginState(jump_amount);
 		break;
 	case 5:
 		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
+		organism->getStateDiagram()->relativeJumpDestinationState(jump_amount);
 		break;
 	}
 	return true;
@@ -3950,27 +3950,27 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
+		organism->getStateDiagram()->absoluteJumpTrigger(jump_amount);
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
+		organism->getStateDiagram()->absoluteJumpGuard(jump_amount);
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->absoluteJumpAction(jump_amount);
+		organism->getStateDiagram()->absoluteJumpAction(jump_amount);
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
+		organism->getStateDiagram()->absoluteJumpTransitionLabel(jump_amount);
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->absoluteJumpOriginState(jump_amount);
+		organism->getStateDiagram()->absoluteJumpOriginState(jump_amount);
 		break;
 	case 5:
 		// decement the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
+		organism->getStateDiagram()->absoluteJumpDestinationState(jump_amount);
 		break;
 	}
 	return true;
@@ -3988,27 +3988,27 @@ bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
+		organism->getStateDiagram()->absoluteJumpTrigger(jump_amount);
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
+		organism->getStateDiagram()->absoluteJumpGuard(jump_amount);
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->absoluteJumpAction(jump_amount);
+		organism->getStateDiagram()->absoluteJumpAction(jump_amount);
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
+		organism->getStateDiagram()->absoluteJumpTransitionLabel(jump_amount);
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->absoluteJumpOriginState(jump_amount);
+		organism->getStateDiagram()->absoluteJumpOriginState(jump_amount);
 		break;
 	case 5:
 		// decement the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
+		organism->getStateDiagram()->absoluteJumpDestinationState(jump_amount);
 		break;
 	}
 	return true;
@@ -4025,27 +4025,27 @@ bool cHardwareCPU::Inst_First(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->firstTrigger();
+		organism->getStateDiagram()->firstTrigger();
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->firstGuard();
+		organism->getStateDiagram()->firstGuard();
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->firstAction();
+		organism->getStateDiagram()->firstAction();
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->firstTransitionLabel();
+		organism->getStateDiagram()->firstTransitionLabel();
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->firstOriginState();
+		organism->getStateDiagram()->firstOriginState();
 		break;
 	case 5:
 		// decement the destination state index
-		organism->firstDestinationState();
+		organism->getStateDiagram()->firstDestinationState();
 		break;
 	}
 	return true;
@@ -4062,27 +4062,27 @@ bool cHardwareCPU::Inst_Last(cAvidaContext& ctx)
 	switch (reg_used){
 	case 0:
 		// decrement the triggers vector index
-		organism->lastTrigger();
+		organism->getStateDiagram()->lastTrigger();
 		break;
 	case 1:
 		// decrement the guards vector index
-		organism->lastGuard();
+		organism->getStateDiagram()->lastGuard();
 		break;
 	case 2:
 		// decrement the actions vector index
-		organism->lastAction();
+		organism->getStateDiagram()->lastAction();
 		break;
 	case 3:
 		// decrement the transition labels index
-		organism->lastTransitionLabel();
+		organism->getStateDiagram()->lastTransitionLabel();
 		break;	
 	case 4:
 		// decrement the original state index
-		organism->lastOriginState();
+		organism->getStateDiagram()->lastOriginState();
 		break;
 	case 5:
 		// decement the destination state index
-		organism->lastDestinationState();
+		organism->getStateDiagram()->lastDestinationState();
 		break;
 	}
 	return true;
@@ -4091,23 +4091,23 @@ bool cHardwareCPU::Inst_Last(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
 {
-	return organism->addTransitionLabel();
+	return organism->getStateDiagram()->addTransitionLabel();
 //	return true;
 }
 
 bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
 {
-	return organism->addState();
+	return organism->getStateDiagram()->addState();
 }
 
 bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 {
-	return organism->addTransition();
+	return organism->getStateDiagram()->addTransition();
 }
 
 bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
 {
-	return organism->addTransitionTotal();
+	return organism->getStateDiagram()->addTransitionTotal();
 }
 
 
