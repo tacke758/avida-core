@@ -329,10 +329,15 @@ void cStats::CalcEnergy()
   assert(sum_fitness.Average() >= 0.0);
   assert(dom_fitness >= 0);
 
-  if (sum_fitness.Average() == 0.0 || dom_fitness == 0.0) {
+  // Note: When average fitness and dominant fitness are close in value (i.e. sh ould be identical)
+  //       floating point rounding error can cause output variances.  To mitigat e this, threshold
+  //       caps off values that differ by less than it, flushing the effective o utput value to zero.
+  const double ave_fitness = sum_fitness.Average();
+  const double threshold = 1.0e-14;
+  if (ave_fitness == 0.0 || dom_fitness == 0.0 || fabs(ave_fitness - dom_fitness) < threshold) {
     energy = 0.0;
   } else  {
-    energy = Log(dom_fitness / sum_fitness.Average());
+    energy = Log(dom_fitness / ave_fitness);
   }
 }
 
