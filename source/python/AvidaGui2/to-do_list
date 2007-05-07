@@ -74,6 +74,7 @@ Priority Low
 ************Jeff*******************
 
 Priority High
+-test repository
 -When I click on an org the color block, name and stats for that org 
 come up correctly (or at least I assume they are correct).  However, 
 on my version the color block, name and stats stay the same even when 
