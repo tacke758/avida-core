@@ -244,10 +244,14 @@ class pyPetriDishCtrl(QWidget):
       self.m_cell_info[cell_id] = self.createNewCellItem(cell_id)
     cell_info_item = self.m_cell_info[cell_id]
     self.m_indexer(cell_info_item, self.m_cs_min_value, self.m_cs_value_range)
+
+    #the following code used to delete the gay pre-run outline. since we want it to
+    #remain till an org is born in the cell, similar functionality has been moved below
     #the following could be moved to a one off function at the beginning of a run
     #for speed efficiency. currenly it is checked every time a cell is updated
-    if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_session_mdl.m_avida_has_started == True):
-      cell_info_item.setPen(QPen(Qt.NoPen))
+#    if ( (cell_info_item.pen().color() == QColor((Qt.gray))) & self.m_session_mdl.m_avida_has_started == True):
+#      cell_info_item.setPen(QPen(Qt.NoPen))
+
       
     #if it is not the pre-run outline color (gray) or the org_clicked_on highlight
     #color (bright green) then take away the outline (it will be added back later
@@ -271,12 +275,18 @@ class pyPetriDishCtrl(QWidget):
 
     brush_color = cell_info_item.updateColorUsingFunctor(self.m_color_lookup_functor)
 
+    if(cell_info_item.pen().color() == QColor(Qt.gray)): #if the outline is from pre-run (gray)
+      if(self.m_session_mdl.m_avida_has_started == True): #and avida has started
+        if(brush_color.getRgb() != QColor(Qt.black).getRgb()): #and the square has color (means at least one org has been born into it)
+          cell_info_item.setPen(QPen(Qt.NoPen)) #then get rid of the gray ('this was a pre-run seed') outline
+
     if self.m_org_clicked_on_item:
       if cell_info_item.m_population_cell.GetID == self.m_org_clicked_on_item.m_population_cell.GetID:
         cell_info_item.setPen(QPen(QColor(0,255,0),2))
       else:
 #        cell_info_item.setPen(QPen(Qt.NoPen))
         self.m_last_cell_outlined = cell_info_item
+        
 
 
 
