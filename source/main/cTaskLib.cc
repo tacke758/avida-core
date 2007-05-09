@@ -2731,12 +2731,13 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	std::string temp;
 
 	temp = organism->getStateDiagram()->getXMI();
-
+/*
 	if (temp == organism->getParentXMI()) {
 		ctx.task_success_complete += organism->getParentBonusInfo("hydra");
 		organism->setBonusInfo("hydra", organism->getParentBonusInfo("hydra"));
 		return organism->getParentBonusInfo("hydra");
 	}
+	*/
 
 // Check for task success...	
 /*	if (ctx->task_failed == 0) {
@@ -2810,13 +2811,13 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
 	if(status != 0) {
 //		ctx->task_failed = 0;
-		organism->setBonusInfo("hydra", 0.0); 
+//		organism->setBonusInfo("hydra", 0.0); 
 		return 0.0;
 	} else {
 	//	ctx->task_failed = ctx->task_failed && 1;
-		ctx.task_success_complete += 1;
-		m_world->GetStats().HydraPassed();
-		organism->setBonusInfo("hydra", 1.0); 
+//		ctx.task_success_complete += 1;
+//		m_world->GetStats().HydraPassed();
+//		organism->setBonusInfo("hydra", 1.0); 
 		return 1.0;
 	}
 	
@@ -2852,11 +2853,12 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	std::string temp = organism->getStateDiagram()->getXMI();
 	double temp1 = 0.0;
 	
-	if (temp == organism->getParentXMI()) { 
+/*	if (temp == organism->getParentXMI()) { 
 		ctx.task_success_complete += organism->getParentBonusInfo("spinn1");
 		organism->setBonusInfo("spinn1", organism->getParentBonusInfo("spinn1"));
 		return organism->getParentBonusInfo("spinn1");
 	}
+*/	
 	
 	// check if the trigger is present
 	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
@@ -2868,7 +2870,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 		} 
 	}
 	
-	organism->setBonusInfo("spinn1", temp1); 
+//	organism->setBonusInfo("spinn1", temp1); 
 	return temp1;
 }
 

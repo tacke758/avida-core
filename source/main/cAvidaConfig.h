@@ -210,6 +210,7 @@ public:
   // Deme & germline group.
   CONFIG_ADD_GROUP(DEME_GROUP, "Demes and Germlines");
   CONFIG_ADD_VAR(NUM_DEMES, int, 1, "Number of independent groups in the population.");
+  CONFIG_ADD_VAR(DEME_ORGS_ARE_STATIC, int, 0, "Whether the organisms remain the same throughout the lifetime of the deme. 0=no");
   CONFIG_ADD_VAR(DEMES_USE_GERMLINE, int, 0, "Whether demes use a distinct germline; 0=off");
   CONFIG_ADD_VAR(DEMES_HAVE_MERIT, int, 0, "Whether demes have merit; 0=no");
   CONFIG_ADD_VAR(GERMLINE_COPY_MUT, double, 0.0075, "Prob. of copy mutations occuring during\ngermline replication.");

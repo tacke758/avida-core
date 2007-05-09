@@ -42,6 +42,7 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width)
   cell_ids = in_cells;
   birth_count = 0;
   org_count = 0;
+  _germlines.resize(cell_ids.GetSize());
 
   // If width is negative, set it to the full number of cells.
   width = in_width;
@@ -83,6 +84,20 @@ are all messed up.
 
 \todo Fix lineage labels in germlines.
 */
-void cDeme::ReplaceGermline(const cGermline& germline) {
+/*void cDeme::ReplaceGermline(const cGermline& germline) {
 	_germline = germline;
+}*/
+
+
+void cDeme::SetGermlines(std::vector<cGermline>::iterator b, std::vector<cGermline>::iterator e)
+{
+	_germlines.clear();
+	
+	for (std::vector<cGermline>::iterator i=b; i!=e; ++i) {
+		_germlines.push_back(*i);
+	}
+	
+	
 }
+
+

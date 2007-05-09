@@ -68,7 +68,6 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_max_executed(-1)
   , m_is_running(false)
   , m_net(NULL)
-  , parent_xmi("")
 {
   // Initialization of structures...
   m_hardware = m_world->GetHardwareManager().Create(this);

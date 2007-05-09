@@ -64,7 +64,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
   static const cNOPEntryCPU s_n_array[] = {
     cNOPEntryCPU("nop-A", REG_AX),
     cNOPEntryCPU("nop-B", REG_BX),
-    cNOPEntryCPU("nop-C", REG_CX)
+    cNOPEntryCPU("nop-C", REG_CX), 
+	cNOPEntryCPU("nop-D", REG_DX),
+    cNOPEntryCPU("nop-E", REG_EX),
+    cNOPEntryCPU("nop-F", REG_FX)
   };
   
   static const tInstLibEntry<tMethod> s_f_array[] = {
@@ -76,6 +79,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("nop-A", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-B", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-C", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
+    tInstLibEntry<tMethod>("nop-D", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
+    tInstLibEntry<tMethod>("nop-E", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
+    tInstLibEntry<tMethod>("nop-F", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
     tInstLibEntry<tMethod>("nop-X", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),

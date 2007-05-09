@@ -843,6 +843,8 @@ There are several bases this can be checked on:
 0: 'all'       - ...all non-empty demes in the population.
 1: 'full_deme' - ...demes that have been filled up.
 2: 'corners'   - ...demes with upper left and lower right corners filled.
+3: 'uml-mod'   - ...demes whose UML models are correct
+4: 'old'	   - ...replicate when demes get too old
 */
 
 void cPopulation::ReplicateDemes(int rep_trigger)
@@ -882,14 +884,16 @@ void cPopulation::ReplicateDemes(int rep_trigger)
            cell_array[id2].IsOccupied() == false) continue;
 				break;
       }
-			case 3: {
-        // Replicate old demes.
+	  case 3: {
+        // Replicates old demes.
         if(source_deme.GetAge() < m_world->GetConfig().MAX_DEME_AGE.Get()) continue;
         break;
       }
-	  
 	  case 4: { 
-		// Replicate demes with working models:
+		// Replicate demes with working models 		
+		// What checks should be done prior to the model being checked? 
+			// model same as parent?
+			// model same as last time (dirty bit)
 		
 		// Need for a deme to have a UML model.
 		
@@ -901,7 +905,7 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 			// Should be awarded partial merit for satisfying parts of some scenarios or
 			// partially satisfying a property.
 			
-			
+			break;
 	  
 	  }
 	  
@@ -931,39 +935,66 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 		// Second, it could be an offspring of the source deme's germline, if the config
 		// option DEMES_USE_GERMLINE is set.
 		if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
+		
+		std::vector<cGermline> temp_germlines;
+		
+		// For each of the germs...
+		for(std::vector<cGermline>::iterator i=source_deme.begin(); i!=source_deme.end(); ++i){
 			// Get the latest germ from the source deme.
-			cGermline& source_germline = source_deme.GetGermline();
+			cGermline& source_germline = (*i);
 			cGenome& source_germ = source_germline.GetLatest();
       
-      // Now create the next germ by manually mutating the source.
-      // @refactor (strategy pattern)
-      cGenome next_germ(source_germ);
-      if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0) {
-        const cInstSet& instset = m_world->GetHardwareManager().GetInstSet();
-        cAvidaContext ctx(m_world->GetRandom());        
-        for(int i=0; i<next_germ.GetSize(); ++i) {
-          if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-            next_germ[i] = instset.GetRandomInst(ctx);
-          }
-        }
-      }
+		  // Now create the next germ by manually mutating the source.
+		  // @refactor (strategy pattern)
+		  cGenome next_germ(source_germ);
+		  if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0) {
+			const cInstSet& instset = m_world->GetHardwareManager().GetInstSet();
+			cAvidaContext ctx(m_world->GetRandom());        
+			for(int i=0; i<next_germ.GetSize(); ++i) {
+			  if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
+				next_germ[i] = instset.GetRandomInst(ctx);
+			  }
+			}
+		   }
       
-			// Here we're adding the next_germ to the germline(s).  Note the
-      // config option to determine if we should update the source_germline
-      // as well.
-			target_deme.ReplaceGermline(source_germline);
-      cGermline& target_germline = target_deme.GetGermline();
-      target_germline.Add(next_germ);
-      if(m_world->GetConfig().GERMLINE_REPLACES_SOURCE.Get()) {
-        source_germline.Add(next_germ);
-      }
+		  // Here we're adding the next_germ to the germline(s).  Note the
+		  // config option to determine if we should update the source_germline
+		  // as well.
+		  //
+		  //target_deme.ReplaceGermline(source_germline);
+		  temp_germlines.push_back(source_germline);
+		  //cGermline& target_germline = target_deme.GetGermline();
+		  // use last element of the temp germlines as the germline
+		  cGermline& temp_germline = temp_germlines.back();
+		  temp_germline.Add(next_germ);
+		  if(m_world->GetConfig().GERMLINE_REPLACES_SOURCE.Get()) {
+			source_germline.Add(next_germ);
+		  }
       
+	  } // end do for all germlines
+	  
+	  // replace the target demes germline
+	  target_deme.SetGermlines(temp_germlines.begin(), temp_germlines.end());
+	  
       // Kill all the organisms in the source deme.
+	  // Inject organisms with the new germlines
+	  // Note for this to work:
+		// (1) the source deme and target deme must be the same size
+		// (2) there must be a germline for each cell...
+	  std::vector<cGermline>::iterator s = source_deme.begin(); 
+	  std::vector<cGermline>::iterator t = target_deme.begin(); 
+	  
 			for (int i=0; i<source_deme.GetSize(); i++) {
 				KillOrganism(cell_array[source_deme.GetCellID(i)]);
+				InjectGenome(source_deme.GetCellID(i), (*s).GetLatest(), 0); 
+				InjectGenome(target_deme.GetCellID(i), (*t).GetLatest(), 0); 
+				s++;
+				t++;
 			}
+			
+			
       
-			// Lineage label is wrong here; fix.
+/*			// Lineage label is wrong here; fix.
       if(m_world->GetConfig().GERMLINE_RANDOM_PLACEMENT.Get()) {
         InjectGenome(source_deme.GetCellID(m_world->GetRandom().GetInt(0, source_deme.GetSize()-1)),
                      source_germline.GetLatest(), 0);
@@ -1007,7 +1038,9 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 			cell_array[cell3_id].Rotate(cell_array[GridNeighbor(cell3_id-offset,
                                                           source_deme.GetWidth(),
                                                           source_deme.GetHeight(), -1, -1)+offset]);
+		*/												  
 		}
+		
 		
 		// And reset both demes, in case they have any cleanup work to do.
 		source_deme.Reset();
@@ -2089,10 +2122,19 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   LineageSetupOrganism(GetCell(cell_id).GetOrganism(), 0, lineage_label);
   
   // If we're using germlines, then we have to be a little careful here.
+  bool temp = m_world->GetConfig().DEMES_USE_GERMLINE.Get();
+  int temp1 =m_world->GetConfig().NUM_DEMES.Get(); 
 	if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
 		cDeme& deme = deme_array[GetCell(cell_id).GetDemeID()];
-		if(deme.GetGermline().Size()==0) {  
-			deme.GetGermline().Add(GetCell(cell_id).GetOrganism()->GetGenome());
+		// index into germline vector 
+		// cell_id - deme.GetCellID(0)
+		
+		
+		cGermline& germy = deme.begin()[cell_id - deme.GetCellID(0)];
+		if (germy.Size() == 0){
+		
+//		if(deme.GetGermline().Size()==0) {  
+			germy.Add(GetCell(cell_id).GetOrganism()->GetGenome());
 		}
 	}  
 }

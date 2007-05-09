@@ -144,11 +144,6 @@ protected:
   };
   cNetSupport* m_net;
 
-  // UML - Track information about the parent's model & their rewards for the model.
-  std::string parent_xmi;
-  std::map <std::string, double> parent_bonus;
-  std::map <std::string, double> self_bonus;
-
 
 
   cOrganism(); // @not_implemented
@@ -294,12 +289,6 @@ public:
   // UML
   void modelCheck(cAvidaContext& ctx);
   cUMLStateDiagram* getStateDiagram() { return sd; }
-   void setParentInfo(std::string x,   std::map <std::string, double> pb) {parent_xmi = x; parent_bonus = pb;}
-  double getParentBonusInfo(std::string x) {return parent_bonus[x];}
-  std::map <std::string, double> getBonus() {return self_bonus;}
-  void setBonusInfo(std::string x, double y) {self_bonus[x] = y;}
-  std::string getParentXMI() { return parent_xmi; }
-
   
   
 };
