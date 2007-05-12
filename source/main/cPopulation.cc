@@ -233,6 +233,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   
   tArray<cOrganism*> child_array;
   tArray<cMerit> merit_array;
+
   
   // Update the parent's phenotype.
   // This needs to be done before the parent goes into the birth chamber
@@ -287,6 +288,20 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   // If we're not about to kill the parent, do some extra work on it.
   if (parent_alive == true) {
     schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
+	
+	// We're going to try something a little different here, and also take into
+    // account a per-germline merit, if we're configured to do such.
+    if(m_world->GetConfig().DEMES_USE_GERMLINE.Get() &&
+       m_world->GetConfig().DEMES_HAVE_MERIT.Get()) {
+	   
+	  cDeme& deme = deme_array[parent_cell.GetDemeID()]; 
+	  cGermline& germy = deme.begin()[parent_cell.GetID() - deme.GetCellID(0)];
+ 
+      schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit() + germy.GetMerit());
+    } else {
+      schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
+    }
+
     
     // In a local run, face the child toward the parent. 
     const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
@@ -413,6 +428,16 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   num_organisms++;
   if (deme_array.GetSize() > 0) {
     deme_array[target_cell.GetDemeID()].IncOrgCount();
+  }
+  
+  // If we're using models in conjunction with demes, we need to 
+  // provide the organism with a pointer to its state diagram. 
+  if(m_world->GetConfig().DEMES_USE_UML_MOD.Get()) { 
+		// assign a state diagram to the organism
+		cDeme& deme = deme_array[target_cell.GetDemeID()];
+
+		cUMLStateDiagram* s = deme.getUMLModel()->getStateDiagram(target_cell.GetID() - deme.GetCellID(0));
+		in_organism->setStateDiagram(s);
   }
   
   // Statistics...
@@ -889,7 +914,8 @@ void cPopulation::ReplicateDemes(int rep_trigger)
         if(source_deme.GetAge() < m_world->GetConfig().MAX_DEME_AGE.Get()) continue;
         break;
       }
-	  case 4: { 
+	  //case 4: { 
+	  
 		// Replicate demes with working models 		
 		// What checks should be done prior to the model being checked? 
 			// model same as parent?
@@ -897,6 +923,13 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 		
 		// Need for a deme to have a UML model.
 		
+		// The models have 10 transitions
+/*		int num_trans = 0;
+		
+		for (int k=0; k< source_deme.GetSize(); k++) { 
+			num_trans += source_deme.getUMLModel()->getStateDiagram(k)->numTrans();
+		}
+		if (num_trans < 1) continue;
 		// Checks for working model: 
 			// 1) Should include the sequence diagram scenarios (if any)
 			// 2) Should satisfy the properties (if any)
@@ -907,7 +940,7 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 			
 			break;
 	  
-	  }
+	  }*/
 	  
 			default: {
 				cerr << "ERROR: Invalid replication trigger " << rep_trigger
@@ -984,14 +1017,32 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 	  std::vector<cGermline>::iterator s = source_deme.begin(); 
 	  std::vector<cGermline>::iterator t = target_deme.begin(); 
 	  
-			for (int i=0; i<source_deme.GetSize(); i++) {
-				KillOrganism(cell_array[source_deme.GetCellID(i)]);
-				InjectGenome(source_deme.GetCellID(i), (*s).GetLatest(), 0); 
-				InjectGenome(target_deme.GetCellID(i), (*t).GetLatest(), 0); 
-				s++;
-				t++;
-			}
+	  double merit = 0.0;
+	  
+	  merit += source_deme.getUMLModel()->evaluateModel();
+	  
+	  
+		for (int i=0; i<source_deme.GetSize(); i++) {
+			KillOrganism(cell_array[source_deme.GetCellID(i)]);
+			KillOrganism(cell_array[target_deme.GetCellID(i)]);
+				
+			// Inject new organisms
+			InjectGenome(source_deme.GetCellID(i), (*s).GetLatest(), 0); 
+			InjectGenome(target_deme.GetCellID(i), (*t).GetLatest(), 0);
+				
+			// update the merit of each cell
+			cell_array[source_deme.GetCellID(i)].GetOrganism()->UpdateMerit(merit);  
+			cell_array[target_deme.GetCellID(i)].GetOrganism()->UpdateMerit(merit);  
+				  
+			s++;
+			t++;
+		}
 			
+			/*		 // Setup the merit of both old and new individuals.
+		for (int pos = 0; pos < deme_size; pos += 2) {
+			cell_array[source_deme.GetCellID(pos)].GetOrganism()->UpdateMerit(merit);
+			cell_array[target_deme.GetCellID(pos)].GetOrganism()->UpdateMerit(merit);
+		}*/
 			
       
 /*			// Lineage label is wrong here; fix.
@@ -1040,7 +1091,7 @@ void cPopulation::ReplicateDemes(int rep_trigger)
                                                           source_deme.GetHeight(), -1, -1)+offset]);
 		*/												  
 		}
-		
+
 		
 		// And reset both demes, in case they have any cleanup work to do.
 		source_deme.Reset();
@@ -2122,9 +2173,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   LineageSetupOrganism(GetCell(cell_id).GetOrganism(), 0, lineage_label);
   
   // If we're using germlines, then we have to be a little careful here.
-  bool temp = m_world->GetConfig().DEMES_USE_GERMLINE.Get();
-  int temp1 =m_world->GetConfig().NUM_DEMES.Get(); 
-	if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
+  if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
 		cDeme& deme = deme_array[GetCell(cell_id).GetDemeID()];
 		// index into germline vector 
 		// cell_id - deme.GetCellID(0)
@@ -2137,6 +2186,16 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
 			germy.Add(GetCell(cell_id).GetOrganism()->GetGenome());
 		}
 	}  
+  // If we're using models in conjunction with demes, we need to 
+  // provide the organism with a pointer to its state diagram. 
+  if(m_world->GetConfig().DEMES_USE_UML_MOD.Get()) { 
+		// assign a state diagram to the organism
+		cDeme& deme = deme_array[GetCell(cell_id).GetDemeID()];
+
+		cUMLStateDiagram* s = deme.getUMLModel()->getStateDiagram(cell_id - deme.GetCellID(0));
+		GetCell(cell_id).GetOrganism()->setStateDiagram(s);
+  }
+	
 }
 
 void cPopulation::InjectParasite(const cCodeLabel& label, const cGenome& injected_code, int cell_id)

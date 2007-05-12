@@ -3876,6 +3876,8 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
 {
+	if(organism->GetCellID()==-1) return false;
+
 	// by default, this instruction increments the triggers vector index
 	
 	int reg_used = FindModifiedRegister(REG_AX);
@@ -3913,6 +3915,8 @@ bool cHardwareCPU::Inst_Next(cAvidaContext& ctx)
  
 bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	int reg_used = FindModifiedRegister(REG_AX);
 	
 	int jump_amount = -1;
@@ -3948,6 +3952,8 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	const int reg_used = FindModifiedRegister(REG_AX);
 	const int reg_jump = FindModifiedRegister(REG_BX);
 	int jump_amount = GetRegister(reg_jump);
@@ -3984,6 +3990,8 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+	
 	const int reg_used = FindModifiedRegister(REG_AX);
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
@@ -4022,6 +4030,8 @@ bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_First(cAvidaContext& ctx) 
 {
+	if(organism->GetCellID()==-1) return false;
+	
 	// by default, this instruction increments the triggers vector index
 	
 	int reg_used = FindModifiedRegister(REG_AX);
@@ -4059,6 +4069,8 @@ bool cHardwareCPU::Inst_First(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Last(cAvidaContext& ctx) 
 {
+	if(organism->GetCellID()==-1) return false;
+	
 	// by default, this instruction increments the triggers vector index
 	
 	int reg_used = FindModifiedRegister(REG_AX);
@@ -4097,22 +4109,30 @@ bool cHardwareCPU::Inst_Last(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	return organism->getStateDiagram()->addTransitionLabel();
 //	return true;
 }
 
 bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	return organism->getStateDiagram()->addState();
 }
 
 bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	return organism->getStateDiagram()->addTransition();
 }
 
 bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
 {
+	if(organism->GetCellID()==-1) return false;
+
 	return organism->getStateDiagram()->addTransitionTotal();
 }
 

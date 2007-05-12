@@ -128,7 +128,7 @@ protected:
   bool m_is_running;       // Does this organism have the CPU?
   
   // UML
-  cUMLStateDiagram* sd;
+  cUMLStateDiagram* m_sd;
   
   class cNetSupport
   {
@@ -288,7 +288,8 @@ public:
   
   // UML
   void modelCheck(cAvidaContext& ctx);
-  cUMLStateDiagram* getStateDiagram() { return sd; }
+  cUMLStateDiagram* getStateDiagram() { return m_sd; }
+  void setStateDiagram (cUMLStateDiagram* sd) { m_sd = sd; }
   
   
 };

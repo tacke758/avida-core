@@ -14,13 +14,16 @@
 		3EC9C9490BEB96CB0046545F /* cUMLModel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EC9C9480BEB96CB0046545F /* cUMLModel.cc */; };
 		3EC9C9700BEB97D20046545F /* cUMLStateDiagram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3EC9C96F0BEB97D20046545F /* cUMLStateDiagram.h */; };
 		3EC9C9980BEB99220046545F /* cUMLStateDiagram.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EC9C9970BEB99220046545F /* cUMLStateDiagram.cc */; };
+		3EC9D2940BF4BB530046545F /* cUMLClassDiagram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3EC9D2930BF4BB530046545F /* cUMLClassDiagram.h */; };
+		3EC9D3C90BF50D3C0046545F /* cUMLStateDiagram.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EC9C9970BEB99220046545F /* cUMLStateDiagram.cc */; };
+		3EC9D3CA0BF50D3E0046545F /* cUMLModel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EC9C9480BEB96CB0046545F /* cUMLModel.cc */; };
+		3EC9D3D90BF511B00046545F /* avida in CopyFiles */ = {isa = PBXBuildFile; fileRef = DCC3164D07626CF3008F7A48 /* avida */; };
 		4233358A0BC067E3000DF681 /* cHardwareGX.cc in Sources */ = {isa = PBXBuildFile; fileRef = 423335880BC067E3000DF681 /* cHardwareGX.cc */; };
 		7005A70409BA0FA90007E16E /* cTestCPUInterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */; };
 		7005A70609BA0FA90007E16E /* cTestCPUInterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */; };
 		7005A70809BA0FA90007E16E /* cTestCPUInterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */; };
 		700E2996085A1F6000CF158A /* avida in CopyFiles */ = {isa = PBXBuildFile; fileRef = DCC3164D07626CF3008F7A48 /* avida */; };
 		700E2AF8085DE50C00CF158A /* avida.cc in Sources */ = {isa = PBXBuildFile; fileRef = DCC3109C0762539E008F7A48 /* avida.cc */; };
-		700E2B87085DE54400CF158A /* avida-viewer in CopyFiles */ = {isa = PBXBuildFile; fileRef = 700E2B83085DE50C00CF158A /* avida-viewer */; };
 		7013846209028B3E0087ED2E /* cAvidaConfig.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7013846009028B3E0087ED2E /* cAvidaConfig.cc */; };
 		7013846409028B3E0087ED2E /* cAvidaConfig.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7013846009028B3E0087ED2E /* cAvidaConfig.cc */; };
 		701D915D094B864A008B845F /* cFallbackWorldDriver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 701D915C094B864A008B845F /* cFallbackWorldDriver.cc */; };
@@ -406,7 +409,7 @@
 			dstPath = work;
 			dstSubfolderSpec = 16;
 			files = (
-				700E2B87085DE54400CF158A /* avida-viewer in CopyFiles */,
+				3EC9D3D90BF511B00046545F /* avida in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,6 +436,7 @@
 				70B1A75A0B7E431F00067486 /* experimental.org in CopyFiles */,
 				3EC9C9330BEB95320046545F /* cUMLModel.h in CopyFiles */,
 				3EC9C9700BEB97D20046545F /* cUMLStateDiagram.h in CopyFiles */,
+				3EC9D2940BF4BB530046545F /* cUMLClassDiagram.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -465,6 +469,7 @@
 		3EC9C9480BEB96CB0046545F /* cUMLModel.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLModel.cc; sourceTree = "<group>"; };
 		3EC9C96F0BEB97D20046545F /* cUMLStateDiagram.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cUMLStateDiagram.h; sourceTree = "<group>"; };
 		3EC9C9970BEB99220046545F /* cUMLStateDiagram.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLStateDiagram.cc; sourceTree = "<group>"; };
+		3EC9D2930BF4BB530046545F /* cUMLClassDiagram.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cUMLClassDiagram.h; sourceTree = "<group>"; };
 		4201F39A0BE187F6006279B9 /* cTopology.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cTopology.h; sourceTree = "<group>"; };
 		423335880BC067E3000DF681 /* cHardwareGX.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cHardwareGX.cc; sourceTree = "<group>"; };
 		423335890BC067E3000DF681 /* cHardwareGX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cHardwareGX.h; sourceTree = "<group>"; };
@@ -1448,6 +1453,7 @@
 				70B0868308F49E9700FC65FE /* cOrganism.h */,
 				3EC9C9970BEB99220046545F /* cUMLStateDiagram.cc */,
 				3EC9C96F0BEB97D20046545F /* cUMLStateDiagram.h */,
+				3EC9D2930BF4BB530046545F /* cUMLClassDiagram.h */,
 				3EC9C9480BEB96CB0046545F /* cUMLModel.cc */,
 				3EC9C9320BEB95320046545F /* cUMLModel.h */,
 				70B0869C08F49F4800FC65FE /* cPhenotype.cc */,
@@ -1836,7 +1842,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EC9D3CA0BF50D3E0046545F /* cUMLModel.cc in Sources */,
 				700E2AF8085DE50C00CF158A /* avida.cc in Sources */,
+				3EC9D3C90BF50D3C0046545F /* cUMLStateDiagram.cc in Sources */,
 				70C1EF4A08C393BA00F50912 /* cCodeLabel.cc in Sources */,
 				70C1EF5A08C3948C00F50912 /* cCPUMemory.cc in Sources */,
 				70C1EF6308C3954700F50912 /* cCPUStack.cc in Sources */,

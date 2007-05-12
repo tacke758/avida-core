@@ -52,6 +52,9 @@ protected:
 	
 public:
 
+  cUMLStateDiagram();
+  ~cUMLStateDiagram();
+
   void printXMI();	 // print the XMI version of the model
   std::string getXMI (); // get the xmi string (including beginning & end read from file.)
   std::string StringifyAnInt(int);
@@ -59,6 +62,7 @@ public:
   int numTrans();
 
   bool findTrans(int, int, int, std::string, std::string) ;
+  bool findTrans(int, int, std::string, std::string, std::string);
   bool findTransLabel(transition_label); // find a specific transition label
 
   template <typename T>
@@ -113,6 +117,9 @@ public:
   bool addTransitionLabel();
   bool addTransition();
   bool addTransitionTotal();
+  bool addTrigger(std::string, std::string);
+  bool addGuard(std::string);
+  bool addAction(std::string);
   // END UML functions
 
 };

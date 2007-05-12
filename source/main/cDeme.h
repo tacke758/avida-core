@@ -67,7 +67,7 @@ public:
 	
   //! Replaces this deme's germline.
    //void ReplaceGermline(const cGermline& germline);
-    void SetGermlines(std::vector<cGermline>::iterator, std::vector<cGermline>::iterator);
+  void SetGermlines(std::vector<cGermline>::iterator, std::vector<cGermline>::iterator);
 
   
   // -= Update support =-

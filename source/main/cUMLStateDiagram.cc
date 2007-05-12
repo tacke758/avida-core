@@ -1,5 +1,85 @@
 #include "cUMLStateDiagram.h"
 
+cUMLStateDiagram::cUMLStateDiagram()
+{
+
+  // initialize / seed UML state diagram here
+  orig_state_index = 0;
+  dest_state_index = 0;
+  trans_label_index = 0;
+  trigger_index = 0;
+  guard_index = 0;
+  action_index = 0;
+  xmi = "";
+/*	
+  trigger_info trig;
+  trig.label = "<null>";
+  trig.operation_id = "<null>";
+  triggers.push_back(trig);
+  trig.label = "setTempOpState";
+  trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
+  triggers.push_back(trig);
+  trig.label = "setTempData";
+  trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
+  triggers.push_back(trig);
+  guards.push_back("<null>");
+  actions.push_back("<null>");
+  actions.push_back("^TempSensor.getOpState()");
+  actions.push_back("^TempSensor.getTempData()");
+ */
+   
+  // initialize w/ 10 states
+  
+  state s;
+  for (int i=0; i<11; i++) {
+	s.identifier = i;
+	s.num_incoming = 0;
+	s.num_outgoing = 0;
+	states.push_back(s);
+  }
+   
+/*
+  // initialize transitions
+  transition t;
+ 
+  
+  // State 0->1
+  t.orig_state = 0;
+  t.dest_state = 1;
+  states[0].num_outgoing += 1;
+  states[1].num_incoming += 1;  
+  t.trans.trigger = 0;
+  t.trans.guard = "<null>";
+  t.trans.action = "<null>";
+  transitions.push_back(t);
+
+  // State 1->2
+  t.orig_state = 1;
+  t.dest_state = 2;
+  states[1].num_outgoing += 1;
+  states[2].num_incoming += 1; 
+  t.trans.trigger = 0;
+  t.trans.guard = "<null>";
+  t.trans.action = "^TempSensor.getTempData()";
+  transitions.push_back(t);
+  
+  // State 2->1
+  t.orig_state = 2;
+  t.dest_state = 1;
+  states[2].num_outgoing += 1;
+  states[1].num_incoming += 1; 
+  t.trans.trigger =  2;
+  t.trans.guard = "<null>";
+  t.trans.action = "<null>";
+  transitions.push_back(t);
+*/  
+}
+
+cUMLStateDiagram::~cUMLStateDiagram()
+{
+}
+
+
 bool cUMLStateDiagram::findTransLabel(transition_label t) { 
 	for(std::vector<transition_label>::iterator i=transition_labels.begin(); i!=transition_labels.end(); ++i){
 		if ((i->trigger == t.trigger) && (i->guard == t.guard) && (i->action == t.action)) {
@@ -7,6 +87,20 @@ bool cUMLStateDiagram::findTransLabel(transition_label t) {
 			return true;
 		}
 	}
+	return false;
+}
+
+bool cUMLStateDiagram::findTrans(int orig, int dest, std::string tr, std::string gu, std::string act) 
+{
+	int tracker = 0;
+	
+	for(std::vector<trigger_info>::iterator i=triggers.begin(); i!=triggers.end(); i++) {
+		if (tr == i->label) { 
+			return findTrans(orig, dest, tracker, gu, act );
+		}
+		tracker++;
+	}
+
 	return false;
 }
 
@@ -173,6 +267,29 @@ bool cUMLStateDiagram::addState()
 	return true;
 }
 
+bool cUMLStateDiagram::addTrigger(std::string op_id, std::string lab) 
+{
+	trigger_info t;
+	t.operation_id = op_id;
+	t.label = lab;
+	
+	triggers.push_back(t);
+	
+	return true;
+}
+
+bool cUMLStateDiagram::addGuard(std::string gu) 
+{
+	guards.push_back(gu);
+	return true;
+}
+
+bool cUMLStateDiagram::addAction(std::string act)
+{
+	actions.push_back(act);
+	return true;
+}
+
 bool cUMLStateDiagram::addTransitionLabel()
 {
 	transition_label t;
@@ -255,8 +372,13 @@ bool cUMLStateDiagram::addTransitionTotal()
     if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
 		return false;
 	}
+	
+	int q1 = numTrans();
+
 
 	transitions.push_back(t);
+	
+	int q = numTrans();
 	
 	// reset all indices
 	orig_state_index = 0;
@@ -296,6 +418,7 @@ std::string cUMLStateDiagram::StringifyAnInt(int x) {
 
 std::string cUMLStateDiagram::getXMI()
 {
+	printXMI();
 	return (xmi);
 }
 
