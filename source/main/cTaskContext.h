@@ -88,7 +88,8 @@ public:
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
-	, task_success_complete(0)
+    , organism(in_org)
+    , task_success_complete(0)
 
   {
   }
