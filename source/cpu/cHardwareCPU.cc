@@ -67,7 +67,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     cNOPEntryCPU("nop-C", REG_CX), 
 	cNOPEntryCPU("nop-D", REG_DX),
     cNOPEntryCPU("nop-E", REG_EX),
-    cNOPEntryCPU("nop-F", REG_FX)
+    cNOPEntryCPU("nop-F", REG_FX), 
+	cNOPEntryCPU("nop-G", REG_GX), 
   };
   
   static const tInstLibEntry<tMethod> s_f_array[] = {
@@ -82,6 +83,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("nop-D", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-E", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-F", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
+    tInstLibEntry<tMethod>("nop-G", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
+
     
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
     tInstLibEntry<tMethod>("nop-X", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
@@ -3416,6 +3419,8 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
+  // modified for UML branch
+  organism->modelCheck(ctx);
   return Inst_HeadDivideMut(ctx, 1);
   
 }
@@ -3909,6 +3914,10 @@ bool cHardwareCPU::Inst_Next(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->getStateDiagram()->relativeJumpDestinationState(jump_amount);
 		break;
+	case 6: 
+		// jump the state diagram index
+		organism->relativeMoveSDIndex(jump_amount);
+		break;		
 	}
 	return true;
 }
@@ -3946,6 +3955,10 @@ bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->getStateDiagram()->relativeJumpDestinationState(jump_amount);
 		break;
+	case 6: 
+		// jump the state diagram index
+		organism->relativeMoveSDIndex(jump_amount);
+		break;	
 	}
 	return true;
 }
@@ -3984,6 +3997,10 @@ bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->getStateDiagram()->absoluteJumpDestinationState(jump_amount);
 		break;
+	case 6: 
+		// jump the state diagram index
+		organism->absoluteMoveSDIndex(jump_amount);
+		break;	
 	}
 	return true;
 }
@@ -4001,29 +4018,33 @@ bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
 	
 	switch (reg_used){
 	case 0:
-		// decrement the triggers vector index
+		// jump the triggers vector index
 		organism->getStateDiagram()->absoluteJumpTrigger(jump_amount);
 		break;
 	case 1:
-		// decrement the guards vector index
+		// jump the guards vector index
 		organism->getStateDiagram()->absoluteJumpGuard(jump_amount);
 		break;
 	case 2:
-		// decrement the actions vector index
+		// jump the actions vector index
 		organism->getStateDiagram()->absoluteJumpAction(jump_amount);
 		break;
 	case 3:
-		// decrement the transition labels index
+		// jump the transition labels index
 		organism->getStateDiagram()->absoluteJumpTransitionLabel(jump_amount);
 		break;	
 	case 4:
-		// decrement the original state index
+		// jump the original state index
 		organism->getStateDiagram()->absoluteJumpOriginState(jump_amount);
 		break;
 	case 5:
-		// decement the destination state index
+		// jump the destination state index
 		organism->getStateDiagram()->absoluteJumpDestinationState(jump_amount);
 		break;
+	case 6: 
+		// jump the state diagram index
+		organism->absoluteMoveSDIndex(jump_amount);
+		break;	
 	}
 	return true;
 }
@@ -4063,6 +4084,10 @@ bool cHardwareCPU::Inst_First(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->getStateDiagram()->firstDestinationState();
 		break;
+	case 6: 
+		// decrement the state diagram index
+		organism->firstStateDiagram();
+		
 	}
 	return true;
 }
@@ -4102,6 +4127,9 @@ bool cHardwareCPU::Inst_Last(cAvidaContext& ctx)
 		// decement the destination state index
 		organism->getStateDiagram()->lastDestinationState();
 		break;
+	case 6: 
+		// decrement the state diagram index`
+		organism->lastStateDiagram(); 
 	}
 	return true;
 }

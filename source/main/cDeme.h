@@ -26,7 +26,7 @@
 #include "cGermline.h"
 #include "tArray.h"
 #include "cUMLModel.h"
-#include <vector>
+
 
 
 /*! Demes are groups of cells in the population that are somehow bound together
@@ -60,15 +60,13 @@ public:
   bool IsFull() const { return org_count == cell_ids.GetSize(); }
   
   // -= Germline =-
-  //! Returns a vector of the deme's germlines.
-// orig --  cGermline& GetGermline() { return _germline; }
-  // vector<cGermline> GetGermLines() { return _germlines; }
-	
-	
+  //! Returns this deme's germline.
+  cGermline& GetGermline() { return _germline; }
   //! Replaces this deme's germline.
-   //void ReplaceGermline(const cGermline& germline);
-  void SetGermlines(std::vector<cGermline>::iterator, std::vector<cGermline>::iterator);
-
+  void ReplaceGermline(const cGermline& germline);
+  
+    // UML Model functions
+  cUMLModel* getUMLModel() { return &umlMod; }
   
   // -= Update support =-
   //! Called once, at the end of every update.
@@ -77,28 +75,16 @@ public:
     updates since the last time Reset() was called. */
   int GetAge() const { return _age; }
   
-  // UML Model functions
-  cUMLModel* getUMLModel() { return &umlMod; }
-  
-  std::vector<cGermline>::iterator begin() { return _germlines.begin(); }
-  std::vector<cGermline>::iterator end() { return _germlines.end(); }
-  // for(vector<cGermline>::iterator i=source_deme.begin(); i!=source_deme.end(); ++i)
-  
 private:
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
   int org_count; //!< Number of organisms are currently in this deme.
   int _age; //!< Age of this deme, in updates.
-  
-  // cGermline _germline; //!< The germline for this deme, if used.
-  std::vector<cGermline> _germlines; //!< The germlines for this deme, if used
-  
-  
   cUMLModel umlMod; // !< The UML model for this deme, if used.
   cUMLModel prevMod; // !< The previous (possibly parent) model for the deme, if used
-
-
+  
+  cGermline _germline; //!< The germline for this deme, if used.
 };
 
 #endif

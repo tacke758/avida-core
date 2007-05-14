@@ -26,6 +26,8 @@ public:
 	void resetStateDiagrams (int);  
 	void seedDiagrams();
 	
+	int getStateDiagramSize() { return state_diagrams.size(); } 
+	
 	// Track bonus info for model
 	std::map <std::string, double> getBonus() {return self_bonus;}
 	void setBonusInfo(std::string x, double y) {self_bonus[x] = y;}

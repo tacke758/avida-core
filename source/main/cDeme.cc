@@ -42,7 +42,6 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width)
   cell_ids = in_cells;
   birth_count = 0;
   org_count = 0;
-  _germlines.resize(cell_ids.GetSize());
   
   // Initialize the UML model with 1 state diagram per organism.
   umlMod.resetStateDiagrams(cell_ids.GetSize());
@@ -91,16 +90,9 @@ are all messed up.
 	_germline = germline;
 }*/
 
-
-void cDeme::SetGermlines(std::vector<cGermline>::iterator b, std::vector<cGermline>::iterator e)
-{
-	_germlines.clear();
-	
-	for (std::vector<cGermline>::iterator i=b; i!=e; ++i) {
-		_germlines.push_back(*i);
-	}
-	
-	
+void cDeme::ReplaceGermline(const cGermline& germline) {
+	_germline = germline;
 }
+
 
 

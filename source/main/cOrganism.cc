@@ -88,85 +88,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-  
-  // Initialize UML model with elements
-  
-/* 
-  // create in-memory representation of model
-  AddTrans(0,0,1);
-  AddTrans(1,1,2);
-  AddTrans(2,2,3);
-  AddTrans(3,3,1);
-*/
-
-/*
-  trigger_info trig;
-  trig.label = "<null>";
-  trig.operation_id = "<null>";
-  triggers.push_back(trig);
-  trig.label = "setTempOpState";
-  trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
-  triggers.push_back(trig);
-  trig.label = "setTempData";
-  trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
-  triggers.push_back(trig);
-  guards.push_back("<null>");
-  actions.push_back("<null>");
-  actions.push_back("^TempSensor.getOpState()");
-  actions.push_back("^TempSensor.getTempData()");
-  
-  // initialize w/ 10 states
-  
-  state s;
-  for (int i=0; i<11; i++) {
-	s.identifier = i;
-	s.num_incoming = 0;
-	s.num_outgoing = 0;
-	states.push_back(s);
-  }
-   
-  // initialize transitions
-  transition t;
-  
-  // State 0->1
-  t.orig_state = 0;
-  t.dest_state = 1;
-  states[0].num_outgoing += 1;
-  states[1].num_incoming += 1;  
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-
-  // State 1->2
-  t.orig_state = 1;
-  t.dest_state = 2;
-  states[1].num_outgoing += 1;
-  states[2].num_incoming += 1; 
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "^TempSensor.getTempData()";
-  transitions.push_back(t);
-  
-  // State 2->1
-  t.orig_state = 2;
-  t.dest_state = 1;
-  states[2].num_outgoing += 1;
-  states[1].num_incoming += 1; 
-  t.trans.trigger =  2;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-	
-  // initialize the iterators to point to the first element
-  trigger_index = 0;
-  action_index = 0;
-  guard_index = 0;
-  trans_label_index = 0;
-  orig_state_index = 0;
-  dest_state_index = 9;
-// END UML model initialization
-  */
+  m_state_diag = 0;
   
 }
 
@@ -644,6 +566,8 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 /// This function is a copy of DoOutput /// 
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
+	if(GetCellID()==-1) return;
+
 
 //  printXMI();
 	
@@ -711,6 +635,45 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
   
 }
 
+cUMLModel* cOrganism::getUMLModel()
+{
+	cDeme& deme = m_world->GetPopulation().GetDeme(m_world->GetPopulation().GetCell(GetCellID()).GetDemeID());
+	return deme.getUMLModel();
+}
 
+bool cOrganism::absoluteMoveSDIndex (int amount )
+{
+	m_state_diag = 0;
+	return relativeMoveSDIndex(amount);
+}
+
+bool cOrganism::relativeMoveSDIndex (int amount )
+{
+	int size = getUMLModel()->getStateDiagramSize();
+	
+	if (size == 0) {
+		return false;
+	}
+	
+	if (size > 0) { 
+		m_state_diag += (amount % size);
+
+		// index is greater than vector
+		if (m_state_diag >= size) { 
+			m_state_diag -= size;
+		} else if(m_state_diag < 0) { 
+			m_state_diag += size;
+		}
+	}	
+		
+	return true;
+}
+
+cUMLStateDiagram* cOrganism::getStateDiagram() 
+{ 
+	int m = m_state_diag;
+	return getUMLModel()->getStateDiagram(m); 
+
+}
 
 

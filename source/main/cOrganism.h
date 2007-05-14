@@ -73,8 +73,20 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
+#ifndef _C_UMLMODEL_H_
+#include "cUMLModel.h"
+#endif
 #ifndef _C_UMLSTATEDIAGRAM_H_
 #include "cUMLStateDiagram.h"
+#endif
+#ifndef _C_DEME_H_
+#include "cDeme.h"
+#endif
+#ifndef _C_POPULATION_H_
+#include "cPopulation.h"
+#endif
+#ifndef _C_POPULATIONCELL_H_
+#include "cPopulationCell.h"
 #endif
 
 class cAvidaContext;
@@ -128,7 +140,8 @@ protected:
   bool m_is_running;       // Does this organism have the CPU?
   
   // UML
-  cUMLStateDiagram* m_sd;
+  int m_state_diag;			// Index of the state diagram that the organism is currently
+							// manipulating
   
   class cNetSupport
   {
@@ -288,9 +301,13 @@ public:
   
   // UML
   void modelCheck(cAvidaContext& ctx);
-  cUMLStateDiagram* getStateDiagram() { return m_sd; }
-  void setStateDiagram (cUMLStateDiagram* sd) { m_sd = sd; }
-  
+  cUMLModel* getUMLModel();
+  int getStateDiagramIndex() { return m_state_diag; } 
+  bool absoluteMoveSDIndex (int);
+  bool relativeMoveSDIndex (int); 
+  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
+  bool firstStateDiagram() { m_state_diag = 0; }  
+  cUMLStateDiagram* getStateDiagram();
   
 };
 
