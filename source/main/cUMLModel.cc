@@ -124,7 +124,7 @@ void cUMLModel::seedDiagrams()
   
 }
 
-double cUMLModel::evaluateModel()
+double cUMLModel::evaluateModel(int deme_id, cWorld* world)
 {
 	double bonus = 0.0;
 	double mod_bonus = 0.0;
@@ -148,7 +148,7 @@ double cUMLModel::evaluateModel()
 	// Check if the model meets the properties. 
 	if (mod_bonus > 0.0) {
 		self_bonus["spin_attemp"] = 1;
-		mod_bonus += propertyN1();
+		mod_bonus += propertyN1(deme_id, world);
 		self_bonus["spin_pass"] = mod_bonus;		
 		bonus += mod_bonus;
 	}
@@ -377,7 +377,7 @@ double cUMLModel::formalizeModel()
 }
 
 
-double cUMLModel::checkProperty(const std::string& neverclaimFile) const {
+double cUMLModel::checkProperty(const std::string& neverclaimFile, int deme_id, cWorld* world) const {
 //	m_world->GetStats().SpinAttempt();
 	double status=0;
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
@@ -392,15 +392,15 @@ double cUMLModel::checkProperty(const std::string& neverclaimFile) const {
 	
 	
 	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi "; // << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-	strstrm << "tmp.xml";	
-	if(system(strstrm.str().c_str())!=0) return 0;
+	strstrm << "cp tmp.xmi " << world->GetStats().GetUpdate() << "." << deme_id;
+	strstrm << ".xml";	
+	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
 //	m_world->GetStats().PanPassed();
 	return 3;
 }
 
-double cUMLModel::propertyN1() const {
+double cUMLModel::propertyN1(int deme_id, cWorld* world) const {
 	std::string temp = xmi;
 	double temp1 = 0;
 
@@ -418,7 +418,7 @@ double cUMLModel::propertyN1() const {
 		
 		// check property
 //		if (ctx.task_success_complete) {
-			temp1 += checkProperty("N1");
+			temp1 += checkProperty("N1", deme_id, world);
 //		} 
 //	}
 	

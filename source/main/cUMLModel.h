@@ -3,6 +3,8 @@
 
 #include "cUMLStateDiagram.h"
 #include "cUMLClassDiagram.h"
+#include "cWorld.h"
+#include "cStats.h"
 
 #include <string>
 #include <iostream>
@@ -20,8 +22,8 @@ public:
 	std::string getXMI(); // get the XMI version of the model
 	void printXMI();
 	double formalizeModel(); // formalize the model using Hydra
-	double checkProperty(const std::string& neverclaimFile) const; // check for property satisfaction using Spin
-	double propertyN1() const; // check for property N1
+	double checkProperty(const std::string& neverclaimFile, int, cWorld*) const; // check for property satisfaction using Spin
+	double propertyN1(int, cWorld*) const; // check for property N1
 	
 	void resetStateDiagrams (int);  
 	void seedDiagrams();
@@ -38,7 +40,7 @@ public:
 	// Determine the "fitness" of the model
 	// does the model satisfy the sequence diagrams? 
 	// does the model meet the properties? 
-	double evaluateModel();
+	double evaluateModel(int, cWorld*);
 	double checkForSequenceDiagram1();
 
 protected: 

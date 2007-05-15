@@ -763,7 +763,7 @@ void cPopulation::CompeteDemes(int competition_type)
 	case 7: {
       for (int deme_id = 0; deme_id < num_demes; deme_id++) {
         cDeme& cur_deme = deme_array[deme_id];
-        double f = cur_deme.getUMLModel()->evaluateModel();
+        double f = cur_deme.getUMLModel()->evaluateModel(deme_id, m_world);
         deme_fitness[deme_id] = f;
         total_fitness += f;
       }

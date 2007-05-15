@@ -441,7 +441,7 @@ std::string cUMLStateDiagram::getXMI()
 void cUMLStateDiagram::printXMI()
 {
 	std::string temp, temp1, temp2, temp3;
-	std::string trig_label, trig_op_label;
+	std::string trig_label, trig_op_name;
 
 	int s_count = 0;
 	int t_count = 0;
@@ -495,15 +495,15 @@ void cUMLStateDiagram::printXMI()
 		temp1 = transitions[t_count].trans.guard;
 		temp2 = transitions[t_count].trans.action;
 		trig_label = triggers[transitions[t_count].trans.trigger].label;
-		trig_op_label = triggers[transitions[t_count].trans.trigger].operation_id;
+		trig_op_name = triggers[transitions[t_count].trans.trigger].operation_id;
 
 
 		// print trigger, if any
 		if (trig_label != "<null>") {
 			xmi+= "<UML:Transition.trigger> <UML:Event> <UML:ModelElement.namespace> <UML:Namespace> ";
 			xmi+= "<UML:Namespace.ownedElement> <UML:CallEvent xmi.id=\"" + temp3;
-			xmi+= "tt\"  operation=\""+ trig_op_label + "\" ";
-			xmi+= "name=\"" + trig_label + "\" isSpecification=\"false\"/> "; 
+			xmi+= "tt\"  operation=\""+ trig_label + "\" ";
+			xmi+= "name=\"" + trig_op_name + "\" isSpecification=\"false\"/> "; 
 			xmi+= "</UML:Namespace.ownedElement> </UML:Namespace> </UML:ModelElement.namespace> ";
 			xmi+= "</UML:Event>  </UML:Transition.trigger> ";
 		}
