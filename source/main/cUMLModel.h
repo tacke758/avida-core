@@ -41,7 +41,6 @@ public:
 	double evaluateModel();
 	double checkForSequenceDiagram1();
 
-
 protected: 
 	static std::string xmi_begin;
 	std::string	xmi; // the XMI created by the model

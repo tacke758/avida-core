@@ -70,6 +70,7 @@ void cUMLModel::resetStateDiagrams(int x)
 
 void cUMLModel::seedDiagrams()
 {
+  self_bonus.clear();
   
   // For the first state diagram... 
   // Software Sensor
@@ -126,16 +127,46 @@ void cUMLModel::seedDiagrams()
 double cUMLModel::evaluateModel()
 {
 	double bonus = 0.0;
-		// Check if the model meets the sequence diagram
-		bonus += checkForSequenceDiagram1();
-		
-		
-		// Check if the model can be correctly formalized
-		
-		
-		
-		// Check if the model meets the properties. 
+	double mod_bonus = 0.0;
+	
+	int s0_nt = getStateDiagram(0)->numTrans();
+	int s1_nt = getStateDiagram(1)->numTrans();
 
+	// Check if the model meets the sequence diagram
+	bonus += checkForSequenceDiagram1();
+		
+		
+	// Check if the model can be correctly formalized
+	if (bonus >= 6.0) {
+		self_bonus["hydra_attempt"] = 1;
+		mod_bonus = formalizeModel();
+		self_bonus["hydra_pass"] = mod_bonus;		
+		bonus += mod_bonus;
+	}
+	
+
+	// Check if the model meets the properties. 
+	if (mod_bonus > 0.0) {
+		self_bonus["spin_attemp"] = 1;
+		mod_bonus += propertyN1();
+		self_bonus["spin_pass"] = mod_bonus;		
+		bonus += mod_bonus;
+	}
+
+	// additional bonus for creating transitions...
+	if (s0_nt <= 2) { 
+		bonus += (s0_nt / 2);
+	} else {
+		bonus += 2;
+	}
+	
+	if (s1_nt <= 2) { 
+		bonus += (s1_nt / 2);
+	} else {
+		bonus += 2;
+	}
+	
+	
 
 	return bonus;
 }
@@ -144,17 +175,21 @@ double cUMLModel::evaluateModel()
 double cUMLModel::checkForSequenceDiagram1()
 {
 	double bonus = 0.0;
+	double temp_bonus = 0.0;
+
 	
 	cUMLStateDiagram* soft_sense = getStateDiagram(0);
 	cUMLStateDiagram* temp_sense = getStateDiagram(1);
 	
-	// reward if number of transitions is greater than 10
+	int nt = soft_sense->numTrans() + temp_sense->numTrans();
+/*	// reward if number of transitions is greater than 10
 	int nt = soft_sense->numTrans() + temp_sense->numTrans();
 	if (nt <= 10) { 
 		bonus += nt;
 	} else {
 		bonus += 10;
 	}
+*/	
 	
 
 				
@@ -162,25 +197,35 @@ double cUMLModel::checkForSequenceDiagram1()
 	
 	// action: 
 	// TempSensor.getOpState()
-	bonus += soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");		
+	temp_bonus += soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");	
+	self_bonus["seq_d_1"] = temp_bonus;
+	bonus += temp_bonus;
 			
 	// trigger:
 	// setTempOpState(op_state)
-	bonus += soft_sense->findTrans(-1, -1, 1, "*", "*");		
+	temp_bonus += soft_sense->findTrans(-1, -1, 1, "*", "*");
+	self_bonus["seq_d_2"] = temp_bonus;
+	bonus += temp_bonus;		
 
 	
 	// Temperature Sensor		
 	
 	// trigger:
 	// getOpState()
-	bonus += temp_sense->findTrans(-1, -1, 1, "*", "*");		
+	temp_bonus += temp_sense->findTrans(-1, -1, 1, "*", "*");		
+	self_bonus["seq_d_3"] = temp_bonus;
+	bonus += temp_bonus;
 	
 			
 	// action:
 	// op_state := 1
-	bonus += temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
+	temp_bonus += temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
+	self_bonus["seq_d_4"] = temp_bonus;
+	bonus += temp_bonus;
 
-	bonus += temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
+	temp_bonus += temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
+	self_bonus["seq_d_5"] = temp_bonus;
+	bonus += temp_bonus;
 	
 	// For each state diagram, look for the relevant transitions
 /*	if(getStateDiagram(0)->findTrans(-1, -1, -1, "*", "<null>")) {
@@ -193,7 +238,6 @@ double cUMLModel::checkForSequenceDiagram1()
 		bonus += 1.0;
 	}*/
 	
-	std::string x = getXMI();
 	
 //	bonus += formalizeModel();
 //	bonus += propertyN1();

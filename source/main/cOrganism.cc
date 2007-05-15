@@ -676,4 +676,13 @@ cUMLStateDiagram* cOrganism::getStateDiagram()
 
 }
 
+// Determines if this is the transition the organism is about to add
+bool cOrganism::currTrans (int sd, int orig, int dest, std::string tr, std::string gu, std::string act)
+{
+	// check if it is manipulating this diagram 
+	if (sd != m_state_diag) return false;
+	
+	return (getUMLModel()->getStateDiagram(m_state_diag)->currTrans(orig, dest, tr, gu, act));
+
+}
 

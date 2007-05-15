@@ -216,6 +216,11 @@ public:
 
   void SetChangeList(cChangeList* change_list);
   cChangeList* GetChangeList();
+  
+  // UML stats
+  void PrintDemeUMLStats();
+
+  
 };
 
 

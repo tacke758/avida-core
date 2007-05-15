@@ -216,6 +216,7 @@ public:
   CONFIG_ADD_VAR(GERMLINE_REPLACES_SOURCE, int, 0, "Whether the source germline is updated\non replication; 0=no.");
   CONFIG_ADD_VAR(GERMLINE_RANDOM_PLACEMENT, int, 0, "Whether the seed for a germline is placed\n randomly within the deme; 0=no.");
   CONFIG_ADD_VAR(MAX_DEME_AGE, int, 500, "The maximum age of a deme (in updates) to be\nused for age-based replication (default=500).");  
+  CONFIG_ADD_VAR(UML_MODEL, int, 0, "Whether or not we are manipulating UML models; 0=no");
   
   CONFIG_ADD_GROUP(REPRODUCTION_GROUP, "Birth and Death");
   CONFIG_ADD_VAR(BIRTH_METHOD, int, 0, "Which organism should be replaced on birth?\n0 = Random organism in neighborhood\n1 = Oldest in neighborhood\n2 = Largest Age/Merit in neighborhood\n3 = None (use only empty cells in neighborhood)\n4 = Random from population (Mass Action)\n5 = Oldest in entire population\n6 = Random within deme\n7 = Organism faced by parent\n8 = Next grid cell (id+1)\n9 = Largest energy used in entire population\n10 = Largest energy used in neighborhood");

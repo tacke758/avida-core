@@ -2643,19 +2643,23 @@ double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->getStateDiagram()->findTrans(0,1,1, "ga", "aa")) {
+//	if (ctx.organism->getStateDiagram()->findTrans(0,1,1, "ga", "aa")) {
+	if (ctx.organism->currTrans(0, -1, -1, "*", "*", "^TempSensor.getOpState()")) {		
+
 		ctx.task_success_complete = 1;	
 		bonus = 1.0;
 	}
 	
-//	ctx->task_success_complete = 0;	
+	ctx.task_success_complete = 0;	
 	return bonus;
 }
 
 double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->getStateDiagram()->findTrans(1,2,1,"gd", "ab")){
+//	if (ctx.organism->getStateDiagram()->findTrans(1,2,1,"gd", "ab")){
+	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", "*", "*")) {		
+
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -2667,7 +2671,9 @@ double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->getStateDiagram()->findTrans(2,3,3,"gb", "ac")){
+//	if (ctx.organism->getStateDiagram()->findTrans(2,3,3,"gb", "ac")){
+	if (ctx.organism->currTrans(1, -1, -1, "getOpState", "*", "*")) {		
+
 			bonus = 1.0;
 			ctx.task_success_complete += 1;	
 	}
@@ -2679,7 +2685,9 @@ double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->getStateDiagram()->findTrans(3,4,2,"gc", "ad")){
+//	if (ctx.organism->getStateDiagram()->findTrans(3,4,2,"gc", "ad")){
+	if (ctx.organism->currTrans(1, -1, -1, "*", "*", "op_state:=1")) {		
+
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}
@@ -2691,7 +2699,9 @@ double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-	if (ctx.organism->getStateDiagram()->findTrans(4,0,4,"ga","ac")){
+//	if (ctx.organism->getStateDiagram()->findTrans(4,0,4,"ga","ac")){		
+	if (ctx.organism->currTrans(1, -1, -1, "*", "*", "^SoftwareSensor.setTempOpState(op_state)")) {		
+
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
 	}

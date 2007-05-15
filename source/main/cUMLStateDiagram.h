@@ -64,6 +64,8 @@ public:
   bool findTrans(int, int, int, std::string, std::string) ;
   bool findTrans(int, int, std::string, std::string, std::string);
   bool findTransLabel(transition_label); // find a specific transition label
+  bool currTrans(int, int, std::string, std::string, std::string);
+
 
   template <typename T>
   bool absoluteMoveIndex (T x, int &y, int z);

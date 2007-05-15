@@ -307,6 +307,7 @@ public:
   bool relativeMoveSDIndex (int); 
   bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
   bool firstStateDiagram() { m_state_diag = 0; }  
+  bool currTrans (int, int, int, std::string, std::string, std::string); 
   cUMLStateDiagram* getStateDiagram();
   
 };

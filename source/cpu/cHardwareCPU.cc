@@ -3420,7 +3420,6 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
   // modified for UML branch
-  organism->modelCheck(ctx);
   return Inst_HeadDivideMut(ctx, 1);
   
 }
@@ -4160,6 +4159,8 @@ bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
 {
 	if(organism->GetCellID()==-1) return false;
+	
+	organism->modelCheck(ctx);
 
 	return organism->getStateDiagram()->addTransitionTotal();
 }

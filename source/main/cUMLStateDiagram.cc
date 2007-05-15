@@ -391,6 +391,22 @@ bool cUMLStateDiagram::addTransitionTotal()
 
 }
 
+bool cUMLStateDiagram::currTrans(int orig, int dest, std::string tr, std::string gu, std::string act)
+{
+
+	if (((orig == -1) || (orig == getOrigStateIndex())) &&
+		((dest == -1) || (dest == getDestStateIndex())) && 
+		((tr == "*") || (tr == triggers[getTriggerIndex()].label)) &&
+		((gu == "*") || (gu == getGuard())) &&
+		((act == "*") || (act == getAction()))) { 
+
+			return true;
+	}
+	
+	return false;
+
+}
+
 
 int cUMLStateDiagram::numStates()
 {
