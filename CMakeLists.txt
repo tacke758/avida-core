@@ -172,6 +172,8 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cAvidaConfig.cc
   ${MAIN_DIR}/cBirthChamber.cc
   ${MAIN_DIR}/cDeme.cc
+  ${MAIN_DIR}/cUMLModel.cc
+  ${MAIN_DIR}/cUMLStateDiagram.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
   ${MAIN_DIR}/cFitnessMatrix.cc
