@@ -36,6 +36,8 @@
 #include <cmath>
 #include <climits>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 // Various workarounds for Visual Studio shortcomings
 #if AVIDA_PLATFORM(WINDOWS)

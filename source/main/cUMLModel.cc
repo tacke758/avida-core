@@ -1,6 +1,7 @@
 #include "cUMLModel.h"
 
-
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <iomanip>
 #include <errno.h>
 
