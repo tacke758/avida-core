@@ -14,9 +14,10 @@ from pyTwoPopulationCtrl import pyTwoPopulationCtrl
 from pyPetriConfigureCtrl import pyPetriConfigureCtrl
 from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
-from pyButtonListDialog import pyButtonListDialog
 from pyReadFreezer import pyReadFreezer
 from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
+# from pyImportItemCtrl import pyImportItemCtrl
+from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 import pyNewIconView
 import os.path, shutil
 from qt import *
@@ -151,7 +152,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
     self.splitter1.setSizes([150,500,100])
 
-    # set up the trash can ot have one trash can icon that can not be selected
+    # set up the trash can to have one trash can icon that can not be selected
 
     # self.TrashCanIconView.setItemTextPos(QIconView.Right)
     # self.TrashCanIconView.setSpacing(1)
@@ -200,7 +201,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   def fileNew(self):
 
     # loop till the users selects a directory name that does not exist or
-    # choses the cancel button
+    # chooses the cancel button
 
     created = False
     dialog_caption = "Enter the name of a new workspace"
@@ -249,7 +250,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
               if (os.path.exists(sourceName)):
                 shutil.copyfile(sourceName, destName)
               else:
-                descr(" BDB fileName = " + fileName + "  destName = " + destName) 
                 pyDefaultFiles(fileName, destName)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
@@ -277,7 +277,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
       if not self.m_session_mdl.directory_chosen:
         initial_dir = os.path.expanduser("~")
-        print "BDB: " + os.path.join(initial_dir,"Documents")
         if os.path.exists(os.path.join(initial_dir,"Documents")):
           initial_dir = os.path.join(initial_dir,"Documents")
         elif os.path.exists(os.path.join(initial_dir,"My Documents")):
@@ -384,55 +383,140 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     "Export images to a file"
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("saveImagesSig"), ())
 
+  def fileImportItem(self):
+    "Import a freezer item that was previously exported"
+
+    # self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("importFreezerItemSig"), ())
+    # m_import_freeze_item = pyImportItemCtrl()
+    # item_to_import = m_import_freeze_item.showDialog(self.m_session_mdl)
+
+    # If the user has not already chosen an active workspace for this session
+    # make them do so now. If they chose not to pick a workspace, don't let
+    # them import the file
+
+    if (self.m_session_mdl.directory_chosen == False):
+      m_prompt_dir = pyBeforeStartingCtrl()
+      m_prompt_dir.construct(self.m_session_mdl)
+      if (m_prompt_dir.showDialog("import") == 0):
+        return ''
+
+    tmpDialogCap = "Select an exported dish or organism (*.aex)"
+    foundFile = False
+    input_item_name = ""
+    initial_dir = ""
+
+    while (foundFile == False):
+
+      # start on the ~/Documents on the Mac ~ on Linux and $HOME/My 
+      # Documents on Windows
+
+      if (len(initial_dir.strip()) == 0):
+        initial_dir = os.path.expanduser("~")
+        if os.path.exists(os.path.join(initial_dir,"Documents")):
+          initial_dir = os.path.join(initial_dir,"Documents")
+        elif os.path.exists(os.path.join(initial_dir,"My Documents")):
+          initial_dir = os.path.join(initial_dir,"My Documents")
+
+      input_item_name = QFileDialog.getOpenFileName(
+                    initial_dir,
+                    "Avida-ED Export Files (*.aex)",
+                    None,
+                    "Import Item",
+                    tmpDialogCap,
+                    "Configured Dishes",
+                    True)
+      input_item_name = str(input_item_name)
+      input_item_name = input_item_name.strip()
+
+      # If a valid name is found or the user hit cancel leave the loop
+      # otherwise prompt for the wrong name and continue
+
+      if (input_item_name == "") or (input_item_name.endswith(".aex")):
+        foundFile = True
+      else:
+        foundFile = False
+        tmpDialogCap = "Not a valid file.  Please try again"
+
+    if input_item_name != "":
+      junk, input_core_file_name = os.path.split(input_item_name)
+      input_name_no_ext, junk = os.path.splitext(input_core_file_name) 
+      input_file =  open(input_item_name,"r")
+      try:
+        for line in input_file:
+
+          # If we find a *File line open a new file
+
+          if (line.startswith("*File:")):
+            if (line.find(".empty") > -1):
+              new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
+                                           "imp_" + input_name_no_ext + ".empty")
+            elif (line.find(".organism") > -1):
+              new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
+                                           "imp_" + input_name_no_ext + ".organism")
+            elif (line.find(".full") > -1):
+              new_dir_name = os.path.join(self.m_session_mdl.m_current_freezer,
+                                          "imp_" + input_name_no_ext + ".full")
+              if (not os.path.exists(new_dir_name)):
+                os.mkdir(new_dir_name)
+              sub_file_name = line[line.rfind(":")+2:]
+              new_file_name = os.path.join(new_dir_name, sub_file_name)
+              
+            new_file = open(new_file_name.strip(),'w')
+          else:
+            new_file.write(line)
+      finally:
+        input_file.close()
+        new_file.close()
+
   # public slot
 
   def fileExit(self):
-    print "pyEduWorkspaceCtrl.fileExit(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.fileExit(): Not implemented yet")
 
   # public slot
 
   def editUndo(self):
-    print "pyEduWorkspaceCtrl.editUndo(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editUndo(): Not implemented yet")
 
   # public slot
 
   def editRedo(self):
-    print "pyEduWorkspaceCtrl.editRedo(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editRedo(): Not implemented yet")
 
   # public slot
 
   def editCut(self):
-    print "pyEduWorkspaceCtrl.editCut(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editCut(): Not implemented yet")
 
   # public slot
 
   def editCopy(self):
-    print "pyEduWorkspaceCtrl.editCopy(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editCopy(): Not implemented yet")
 
   # public slot
 
   def editPaste(self):
-    print "pyEduWorkspaceCtrl.editPaste(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editPaste(): Not implemented yet")
 
   # public slot
 
   def editFind(self):
-    print "pyEduWorkspaceCtrl.editFind(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.editFind(): Not implemented yet")
 
   # public slot
 
   def helpIndex(self):
-    print "pyEduWorkspaceCtrl.helpIndex(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.helpIndex(): Not implemented yet")
 
   # public slot
 
   def helpContents(self):
-    print "pyEduWorkspaceCtrl.helpContents(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.helpContents(): Not implemented yet")
 
   # public slot
 
   def helpAbout(self):
-    print "pyEduWorkspaceCtrl.helpAbout(): Not implemented yet"
+    descr("pyEduWorkspaceCtrl.helpAbout(): Not implemented yet")
 
   def next_UpdateActionSlot(self):
     self.m_session_mdl.m_session_mdtr.emit(

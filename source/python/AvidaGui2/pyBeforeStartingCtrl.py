@@ -4,6 +4,7 @@ from qt import *
 from pyBeforeStartingView import pyBeforeStartingView
 
 # class to pop up a dialog box before someone saves for the first time
+# (assumeing the user has not already opened/created a workspace)
 
 class pyBeforeStartingCtrl (pyBeforeStartingView):
   def __init__(self):
@@ -18,7 +19,12 @@ class pyBeforeStartingCtrl (pyBeforeStartingView):
     self.connect(self.CreateNewPushButton, SIGNAL("clicked()"),
                  self.CreateNewSlot)
 
-  def showDialog(self):
+  def showDialog(self, verb):
+
+    # Change the propt depending if the user is trying to import or freeze
+
+    # self.BeforeStartTextLabel.setText(self.__tr("<p align=\"center\">Before you can " + verb + " a petri dish or organism<br> you must choose a workspace to work with</p>"))
+
     dialog_result = 1
     while (dialog_result > 0):
       self.exec_loop()

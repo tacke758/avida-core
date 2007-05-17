@@ -23,7 +23,7 @@ class pyFreezeOrganismCtrl (pyFreezeOrganismView):
     if (session_mdl.directory_chosen == False):
       m_prompt_dir = pyBeforeStartingCtrl()
       m_prompt_dir.construct(session_mdl)
-      if (m_prompt_dir.showDialog() == 0):
+      if (m_prompt_dir.showDialog('freeze') == 0):
         return ''
     
     # If the user selects to open existing/create new workspace then hits

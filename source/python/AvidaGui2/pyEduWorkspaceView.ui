@@ -33,8 +33,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     </property>
     <property name="minimumSize">
         <size>
-            <width>1024</width>
-            <height>700</height>
+            <width>195</width>
+            <height>501</height>
         </size>
     </property>
     <property name="maximumSize">
@@ -193,6 +193,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <separator/>
         <action name="fileExportAction"/>
         <action name="fileSaveImagesAction"/>
+        <action name="fileImportItemAction"/>
         <separator/>
         <action name="m_print_action"/>
     </item>
@@ -304,6 +305,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -331,6 +334,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -866,6 +871,20 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Open Analysis View</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileImportItemAction</cstring>
+        </property>
+        <property name="text">
+            <string>Import Item</string>
+        </property>
+        <property name="menuText">
+            <string>Import Item</string>
+        </property>
+        <property name="toolTip">
+            <string>Import Freezer Items</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -1008,7 +1027,16 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <receiver>pyEduWorkspaceView</receiver>
         <slot>helpAbout()</slot>
     </connection>
+    <connection>
+        <sender>fileImportItemAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileImportItem()</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">pyEduWorkspaceView.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -1027,6 +1055,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>helpIndex()</slot>
     <slot>helpContents()</slot>
     <slot>helpAbout()</slot>
+    <slot>fileImportItem()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

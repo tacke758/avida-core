@@ -363,7 +363,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
 
 
   def petriDropped(self, freezer_item_name): 
-    descr("BDB")
 
     # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path
 
