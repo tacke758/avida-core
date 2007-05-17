@@ -61,12 +61,11 @@ cUMLClassDiagram* cUMLModel::getClassDiagram (int x)
 void cUMLModel::resetStateDiagrams(int x)
 { 
 	// reset the number of state diagrams.
-	state_diagrams.resize(x); 
+  state_diagrams.clear();
+	state_diagrams.resize(x);
+  class_diagrams.clear();
 	class_diagrams.resize(x);
-	
 	seedDiagrams();
-	
-	
 }
 
 void cUMLModel::seedDiagrams()

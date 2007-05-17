@@ -77,6 +77,7 @@ void cDeme::Reset()
 {
   birth_count = 0; 
   _age = 0;
+  umlMod.resetStateDiagrams(cell_ids.GetSize());
 }
 
 
