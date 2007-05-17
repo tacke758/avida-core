@@ -142,6 +142,12 @@ protected:
   // UML
   int m_state_diag;			// Index of the state diagram that the organism is currently
 							// manipulating
+  int m_orig_state_index;
+  int m_dest_state_index;
+  int m_trans_label_index;
+  int m_trigger_index;
+  int m_guard_index;
+  int m_action_index;							
   
   class cNetSupport
   {
@@ -303,12 +309,39 @@ public:
   void modelCheck(cAvidaContext& ctx);
   cUMLModel* getUMLModel();
   int getStateDiagramIndex() { return m_state_diag; } 
-  bool absoluteMoveSDIndex (int);
-  bool relativeMoveSDIndex (int); 
-  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
-  bool firstStateDiagram() { m_state_diag = 0; }  
+//  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
+//  bool firstStateDiagram() { m_state_diag = 0; }  
   bool currTrans (int, int, int, std::string, std::string, std::string); 
   cUMLStateDiagram* getStateDiagram();
+
+ 
+// The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
+  bool absoluteJumpGuard(int);
+  bool absoluteJumpAction(int);
+  bool absoluteJumpTrigger(int);
+  bool absoluteJumpTransitionLabel(int);
+  bool absoluteJumpOriginState(int);
+  bool absoluteJumpDestinationState(int);
+  bool absoluteJumpStateDiagram (int);
+
+  bool relativeJumpGuard(int amount) { m_guard_index += amount; return true;}
+  bool relativeJumpAction(int amount) { m_action_index += amount; return true;}
+  bool relativeJumpTrigger(int amount) { m_trigger_index += amount; return true;}
+  bool relativeJumpTransitionLabel(int amount) { m_trans_label_index += amount; return true;}
+  bool relativeJumpOriginState(int amount) { m_orig_state_index += amount; return true;}
+  bool relativeJumpDestinationState(int amount) { m_dest_state_index += amount; return true;}
+  bool relativeJumpStateDiagram (int); 
+  
+  bool addTransitionTotal();
+
+  
+  /*
+    int m_orig_state_index;
+  int m_dest_state_index;
+  int m_trigger_index;
+  int m_guard_index;
+  int m_action_index;							
+  */
   
 };
 

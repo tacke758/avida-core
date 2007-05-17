@@ -95,7 +95,7 @@ void cUMLModel::seedDiagrams()
   
   // null trans Init state to Idle state
   soft_sense->absoluteJumpDestinationState(1);
-  soft_sense->addTransitionTotal();
+  soft_sense->addTransitionTotal(0, 1, 0, 0, 0);
   
   
   // Temperature Sensor
@@ -198,13 +198,13 @@ double cUMLModel::checkForSequenceDiagram1()
 	
 	// action: 
 	// TempSensor.getOpState()
-	temp_bonus += soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");	
+	temp_bonus = soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");	
 	self_bonus["seq_d_1"] = temp_bonus;
 	bonus += temp_bonus;
 			
 	// trigger:
 	// setTempOpState(op_state)
-	temp_bonus += soft_sense->findTrans(-1, -1, 1, "*", "*");
+	temp_bonus = soft_sense->findTrans(-1, -1, 1, "*", "*");
 	self_bonus["seq_d_2"] = temp_bonus;
 	bonus += temp_bonus;		
 
@@ -213,18 +213,18 @@ double cUMLModel::checkForSequenceDiagram1()
 	
 	// trigger:
 	// getOpState()
-	temp_bonus += temp_sense->findTrans(-1, -1, 1, "*", "*");		
+	temp_bonus = temp_sense->findTrans(-1, -1, 1, "*", "*");		
 	self_bonus["seq_d_3"] = temp_bonus;
 	bonus += temp_bonus;
 	
 			
 	// action:
 	// op_state := 1
-	temp_bonus += temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
+	temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
 	self_bonus["seq_d_4"] = temp_bonus;
 	bonus += temp_bonus;
 
-	temp_bonus += temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
+	temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
 	self_bonus["seq_d_5"] = temp_bonus;
 	bonus += temp_bonus;
 	

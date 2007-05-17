@@ -39,13 +39,14 @@ protected:
   std::vector<std::string> actions;
   std::vector<transition> transitions;
   std::vector<transition_label> transition_labels;
-  
+
   int orig_state_index;
   int dest_state_index;
   int trans_label_index;
   int trigger_index;
   int guard_index;
   int action_index;
+
   
   std::string xmi;
 
@@ -67,11 +68,15 @@ public:
   bool currTrans(int, int, std::string, std::string, std::string);
 
 
+// These functions have been moved to the organism.
+
   template <typename T>
   bool absoluteMoveIndex (T x, int &y, int z);
-  
+
+ 
   template <typename T>
   bool relativeMoveIndex (T x, int &y, int z);  
+ 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
   bool absoluteJumpGuard(int);
@@ -80,13 +85,18 @@ public:
   bool absoluteJumpTransitionLabel(int);
   bool absoluteJumpOriginState(int);
   bool absoluteJumpDestinationState(int);
+/*  
   bool relativeJumpGuard(int);
   bool relativeJumpAction(int);
   bool relativeJumpTrigger(int);
   bool relativeJumpTransitionLabel(int);
   bool relativeJumpOriginState(int);
   bool relativeJumpDestinationState(int);
+*/  
     
+/*	
+// The first and last functions do not work since each org maintains its own info about the
+// state diagram, but we don't necessarily know to which state diagram it is referring. 
 
 // The first functions jump the index to the beginning of various vectors   
   bool firstGuard() {guard_index = 0;}
@@ -103,10 +113,12 @@ public:
   bool lastTransitionLabel() {trans_label_index = (transition_labels.size()-1);} 
   bool lastOriginState() {orig_state_index = (states.size()-1);}
   bool lastDestinationState() {dest_state_index = (states.size()-1);}
+*/  
 	
   
 // The get functions get the value of the index of various vectors  
 //  std::string getTriggerIndex();
+
   int getTriggerIndex();
   std::string getGuard();
   std::string getAction();
@@ -114,15 +126,17 @@ public:
   int getOrigStateIndex();
   int getDestStateIndex();
 
+
 // Add functions
   bool addState();
-  bool addTransitionLabel();
-  bool addTransition();
-  bool addTransitionTotal();
+//  bool addTransitionLabel();
+//  bool addTransition();
+  bool addTransitionTotal(int, int, int, int, int);
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);
   // END UML functions
+  
 
 };
 

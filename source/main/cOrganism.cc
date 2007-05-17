@@ -89,6 +89,11 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
   m_state_diag = 0;
+  m_orig_state_index = 0;
+  m_dest_state_index = 0;
+  m_trigger_index = 0;
+  m_guard_index = 0;
+  m_action_index = 0;	
   
 }
 
@@ -641,13 +646,13 @@ cUMLModel* cOrganism::getUMLModel()
 	return deme.getUMLModel();
 }
 
-bool cOrganism::absoluteMoveSDIndex (int amount )
+bool cOrganism::absoluteJumpStateDiagram (int amount )
 {
 	m_state_diag = 0;
-	return relativeMoveSDIndex(amount);
+	return relativeJumpStateDiagram(amount);
 }
 
-bool cOrganism::relativeMoveSDIndex (int amount )
+bool cOrganism::relativeJumpStateDiagram (int amount )
 {
 	int size = getUMLModel()->getStateDiagramSize();
 	
@@ -682,7 +687,66 @@ bool cOrganism::currTrans (int sd, int orig, int dest, std::string tr, std::stri
 	// check if it is manipulating this diagram 
 	if (sd != m_state_diag) return false;
 	
-	return (getUMLModel()->getStateDiagram(m_state_diag)->currTrans(orig, dest, tr, gu, act));
+	cUMLStateDiagram* s = getUMLModel()->getStateDiagram(m_state_diag); 
+	s->absoluteJumpOriginState(m_orig_state_index);
+	s->absoluteJumpDestinationState(m_dest_state_index);
+	s->absoluteJumpTrigger(m_trigger_index);
+	s->absoluteJumpGuard(m_guard_index);
+	s->absoluteJumpAction(m_action_index);
+	
+	return (s->currTrans(orig, dest, tr, gu, act));
 
 }
 
+bool cOrganism::absoluteJumpGuard(int amount) 
+{
+	m_guard_index = 0;
+	return (relativeJumpGuard(amount));
+}
+
+bool cOrganism::absoluteJumpAction(int amount)
+{
+	m_action_index = 0;
+	return (relativeJumpAction(amount));
+
+}
+
+bool cOrganism::absoluteJumpTrigger(int amount)
+{
+	m_trigger_index = 0;
+	return (relativeJumpTrigger(amount));
+}
+
+bool cOrganism::absoluteJumpTransitionLabel(int amount)
+{
+	m_trans_label_index =0;
+	return (relativeJumpTransitionLabel(amount));
+}
+
+
+bool cOrganism::absoluteJumpOriginState(int amount)
+{
+	m_orig_state_index = 0;
+	return (relativeJumpOriginState(amount));
+}
+
+bool cOrganism::absoluteJumpDestinationState(int amount)
+{
+	m_dest_state_index = 0;
+	return (relativeJumpDestinationState(amount));
+}
+
+bool cOrganism::addTransitionTotal() 
+{
+	bool val;
+	val = getStateDiagram()->addTransitionTotal(m_orig_state_index, m_dest_state_index, m_trigger_index, m_guard_index, m_action_index);
+	m_orig_state_index = 0;
+	m_dest_state_index = 0;
+	m_trigger_index = 0;
+	m_action_index = 0;
+	m_guard_index = 0;
+	return val;
+}
+
+  
+  

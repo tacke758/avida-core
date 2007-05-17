@@ -10,23 +10,9 @@ cUMLStateDiagram::cUMLStateDiagram()
   trigger_index = 0;
   guard_index = 0;
   action_index = 0;
+
   xmi = "";
-/*	
-  trigger_info trig;
-  trig.label = "<null>";
-  trig.operation_id = "<null>";
-  triggers.push_back(trig);
-  trig.label = "setTempOpState";
-  trig.operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
-  triggers.push_back(trig);
-  trig.label = "setTempData";
-  trig.operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
-  triggers.push_back(trig);
-  guards.push_back("<null>");
-  actions.push_back("<null>");
-  actions.push_back("^TempSensor.getOpState()");
-  actions.push_back("^TempSensor.getTempData()");
- */
+
    
   // initialize w/ 10 states
   
@@ -38,41 +24,6 @@ cUMLStateDiagram::cUMLStateDiagram()
 	states.push_back(s);
   }
    
-/*
-  // initialize transitions
-  transition t;
- 
-  
-  // State 0->1
-  t.orig_state = 0;
-  t.dest_state = 1;
-  states[0].num_outgoing += 1;
-  states[1].num_incoming += 1;  
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-
-  // State 1->2
-  t.orig_state = 1;
-  t.dest_state = 2;
-  states[1].num_outgoing += 1;
-  states[2].num_incoming += 1; 
-  t.trans.trigger = 0;
-  t.trans.guard = "<null>";
-  t.trans.action = "^TempSensor.getTempData()";
-  transitions.push_back(t);
-  
-  // State 2->1
-  t.orig_state = 2;
-  t.dest_state = 1;
-  states[2].num_outgoing += 1;
-  states[1].num_incoming += 1; 
-  t.trans.trigger =  2;
-  t.trans.guard = "<null>";
-  t.trans.action = "<null>";
-  transitions.push_back(t);
-*/  
 }
 
 cUMLStateDiagram::~cUMLStateDiagram()
@@ -83,7 +34,6 @@ cUMLStateDiagram::~cUMLStateDiagram()
 bool cUMLStateDiagram::findTransLabel(transition_label t) { 
 	for(std::vector<transition_label>::iterator i=transition_labels.begin(); i!=transition_labels.end(); ++i){
 		if ((i->trigger == t.trigger) && (i->guard == t.guard) && (i->action == t.action)) {
-//		if (i->trigger == t.trigger) {
 			return true;
 		}
 	}
@@ -153,6 +103,7 @@ bool cUMLStateDiagram::relativeMoveIndex (T x, int &index, int amount )
 }
 
 
+
 bool cUMLStateDiagram::absoluteJumpTrigger(int jump_amount)
 {
 	return absoluteMoveIndex(triggers, trigger_index, jump_amount);
@@ -183,6 +134,7 @@ bool cUMLStateDiagram::absoluteJumpDestinationState(int jump_amount)
 	return absoluteMoveIndex(states, dest_state_index, jump_amount);
 }
 
+/*
 bool cUMLStateDiagram::relativeJumpTrigger(int jump_amount)
 {
 	return relativeMoveIndex(triggers, trigger_index, jump_amount);
@@ -212,6 +164,7 @@ bool cUMLStateDiagram::relativeJumpDestinationState(int jump_amount)
 {
 	return relativeMoveIndex(states, dest_state_index, jump_amount);
 }
+*/
 
 int cUMLStateDiagram::getTriggerIndex()
 {
@@ -290,6 +243,8 @@ bool cUMLStateDiagram::addAction(std::string act)
 	return true;
 }
 
+/*
+// Broken - 5/17
 bool cUMLStateDiagram::addTransitionLabel()
 {
 	transition_label t;
@@ -306,13 +261,14 @@ bool cUMLStateDiagram::addTransitionLabel()
 	
 	// Move the transition label index to the most recently created
 	trans_label_index = transition_labels.size() - 1;
-	
-	return true;
+
+	return false;
 }
 
-
+// Broken - 5/17
 bool cUMLStateDiagram::addTransition()
 {
+	/*
 	if ((states.size() == 0) || (transition_labels.size() == 0)) {
 
 		return false;
@@ -333,26 +289,35 @@ bool cUMLStateDiagram::addTransition()
 	}
 
 	transitions.push_back(t);
+	
 		
 	return true;
 
 }
+*/
 
 
-bool cUMLStateDiagram::addTransitionTotal()
+bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 {
 	if ((states.size() == 0)) {
 
 		return false;
 	} 
 
-	transition t;
-	t.orig_state = getOrigStateIndex();
-	t.dest_state = getDestStateIndex();
+	// Initialize the indices
+	absoluteMoveIndex(states, orig_state_index, o);
+	absoluteMoveIndex(states, dest_state_index, d);
+	absoluteMoveIndex(triggers, trigger_index, t);
+	absoluteMoveIndex(guards, guard_index, g);
+	absoluteMoveIndex(actions, action_index, a);
+
+	transition trany;
+	trany.orig_state = getOrigStateIndex();
+	trany.dest_state = getDestStateIndex();
 	
 	
 	// Do not create transition if the origin state is unreachable.
-	if ((t.orig_state != 0) && (states[t.orig_state].num_incoming == 0)) {
+	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
 		return false;
 	}
 	
@@ -365,31 +330,29 @@ bool cUMLStateDiagram::addTransitionTotal()
 	tl.trigger = getTriggerIndex();
 	tl.guard = getGuard();
 	tl.action = getAction();
-	t.trans = tl;
+	trany.trans = tl;
 	
 	
 	// no dupes
-    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
+    if (findTrans(trany.orig_state, trany.dest_state, trany.trans.trigger, trany.trans.guard, trany.trans.action)) {
 		return false;
 	}
 	
-	int q1 = numTrans();
 
-
-	transitions.push_back(t);
+	transitions.push_back(trany);
 	
-	int q = numTrans();
 	
-	// reset all indices
+/*	// reset all indices
 	orig_state_index = 0;
 	dest_state_index = 0;
 	trigger_index = 0;
 	action_index = 0;
-	guard_index = 0;
+	guard_index = 0;*/
 		
 	return true;
 
 }
+
 
 bool cUMLStateDiagram::currTrans(int orig, int dest, std::string tr, std::string gu, std::string act)
 {
@@ -406,6 +369,7 @@ bool cUMLStateDiagram::currTrans(int orig, int dest, std::string tr, std::string
 	return false;
 
 }
+
 
 
 int cUMLStateDiagram::numStates()
