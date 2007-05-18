@@ -77,47 +77,66 @@ void cUMLModel::seedDiagrams()
   cUMLStateDiagram* soft_sense = getStateDiagram(0);
 	
   // init triggers, guards, and actions
+  // trig 0
   std::string trig_label = "<null>";
   std::string trig_operation_id = "<null>";
   soft_sense->addTrigger(trig_label, trig_operation_id);
+  // trig 1
   trig_label = "setTempOpState";
   trig_operation_id = "XDE-4437EBF1-9C42-4EB4-B7CF-415697B567CD";
   soft_sense->addTrigger(trig_label, trig_operation_id);
+  // trig 2
   trig_label = "setTempData";
   trig_operation_id = "XDE-9517D6BA-8666-4A82-AFEA-62D60FE37B07";
   soft_sense->addTrigger(trig_label, trig_operation_id);
+  // guard 0
   soft_sense->addGuard("<null>");
+  // action 0
   soft_sense->addAction("<null>");
+  // action 1
   soft_sense->addAction("^TempSensor.getOpState()");
+  // action 2
   soft_sense->addAction("^TempSensor.getTempData()");
   
   
   // null trans Init state to Idle state
-  soft_sense->absoluteJumpDestinationState(1);
-  soft_sense->addTransitionTotal(0, 1, 0, 0, 0);
+//  soft_sense->absoluteJumpDestinationState(1);
+//  soft_sense->addTransitionTotal(0, 1, 0, 0, 0);
   
   
   // Temperature Sensor
   cUMLStateDiagram* temp_sense = getStateDiagram(1);
 
   // init triggers, guards, and actions
+  // trig 0
   trig_label = "<null>";
   trig_operation_id = "<null>";
   temp_sense->addTrigger(trig_label, trig_operation_id);  
+  // trig 1
   trig_label = "getOpState";
   trig_operation_id = "XDE-73C1C501-493F-44F2-A70A-0C7BFA92160D";
   temp_sense->addTrigger(trig_label, trig_operation_id);
+  // trig 2
   trig_label = "getTempData";
   trig_operation_id = "XDE-7C41CD1F-6E52-4E32-9C8E-999BA1919EC6";
   temp_sense->addTrigger(trig_label, trig_operation_id);  
+  // guard 0
   temp_sense->addGuard("<null>");
+  // action 0
   temp_sense->addAction("<null>");
+  // action 1
   temp_sense->addAction("^SoftwareSensor.setTempOpState(op_state)");
+  // action 2
   temp_sense->addAction("^SoftwareSensor.setTempData(data)");
+  // action 3
   temp_sense->addAction("op_state:=1");
+  // action 4
   temp_sense->addAction("op_state:=0");
+  // action 5
   temp_sense->addAction("data:=100");
+  // action 6
   temp_sense->addAction("data:=200");
+  // action 7
   temp_sense->addAction("data:=300");
   
   
@@ -157,13 +176,13 @@ double cUMLModel::evaluateModel(int deme_id, cWorld* world)
 	if (s0_nt <= 2) { 
 		bonus += (s0_nt / 2);
 	} else {
-		bonus += 2;
+		bonus += 1;
 	}
 	
 	if (s1_nt <= 2) { 
 		bonus += (s1_nt / 2);
 	} else {
-		bonus += 2;
+		bonus += 1;
 	}
 	
 	
@@ -197,13 +216,15 @@ double cUMLModel::checkForSequenceDiagram1()
 	
 	// action: 
 	// TempSensor.getOpState()
-	temp_bonus = soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");	
+//	temp_bonus = soft_sense->findTrans(-1, -1, -1, "*", "^TempSensor.getOpState()");	
+	temp_bonus = soft_sense->findTrans(-1, -1, -1, -1, 1);	
 	self_bonus["seq_d_1"] = temp_bonus;
 	bonus += temp_bonus;
 			
 	// trigger:
 	// setTempOpState(op_state)
-	temp_bonus = soft_sense->findTrans(-1, -1, 1, "*", "*");
+//	temp_bonus = soft_sense->findTrans(-1, -1, 1, "*", "*");
+	temp_bonus = soft_sense->findTrans(-1, -1, 1, -1, -1);
 	self_bonus["seq_d_2"] = temp_bonus;
 	bonus += temp_bonus;		
 
@@ -212,18 +233,22 @@ double cUMLModel::checkForSequenceDiagram1()
 	
 	// trigger:
 	// getOpState()
-	temp_bonus = temp_sense->findTrans(-1, -1, 1, "*", "*");		
+	temp_bonus = temp_sense->findTrans(-1, -1, 1, -1, -1);		
 	self_bonus["seq_d_3"] = temp_bonus;
 	bonus += temp_bonus;
 	
 			
 	// action:
 	// op_state := 1
-	temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
+	//temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "op_state:=1");		
+	temp_bonus = temp_sense->findTrans(-1, -1, -1, -1, 3);		
+
 	self_bonus["seq_d_4"] = temp_bonus;
 	bonus += temp_bonus;
 
-	temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
+//	temp_bonus = temp_sense->findTrans(-1, -1, -1, "*", "^SoftwareSensor.setTempOpState(op_state)");
+	temp_bonus = temp_sense->findTrans(-1, -1, -1, -1, 1);
+
 	self_bonus["seq_d_5"] = temp_bonus;
 	bonus += temp_bonus;
 	

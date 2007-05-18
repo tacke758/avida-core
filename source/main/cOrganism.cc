@@ -682,7 +682,7 @@ cUMLStateDiagram* cOrganism::getStateDiagram()
 }
 
 // Determines if this is the transition the organism is about to add
-bool cOrganism::currTrans (int sd, int orig, int dest, std::string tr, std::string gu, std::string act)
+bool cOrganism::currTrans (int sd, int orig, int dest, int tr, int gu, int act)
 {
 	// check if it is manipulating this diagram 
 	if (sd != m_state_diag) return false;
@@ -740,11 +740,14 @@ bool cOrganism::addTransitionTotal()
 {
 	bool val;
 	val = getStateDiagram()->addTransitionTotal(m_orig_state_index, m_dest_state_index, m_trigger_index, m_guard_index, m_action_index);
-	m_orig_state_index = 0;
-	m_dest_state_index = 0;
-	m_trigger_index = 0;
-	m_action_index = 0;
-	m_guard_index = 0;
+	
+	if (val) {
+		m_orig_state_index = 0;
+		m_dest_state_index = 0;
+		m_trigger_index = 0;
+		m_action_index = 0;
+		m_guard_index = 0;
+	}	
 	return val;
 }
 

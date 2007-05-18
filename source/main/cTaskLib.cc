@@ -2645,8 +2645,9 @@ double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-//	if (ctx.organism->getStateDiagram()->findTrans(0,1,1, "ga", "aa")) {
-	if (ctx.organism->currTrans(0, -1, -1, "*", "*", "^TempSensor.getOpState()")) {		
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
+	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) {		
+
 
 		ctx.task_success_complete = 1;	
 		bonus = 1.0;
@@ -2659,8 +2660,9 @@ double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-//	if (ctx.organism->getStateDiagram()->findTrans(1,2,1,"gd", "ab")){
-	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", "*", "*")) {		
+//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
+	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
+
 
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
@@ -2673,8 +2675,9 @@ double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-//	if (ctx.organism->getStateDiagram()->findTrans(2,3,3,"gb", "ac")){
-	if (ctx.organism->currTrans(1, -1, -1, "getOpState", "*", "*")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, "getOpState", -1, -1)) {		
+	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
+
 
 			bonus = 1.0;
 			ctx.task_success_complete += 1;	
@@ -2687,8 +2690,8 @@ double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-//	if (ctx.organism->getStateDiagram()->findTrans(3,4,2,"gc", "ad")){
-	if (ctx.organism->currTrans(1, -1, -1, "*", "*", "op_state:=1")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "op_state:=1")) {		
+	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 3)) {		
 
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
@@ -2701,8 +2704,9 @@ double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 {
 	double bonus = 0.0;
-//	if (ctx.organism->getStateDiagram()->findTrans(4,0,4,"ga","ac")){		
-	if (ctx.organism->currTrans(1, -1, -1, "*", "*", "^SoftwareSensor.setTempOpState(op_state)")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
+	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
+
 
 			ctx.task_success_complete += 1;	
 			bonus = 1.0;
@@ -2873,14 +2877,14 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 */	
 	
 	// check if the trigger is present
-	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
-		temp += 1;
+//	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
+//		temp += 1;
 		
 		// check property
 		if (ctx.task_success_complete) {
 			temp1 += SpinCoprocess(ctx, "N1");
 		} 
-	}
+	//}
 	
 //	organism->setBonusInfo("spinn1", temp1); 
 	return temp1;

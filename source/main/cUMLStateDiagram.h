@@ -9,8 +9,10 @@
 
 struct transition_label { 
 	int trigger;
-	std::string guard;
-	std::string action;
+//	std::string guard;
+	int guard;
+//	std::string action;
+	int action;
 };
 
 struct  transition {
@@ -62,10 +64,11 @@ public:
   int numStates();
   int numTrans();
 
-  bool findTrans(int, int, int, std::string, std::string) ;
-  bool findTrans(int, int, std::string, std::string, std::string);
+//  bool findTrans(int, int, int, std::string, std::string) ;
+//  bool findTrans(int, int, std::string, std::string, std::string);
+  bool findTrans(int, int, int, int, int);
   bool findTransLabel(transition_label); // find a specific transition label
-  bool currTrans(int, int, std::string, std::string, std::string);
+  bool currTrans(int, int, int, int, int);
 
 
 // These functions have been moved to the organism.
@@ -120,8 +123,8 @@ public:
 //  std::string getTriggerIndex();
 
   int getTriggerIndex();
-  std::string getGuard();
-  std::string getAction();
+  int getGuardIndex();
+  int getActionIndex();
   transition_label getTransLabel();
   int getOrigStateIndex();
   int getDestStateIndex();

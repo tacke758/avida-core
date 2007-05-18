@@ -31,6 +31,7 @@ cUMLStateDiagram::~cUMLStateDiagram()
 }
 
 
+/*
 bool cUMLStateDiagram::findTransLabel(transition_label t) { 
 	for(std::vector<transition_label>::iterator i=transition_labels.begin(); i!=transition_labels.end(); ++i){
 		if ((i->trigger == t.trigger) && (i->guard == t.guard) && (i->action == t.action)) {
@@ -39,6 +40,8 @@ bool cUMLStateDiagram::findTransLabel(transition_label t) {
 	}
 	return false;
 }
+
+
 
 bool cUMLStateDiagram::findTrans(int orig, int dest, std::string tr, std::string gu, std::string act) 
 {
@@ -54,6 +57,7 @@ bool cUMLStateDiagram::findTrans(int orig, int dest, std::string tr, std::string
 	return false;
 }
 
+// Check to see if i->trans.trigger is ever equal to trig
 bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, std::string gu, std::string act) 
 {
 	// the wild cards for there are 
@@ -70,6 +74,22 @@ bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, std::string gu, s
 			}
 	}
 	return false;
+}
+*/
+
+bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, int gu, int act) 
+{
+	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
+		if (((orig == -1) || (orig == i->orig_state)) && 
+			((dest == -1) || (dest == i->dest_state)) && 
+			((trig == -1) || (trig == i->trans.trigger)) && 
+			((gu == -1) || (gu == i->trans.guard)) &&
+			((act == -1) || (act == i->trans.action))) { 
+						return true;
+			}
+	}
+	return false;
+
 }
 
 
@@ -168,30 +188,18 @@ bool cUMLStateDiagram::relativeJumpDestinationState(int jump_amount)
 
 int cUMLStateDiagram::getTriggerIndex()
 {
-	/*if (triggers.size() == 0) {
-		return 0;
-	} else {*/
+	return trigger_index;
+}
+
+int cUMLStateDiagram::getGuardIndex()
+{
+		return guard_index;
+}
+
+int cUMLStateDiagram::getActionIndex()
+{
+		return action_index;
 	
-		return trigger_index;
-	//}
-}
-
-std::string cUMLStateDiagram::getGuard()
-{
-	if (guards.size() == 0) {
-		return "";
-	} else {
-		return guards[guard_index];
-	}
-}
-
-std::string cUMLStateDiagram::getAction()
-{
-	if (actions.size() == 0) {
-		return "";
-	} else {
-		return actions[action_index];
-	}
 }
 
 int cUMLStateDiagram::getOrigStateIndex()
@@ -328,8 +336,8 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 	
 	transition_label tl;
 	tl.trigger = getTriggerIndex();
-	tl.guard = getGuard();
-	tl.action = getAction();
+	tl.guard = getGuardIndex();
+	tl.action = getActionIndex();
 	trany.trans = tl;
 	
 	
@@ -354,14 +362,14 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 }
 
 
-bool cUMLStateDiagram::currTrans(int orig, int dest, std::string tr, std::string gu, std::string act)
+bool cUMLStateDiagram::currTrans(int orig, int dest, int tr, int gu, int act)
 {
 
 	if (((orig == -1) || (orig == getOrigStateIndex())) &&
 		((dest == -1) || (dest == getDestStateIndex())) && 
-		((tr == "*") || (tr == triggers[getTriggerIndex()].label)) &&
-		((gu == "*") || (gu == getGuard())) &&
-		((act == "*") || (act == getAction()))) { 
+		((tr == -1)  || (tr == getTriggerIndex())) &&
+		((gu == -1)  || (gu == getGuardIndex())) &&
+		((act == -1) || (act == getActionIndex()))) { 
 
 			return true;
 	}
@@ -413,12 +421,13 @@ void cUMLStateDiagram::printXMI()
 
 	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
 	// edge or not.
-	if (numStates() > 0) {
-		temp = StringifyAnInt(s_count);
+	// Initial state - designed to help with Hydra.
+//	if (numStates() > 0) {
+		temp = "_1";
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
 		xmi += temp + "\" isSpecification=\"false\"/>\n";
 		++s_count;
-	}
+//	}
 	
 	for (; s_count < numStates(); ++s_count) {
 	
@@ -456,8 +465,8 @@ void cUMLStateDiagram::printXMI()
 
 		// Get guard, trigger, and action
 //		temp = transitions[t_count].trans.trigger;
-		temp1 = transitions[t_count].trans.guard;
-		temp2 = transitions[t_count].trans.action;
+		temp1 = guards[transitions[t_count].trans.guard];
+		temp2 = actions[transitions[t_count].trans.action];
 		trig_label = triggers[transitions[t_count].trans.trigger].label;
 		trig_op_name = triggers[transitions[t_count].trans.trigger].operation_id;
 
