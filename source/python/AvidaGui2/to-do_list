@@ -262,6 +262,11 @@ April - 07
   - When creating a new workspace REWARD_xxx lines are added to @example.empty
   - When creating a new workspace add @example.full with just one organism.
 
+May - 07
+
+  - Got Basic import and export to work
+  - updated FAQ on web page
+
 ************Kaben******************
 
 - added testing branch "extras" to subversion, moved testing code to testing

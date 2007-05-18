@@ -449,10 +449,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
           if (line.startswith("*File:")):
             if (line.find(".empty") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                                           "imp_" + input_name_no_ext + ".empty")
+                                       "imp_" + input_name_no_ext + ".empty")
             elif (line.find(".organism") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                                           "imp_" + input_name_no_ext + ".organism")
+                                       "imp_" + input_name_no_ext + ".organism")
             elif (line.find(".full") > -1):
               new_dir_name = os.path.join(self.m_session_mdl.m_current_freezer,
                                           "imp_" + input_name_no_ext + ".full")
@@ -467,6 +467,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       finally:
         input_file.close()
         new_file.close()
+      self.m_session_mdl.m_session_mdtr.emit(
+           PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
   # public slot
 
