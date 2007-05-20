@@ -41,7 +41,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     if (session_mdl.directory_chosen == False):
       self.setCaption('%s - %s' % (avida_ed_version_string, "Unnamed  Workspace") )
     else:
-      self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
+      self.setCaption('%s - %s' % (avida_ed_version_string, os.path.basename(os.path.splitext(self.m_session_mdl.m_current_workspace)[0])) )
    
     while self.m_widget_stack.visibleWidget():
       self.m_widget_stack.removeWidget(self.m_widget_stack.visibleWidget())
@@ -254,7 +254,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
             self.m_session_mdl.directory_chosen = True
-            self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
+            self.setCaption('%s - %s' % (avida_ed_version_string, os.path.basename(os.path.splitext(self.m_session_mdl.m_current_workspace)[0])) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
@@ -307,7 +307,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_session_mdl.m_current_workspace = str(workspace_dir)
       self.m_session_mdl.m_current_freezer = os.path.join(self.m_session_mdl.m_current_workspace, "freezer")
       self.m_session_mdl.directory_chosen = True
-      self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
+      self.setCaption('%s - %s' % (avida_ed_version_string, os.path.basename(os.path.splitext(self.m_session_mdl.m_current_workspace)[0])) )
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("doRefreshFreezerInventorySig"), ())
 
@@ -360,7 +360,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
             #self.setCaption(self.m_session_mdl.m_current_workspace)
-            self.setCaption('%s - %s' % (avida_ed_version_string, self.m_session_mdl.m_current_workspace) )
+            self.setCaption('%s - %s' % (avida_ed_version_string, os.path.basename(os.path.splitext(self.m_session_mdl.m_current_workspace)[0])) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
             created = True
