@@ -324,12 +324,12 @@ public:
   bool absoluteJumpDestinationState(int);
   bool absoluteJumpStateDiagram (int);
 
-  bool relativeJumpGuard(int amount) { m_guard_index += amount; return true;}
-  bool relativeJumpAction(int amount) { m_action_index += amount; return true;}
-  bool relativeJumpTrigger(int amount) { m_trigger_index += amount; return true;}
-  bool relativeJumpTransitionLabel(int amount) { m_trans_label_index += amount; return true;}
-  bool relativeJumpOriginState(int amount) { m_orig_state_index += amount; return true;}
-  bool relativeJumpDestinationState(int amount) { m_dest_state_index += amount; return true;}
+  bool relativeJumpGuard(int amount);
+  bool relativeJumpAction(int amount);
+  bool relativeJumpTrigger(int amount);
+  bool relativeJumpTransitionLabel(int amount);
+  bool relativeJumpOriginState(int amount);
+  bool relativeJumpDestinationState(int amount);
   bool relativeJumpStateDiagram (int); 
   
   bool addTransitionTotal();

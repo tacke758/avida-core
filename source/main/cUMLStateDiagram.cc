@@ -313,6 +313,10 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 	} 
 
 	// Initialize the indices
+	if (o > 0 || d > 0) { 
+		 o = 0;
+	}
+		
 	absoluteMoveIndex(states, orig_state_index, o);
 	absoluteMoveIndex(states, dest_state_index, d);
 	absoluteMoveIndex(triggers, trigger_index, t);

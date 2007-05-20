@@ -751,5 +751,42 @@ bool cOrganism::addTransitionTotal()
 	return val;
 }
 
+bool cOrganism::relativeJumpGuard(int amount)
+{ 
+	m_guard_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpAction(int amount) 
+{ 
+	m_action_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpTrigger(int amount) 
+{ 
+	m_trigger_index += amount; 
+	return true;
+}
+  
+bool cOrganism::relativeJumpTransitionLabel(int amount) 
+{ 
+	m_trans_label_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpOriginState(int amount) 
+{ 
+	m_orig_state_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpDestinationState(int amount) 
+{ 
+	m_dest_state_index += amount; 
+	return true;
+}
+  
+  
   
   

@@ -151,12 +151,17 @@ double cUMLModel::evaluateModel(int deme_id, cWorld* world)
 	int s0_nt = getStateDiagram(0)->numTrans();
 	int s1_nt = getStateDiagram(1)->numTrans();
 
+	cUMLStateDiagram* temp_sense = getStateDiagram(0);
+	cUMLStateDiagram* soft_sense = getStateDiagram(1);
+
+
 	// Check if the model meets the sequence diagram
-	bonus += checkForSequenceDiagram1();
+//	bonus += checkForSequenceDiagram1();
 		
 		
 	// Check if the model can be correctly formalized
-	if (bonus >= 5.0) {
+//	if (bonus >= 5.0) {
+	if (temp_sense->findTrans(-1, -1, -1, -1, 1)) {
 		self_bonus["hydra_attempt"] = 1;
 		mod_bonus = formalizeModel();
 		self_bonus["hydra_pass"] = mod_bonus;		
@@ -174,15 +179,15 @@ double cUMLModel::evaluateModel(int deme_id, cWorld* world)
 
 	// additional bonus for creating transitions...
 	if (s0_nt <= 2) { 
-		bonus += (s0_nt / 2);
+		bonus += (s0_nt / 4);
 	} else {
-		bonus += 1;
+		bonus += .5;
 	}
 	
 	if (s1_nt <= 2) { 
-		bonus += (s1_nt / 2);
+		bonus += (s1_nt / 4);
 	} else {
-		bonus += 1;
+		bonus += .5;
 	}
 	
 	
@@ -197,8 +202,8 @@ double cUMLModel::checkForSequenceDiagram1()
 	double temp_bonus = 0.0;
 
 	
-	cUMLStateDiagram* soft_sense = getStateDiagram(0);
-	cUMLStateDiagram* temp_sense = getStateDiagram(1);
+	cUMLStateDiagram* soft_sense = getStateDiagram(1);
+	cUMLStateDiagram* temp_sense = getStateDiagram(0);
 	
 	int nt = soft_sense->numTrans() + temp_sense->numTrans();
 /*	// reward if number of transitions is greater than 10
