@@ -311,11 +311,6 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 
 		return false;
 	} 
-
-	// Initialize the indices
-	if (o > 0 || d > 0) { 
-		 o = 0;
-	}
 		
 	absoluteMoveIndex(states, orig_state_index, o);
 	absoluteMoveIndex(states, dest_state_index, d);
@@ -329,9 +324,10 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 	
 	
 	// Do not create transition if the origin state is unreachable.
-	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
-		return false;
-	}
+// Taken out on 5/22
+//	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
+//		return false;
+//	}
 	
 	// increment number of edges for a state
 	states[getOrigStateIndex()].num_outgoing += 1;
