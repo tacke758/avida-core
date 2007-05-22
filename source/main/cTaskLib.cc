@@ -403,6 +403,9 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN1);	  
   else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);
+ else if (name == "mod_eval") // 
+	  NewTask(name, "Successfully evaluated model", &cTaskLib::Task_ModEval);
+	  
 	 
   
   // Make sure we have actually found a task  
@@ -2746,7 +2749,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	cOrganism* organism = ctx.organism;
 	std::string temp;
 
-	temp = organism->getStateDiagram()->getXMI();
+	temp = organism->getUMLModel()->getXMI();
 /*
 	if (temp == organism->getParentXMI()) {
 		ctx.task_success_complete += organism->getParentBonusInfo("hydra");
@@ -2814,8 +2817,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 			subavida_output += line;
 			memset(line, 0, read_size);
 		}
-//	} while(((status==-1) && (errno == EINTR)) || (status>0));
-	} while(((status==-1) )|| (status>0));
+	} while(((status==-1) && (errno == EINTR)) || (status>0));
 
 	// Done with subavida.
 	close(from_subavida[0]);
@@ -2878,13 +2880,13 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	
 	// check if the trigger is present
 //	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
-//		temp += 1;
+		temp += 1;
 		
 		// check property
 		if (ctx.task_success_complete) {
 			temp1 += SpinCoprocess(ctx, "N1");
 		} 
-	//}
+//	}
 	
 //	organism->setBonusInfo("spinn1", temp1); 
 	return temp1;
@@ -2894,3 +2896,6 @@ double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
 	return (2^ctx.task_success_complete);
 }
 
+double cTaskLib::Task_ModEval(cTaskContext& ctx) const { 
+	return (ctx.organism->getUMLModel()->evaluateModel(ctx.organism->GetID(), m_world));
+} 

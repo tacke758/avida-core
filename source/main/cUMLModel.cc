@@ -34,10 +34,22 @@ std::string cUMLModel::xmi_class2 = loadFile("class2_xmi");
 cUMLModel::cUMLModel()
 {
 	// initialize / seed UML model here
+	resetUMLModel();
+
 }
 
 cUMLModel::~cUMLModel()
 {
+}
+
+
+
+void cUMLModel::resetUMLModel()
+{
+	// Currently there are 2 state diagrams...
+	resetStateDiagrams(2);
+	return;
+
 }
 
 cUMLStateDiagram* cUMLModel::getStateDiagram (int x) 
@@ -143,10 +155,12 @@ void cUMLModel::seedDiagrams()
   
 }
 
-double cUMLModel::evaluateModel(int deme_id, cWorld* world)
+double cUMLModel::evaluateModel(int id, cWorld* world)
 {
 	double bonus = 0.0;
 	double mod_bonus = 0.0;
+	
+	double size = state_diagrams.size();
 	
 	int s0_nt = getStateDiagram(0)->numTrans();
 	int s1_nt = getStateDiagram(1)->numTrans();
@@ -172,7 +186,7 @@ double cUMLModel::evaluateModel(int deme_id, cWorld* world)
 	// Check if the model meets the properties. 
 	if (mod_bonus > 0.0) {
 		self_bonus["spin_attemp"] = 1;
-		mod_bonus += propertyN1(deme_id, world);
+		mod_bonus += propertyN1(id, world);
 		self_bonus["spin_pass"] = mod_bonus;		
 		bonus += mod_bonus;
 	}
@@ -407,7 +421,7 @@ double cUMLModel::formalizeModel()
 }
 
 
-double cUMLModel::checkProperty(const std::string& neverclaimFile, int deme_id, cWorld* world) const {
+double cUMLModel::checkProperty(const std::string& neverclaimFile, int id, cWorld* world) const {
 //	m_world->GetStats().SpinAttempt();
 	double status=0;
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
@@ -422,7 +436,7 @@ double cUMLModel::checkProperty(const std::string& neverclaimFile, int deme_id, 
 	
 	
 	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << world->GetStats().GetUpdate() << "." << deme_id;
+	strstrm << "cp tmp.xmi " << world->GetStats().GetUpdate() << "." << id;
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
 			

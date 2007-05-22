@@ -147,7 +147,8 @@ protected:
   int m_trans_label_index;
   int m_trigger_index;
   int m_guard_index;
-  int m_action_index;							
+  int m_action_index;	
+  cUMLModel m_model;		// Used when not running as deme
   
   class cNetSupport
   {

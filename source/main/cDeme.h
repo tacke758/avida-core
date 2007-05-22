@@ -56,10 +56,12 @@ public:
   void IncOrgCount() { org_count++; }
   void DecOrgCount() { org_count--; }
 
+
   bool IsEmpty() const { return org_count == 0; }
   bool IsFull() const { return org_count == cell_ids.GetSize(); }
   
   // -= Germline =-
+  
   //! Returns this deme's germline.
   cGermline& GetGermline() { return _germline; }
   //! Replaces this deme's germline.

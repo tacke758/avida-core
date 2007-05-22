@@ -95,6 +95,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   m_guard_index = 0;
   m_action_index = 0;	
   
+  
 }
 
 
@@ -642,8 +643,17 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 
 cUMLModel* cOrganism::getUMLModel()
 {
-	cDeme& deme = m_world->GetPopulation().GetDeme(m_world->GetPopulation().GetCell(GetCellID()).GetDemeID());
-	return deme.getUMLModel();
+	cUMLModel* temp_mod;
+	
+	// Check if using deme...
+	if (m_world->GetConfig().NUM_DEMES.Get() != 1) { 
+			cDeme& deme = m_world->GetPopulation().GetDeme(m_world->GetPopulation().GetCell(GetCellID()).GetDemeID());
+			temp_mod = deme.getUMLModel();
+	} else { 
+	
+			temp_mod = &m_model;
+	}
+	return temp_mod;
 }
 
 bool cOrganism::absoluteJumpStateDiagram (int amount )

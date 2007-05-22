@@ -288,6 +288,7 @@ private:  // Direct task related methods
   double SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
   double Task_SpinN1(cTaskContext& ctx) const;
   double Task_MultTrans(cTaskContext& ctx) const;  
+  double Task_ModEval(cTaskContext& ctx) const;  
   
 };
 
