@@ -314,6 +314,7 @@ public:
 //  bool firstStateDiagram() { m_state_diag = 0; }  
   bool currTrans (int, int, int, int, int, int); 
   cUMLStateDiagram* getStateDiagram();
+  void printStats();
 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)

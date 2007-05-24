@@ -575,7 +575,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	if(GetCellID()==-1) return;
 
 
-//  printXMI();
+	printStats();
 	
 
  assert(m_interface);
@@ -797,6 +797,11 @@ bool cOrganism::relativeJumpDestinationState(int amount)
 	return true;
 }
   
-  
+void cOrganism::printStats() 
+{
+	// for each state diagram
+	
+	// print the name, the number of states 
+}  
   
   

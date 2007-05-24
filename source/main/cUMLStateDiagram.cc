@@ -421,13 +421,12 @@ void cUMLStateDiagram::printXMI()
 
 	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
 	// edge or not.
-	// Initial state - designed to help with Hydra.
-//	if (numStates() > 0) {
-		temp = "_1";
+	if (numStates() > 0) {
+		temp = StringifyAnInt(s_count);
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
 		xmi += temp + "\" isSpecification=\"false\"/>\n";
 		++s_count;
-//	}
+	}
 	
 	for (; s_count < numStates(); ++s_count) {
 	
