@@ -436,13 +436,12 @@ double cUMLModel::checkProperty(const std::string& neverclaimFile, int id, cWorl
 	if(system("./pan -a &> ./pan.out")!=0) return 0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0;
 		
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 1;
+
 	std::ostringstream strstrm;
 	strstrm << "cp tmp.xmi " << world->GetStats().GetUpdate() << "." << id;
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
-	
-	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 1;
-
 			
 	world->GetStats().PanPassed();
 	return 3;
