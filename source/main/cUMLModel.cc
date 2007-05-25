@@ -178,7 +178,7 @@ double cUMLModel::evaluateModel(int id, cWorld* world)
 		
 	// Check if the model can be correctly formalized
 //	if (bonus >= 5.0) {
-	if (temp_sense->findTrans(-1, -1, -1, -1, 1)) {
+	if (temp_sense->findTrans(-1, -1, -1, -1, 3)) {
 		self_bonus["hydra_attempt"] = 1;
 		mod_bonus = formalizeModel(world);
 		self_bonus["hydra_pass"] = mod_bonus;		
