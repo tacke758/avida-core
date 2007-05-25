@@ -4169,7 +4169,7 @@ bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
 {
 	if(organism->GetCellID()==-1) return false;
 	
-//	organism->modelCheck(ctx);
+	organism->modelCheck(ctx);
 
 	return organism->addTransitionTotal();
 }
