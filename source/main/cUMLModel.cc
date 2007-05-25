@@ -164,9 +164,12 @@ double cUMLModel::evaluateModel(int id, cWorld* world)
 	
 	int s0_nt = getStateDiagram(0)->numTrans();
 	int s1_nt = getStateDiagram(1)->numTrans();
-
+	
 	cUMLStateDiagram* temp_sense = getStateDiagram(0);
 	cUMLStateDiagram* soft_sense = getStateDiagram(1);
+	
+	world->GetStats().addState(temp_sense->numStates() + soft_sense->numStates());
+	world->GetStats().addTrans(s0_nt + s1_nt);
 
 
 	// Check if the model meets the sequence diagram
@@ -177,7 +180,7 @@ double cUMLModel::evaluateModel(int id, cWorld* world)
 //	if (bonus >= 5.0) {
 	if (temp_sense->findTrans(-1, -1, -1, -1, 1)) {
 		self_bonus["hydra_attempt"] = 1;
-		mod_bonus = formalizeModel();
+		mod_bonus = formalizeModel(world);
 		self_bonus["hydra_pass"] = mod_bonus;		
 		bonus += mod_bonus;
 	}
@@ -185,7 +188,7 @@ double cUMLModel::evaluateModel(int id, cWorld* world)
 
 	// Check if the model meets the properties. 
 	if (mod_bonus > 0.0) {
-		self_bonus["spin_attemp"] = 1;
+		self_bonus["spin_attempt"] = 1;
 		mod_bonus += propertyN1(id, world);
 		self_bonus["spin_pass"] = mod_bonus;		
 		bonus += mod_bonus;
@@ -330,7 +333,7 @@ std::string cUMLModel::getXMI()
 	return x;
 }
 
-double cUMLModel::formalizeModel() 
+double cUMLModel::formalizeModel(cWorld* world) 
 {
 	printXMI();
 	std::string temp = xmi;
@@ -343,7 +346,7 @@ double cUMLModel::formalizeModel()
 	}*/
 
 
-//	m_world->GetStats().HydraAttempt();
+	world->GetStats().HydraAttempt();
 
 	double bonus = 0.0;
 	unsigned int status_total = 0;
@@ -413,7 +416,7 @@ double cUMLModel::formalizeModel()
 	} else {
 	//	ctx->task_failed = ctx->task_failed && 1;
 //		ctx.task_success_complete += 1;
-////		m_world->GetStats().HydraPassed();
+		world->GetStats().HydraPassed();
 //		organism->setBonusInfo("hydra", 1.0); 
 		return 1;
 	}
@@ -422,12 +425,12 @@ double cUMLModel::formalizeModel()
 
 
 double cUMLModel::checkProperty(const std::string& neverclaimFile, int id, cWorld* world) const {
-//	m_world->GetStats().SpinAttempt();
+	world->GetStats().SpinAttempt();
 	double status=0;
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0;
-//	m_world->GetStats().SpinPassed();
-//	m_world->GetStats().PanAttempt();
+	world->GetStats().SpinPassed();
+	world->GetStats().PanAttempt();
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0;
@@ -441,7 +444,7 @@ double cUMLModel::checkProperty(const std::string& neverclaimFile, int id, cWorl
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 1;
 
 			
-//	m_world->GetStats().PanPassed();
+	world->GetStats().PanPassed();
 	return 3;
 }
 

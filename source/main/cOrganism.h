@@ -149,6 +149,7 @@ protected:
   int m_guard_index;
   int m_action_index;	
   cUMLModel m_model;		// Used when not running as deme
+  cUMLModel* m_parent_model; // Used when not running as deme
   
   class cNetSupport
   {
@@ -309,12 +310,15 @@ public:
   // UML
   void modelCheck(cAvidaContext& ctx);
   cUMLModel* getUMLModel();
+  cUMLModel* getParentUMLModel() { return m_parent_model; } 
   int getStateDiagramIndex() { return m_state_diag; } 
 //  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
 //  bool firstStateDiagram() { m_state_diag = 0; }  
   bool currTrans (int, int, int, int, int, int); 
   cUMLStateDiagram* getStateDiagram();
   void printStats();
+  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
+  
 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)

@@ -22,7 +22,7 @@ public:
 	std::string getXMI(); // get the XMI version of the model
 	void printXMI();
 	void resetUMLModel();
-	double formalizeModel(); // formalize the model using Hydra
+	double formalizeModel(cWorld*); // formalize the model using Hydra
 	double checkProperty(const std::string& neverclaimFile, int, cWorld*) const; // check for property satisfaction using Spin
 	double propertyN1(int, cWorld*) const; // check for property N1
 	

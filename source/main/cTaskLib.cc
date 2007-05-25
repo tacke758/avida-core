@@ -2897,5 +2897,16 @@ double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
 }
 
 double cTaskLib::Task_ModEval(cTaskContext& ctx) const { 
-	return (ctx.organism->getUMLModel()->evaluateModel(ctx.organism->GetID(), m_world));
+	double bonus = 0.0;
+	cUMLModel* par = ctx.organism->getParentUMLModel();
+	cUMLModel* self = ctx.organism->getUMLModel();
+	
+	if (self->getXMI() != par->getXMI()) { 
+		bonus = self->evaluateModel(ctx.organism->GetID(), m_world);
+	} else { 
+		// get bonus of other model...
+		
+	}	
+	
+	return bonus;
 } 

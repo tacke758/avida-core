@@ -431,14 +431,14 @@ void cUMLStateDiagram::printXMI()
 	for (; s_count < numStates(); ++s_count) {
 	
 		// only print if this state has an incoming edge. 
-		if ((states[s_count]).num_incoming > 0) {
+//		if ((states[s_count]).num_incoming > 0) {
 			temp = "s" + StringifyAnInt(s_count);
 			xmi+="<UML:CompositeState xmi.id=\"";
 			xmi+=temp;
 			xmi+= "\" isConcurrent=\"false\" name=\""; 
 			xmi+= temp; 
 			xmi+= "\" isSpecification=\"false\"/>\n";
-		}
+//		}
 	}
 		
 		// end the set of states....

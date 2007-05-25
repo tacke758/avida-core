@@ -1885,6 +1885,8 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintInstructionData>("print_instruction_data");
   action_lib->Register<cActionPrintGenotypeMap>("print_genotype_map");
   action_lib->Register<cActionPrintMarketData>("print_market_data");
+  action_lib->Register<cActionPrintUMLData>("PrintUMLData");
+
   
   action_lib->Register<cActionPrintPhenotypeData>("print_number_phenotypes");
   action_lib->Register<cActionPrintPhenotypeStatus>("print_phenotype_status");

@@ -633,11 +633,12 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
   }
   
   if (clear_input) m_input_buf.Clear();
-  /*
+/*  
 	m_world->GetStats().addState(states.size());
 	m_world->GetStats().addTrans(transitions.size());
 	m_world->GetStats().addTransLabel(transition_labels.size());
-  */
+*/	
+  
   
 }
 
