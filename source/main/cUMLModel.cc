@@ -86,7 +86,7 @@ void cUMLModel::seedDiagrams()
   
   // For the first state diagram... 
   // Software Sensor
-  cUMLStateDiagram* soft_sense = getStateDiagram(0);
+  cUMLStateDiagram* soft_sense = getStateDiagram(1);
 	
   // init triggers, guards, and actions
   // trig 0
@@ -117,7 +117,7 @@ void cUMLModel::seedDiagrams()
   
   
   // Temperature Sensor
-  cUMLStateDiagram* temp_sense = getStateDiagram(1);
+  cUMLStateDiagram* temp_sense = getStateDiagram(0);
 
   // init triggers, guards, and actions
   // trig 0
