@@ -204,6 +204,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_org_name.setText(name)
 
   def updateOrgReportSlot(self, clicked_cell_item = None):
+    descr("this is teh most simple test") #JMC delme
     #this line is probably redundant
     self.m_clicked_cell_number = clicked_cell_item
     self.m_clicked_cell_item = clicked_cell_item

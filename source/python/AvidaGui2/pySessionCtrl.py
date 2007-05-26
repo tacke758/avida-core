@@ -147,6 +147,11 @@ class pySessionCtrl(qt.QObject):
       PYSIGNAL("doPauseSig"),
       self.doPauseSlot)
 
+#    self.connect(
+#      self.m_session_mdl.m_session_mdtr,
+#      PYSIGNAL("jmcTestSig"),
+#      self.doPauseSlot)
+
     self.connect(
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("fromLiveCtrlStartAvidaSig"),

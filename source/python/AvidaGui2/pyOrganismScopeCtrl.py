@@ -33,8 +33,17 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.m_avida = None
     self.setAcceptDrops(1)
 
+    test_item_name = 'jeff'
+    self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOnePopSig"), (test_item_name,))
+
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), self.setAvidaSlot)
+#    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("jmcTestSig"), self.jmcTestSlot)
     #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setDebugOrganismFileSig"), self.setDebugOrganismFileSlot)
+
+    #@JMC testing
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("orgClickedOnSig"),
+      self.jmcTestOrgSlot)
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),
       self.MutationSliderValueChangedSlot)
@@ -72,6 +81,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     #  self.LayoutSpacingSBValueChangedSlot)
     #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HardwareIndicatorSBValueChangedSig"),
     #  self.HardwareIndicatorSBValueChangedSlot)
+
+  def jmcTestOrgSlot(self, clicked_cell_item = None):
+    descr("no way this org slot works++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
   def dragEnterEvent( self, e ):
@@ -111,6 +123,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
             self.analyzeLoadedOrganism()
           else:
             info("Only organisms can be dragged here")
+
+#  def jmcTest(self,avida):
+#    descr("made it to jmcTest")
 
   def setAvidaSlot(self, avida):
     print "pyOrganismScopeCtrl.setAvidaSlot() ..."

@@ -29,6 +29,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_avida = None
     self.startStatus = True
     self.m_nav_bar_ctrl.construct(session_mdl)
+    self.m_nav_bar_list_view.construct(session_mdl)
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
