@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qt import *
-from pyNavBarView import *
+from pyNavBarView import image0_data, image1_data, image2_data
 from descr import *
 
 class pyNavBarListView(QListView):
@@ -27,15 +27,15 @@ class pyNavBarListView(QListView):
     descr("no way this works in list view++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
   def contentsDropEvent(self, e):
-    freezer_item_name = QString()
+    dropped_item_name = QString()
     if e.source() is self:
       return
 
-    # freezer_item_name is a string...the file name 
+    # dropped_item_name is a string...the file name 
  
     print type(e)
     descr("in contentsDrop event")
-    descr("freezer_item_name is: ", freezer_item_name)
+    descr("dropped_item_name is: ", str(dropped_item_name))
     test_item_name = 'jeff'
     descr("self is: ", self)
     #self.emit(PYSIGNAL("jmcTestSig"), (test_item_name,))
@@ -43,12 +43,12 @@ class pyNavBarListView(QListView):
 
     if ( QIconDrag.canDecode(e)):
       format = QDropEvent.format(e, 0)
-    if ( QTextDrag.decode( e, freezer_item_name ) ) :
-      descr("in decode, freezer_item_name is: ", freezer_item_name[:])
-      if freezer_item_name[:9] == 'organism.':
+    if ( QTextDrag.decode( e, dropped_item_name ) ) :
+      descr("in decode, dropped_item_name is: ", dropped_item_name[:])
+      if dropped_item_name[:9] == 'organism.':
         descr("that was an organism")
-        freezer_item_name = freezer_item_name[9:]
-#        self.FreezeOrganism(freezer_item_name)
+        dropped_item_name = dropped_item_name[9:]
+#        self.FreezeOrganism(dropped_item_name)
       else:
         pass
 
@@ -58,8 +58,8 @@ class pyNavBarListView(QListView):
     #  info("You can not drag an ancestor back into the freezer")
 
     
-  #def FreezeOrganism(self, freezer_item_name):
-  #  tmp_dict = {1:freezer_item_name}
+  #def FreezeOrganism(self, dropped_item_name):
+  #  tmp_dict = {1:dropped_item_name}
   #  pop_up_organism_file_name = pyFreezeOrganismCtrl()
   #  file_name = pop_up_organism_file_name.showDialog(self.m_session_mdl)
 
@@ -136,6 +136,7 @@ class pyNavBarCtrl(QWidget):
     def construct(self, session_mdl):
         self.m_session_mdl = session_mdl
        
+        self.m_list_view.construct(session_mdl)
         self.m_list_view.setSelectionMode(QListView.Single)
         self.m_list_view.setSortColumn(-1)
         self.m_list_view.clear()

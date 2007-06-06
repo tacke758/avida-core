@@ -22,6 +22,8 @@ Make videos for Rob
 
 29-Jun-06 Same control on front and back of petri dish.
 
+Figure out why double clicking an org in the freezer throws an error
+
 Long term projects:
 
 Priority High
@@ -266,6 +268,13 @@ May - 07
 
   - Got Basic import and export to work
   - updated FAQ on web page
+
+June - 07
+
+  - Fixed fatal error in drop on view code
+  - When importing a file with an exisiting name give it a new suffux
+  - When user clicks on non-working menu item program throws up an info
+    message box (instead of sending the error to the console)
 
 ************Kaben******************
 

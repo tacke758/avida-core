@@ -29,7 +29,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_avida = None
     self.startStatus = True
     self.m_nav_bar_ctrl.construct(session_mdl)
-    self.m_nav_bar_list_view.construct(session_mdl)
+    # self.m_nav_bar_list_view.construct(session_mdl)
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
@@ -447,23 +447,36 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
           # If we find a *File line open a new file
 
-          if (line.startswith("*File:")):
+          foundFile = False
+          suffix = ""
+          while ((line.startswith("*File:")) and (foundFile == False)):
             if (line.find(".empty") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                                       "imp_" + input_name_no_ext + ".empty")
+                         "imp_" + input_name_no_ext + suffix + ".empty")
             elif (line.find(".organism") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                                       "imp_" + input_name_no_ext + ".organism")
+                         "imp_" + input_name_no_ext + suffix + ".organism")
             elif (line.find(".full") > -1):
               new_dir_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                                          "imp_" + input_name_no_ext + ".full")
+                         "imp_" + input_name_no_ext + suffix + ".full")
               if (not os.path.exists(new_dir_name)):
                 os.mkdir(new_dir_name)
               sub_file_name = line[line.rfind(":")+2:]
+              sub_file_name = sub_file_name.strip()
               new_file_name = os.path.join(new_dir_name, sub_file_name)
               
-            new_file = open(new_file_name.strip(),'w')
-          else:
+            # Do not allow duplicate files
+
+            if (os.path.exists(new_file_name) == True):
+              foundFile = False
+              if (suffix == ""):
+                suffix = "_1"
+              else:
+                suffix = "_" + str(int(suffix[1:]) + 1)
+            else:
+              foundFile = True
+              new_file = open(new_file_name.strip(),'w')
+          if (not line.startswith("*File:")):
             new_file.write(line)
       finally:
         input_file.close()
@@ -474,52 +487,52 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def fileExit(self):
-    descr("pyEduWorkspaceCtrl.fileExit(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.fileExit(): Not implemented yet")
 
   # public slot
 
   def editUndo(self):
-    descr("pyEduWorkspaceCtrl.editUndo(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editUndo(): Not implemented yet")
 
   # public slot
 
   def editRedo(self):
-    descr("pyEduWorkspaceCtrl.editRedo(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editRedo(): Not implemented yet")
 
   # public slot
 
   def editCut(self):
-    descr("pyEduWorkspaceCtrl.editCut(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editCut(): Not implemented yet")
 
   # public slot
 
   def editCopy(self):
-    descr("pyEduWorkspaceCtrl.editCopy(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editCopy(): Not implemented yet")
 
   # public slot
 
   def editPaste(self):
-    descr("pyEduWorkspaceCtrl.editPaste(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editPaste(): Not implemented yet")
 
   # public slot
 
   def editFind(self):
-    descr("pyEduWorkspaceCtrl.editFind(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.editFind(): Not implemented yet")
 
   # public slot
 
   def helpIndex(self):
-    descr("pyEduWorkspaceCtrl.helpIndex(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.helpIndex(): Not implemented yet")
 
   # public slot
 
   def helpContents(self):
-    descr("pyEduWorkspaceCtrl.helpContents(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.helpContents(): Not implemented yet")
 
   # public slot
 
   def helpAbout(self):
-    descr("pyEduWorkspaceCtrl.helpAbout(): Not implemented yet")
+    info("pyEduWorkspaceCtrl.helpAbout(): Not implemented yet")
 
   def next_UpdateActionSlot(self):
     self.m_session_mdl.m_session_mdtr.emit(

@@ -2,6 +2,7 @@
 
 from pyOneOrg_ScopeView import pyOneOrg_ScopeView
 from pyTimeline import pyTimeline
+from descr import *
 import qt
 import os
 
@@ -73,41 +74,41 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
 
 
   def gestationTimeChangedSlot(self, gestation_time):
-    print "pyOneOrg_ScopeCtrl.gestationTimeChangedSlot called, gestation_time ", gestation_time
+    descr("pyOneOrg_ScopeCtrl.gestationTimeChangedSlot called, gestation_time " + str(gestation_time))
     self.m_execution_step_slider.setMaxValue(gestation_time - 1)
     self.m_timeline.setMaxValue(gestation_time - 1)
     self.rewindSlot()
 
   def executionStepResetSlot(self, execution_step):
-    print "pyOneOrg_ScopeCtrl.executionStepResetSlot called, execution_step ", execution_step
+    descr("pyOneOrg_ScopeCtrl.executionStepResetSlot called, execution_step " + str(execution_step))
     self.m_execution_step_slider.setValue(execution_step)
     self.m_timeline.setValue(execution_step)
     # This may be redundant (I'm not sure). @kgn
     self.m_execution_step_slider.emit(qt.SIGNAL("valueChanged(int)"),(execution_step,))
 
   def sliderMovedSlot(self, frame_number):
-    print "pyOneOrg_ScopeCtrl.sliderMovedSlot()."
+    descr("pyOneOrg_ScopeCtrl.sliderMovedSlot().")
     self.pauseSlot()
 
   def rewindSlot(self):
-    print "pyOneOrg_ScopeCtrl.rewindSlot()."
+    descr("pyOneOrg_ScopeCtrl.rewindSlot().")
     self.m_execution_step_slider.setValue(0)
     self.m_timeline.setValue(0)
     self.pauseSlot()
 
   def cueSlot(self):
-    print "pyOneOrg_ScopeCtrl.cueSlot()."
+    descr("pyOneOrg_ScopeCtrl.cueSlot().")
     self.m_execution_step_slider.setValue(self.m_execution_step_slider.maxValue())
     self.m_timeline.setValue(self.m_timeline.maxValue())
     self.pauseSlot()
 
   def pauseSlot(self):
-    print "pyOneOrg_ScopeCtrl.pauseSlot()."
+    descr("pyOneOrg_ScopeCtrl.pauseSlot().")
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_play_page)
     self.m_timer.stop()
 
   def playSlot(self):
-    print "pyOneOrg_ScopeCtrl.playSlot()."
+    descr("pyOneOrg_ScopeCtrl.playSlot().")
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_pause_page)
     self.m_timer.start(self.m_timer_interval, False)
 
