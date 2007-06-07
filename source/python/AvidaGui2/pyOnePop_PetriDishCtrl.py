@@ -399,6 +399,5 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       painter.end()
 
   def setZoomSlot(self, zoomValue):
-    print("BDB, zoom set to " + str(zoomValue))
     self.m_zoom_spinbox.setValue(zoomValue)
     self.m_zoom_spinbox.setFont(QFont("Arial",13))

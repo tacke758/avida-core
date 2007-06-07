@@ -18,14 +18,23 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
     self.NewNameLineEdit.setText(self.item_name)
     self.connect(self.ConfirmPushButton, SIGNAL("clicked()"), 
                  self.DoneDialogSlot)
+    self.connect(self.RenameRadioButton, SIGNAL("clicked()"),
+                 self.EnableNewNameSlot)
+    self.connect(self.DeleteRadioButton, SIGNAL("clicked()"),
+                 self.DisableNewNameSlot)
+    self.connect(self.SaveAsRadioButton, SIGNAL("clicked()"),
+                 self.DisableNewNameSlot)
+    self.connect(self.OpenRadioButton, SIGNAL("clicked()"),
+                 self.DisableNewNameSlot)
 
     (self.file_dir, self.file_core_name)  = os.path.split(self.file_name)
     self.file_ext = self.file_core_name[self.file_core_name.rfind('.'):]
+    self.RenameRadioButton.setChecked(True)
+    self.NewNameLineEdit.setDisabled(False)
     if (self.file_ext == '.organism'):
       self.setCaption(self.file_ext.lstrip('.') + ": " + self.item_name)
       self.OpenRadioButton.setDisabled(True)
       self.OpenRadioButton.setChecked(False)
-      self.SaveAsRadioButton.setChecked(True)
     else:
       self.setCaption(self.file_ext.lstrip('.') + " dish: " + self.item_name)
     self.DeleteFlag = 1
@@ -42,6 +51,12 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       self.done(self.SaveAsFlag)
     elif self.OpenRadioButton.isChecked():
       self.done(self.OpenFlag)
+
+  def EnableNewNameSlot(self):
+    self.NewNameLineEdit.setDisabled(False)
+
+  def DisableNewNameSlot(self):
+    self.NewNameLineEdit.setDisabled(True)
 
   def showDialog(self):
     self.change = False
@@ -73,21 +88,6 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
         self.change = True
 
     elif dialog_result == self.SaveAsFlag:
-      # file_dialog = QFileDialog (os.path.join(self.file_dir, '..'), 
-      #   '.junk1234junk', self, 'Export', False)
-      # file_dialog.setCaption('Export ' + self.file_ext.lstrip('.') + " " + 
-      #   self.item_name + ' to:')
-      # file_dialog.setMode(QFileDialog.DirectoryOnly)
-      # # file_dialog.setSelection (self.file_core_name)
-      # file_dialog.show()
-      # file_dialog.exec_loop()
-      # if file_dialog.result() == True:
-      #   export_file_name = os.path.join(str(file_dialog.selectedFile()),
-      #    self.file_core_name)
-      #   if (self.file_ext == '.full'):
-      #     shutil.copytree(self.file_name, str(export_file_name))
-      #   else:
-      #     shutil.copyfile(self.file_name, str(export_file_name))
 
       # If the directory has not been chosen self.file_dir is not
       # correct (at least on the Mac).  It is a relative path where

@@ -31,7 +31,7 @@ class pyNavBarListView(QListView):
     if e.source() is self:
       return
 
-    # dropped_item_name is a string...the file name 
+    # dropped_item_name is a string...a file name or raw genotype 
  
     print type(e)
     descr("in contentsDrop event")
@@ -44,7 +44,7 @@ class pyNavBarListView(QListView):
     if ( QIconDrag.canDecode(e)):
       format = QDropEvent.format(e, 0)
     if ( QTextDrag.decode( e, dropped_item_name ) ) :
-      descr("in decode, dropped_item_name is: ", dropped_item_name[:])
+      descr("in decode, dropped_item_name is: ", str(dropped_item_name)[:])
       if dropped_item_name[:9] == 'organism.':
         descr("that was an organism")
         dropped_item_name = dropped_item_name[9:]

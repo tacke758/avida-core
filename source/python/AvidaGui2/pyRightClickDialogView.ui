@@ -8,185 +8,244 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>262</width>
-            <height>240</height>
+            <width>510</width>
+            <height>209</height>
         </rect>
     </property>
-    <property name="paletteBackgroundColor">
-        <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>100</blue>
-        </color>
-    </property>
     <property name="caption">
-        <string>pyRightClickDialogView</string>
+        <string></string>
     </property>
-    <widget class="QButtonGroup">
+    <property name="toolTip" stdset="0">
+        <string>&lt;p&gt;The new name of the item if you choose to rename it.&lt;/p&gt;</string>
+    </property>
+    <vbox>
         <property name="name">
-            <cstring>ItemChoicesButtonGroup</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>23</y>
-                <width>242</width>
-                <height>206</height>
-            </rect>
-        </property>
-        <property name="paletteBackgroundColor">
-            <color>
-                <red>255</red>
-                <green>255</green>
-                <blue>100</blue>
-            </color>
-        </property>
-        <property name="title">
-            <string></string>
-        </property>
-        <property name="alignment">
-            <set>AlignHCenter</set>
-        </property>
-        <vbox>
+        <widget class="QLabel">
             <property name="name">
-                <cstring>unnamed</cstring>
+                <cstring>MainMessageTextLabel</cstring>
             </property>
-            <widget class="QRadioButton">
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                </font>
+            </property>
+            <property name="text">
+                <string>What do you want to do with this item?</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>FullEmptyButtonGroup</cstring>
+            </property>
+            <property name="focusPolicy">
+                <enum>NoFocus</enum>
+            </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <hbox>
                 <property name="name">
-                    <cstring>DeleteRadioButton</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>delete</string>
-                </property>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout1</cstring>
-                </property>
-                <hbox>
+                <widget class="QRadioButton">
                     <property name="name">
-                        <cstring>unnamed</cstring>
+                        <cstring>RenameRadioButton</cstring>
                     </property>
-                    <widget class="QRadioButton">
-                        <property name="name">
-                            <cstring>RenameRadioButton</cstring>
-                        </property>
-                        <property name="paletteBackgroundColor">
-                            <color>
-                                <red>255</red>
-                                <green>255</green>
-                                <blue>100</blue>
-                            </color>
-                        </property>
-                        <property name="focusPolicy">
-                            <enum>StrongFocus</enum>
-                        </property>
-                        <property name="text">
-                            <string>rename</string>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>NewNameLineEdit</cstring>
-                        </property>
-                    </widget>
-                </hbox>
-            </widget>
-            <widget class="QRadioButton">
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>TabFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Rename</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Rename the freezer item&lt;/p&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>DeleteRadioButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Delete</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Delete the freezer item&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>SaveAsRadioButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Export</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Export freezer item to a .aex file.&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>OpenRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Open</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Open freezer item&lt;/P&gt;</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>NewNameLineEdit</cstring>
+            </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                </font>
+            </property>
+            <property name="frameShape">
+                <enum>LineEditPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
+            </property>
+            <property name="toolTip" stdset="0">
+                <string>&lt;P&gt;Enter a new, unique (case-sensitive) name&lt;/p&gt;</string>
+            </property>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>FreezeCancelButtonGroup</cstring>
+            </property>
+            <property name="focusPolicy">
+                <enum>NoFocus</enum>
+            </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <hbox>
                 <property name="name">
-                    <cstring>SaveAsRadioButton</cstring>
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>export</string>
-                </property>
-            </widget>
-            <widget class="QRadioButton">
-                <property name="name">
-                    <cstring>OpenRadioButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>open</string>
-                </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>ConfirmPushButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>Confirm</string>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>CancelPushButton</cstring>
-                </property>
-                <property name="paletteBackgroundColor">
-                    <color>
-                        <red>255</red>
-                        <green>255</green>
-                        <blue>100</blue>
-                    </color>
-                </property>
-                <property name="focusPolicy">
-                    <enum>StrongFocus</enum>
-                </property>
-                <property name="text">
-                    <string>Cancel</string>
-                </property>
-            </widget>
-        </vbox>
-    </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ConfirmPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Confirm</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Save the named file&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Don't save, return to the program&lt;/P&gt;</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
 </widget>
 <connections>
     <connection>
         <sender>CancelPushButton</sender>
         <signal>clicked()</signal>
         <receiver>pyRightClickDialogView</receiver>
-        <slot>close()</slot>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>ConfirmPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyRightClickDialogView</receiver>
+        <slot>accept()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>RenameRadioButton</tabstop>
+    <tabstop>NewNameLineEdit</tabstop>
+    <tabstop>ConfirmPushButton</tabstop>
+    <tabstop>CancelPushButton</tabstop>
+    <tabstop>DeleteRadioButton</tabstop>
+    <tabstop>SaveAsRadioButton</tabstop>
+    <tabstop>FreezeCancelButtonGroup</tabstop>
+    <tabstop>FullEmptyButtonGroup</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
