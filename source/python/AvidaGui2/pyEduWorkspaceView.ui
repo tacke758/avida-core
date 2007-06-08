@@ -195,6 +195,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="fileSaveImagesAction"/>
         <action name="fileImportItemAction"/>
         <separator/>
+        <action name="fileRenameItemAction"/>
+        <separator/>
         <action name="m_print_action"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
@@ -307,6 +309,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -334,6 +338,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -885,6 +891,20 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Import Freezer Items</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileRenameItemAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Rename Freezer Item</string>
+        </property>
+        <property name="toolTip">
+            <string>Rename Highlighted Freezer Item</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -1033,6 +1053,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <receiver>pyEduWorkspaceView</receiver>
         <slot>fileImportItem()</slot>
     </connection>
+    <connection>
+        <sender>fileRenameItemAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileRenameItem()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">pyEduWorkspaceView.ui.h</include>
@@ -1056,6 +1082,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>helpContents()</slot>
     <slot>helpAbout()</slot>
     <slot>fileImportItem()</slot>
+    <slot>fileRenameItem()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

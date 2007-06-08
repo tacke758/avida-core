@@ -35,7 +35,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_ctrl_to_cli_dict = {}
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("initializeWithDefaultPetriDishSig"),
        self.Restart_ExpActionSlot)
-
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezerItemsSelectedSig"),
+       self.ModifyFreezerItemMenuItemsSlot)
 
 
 
@@ -197,6 +198,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_organism_cli)
   def raiseAnaViewSlot(self):
     self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_analyze_cli)
+
+  # when user clicks on an item (or items) in the freezer list change the 
+  # menu to reflect the choice
+
+  def ModifyFreezerItemMenuItemsSlot(self, file_list):
+    self.fileRenameItemAction.setEnabled(True)
+    itemsPicked = file_list.split("\t")[1:]
+    if (len(itemsPicked) == 1):
+      self.fileRenameItemAction.setMenuText("Rename " + itemsPicked[0])
+    else:
+      self.fileRenameItemAction.setMenuText("Rename " + str(len(itemsPicked)) +
+        " freezer items")
 
   def close(self, also_delete = False):
     self.emit(PYSIGNAL("quitAvidaPhaseISig"), ())
@@ -497,6 +510,11 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         new_file.close()
       self.m_session_mdl.m_session_mdtr.emit(
            PYSIGNAL("doRefreshFreezerInventorySig"), ())
+
+  # public slot
+
+  def fileRenameItem(self):
+    descr("BDB")
 
   # public slot
 

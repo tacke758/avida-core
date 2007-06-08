@@ -281,6 +281,8 @@ class pyFreezerCtrl(QWidget):
           second_level = second_level.nextSibling()
         top_level = top_level.nextSibling()
 
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("freezerItemsSelectedSig"), (file_list,))
       dragHolder = self.itemDrag( file_list, self )
       dragHolder.dragCopy()
 
