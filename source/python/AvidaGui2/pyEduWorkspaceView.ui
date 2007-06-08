@@ -196,6 +196,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="fileImportItemAction"/>
         <separator/>
         <action name="fileRenameItemAction"/>
+        <action name="fileExportItemAction"/>
+        <action name="fileDeleteItemAction"/>
+        <action name="fileOpenItemAction"/>
         <separator/>
         <action name="m_print_action"/>
     </item>
@@ -311,6 +314,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -338,6 +343,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -647,7 +654,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>helpContentsAction</cstring>
         </property>
         <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
         <property name="text">
             <string>Contents</string>
@@ -664,7 +671,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>helpIndexAction</cstring>
         </property>
         <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
         <property name="text">
             <string>Index</string>
@@ -681,7 +688,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>helpAboutAction</cstring>
         </property>
         <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
         <property name="text">
             <string>About</string>
@@ -905,6 +912,57 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Rename Highlighted Freezer Item</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileExportItemAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Export Freezer Item</string>
+        </property>
+        <property name="menuText">
+            <string>Export Freezer Item</string>
+        </property>
+        <property name="toolTip">
+            <string>Export Highlighted Freezer Item to an .aex file</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileDeleteItemAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Delete Freezer Item</string>
+        </property>
+        <property name="menuText">
+            <string>Delete Freezer Item</string>
+        </property>
+        <property name="toolTip">
+            <string>Delete Highlighted Freezer Item</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenItemAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Open Freezer Item</string>
+        </property>
+        <property name="menuText">
+            <string>Open Freezer Item</string>
+        </property>
+        <property name="toolTip">
+            <string>Open Highlighted Freezer Item</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -1059,6 +1117,24 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <receiver>pyEduWorkspaceView</receiver>
         <slot>fileRenameItem()</slot>
     </connection>
+    <connection>
+        <sender>fileExportItemAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileExportItemSlot()</slot>
+    </connection>
+    <connection>
+        <sender>fileDeleteItemAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileDeleteItemSlot()</slot>
+    </connection>
+    <connection>
+        <sender>fileOpenItemAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>fileOpenItemSlot()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">pyEduWorkspaceView.ui.h</include>
@@ -1083,6 +1159,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>helpAbout()</slot>
     <slot>fileImportItem()</slot>
     <slot>fileRenameItem()</slot>
+    <slot>fileExportItemSlot()</slot>
+    <slot>fileDeleteItemSlot()</slot>
+    <slot>fileOpenItemSlot()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

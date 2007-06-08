@@ -9,9 +9,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
     </property>
     <property name="geometry">
         <rect>
-            <x>0</x>
+            <x>10</x>
             <y>0</y>
-            <width>394</width>
+            <width>373</width>
             <height>400</height>
         </rect>
     </property>
@@ -105,7 +105,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -139,7 +138,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -194,7 +192,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -239,7 +236,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -263,7 +259,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -294,7 +289,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -332,7 +326,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -371,7 +364,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -395,7 +387,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -426,7 +417,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -450,7 +440,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -481,7 +470,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -524,7 +512,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <pointsize>11</pointsize>
                                                     <bold>0</bold>
                                                     <underline>1</underline>
@@ -540,7 +527,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <pointsize>11</pointsize>
                                                     <bold>0</bold>
                                                     <underline>1</underline>
@@ -574,7 +560,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -596,7 +581,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -620,7 +604,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -637,7 +620,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -661,7 +643,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -678,7 +659,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -702,7 +682,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -719,7 +698,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -743,7 +721,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -760,7 +737,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -784,7 +760,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -801,7 +776,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -825,7 +799,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -842,7 +815,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -866,7 +838,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -883,7 +854,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -907,7 +877,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -921,7 +890,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                             </property>
                                             <property name="font">
                                                 <font>
-                                                    <family>Arial</family>
                                                     <bold>0</bold>
                                                 </font>
                                             </property>
@@ -1009,7 +977,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1048,7 +1015,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1086,7 +1052,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1131,7 +1096,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1169,7 +1133,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1208,7 +1171,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1246,7 +1208,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1285,7 +1246,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1323,7 +1283,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1362,7 +1321,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1400,7 +1358,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1439,7 +1396,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                             </property>
                             <property name="font">
                                 <font>
-                                    <family>Arial</family>
                                     <bold>0</bold>
                                 </font>
                             </property>
@@ -1474,7 +1430,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                             <underline>1</underline>
                                         </font>
@@ -1489,7 +1444,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                             <underline>1</underline>
                                         </font>
@@ -1522,7 +1476,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1532,6 +1485,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="toggleButton">
                                         <bool>true</bool>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Not&lt;/P&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -1548,7 +1504,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1572,7 +1527,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1586,6 +1540,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Nan&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1593,7 +1550,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1617,7 +1573,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1631,6 +1586,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing And&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1638,7 +1596,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1662,7 +1619,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1676,6 +1632,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Orn&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1683,7 +1642,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1707,7 +1665,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1721,6 +1678,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Oro&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1728,7 +1688,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1752,7 +1711,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1766,6 +1724,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Ant&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1773,7 +1734,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1797,7 +1757,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1811,6 +1770,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Not&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1818,7 +1780,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1842,7 +1803,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1856,6 +1816,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Xor&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1863,7 +1826,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>
@@ -1887,7 +1849,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <pointsize>9</pointsize>
                                             <bold>0</bold>
                                         </font>
@@ -1901,6 +1862,9 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     <property name="alignment" stdset="0">
                                         <string>WordBreak|AlignVCenter|AlignLeft</string>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>&lt;P&gt;Press to see all orgs performing Equ&lt;/P&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -1908,7 +1872,6 @@ Python:from pyOrgSquareCtrl import pyOrgSquareCtrl
                                     </property>
                                     <property name="font">
                                         <font>
-                                            <family>Arial</family>
                                             <bold>0</bold>
                                         </font>
                                     </property>

@@ -18,6 +18,8 @@ from pyReadFreezer import pyReadFreezer
 from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
 # from pyImportItemCtrl import pyImportItemCtrl
 from pyBeforeStartingCtrl import pyBeforeStartingCtrl
+from pyHelpScreenCtrl import pyHelpScreenCtrl
+from pyAboutScreenCtrl import pyAboutScreenCtrl
 import pyNewIconView
 import os.path, shutil
 from qt import *
@@ -554,17 +556,20 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def helpIndex(self):
-    info("pyEduWorkspaceCtrl.helpIndex(): Not implemented yet")
+    help_dialog = pyHelpScreenCtrl()
+    help_dialog.showDialog()
 
   # public slot
 
   def helpContents(self):
-    info("pyEduWorkspaceCtrl.helpContents(): Not implemented yet")
+    help_dialog = pyHelpScreenCtrl()
+    help_dialog.showDialog()
 
   # public slot
 
   def helpAbout(self):
-    info("pyEduWorkspaceCtrl.helpAbout(): Not implemented yet")
+    about_dialog = pyAboutScreenCtrl()
+    about_dialog.showDialog()
 
   def next_UpdateActionSlot(self):
     self.m_session_mdl.m_session_mdtr.emit(

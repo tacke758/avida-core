@@ -334,7 +334,7 @@ Python:from pyPetriConfigureCtrl import pyPetriConfigureCtrl</comment>
                                             <set>WordBreak|AlignVCenter|AlignLeft</set>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>Updates is the basic unit of time in Avida-ED</string>
+                                            <string>Updates are the basic unit of time in Avida-ED</string>
                                         </property>
                                     </widget>
                                     <spacer>

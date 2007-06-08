@@ -52,6 +52,8 @@ nontest_module_names = [
   "AvidaGui2.pyStdTaskDescriptionCtrl",
   "AvidaGui2.pyTaskDescriptionCtrl",
 
+  "AvidaGui2.pyAboutScreenView",
+  "AvidaGui2.pyAboutScreenCtrl",
   "AvidaGui2.pyAnalyzeControlsView",
   "AvidaGui2.pyAnalyzeControlsCtrl",
   "AvidaGui2.pyAncestorLegendView",
@@ -75,6 +77,8 @@ nontest_module_names = [
   "AvidaGui2.pyGraphCtrl",
   "AvidaGui2.pyHardwareCPUTrace",
   "AvidaGui2.pyHardwareTracer",
+  "AvidaGui2.pyHelpScreenView",
+  "AvidaGui2.pyHelpScreenCtrl",
   "AvidaGui2.pyHideShowButtonView",
   "AvidaGui2.pyHideShowButtonCtrl",
   "AvidaGui2.pyHideShowView",

@@ -4,7 +4,7 @@ import qt
 # Make a splash screen to give feedback to the user about progress in
 # launchning Avida-ED.
 #
-s_pixmap = qt.QPixmap("avidalogo.png")
+s_pixmap = qt.QPixmap("avida-ED-logo.png")
 s_splash = qt.QSplashScreen(s_pixmap)
 font = s_splash.font()
 font.setPointSize(9)
