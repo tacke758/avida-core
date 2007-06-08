@@ -82,6 +82,10 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_HardwareIndicatorSBValueChangedSig"),
     #  self.HardwareIndicatorSBValueChangedSlot)
 
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("parseOrganismFileSig"),
+      self.parseOrganismFileSlot)
+
   def jmcTestOrgSlot(self, clicked_cell_item = None):
     descr("no way this org slot works++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -118,11 +122,14 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
         else:
           if freezer_item_name.endswith('.organism'):
             e.accept()
-            #self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setDebugOrganismFileSig"), (freezer_item_name,))
-            self.setDebugOrganismFile(freezer_item_name)
-            self.analyzeLoadedOrganism()
+            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), (freezer_item_name,))
           else:
             info("Only organisms can be dragged here")
+
+
+  def parseOrganismFileSlot( self, freezer_item_name ):
+    self.setDebugOrganismFile(freezer_item_name)
+    self.analyzeLoadedOrganism()
 
 #  def jmcTest(self,avida):
 #    descr("made it to jmcTest")

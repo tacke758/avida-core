@@ -53,6 +53,8 @@ class pyNavBarListView(QListView):
         descr("that was a populated dish dragged from the freezer")
       elif dropped_item_name[-9:] == '.organism':
         descr("that was an organism dragged from the freezer")
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), (str(dropped_item_name[1:]),))
       else:
         pass
 

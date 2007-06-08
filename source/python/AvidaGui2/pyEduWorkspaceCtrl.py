@@ -88,6 +88,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(
       self.m_nav_bar_ctrl.m_list_view, SIGNAL("clicked(QListViewItem *)"), 
       self.navBarItemClickedSlot)
+
+    # @kgn : desperate hacks to get drag & drop working.
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raisePopViewSig"), self.raisePopViewSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raiseOrgViewSig"), self.raiseOrgViewSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raiseAnaViewSig"), self.raiseAnaViewSlot)
+
     # self.connect(
     #   self.fileOpenFreezerAction,SIGNAL("activated()"),self.freezerOpenSlot)
     self.connect(
@@ -183,6 +189,14 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
           old_controller.aboutToBeLowered()
         controller.aboutToBeRaised()
         self.m_widget_stack.raiseWidget(controller)
+
+  # @kgn : desperate hacks to get drag & drop working.
+  def raisePopViewSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
+  def raiseOrgViewSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_organism_cli)
+  def raiseAnaViewSlot(self):
+    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_analyze_cli)
 
   def close(self, also_delete = False):
     self.emit(PYSIGNAL("quitAvidaPhaseISig"), ())
