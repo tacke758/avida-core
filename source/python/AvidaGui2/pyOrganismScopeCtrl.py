@@ -26,6 +26,8 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.m_test_cpu_mutation_rate = 0.0
     self.m_seed_based_on_time = True
     self.m_debug_organism_file = None
+    self.m_analyze_genotype = None
+    self.m_organism_name = None
 
   def construct(self, session_mdl):
     print "pyOrganismScopeCtrl.construct()."
@@ -85,6 +87,12 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("parseOrganismFileSig"),
       self.parseOrganismFileSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("parseOrganismGenomeSig"),
+      self.parseOrganismGenomeSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr, PYSIGNAL("parseOrganismGenotypeSig"),
+      self.parseOrganismGenotypeSlot)
 
   def jmcTestOrgSlot(self, clicked_cell_item = None):
     descr("no way this org slot works++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -127,8 +135,42 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
             info("Only organisms can be dragged here")
 
 
-  def parseOrganismFileSlot( self, freezer_item_name ):
-    self.setDebugOrganismFile(freezer_item_name)
+  def parseOrganismFileSlot( self, organism_filename ):
+    #self.setDebugOrganismFile(freezer_item_name)
+
+    # early exit if there's not organism to analyze
+    if organism_filename is None:
+      return
+
+    self.m_analyze_genotype = None
+    if self.m_avida:
+      org_file = open(organism_filename)
+      org_string = org_file.readline()
+      org_string = org_string.rstrip()
+      org_string = org_string.lstrip()
+      org_file.close()
+      self.parseOrganismGenomeSlot(org_string)
+      genome = cGenome(cString(org_string))
+      inst_set = self.m_avida.m_environment.GetInstSet()
+      analyze_genotype = cAnalyzeGenotype(genome, inst_set)
+
+      self.m_organism_name = os.path.basename(os.path.splitext(organism_filename)[0])
+
+      self.parseOrganismGenotypeSlot(analyze_genotype)
+
+  def parseOrganismGenomeSlot( self, org_string ):
+    if org_string is not None:
+      genome = cGenome(cString(org_string))
+      inst_set = self.m_avida.m_environment.GetInstSet()
+      analyze_genotype = cAnalyzeGenotype(genome, inst_set)
+
+      self.m_organism_name = "genome: " + org_string
+
+      self.parseOrganismGenotypeSlot(analyze_genotype)
+
+  def parseOrganismGenotypeSlot( self, analyze_genotype ):
+
+    self.m_analyze_genotype = analyze_genotype
     self.analyzeLoadedOrganism()
 
 #  def jmcTest(self,avida):
@@ -147,24 +189,8 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     
 
   def analyzeLoadedOrganism(self):
-    organism_filename = self.m_debug_organism_file
-    descr(organism_filename)
-
-    # early exit if there's not organism to analyze
-    if organism_filename is None:
-      return
-
-    if self.m_avida:
+    if self.m_avida and (self.m_analyze_genotype is not None):
       self.setFrames()
-
-      inst_set = self.m_avida.m_environment.GetInstSet()
-      org_file = open(organism_filename)
-      org_string = org_file.readline()
-      org_string = org_string.rstrip()
-      org_string = org_string.lstrip()
-      org_file.close
-      genome = cGenome(cString(org_string))
-      analyze_genotype = cAnalyzeGenotype(genome, inst_set)
 
 
       class ProgressCallback:
@@ -213,14 +239,15 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
         cTools.globalRandom().ResetSeed(1)
 
       # Tell user we're about to start organism analysis.
-      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"), (organism_filename,))
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("setOneOrganismViewNameLabelTextSig"),
+      (self.m_organism_name,))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Analyzing organism...",))
       progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
 
       # Analyze organism.
       hardware_tracer = pyHardwareTracer(progress_callback)
       hardware_tracer.setTestCPUCopyMutationRate(self.m_test_cpu_mutation_rate)
-      hardware_tracer.traceAnalyzeGenotype(analyze_genotype, self.m_avida.m_environment, should_use_resources = False)
+      hardware_tracer.traceAnalyzeGenotype(self.m_analyze_genotype, self.m_avida.m_environment, should_use_resources = False)
 
       progress_callback(2000)
 

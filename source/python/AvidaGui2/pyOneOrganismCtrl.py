@@ -34,7 +34,7 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     descr()
 
   def setOneOrganismViewNameLabelTextSlot(self, name):
-    self.m_organism_name_label.setText(os.path.basename(os.path.splitext(name)[0]))
+    self.m_organism_name_label.setText(name)
 
   def ToggleScopeSlot (self):
     current_page = self.m_organism_scope_widget_stack.visibleWidget()

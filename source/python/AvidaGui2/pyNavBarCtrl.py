@@ -49,6 +49,8 @@ class pyNavBarListView(QListView):
         descr("that was an organism dragged from the petri dish")
         dropped_item_name = dropped_item_name[9:]
 #        self.FreezeOrganism(dropped_item_name)
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismGenomeSig"), (str(dropped_item_name),))
       elif dropped_item_name[-5:] == '.full':
         descr("that was a populated dish dragged from the freezer")
       elif dropped_item_name[-9:] == '.organism':
