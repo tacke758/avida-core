@@ -180,15 +180,21 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
 
       # If and Avida population is running, pause it.
       is_avida_updating = self.m_avida.shouldUpdate()
-      if is_avida_updating:
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Pausing Avida...",))
+      is_avida_alive = False
+      if self.m_avida.m_population:
+        if 0 < self.m_avida.m_population.GetNumOrganisms():
+          is_avida_alive = True
+      if is_avida_updating and is_avida_alive:
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Pausing Avida...",))
+
         progress_callback = ProgressCallback(self.m_session_mdl.m_session_mdtr)
         # Give the user something to watch while we wait for Avida population
         # to pause. Calling the progress callback also causes the gui to
         # process pending events, so the gui doesn't completely lock-up.
         while self.m_avida.isUpdating():
           progress_callback(0)
+
         progress_callback.clear()
 
       # Save random number generator state.
@@ -241,7 +247,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       cTools.globalRandom().Clone(random_number_generator_state)
 
       # If we paused a running population, restart it.
-      if is_avida_updating:
+      if is_avida_updating and is_avida_alive:
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doStartAvidaSig"), ())
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Unpaused Avida after organism analysis.",))
 

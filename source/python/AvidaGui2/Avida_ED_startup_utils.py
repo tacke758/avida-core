@@ -100,3 +100,25 @@ def AvidaEd():
     
     """
   return edu_main_controller
+
+
+# Instantiate (or reinstantiate) the Avida-ED gui. Return controller for
+# new gui instance.
+#
+def AvidaEdDriverRefactor():
+  sys.exc_clear()
+  sys.exc_traceback = sys.last_traceback = None
+  s_splash.message("Loading Avida-ED user-interface ...")
+  s_splash.show()
+
+  try:
+    Reload()
+    from AvidaGui2.pyEduMainCtrl import pyEduMainCtrl
+    s_splash.message("Driver- Refactor Test...")
+
+  finally:
+    s_splash.clear()
+    s_splash.hide()
+
+  return
+
