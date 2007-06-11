@@ -1,0 +1,139 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>pyRenameDialogView</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>pyRenameDialogView</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>387</width>
+            <height>129</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Rename File</string>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>&lt;p&gt;The new name of the item if you choose to rename it.&lt;/p&gt;</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>MainMessageTextLabel</cstring>
+            </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                    <pointsize>16</pointsize>
+                </font>
+            </property>
+            <property name="text">
+                <string>Enter new name for xxx.</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>newNameLineEdit</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>3</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="font">
+                <font>
+                    <family>Arial</family>
+                </font>
+            </property>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>FreezeCancelButtonGroup</cstring>
+            </property>
+            <property name="focusPolicy">
+                <enum>NoFocus</enum>
+            </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ConfirmPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Confirm</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;P&gt;Save the named file&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>CancelPushButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Don't save, return to the program&lt;/P&gt;</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>CancelPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyRenameDialogView</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>ConfirmPushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>pyRenameDialogView</receiver>
+        <slot>accept()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>ConfirmPushButton</tabstop>
+    <tabstop>CancelPushButton</tabstop>
+    <tabstop>FreezeCancelButtonGroup</tabstop>
+</tabstops>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
