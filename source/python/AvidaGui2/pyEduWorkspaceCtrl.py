@@ -194,12 +194,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         self.m_widget_stack.raiseWidget(controller)
 
   # @kgn : desperate hacks to get drag & drop working.
+  def switchToView(self, cli):
+    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, False)
+    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_organism_cli, False)
+    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_analyze_cli, False)
+    self.m_nav_bar_ctrl.m_list_view.setSelected(cli, True)
+    self.navBarItemClickedSlot(cli)
   def raisePopViewSlot(self):
-    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
+    self.switchToView(self.m_nav_bar_ctrl.m_one_population_cli)
   def raiseOrgViewSlot(self):
-    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_organism_cli)
+    self.switchToView(self.m_nav_bar_ctrl.m_one_organism_cli)
   def raiseAnaViewSlot(self):
-    self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_analyze_cli)
+    self.switchToView(self.m_nav_bar_ctrl.m_one_analyze_cli)
 
   # when user clicks on an item (or items) in the freezer list change the 
   # menu to reflect the choice
