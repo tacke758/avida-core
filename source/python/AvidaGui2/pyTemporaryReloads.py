@@ -104,6 +104,8 @@ nontest_module_names = [
   "AvidaGui2.pyPetriDishCtrl",
   "AvidaGui2.pyPopulationCellItem",
   "AvidaGui2.pyReadFreezer",
+  "AvidaGui2.pyRenameDialogView",
+  "AvidaGui2.pyRenameDialogCtrl",
   "AvidaGui2.pyTimeline",
   "AvidaGui2.pyTimelineView",
   "AvidaGui2.pyTimelineCtrl",

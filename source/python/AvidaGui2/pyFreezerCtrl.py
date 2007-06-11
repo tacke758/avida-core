@@ -20,7 +20,7 @@ class pyFreezerListView(QListView):
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
-    self.setSelectionMode( QListView.Single )
+    # self.setSelectionMode( QListView.Single )
     
 
   def contentsDropEvent(self, e):
@@ -149,6 +149,8 @@ class pyFreezerCtrl(QWidget):
     self.connect(self.m_list_view, 
       SIGNAL("rightButtonPressed(QListViewItem*, const QPoint &, int )"),
       self.right_clicked_itemSlot)
+    self.connect(self.m_list_view, 
+      SIGNAL("selectionChanged()"), self.list_select_changedSlot)
 
     self.setAcceptDrops(1)
     QToolTip.add(self,"<p>Storage for environment settings, full populations and individual organisms</p>")
@@ -252,6 +254,11 @@ class pyFreezerCtrl(QWidget):
         tmp_item.setText(0,organism_name)
         last_org = tmp_item
 
+    # send out a signal the empties out the list of currently selected objects
+
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemsSelectedSig"),
+      ("",))
+
   # if mouse is pressed on list item prepare its info to be dragged        
 
   def pressed_itemSlot(self, item):
@@ -286,6 +293,29 @@ class pyFreezerCtrl(QWidget):
         PYSIGNAL("freezerItemsSelectedSig"), (file_list,))
       dragHolder = self.itemDrag( file_list, self )
       dragHolder.dragCopy()
+
+  # If there is a change in the list of files check if nothing is selected
+  # if nothing is selected emit and empty freezerItemsSelectedSig otherwise
+  # assume that the user actually selected something and let the
+  # pressed_itemSlot take care of it
+
+  def list_select_changedSlot(self):
+    something_selected = False
+    top_level = self.m_list_view.firstChild()
+    while top_level:
+
+      # walk each item in the freezer section to see if it selected
+
+      second_level = top_level.firstChild()
+      while second_level:
+        if second_level.isSelected():
+          something_selected = True
+        second_level = second_level.nextSibling()
+      top_level = top_level.nextSibling()
+    if (something_selected == False):
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("freezerItemsSelectedSig"), ("",))
+
 
   # if freezer item is doubled clicked read file/directory assocatied with item
 

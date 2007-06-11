@@ -20,6 +20,7 @@ from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
 from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 from pyHelpScreenCtrl import pyHelpScreenCtrl
 from pyAboutScreenCtrl import pyAboutScreenCtrl
+from pyRenameDialogCtrl import pyRenameDialogCtrl
 import pyNewIconView
 import os.path, shutil
 from qt import *
@@ -35,6 +36,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
+    self.curr_sel_files = ""
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("initializeWithDefaultPetriDishSig"),
        self.Restart_ExpActionSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("freezerItemsSelectedSig"),
@@ -211,13 +213,37 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # menu to reflect the choice
 
   def ModifyFreezerItemMenuItemsSlot(self, file_list):
-    self.fileRenameItemAction.setEnabled(True)
+    self.curr_sel_files = file_list
     itemsPicked = file_list.split("\t")[1:]
-    if (len(itemsPicked) == 1):
-      self.fileRenameItemAction.setMenuText("Rename " + itemsPicked[0])
+    if (len(itemsPicked) == 0):
+      file_name_str = "Freezer Item"
+      item_enable_flag = False
+    elif (len(itemsPicked) == 1):
+      file_name_str = itemsPicked[0].strip()
+      file_name_str = os.path.basename(file_name_str)
+      if (file_name_str.endswith("empty")):
+        file_name_str = "Dish " + file_name_str[:-6]
+      elif (file_name_str.endswith("full")):
+        file_name_str = "Dish " + file_name_str[:-5]
+      elif (file_name_str.endswith("organism")):
+        file_name_str = "Organism " + file_name_str[:-9]
+      item_enable_flag = True
     else:
-      self.fileRenameItemAction.setMenuText("Rename " + str(len(itemsPicked)) +
-        " freezer items")
+      file_name_str = str(len(itemsPicked)) + " Freezer Items"
+      item_enable_flag = True
+    self.fileRenameItemAction.setMenuText("Rename " + file_name_str)
+    self.fileExportItemAction.setMenuText("Export " + file_name_str)
+    self.fileDeleteItemAction.setMenuText("Delete " + file_name_str)
+    self.fileOpenItemAction.setMenuText("Open " + file_name_str)
+
+    self.fileRenameItemAction.setEnabled(item_enable_flag)
+    self.fileExportItemAction.setEnabled(item_enable_flag)
+    self.fileDeleteItemAction.setEnabled(item_enable_flag)
+    self.fileOpenItemAction.setEnabled(item_enable_flag)
+    if ((item_enable_flag == True) and (len(itemsPicked) > 1)):
+      self.fileRenameItemAction.setEnabled(False)
+      self.fileExportItemAction.setEnabled(False)
+      self.fileOpenItemAction.setEnabled(False)
 
   def close(self, also_delete = False):
     self.emit(PYSIGNAL("quitAvidaPhaseISig"), ())
@@ -487,13 +513,13 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
           while ((line.startswith("*File:")) and (foundFile == False)):
             if (line.find(".empty") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                         "imp_" + input_name_no_ext + suffix + ".empty")
+                         input_name_no_ext + suffix + ".empty")
             elif (line.find(".organism") > -1):
               new_file_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                         "imp_" + input_name_no_ext + suffix + ".organism")
+                         input_name_no_ext + suffix + ".organism")
             elif (line.find(".full") > -1):
               new_dir_name = os.path.join(self.m_session_mdl.m_current_freezer,
-                         "imp_" + input_name_no_ext + suffix + ".full")
+                         input_name_no_ext + suffix + ".full")
               if (not os.path.exists(new_dir_name)):
                 os.mkdir(new_dir_name)
               sub_file_name = line[line.rfind(":")+2:]
@@ -522,7 +548,76 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def fileRenameItem(self):
-    descr("BDB")
+    files2process = self.curr_sel_files.split("\t")
+    rename_dialog = pyRenameDialogCtrl()
+    dialog_result = rename_dialog.showDialog(files2process[1:])
+    if (dialog_result > 0):
+      self.m_session_mdl.m_session_mdtr.emit(
+          PYSIGNAL("doRefreshFreezerInventorySig"), ())
+
+  def fileExportItemSlot(self):
+    files2process = self.curr_sel_files.split("\t")
+    abs_dir = os.path.abspath(os.path.dirname(files2process[1]));
+    if (os.path.exists(abs_dir) == False):
+      initial_dir = os.path.expanduser("~")
+      if os.path.exists(os.path.join(initial_dir,"Documents")):
+        initial_dir = os.path.join(initial_dir,"Documents")
+      elif os.path.exists(os.path.join(initial_dir,"My Documents")):
+        initial_dir = os.path.join(initial_dir,"My Documents")
+    else:
+      initial_dir = abs_dir
+    no_ext_name, ext = os.path.splitext(os.path.basename(files2process[1]))
+    initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
+  
+    export_file_name = QFileDialog.getSaveFileName(
+      initial_file_name,
+      "Avida_ED export (*.aex);;",
+      None,
+      "Export Item",
+      "Export dish or organism")
+    export_file = open(str(export_file_name), "w")
+    if (self.file_ext == '.full'):
+      files_in_full = os.listdir(self.file_name)
+      for indiv_file_name in files_in_full:
+      
+        # Read each file, write the name and content of the file
+        # into the export file
+      
+        if (not indiv_file_name.startswith('.')):
+          individual_file = open(os.path.join(self.file_name,indiv_file_name), "r")
+          export_file.write("*File: " + self.file_ext + ": " + indiv_file_name + "\n")
+          lines = individual_file.readlines()
+          for line in lines:
+            export_file.write(line)
+          individual_file.close()
+    else:
+      individual_file = open(self.file_name, "r")
+      export_file.write("*File: " + self.file_ext + "\n")
+      lines = individual_file.readlines()
+      for line in lines:
+        export_file.write(line)
+      individual_file.close()
+    export_file.close()
+
+  def fileDeleteItemSlot(self):
+      for freezer_item_name in self.curr_sel_files.split("\t")[1:]:
+        delete_item = False
+        if self.m_session_mdl.m_warn_about_trash:
+           tmp_prompt = pyWarnAboutTrashCtrl(freezer_item_name)
+           prompt_result = tmp_prompt.showDialog()
+           if prompt_result == tmp_prompt.DeleteAllCode:
+             self.m_session_mdl.m_warn_about_trash = False
+           if (prompt_result == tmp_prompt.DeleteAllCode) or (prompt_result == tmp_prompt.DeleteCode):
+             delete_item = True
+        else:
+          delete_item = True
+        if delete_item:
+          self.m_session_mdl.m_session_mdtr.emit(
+            PYSIGNAL("DeleteFromFreezerSig"), (freezer_item_name, ))
+
+  def fileOpenItemSlot(self):
+    info("pyEduWorkspaceView.fileOpenItemSlot(): Not implemented yet")
+
 
   # public slot
 
@@ -594,7 +689,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         PYSIGNAL("fromLiveCtrlPauseAvidaSig"), ())
     
   def setAvidaSlot(self, avida):
-    print "pyEduWorkspaceCtrl.setAvidaSlot() ..."
+    descr("pyEduWorkspaceCtrl.setAvidaSlot() ...")
     old_avida = self.m_avida
     self.m_avida = avida
     if old_avida:
