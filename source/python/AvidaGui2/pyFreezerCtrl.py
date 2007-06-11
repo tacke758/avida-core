@@ -20,6 +20,7 @@ class pyFreezerListView(QListView):
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
+    self.setSelectionMode( QListView.Single )
     
 
   def contentsDropEvent(self, e):
