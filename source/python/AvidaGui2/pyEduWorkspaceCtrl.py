@@ -599,6 +599,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       individual_file.close()
     export_file.close()
 
+  # allow user to delete one or more freezer items
+
   def fileDeleteItemSlot(self):
       for freezer_item_name in self.curr_sel_files.split("\t")[1:]:
         delete_item = False
@@ -615,9 +617,16 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
           self.m_session_mdl.m_session_mdtr.emit(
             PYSIGNAL("DeleteFromFreezerSig"), (freezer_item_name, ))
 
+  # allow user to open up the first freezer item in the currently selected
+  # file list
+ 
   def fileOpenItemSlot(self):
-    info("pyEduWorkspaceView.fileOpenItemSlot(): Not implemented yet")
-
+    file_name = self.curr_sel_files.split("\t")[1]
+    if (file_name.endswith(".full")) or (file_name.endswith(".empty")):
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("openFreezerItemSig"), (file_name,))
+    else:
+      info("Can not open an organism by using the menu")
 
   # public slot
 

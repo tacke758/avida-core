@@ -187,6 +187,12 @@ class pyFreezerCtrl(QWidget):
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("DeleteFromFreezerSig"), self.deleteFreezerItemSlot)
 
+    # If User opens an item somewhere else in the program act as if it was
+    # "double-clicked" here
+
+    self.connect(self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("openFreezerItemSig"), self.freezerItemExtSelSlot)
+
     self.createFreezerIndexSlot()
     self.m_list_view.setAcceptDrops(True)
     self.m_empty_item.setDropEnabled(True)
@@ -341,8 +347,27 @@ class pyFreezerCtrl(QWidget):
       thawed_item = pyReadFreezer(file_name)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
+      descr("BDB -- item.text(0) = " + str(item.text(0)))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
         (file_name,))
+
+  # if the user has selected to open an item from an external widget
+
+  def freezerItemExtSelSlot(self, in_file_name):
+    descr("BDB --file name = " + str(in_file_name))
+    if (in_file_name.endswith(".full")) or (in_file_name.endswith(".empty")):
+      short_name = os.path.basename(in_file_name)
+      if (short_name.endswith("empty")):
+        short_name = short_name[:-6]
+      elif (short_name.endswith("full")):
+        short_name = short_name[:-5]
+        in_file_name = os.path.join(in_file_name, "petri_dish")
+      thawed_item = pyReadFreezer(in_file_name)
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
+        (short_name, thawed_item,))
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
+        (in_file_name,))
+
 
   # if item is right clicked pull up services menu
 
