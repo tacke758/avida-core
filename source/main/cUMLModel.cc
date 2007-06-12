@@ -92,7 +92,12 @@ void cUMLModel::seedDiagrams()
  temp->addTransitionLabel(2, 1, 2);
  temp->addTransitionLabel(3, 0, 0);
  
- 
+ cUMLStateDiagram* temp1 = getStateDiagram(1);
+ temp1->addTransitionLabel(3, 2, 1);
+ temp1->addTransitionLabel(0, 1, 0);
+ temp1->addTransitionLabel(2, 0, 3);
+ temp1->addTransitionLabel(2, 1, 0);
+ temp1->addTransitionLabel(1, 1, 1); 
  // Used for Temperature Sensor / MultiSensor example.
 /*    
   // For the first state diagram... 

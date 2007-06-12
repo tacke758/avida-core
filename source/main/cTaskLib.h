@@ -282,6 +282,11 @@ private:  // Direct task related methods
   double Task_Trans3(cTaskContext& ctx) const;
   double Task_Trans4(cTaskContext& ctx) const;   
   double Task_Trans5(cTaskContext& ctx) const;
+  double Task_Trans6(cTaskContext& ctx) const;
+  double Task_Trans7(cTaskContext& ctx) const;
+  double Task_Trans8(cTaskContext& ctx) const;
+  double Task_Trans9(cTaskContext& ctx) const;   
+  double Task_Trans10(cTaskContext& ctx) const;
   double Task_NumStates(cTaskContext& ctx) const;
   double Task_NumTrans(cTaskContext& ctx) const;
   double Task_Hydra(cTaskContext& ctx) const;

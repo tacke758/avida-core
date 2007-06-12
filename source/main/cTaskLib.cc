@@ -393,6 +393,16 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created trans 4", &cTaskLib::Task_Trans4);
   else if (name == "trans5") // 
 	  NewTask(name, "Successfully created trans 5", &cTaskLib::Task_Trans5);
+  else if (name == "trans6") // 
+	  NewTask(name, "Successfully created trans 6", &cTaskLib::Task_Trans6);
+  else if (name == "trans7") // 
+	  NewTask(name, "Successfully created trans 7", &cTaskLib::Task_Trans7);	  
+  else if (name == "trans8") // 
+	  NewTask(name, "Successfully created trans 8", &cTaskLib::Task_Trans8);
+  else if (name == "trans9") // 
+	  NewTask(name, "Successfully created trans 9", &cTaskLib::Task_Trans9);
+  else if (name == "trans10") // 
+	  NewTask(name, "Successfully created trans 10", &cTaskLib::Task_Trans10);	  
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -2723,6 +2733,96 @@ double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
 //	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
 	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(4, 0, 3, 0, 0))
+	{		
+
+
+			ctx.task_success_complete += 1;	
+			bonus = 1.0;
+	}
+	
+	return bonus;
+
+}
+
+
+double cTaskLib::Task_Trans6(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 4, 2, 1, 0))
+	{
+
+
+		ctx.task_success_complete = 1;	
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = 0;	
+	return bonus;
+}
+
+double cTaskLib::Task_Trans7(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(4, 1, 0, 1, 0))
+	{
+
+
+			ctx.task_success_complete += 1;	
+			bonus = 1.0;
+	}
+	
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans8(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 3, 1, 1, 1))
+	{
+
+
+			bonus = 1.0;
+			ctx.task_success_complete += 1;	
+	}
+	
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans9(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 2, 2, 0, 3))
+	{
+
+			ctx.task_success_complete += 1;	
+			bonus = 1.0;
+	}
+	
+	return bonus;
+
+}
+  
+double cTaskLib::Task_Trans10(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
+	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 4, 3, 2, 1))
 	{		
 
 
