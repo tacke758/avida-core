@@ -75,6 +75,12 @@ class pyPopulationGraph:
     self.layout.m_combo_box_1_color = QComboBox(0,
                                                 parent.population_box_widget,
                                                 "row%s_m_combo_box_1_color" % (label))
+    m_combo_box_1_font = QFont(self.layout.m_combo_box_1_color.font())
+    m_combo_box_1_font.setFamily("Arial")
+    m_combo_box_1_font.setPointSize(11)
+    self.layout.m_combo_box_1_color.setFont(m_combo_box_1_font)
+
+
     self.layout.addWidget(self.layout.m_combo_box_1_color)
 
     self.layout.spacer200_4 = QSpacerItem(25, 16, QSizePolicy.Expanding,

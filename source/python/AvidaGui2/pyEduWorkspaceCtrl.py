@@ -626,7 +626,9 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_session_mdl.m_session_mdtr.emit(
         PYSIGNAL("openFreezerItemSig"), (file_name,))
     else:
-      info("Can not open an organism by using the menu")
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), 
+        (str(file_name),))
 
   # public slot
 

@@ -354,7 +354,6 @@ class pyFreezerCtrl(QWidget):
   # if the user has selected to open an item from an external widget
 
   def freezerItemExtSelSlot(self, in_file_name):
-    descr("BDB --file name = " + str(in_file_name))
     if (in_file_name.endswith(".full")) or (in_file_name.endswith(".empty")):
       short_name = os.path.basename(in_file_name)
       if (short_name.endswith("empty")):
