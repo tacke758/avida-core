@@ -133,11 +133,12 @@ public:
 // Add functions
   bool addState();
 //  bool addTransitionLabel();
-//  bool addTransition();
+  bool addTransition();
   bool addTransitionTotal(int, int, int, int, int);
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);
+  bool addTransitionLabel(int, int, int);
   // END UML functions
   
 

@@ -96,6 +96,11 @@ bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, int gu, int act)
 template <typename T>
 bool cUMLStateDiagram::absoluteMoveIndex (T x, int &index, int amount )
 {
+
+	if (x.size() == 0 || amount > x.size()) {
+		return false;
+	}
+	
 	index = 0;
 	return relativeMoveIndex(x, index, amount);
 }
@@ -272,11 +277,12 @@ bool cUMLStateDiagram::addTransitionLabel()
 
 	return false;
 }
+*/
 
-// Broken - 5/17
+
 bool cUMLStateDiagram::addTransition()
 {
-	/*
+	
 	if ((states.size() == 0) || (transition_labels.size() == 0)) {
 
 		return false;
@@ -297,12 +303,31 @@ bool cUMLStateDiagram::addTransition()
 	}
 
 	transitions.push_back(t);
+
+	orig_state_index = 0;
+	dest_state_index = 0;
+	trans_label_index = 0;
+	trigger_index = 0;
+	guard_index = 0 ;
+	action_index = 0;
 	
-		
 	return true;
 
 }
-*/
+
+bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
+{
+	transition_label t;
+	t.trigger = tr;
+	t.guard = gu;
+	t.action = act;
+
+	// currently, not checking for dupes, since we are seeding the labels.
+	
+	transition_labels.push_back(t);
+}
+
+
 
 
 bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)

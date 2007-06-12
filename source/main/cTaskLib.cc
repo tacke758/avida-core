@@ -2650,7 +2650,8 @@ double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 	double bonus = 0.0;
 //	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
 //	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(0, 1, 1, 2, 3))
 	{
 
 
@@ -2667,7 +2668,8 @@ double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 	double bonus = 0.0;
 //	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
 //	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(1, 2, 0, 0, 0))
 	{
 
 
@@ -2684,7 +2686,8 @@ double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 	double bonus = 0.0;
 //	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
 //	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(2, 3, 0, 3, 1))
 	{
 
 
@@ -2701,7 +2704,8 @@ double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 	double bonus = 0.0;
 //	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
 //	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(3, 4, 2, 1, 2))
 	{
 
 			ctx.task_success_complete += 1;	
@@ -2717,7 +2721,8 @@ double cTaskLib::Task_Trans5(cTaskContext& ctx) const
 	double bonus = 0.0;
 //	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
 	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(4, 0, 3, 0, 0))
 	{		
 
 

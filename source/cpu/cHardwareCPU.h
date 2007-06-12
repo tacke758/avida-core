@@ -85,10 +85,10 @@ public:
 
 protected:
   // --------  Structure Constants  --------
-  static const int NUM_REGISTERS = 7;
+  static const int NUM_REGISTERS = 3;
   static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
   enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX, REG_GX };
-  static const int NUM_NOPS = 7;
+  static const int NUM_NOPS = 3;
   
   // --------  Data Structures  --------
   struct cLocalThread
@@ -541,10 +541,49 @@ private:
   bool Inst_JumpIndex(cAvidaContext& ctx);
   bool Inst_JumpDist(cAvidaContext& ctx);
 //  bool Inst_AddTransitionLabel(cAvidaContext& ctx);
-//  bool Inst_AddTransition(cAvidaContext& ctx);
+  bool Inst_AddTransition(cAvidaContext& ctx);
   bool Inst_AddTransitionTotal(cAvidaContext& ctx);
 //  bool Inst_Last(cAvidaContext& ctx);
 //  bool Inst_First(cAvidaContext& ctx);
+  
+  bool Inst_StateDiag0(cAvidaContext& ctx);
+  bool Inst_StateDiag1(cAvidaContext& ctx);
+  
+  bool Inst_OrigState0(cAvidaContext& ctx);
+  bool Inst_OrigState1(cAvidaContext& ctx);
+  bool Inst_OrigState2(cAvidaContext& ctx);
+  bool Inst_OrigState3(cAvidaContext& ctx);
+  bool Inst_OrigState4(cAvidaContext& ctx);
+  bool Inst_OrigState5(cAvidaContext& ctx);
+  bool Inst_OrigState6(cAvidaContext& ctx);
+  bool Inst_OrigState7(cAvidaContext& ctx);
+  bool Inst_OrigState8(cAvidaContext& ctx);
+  bool Inst_OrigState9(cAvidaContext& ctx);
+
+  bool Inst_DestState0(cAvidaContext& ctx);
+  bool Inst_DestState1(cAvidaContext& ctx);
+  bool Inst_DestState2(cAvidaContext& ctx);
+  bool Inst_DestState3(cAvidaContext& ctx);
+  bool Inst_DestState4(cAvidaContext& ctx);
+  bool Inst_DestState5(cAvidaContext& ctx);
+  bool Inst_DestState6(cAvidaContext& ctx);
+  bool Inst_DestState7(cAvidaContext& ctx);
+  bool Inst_DestState8(cAvidaContext& ctx);
+  bool Inst_DestState9(cAvidaContext& ctx);
+  
+  bool Inst_TransLab0(cAvidaContext& ctx);
+  bool Inst_TransLab1(cAvidaContext& ctx);
+  bool Inst_TransLab2(cAvidaContext& ctx);
+  bool Inst_TransLab3(cAvidaContext& ctx);
+  bool Inst_TransLab4(cAvidaContext& ctx);
+  bool Inst_TransLab5(cAvidaContext& ctx);
+  bool Inst_TransLab6(cAvidaContext& ctx);
+  bool Inst_TransLab7(cAvidaContext& ctx);
+  bool Inst_TransLab8(cAvidaContext& ctx);
+  bool Inst_TransLab9(cAvidaContext& ctx);
+  bool Inst_TransLab10(cAvidaContext& ctx);
+  bool Inst_TransLab11(cAvidaContext& ctx);
+
 };
 
 

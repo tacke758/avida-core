@@ -83,7 +83,18 @@ void cUMLModel::resetStateDiagrams(int x)
 void cUMLModel::seedDiagrams()
 {
   self_bonus.clear();
-  
+ 
+ // Used for simple example - expr0
+ cUMLStateDiagram* temp = getStateDiagram(0);
+ temp->addTransitionLabel(1, 2, 3);
+ temp->addTransitionLabel(0, 0, 0);
+ temp->addTransitionLabel(0, 3, 1);
+ temp->addTransitionLabel(2, 1, 2);
+ temp->addTransitionLabel(3, 0, 0);
+ 
+ 
+ // Used for Temperature Sensor / MultiSensor example.
+/*    
   // For the first state diagram... 
   // Software Sensor
   cUMLStateDiagram* soft_sense = getStateDiagram(1);
@@ -150,7 +161,7 @@ void cUMLModel::seedDiagrams()
   temp_sense->addAction("data:=200");
   // action 7
   temp_sense->addAction("data:=300");
-  
+*/  
   
   
 }
