@@ -33,7 +33,6 @@ class pyNavBarListView(QListView):
 
     # dropped_item_name is a string...a file name or raw genotype 
  
-    print type(e)
     descr("in contentsDrop event")
     descr("dropped_item_name is: ", str(dropped_item_name))
     test_item_name = 'jeff'

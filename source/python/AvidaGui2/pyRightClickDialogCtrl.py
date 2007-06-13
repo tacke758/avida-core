@@ -36,7 +36,10 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       self.OpenRadioButton.setDisabled(True)
       self.OpenRadioButton.setChecked(False)
     else:
-      self.setCaption(self.file_ext.lstrip('.') + " dish: " + self.item_name)
+      if self.file_ext.endswith("full"):
+        self.setCaption("populated dish: " + self.item_name)
+      elif self.file_ext.endswith("empty"):
+        self.setCaption("configured dish: " + self.item_name)
     self.DeleteFlag = 1
     self.RenameFlag = 2
     self.SaveAsFlag = 3
