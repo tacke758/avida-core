@@ -135,6 +135,7 @@ public:
 //  bool addTransitionLabel();
   bool addTransition();
   bool addTransitionTotal(int, int, int, int, int);
+  bool addTransitionTotal();
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);

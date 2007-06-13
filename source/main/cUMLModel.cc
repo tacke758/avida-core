@@ -92,6 +92,35 @@ void cUMLModel::seedDiagrams()
  temp->addTransitionLabel(2, 1, 2);
  temp->addTransitionLabel(3, 0, 0);
  
+ std::string trig_label = "ta";
+ std::string trig_operation_id = "ta";
+ temp->addTrigger(trig_label, trig_operation_id);
+ 
+ trig_label = "tb";
+ trig_operation_id = "tb";
+ temp->addTrigger(trig_label, trig_operation_id);
+ 
+ trig_label = "tc";
+ trig_operation_id = "tc";
+ temp->addTrigger(trig_label, trig_operation_id); 
+ 
+ trig_label = "td";
+ trig_operation_id = "td";
+ temp->addTrigger(trig_label, trig_operation_id);
+ 
+ temp->addGuard("ga");
+ temp->addGuard("gb");
+ temp->addGuard("gc");
+ temp->addGuard("gd");
+ 
+ temp->addAction("aa");
+ temp->addAction("ab");
+ temp->addAction("ac");
+ temp->addAction("ad");
+
+ 
+ 
+ 
  cUMLStateDiagram* temp1 = getStateDiagram(1);
  temp1->addTransitionLabel(3, 2, 1);
  temp1->addTransitionLabel(0, 1, 0);

@@ -750,15 +750,17 @@ bool cOrganism::absoluteJumpDestinationState(int amount)
 bool cOrganism::addTransitionTotal() 
 {
 	bool val;
-	val = getStateDiagram()->addTransitionTotal(m_orig_state_index, m_dest_state_index, m_trigger_index, m_guard_index, m_action_index);
+//	val = getStateDiagram()->addTransitionTotal(m_orig_state_index, m_dest_state_index, m_trigger_index, m_guard_index, m_action_index);
+	val = getStateDiagram()->addTransitionTotal();
+
 	
-	if (val) {
+/*	if (val) {
 		m_orig_state_index = 0;
 		m_dest_state_index = 0;
 		m_trigger_index = 0;
 		m_action_index = 0;
 		m_guard_index = 0;
-	}	
+	}	*/
 	return val;
 }
 

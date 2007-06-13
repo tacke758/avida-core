@@ -584,6 +584,22 @@ private:
   bool Inst_TransLab10(cAvidaContext& ctx);
   bool Inst_TransLab11(cAvidaContext& ctx);
 
+  bool Inst_Trigger0(cAvidaContext& ctx);
+  bool Inst_Trigger1(cAvidaContext& ctx);
+  bool Inst_Trigger2(cAvidaContext& ctx);
+  bool Inst_Trigger3(cAvidaContext& ctx);
+  
+  bool Inst_Guard0(cAvidaContext& ctx);
+  bool Inst_Guard1(cAvidaContext& ctx);
+  bool Inst_Guard2(cAvidaContext& ctx);
+  bool Inst_Guard3(cAvidaContext& ctx);
+  
+  bool Inst_Action0(cAvidaContext& ctx);
+  bool Inst_Action1(cAvidaContext& ctx);
+  bool Inst_Action2(cAvidaContext& ctx);
+  bool Inst_Action3(cAvidaContext& ctx);
+
+
 };
 
 
