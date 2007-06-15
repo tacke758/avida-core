@@ -2661,7 +2661,10 @@ double cTaskLib::Task_Trans1(cTaskContext& ctx) const
 //	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
 //	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
 //	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(0, 1, 1, 2, 3))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(0, 1, 1, 2, 3))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 1, 0, 0, 0))
 	{
 
 
@@ -2679,7 +2682,10 @@ double cTaskLib::Task_Trans2(cTaskContext& ctx) const
 //	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
 //	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
 //	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(1, 2, 0, 0, 0))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(1, 2, 0, 0, 0))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 2, 0, 0, 2))
 	{
 
 
@@ -2697,7 +2703,10 @@ double cTaskLib::Task_Trans3(cTaskContext& ctx) const
 //	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
 //	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
 //	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(2, 3, 0, 3, 1))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(2, 3, 0, 3, 1))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 3, 2, 0, 0))
 	{
 
 
@@ -2715,7 +2724,10 @@ double cTaskLib::Task_Trans4(cTaskContext& ctx) const
 //	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
 //	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
 //	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(3, 4, 2, 1, 2))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(3, 4, 2, 1, 2))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 1, 0, 0, 0))
 	{
 
 			ctx.task_success_complete += 1;	
@@ -2874,11 +2886,11 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	*/
 
 // Check for task success...	
-/*	if (ctx->task_failed == 0) {
+	if (ctx.task_success_complete < 4) {
 		return 0;
 	}	
 	
-*/
+
 	m_world->GetStats().HydraAttempt();
 
 	double bonus = 0.0;
@@ -2949,7 +2961,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	} else {
 	//	ctx->task_failed = ctx->task_failed && 1;
 //		ctx.task_success_complete += 1;
-//		m_world->GetStats().HydraPassed();
+		m_world->GetStats().HydraPassed();
 //		organism->setBonusInfo("hydra", 1.0); 
 		return 1.0;
 	}
@@ -2969,7 +2981,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
-	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
+//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
 	
 	
 	std::ostringstream strstrm;
@@ -2994,14 +3006,14 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 */	
 	
 	// check if the trigger is present
-//	if (organism->getStateDiagram()->findTrans(-1,-1,1,"*","*")){
+	if (organism->getStateDiagram()->findTrans(-1,-1,1,-1,-1)){
 		temp += 1;
 		
 		// check property
 		if (ctx.task_success_complete) {
 			temp1 += SpinCoprocess(ctx, "N1");
 		} 
-//	}
+	}
 	
 //	organism->setBonusInfo("spinn1", temp1); 
 	return temp1;

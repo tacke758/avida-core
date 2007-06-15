@@ -83,8 +83,9 @@ void cUMLModel::resetStateDiagrams(int x)
 void cUMLModel::seedDiagrams()
 {
   self_bonus.clear();
- 
- // Used for simple example - expr0
+
+/* 
+ // Used for simple example - tagaaa model
  cUMLStateDiagram* temp = getStateDiagram(0);
  temp->addTransitionLabel(1, 2, 3);
  temp->addTransitionLabel(0, 0, 0);
@@ -127,8 +128,10 @@ void cUMLModel::seedDiagrams()
  temp1->addTransitionLabel(2, 0, 3);
  temp1->addTransitionLabel(2, 1, 0);
  temp1->addTransitionLabel(1, 1, 1); 
+ */
+ 
  // Used for Temperature Sensor / MultiSensor example.
-/*    
+
   // For the first state diagram... 
   // Software Sensor
   cUMLStateDiagram* soft_sense = getStateDiagram(1);
@@ -154,11 +157,6 @@ void cUMLModel::seedDiagrams()
   soft_sense->addAction("^TempSensor.getOpState()");
   // action 2
   soft_sense->addAction("^TempSensor.getTempData()");
-  
-  
-  // null trans Init state to Idle state
-//  soft_sense->absoluteJumpDestinationState(1);
-//  soft_sense->addTransitionTotal(0, 1, 0, 0, 0);
   
   
   // Temperature Sensor
@@ -195,7 +193,7 @@ void cUMLModel::seedDiagrams()
   temp_sense->addAction("data:=200");
   // action 7
   temp_sense->addAction("data:=300");
-*/  
+
   
   
 }
@@ -344,9 +342,9 @@ void cUMLModel::printXMI()
 	
 	xmi = xmi_begin; 
 	
-	xmi += xmi_class1;
-	xmi += state_diagrams[0].getXMI();
-	xmi += xmi_class2;
+//	xmi += xmi_class1;
+//	xmi += state_diagrams[0].getXMI();
+//	xmi += xmi_class2;
 	xmi += state_diagrams[1].getXMI();
 
 	xmi += xmi_end;

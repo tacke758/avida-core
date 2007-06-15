@@ -88,7 +88,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-  m_state_diag = 0;
+  m_state_diag = 1;
   m_orig_state_index = 0;
   m_dest_state_index = 0;
   m_trigger_index = 0;
