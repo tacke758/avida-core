@@ -97,10 +97,13 @@ class pyNavBarListView(QListView):
             warningNoMethodName("You cannot drag more than one dish into the Population Viewer.")
           else:
             #note, the pop viewer gets raised on the receiving end in DefrostSlot in pyOnePop_PetriDishCtrl.py
-            if(dropped_item_name[-5:] == '.full'):
+            descr(os.path.dirname(file_name))
+            if(file_name.endswith(".full")):
               file_name = os.path.join(file_name, "petri_dish")
-            dish_name = file_name[26:-16]
-            descr("file_name", file_name)
+              dish_name = file_name[26:-16]
+            elif(file_name.endswith("empty")):
+              dish_name = file_name[26:-6]
+               
             thawed_item = pyReadFreezer(file_name)
 
             #send defrost sig
