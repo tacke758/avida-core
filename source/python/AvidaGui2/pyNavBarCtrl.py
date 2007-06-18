@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 import os
@@ -63,7 +64,7 @@ class pyNavBarListView(QListView):
     if e.source() is self:
       return
 
-    # dropped_item_name is a string...a file name or raw genotype 
+    # dropped_item_list is a string...a file name or raw genotype 
 
     picked_item = self.itemAt(e.pos())
     viewer_dropped_in = 'nada'
