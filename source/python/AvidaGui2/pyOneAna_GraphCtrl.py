@@ -390,7 +390,6 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     return
 
   def freezerItemDoubleClickedOn(self, freezer_item_name): 
-    descr("BDB")
     # a check in pyOneAnalyzeCtrl.py makes sure this is a valid path
     self.m_petri_dish_dir_exists_flag = True
     short_name = os.path.split(os.path.splitext(os.path.split(freezer_item_name)[0])[0])[1]

@@ -103,7 +103,6 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
               " does not seem to be a populated dish.")
 
   def freezerItemDoubleClicked(self, freezer_item_list):
-    descr("BDB")
     for freezer_item_name in freezer_item_list.split("\t")[1:]:
       if os.path.exists( str(freezer_item_name)) == False:
          warningNoMethodName(freezer_item_name + " does not exist.")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr
+from descr import descr, info
 
 from qt import *
 from pyOneOrganismView import pyOneOrganismView
@@ -27,11 +27,36 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     self.m_organism_configure_ctrl.setAnalysisNeeded(False)
 
   def aboutToBeLowered(self):
-    """does nothing yet."""
+    """Disconnects menu items from organism viewer controller."""
     descr()
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("saveImagesSig"),
+      self.saveImagesSlot)
+    self.disconnect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printSig"),
+      self.printOrgSlot)
+
   def aboutToBeRaised(self):
-    """does nothing yet."""
+    """Connects menu items from organism viewer controller."""
     descr()
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("saveImagesSig"),
+      self.saveImagesSlot)
+    self.connect(
+      self.m_session_mdl.m_session_mdtr,
+      PYSIGNAL("printSig"),
+      self.printOrgSlot)
+
+  def saveImagesSlot(self):
+    """Place holder for code to save image of organism viewer"""
+    info("You can not save an image of the organism in the current version of Avida-ED.")
+
+  def printOrgSlot(self):
+    """Place holder for code to print image of organism viewer"""
+    info("You can not print an image of the organism in the current version of Avida-ED.")
 
   def setOneOrganismViewNameLabelTextSlot(self, name):
     self.m_organism_name_label.setText(name)

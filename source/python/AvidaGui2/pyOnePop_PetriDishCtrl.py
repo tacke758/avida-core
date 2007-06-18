@@ -229,7 +229,6 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doPauseAvidaSig"), ())
     
   def RenameDishSlot(self, dishName):
-    descr()
     if (not self.dishDisabled):
       self.PopulationTextLabel.setText(dishName)
     

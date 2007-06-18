@@ -59,6 +59,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_pop_graph_ctrl.exportSlot)
+
   def aboutToBeRaised(self):
     """Connects menu items to One-Pop Graph controller."""
     descr()

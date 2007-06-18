@@ -765,7 +765,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
       ())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
-      ("@example.empty", thawed_item,))
+      ("@example", thawed_item,))
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
 
