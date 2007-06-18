@@ -336,6 +336,8 @@ class pyFreezerCtrl(QWidget):
 
       # Rebuild the file name
 
+      descr("ITEM WAS JUST DOUBLE CLICKED")
+      descr("item is :", item)
       if str(top_level.text(0)).startswith(" Configured Dish"):
         file_name = str(item.text(0)) + ".empty"
       elif str(top_level.text(0)).startswith(" Populated Dish"):
@@ -345,6 +347,9 @@ class pyFreezerCtrl(QWidget):
         file_name = str(item.text(0)) + ".organism"
       file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
       thawed_item = pyReadFreezer(file_name)
+
+      descr("item.text(0) is: ",str(item.text(0)))
+      descr("file_name is", file_name)
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
       descr("BDB -- item.text(0) = " + str(item.text(0)))

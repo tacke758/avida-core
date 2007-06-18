@@ -30,6 +30,12 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     self.connect( self.m_session_mdl.m_session_mdtr, 
       PYSIGNAL("freezerItemDoubleClicked"),
       self.freezerItemDoubleClicked)
+    self.connect( self.m_session_mdl.m_session_mdtr, 
+      PYSIGNAL("itemDroppedInAnalysisViewerMenuBox"),
+      self.loadDroppedThing)
+
+  def testMe(self):
+    descr("99999999999999999999999999999999999999999999999999999999999")
 
   def aboutToBeLowered(self):
     """Disconnects menu items from One-Analyze Graph controller."""
@@ -79,6 +85,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
+      descr("freezer_item_list is", freezer_item_list)
+      self.loadDroppedThing(freezer_item_list)
+
+  def loadDroppedThing( self, freezer_item_list):
       for freezer_item_name in freezer_item_list.split("\t")[1:]:
         if os.path.exists(freezer_item_name) == False:
           warningNoMethodName(freezer_item_name + " does not exist.")

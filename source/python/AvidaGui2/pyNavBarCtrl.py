@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+from pyReadFreezer import pyReadFreezer
 from qt import *
 from pyNavBarView import image0_data, image1_data, image2_data
 from descr import *
@@ -7,7 +9,6 @@ from descr import *
 class pyNavBarListView(QListView):
   def __init__(self, *args):
     apply(QListView.__init__,(self,) + args)
-    self.setAcceptDrops( True )
     self.viewport().setAcceptDrops( True )
 
   def construct(self, session_mdl):
@@ -15,16 +16,49 @@ class pyNavBarListView(QListView):
 
     descr("in pyNavBarListView self is:",self)
 
-    #@JMC testing
-#    self.connect(
-#      self.m_session_mdl.m_session_mdtr, PYSIGNAL("orgClickedOnSig"),
-#      self.jmcTestSlot)
-    self.connect(
-      self.m_session_mdl.m_session_mdtr, PYSIGNAL("jmcTestSig"),
-      self.jmcTestSlot)
+  #this code allows you to control the universal no in sub areas of the menu, but it does not fire if
+  #accept drops in the view port is on, so we can't use it unless we figure out how to make it accept drops in a way that does
+  #not turn itself off
+#  def dragMoveEvent(self,e):
+#    if e.source() is self:
+#      return
 
-  def jmcTestSlot(self, clicked_cell_item = None):
-    descr("no way this works in list view++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+#    descr("JMC")
+    # Check if you want the drag...
+#    dropped_item_name = QString()
+
+#    QTextDrag.decode(e,dropped_item_name)
+
+#    picked_item = self.itemAt(e.pos())
+#    descr("picked_item",picked_item)
+#    if(picked_item is not None):
+#      viewer_dropped_in =  str(picked_item.text(0))
+#      descr("viewer dropped in is: ", viewer_dropped_in)
+#      if dropped_item_name[:9] == 'organism.':
+  #      descr("that was an organism dragged from the petri dish")
+#        if(viewer_dropped_in == 'Organism'):
+#          e.accept()
+#          self.viewport().setAcceptDrops( False ) 
+#        else:
+#          e.ignore()
+#          self.viewport().setAcceptDrops( False ) 
+#      elif dropped_item_name[-9:] == '.organism':
+  #      descr("that was an organism dragged from the freezer")
+#        if(viewer_dropped_in == 'Organism'):
+#          e.accept()
+#          descr("proposed action is: ",e.proposedAction())
+#          self.viewport().setAcceptDrops( True ) 
+#        else:
+#          descr("---")
+#          e.ignore()
+#          self.viewport().setAcceptDrops( False ) 
+#      else:
+#        e.ignore()
+#        self.viewport().setAcceptDrops( False ) 
+
+ #   if (canDecode(e)):
+ #     descr("JMC -- canDecode")
+ #     e.accept()
 
   def contentsDropEvent(self, e):
     dropped_item_name = QString()
@@ -32,52 +66,57 @@ class pyNavBarListView(QListView):
       return
 
     # dropped_item_name is a string...a file name or raw genotype 
- 
-    descr("in contentsDrop event")
-    descr("dropped_item_name is: ", str(dropped_item_name))
-    test_item_name = 'jeff'
-    descr("self is: ", self)
-    #self.emit(PYSIGNAL("jmcTestSig"), (test_item_name,))
-    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("jmcTestSig"),())
 
+    picked_item = self.itemAt(e.pos())
+    viewer_dropped_in = 'nada'
+    if(picked_item is not None):
+      viewer_dropped_in =  str(picked_item.text(0))
+          
     if ( QIconDrag.canDecode(e)):
       format = QDropEvent.format(e, 0)
-    if ( QTextDrag.decode( e, dropped_item_name ) ) :
-      descr("in decode, dropped_item_name is: ", str(dropped_item_name)[:])
-      if dropped_item_name[:9] == 'organism.':
-        descr("that was an organism dragged from the petri dish")
-        dropped_item_name = dropped_item_name[9:]
-#        self.FreezeOrganism(dropped_item_name)
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismGenomeSig"), (str(dropped_item_name),))
-      elif dropped_item_name[-5:] == '.full':
-        descr("that was a populated dish dragged from the freezer")
-      elif dropped_item_name[-9:] == '.organism':
-        descr("that was an organism dragged from the freezer")
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
-        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), (str(dropped_item_name[1:]),))
-      else:
-        pass
 
-    # Check if item is icon
+    if ( QTextDrag.decode( e, dropped_item_name ) ) : #this if statement actually does the decoding too
+      
+      if(viewer_dropped_in == 'Organism'):
+        if (dropped_item_name[:9] == 'organism.' or dropped_item_name[-9:] == '.organism'): #drop was an organism
+          descr("that was an organism")
+          self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
+          if dropped_item_name[:9] == 'organism.':       #organism from petri dish
+            dropped_item_name = dropped_item_name[9:]
+            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismGenomeSig"), (str(dropped_item_name),))
+          elif dropped_item_name[-9:] == '.organism':    #organism from freezer
+            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), (str(dropped_item_name[1:]),))
+        else:
+          warningNoMethodName("Only organisms can be dragged into the Organism Viewer.")
+      elif(viewer_dropped_in == 'Population'):
+        if (dropped_item_name[-5:] == '.full' or dropped_item_name[-6:] == '.empty'):
 
-    #if (pyNewIconView.canDecode(e)):
-    #  info("You can not drag an ancestor back into the freezer")
+          #put the dish name and path into the format doDefrostDishSig wants
+          file_name = str(dropped_item_name[1:])
+          if(len(file_name.split())>1):
+            warningNoMethodName("You cannot drag more than one dish into the Population Viewer.")
+          else:
+            #note, the pop viewer gets raised on the receiving end in DefrostSlot in pyOnePop_PetriDishCtrl.py
+            if(dropped_item_name[-5:] == '.full'):
+              file_name = os.path.join(file_name, "petri_dish")
+            dish_name = file_name[26:-16]
+            descr("file_name", file_name)
+            thawed_item = pyReadFreezer(file_name)
 
-    
-  #def FreezeOrganism(self, dropped_item_name):
-  #  tmp_dict = {1:dropped_item_name}
-  #  pop_up_organism_file_name = pyFreezeOrganismCtrl()
-  #  file_name = pop_up_organism_file_name.showDialog(self.m_session_mdl)
-
-  #  file_name_len = len(file_name.rstrip())
-  #  if (file_name_len > 0):
-  #    freezer_file = pyWriteToNavBar(tmp_dict, file_name)
-  #  
-  #  self.m_session_mdl.m_session_mdtr.emit(
-  #    PYSIGNAL("doRefreshNavBarInventorySig"), ())
-
-
+            #send defrost sig
+            self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
+              (dish_name, thawed_item,))
+        else:
+          warningNoMethodName("Only petri dishes (populated or configured) can be dragged into the Population Viewer.")
+          
+      elif(viewer_dropped_in == 'Analysis'):
+        if (dropped_item_name[-5:] == '.full'):
+          self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("itemDroppedInAnalysisViewerMenuBox"),
+            (str(dropped_item_name),))
+          self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseAnaViewSig"),())
+        else:
+          warningNoMethodName("Only populated petri dishes can be dragged into the Analysis Viewer.")
+          
 class pyNavBarCtrl(QWidget):
 
     def __init__(self,parent = None,name = None,fl = 0):

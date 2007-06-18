@@ -155,12 +155,12 @@ class pyNewIconView(QIconView):
     self.setArrangement(QIconView.TopToBottom)
 
 
-#   def canDecode(self, e):
-#     descr("BDB")
-#  
-#     # use the same mime as standard IconView
-# 
-#     return e.provides( "application/x-qiconlist" )
+ # def canDecode(self, e):
+  #  descr("BDB")
+  
+     # use the same mime as standard IconView
+ 
+   # return e.provides( "application/x-qiconlist" )
 
   def dragObject(self):
     item = self.firstItem();
@@ -171,14 +171,14 @@ class pyNewIconView(QIconView):
         return
       item = item.nextItem()
 
-#   def dragEnterEvent( self, e ):
-# 
-#     descr("BDB")
-#     # Check if you want the drag...
-#      
-#     if (canDecode(e)):
-#       descr("BDB -- canDecode")
-#       e.accept()
+#  def dragEnterEvent( self, e ):
+ 
+#    descr("BDB")
+    # Check if you want the drag...
+     
+#    if (canDecode(e)):
+#      descr("BDB -- canDecode")
+#      e.accept()
 
   def contentsDropEvent(self, e):
     if e.source() is self:

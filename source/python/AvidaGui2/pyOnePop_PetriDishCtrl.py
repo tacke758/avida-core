@@ -311,6 +311,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     
   def DefrostSlot(self, dish_name, petri_dict):
       descr()
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raisePopViewSig"),())
 
 #    if self.isVisible():
 
