@@ -60,7 +60,7 @@ class pyNavBarListView(QListView):
  #     e.accept()
 
   def contentsDropEvent(self, e):
-    dropped_item_name = QString()
+    dropped_item_list = QString()
     if e.source() is self:
       return
 
