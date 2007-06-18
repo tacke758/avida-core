@@ -7,7 +7,6 @@ from pyTimeline import pyTimeline, TimelineFlag
 
 from descr import *
 
-
 from qt import *
 
 import os
@@ -30,7 +29,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.m_organism_name = None
 
   def construct(self, session_mdl):
-    print "pyOrganismScopeCtrl.construct()."
+    descr("pyOrganismScopeCtrl.construct().")
     self.m_session_mdl = session_mdl
     self.m_avida = None
     self.setAcceptDrops(1)
@@ -39,13 +38,7 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     self.emit(PYSIGNAL("freezerItemDoubleClickedOnInOnePopSig"), (test_item_name,))
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"), self.setAvidaSlot)
-#    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("jmcTestSig"), self.jmcTestSlot)
     #self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("setDebugOrganismFileSig"), self.setDebugOrganismFileSlot)
-
-    #@JMC testing
-    self.connect(
-      self.m_session_mdl.m_session_mdtr, PYSIGNAL("orgClickedOnSig"),
-      self.jmcTestOrgSlot)
 
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("ScopeConfig_MutationSliderValueChangedSig"),
       self.MutationSliderValueChangedSlot)
@@ -94,10 +87,6 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("parseOrganismGenotypeSig"),
       self.parseOrganismGenotypeSlot)
 
-  def jmcTestOrgSlot(self, clicked_cell_item = None):
-    descr("no way this org slot works++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-
   def dragEnterEvent( self, e ):
     e.acceptAction(True)
 
@@ -105,7 +94,6 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
-      descr("BDB -- if decode true" + freezer_item_list)
       if (len(freezer_item_names) > 1):
          pass
       else:
@@ -120,7 +108,6 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
       freezer_item_names = freezer_item_list.split("\t")[1:]
-      descr("BDB -- if decode true" + freezer_item_list)
       if (len(freezer_item_names) > 1):
          info("Only one organism can be dragged here")
       else:
@@ -146,10 +133,9 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
     if self.m_avida:
       org_file = open(organism_filename)
       org_string = org_file.readline()
-      org_string = org_string.rstrip()
-      org_string = org_string.lstrip()
+      org_string = org_string.strip()
       org_file.close()
-      self.parseOrganismGenomeSlot(org_string)
+      # self.parseOrganismGenomeSlot(org_string)
       genome = cGenome(cString(org_string))
       inst_set = self.m_avida.m_environment.GetInstSet()
       analyze_genotype = cAnalyzeGenotype(genome, inst_set)
@@ -169,19 +155,15 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       self.parseOrganismGenotypeSlot(analyze_genotype)
 
   def parseOrganismGenotypeSlot( self, analyze_genotype ):
-
     self.m_analyze_genotype = analyze_genotype
     self.analyzeLoadedOrganism()
 
-#  def jmcTest(self,avida):
-#    descr("made it to jmcTest")
-
   def setAvidaSlot(self, avida):
-    print "pyOrganismScopeCtrl.setAvidaSlot() ..."
+    descr("pyOrganismScopeCtrl.setAvidaSlot() ...")
     old_avida = self.m_avida
     self.m_avida = avida
     if(old_avida):
-      print "pyOrganismScopeCtrl.setAvidaSlot() deleting old_avida ..."
+      descr("pyOrganismScopeCtrl.setAvidaSlot() deleting old_avida ...")
       del old_avida
 
   def setDebugOrganismFile(self, organism_filename):
