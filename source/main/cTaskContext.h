@@ -63,7 +63,7 @@ private:
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
-  int task_success_complete;
+  bool task_success_complete;
 
   
   cTaskEntry* m_task_entry;
@@ -89,7 +89,7 @@ public:
     , m_task_entry(NULL)
     , m_task_states(NULL)
     , organism(in_org)
-    , task_success_complete(0)
+    , task_success_complete(true)
 
   {
   }
