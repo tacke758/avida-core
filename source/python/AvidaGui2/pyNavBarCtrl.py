@@ -14,8 +14,6 @@ class pyNavBarListView(QListView):
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
 
-    descr("in pyNavBarListView self is:",self)
-
   #this code allows you to control the universal no in sub areas of the menu, but it does not fire if
   #accept drops in the view port is on, so we can't use it unless we figure out how to make it accept drops in a way that does
   #not turn itself off
@@ -75,11 +73,14 @@ class pyNavBarListView(QListView):
     if ( QIconDrag.canDecode(e)):
       format = QDropEvent.format(e, 0)
 
-    if ( QTextDrag.decode( e, dropped_item_name ) ) : #this if statement actually does the decoding too
+    # this if statement actually does the decoding too
+
+    if ( QTextDrag.decode( e, dropped_item_name ) ) : 
       
       if(viewer_dropped_in == 'Organism'):
-        if (dropped_item_name[:9] == 'organism.' or dropped_item_name[-9:] == '.organism'): #drop was an organism
-          descr("that was an organism")
+        if (len(str(dropped_item_name).split("\t")[1:]) > 1):
+          info ("You cannot drag more than one item into the Organism Viewer.")
+        elif (dropped_item_name[:9] == 'organism.' or dropped_item_name[-9:] == '.organism'): #drop was an organism
           self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseOrgViewSig"),())
           if dropped_item_name[:9] == 'organism.':       #organism from petri dish
             dropped_item_name = dropped_item_name[9:]
@@ -87,30 +88,29 @@ class pyNavBarListView(QListView):
           elif dropped_item_name[-9:] == '.organism':    #organism from freezer
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("parseOrganismFileSig"), (str(dropped_item_name[1:]),))
         else:
-          warningNoMethodName("Only organisms can be dragged into the Organism Viewer.")
+          info ("Only organisms can be dragged into the Organism Viewer.")
+
       elif(viewer_dropped_in == 'Population'):
         if (dropped_item_name[-5:] == '.full' or dropped_item_name[-6:] == '.empty'):
 
-          #put the dish name and path into the format doDefrostDishSig wants
+          # put the dish name and path into the format doDefrostDishSig wants
+
           file_name = str(dropped_item_name[1:])
-          if(len(file_name.split())>1):
-            warningNoMethodName("You cannot drag more than one dish into the Population Viewer.")
+          if(len(file_name.split("\t"))>1):
+            info ("You cannot drag more than one dish into the Population Viewer.")
           else:
             #note, the pop viewer gets raised on the receiving end in DefrostSlot in pyOnePop_PetriDishCtrl.py
-            descr(os.path.dirname(file_name))
-            if(file_name.endswith(".full")):
+            dish_name = os.path.basename(file_name)
+            dish_name = os.path.splitext(dish_name)[0]
+            if (file_name.endswith(".full")):
               file_name = os.path.join(file_name, "petri_dish")
-              dish_name = file_name[26:-16]
-            elif(file_name.endswith("empty")):
-              dish_name = file_name[26:-6]
-               
             thawed_item = pyReadFreezer(file_name)
 
             #send defrost sig
             self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
               (dish_name, thawed_item,))
         else:
-          warningNoMethodName("Only petri dishes (populated or configured) can be dragged into the Population Viewer.")
+          info ("Only petri dishes (populated or configured) can be dragged into the Population Viewer.")
           
       elif(viewer_dropped_in == 'Analysis'):
         if (dropped_item_name[-5:] == '.full'):
@@ -118,7 +118,7 @@ class pyNavBarListView(QListView):
             (str(dropped_item_name),))
           self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseAnaViewSig"),())
         else:
-          warningNoMethodName("Only populated petri dishes can be dragged into the Analysis Viewer.")
+          info ("Only populated petri dishes can be dragged into the Analysis Viewer.")
           
 class pyNavBarCtrl(QWidget):
 
