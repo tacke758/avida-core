@@ -358,9 +358,9 @@ std::string cUMLModel::getXMI()
 	
 	x = xmi_begin; 
 	
-	x += xmi_class1;
-	x += state_diagrams[0].getXMI();
-	x += xmi_class2;
+//	x += xmi_class1;
+//	x += state_diagrams[0].getXMI();
+//	x += xmi_class2;
 	x += state_diagrams[1].getXMI();
 	
 	
