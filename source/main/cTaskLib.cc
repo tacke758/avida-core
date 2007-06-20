@@ -3022,6 +3022,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 */	
 	
 	// check if the trigger is present
+	organism->absoluteJumpStateDiagram(1);
 	if (organism->getStateDiagram()->findTrans(-1,-1,1,-1,-1)){
 		temp += 1;
 		
