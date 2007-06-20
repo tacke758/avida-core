@@ -297,6 +297,10 @@ bool cUMLStateDiagram::addTransition()
 	
 	t.trans = getTransLabel();
 	
+	if ((t.orig_state != 0) && (states[t.orig_state].num_incoming == 0)) {
+		return false;
+	}
+	
 	// no dupes
     if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
 		return false;
@@ -350,9 +354,9 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
 	
 	// Do not create transition if the origin state is unreachable.
 // Taken out on 5/22
-//	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
-//		return false;
-//	}
+	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
+		return false;
+	}
 	
 	// increment number of edges for a state
 	states[getOrigStateIndex()].num_outgoing += 1;
@@ -401,9 +405,9 @@ bool cUMLStateDiagram::addTransitionTotal()
 	
 	// Do not create transition if the origin state is unreachable.
 // Taken out on 5/22
-//	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
-//		return false;
-//	}
+	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
+		return false;
+	}
 	
 	// increment number of edges for a state
 	states[getOrigStateIndex()].num_outgoing += 1;
