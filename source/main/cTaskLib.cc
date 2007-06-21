@@ -2995,7 +2995,7 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 //	m_world->GetStats().PanAttempt();
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -e -n -a -w19  -m100000 -c25 &> ./pan.out")!=0) return 0.0;
+	if(system("./pan -e -n -a -w19  -m100000 -c5 &> ./pan.out")!=0) return 0.0;
 	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 //	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
 	
@@ -3023,7 +3023,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	
 	// check if the trigger is present
 	organism->absoluteJumpStateDiagram(1);
-	if (organism->getStateDiagram()->findTrans(-1,-1,1,-1,-1)){
+	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
 		temp += 1;
 		
 		// check property
