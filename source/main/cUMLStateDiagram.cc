@@ -409,10 +409,6 @@ bool cUMLStateDiagram::addTransitionTotal()
 		return false;
 	}
 	
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-
 	
 	transition_label tl;
 	tl.trigger = getTriggerIndex();
@@ -426,6 +422,10 @@ bool cUMLStateDiagram::addTransitionTotal()
 		return false;
 	}
 	
+	// increment number of edges for a state
+	states[getOrigStateIndex()].num_outgoing += 1;
+	states[getDestStateIndex()].num_incoming += 1;
+
 
 	transitions.push_back(trany);
 	

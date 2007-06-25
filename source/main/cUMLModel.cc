@@ -158,6 +158,11 @@ void cUMLModel::seedDiagrams()
   // action 2
   soft_sense->addAction("^TempSensor.getTempData()");
   
+  //seeded transitions...
+//  soft_sense->addTransitionTotal(0, 1, 0, 0, 0);
+//  soft_sense->addTransitionTotal(1, 2, 0, 0, 2);
+//  soft_sense->addTransitionTotal(2, 3, 2, 0, 0);
+//  soft_sense->addTransitionTotal(3, 1, 0, 0, 0);
   
   // Temperature Sensor
   cUMLStateDiagram* temp_sense = getStateDiagram(0);

@@ -407,6 +407,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
 	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);
+  else if (name == "prop-tr") // 
+	  NewTask(name, "Diagram included trigger", &cTaskLib::Task_PropTrigger);	
   else if (name == "hydra") // 
 	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
   else if (name == "spin1") // 
@@ -2964,6 +2966,14 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	cOrganism* organism = ctx.organism;
 	m_world->GetStats().SpinAttempt();
 	int status=0;
+	
+	// break inserted on 6/24
+	organism->absoluteJumpStateDiagram(1);
+	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
+		status += 1;
+	}
+
+	
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 	m_world->GetStats().SpinPassed();
@@ -2983,13 +2993,17 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	m_world->GetStats().PanPassed();
 	return 3.0;
 }
-
+ 
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
 	cOrganism* organism = ctx.organism;
 //	m_world->GetStats().SpinAttempt();
 	int status=0;
 	int num_witness = 0;
-	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
+	
+	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
+	if(system(cmd.c_str())!=0) return 0.0;
+	
+	cmd = "cat " + neverclaimFile + " >> tmp-witness.pr && ./spin -a tmp-witness.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 //	m_world->GetStats().SpinPassed();
 //	m_world->GetStats().PanAttempt();
@@ -3011,7 +3025,6 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.organism;
-	std::string temp = organism->getStateDiagram()->getXMI();
 	double temp1 = 0.0;
 	
 /*	if (temp == organism->getParentXMI()) { 
@@ -3023,13 +3036,9 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	
 	// check if the trigger is present
 	organism->absoluteJumpStateDiagram(1);
-	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
-		temp += 1;
-		
-		// check property
-		if (ctx.task_success_complete) {
+	if (ctx.task_success_complete) {
+			// checkproperty
 			temp1 += SpinCoprocess(ctx, "N1");
-		} 
 	}
 	
 //	organism->setBonusInfo("spinn1", temp1); 
@@ -3040,9 +3049,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 
 double cTaskLib::Task_SpinW1(cTaskContext& ctx) const { 
 	cOrganism* organism = ctx.organism;
-	std::string temp = organism->getStateDiagram()->getXMI();
 	double temp1 = 0.0;
-	
 	
 	// check property
 	if (ctx.task_success_complete) {
@@ -3066,3 +3073,16 @@ double cTaskLib::Task_ModEval(cTaskContext& ctx) const {
 			
 	return bonus;
 } 
+
+double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
+	// This task checks for the trigger of the property.
+	cOrganism* organism = ctx.organism;
+	double bonus = 0.0;
+	
+	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+}
