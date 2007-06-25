@@ -3000,6 +3000,7 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	int status=0;
 	int num_witness = 0;
 	
+	ctx.task_success_complete = false;
 	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
 	if(system(cmd.c_str())!=0) return 0.0;
 	
@@ -3020,6 +3021,8 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 //	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
 //	m_world->GetStats().PanPassed();
+
+	ctx.task_success_complete = num_witness;
 	return num_witness;
 }
 
