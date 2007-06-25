@@ -2982,7 +2982,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
-//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
 	
 	
 	std::ostringstream strstrm;
@@ -2991,7 +2991,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
 	m_world->GetStats().PanPassed();
-	return 3.0;
+	return 1.0;
 }
  
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
@@ -3035,7 +3035,6 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 */	
 	
 	// check if the trigger is present
-	organism->absoluteJumpStateDiagram(1);
 	if (ctx.task_success_complete) {
 			// checkproperty
 			temp1 += SpinCoprocess(ctx, "N1");
