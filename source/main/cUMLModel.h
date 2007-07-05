@@ -2,9 +2,8 @@
 #define _C_UMLMODEL_H_
 
 #include "cUMLStateDiagram.h"
-#include "cUMLClassDiagram.h"
-#include "cWorld.h"
-#include "cStats.h"
+//#include "cWorld.h"
+//#include "cStats.h"
 
 #include <string>
 #include <iostream>
@@ -19,30 +18,15 @@ class cUMLModel {
 public:
 	cUMLModel();
 	~cUMLModel();
-	std::string getXMI(); // get the XMI version of the model
-	void printXMI();
-	void resetUMLModel();
-	double formalizeModel(cWorld*); // formalize the model using Hydra
-	double checkProperty(const std::string& neverclaimFile, int, cWorld*) const; // check for property satisfaction using Spin
-	double propertyN1(int, cWorld*) const; // check for property N1
+
+	void seedDiagrams(); // add the building blocks for the diagrams.
 	
-	void resetStateDiagrams (int);  
-	void seedDiagrams();
+	std::string getXMI(); // get the XMI version of the model.
+	void printXMI(); // create the XMI version of the model.	
 	
 	int getStateDiagramSize() { return state_diagrams.size(); } 
-	
-	// Track bonus info for model
-	std::map <std::string, double> getBonus() {return self_bonus;}
-	void setBonusInfo(std::string x, double y) {self_bonus[x] = y;}
-	
 	cUMLStateDiagram* getStateDiagram (int); 
-	cUMLClassDiagram* getClassDiagram (int);
 	
-	// Determine the "fitness" of the model
-	// does the model satisfy the sequence diagrams? 
-	// does the model meet the properties? 
-	double evaluateModel(int, cWorld*);
-	double checkForSequenceDiagram1();
 
 protected: 
 	static std::string xmi_begin;
@@ -51,11 +35,7 @@ protected:
 	static std::string xmi_class1;
 	static std::string xmi_class2;
 	std::vector<cUMLStateDiagram> state_diagrams;
-	std::vector<cUMLClassDiagram> class_diagrams;
-	
-	// UML - Track information about the bonus received for this model.
-	std::map <std::string, double> self_bonus;											
-	
+										
 };
 
 #endif

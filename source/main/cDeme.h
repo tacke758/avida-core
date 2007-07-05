@@ -67,8 +67,6 @@ public:
   //! Replaces this deme's germline.
   void ReplaceGermline(const cGermline& germline);
   
-    // UML Model functions
-  cUMLModel* getUMLModel() { return &umlMod; }
   
   // -= Update support =-
   //! Called once, at the end of every update.
@@ -83,8 +81,6 @@ private:
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
   int org_count; //!< Number of organisms are currently in this deme.
   int _age; //!< Age of this deme, in updates.
-  cUMLModel umlMod; // !< The UML model for this deme, if used.
-  cUMLModel prevMod; // !< The previous (possibly parent) model for the deme, if used
   
   cGermline _germline; //!< The germline for this deme, if used.
 };

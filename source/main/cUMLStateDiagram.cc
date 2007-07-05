@@ -3,94 +3,175 @@
 cUMLStateDiagram::cUMLStateDiagram()
 {
 
+  // initialize the state diagram with 10 states.
+  sd0 = state_diagram(10); 
+
   // initialize / seed UML state diagram here
-  orig_state_index = 0;
-  dest_state_index = 0;
+//  orig_state_index = 0;
+//  dest_state_index = 0;
+	orig = vertex(0, sd0);
+	dest = vertex(0, sd0);
+  
   trans_label_index = 0;
   trigger_index = 0;
   guard_index = 0;
   action_index = 0;
 
   xmi = "";
-
-   
-  // initialize w/ 10 states
-  
-  state s;
-  for (int i=0; i<11; i++) {
-	s.identifier = i;
-	s.num_incoming = 0;
-	s.num_outgoing = 0;
-	states.push_back(s);
-  }
-   
+    
 }
 
 cUMLStateDiagram::~cUMLStateDiagram()
 {
 }
 
-
-/*
-bool cUMLStateDiagram::findTransLabel(transition_label t) { 
-	for(std::vector<transition_label>::iterator i=transition_labels.begin(); i!=transition_labels.end(); ++i){
-		if ((i->trigger == t.trigger) && (i->guard == t.guard) && (i->action == t.action)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-
-bool cUMLStateDiagram::findTrans(int orig, int dest, std::string tr, std::string gu, std::string act) 
-{
-	int tracker = 0;
+float cUMLStateDiagram::findPath(std::deque<std::string> p) { 
+	bool res = false;
+	int num_vert = num_vertices(sd0);
+	std::deque<std::string> p_temp = p;
+	int possible_length = p.size();
+	int current_length = 0; 
+	int len = 0;
+	float val;
 	
-	for(std::vector<trigger_info>::iterator i=triggers.begin(); i!=triggers.end(); i++) {
-		if (tr == i->label) { 
-			return findTrans(orig, dest, tracker, gu, act );
+	while (!p.empty()) {
+		for (int i = 0; i<num_vert; i++) { 
+			checkForPath(p_temp, vertex(i, sd0), res, len);
+			// check to see if this path is longer than other paths....
+			if (len > current_length) { 
+				current_length = len;
+			}
 		}
-		tracker++;
-	}
-
-	return false;
+		p.pop_front();
+		p_temp = p;
+		res = false;
+		len = 0;
+	}	
+	
+//	std::cout << "Longest path length: " << current_length << std::endl;
+//	std::cout << "Possible path length: " << possible_length << std::endl;
+	val = current_length / possible_length;
+	return (val);
 }
 
-// Check to see if i->trans.trigger is ever equal to trig
-bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, std::string gu, std::string act) 
-{
-	// the wild cards for there are 
-	// -1 for orig, dest & trigger
-	// "*" for guard, and action
 
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if (((orig == -1) || (orig == i->orig_state)) && 
-			((dest == -1) || (dest == i->dest_state)) && 
-			((trig == -1) || (trig == i->trans.trigger)) && 
-			((gu == "*") || (gu == i->trans.guard)) &&
-			((act == "*") || (act == i->trans.action))) { 
-						return true;
+void cUMLStateDiagram::checkForPath(std::deque<std::string> path, 
+	boost::graph_traits<state_diagram>::vertex_descriptor v, bool& result, 
+	int& dist) { 
+	
+	// declare temp strings for triggers, guards, and actions
+	std::string tt, tg, ta, ts;
+	
+	// If the path is empty or the result is already true, then 
+	// return true to indicate that the path has been found.
+	if ((path.empty()) || (result == true)) { 
+		result = true;
+		return;
+	}
+	
+	// Get all outgoing edges 
+	boost::graph_traits<state_diagram>::out_edge_iterator out_edge_start, out_edge_end;
+	boost::graph_traits<state_diagram>::edge_descriptor ed;
+
+	// Check to see if any have the same label as the first element of path
+	// If so, then call this function on them with the tail of the path
+	for(tie(out_edge_start, out_edge_end) = out_edges(v, sd0);
+			 out_edge_start != out_edge_end; ++out_edge_start) { 
+			ed = *out_edge_start;
+			tt = triggers[(sd0[ed]._tr)].operation_id;
+			tg = guards[(sd0[ed]._gu)];
+			ta = actions[(sd0[ed]._act)];
+			
+			// eliminate nulls
+			if (tt == "<null>") tt = "";
+			if (tg == "<null>") tg = "";
+			if (ta == "<null>") ta = "";
+			
+			ts = tt + tg + ta;
+//			std::cout << "Looking for an edge with " << path.front() << std::endl;
+//			std::cout << "Found an edge with " << ts << std::endl;
+			
+			if (ts == path.front()) { 
+//				std::cout << "Found an edge with " << ts << std::endl;
+				dist++;
+				path.pop_front();
+				checkForPath(path, target(ed, sd0), result, dist);	
 			}
-	}
-	return false;
+		}	
 }
-*/
 
-bool cUMLStateDiagram::findTrans(int orig, int dest, int trig, int gu, int act) 
+
+bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, int act) 
 {
-	for(std::vector<transition>::iterator i=transitions.begin(); i!=transitions.end(); ++i){
-		if (((orig == -1) || (orig == i->orig_state)) && 
-			((dest == -1) || (dest == i->dest_state)) && 
-			((trig == -1) || (trig == i->trans.trigger)) && 
-			((gu == -1) || (gu == i->trans.guard)) &&
-			((act == -1) || (act == i->trans.action))) { 
-						return true;
-			}
+
+	bool result = false;
+	
+	boost::graph_traits<state_diagram>::vertex_descriptor o_temp, d_temp;
+	boost::graph_traits<state_diagram>::edge_iterator edge_start, edge_end;
+	boost::graph_traits<state_diagram>::out_edge_iterator out_edge_start, out_edge_end;
+	boost::graph_traits<state_diagram>::in_edge_iterator in_edge_start, in_edge_end;
+	boost::graph_traits<state_diagram>::edge_descriptor ed;
+
+	// Get the set of transitions.
+	if ((origin == -1) && (destination == -1)) { 
+		for (tie(edge_start, edge_end) = edges(sd0);
+			 edge_start != edge_end; ++edge_start) { 
+			ed = *edge_start;
+			if (((trig == -1)	|| (sd0[ed]._tr == trig))		&& 
+				((gu == -1)		|| (sd0[ed]._gu == gu))			&& 
+				((act == -1)	|| (sd0[ed]._act == act)))  { 
+				result = true; 
+				break;
+			}	
+		}
+	} else if (origin == -1 && destination != -1) { 
+		if (destination > num_vertices(sd0)) return result;
+		d_temp = vertex(destination, sd0);
+		for (tie(in_edge_start, in_edge_end) = in_edges(d_temp, sd0);
+			 in_edge_start != in_edge_end; ++in_edge_start) { 
+			ed = *in_edge_start;
+			if (((trig == -1)	|| (sd0[ed]._tr == trig))		&& 
+				((gu == -1)		|| (sd0[ed]._gu == gu))			&& 
+				((act == -1)	|| (sd0[ed]._act == act)))  { 
+				result = true; 
+				break;
+			}	
+		}
+	} else if (origin != -1 && destination == -1) { 
+		if (origin > num_vertices(sd0)) return result;
+		o_temp = vertex(origin, sd0);
+
+		for(tie(out_edge_start, out_edge_end) = out_edges(o_temp, sd0);
+			 out_edge_start != out_edge_end; ++out_edge_start) { 
+			ed = *out_edge_start;
+			if (((trig == -1)	|| (sd0[ed]._tr == trig))		&& 
+				((gu == -1)		|| (sd0[ed]._gu == gu))			&& 
+				((act == -1)	|| (sd0[ed]._act == act)))  { 
+				result = true; 
+				break;
+			}	
+		}
+	} else if (origin != -1 && destination != -1) { 
+		if ((destination > num_vertices(sd0)) || 
+			(origin > num_vertices(sd0))) return result;
+		o_temp = vertex(origin, sd0);
+		d_temp = vertex(destination, sd0);
+		for(tie(out_edge_start, out_edge_end) = edge_range (o_temp, d_temp, sd0);
+			 out_edge_start != out_edge_end; ++out_edge_start) { 
+			ed = *out_edge_start;
+			if (((trig == -1)	|| (sd0[ed]._tr == trig))		&& 
+				((gu == -1)		|| (sd0[ed]._gu == gu))			&& 
+				((act == -1)	|| (sd0[ed]._act == act)))  { 
+				result = true; 
+				break;
+			}	
+		}
 	}
-	return false;
+	
+	return result;
 
 }
+
 
 
 template <typename T>
@@ -113,7 +194,6 @@ bool cUMLStateDiagram::relativeMoveIndex (T x, int &index, int amount )
 	}
 	
 	if (amount > 0) { 
-//		index += (amount % x.size()); // this provides relative jumping
 		index += (amount % x.size());
 
 		// index is greater than vector
@@ -150,46 +230,25 @@ bool cUMLStateDiagram::absoluteJumpTransitionLabel(int jump_amount)
 }
 
 bool cUMLStateDiagram::absoluteJumpOriginState(int jump_amount) 
-{
-	return absoluteMoveIndex(states, orig_state_index, jump_amount);
+{	
+	bool result = false;
+	if (num_vertices(sd0) > jump_amount) {  	
+		orig = vertex(jump_amount, sd0);
+		result = true;
+	}
+	return result;
 }
 
 bool cUMLStateDiagram::absoluteJumpDestinationState(int jump_amount) 
-{
-	return absoluteMoveIndex(states, dest_state_index, jump_amount);
+{	
+	bool result = false;
+	if (num_vertices(sd0) > jump_amount) {  	
+		dest = vertex(jump_amount, sd0);
+		result = true;
+	}
+	return result;
 }
 
-/*
-bool cUMLStateDiagram::relativeJumpTrigger(int jump_amount)
-{
-	return relativeMoveIndex(triggers, trigger_index, jump_amount);
-}
-
-bool cUMLStateDiagram::relativeJumpGuard(int jump_amount)
-{
-	return relativeMoveIndex(guards, guard_index, jump_amount);	
-}
-
-bool cUMLStateDiagram::relativeJumpAction(int jump_amount)
-{
-	return relativeMoveIndex(actions, action_index, jump_amount);
-}
-
-bool cUMLStateDiagram::relativeJumpTransitionLabel(int jump_amount)
-{
-	return relativeMoveIndex(transition_labels, trans_label_index, jump_amount);
-}
-
-bool cUMLStateDiagram::relativeJumpOriginState(int jump_amount) 
-{
-	return relativeMoveIndex(states, orig_state_index, jump_amount);
-}
-
-bool cUMLStateDiagram::relativeJumpDestinationState(int jump_amount) 
-{
-	return relativeMoveIndex(states, dest_state_index, jump_amount);
-}
-*/
 
 int cUMLStateDiagram::getTriggerIndex()
 {
@@ -207,30 +266,10 @@ int cUMLStateDiagram::getActionIndex()
 	
 }
 
-int cUMLStateDiagram::getOrigStateIndex()
-{
-	return orig_state_index;
-}
- 
-int cUMLStateDiagram::getDestStateIndex()
-{
-	return dest_state_index;
-}
 
 transition_label cUMLStateDiagram::getTransLabel()
 {
 	return transition_labels[trans_label_index];
-}
-
-bool cUMLStateDiagram::addState()
-{	
-	state s;
-	s.identifier = states.size();
-	s.num_incoming = 0;
-	s.num_outgoing = 0;
-	states.push_back(s);
-	
-	return true;
 }
 
 bool cUMLStateDiagram::addTrigger(std::string op_id, std::string lab) 
@@ -257,29 +296,6 @@ bool cUMLStateDiagram::addAction(std::string act)
 }
 
 /*
-// Broken - 5/17
-bool cUMLStateDiagram::addTransitionLabel()
-{
-	transition_label t;
-	t.trigger = getTriggerIndex();
-	t.guard = getGuard();
-	t.action = getAction();
-	
-	// no dupes
-	if (findTransLabel(t)){
-		return false;
-	 }
-	
-	transition_labels.push_back(t);
-	
-	// Move the transition label index to the most recently created
-	trans_label_index = transition_labels.size() - 1;
-
-	return false;
-}
-*/
-
-
 bool cUMLStateDiagram::addTransition()
 {
 	
@@ -307,6 +323,7 @@ bool cUMLStateDiagram::addTransition()
 	}
 
 	transitions.push_back(t);
+//	boost::add_edge(transition_properties());
 
 	orig_state_index = 0;
 	dest_state_index = 0;
@@ -318,6 +335,7 @@ bool cUMLStateDiagram::addTransition()
 	return true;
 
 }
+*/
 
 bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
 {
@@ -332,143 +350,54 @@ bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
 }
 
 
-
-
-bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a)
-{
-	if ((states.size() == 0)) {
-
-		return false;
-	} 
-		
-	absoluteMoveIndex(states, orig_state_index, o);
-	absoluteMoveIndex(states, dest_state_index, d);
-	absoluteMoveIndex(triggers, trigger_index, t);
-	absoluteMoveIndex(guards, guard_index, g);
-	absoluteMoveIndex(actions, action_index, a);
-
-	transition trany;
-	trany.orig_state = getOrigStateIndex();
-	trany.dest_state = getDestStateIndex();
-	
-	
-	// Do not create transition if the origin state is unreachable.
-// Taken out on 5/22
-	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
-		return false;
-	}
-	
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-
-	
-	transition_label tl;
-	tl.trigger = getTriggerIndex();
-	tl.guard = getGuardIndex();
-	tl.action = getActionIndex();
-	trany.trans = tl;
-	
-	
-	// no dupes
-    if (findTrans(trany.orig_state, trany.dest_state, trany.trans.trigger, trany.trans.guard, trany.trans.action)) {
-		return false;
-	}
-	
-
-	transitions.push_back(trany);
-	
-	
-/*	// reset all indices
-	orig_state_index = 0;
-	dest_state_index = 0;
-	trigger_index = 0;
-	action_index = 0;
-	guard_index = 0;*/
-		
-	return true;
-
-}
-
-
 bool cUMLStateDiagram::addTransitionTotal()
 {
-	if ((states.size() == 0)) {
-
+	// Check that there are two vertices
+	if (num_vertices(sd0) == 0) {
 		return false;
 	} 
 		
-	transition trany;
-	trany.orig_state = getOrigStateIndex();
-	trany.dest_state = getDestStateIndex();
-	
-	
-	// Do not create transition if the origin state is unreachable.
-// Taken out on 5/22
-	if ((trany.orig_state != 0) && (states[trany.orig_state].num_incoming == 0)) {
+	// Check that the origin state of the transition is reachable.
+	boost::graph_traits<state_diagram>::in_edge_iterator in_start, in_end;
+	tie (in_start, in_end) = in_edges(orig, sd0);
+	if ((in_start == in_end) && (orig != vertex(0, sd0))) { 
+		return false;
+	}
+
+	// Check that there is not a duplicate transition
+	if (findTrans(orig, dest, trigger_index, guard_index, action_index)) { 
 		return false;
 	}
 	
+	// Create the transition properties
+	transition_properties tp = transition_properties(trigger_index, guard_index, action_index); 
 	
-	transition_label tl;
-	tl.trigger = getTriggerIndex();
-	tl.guard = getGuardIndex();
-	tl.action = getActionIndex();
-	trany.trans = tl;
-	
-	
-	// no dupes
-    if (findTrans(trany.orig_state, trany.dest_state, trany.trans.trigger, trany.trans.guard, trany.trans.action)) {
-		return false;
-	}
-	
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-
-
-	transitions.push_back(trany);
-	
-	
-	// reset all indices
-	orig_state_index = 0;
-	dest_state_index = 0;
+	// Create the transition
+	add_edge(orig, dest, tp, sd0);
+		
+	// Reset all the indices
 	trigger_index = 0;
 	action_index = 0;
 	guard_index = 0;
+	orig = vertex(0, sd0);
+	dest = vertex(0, sd0);
 		
 	return true;
 
 }
 
-
-bool cUMLStateDiagram::currTrans(int orig, int dest, int tr, int gu, int act)
-{
-
-	if (((orig == -1) || (orig == getOrigStateIndex())) &&
-		((dest == -1) || (dest == getDestStateIndex())) && 
-		((tr == -1)  || (tr == getTriggerIndex())) &&
-		((gu == -1)  || (gu == getGuardIndex())) &&
-		((act == -1) || (act == getActionIndex()))) { 
-
-			return true;
-	}
-	
-	return false;
-
-}
 
 
 
 int cUMLStateDiagram::numStates()
 {
-	return states.size();
+	return num_vertices(sd0);
 }
 
 int cUMLStateDiagram::numTrans()
 {
-	return transitions.size();
-}
+	return num_edges(sd0);
+} 
 
 // print the label. Change - signs to _
 std::string cUMLStateDiagram::StringifyAnInt(int x) { 
@@ -484,6 +413,35 @@ std::string cUMLStateDiagram::StringifyAnInt(int x) {
 	return o.str();
 }
 
+void cUMLStateDiagram::executeVisitor() {
+
+	PathVisitor visitor; 
+	boost::graph_traits<state_diagram>::vertex_descriptor o_temp;
+	o_temp = vertex(0, sd0);
+	
+	boost::breadth_first_search(sd0, o_temp, boost::visitor(visitor));
+
+}
+
+
+struct transition_writer {
+	transition_writer(cUMLStateDiagram::state_diagram& sd) : _sd(sd) { }
+	
+	template<typename Edge>
+	void operator()(std::ostream& out) {
+		out << "working?";
+	}
+  
+	cUMLStateDiagram::state_diagram& _sd;
+}; 
+
+void cUMLStateDiagram::printGraphViz() { 
+	std::ofstream outfile("gv");
+    boost::write_graphviz(outfile, sd0); //, transition_writer(sd0)); //, topo_vertex_writer(_topo_last_network));
+    outfile.close();
+
+}
+
 std::string cUMLStateDiagram::getXMI()
 {
 	printXMI();
@@ -494,6 +452,9 @@ void cUMLStateDiagram::printXMI()
 {
 	std::string temp, temp1, temp2, temp3;
 	std::string trig_label, trig_op_name;
+	
+	boost::graph_traits<state_diagram>::edge_iterator edge_start, edge_end;
+	boost::graph_traits<state_diagram>::edge_descriptor ed;
 
 	int s_count = 0;
 	int t_count = 0;
@@ -502,23 +463,18 @@ void cUMLStateDiagram::printXMI()
 	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
 	// edge or not.
 	if (numStates() > 0) {
-		temp = StringifyAnInt(s_count);
+		temp = "_1";
 		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
 		xmi += temp + "\" isSpecification=\"false\"/>\n";
-		++s_count;
 	}
 	
 	for (; s_count < numStates(); ++s_count) {
-	
-		// only print if this state has an incoming edge. 
-//		if ((states[s_count]).num_incoming > 0) {
-			temp = "s" + StringifyAnInt(s_count);
+				temp = "s" + StringifyAnInt(s_count);
 			xmi+="<UML:CompositeState xmi.id=\"";
 			xmi+=temp;
 			xmi+= "\" isConcurrent=\"false\" name=\""; 
 			xmi+= temp; 
 			xmi+= "\" isSpecification=\"false\"/>\n";
-//		}
 	}
 		
 		// end the set of states....
@@ -530,25 +486,27 @@ void cUMLStateDiagram::printXMI()
 		xmi+="<UML:StateMachine.transitions>\n";
 
 
-
-	for (t_count = 0; t_count < numTrans(); ++t_count) { 
+	// Get the set of transitions.
+	for (tie(edge_start, edge_end) = edges(sd0);
+			 edge_start != edge_end; ++edge_start) {
+		
+		ed = *edge_start;
+	 	 
 		// info determined from the trans itself....
 		temp = "t" + StringifyAnInt(t_count);
-		temp1 = "s" + StringifyAnInt(transitions[t_count].orig_state);
-		temp2 = "s" + StringifyAnInt(transitions[t_count].dest_state);
+		temp1 = "s" + StringifyAnInt(source(ed, sd0));
+		temp2 = "s" + StringifyAnInt(target(ed, sd0));
 		temp3 = temp + temp1 + temp2;
-
+		
 		xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
 		xmi+= " source=\"" + temp1 + "\"";
 		xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
 
 		// Get guard, trigger, and action
-//		temp = transitions[t_count].trans.trigger;
-		temp1 = guards[transitions[t_count].trans.guard];
-		temp2 = actions[transitions[t_count].trans.action];
-		trig_label = triggers[transitions[t_count].trans.trigger].label;
-		trig_op_name = triggers[transitions[t_count].trans.trigger].operation_id;
-
+		temp1 = guards[(sd0[ed]._gu)];
+		temp2 = actions[(sd0[ed]._act)];
+		trig_label = triggers[(sd0[ed]._tr)].label;
+		trig_op_name = triggers[(sd0[ed]._tr)].operation_id;
 
 		// print trigger, if any
 		if (trig_label != "<null>") {
@@ -577,9 +535,21 @@ void cUMLStateDiagram::printXMI()
 		}
 		
 		xmi += "</UML:Transition>\n";
-
-	
+		t_count++;
 	}
+	
+	// Add one transition to connect the init state to state 0
+	temp = "t" + StringifyAnInt(t_count);
+	temp1 = "s" + StringifyAnInt(-1);
+	temp2 = "s" + StringifyAnInt(0);
+	temp3 = temp + temp1 + temp2;
 
+	xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
+	xmi+= " source=\"" + temp1 + "\"";
+	xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
+	xmi += "</UML:Transition>\n";
+		
 	return;
 }
+
+

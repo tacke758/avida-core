@@ -347,8 +347,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("decay-reg", &cHardwareCPU::Inst_DecayRegulation),
     
 		    // UML Element Creation			
-	tInstLibEntry<tMethod>("addState", &cHardwareCPU::Inst_AddState, false, 
+/*	tInstLibEntry<tMethod>("addState", &cHardwareCPU::Inst_AddState, false, 
 					"Add a new state"),
+*/					
 	tInstLibEntry<tMethod>("next", &cHardwareCPU::Inst_Next, false, 
 					"Increment to the next position in the list"),
 	tInstLibEntry<tMethod>("prev", &cHardwareCPU::Inst_Prev, false, 
@@ -357,8 +358,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("addTransLab", &cHardwareCPU::Inst_AddTransitionLabel, false, 
 					"Add a transition label"),
 */					
+/*
 	tInstLibEntry<tMethod>("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
-					"Add a transition"),					
+					"Add a transition"),		
+*/								
 	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
 					"Add a transition without adding a label."),				
 	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
@@ -4248,6 +4251,7 @@ bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
 }
 */
 
+/*
 bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
 {
 	if(organism->GetCellID()==-1) return false;
@@ -4263,6 +4267,7 @@ bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 
 	return organism->getStateDiagram()->addTransition();
 }
+*/
 
 
 bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)

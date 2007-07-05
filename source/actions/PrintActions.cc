@@ -1735,18 +1735,6 @@ public:
   }
 };
 
-class cActionPrintDemeUMLStats : public cAction
-{
-public:
-  cActionPrintDemeUMLStats(cWorld* world, const cString& args) : cAction(world, args) { ; }
-  
-  static const cString GetDescription() { return "No Arguments"; }
-  
-  void Process(cAvidaContext& ctx)
-  {
-    m_world->GetPopulation().PrintDemeUMLStats();
-  }
-};
 
 class cActionSetVerbose : public cAction
 {
@@ -1822,7 +1810,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintPhenotypeData>("PrintPhenotypeData");
   action_lib->Register<cActionPrintPhenotypeStatus>("PrintPhenotypeStatus");
   action_lib->Register<cActionPrintDemeStats>("PrintDemeStats");
-  action_lib->Register<cActionPrintDemeUMLStats>("PrintDemeUMLStats");
+//  action_lib->Register<cActionPrintDemeUMLStats>("PrintDemeUMLStats");
 
   
   // Processed Data
@@ -1891,7 +1879,6 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintPhenotypeData>("print_number_phenotypes");
   action_lib->Register<cActionPrintPhenotypeStatus>("print_phenotype_status");
   action_lib->Register<cActionPrintDemeStats>("print_deme_stats");
-  action_lib->Register<cActionPrintDemeUMLStats>("print_deme_uml_stats");
 
   
   action_lib->Register<cActionPrintData>("print_data");

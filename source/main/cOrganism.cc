@@ -646,14 +646,7 @@ cUMLModel* cOrganism::getUMLModel()
 {
 	cUMLModel* temp_mod;
 	
-	// Check if using deme...
-	if (m_world->GetConfig().NUM_DEMES.Get() != 1) { 
-			cDeme& deme = m_world->GetPopulation().GetDeme(m_world->GetPopulation().GetCell(GetCellID()).GetDemeID());
-			temp_mod = deme.getUMLModel();
-	} else { 
-	
-			temp_mod = &m_model;
-	}
+	temp_mod = &m_model;
 	return temp_mod;
 }
 
@@ -693,7 +686,7 @@ cUMLStateDiagram* cOrganism::getStateDiagram()
 }
 
 // Determines if this is the transition the organism is about to add
-bool cOrganism::currTrans (int sd, int orig, int dest, int tr, int gu, int act)
+/*bool cOrganism::currTrans (int sd, int orig, int dest, int tr, int gu, int act)
 {
 	// check if it is manipulating this diagram 
 	if (sd != m_state_diag) return false;
@@ -708,6 +701,7 @@ bool cOrganism::currTrans (int sd, int orig, int dest, int tr, int gu, int act)
 	return (s->currTrans(orig, dest, tr, gu, act));
 
 }
+*/
 
 bool cOrganism::absoluteJumpGuard(int amount) 
 {

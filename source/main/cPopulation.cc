@@ -760,16 +760,6 @@ void cPopulation::CompeteDemes(int competition_type)
       }
     }
       break;
-	case 7: {
-      for (int deme_id = 0; deme_id < num_demes; deme_id++) {
-        cDeme& cur_deme = deme_array[deme_id];
-        double f = cur_deme.getUMLModel()->evaluateModel(deme_id, m_world);
-        deme_fitness[deme_id] = f;
-        total_fitness += f;
-      }
-      break;
-    }  
-	  
   } 
   
   // Pick which demes should be in the next generation.
@@ -1155,29 +1145,6 @@ void cPopulation::SpawnDeme(int deme1_id, int deme2_id)
   InjectClone( cell2_id, *(cell_array[cell1_id].GetOrganism()) );    
 }
 
-
-void cPopulation::PrintDemeUMLStats()
-{
-  cStats& stats = m_world->GetStats();
-  cDataFile& df_uml = m_world->GetDataFile("deme_uml.dat");
-  df_uml.WriteComment("UML info for each deme in the population");
-  // Going to bypass cDataFile for the rest of this.
-  std::ostream& out = df_uml.GetOFStream();
- 
-  out << "Update: " << stats.GetUpdate() << endl;
-
-  const int num_demes = deme_array.GetSize();
-  for (int deme_id = 0; deme_id < num_demes; deme_id++) {
-    out << "Deme: " << deme_id << endl;
-		
-    // Print all the self_bonus info
-    const std::map<std::string, double>& uml_bonus = deme_array[deme_id].getUMLModel()->getBonus();
-    std::map<std::string, double>::const_iterator iter;
-    for(iter=uml_bonus.begin(); iter != uml_bonus.end(); ++iter) {
-      out << iter->first << ": " << iter->second << endl;
-    }
-  }
-}
 
 // Print out statistics about individual demes
 

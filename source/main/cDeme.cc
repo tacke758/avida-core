@@ -43,9 +43,6 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width)
   birth_count = 0;
   org_count = 0;
   
-  // Initialize the UML model with 1 state diagram per 
-  umlMod.resetUMLModel();
-
   // If width is negative, set it to the full number of cells.
   width = in_width;
   if (width < 1) width = cell_ids.GetSize();
@@ -77,7 +74,6 @@ void cDeme::Reset()
 {
   birth_count = 0; 
   _age = 0;
-  umlMod.resetStateDiagrams(cell_ids.GetSize());
 }
 
 

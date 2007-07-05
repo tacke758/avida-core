@@ -1005,7 +1005,6 @@ public:
     else if (in_trigger == "full_deme") m_rep_trigger = 1;
     else if (in_trigger == "corners") m_rep_trigger = 2;
     else if (in_trigger == "deme-age") m_rep_trigger = 3;
-	else if (in_trigger == "uml-mod") m_rep_trigger = 4;
     else {
       cString err("Unknown replication trigger '");
       err += in_trigger;

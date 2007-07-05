@@ -417,8 +417,6 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully ran Spin witness trace", &cTaskLib::Task_SpinW1);
   else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);
- else if (name == "mod_eval") // 
-	  NewTask(name, "Successfully evaluated model", &cTaskLib::Task_ModEval);
 	  
 	 
   
@@ -3066,15 +3064,6 @@ double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
 	return (2^ctx.task_success_complete);
 }
 
-double cTaskLib::Task_ModEval(cTaskContext& ctx) const { 
-	double bonus = 0.0;
-
-	cUMLModel* self = ctx.organism->getUMLModel();
-
-	bonus = self->evaluateModel(ctx.organism->GetID(), m_world);
-			
-	return bonus;
-} 
 
 double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
 	// This task checks for the trigger of the property.
