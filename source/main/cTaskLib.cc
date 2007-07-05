@@ -403,6 +403,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created trans 9", &cTaskLib::Task_Trans9);
   else if (name == "trans10") // 
 	  NewTask(name, "Successfully created trans 10", &cTaskLib::Task_Trans10);	  
+  else if (name == "scene-1") // 
+	  NewTask(name, "Successfully created scenario 1", &cTaskLib::Task_Scenario1);
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -2832,6 +2834,32 @@ double cTaskLib::Task_Trans10(cTaskContext& ctx) const
 	return bonus;
 
 }
+
+double cTaskLib::Task_Scenario1(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	
+	if (!ctx.task_success_complete) {
+		return 0;
+	}	
+	
+	// create the scenario
+	path1.push_back("^TempSensor.getOpState()");
+	path1.push_back("setTempOpState");
+	
+	// check for scneario
+	bonus = ctx.organism->getUMLModel()->getStateDiagram(1)->findPath(path1);
+		
+	if (bonus == 1) { 
+		ctx.task_success_complete = true;
+	} else { 
+		ctx.task_success_complete = false;	
+	}
+	
+	return bonus;
+}
+
 
 double cTaskLib::Task_NumStates(cTaskContext& ctx) const
 {

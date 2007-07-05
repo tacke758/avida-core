@@ -88,12 +88,14 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-  m_state_diag = 1;
+/*  m_state_diag = 1;
+*/
   m_orig_state_index = 0;
   m_dest_state_index = 0;
-  m_trigger_index = 0;
+/*  m_trigger_index = 0;
   m_guard_index = 0;
-  m_action_index = 0;	
+  m_action_index = 0;*/
+  m_model.seedDiagrams();	
   
   
 }
@@ -575,7 +577,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	if(GetCellID()==-1) return;
 
 
-	printStats();
+//	printStats();
 	
 
  assert(m_interface);
@@ -702,7 +704,7 @@ cUMLStateDiagram* cOrganism::getStateDiagram()
 
 }
 */
-
+/*
 bool cOrganism::absoluteJumpGuard(int amount) 
 {
 	m_guard_index = 0;
@@ -727,7 +729,7 @@ bool cOrganism::absoluteJumpTransitionLabel(int amount)
 	m_trans_label_index =0;
 	return (relativeJumpTransitionLabel(amount));
 }
-
+*/
 
 bool cOrganism::absoluteJumpOriginState(int amount)
 {
@@ -740,6 +742,7 @@ bool cOrganism::absoluteJumpDestinationState(int amount)
 	m_dest_state_index = 0;
 	return (relativeJumpDestinationState(amount));
 }
+
 
 bool cOrganism::addTransitionTotal() 
 {
@@ -755,8 +758,10 @@ bool cOrganism::addTransitionTotal()
 		m_action_index = 0;
 		m_guard_index = 0;
 	}	*/
+	
 	return val;
 }
+/*
 
 bool cOrganism::relativeJumpGuard(int amount)
 { 
@@ -781,7 +786,7 @@ bool cOrganism::relativeJumpTransitionLabel(int amount)
 	m_trans_label_index += amount; 
 	return true;
 }
-
+*/
 bool cOrganism::relativeJumpOriginState(int amount) 
 { 
 	m_orig_state_index += amount; 
@@ -793,7 +798,7 @@ bool cOrganism::relativeJumpDestinationState(int amount)
 	m_dest_state_index += amount; 
 	return true;
 }
-  
+  /*
 void cOrganism::printStats() 
 {
 	// for each state diagram
@@ -801,4 +806,4 @@ void cOrganism::printStats()
 	// print the name, the number of states 
 }  
   
-  
+  */

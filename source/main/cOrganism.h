@@ -144,12 +144,12 @@ protected:
 							// manipulating
   int m_orig_state_index;
   int m_dest_state_index;
-  int m_trans_label_index;
+/*  int m_trans_label_index;
   int m_trigger_index;
   int m_guard_index;
-  int m_action_index;	
+  int m_action_index;*/	
   cUMLModel m_model;		// Used when not running as deme
-  cUMLModel* m_parent_model; // Used when not running as deme
+//  cUMLModel* m_parent_model; // Used when not running as deme
   
   class cNetSupport
   {
@@ -310,34 +310,38 @@ public:
   // UML
   void modelCheck(cAvidaContext& ctx);
   cUMLModel* getUMLModel();
-  cUMLModel* getParentUMLModel() { return m_parent_model; } 
+//  cUMLModel* getParentUMLModel() { return m_parent_model; } 
   int getStateDiagramIndex() { return m_state_diag; } 
 //  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
 //  bool firstStateDiagram() { m_state_diag = 0; }  
   bool currTrans (int, int, int, int, int, int); 
   cUMLStateDiagram* getStateDiagram();
-  void printStats();
-  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
+//  void printStats();
+//  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
   
 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
+/*
   bool absoluteJumpGuard(int);
   bool absoluteJumpAction(int);
   bool absoluteJumpTrigger(int);
   bool absoluteJumpTransitionLabel(int);
+*/
   bool absoluteJumpOriginState(int);
+
   bool absoluteJumpDestinationState(int);
   bool absoluteJumpStateDiagram (int);
-
+/*
   bool relativeJumpGuard(int amount);
   bool relativeJumpAction(int amount);
   bool relativeJumpTrigger(int amount);
   bool relativeJumpTransitionLabel(int amount);
+*/
   bool relativeJumpOriginState(int amount);
   bool relativeJumpDestinationState(int amount);
   bool relativeJumpStateDiagram (int); 
-  
+ 
   bool addTransitionTotal();
 
   

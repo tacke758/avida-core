@@ -349,12 +349,12 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		    // UML Element Creation			
 /*	tInstLibEntry<tMethod>("addState", &cHardwareCPU::Inst_AddState, false, 
 					"Add a new state"),
-*/					
+*/	
+/*				
 	tInstLibEntry<tMethod>("next", &cHardwareCPU::Inst_Next, false, 
 					"Increment to the next position in the list"),
 	tInstLibEntry<tMethod>("prev", &cHardwareCPU::Inst_Prev, false, 
 					"Decrement to the previous position in the list"),
-/*					
 	tInstLibEntry<tMethod>("addTransLab", &cHardwareCPU::Inst_AddTransitionLabel, false, 
 					"Add a transition label"),
 */					
@@ -364,16 +364,15 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 */								
 	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
 					"Add a transition without adding a label."),				
-	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
+/*	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
 					"Jump to a position in the list"),																	
-/*	tInstLibEntry<tMethod>("first", &cHardwareCPU::Inst_First, false, 
+	tInstLibEntry<tMethod>("first", &cHardwareCPU::Inst_First, false, 
 					"Go to the first position in the list"),		
 	tInstLibEntry<tMethod>("last", &cHardwareCPU::Inst_Last, false, 
-					"Go to the last position in the list"),	
-*/					
+					"Go to the last position in the list"),						
 	tInstLibEntry<tMethod>("jump-d", &cHardwareCPU::Inst_JumpDist, false, 
 					"Jump to a position in the list using labels."),
-					
+*/					
 	tInstLibEntry<tMethod>("sd-0", &cHardwareCPU::Inst_StateDiag0, false, 
 					"Change to state diagram 0"),				
 	tInstLibEntry<tMethod>("sd-1", &cHardwareCPU::Inst_StateDiag1, false, 
@@ -3983,7 +3982,7 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 
 
 //// UML Element Construction ////
-
+/*
 bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
 {
 	if(organism->GetCellID()==-1) return false;
@@ -4153,6 +4152,7 @@ bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
 	}
 	return true;
 }
+*/
 
 /*
 

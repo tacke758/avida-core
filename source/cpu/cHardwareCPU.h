@@ -536,10 +536,10 @@ private:
   
   //// UML Element Construction ////
 //  bool Inst_AddState(cAvidaContext& ctx);
-  bool Inst_Next(cAvidaContext& ctx);
-  bool Inst_Prev(cAvidaContext& ctx);
-  bool Inst_JumpIndex(cAvidaContext& ctx);
-  bool Inst_JumpDist(cAvidaContext& ctx);
+//  bool Inst_Next(cAvidaContext& ctx);
+//  bool Inst_Prev(cAvidaContext& ctx);
+//  bool Inst_JumpIndex(cAvidaContext& ctx);
+//  bool Inst_JumpDist(cAvidaContext& ctx);
 //  bool Inst_AddTransitionLabel(cAvidaContext& ctx);
 //  bool Inst_AddTransition(cAvidaContext& ctx);
   bool Inst_AddTransitionTotal(cAvidaContext& ctx);

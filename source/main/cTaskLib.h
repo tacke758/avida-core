@@ -287,6 +287,7 @@ private:  // Direct task related methods
   double Task_Trans8(cTaskContext& ctx) const;
   double Task_Trans9(cTaskContext& ctx) const;   
   double Task_Trans10(cTaskContext& ctx) const;
+  double Task_Scenario1(cTaskContext& ctx) const;
   double Task_NumStates(cTaskContext& ctx) const;
   double Task_NumTrans(cTaskContext& ctx) const;
   double Task_PropTrigger(cTaskContext& ctx) const;

@@ -86,7 +86,7 @@ STATS_OUT_FILE(PrintGenotypeMap,            genotype_map.m      );
 STATS_OUT_FILE(PrintMarketData,             market.dat          );
 STATS_OUT_FILE(PrintSenseData,              sense.dat           );
 STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
-STATS_OUT_FILE(PrintUMLData,				uml.dat			    );
+//STATS_OUT_FILE(PrintUMLData,				uml.dat			    );
 
 
 
@@ -1873,7 +1873,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintInstructionData>("print_instruction_data");
   action_lib->Register<cActionPrintGenotypeMap>("print_genotype_map");
   action_lib->Register<cActionPrintMarketData>("print_market_data");
-  action_lib->Register<cActionPrintUMLData>("PrintUMLData");
+//  action_lib->Register<cActionPrintUMLData>("PrintUMLData");
 
   
   action_lib->Register<cActionPrintPhenotypeData>("print_number_phenotypes");

@@ -70,16 +70,16 @@ void cUMLModel::seedDiagrams()
 	{
 		// Read in states
 		if (line == "=STATES====================") {
-			std::cout << "Ooh, I found a state! " << std::endl;
+//			std::cout << "Ooh, I found a state! " << std::endl;
 			line.erase();
 			infile >> num_states;
-			std::cout << "Numer of states: "<< num_states << std::endl;
+//			std::cout << "Numer of states: "<< num_states << std::endl;
 		// Read in number of state diagrams	
 		} else if (line == "=STATE-DIAGRAM=============") { 
-			std::cout << "Yippee! A state diagram for me! " << std::endl;
+//			std::cout << "Yippee! A state diagram for me! " << std::endl;
 			line.erase();
 			infile >> num_sd;
-			std::cout << "Numer of sds: "<< num_sd << std::endl;
+//			std::cout << "Numer of sds: "<< num_sd << std::endl;
 			state_diagrams.resize(num_sd);
 		// Read in each state diagram	
 		} else if (line == "=SD========================") { 
@@ -91,7 +91,7 @@ void cUMLModel::seedDiagrams()
 			while (tr_l != "-END---------------------------") { 
 				infile >> tr_o;
 				state_diagrams[cur_sd].addTrigger(tr_l, tr_o);
-				std::cout << "Adding a trigger " << tr_l << " " << tr_o << std::endl;
+//				std::cout << "Adding a trigger " << tr_l << " " << tr_o << std::endl;
 				infile >> tr_l;
 			}
 		}else if (line == "-GUARDS--------------------") { 
@@ -99,7 +99,7 @@ void cUMLModel::seedDiagrams()
 			infile >> gu;
 			while (gu != "-END---------------------------") { 
 				state_diagrams[cur_sd].addGuard(gu);
-				std::cout << "Adding a guard " << gu << std::endl;
+//				std::cout << "Adding a guard " << gu << std::endl;
 				infile >> gu;
 			}
 		} else if (line == "-ACTIONS--------------------") { 
@@ -107,7 +107,7 @@ void cUMLModel::seedDiagrams()
 			infile >> act;
 			while (act != "-END---------------------------") { 
 				state_diagrams[cur_sd].addAction(act);
-				std::cout << "Adding an action " << act << std::endl;
+//				std::cout << "Adding an action " << act << std::endl;
 				infile >> act;
 			}
 		}

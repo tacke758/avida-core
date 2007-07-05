@@ -31,7 +31,7 @@ SET(LIBRARY_OUTPUT_PATH
 # ------------------------------------------------------------------------------
 IF(UNIX)
   SET(COMPILER_WARNING_FLAGS "-Wextra -Wno-unknown-pragmas -Wconversion -Wno-trigraphs")
-  SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -fno-rtti -funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
+  SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
 
   # Four types of c++ compilations:
   # - debug (Debug)
