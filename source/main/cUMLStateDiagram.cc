@@ -238,6 +238,8 @@ bool cUMLStateDiagram::absoluteJumpTransitionLabel(int jump_amount)
 bool cUMLStateDiagram::absoluteJumpOriginState(int jump_amount) 
 {	
 	bool result = false;
+	int x = num_vertices(sd0);
+	
 	if (num_vertices(sd0) > jump_amount) {  	
 		orig = vertex(jump_amount, sd0);
 		result = true;

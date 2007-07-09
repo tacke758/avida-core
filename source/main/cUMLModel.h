@@ -28,6 +28,10 @@ public:
 	cUMLStateDiagram* getStateDiagram (int); 
 	int numStates();
 	int numTrans();
+	int numTriggers();
+	int numGuards();
+	int numActions();
+	int numSDs();
 	
 
 protected: 

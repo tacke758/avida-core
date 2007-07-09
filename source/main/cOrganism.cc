@@ -638,6 +638,11 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
  
 	m_world->GetStats().addState(m_model.numStates());
 	m_world->GetStats().addTrans(m_model.numTrans());
+	m_world->GetStats().addTriggers(m_model.numTriggers());
+	m_world->GetStats().addGuards(m_model.numGuards());
+	m_world->GetStats().addActions(m_model.numActions());
+	m_world->GetStats().addStateDiagrams(m_model.numSDs());
+	
 //	m_world->GetStats().addTransLabel(transition_labels.size());
 
   

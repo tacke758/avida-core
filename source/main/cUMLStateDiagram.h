@@ -69,6 +69,9 @@ public:
   std::string StringifyAnInt(int);
   int numStates();
   int numTrans();
+  int numTriggers() { return triggers.size(); } 
+  int numGuards() { return guards.size(); } 
+  int numActions() { return actions.size(); }
 
 
   bool findTrans(int, int, int, int, int);

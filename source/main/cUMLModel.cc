@@ -166,3 +166,36 @@ int temp_trans = 0;
 	}
 	return temp_trans;
 }
+
+int cUMLModel::numTriggers()
+{
+int temp_trigger = 0;
+	for (int i=0; i<state_diagrams.size(); i++) { 
+		temp_trigger += getStateDiagram(i)->numTriggers();
+	}
+	return temp_trigger;
+}
+
+int cUMLModel::numGuards() 
+{
+int temp = 0;
+	for (int i=0; i<state_diagrams.size(); i++) { 
+		temp += getStateDiagram(i)->numGuards();
+	}
+	return temp;
+}
+
+int cUMLModel::numActions()
+{
+int temp = 0;
+	for (int i=0; i<state_diagrams.size(); i++) { 
+		temp += getStateDiagram(i)->numActions();
+	}
+	return temp;
+}
+
+int cUMLModel::numSDs()
+{
+	return state_diagrams.size();
+}
+
