@@ -26,6 +26,8 @@ public:
 	
 	int getStateDiagramSize() { return state_diagrams.size(); } 
 	cUMLStateDiagram* getStateDiagram (int); 
+	int numStates();
+	int numTrans();
 	
 
 protected: 

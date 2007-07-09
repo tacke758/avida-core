@@ -94,8 +94,10 @@ void cUMLStateDiagram::checkForPath(std::deque<std::string> path,
 			if (ts == path.front()) { 
 //				std::cout << "Found an edge with " << ts << std::endl;
 				dist++;
-				path.pop_front();
-				checkForPath(path, target(ed, sd0), result, dist);	
+//				path.pop_front();
+//				checkForPath(path, target(ed, sd0), result, dist);	
+				checkForPath(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0), result, dist);
+
 			}
 		}	
 }
@@ -105,6 +107,10 @@ bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, 
 {
 
 	bool result = false;
+	
+	if (num_edges(sd0) == 0) { 
+		return false;
+	}
 	
 	boost::graph_traits<state_diagram>::vertex_descriptor o_temp, d_temp;
 	boost::graph_traits<state_diagram>::edge_iterator edge_start, edge_end;

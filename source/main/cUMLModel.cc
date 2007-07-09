@@ -149,4 +149,20 @@ std::string cUMLModel::getXMI()
 	return xmi;
 }
 
+int cUMLModel::numStates() 
+{ 
+	int temp_states = 0;
+	for (int i=0; i<state_diagrams.size(); i++) { 
+		temp_states += getStateDiagram(i)->numStates();
+	}
+	return temp_states;
+}
 
+int cUMLModel::numTrans()
+{
+int temp_trans = 0;
+	for (int i=0; i<state_diagrams.size(); i++) { 
+		temp_trans += getStateDiagram(i)->numTrans();
+	}
+	return temp_trans;
+}
