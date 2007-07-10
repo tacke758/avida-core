@@ -25,59 +25,59 @@ cUMLStateDiagram::~cUMLStateDiagram()
 {
 }
 
-float cUMLStateDiagram::findPath(std::deque<std::string> p) { 
-	bool res = false;
+
+// This function accepts a path throught the state diagram as a deque and returns the length 
+// of the longest path segment that the diagram satisfies. 
+// The function is complicated by the fact that the longest path segment could start at the 
+// beginning, middle, or end of the path itself AND the path could begin at any reachable vertex. 
+int cUMLStateDiagram::findPath(std::deque<std::string> p) { 
+	int path_dist = 0; // the current path distance satisfied is 0. 
+//	int path_total_length = p.size();
+	int path_longest_length = 0; 
+	int len = 0;
 	int num_vert = num_vertices(sd0);
 	std::deque<std::string> p_temp = p;
-	int possible_length = p.size();
-	int current_length = 0; 
-	int len = 0;
-	float val;
-	
+
+
+
+	// Must start at state 0. 
+	// Must check each state. 
 	while (!p.empty()) {
-		for (int i = 0; i<num_vert; i++) { 
-			checkForPath(p_temp, vertex(i, sd0), res, len);
+
+	for (int i = 0; i<num_vert; i++) { 
+			len = checkForPathStep(p, vertex(i, sd0), 0);
 			// check to see if this path is longer than other paths....
-			if (len > current_length) { 
-				current_length = len;
-			}
+			if (len > path_dist) { 
+				path_dist = len;
+			}	
 		}
-		p.pop_front();
-		p_temp = p;
-		res = false;
-		len = 0;
-	}	
+		p.pop_front(); 
+		
+		if (len > p.size()) break;
+	}
+	return path_dist;
 	
-//	std::cout << "Longest path length: " << current_length << std::endl;
-//	std::cout << "Possible path length: " << possible_length << std::endl;
-	val = current_length / possible_length;
-	return (val);
+	
 }
 
-
-void cUMLStateDiagram::checkForPath(std::deque<std::string> path, 
-	boost::graph_traits<state_diagram>::vertex_descriptor v, bool& result, 
-	int& dist) { 
+int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path, 
+				boost::graph_traits<state_diagram>::vertex_descriptor v, 
+				int curr_dist) { 
 	
-	// declare temp strings for triggers, guards, and actions
-	std::string tt, tg, ta, ts;
-	
-	// If the path is empty or the result is already true, then 
-	// return true to indicate that the path has been found.
-	if ((path.empty()) || (result == true)) { 
-		result = true;
-		return;
-	}
-	
-	// Get all outgoing edges 
 	boost::graph_traits<state_diagram>::out_edge_iterator out_edge_start, out_edge_end;
 	boost::graph_traits<state_diagram>::edge_descriptor ed;
+	std::string tt, tg, ta, ts;
+	int longest_dist = curr_dist;
+	int temp;
 
-	// Check to see if any have the same label as the first element of path
-	// If so, then call this function on them with the tail of the path
+	if (path.empty()) return curr_dist;
+
+	// Get the outgoing edges of v
 	for(tie(out_edge_start, out_edge_end) = out_edges(v, sd0);
 			 out_edge_start != out_edge_end; ++out_edge_start) { 
 			ed = *out_edge_start;
+			
+			// Get the label of the edge
 			tt = triggers[(sd0[ed]._tr)].operation_id;
 			tg = guards[(sd0[ed]._gu)];
 			ta = actions[(sd0[ed]._act)];
@@ -88,19 +88,23 @@ void cUMLStateDiagram::checkForPath(std::deque<std::string> path,
 			if (ta == "<null>") ta = "";
 			
 			ts = tt + tg + ta;
-//			std::cout << "Looking for an edge with " << path.front() << std::endl;
-//			std::cout << "Found an edge with " << ts << std::endl;
+			
 			
 			if (ts == path.front()) { 
-//				std::cout << "Found an edge with " << ts << std::endl;
-				dist++;
-//				path.pop_front();
-//				checkForPath(path, target(ed, sd0), result, dist);	
-				checkForPath(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0), result, dist);
+				//std::cout << "Looking for and found a path named: " << ts << std::endl;
+				//std::cout << "Searching vertex " << target(ed, sd0) << "with distance " << curr_dist+1 << std::endl; 
 
+				temp = checkForPathStep(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0), curr_dist+1);
+				if (temp > longest_dist) longest_dist = temp;
 			}
-		}	
-}
+	}
+	
+	//std::cout << "Returning longest_dist " << longest_dist << std::endl;
+	return longest_dist;
+
+} 
+
+
 
 
 bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, int act) 

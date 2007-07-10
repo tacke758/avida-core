@@ -148,8 +148,10 @@ protected:
   int m_trigger_index;
   int m_guard_index;
   int m_action_index;*/	
-  cUMLModel m_model;		// Used when not running as deme
-//  cUMLModel* m_parent_model; // Used when not running as deme
+  cUMLModel m_model;		
+  std::string m_parent_xmi; 
+  std::map<std::string, float> m_parent_bonus;
+  
   
   class cNetSupport
   {
@@ -311,6 +313,7 @@ public:
   void modelCheck(cAvidaContext& ctx);
   cUMLModel* getUMLModel();
 //  cUMLModel* getParentUMLModel() { return m_parent_model; } 
+  std::string getParentXMI() { return m_parent_xmi; }
   int getStateDiagramIndex() { return m_state_diag; } 
 //  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
 //  bool firstStateDiagram() { m_state_diag = 0; }  
@@ -318,6 +321,10 @@ public:
   cUMLStateDiagram* getStateDiagram();
 //  void printStats();
 //  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
+  void setParentXMI(std::string s) { m_parent_xmi = s; } 
+  void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
+  float getParentBonus (std::string s) { return m_parent_bonus[s]; }
+  std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
   
 
  

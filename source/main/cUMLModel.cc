@@ -137,6 +137,7 @@ void cUMLModel::printXMI()
 //	xmi += xmi_class1;
 //	xmi += state_diagrams[0].getXMI();
 //	xmi += xmi_class2;
+//	state_diagrams[1].printXMI();
 	xmi += state_diagrams[1].getXMI();
 
 	xmi += xmi_end;
@@ -145,7 +146,7 @@ void cUMLModel::printXMI()
 
 std::string cUMLModel::getXMI()
 {
-	printXMI();
+//	printXMI();
 	return xmi;
 }
 

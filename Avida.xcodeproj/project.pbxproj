@@ -2708,7 +2708,7 @@
 				70B393DF0944CA6F0018F09D /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 		702442D20859E0B00059BD9B /* Build configuration list for PBXNativeTarget "avida" */ = {
 			isa = XCConfigurationList;
@@ -2720,7 +2720,7 @@
 				70B393DD0944CA6F0018F09D /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 		702442D70859E0B00059BD9B /* Build configuration list for PBXProject "Avida" */ = {
 			isa = XCConfigurationList;
@@ -2732,7 +2732,7 @@
 				70B393E10944CA6F0018F09D /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 		70AA942509D48715006A24C8 /* Build configuration list for PBXNativeTarget "tcmalloc" */ = {
 			isa = XCConfigurationList;
@@ -2744,7 +2744,7 @@
 				70AA942909D48715006A24C8 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 		70B651570BEA700B002472ED /* Build configuration list for PBXNativeTarget "unit-tests" */ = {
 			isa = XCConfigurationList;
@@ -2756,7 +2756,7 @@
 				70B6515C0BEA700B002472ED /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 		70DCAD17097AF7CC002F8733 /* Build configuration list for PBXNativeTarget "avida-s" */ = {
 			isa = XCConfigurationList;
@@ -2768,7 +2768,7 @@
 				70DCAD1B097AF7CC002F8733 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Deployment-G4";
+			defaultConfigurationName = Development;
 		};
 /* End XCConfigurationList section */
 	};

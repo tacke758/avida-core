@@ -96,7 +96,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   m_guard_index = 0;
   m_action_index = 0;*/
   m_model.seedDiagrams();	
-  
+  m_parent_xmi = "";
   
 }
 
@@ -575,10 +575,7 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 	if(GetCellID()==-1) return;
-
-
-//	printStats();
-	
+	m_model.printXMI();	
 
  assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
