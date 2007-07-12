@@ -30,7 +30,7 @@ void cMerit::UpdateValue(double in_value)
 
   value = in_value;
 
-  double mant = frexp(value , &bits);
+  double mant = frexp(value, &bits);
 
   if (bits > max_bits)
     offset = bits - max_bits;

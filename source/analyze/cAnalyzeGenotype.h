@@ -130,6 +130,7 @@ private:
   cString executed_flags; // converted into a string
   tArray<int> task_counts;
   tArray<double> task_qualities;
+  tArray<int> m_env_inputs;
 
   // Group 3 : Stats requiring parental genotype (Also from test CPUs)
   double fitness_ratio;
@@ -252,6 +253,13 @@ public:
 //    void SetFracNeut(double in_frac);
 //    void SetFracPos(double in_frac);
 
+  // A set of NULL accessors to simplyfy automated accesses.
+  void SetNULL(int dummy) { (void) dummy; }
+  void SetNULL(char dummy) { (void) dummy; }
+  void SetNULL(double dummy) { (void) dummy; }
+  void SetNULL(const cString & dummy) { (void) dummy; }
+  void SetNULL(cString dummy) { (void) dummy; }
+
   // Accessors...
   const cGenome & GetGenome() const { return genome; }
   const cString & GetName() const { return name; }
@@ -331,6 +339,13 @@ public:
   }
   const tArray<int> & GetTaskCounts() const {
     return task_counts;
+  }
+  int GetEnvInput(int input_id) const{
+    if (input_id >= m_env_inputs.GetSize()) return 0;
+    return m_env_inputs[input_id];
+  }
+  const tArray<int>& GetEnvInputs() const{
+    return m_env_inputs;
   }
 
   double GetTaskQuality(int task_id) const {

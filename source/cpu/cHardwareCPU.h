@@ -87,7 +87,7 @@ protected:
   // --------  Structure Constants  --------
   static const int NUM_REGISTERS = 3;
   static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
-  enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX, REG_GX };
+  enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX };
   static const int NUM_NOPS = 3;
   
   // --------  Data Structures  --------
@@ -142,8 +142,10 @@ protected:
 #if INSTRUCTION_COSTS
   tArray<int> inst_cost;
   tArray<int> inst_ft_cost;
+  tArray<int> inst_energy_cost;
   bool m_has_costs;
   bool m_has_ft_costs;
+  bool m_has_energy_costs;
 #endif
   
   
@@ -431,6 +433,10 @@ private:
   bool Inst_DonateRandom(cAvidaContext& ctx);
   bool Inst_DonateKin(cAvidaContext& ctx);
   bool Inst_DonateEditDist(cAvidaContext& ctx);
+  bool Inst_DonateGreenBeardGene(cAvidaContext& ctx);
+  bool Inst_DonateTrueGreenBeard(cAvidaContext& ctx);
+  bool Inst_DonateThreshGreenBeard(cAvidaContext& ctx);
+  bool Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx);
   bool Inst_DonateNULL(cAvidaContext& ctx);
 
   bool Inst_SearchF(cAvidaContext& ctx);
@@ -444,8 +450,12 @@ private:
 
   bool Inst_RotateL(cAvidaContext& ctx);
   bool Inst_RotateR(cAvidaContext& ctx);
+  bool Inst_RotateLabel(cAvidaContext& ctx);
   bool Inst_SetCopyMut(cAvidaContext& ctx);
   bool Inst_ModCopyMut(cAvidaContext& ctx);
+  // @WRE additions for movement
+  bool Inst_Tumble(cAvidaContext& ctx);
+  bool Inst_Move(cAvidaContext& ctx);
 
   // Energy use
   
@@ -516,6 +526,9 @@ private:
   bool Inst_HeadDivide0_01(cAvidaContext& ctx);
   bool Inst_HeadDivide0_001(cAvidaContext& ctx);
 
+  bool Inst_Sleep(cAvidaContext& ctx);
+  bool Inst_GetUpdate(cAvidaContext& ctx);
+
   //// Promoter Model ////
   void GetPromoterPattern(tArray<int>& promoter);
   void RegulatePromoter(cAvidaContext& ctx, bool up);
@@ -533,73 +546,6 @@ private:
   
   //// Placebo ////
   bool Inst_Skip(cAvidaContext& ctx);
-  
-  //// UML Element Construction ////
-//  bool Inst_AddState(cAvidaContext& ctx);
-//  bool Inst_Next(cAvidaContext& ctx);
-//  bool Inst_Prev(cAvidaContext& ctx);
-//  bool Inst_JumpIndex(cAvidaContext& ctx);
-//  bool Inst_JumpDist(cAvidaContext& ctx);
-//  bool Inst_AddTransitionLabel(cAvidaContext& ctx);
-//  bool Inst_AddTransition(cAvidaContext& ctx);
-  bool Inst_AddTransitionTotal(cAvidaContext& ctx);
-//  bool Inst_Last(cAvidaContext& ctx);
-//  bool Inst_First(cAvidaContext& ctx);
-  
-  bool Inst_StateDiag0(cAvidaContext& ctx);
-  bool Inst_StateDiag1(cAvidaContext& ctx);
-  
-  bool Inst_OrigState0(cAvidaContext& ctx);
-  bool Inst_OrigState1(cAvidaContext& ctx);
-  bool Inst_OrigState2(cAvidaContext& ctx);
-  bool Inst_OrigState3(cAvidaContext& ctx);
-  bool Inst_OrigState4(cAvidaContext& ctx);
-  bool Inst_OrigState5(cAvidaContext& ctx);
-  bool Inst_OrigState6(cAvidaContext& ctx);
-  bool Inst_OrigState7(cAvidaContext& ctx);
-  bool Inst_OrigState8(cAvidaContext& ctx);
-  bool Inst_OrigState9(cAvidaContext& ctx);
-
-  bool Inst_DestState0(cAvidaContext& ctx);
-  bool Inst_DestState1(cAvidaContext& ctx);
-  bool Inst_DestState2(cAvidaContext& ctx);
-  bool Inst_DestState3(cAvidaContext& ctx);
-  bool Inst_DestState4(cAvidaContext& ctx);
-  bool Inst_DestState5(cAvidaContext& ctx);
-  bool Inst_DestState6(cAvidaContext& ctx);
-  bool Inst_DestState7(cAvidaContext& ctx);
-  bool Inst_DestState8(cAvidaContext& ctx);
-  bool Inst_DestState9(cAvidaContext& ctx);
-  
-  bool Inst_TransLab0(cAvidaContext& ctx);
-  bool Inst_TransLab1(cAvidaContext& ctx);
-  bool Inst_TransLab2(cAvidaContext& ctx);
-  bool Inst_TransLab3(cAvidaContext& ctx);
-  bool Inst_TransLab4(cAvidaContext& ctx);
-  bool Inst_TransLab5(cAvidaContext& ctx);
-  bool Inst_TransLab6(cAvidaContext& ctx);
-  bool Inst_TransLab7(cAvidaContext& ctx);
-  bool Inst_TransLab8(cAvidaContext& ctx);
-  bool Inst_TransLab9(cAvidaContext& ctx);
-  bool Inst_TransLab10(cAvidaContext& ctx);
-  bool Inst_TransLab11(cAvidaContext& ctx);
-
-  bool Inst_Trigger0(cAvidaContext& ctx);
-  bool Inst_Trigger1(cAvidaContext& ctx);
-  bool Inst_Trigger2(cAvidaContext& ctx);
-  bool Inst_Trigger3(cAvidaContext& ctx);
-  
-  bool Inst_Guard0(cAvidaContext& ctx);
-  bool Inst_Guard1(cAvidaContext& ctx);
-  bool Inst_Guard2(cAvidaContext& ctx);
-  bool Inst_Guard3(cAvidaContext& ctx);
-  
-  bool Inst_Action0(cAvidaContext& ctx);
-  bool Inst_Action1(cAvidaContext& ctx);
-  bool Inst_Action2(cAvidaContext& ctx);
-  bool Inst_Action3(cAvidaContext& ctx);
-
-
 };
 
 

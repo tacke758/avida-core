@@ -28,15 +28,22 @@
 
 #include <iostream>
 
+#ifndef cFlexVar_h
+#include "cFlexVar.h"
+#endif
+
 #ifndef cString_h
 #include "cString.h"
 #endif
+
 #ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
+
 #ifndef tDataEntryBase_h
 #include "tDataEntryBase.h"
 #endif
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -48,37 +55,36 @@ template <class T, class OUT> class tDataEntry : public tDataEntryBase<T> {
   tMemTrack<tDataEntry<T, OUT> > mt;
 #endif
 protected:
-  OUT  (T::*DataRetrieval)() const;
+  OUT  (T::*DataGet)() const;
   void (T::*DataSet)(OUT);
   int  (T::*DataCompare)(T*) const;
 
-  int CmpNULL(T *) const { return 0; }
+//  int CmpNULL(T *) const { return 0; }
 public:
   tDataEntry(const cString & _name, const cString & _desc,
 	     OUT (T::*_funR)() const,
 	     void (T::*_funS)(OUT _val) = NULL,
-	     //int (T::*_funC)(T * _o) const = &T::CompareNULL,
-	     int (T::*_funC)(T * _o) const = 0,
+	     int _compare_type=0,
 	     const cString & _null="0",
 	     const cString & _html_cell="align=center")
-    : tDataEntryBase<T>(_name, _desc, _null, _html_cell), DataRetrieval(_funR),
-      DataSet(_funS), DataCompare(_funC) { ; }
+    : tDataEntryBase<T>(_name, _desc, _compare_type, _null, _html_cell), DataGet(_funR),
+      DataSet(_funS) {;}
 
-  bool Print(std::ostream& fp) const {
-    if (this->target == NULL) return false;
-    fp << (this->target->*DataRetrieval)();
-    return true;
-  }
-
-  //int Compare(T * other) const { return (target->*DataCompare)(other); }
-  int Compare(T * other) const {
-    return (DataCompare)?((this->target->*DataCompare)(other)):(0);
-  }
   bool Set(const cString & value) {
     OUT new_value(0);
     if (DataSet == 0) return false;
     (this->target->*DataSet)( cStringUtil::Convert(value, new_value) );
     return true;
+  }
+
+  cFlexVar Get() const {
+    assert(this->target != NULL);
+    return cFlexVar( (this->target->*DataGet)() );
+  }
+
+  cFlexVar Get(const T * tmp_target) const {
+    assert(tmp_target != NULL);
+    return cFlexVar( (tmp_target->*DataGet)() );
   }
 };
 

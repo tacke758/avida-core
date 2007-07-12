@@ -39,6 +39,8 @@
 #include "nMutation.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
+#include "cPopulation.h"
+#include "cPopulationCell.h"
 #include "cStringUtil.h"
 #include "cTestCPU.h"
 #include "cWorldDriver.h"
@@ -64,11 +66,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
   static const cNOPEntryCPU s_n_array[] = {
     cNOPEntryCPU("nop-A", REG_AX),
     cNOPEntryCPU("nop-B", REG_BX),
-    cNOPEntryCPU("nop-C", REG_CX), 
-	cNOPEntryCPU("nop-D", REG_DX),
-    cNOPEntryCPU("nop-E", REG_EX),
-    cNOPEntryCPU("nop-F", REG_FX), 
-	cNOPEntryCPU("nop-G", REG_GX), 
+    cNOPEntryCPU("nop-C", REG_CX)
   };
   
   static const tInstLibEntry<tMethod> s_f_array[] = {
@@ -80,11 +78,6 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("nop-A", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-B", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
     tInstLibEntry<tMethod>("nop-C", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
-    tInstLibEntry<tMethod>("nop-D", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
-    tInstLibEntry<tMethod>("nop-E", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
-    tInstLibEntry<tMethod>("nop-F", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
-    tInstLibEntry<tMethod>("nop-G", &cHardwareCPU::Inst_Nop, (nInstFlag::DEFAULT | nInstFlag::NOP), "No-operation instruction; modifies other instructions"),
-
     
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
     tInstLibEntry<tMethod>("nop-X", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
@@ -212,6 +205,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("donate-rnd", &cHardwareCPU::Inst_DonateRandom),
     tInstLibEntry<tMethod>("donate-kin", &cHardwareCPU::Inst_DonateKin),
     tInstLibEntry<tMethod>("donate-edt", &cHardwareCPU::Inst_DonateEditDist),
+    tInstLibEntry<tMethod>("donate-gbg",  &cHardwareCPU::Inst_DonateGreenBeardGene),
+    tInstLibEntry<tMethod>("donate-tgb",  &cHardwareCPU::Inst_DonateTrueGreenBeard),
+    tInstLibEntry<tMethod>("donate-threshgb",  &cHardwareCPU::Inst_DonateThreshGreenBeard),
+    tInstLibEntry<tMethod>("donate-quantagb",  &cHardwareCPU::Inst_DonateQuantaThreshGreenBeard),
     tInstLibEntry<tMethod>("donate-NUL", &cHardwareCPU::Inst_DonateNULL),
 
 	tInstLibEntry<tMethod>("IObuf-add1", &cHardwareCPU::Inst_IOBufAdd1),
@@ -219,9 +216,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 
     tInstLibEntry<tMethod>("rotate-l", &cHardwareCPU::Inst_RotateL),
     tInstLibEntry<tMethod>("rotate-r", &cHardwareCPU::Inst_RotateR),
+    tInstLibEntry<tMethod>("rotate-label", &cHardwareCPU::Inst_RotateLabel),
+
     
     tInstLibEntry<tMethod>("set-cmut", &cHardwareCPU::Inst_SetCopyMut),
     tInstLibEntry<tMethod>("mod-cmut", &cHardwareCPU::Inst_ModCopyMut),
+    // @WRE additions for movement
+    tInstLibEntry<tMethod>("tumble", &cHardwareCPU::Inst_Tumble),
+    tInstLibEntry<tMethod>("move", &cHardwareCPU::Inst_Move),
 
     // Energy instruction
     tInstLibEntry<tMethod>("recover", &cHardwareCPU::Inst_ZeroEnergyUsed),
@@ -335,6 +337,15 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("kazi5", &cHardwareCPU::Inst_Kazi5),
     tInstLibEntry<tMethod>("die", &cHardwareCPU::Inst_Die),
 
+    // Sleep and time
+    tInstLibEntry<tMethod>("sleep", &cHardwareCPU::Inst_Sleep),
+    tInstLibEntry<tMethod>("sleep1", &cHardwareCPU::Inst_Sleep),
+    tInstLibEntry<tMethod>("sleep2", &cHardwareCPU::Inst_Sleep),
+    tInstLibEntry<tMethod>("sleep3", &cHardwareCPU::Inst_Sleep),
+    tInstLibEntry<tMethod>("sleep4", &cHardwareCPU::Inst_Sleep),
+    tInstLibEntry<tMethod>("time", &cHardwareCPU::Inst_GetUpdate),
+    
+
     // Promoter Model
     tInstLibEntry<tMethod>("up-reg-*", &cHardwareCPU::Inst_UpRegulatePromoter),
     tInstLibEntry<tMethod>("down-reg-*", &cHardwareCPU::Inst_DownRegulatePromoter),
@@ -346,131 +357,6 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("promoter", &cHardwareCPU::Inst_Promoter),
     tInstLibEntry<tMethod>("decay-reg", &cHardwareCPU::Inst_DecayRegulation),
     
-		    // UML Element Creation			
-/*	tInstLibEntry<tMethod>("addState", &cHardwareCPU::Inst_AddState, false, 
-					"Add a new state"),
-*/	
-/*				
-	tInstLibEntry<tMethod>("next", &cHardwareCPU::Inst_Next, false, 
-					"Increment to the next position in the list"),
-	tInstLibEntry<tMethod>("prev", &cHardwareCPU::Inst_Prev, false, 
-					"Decrement to the previous position in the list"),
-	tInstLibEntry<tMethod>("addTransLab", &cHardwareCPU::Inst_AddTransitionLabel, false, 
-					"Add a transition label"),
-*/					
-/*
-	tInstLibEntry<tMethod>("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
-					"Add a transition"),		
-*/								
-	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
-					"Add a transition without adding a label."),				
-/*	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
-					"Jump to a position in the list"),																	
-	tInstLibEntry<tMethod>("first", &cHardwareCPU::Inst_First, false, 
-					"Go to the first position in the list"),		
-	tInstLibEntry<tMethod>("last", &cHardwareCPU::Inst_Last, false, 
-					"Go to the last position in the list"),						
-	tInstLibEntry<tMethod>("jump-d", &cHardwareCPU::Inst_JumpDist, false, 
-					"Jump to a position in the list using labels."),
-*/					
-	tInstLibEntry<tMethod>("sd-0", &cHardwareCPU::Inst_StateDiag0, false, 
-					"Change to state diagram 0"),				
-	tInstLibEntry<tMethod>("sd-1", &cHardwareCPU::Inst_StateDiag1, false, 
-					"Change to state diagram 1"),				
-	tInstLibEntry<tMethod>("s-orig-0", &cHardwareCPU::Inst_OrigState0, false, 
-					"Change the origin to state 0"),
-	tInstLibEntry<tMethod>("s-orig-1", &cHardwareCPU::Inst_OrigState1, false, 
-					"Change the origin to state 1"),
-	tInstLibEntry<tMethod>("s-orig-2", &cHardwareCPU::Inst_OrigState2, false, 
-					"Change the origin to state 2"),
-	tInstLibEntry<tMethod>("s-orig-3", &cHardwareCPU::Inst_OrigState3, false, 
-					"Change the origin to state 3"),
-	tInstLibEntry<tMethod>("s-orig-4", &cHardwareCPU::Inst_OrigState4, false, 
-					"Change the origin to state 4"),
-	tInstLibEntry<tMethod>("s-orig-5", &cHardwareCPU::Inst_OrigState5, false, 
-					"Change the origin to state 5"),
-	tInstLibEntry<tMethod>("s-orig-6", &cHardwareCPU::Inst_OrigState6, false, 
-					"Change the origin to state 6"),
-	tInstLibEntry<tMethod>("s-orig-7", &cHardwareCPU::Inst_OrigState7, false, 
-					"Change the origin to state 7"),				
-	tInstLibEntry<tMethod>("s-orig-8", &cHardwareCPU::Inst_OrigState8, false, 
-					"Change the origin to state 8"),
-	tInstLibEntry<tMethod>("s-orig-9", &cHardwareCPU::Inst_OrigState9, false, 
-					"Change the origin to state 9"),
-	tInstLibEntry<tMethod>("s-dest-0", &cHardwareCPU::Inst_DestState0, false, 
-					"Change the destination to state 0"),																																									
-	tInstLibEntry<tMethod>("s-dest-1", &cHardwareCPU::Inst_DestState1, false, 
-					"Change the destination to state 1"),		
-	tInstLibEntry<tMethod>("s-dest-2", &cHardwareCPU::Inst_DestState2, false, 
-					"Change the destination to state 2"),		
-	tInstLibEntry<tMethod>("s-dest-3", &cHardwareCPU::Inst_DestState3, false, 
-					"Change the destination to state 3"),		
-	tInstLibEntry<tMethod>("s-dest-4", &cHardwareCPU::Inst_DestState4, false, 
-					"Change the destination to state 4"),		
-	tInstLibEntry<tMethod>("s-dest-5", &cHardwareCPU::Inst_DestState5, false, 
-					"Change the destination to state 5"),		
-	tInstLibEntry<tMethod>("s-dest-6", &cHardwareCPU::Inst_DestState6, false, 
-					"Change the destination to state 6"),		
-	tInstLibEntry<tMethod>("s-dest-7", &cHardwareCPU::Inst_DestState7, false, 
-					"Change the destination to state 7"),		
-	tInstLibEntry<tMethod>("s-dest-8", &cHardwareCPU::Inst_DestState8, false, 
-					"Change the destination to state 8"),		
-	tInstLibEntry<tMethod>("s-dest-9", &cHardwareCPU::Inst_DestState9, false, 
-					"Change the destination to state 9"),		
-	tInstLibEntry<tMethod>("trans-0", &cHardwareCPU::Inst_TransLab0, false, 
-					"Change to transition label 0"),		
-	tInstLibEntry<tMethod>("trans-1", &cHardwareCPU::Inst_TransLab1, false, 
-					"Change to transition label 1"),		
-	tInstLibEntry<tMethod>("trans-2", &cHardwareCPU::Inst_TransLab2, false, 
-					"Change to transition label 2"),		
-	tInstLibEntry<tMethod>("trans-3", &cHardwareCPU::Inst_TransLab3, false, 
-					"Change to transition label 3"),		
-	tInstLibEntry<tMethod>("trans-4", &cHardwareCPU::Inst_TransLab4, false, 
-					"Change to transition label 4"),		
-	tInstLibEntry<tMethod>("trans-5", &cHardwareCPU::Inst_TransLab5, false, 
-					"Change to transition label 5"),		
-	tInstLibEntry<tMethod>("trans-6", &cHardwareCPU::Inst_TransLab6, false, 
-					"Change to transition label 6"),		
-	tInstLibEntry<tMethod>("trans-7", &cHardwareCPU::Inst_TransLab7, false, 
-					"Change to transition label 7"),		
-	tInstLibEntry<tMethod>("trans-8", &cHardwareCPU::Inst_TransLab8, false, 
-					"Change to transition label 8"),		
-	tInstLibEntry<tMethod>("trans-9", &cHardwareCPU::Inst_TransLab9, false, 
-					"Change to transition label 9"),		
-	tInstLibEntry<tMethod>("trans-10", &cHardwareCPU::Inst_TransLab10, false, 
-					"Change to transition label 10"),		
-	tInstLibEntry<tMethod>("trans-11", &cHardwareCPU::Inst_TransLab11, false, 
-					"Change to transition label 11"),	
-					
-	tInstLibEntry<tMethod>("trig-0", &cHardwareCPU::Inst_Trigger0, false, 
-					"Change to trigger 0"),	
-	tInstLibEntry<tMethod>("trig-1", &cHardwareCPU::Inst_Trigger1, false, 
-					"Change to trigger 1"),	
-	tInstLibEntry<tMethod>("trig-2", &cHardwareCPU::Inst_Trigger2, false, 
-					"Change to trigger 2"),	
-	tInstLibEntry<tMethod>("trig-3", &cHardwareCPU::Inst_Trigger3, false, 
-					"Change to trigger 3"),						
-
-	tInstLibEntry<tMethod>("guard-0", &cHardwareCPU::Inst_Guard0, false, 
-					"Change to guard 0"),						
-	tInstLibEntry<tMethod>("guard-1", &cHardwareCPU::Inst_Guard1, false, 
-					"Change to guard 1"),						
-	tInstLibEntry<tMethod>("guard-2", &cHardwareCPU::Inst_Guard2, false, 
-					"Change to guard 2"),						
-	tInstLibEntry<tMethod>("guard-3", &cHardwareCPU::Inst_Guard3, false, 
-					"Change to guard 3"),	
-					
-	tInstLibEntry<tMethod>("action-0", &cHardwareCPU::Inst_Action0, false, 
-					"Change to action 0"),						
-	tInstLibEntry<tMethod>("action-1", &cHardwareCPU::Inst_Action1, false, 
-					"Change to action 1"),						
-	tInstLibEntry<tMethod>("action-2", &cHardwareCPU::Inst_Action2, false, 
-					"Change to action 2"),						
-	tInstLibEntry<tMethod>("action-3", &cHardwareCPU::Inst_Action3, false, 
-					"Change to action 3"),						
-															
-  					
-	
     // Placebo instructions
     tInstLibEntry<tMethod>("skip", &cHardwareCPU::Inst_Skip),
 
@@ -520,8 +406,10 @@ cHardwareCPU::cHardwareCPU(const cHardwareCPU &hardware_cpu)
 #if INSTRUCTION_COSTS
 , inst_cost(hardware_cpu.inst_cost)
 , inst_ft_cost(hardware_cpu.inst_ft_cost)
+, inst_energy_cost(hardware_cpu.inst_energy_cost)
 , m_has_costs(hardware_cpu.m_has_costs)
 , m_has_ft_costs(hardware_cpu.m_has_ft_costs)
+  // TODO - m_has_energy_costs
 #endif
 {
 }
@@ -547,8 +435,10 @@ void cHardwareCPU::Reset()
   const int num_inst_cost = m_inst_set->GetSize();
   inst_cost.Resize(num_inst_cost);
   inst_ft_cost.Resize(num_inst_cost);
+  inst_energy_cost.Resize(num_inst_cost);
   m_has_costs = false;
   m_has_ft_costs = false;
+  // TODO - m_has_energy_costs
   
   for (int i = 0; i < num_inst_cost; i++) {
     inst_cost[i] = m_inst_set->GetCost(cInstruction(i));
@@ -556,6 +446,9 @@ void cHardwareCPU::Reset()
     
     inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
     if (!m_has_ft_costs && inst_ft_cost[i]) m_has_ft_costs = true;
+
+    inst_energy_cost[i] = m_inst_set->GetEnergyCost(cInstruction(i));    
+    // TODO - m_has_energy_costs  if()
   }
 #endif 
   
@@ -595,8 +488,7 @@ void cHardwareCPU::SingleProcess(cAvidaContext& ctx)
   
   cPhenotype & phenotype = organism->GetPhenotype();
   
-  if (m_world->GetConfig().PROMOTERS_ENABLED.Get() == 1) 
-  {
+  if (m_world->GetConfig().PROMOTERS_ENABLED.Get() == 1) {
     //First instruction - check whether we should be starting at a promoter.
     if (phenotype.GetTimeUsed() == 0) Inst_Terminate(m_world->GetDefaultContext());
   }
@@ -608,8 +500,7 @@ void cHardwareCPU::SingleProcess(cAvidaContext& ctx)
   
   // If we have threads turned on and we executed each thread in a single
   // timestep, adjust the number of instructions executed accordingly.
-  const int num_inst_exec = (m_world->GetConfig().THREAD_SLICING_METHOD.Get() == 1) ?
-num_threads : 1;
+  const int num_inst_exec = (m_world->GetConfig().THREAD_SLICING_METHOD.Get() == 1) ? num_threads : 1;
   
   for (int i = 0; i < num_inst_exec; i++) {
     // Setup the hardware for the next instruction to be executed.
@@ -644,8 +535,7 @@ num_threads : 1;
       const int addl_time_cost = m_inst_set->GetAddlTimeCost(cur_inst);
 
       // Prob of exec (moved from SingleProcess_PayCosts so that we advance IP after a fail)
-      if ( m_inst_set->GetProbFail(cur_inst) > 0.0 ) 
-      {
+      if ( m_inst_set->GetProbFail(cur_inst) > 0.0 ) {
         exec = !( ctx.GetRandom().P(m_inst_set->GetProbFail(cur_inst)) );
       }
       
@@ -660,8 +550,7 @@ num_threads : 1;
       
       // In the promoter model, there may be a chance of termination
       // that causes execution to start at a new instruction (per instruction executed)
-      if ( m_world->GetConfig().PROMOTERS_ENABLED.Get() )
-      {
+      if ( m_world->GetConfig().PROMOTERS_ENABLED.Get() ) {
         const double processivity = m_world->GetConfig().PROMOTER_PROCESSIVITY_INST.Get();
         if ( ctx.GetRandom().P(1-processivity) ) Inst_Terminate(ctx);
       }
@@ -687,6 +576,7 @@ num_threads : 1;
   }
   
   organism->SetRunning(false);
+  CheckImplicitRepro(ctx);
 }
 
 
@@ -698,6 +588,35 @@ bool cHardwareCPU::SingleProcess_PayCosts(cAvidaContext& ctx, const cInstruction
 #if INSTRUCTION_COSTS
   assert(cur_inst.GetOp() < inst_cost.GetSize());
   
+  // check avaliable energy first
+  double energy_req = inst_energy_cost[cur_inst.GetOp()] * (organism->GetPhenotype().GetMerit().GetDouble() / 100.0); //compensate by factor of 100
+
+  if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1 && energy_req > 0.0) {
+    if(organism->GetPhenotype().GetStoredEnergy() >= energy_req) {
+      inst_energy_cost[cur_inst.GetOp()] = 0;
+      //subtract energy used from current org energy.
+      organism->GetPhenotype().ReduceEnergy(energy_req);  
+    
+    
+    // tracking sleeping organisms
+  cString instName = m_world->GetHardwareManager().GetInstSet().GetName(cur_inst);
+  int cellID = organism->GetCellID();
+  if( instName == cString("sleep") || instName == cString("sleep1") || instName == cString("sleep2") ||
+      instName == cString("sleep3") || instName == cString("sleep4")) {
+    cPopulation& pop = m_world->GetPopulation();
+    if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1) {
+      pop.AddBeginSleep(cellID,m_world->GetStats().GetUpdate());
+    }
+    pop.GetCell(cellID).GetOrganism()->SetSleeping(true);
+    pop.incNumAsleep();    //TODO - Fix me:  this functions get called repeatedly
+  }
+    
+    } else {
+      // not enough energy
+      return false;
+    }
+  }
+    
   // If first time cost hasn't been paid off...
   if (m_has_ft_costs && inst_ft_cost[cur_inst.GetOp()] > 0) {
     inst_ft_cost[cur_inst.GetOp()]--;       // dec cost
@@ -714,6 +633,7 @@ bool cHardwareCPU::SingleProcess_PayCosts(cAvidaContext& ctx, const cInstruction
     }
   }
   
+  inst_energy_cost[cur_inst.GetOp()] = m_inst_set->GetEnergyCost(cur_inst); //reset instruction energy cost
 #endif
   return true;
 }
@@ -729,7 +649,7 @@ bool cHardwareCPU::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cInstruct
   // If there is an execution error, execute a random instruction.
   if (organism->TestExeErr()) actual_inst = m_inst_set->GetRandomInst(ctx);
 #endif /* EXECUTION_ERRORS */
-  
+    
   // Get a pointer to the corresponding method...
   int inst_idx = m_inst_set->GetLibFunctionIndex(actual_inst);
   
@@ -744,9 +664,11 @@ bool cHardwareCPU::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cInstruct
 	
   // And execute it.
   const bool exec_success = (this->*(m_functions[inst_idx]))(ctx);
-	
+
+  // NOTE: Organism may be dead now if instruction executed killed it (such as some divides, "die", or "kazi")
+
 #if INSTRUCTION_COUNT
-  // decrement if the instruction was not executed successfully
+  // Decrement if the instruction was not executed successfully.
   if (exec_success == false) {
     organism->GetPhenotype().DecCurInstCount(actual_inst.GetOp());
   }
@@ -2635,12 +2557,6 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   child_genome = GetMemory();
   organism->GetPhenotype().SetLinesCopied(GetMemory().GetSize());
 
-  // @JEB - Make sure that an organism has accumulated any required bonus
-  const int bonus_required = m_world->GetConfig().REQUIRED_BONUS.Get();
-  if (organism->GetPhenotype().GetCurBonus() < bonus_required) {
-    return false; //  (divide fails)
-  }
-  
   int lines_executed = 0;
   for ( int i = 0; i < GetMemory().GetSize(); i++ ) {
     if ( GetMemory().FlagExecuted(i)) lines_executed++;
@@ -3154,14 +3070,14 @@ bool cHardwareCPU::DoSense(cAvidaContext& ctx, int conversion_method, double bas
 void cHardwareCPU::DoDonate(cOrganism* to_org)
 {
   assert(to_org != NULL);
-  
-  const double merit_given = m_world->GetConfig().DONATE_SIZE.Get();
-  const double merit_received =
-    merit_given * m_world->GetConfig().DONATE_MULT.Get();
-  
+
+  const double merit_given = m_world->GetConfig().MERIT_GIVEN.Get();
+  const double merit_received = m_world->GetConfig().MERIT_RECEIVED.Get();
+
   double cur_merit = organism->GetPhenotype().GetMerit().GetDouble();
-  cur_merit -= merit_given; 
-  
+  cur_merit -= merit_given;
+  if(cur_merit < 0) cur_merit=0; 
+
   // Plug the current merit back into this organism and notify the scheduler.
   organism->UpdateMerit(cur_merit);
   
@@ -3173,11 +3089,14 @@ void cHardwareCPU::DoDonate(cOrganism* to_org)
 
 bool cHardwareCPU::Inst_DonateRandom(cAvidaContext& ctx)
 {
-  organism->GetPhenotype().IncDonates();
+  
   if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
     return false;
   }
-  
+
+  organism->GetPhenotype().IncDonates();
+  organism->GetPhenotype().SetIsDonorRand();
+
   // Turn to a random neighbor, get it, and turn back...
   int neighbor_id = ctx.GetRandom().GetInt(organism->GetNeighborhoodSize());
   for (int i = 0; i < neighbor_id; i++) organism->Rotate(1);
@@ -3185,19 +3104,35 @@ bool cHardwareCPU::Inst_DonateRandom(cAvidaContext& ctx)
   for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
   
   // Donate only if we have found a neighbor.
-  if (neighbor != NULL) DoDonate(neighbor);
-  
+  if (neighbor != NULL) {
+    DoDonate(neighbor);
+    
+    //print out how often random donations go to kin
+    /*
+    static ofstream kinDistanceFile("kinDistance.dat");
+    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=1) << " ";
+    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=2) << " ";
+    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=3) << " ";
+    kinDistanceFile << genotype->GetPhyloDistance(neighbor->GetGenotype());
+    kinDistanceFile << endl; 
+    */
+    neighbor->GetPhenotype().SetIsReceiverRand();
+  }
+
   return true;
 }
 
 
 bool cHardwareCPU::Inst_DonateKin(cAvidaContext& ctx)
 {
-  organism->GetPhenotype().IncDonates();
   if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
     return false;
   }
   
+  organism->GetPhenotype().IncDonates();
+  organism->GetPhenotype().SetIsDonorKin();
+
+
   // Find the target as the first Kin found in the neighborhood.
   const int num_neighbors = organism->GetNeighborhoodSize();
   
@@ -3229,17 +3164,21 @@ bool cHardwareCPU::Inst_DonateKin(cAvidaContext& ctx)
   for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
   
   // Donate only if we have found a close enough relative...
-  if (neighbor != NULL)  DoDonate(neighbor);
-  
+  if (neighbor != NULL){
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverKin();
+  }
   return true;
 }
 
 bool cHardwareCPU::Inst_DonateEditDist(cAvidaContext& ctx)
 {
-  organism->GetPhenotype().IncDonates();
   if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
     return false;
   }
+
+  organism->GetPhenotype().IncDonates();
+  organism->GetPhenotype().SetIsDonorEdit();
   
   // Find the target as the first Kin found in the neighborhood.
   const int num_neighbors = organism->GetNeighborhoodSize();
@@ -3275,23 +3214,350 @@ bool cHardwareCPU::Inst_DonateEditDist(cAvidaContext& ctx)
   for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
   
   // Donate only if we have found a close enough relative...
-  if (neighbor != NULL)  DoDonate(neighbor);
+  if (neighbor != NULL){
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverEdit();
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_DonateGreenBeardGene(cAvidaContext& ctx)
+{
+  //this donates to organisms that have this instruction anywhere
+  //in their genome (see Dawkins 1976, The Selfish Gene, for 
+  //the history of the theory and the name 'green beard'
+  cPhenotype & phenotype = organism->GetPhenotype();
+
+  if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
+    return false;
+  }
+
+  phenotype.IncDonates();
+  phenotype.SetIsDonorGbg();
+
+  // Find the target as the first match found in the neighborhood.
+
+  //get the neighborhood size
+  const int num_neighbors = organism->GetNeighborhoodSize();
+
+  // Turn to face a random neighbor
+  int neighbor_id = ctx.GetRandom().GetInt(num_neighbors);
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(1);
+  cOrganism * neighbor = organism->GetNeighbor();
+
+  int max_id = neighbor_id + num_neighbors;
+ 
+  //we have not found a match yet
+  bool found = false;
+
+  // rotate through orgs in neighborhood  
+  while (neighbor_id < max_id) {
+      neighbor = organism->GetNeighbor();
+
+      //if neighbor exists, do they have the green beard gene?
+      if (neighbor != NULL) {
+          const cGenome & neighbor_genome = neighbor->GetGenome();
+
+          // for each instruction in the genome...
+          for(int i=0;i<neighbor_genome.GetSize();i++){
+
+            // ...see if it is donate-gbg
+            if (neighbor_genome[i] == IP().GetInst()) {
+              found = true;
+              break;
+            }
+	    
+          }
+      }
+      
+      // stop searching through the neighbors if we already found one
+      if (found == true);{
+    	break;
+      }
+  
+      organism->Rotate(1);
+      neighbor_id++;
+  }
+
+    if (found == false) neighbor = NULL;
+
+  // Put the facing back where it was.
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
+
+  // Donate only if we have found a close enough relative...
+  if (neighbor != NULL) {
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverGbg();
+  }
   
   return true;
+  
+}
+
+bool cHardwareCPU::Inst_DonateTrueGreenBeard(cAvidaContext& ctx)
+{
+  //this donates to organisms that have this instruction anywhere
+  //in their genome AND their parents excuted it
+  //(see Dawkins 1976, The Selfish Gene, for 
+  //the history of the theory and the name 'green beard'
+  //  cout << "i am about to donate to a green beard" << endl;
+  cPhenotype & phenotype = organism->GetPhenotype();
+
+  if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
+    return false;
+  }
+
+  phenotype.IncDonates();
+  phenotype.SetIsDonorTrueGb();
+
+  // Find the target as the first match found in the neighborhood.
+
+  //get the neighborhood size
+  const int num_neighbors = organism->GetNeighborhoodSize();
+
+  // Turn to face a random neighbor
+  int neighbor_id = ctx.GetRandom().GetInt(num_neighbors);
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(1);
+  cOrganism * neighbor = organism->GetNeighbor();
+
+  int max_id = neighbor_id + num_neighbors;
+ 
+  //we have not found a match yet
+  bool found = false;
+
+  // rotate through orgs in neighborhood  
+  while (neighbor_id < max_id) {
+      neighbor = organism->GetNeighbor();
+      //if neighbor exists, AND if their parent attempted to donate,
+      if (neighbor != NULL && neighbor->GetPhenotype().IsDonorTrueGbLast()) {
+          const cGenome & neighbor_genome = neighbor->GetGenome();
+
+          // for each instruction in the genome...
+          for(int i=0;i<neighbor_genome.GetSize();i++){
+
+            // ...see if it is donate-tgb, if so, we found a target
+            if (neighbor_genome[i] == IP().GetInst()) {
+              found = true;
+              break;
+            }
+	    
+          }
+      }
+      
+      // stop searching through the neighbors if we already found one
+      if (found == true);{
+    	break;
+      }
+  
+      organism->Rotate(1);
+      neighbor_id++;
+  }
+
+    if (found == false) neighbor = NULL;
+
+  // Put the facing back where it was.
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
+
+  // Donate only if we have found a close enough relative...
+  if (neighbor != NULL) {
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverTrueGb();
+  }
+
+  
+  return true;
+  
+}
+
+bool cHardwareCPU::Inst_DonateThreshGreenBeard(cAvidaContext& ctx)
+{
+  //this donates to organisms that have this instruction anywhere
+  //in their genome AND their parents excuted it >=THRESHOLD number of times
+  //(see Dawkins 1976, The Selfish Gene, for 
+  //the history of the theory and the name 'green beard'
+  //  cout << "i am about to donate to a green beard" << endl;
+  cPhenotype & phenotype = organism->GetPhenotype();
+
+  if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
+    return false;
+  }
+
+
+  phenotype.IncDonates();
+  phenotype.SetIsDonorThreshGb();
+  phenotype.IncNumThreshGbDonations();
+
+  // Find the target as the first match found in the neighborhood.
+
+  //get the neighborhood size
+  const int num_neighbors = organism->GetNeighborhoodSize();
+
+  // Turn to face a random neighbor
+  int neighbor_id = ctx.GetRandom().GetInt(num_neighbors);
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(1);
+  cOrganism * neighbor = organism->GetNeighbor();
+
+  int max_id = neighbor_id + num_neighbors;
+ 
+  //we have not found a match yet
+  bool found = false;
+
+  // rotate through orgs in neighborhood  
+  while (neighbor_id < max_id) {
+      neighbor = organism->GetNeighbor();
+      //if neighbor exists, AND if their parent attempted to donate >= threshhold,
+      if (neighbor != NULL && neighbor->GetPhenotype().GetNumThreshGbDonationsLast()>= m_world->GetConfig().MIN_GB_DONATE_THRESHOLD.Get() ) {
+          const cGenome & neighbor_genome = neighbor->GetGenome();
+
+          // for each instruction in the genome...
+          for(int i=0;i<neighbor_genome.GetSize();i++){
+
+	         // ...see if it is donate-threshgb, if so, we found a target
+            if (neighbor_genome[i] == IP().GetInst()) {
+              found = true;
+              break;
+            }
+	    
+          }
+      }
+      
+      // stop searching through the neighbors if we already found one
+      if (found == true);{
+    	break;
+      }
+  
+      organism->Rotate(1);
+      neighbor_id++;
+  }
+
+    if (found == false) neighbor = NULL;
+
+  // Put the facing back where it was.
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
+
+  // Donate only if we have found a close enough relative...
+  if (neighbor != NULL) {
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverThreshGb();
+    // cout << "************ neighbor->GetPhenotype().GetNumThreshGbDonationsLast() is " << neighbor->GetPhenotype().GetNumThreshGbDonationsLast() << endl;
+    
+  }
+
+  return true;
+  
+}
+
+
+bool cHardwareCPU::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
+{
+  // this donates to organisms that have this instruction anywhere
+  // in their genome AND their parents excuted it more than a
+  // THRESHOLD number of times where that threshold depend on the
+  // number of times the individual's parents attempted to donate
+  // using this instruction.  The threshold levels are multiples of
+  // the quanta value set in genesis, and the highest level that
+  // the donor qualifies for is the one used.
+
+  // (see Dawkins 1976, The Selfish Gene, for 
+  // the history of the theory and the name 'green beard'
+  //  cout << "i am about to donate to a green beard" << endl;
+  cPhenotype & phenotype = organism->GetPhenotype();
+
+  if (phenotype.GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
+    return false;
+  }
+
+  phenotype.IncDonates();
+  phenotype.SetIsDonorQuantaThreshGb();
+  phenotype.IncNumQuantaThreshGbDonations();
+  //cout << endl << "quanta_threshgb attempt.. " ;
+
+
+  // Find the target as the first match found in the neighborhood.
+
+  //get the neighborhood size
+  const int num_neighbors = organism->GetNeighborhoodSize();
+
+  // Turn to face a random neighbor
+  int neighbor_id = ctx.GetRandom().GetInt(num_neighbors);
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(1);
+  cOrganism * neighbor = organism->GetNeighbor();
+
+  int max_id = neighbor_id + num_neighbors;
+ 
+  //we have not found a match yet
+  bool found = false;
+
+  // Get the quanta (step size) between threshold levels.
+  const int donate_quanta = m_world->GetConfig().DONATE_THRESH_QUANTA.Get();
+  
+  // Calculate what quanta level we should be at for this individual.  We do a
+  // math trick to make sure its the next lowest event multiple of donate_quanta.
+  const int quanta_donate_thresh =
+    (phenotype.GetNumQuantaThreshGbDonationsLast() / donate_quanta) * donate_quanta;
+  //cout << " phenotype.GetNumQuantaThreshGbDonationsLast() is " << phenotype.GetNumQuantaThreshGbDonationsLast();
+  //cout << " quanta thresh=  " << quanta_donate_thresh;
+  // rotate through orgs in neighborhood  
+  while (neighbor_id < max_id) {
+      neighbor = organism->GetNeighbor();
+      //if neighbor exists, AND if their parent attempted to donate >= threshhold,
+      if (neighbor != NULL &&
+	  neighbor->GetPhenotype().GetNumQuantaThreshGbDonationsLast() >= quanta_donate_thresh) {
+
+          const cGenome & neighbor_genome = neighbor->GetGenome();
+
+          // for each instruction in the genome...
+          for(int i=0;i<neighbor_genome.GetSize();i++){
+
+	         // ...see if it is donate-quantagb, if so, we found a target
+            if (neighbor_genome[i] == IP().GetInst()) {
+              found = true;
+              break;
+            }
+	    
+          }
+      }
+      
+      // stop searching through the neighbors if we already found one
+      if (found == true);{
+    	break;
+      }
+  
+      organism->Rotate(1);
+      neighbor_id++;
+  }
+
+    if (found == false) neighbor = NULL;
+
+  // Put the facing back where it was.
+  for (int i = 0; i < neighbor_id; i++) organism->Rotate(-1);
+
+  // Donate only if we have found a close enough relative...
+  if (neighbor != NULL) {
+    DoDonate(neighbor);
+    neighbor->GetPhenotype().SetIsReceiverQuantaThreshGb();
+    //cout << " ************ neighbor->GetPhenotype().GetNumQuantaThreshGbDonationsLast() is " << neighbor->GetPhenotype().GetNumQuantaThreshGbDonationsLast();
+    
+  }
+
+  return true;
+  
 }
 
 
 bool cHardwareCPU::Inst_DonateNULL(cAvidaContext& ctx)
 {
-  organism->GetPhenotype().IncDonates();
   if (organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
     return false;
   }
+
+  organism->GetPhenotype().IncDonates();
+  organism->GetPhenotype().SetIsDonorNull();
   
   // This is a fake donate command that causes the organism to lose merit,
   // but no one else to gain any.
   
-  const double merit_given = m_world->GetConfig().DONATE_SIZE.Get();
+  const double merit_given = m_world->GetConfig().MERIT_GIVEN.Get();
   double cur_merit = organism->GetPhenotype().GetMerit().GetDouble();
   cur_merit -= merit_given;
   
@@ -3395,6 +3661,31 @@ bool cHardwareCPU::Inst_RotateR(cAvidaContext& ctx)
   return true;
 }
 
+/**
+  Rotate to facing specified by following label
+*/
+bool cHardwareCPU::Inst_RotateLabel(cAvidaContext& ctx)
+{
+  int standardNeighborhoodSize, actualNeighborhoodSize, newFacing, currentFacing;
+  actualNeighborhoodSize = organism->GetNeighborhoodSize();
+  
+  ReadLabel();
+  if(m_world->GetConfig().WORLD_GEOMETRY.Get() == nGeometry::TORUS || m_world->GetConfig().WORLD_GEOMETRY.Get() == nGeometry::GRID)
+    standardNeighborhoodSize = 8;
+  else {
+    exit(-1);
+  }
+  newFacing = GetLabel().AsIntGreyCode(NUM_NOPS) % standardNeighborhoodSize;
+  
+  for(int i = 0; i < actualNeighborhoodSize; i++) {
+    currentFacing = organism->GetFacing();
+    if(newFacing == currentFacing)
+      break;
+    organism->Rotate(1);
+  }
+  return true;
+}
+
 bool cHardwareCPU::Inst_SetCopyMut(cAvidaContext& ctx)
 {
   const int reg_used = FindModifiedRegister(REG_BX);
@@ -3409,6 +3700,55 @@ bool cHardwareCPU::Inst_ModCopyMut(cAvidaContext& ctx)
   const double new_mut_rate = organism->GetCopyMutProb() + static_cast<double>(GetRegister(reg_used)) / 10000.0;
   if (new_mut_rate > 0.0) organism->SetCopyMutProb(new_mut_rate);
   return true;
+}
+
+// @WRE addition for movement
+// Tumble sets the organism and cell to a new random facing
+// 
+bool cHardwareCPU::Inst_Tumble(cAvidaContext& ctx)
+{
+  // Code taken from Inst_Inject
+  //cout << "Tumble: start" << endl;
+  const int num_neighbors = organism->GetNeighborhoodSize();
+  //cout << "Tumble: size = " << num_neighbors << endl;
+  organism->Rotate(ctx.GetRandom().GetUInt(num_neighbors));
+  return true;
+}
+
+// @WRE addition for movement
+// Move uses the cPopulation::SwapCells method to move an organism to a different cell
+// and the cPopulation::MoveOrganisms helper function to clean up after a move
+// The cell selected as a destination is the one faced
+bool cHardwareCPU::Inst_Move(cAvidaContext& ctx)
+{
+  // Declarations
+  int fromcellID, destcellID; //, actualNeighborhoodSize, fromFacing, destFacing, currentFacing;
+
+  // Get population
+  cPopulation& pop = m_world->GetPopulation();
+
+  // Get stepsize. Currently, all moves are one cell regardless of stepsize.
+  // This could be changed in the future.
+  const int stepsize = m_world->GetConfig().BIOMIMETIC_MOVEMENT_STEP.Get();
+  
+  // Code
+  if (0 < stepsize) {
+    // Current cell
+    fromcellID = organism->GetCellID();
+    // With sanity check
+    if (-1  == fromcellID) return false;
+    // Destination cell
+    destcellID = pop.GetCell(fromcellID).GetCellFaced().GetID();
+    // Actually perform the move using SwapCells
+    //cout << "SwapCells: " << fromcellID << " to " << destcellID << endl;
+    pop.SwapCells(pop.GetCell(fromcellID),pop.GetCell(destcellID));
+    // Swap inputs and facings between cells using helper function
+    pop.MoveOrganisms(ctx, pop.GetCell(fromcellID), pop.GetCell(destcellID));
+
+    return true;
+  } else {
+    return false;
+  }
 }
 
 // Energy use
@@ -3522,9 +3862,6 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
-  // modified for UML branch
-  organism->modelCheck(ctx);
-  
   return Inst_HeadDivideMut(ctx, 1);
   
 }
@@ -3774,6 +4111,33 @@ bool cHardwareCPU::Inst_SetFlow(cAvidaContext& ctx)
   return true; 
 }
 
+bool cHardwareCPU::Inst_Sleep(cAvidaContext& ctx) {
+  cPopulation& pop = m_world->GetPopulation();
+  if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1) {
+    pop.AddEndSleep(organism->GetCellID(), m_world->GetStats().GetUpdate());
+  }
+  int cellID = organism->GetCellID();
+  pop.GetCell(cellID).GetOrganism()->SetSleeping(false);  //this instruction get executed at the end of a sleep cycle
+  pop.decNumAsleep();
+  if(m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 2) {
+    organism->GetPhenotype().RefreshEnergy();
+    double newMerit = organism->GetPhenotype().ApplyToEnergyStore();
+    if(newMerit != -1) {
+      std::cerr.precision(20);
+      std::cerr<<"[cHardwareCPU::Inst_Sleep] newMerit = "<< newMerit <<std::endl;
+      organism->GetOrgInterface().UpdateMerit(newMerit);
+    }
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_GetUpdate(cAvidaContext& ctx) {
+  const int reg_used = FindModifiedRegister(REG_BX);
+  GetRegister(reg_used) = m_world->GetStats().GetUpdate();
+  return true;
+}
+
+
 //// Promoter Model ////
 
 // Starting at the current position reads a promoter pattern
@@ -3973,6 +4337,7 @@ bool cHardwareCPU::Inst_DecayRegulation(cAvidaContext& ctx)
   return true;
 }
 
+
 //// Placebo insts ////
 bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 {
@@ -3980,447 +4345,3 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
   return true;
 }
 
-
-//// UML Element Construction ////
-/*
-bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->relativeJumpStateDiagram(jump_amount);
-		break;		
-	}
-	return true;
-}
- 
-bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-	int jump_amount = -1;
-		
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->relativeJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	const int reg_used = FindModifiedRegister(REG_AX);
-	const int reg_jump = FindModifiedRegister(REG_BX);
-	int jump_amount = GetRegister(reg_jump);
-
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->absoluteJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->absoluteJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->absoluteJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	const int reg_used = FindModifiedRegister(REG_AX);
-	ReadLabel();
-	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	//const int reg_jump = FindModifiedRegister(REG_BX);
-	//int jump_amount = GetRegister(reg_jump);
-
-	
-	switch (reg_used){
-	case 0:
-		// jump the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// jump the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
-		break;
-	case 2:
-		// jump the actions vector index
-		organism->absoluteJumpAction(jump_amount);
-		break;
-	case 3:
-		// jump the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// jump the original state index
-		organism->absoluteJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// jump the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->absoluteJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-*/
-
-/*
-
-bool cHardwareCPU::Inst_First(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-//	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->getStateDiagram()->firstTrigger();
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->getStateDiagram()->firstGuard();
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->getStateDiagram()->firstAction();
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->getStateDiagram()->firstTransitionLabel();
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->getStateDiagram()->firstOriginState();
-		break;
-	case 5:
-		// decement the destination state index
-		organism->getStateDiagram()->firstDestinationState();
-		break;
-	case 6: 
-		// decrement the state diagram index
-		organism->firstStateDiagram();
-		
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_Last(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-//	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->getStateDiagram()->lastTrigger();
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->getStateDiagram()->lastGuard();
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->getStateDiagram()->lastAction();
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->getStateDiagram()->lastTransitionLabel();
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->getStateDiagram()->lastOriginState();
-		break;
-	case 5:
-		// decement the destination state index
-		organism->getStateDiagram()->lastDestinationState();
-		break;
-	case 6: 
-		// decrement the state diagram index`
-		organism->lastStateDiagram(); 
-	}
-	return true;
-}
-
-
-bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addTransitionLabel();
-//	return true;
-}
-*/
-
-/*
-bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addState();
-}
-
-
-
-bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addTransition();
-}
-*/
-
-
-bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	//organism->modelCheck(ctx);
-
-	return organism->addTransitionTotal();
-}
-
-
-bool cHardwareCPU::Inst_StateDiag0(cAvidaContext& ctx)
-{ return (organism->absoluteJumpStateDiagram(0)); }
-
-bool cHardwareCPU::Inst_StateDiag1(cAvidaContext& ctx)
-{ return (organism->absoluteJumpStateDiagram(1)); }
-  
-bool cHardwareCPU::Inst_OrigState0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(0)); }
-
-bool cHardwareCPU::Inst_OrigState1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(1)); }
-
-bool cHardwareCPU::Inst_OrigState2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(2)); }
-
-bool cHardwareCPU::Inst_OrigState3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(3)); }
-
-bool cHardwareCPU::Inst_OrigState4(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(4)); }
-
-bool cHardwareCPU::Inst_OrigState5(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(5)); }
-
-bool cHardwareCPU::Inst_OrigState6(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(6)); }
-
-bool cHardwareCPU::Inst_OrigState7(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(7)); }
-
-bool cHardwareCPU::Inst_OrigState8(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(8)); }
-
-bool cHardwareCPU::Inst_OrigState9(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpOriginState(9)); }
-
-bool cHardwareCPU::Inst_DestState0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(0)); }
-
-bool cHardwareCPU::Inst_DestState1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(1)); }
-
-bool cHardwareCPU::Inst_DestState2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(2)); }
-
-bool cHardwareCPU::Inst_DestState3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(3)); }
-
-bool cHardwareCPU::Inst_DestState4(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(4)); }
-
-bool cHardwareCPU::Inst_DestState5(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(5)); }
-
-bool cHardwareCPU::Inst_DestState6(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(6)); }
-
-bool cHardwareCPU::Inst_DestState7(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(7)); }
-
-bool cHardwareCPU::Inst_DestState8(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(8)); }
-
-bool cHardwareCPU::Inst_DestState9(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpDestinationState(9)); }
-
-bool cHardwareCPU::Inst_TransLab0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(0)); }
-
-bool cHardwareCPU::Inst_TransLab1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(1)); }
-
-bool cHardwareCPU::Inst_TransLab2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(2)); }
-
-bool cHardwareCPU::Inst_TransLab3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(3)); }
-
-bool cHardwareCPU::Inst_TransLab4(cAvidaContext& ctx)
-{ 
-return (organism->getStateDiagram()->absoluteJumpTransitionLabel(4)); }
-
-bool cHardwareCPU::Inst_TransLab5(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(5)); }
-
-bool cHardwareCPU::Inst_TransLab6(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(6)); }
-
-bool cHardwareCPU::Inst_TransLab7(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(7)); }
-
-bool cHardwareCPU::Inst_TransLab8(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(8)); }
-
-bool cHardwareCPU::Inst_TransLab9(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(9)); }
-
-bool cHardwareCPU::Inst_TransLab10(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(10)); }
-
-bool cHardwareCPU::Inst_TransLab11(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTransitionLabel(11)); }
-
-bool cHardwareCPU::Inst_Trigger0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTrigger(0)); }
-
-bool cHardwareCPU::Inst_Trigger1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTrigger(1)); }
-
-bool cHardwareCPU::Inst_Trigger2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTrigger(2)); }
-
-bool cHardwareCPU::Inst_Trigger3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpTrigger(3)); }
-
-bool cHardwareCPU::Inst_Guard0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpGuard(0)); }
-
-bool cHardwareCPU::Inst_Guard1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpGuard(1)); }
-																									
-bool cHardwareCPU::Inst_Guard2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpGuard(2)); }
-					
-bool cHardwareCPU::Inst_Guard3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpGuard(3)); }
-
-bool cHardwareCPU::Inst_Action0(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpAction(0)); }
-
-bool cHardwareCPU::Inst_Action1(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpAction(1)); }
-
-bool cHardwareCPU::Inst_Action2(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpAction(2)); }
-
-bool cHardwareCPU::Inst_Action3(cAvidaContext& ctx)
-{ return (organism->getStateDiagram()->absoluteJumpAction(3)); }
-
-
-
-
-  
-  

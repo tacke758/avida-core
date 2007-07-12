@@ -1,6 +1,6 @@
 /*
  *  main.cc
- *  avida_test_language
+ *  Avida
  *
  *  Created by David on 1/13/06.
  *  Copyright 1999-2007 Michigan State University. All rights reserved.
@@ -22,17 +22,40 @@
  *
  */
 
+#include "avida.h"
 #include "cASLibrary.h"
+#include "cASTDumpVisitor.h"
+#include "cFile.h"
 #include "cParser.h"
+#include "PlatformExpert.h"
 
 #include <iostream>
 
 
 int main (int argc, char * const argv[])
 {
+  PlatformExpert::Initialize();
+
   cASLibrary* lib = new cASLibrary;
   cParser* parser = new cParser(lib);
-  parser->Parse(&std::cin);
   
-  return 0;
+  cFile file;
+  if (file.Open("main.asl")) {
+    if (parser->Parse(file)) {
+      std::cout << "Parse Successful\n" << std::endl;
+
+      cASTDumpVisitor visitor;
+      parser->Accept(visitor);
+      
+      std::cout << std::endl;
+      ExitAvida(0);
+    } else {
+      std::cout << "Parse Failed" << std::endl;
+      ExitAvida(1);
+    }
+  } else {
+    std::cerr << "error: unable to open script" << std::endl;
+  }
+  
+  return -1;
 }

@@ -20,6 +20,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
+
 #ifndef cDeme_h
 #define cDeme_h
 
@@ -27,16 +28,29 @@
 #include "tArray.h"
 
 
-
 /*! Demes are groups of cells in the population that are somehow bound together
 as a unit.  The deme object is used from within cPopulation to manage these 
 groups. */
-class cDeme {
-public:
-  cDeme();
-  ~cDeme();
 
-  void Setup(const tArray<int> & in_cells, int in_width=-1);
+class cDeme
+{
+private:
+  tArray<int> cell_ids;
+  int width; //!< Width of this deme.
+  int birth_count; //!< Number of organisms that have been born into this deme since reset.
+  int org_count; //!< Number of organisms are currently in this deme.
+  int _age; //!< Age of this deme, in updates.
+  
+  cGermline _germline; //!< The germline for this deme, if used.
+
+  cDeme(const cDeme&); // @not_implemented
+
+  
+public:
+  cDeme() : width(0), birth_count(0), org_count(0), _age(0) { ; }
+  ~cDeme() { ; }
+
+  void Setup(const tArray<int>& in_cells, int in_width = -1);
 
   int GetSize() const { return cell_ids.GetSize(); }
   int GetCellID(int pos) const { return cell_ids[pos]; }
@@ -55,17 +69,14 @@ public:
   void IncOrgCount() { org_count++; }
   void DecOrgCount() { org_count--; }
 
-
   bool IsEmpty() const { return org_count == 0; }
   bool IsFull() const { return org_count == cell_ids.GetSize(); }
   
   // -= Germline =-
-  
   //! Returns this deme's germline.
   cGermline& GetGermline() { return _germline; }
   //! Replaces this deme's germline.
   void ReplaceGermline(const cGermline& germline);
-  
   
   // -= Update support =-
   //! Called once, at the end of every update.
@@ -74,14 +85,6 @@ public:
     updates since the last time Reset() was called. */
   int GetAge() const { return _age; }
   
-private:
-  tArray<int> cell_ids;
-  int width; //!< Width of this deme.
-  int birth_count; //!< Number of organisms that have been born into this deme since reset.
-  int org_count; //!< Number of organisms are currently in this deme.
-  int _age; //!< Age of this deme, in updates.
-  
-  cGermline _germline; //!< The germline for this deme, if used.
 };
 
 #endif

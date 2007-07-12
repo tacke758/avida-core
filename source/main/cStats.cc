@@ -93,6 +93,10 @@ cStats::cStats(cWorld* world)
   , num_executed(0)
   , num_parasites(0)
   , num_no_birth_creatures(0)
+  , num_single_thread_creatures(0)
+  , num_multi_thread_creatures(0)
+  , m_num_threads(0)
+  , num_modified(0)
   , num_genotypes_last(1)
   , tot_organisms(0)
   , tot_genotypes(0)
@@ -131,10 +135,10 @@ cStats::cStats(cWorld* world)
   task_exe_count.SetAll(0);
 
 #if INSTRUCTION_COUNT
-  sum_exe_inst_array.Resize( m_world->GetNumInstructions() );
+  sum_exe_inst_array.Resize(m_world->GetNumInstructions());
   ZeroInst();
 #endif
-  inst_names.Resize( m_world->GetNumInstructions() );
+  inst_names.Resize(m_world->GetNumInstructions());
 
   reaction_count.Resize( m_world->GetNumReactions() );
   reaction_count.SetAll(0);
@@ -318,7 +322,7 @@ void cStats::ZeroRewards()
 #if INSTRUCTION_COUNT
 void cStats::ZeroInst()
 {
-  for( int i=0; i < sum_exe_inst_array.GetSize(); i++ ){
+  for (int i = 0; i < sum_exe_inst_array.GetSize(); i++) {
     sum_exe_inst_array[i].Clear();
   }
 }
@@ -329,9 +333,10 @@ void cStats::CalcEnergy()
   assert(sum_fitness.Average() >= 0.0);
   assert(dom_fitness >= 0);
 
-  // Note: When average fitness and dominant fitness are close in value (i.e. sh ould be identical)
-  //       floating point rounding error can cause output variances.  To mitigat e this, threshold
-  //       caps off values that differ by less than it, flushing the effective o utput value to zero.
+  
+  // Note: When average fitness and dominant fitness are close in value (i.e. should be identical)
+  //       floating point rounding error can cause output variances.  To mitigate this, threshold
+  //       caps off values that differ by less than it, flushing the effective output value to zero.
   const double ave_fitness = sum_fitness.Average();
   const double threshold = 1.0e-14;
   if (ave_fitness == 0.0 || dom_fitness == 0.0 || fabs(ave_fitness - dom_fitness) < threshold) {
@@ -622,7 +627,7 @@ void cStats::PrintDominantData(const cString& filename)
   df.Endl();
 }
 
-void cStats::PrintDominantParaData(const cString& filename)
+void cStats::PrintParasiteData(const cString& filename)
 {
   cDataFile& df = m_world->GetDataFile(filename);
 
@@ -630,6 +635,7 @@ void cStats::PrintDominantParaData(const cString& filename)
   df.WriteTimeStamp();
 
   df.Write(m_update, "Update");
+  df.Write(num_parasites, "Number of Extant Parasites");
   df.Write(dom_inj_size, "Size of Dominant Parasite Genotype");
   df.Write(dom_inj_abundance, "Abundance of Dominant Parasite Genotype");
   df.Write(dom_inj_genotype_id, "Genotype ID of Dominant Parasite Genotype");
@@ -684,7 +690,6 @@ void cStats::PrintCountData(const cString& filename)
   df.Write(num_deaths,             "number of deaths in this update");
   df.Write(num_breed_true,         "number of breed true");
   df.Write(num_breed_true_creatures, "number of breed true organisms?");
-  //df.Write(num_parasites,            "number of parasites");
   df.Write(num_no_birth_creatures,   "number of no-birth organisms");
   df.Write(num_single_thread_creatures, "number of single-threaded organisms");
   df.Write(num_multi_thread_creatures, "number of multi-threaded organisms");
@@ -915,10 +920,11 @@ void cStats::PrintInstructionData(const cString& filename)
   df.WriteComment("Avida instruction execution data");
   df.WriteTimeStamp();
 
-#if INSTRUCTION_COUNT
   df.Write(m_update, "Update");
-  for( int i=0; i < sum_exe_inst_array.GetSize(); i++ ){
-    df.Write((int) sum_exe_inst_array[i].Sum(), inst_names[i]);
+
+#if INSTRUCTION_COUNT
+  for (int i = 0; i < sum_exe_inst_array.GetSize(); i++) {
+    df.Write(sum_exe_inst_array[i].Sum(), inst_names[i]);
   }
 #else // INSTRUCTION_COUNT undefined
   m_world->GetDriver().RaiseException("Warning: Instruction Counts not compiled in");
@@ -989,46 +995,4 @@ void cStats::PrintSenseExeData(const cString& filename)
     df.Write(sense_last_exe_count[i], sense_names[i]);
   }
   df.Endl();
-}
-
-void cStats::PrintUMLData(const cString& filename)
-{
-	cDataFile& df = m_world->GetDataFile(filename);
-
-	df.WriteComment( "Avida uml data\n" );
-	df.WriteComment("the average number of transitions and states per organism");
-	df.WriteTimeStamp();
-	df.Write( GetUpdate(), "update" );
-	df.Write( av_number_of_states.Average(), "av num states");
-	df.Write( av_number_of_trans.Average(), "av num trans");
-	df.Write( av_number_of_triggers.Average(), "av num triggers");
-	df.Write( av_number_of_guards.Average(), "av num guards");
-	df.Write( av_number_of_actions.Average(), "av num actions");
-	df.Write( av_number_of_state_diagrams.Average(), "av num state diagrams");
-	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
-	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
-	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
-	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
-	df.Write( m_spinPassed.Sum(), "total number of spin passes" );
-	df.Write( m_panAttempt.Sum(), "total number of pan attempts" );
-	df.Write( m_panPassed.Sum(), "total number of pan passes" );
-	
-	av_number_of_states.Clear();
-	av_number_of_trans.Clear();
-	av_number_of_triggers.Clear();
-	av_number_of_guards.Clear();
-	av_number_of_actions.Clear();
-	av_number_of_state_diagrams.Clear();
-	
-	av_number_of_trans_lab.Clear();
-
-  m_hydraAttempt.Clear();
-  m_hydraPassed.Clear();
-  m_spinAttempt.Clear();
-  m_spinPassed.Clear();
-  m_panAttempt.Clear();
-  m_panPassed.Clear();
-
-
-df.Endl();
 }

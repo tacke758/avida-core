@@ -150,3 +150,11 @@ void cLineage::CalcCurrentFitness(cAvidaContext& ctx) const
 }
 
 
+tArray<const cGenotype*> cLineage::GetCurrentGenotypes(cAvidaContext& ctx) const
+{
+	tArray<const cGenotype*> genotypes;
+	map<const cGenotype*, int, gt_gentype>::const_iterator it = m_genotype_map.begin();
+	for(; it != m_genotype_map.end(); it++)
+		genotypes.Push(it->first);
+	return genotypes;
+}

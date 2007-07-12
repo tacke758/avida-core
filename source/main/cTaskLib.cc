@@ -1,3 +1,4 @@
+
 /*
  *  cTaskLib.cc
  *  Avida
@@ -35,9 +36,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <climits>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <iomanip>
 
 // Various workarounds for Visual Studio shortcomings
 #if AVIDA_PLATFORM(WINDOWS)
@@ -350,7 +349,7 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 
    // Optimization Tasks
   if (name == "optimize")
-	  Load_Optimize(name, info, envreqs, errors);
+    Load_Optimize(name, info, envreqs, errors);
 
   if (name == "mult")
     Load_Mult(name, info, envreqs, errors);
@@ -374,53 +373,15 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
   if (name == "comm_echo")
     NewTask(name, "Echo of Neighbor's Input", &cTaskLib::Task_CommEcho, REQ_NEIGHBOR_INPUT);
   else if (name == "comm_not")
-	  NewTask(name, "Not of Neighbor's Input", &cTaskLib::Task_CommNot, REQ_NEIGHBOR_INPUT);
+    NewTask(name, "Not of Neighbor's Input", &cTaskLib::Task_CommNot, REQ_NEIGHBOR_INPUT);
 
   // Network Tasks
   if (name == "net_send")
-	  NewTask(name, "Successfully Sent Network Message", &cTaskLib::Task_NetSend);
+    NewTask(name, "Successfully Sent Network Message", &cTaskLib::Task_NetSend);
   else if (name == "net_receive")
-	  NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
+    NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
   
-    // UML tasks
-  else if (name == "trans1") // 
-	  NewTask(name, "Successfully created trans 1", &cTaskLib::Task_Trans1);
-  else if (name == "trans2") // 
-	  NewTask(name, "Successfully created trans 2", &cTaskLib::Task_Trans2);	  
-  else if (name == "trans3") // 
-	  NewTask(name, "Successfully created trans 3", &cTaskLib::Task_Trans3);
-  else if (name == "trans4") // 
-	  NewTask(name, "Successfully created trans 4", &cTaskLib::Task_Trans4);
-  else if (name == "trans5") // 
-	  NewTask(name, "Successfully created trans 5", &cTaskLib::Task_Trans5);
-  else if (name == "trans6") // 
-	  NewTask(name, "Successfully created trans 6", &cTaskLib::Task_Trans6);
-  else if (name == "trans7") // 
-	  NewTask(name, "Successfully created trans 7", &cTaskLib::Task_Trans7);	  
-  else if (name == "trans8") // 
-	  NewTask(name, "Successfully created trans 8", &cTaskLib::Task_Trans8);
-  else if (name == "trans9") // 
-	  NewTask(name, "Successfully created trans 9", &cTaskLib::Task_Trans9);
-  else if (name == "trans10") // 
-	  NewTask(name, "Successfully created trans 10", &cTaskLib::Task_Trans10);	  
-  else if (name == "scene-1") // 
-	  NewTask(name, "Successfully created scenario 1", &cTaskLib::Task_Scenario1);
-  else if (name == "numStates") // 
-	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
-  else if (name == "numTrans") // 
-	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);
-  else if (name == "prop-tr") // 
-	  NewTask(name, "Diagram included trigger", &cTaskLib::Task_PropTrigger);	
-  else if (name == "hydra") // 
-	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
-  else if (name == "spin1") // 
-	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN1);	  
-  else if (name == "spin-w1") // 
-	  NewTask(name, "Successfully ran Spin witness trace", &cTaskLib::Task_SpinW1);
-  else if (name == "mult_trans") // 
-	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);
-	  
-	 
+  
   
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -1885,62 +1846,62 @@ void cTaskLib::Load_MatchStr(const cString& name, const cString& argstr, cEnvReq
 
 double cTaskLib::Task_MatchStr(cTaskContext& ctx) const
 {
-	tBuffer<int> temp_buf(ctx.GetOutputBuffer());
-	//	if (temp_buf[0] != 357913941) return 0;
+  tBuffer<int> temp_buf(ctx.GetOutputBuffer());
+  //  if (temp_buf[0] != 357913941) return 0;
 
-	//	temp_buf.Pop(); // pop the signal value off of the buffer
+  //  temp_buf.Pop(); // pop the signal value off of the buffer
 
-	const cString& string_to_match = ctx.GetTaskEntry()->GetArguments().GetString(0);
-	int string_index;
-	int num_matched = 0;
-	int test_output;
+  const cString& string_to_match = ctx.GetTaskEntry()->GetArguments().GetString(0);
+  int string_index;
+  int num_matched = 0;
+  int test_output;
   int max_num_matched = 0;
 
-	if (temp_buf.GetNumStored() > 0) {
-		test_output = temp_buf[0];
-	
-		for (int j = 0; j < string_to_match.GetSize(); j++) {	
-			string_index = string_to_match.GetSize() - j - 1; // start with last char in string
-			int k = 1 << j;
-			if ((string_to_match[string_index] == '0' && !(test_output & k)) ||
+  if (temp_buf.GetNumStored() > 0) {
+    test_output = temp_buf[0];
+  
+    for (int j = 0; j < string_to_match.GetSize(); j++) {  
+      string_index = string_to_match.GetSize() - j - 1; // start with last char in string
+      int k = 1 << j;
+      if ((string_to_match[string_index] == '0' && !(test_output & k)) ||
           (string_to_match[string_index] == '1' && (test_output & k))) num_matched++;
-		}
-		max_num_matched = num_matched;
-	}
+    }
+    max_num_matched = num_matched;
+  }
 
-	bool used_received = false;
-	if (ctx.GetReceivedMessages()) {
-		tBuffer<int> received(*(ctx.GetReceivedMessages()));
-		for (int i = 0; i < received.GetNumStored(); i++) {
-			test_output = received[i];
-			num_matched = 0;
-			
+  bool used_received = false;
+  if (ctx.GetReceivedMessages()) {
+    tBuffer<int> received(*(ctx.GetReceivedMessages()));
+    for (int i = 0; i < received.GetNumStored(); i++) {
+      test_output = received[i];
+      num_matched = 0;
+      
       for (int j = 0; j < string_to_match.GetSize(); j++) {
-				string_index = string_to_match.GetSize() - j - 1; // start with last char in string
-				int k = 1 << j;
-				if ((string_to_match[string_index]=='0' && !(test_output & k)) ||
+        string_index = string_to_match.GetSize() - j - 1; // start with last char in string
+        int k = 1 << j;
+        if ((string_to_match[string_index]=='0' && !(test_output & k)) ||
             (string_to_match[string_index]=='1' && (test_output & k))) num_matched++;
-			}
-			
+      }
+      
       if (num_matched > max_num_matched) {
-				max_num_matched = num_matched;
-				used_received = true;
-			}
-		}
-	}
+        max_num_matched = num_matched;
+        used_received = true;
+      }
+    }
+  }
 
-	double bonus = 0.0;
-	// return value between 0 & 1 representing the percentage of string that was matched
-	double base_bonus = static_cast<double>(max_num_matched) * 2.0 / static_cast<double>(string_to_match.GetSize()) - 1;
-	
-	if (base_bonus > 0.0) {
-		bonus = pow(base_bonus, 2);
-		if (used_received)
+  double bonus = 0.0;
+  // return value between 0 & 1 representing the percentage of string that was matched
+  double base_bonus = static_cast<double>(max_num_matched) * 2.0 / static_cast<double>(string_to_match.GetSize()) - 1;
+  
+  if (base_bonus > 0.0) {
+    bonus = pow(base_bonus, 2);
+    if (used_received)
       m_world->GetStats().AddMarketItemUsed();
-		else
-			m_world->GetStats().AddMarketOwnItemUsed();
-	}
-	return bonus;
+    else
+      m_world->GetStats().AddMarketOwnItemUsed();
+  }
+  return bonus;
 }
 
 
@@ -2157,115 +2118,200 @@ double cTaskLib::Task_FibonacciSequence(cTaskContext& ctx) const
 
 void cTaskLib::Load_Optimize(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
 {
-	cArgSchema schema;
+  cArgSchema schema;
 
-	// Integer Arguments
-	schema.AddEntry("function", 0, cArgSchema::SCHEMA_INT);
-	schema.AddEntry("binary", 1, 0);
-	schema.AddEntry("varlength", 2, 8);
-	// Double Arguments
-	schema.AddEntry("basepow", 0, 2.0);
-	schema.AddEntry("max_Fx", 1, 1.0);
-	schema.AddEntry("min_Fx", 2, 0.0);
+  // Integer Arguments
+  schema.AddEntry("function", 0, cArgSchema::SCHEMA_INT);
+  schema.AddEntry("binary", 1, 0);
+  schema.AddEntry("varlength", 2, 8);
+  schema.AddEntry("numvars", 3, 2);
+  // Double Arguments
+  schema.AddEntry("basepow", 0, 2.0);
+  schema.AddEntry("maxFx", 1, 1.0);
+  schema.AddEntry("minFx", 2, 0.0);
+  schema.AddEntry("thresh", 3, -1.0);
+  schema.AddEntry("threshMax", 4, -1.0);
 
+  cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
+  if (args) 
+  {
+    if (args->GetInt(1))
+    {
+      envreqs.SetMinOutputs(args->GetInt(2)*2);
+    }
+    else 
+    {
+      // once have ability to change args should in each of these cases change the max/min
+      // to the appropriate defaults for this function
+      switch (args->GetInt(0))
+      {
+      case 1:
+        envreqs.SetMinOutputs(1);
+      case 2:
+        envreqs.SetMinOutputs(2);
+      case 3:
+        envreqs.SetMinOutputs(2);
+      };
+    }
 
-	cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
-	if (args) 
-	{
-		if (args->GetInt(1))
-		{
-			envreqs.SetMinOutputs(args->GetInt(2)*2);
-		}
-		else 
-		{
-			// once have ability to change args should in each of these cases change the max/min
-			// to the appropriate defaults for this function
-			switch (args->GetInt(0))
-			{
-			case 1:
-				envreqs.SetMinOutputs(1);
-			case 2:
-				envreqs.SetMinOutputs(2);
-			case 3:
-				envreqs.SetMinOutputs(2);
-			};
-		}
-
-		NewTask(name, "Optimize", &cTaskLib::Task_Optimize, 0, args);
-	}
+    NewTask(name, "Optimize", &cTaskLib::Task_Optimize, 0, args);
+  }
 }
 
 double cTaskLib::Task_Optimize(cTaskContext& ctx) const
 {
-	// if the org hasn't output yet enough numbers, just return without completing any tasks
-	if (ctx.GetOutputBuffer().GetNumStored() < ctx.GetOutputBuffer().GetCapacity()) 
-		return 0;
+  // if the org hasn't output yet enough numbers, just return without completing any tasks
+  if (ctx.GetOutputBuffer().GetNumStored() < ctx.GetOutputBuffer().GetCapacity()) return 0;
 
-	double quality = 0.0;
+  double quality = 0.0;
+  const cArgContainer& args = ctx.GetTaskEntry()->GetArguments();
 
-	// which function are we currently checking?
-	const int function = ctx.GetTaskEntry()->GetArguments().GetInt(0);
+  // which function are we currently checking?
+  const int function = args.GetInt(0);
 
-	 // always get x&y, at least for now, turn it into a double between 0 and 1
-	double y, x;
+   // get however many variables need, turn them into doubles between 0 and 1
+   tArray<double> vars;
+   vars.Resize(args.GetInt(3));
 
-	 const cArgContainer& args = ctx.GetTaskEntry()->GetArguments();
-	 if (args.GetInt(1))
-	 {
-		int len = args.GetInt(2);
-		double base_pow = args.GetDouble(0);
-		double tempX = 0, tempY=0, tot=0;
-		for (int i=len-1; i>=0; i--)
+   double Fx = 0.0;
+   
+  if (args.GetInt(1)) 
+  {
+    int len = args.GetInt(2);
+    double base_pow = args.GetDouble(0);
+
+	tArray<double> tempVars;
+	tempVars.Resize(args.GetInt(3));
+	for (int i=0; i<args.GetInt(3); i++)
+		tempVars[i] = 0;
+    
+	double tot = 0;
+	for (int i = len - 1; i >= 0; i--) 
+	{
+		for (int j=0; j<args.GetInt(3); j++)
 		{
-			tempX += ctx.GetOutputBuffer()[i+len]*pow(base_pow,(len-1)-i);
-			tempY += ctx.GetOutputBuffer()[i]*pow(base_pow,(len-1)-i);
-			tot += pow(base_pow,i);
+			tempVars[j] += ctx.GetOutputBuffer()[i + len*(args.GetInt(3)-j-1)] * pow(base_pow, (len - 1) - i);
 		}
-		x = (double)tempX/tot;
-		y = (double)tempY/tot;
-	 }
-	 else
-	 {
-		x = (double)ctx.GetOutputBuffer()[0] / 0xffffffff;
-		y = (double)ctx.GetOutputBuffer()[1] / 0xffffffff;	
-	 }
+		tot += pow(base_pow, double(i));
+	}
+	for (int i=0; i<args.GetInt(3); i++)
+		vars[i] = tempVars[i] / tot;
+  } 
+  else 
+  {
+	  for (int j=0; j<args.GetInt(3); j++)
+		  vars[j] = double(ctx.GetOutputBuffer()[j]) / 0xffffffff;
+  }
+  
+  for (int j=0; j<args.GetInt(3); j++)
+  {
+	  if (vars[j] < 0)
+		  vars[j] = 0;
+	  else if (vars[j] > 1)
+		  vars[j] = 1;
+  }
 
-	 switch(function)
-	 {
-	 case 1:
-		 quality = 1 - x;
-		 break;
+  switch(function) {
+    case 1:
+	  Fx = vars[0];		// F1
+      break;
 
-	 case 2:
-		 quality = 1 - ((1+y)*(1-sqrt(x/(1+y))))/2.0;	// F2
-		 break;
+    case 2:
+      Fx = (1.0 + vars[1]) * (1.0 - sqrt(vars[0] / (1.0 + vars[1])));   // F2
+      break;
 
-	 case 3:
-		 quality = 1 - ((1+y)*(1-pow(x/(1+y),2)))/2.0;	// F3
-		 break;
+    case 3:
+      Fx = (1.0 + vars[1]) * (1.0 - pow(vars[0] / (1.0 + vars[1]), 2.0));  // F3
+      break;
 
-	 case 4:
-		 quality = 1 - (( (1+y)*(1 - sqrt(x/(1+y)) - (x/(1+y))*sin(3.14159*x*10) ) +.76) / 2.76);
-		 break;
+    case 4:
+      Fx = (1.0 + vars[1]) * (1.0 - sqrt(vars[0] / (1.0 + vars[1])) - (vars[0] / (1.0 + vars[1])) * sin(3.14159 * vars[0] * 10.0));
+	  break;
 
-	 default:
-		 quality = .001;
-	 }
+    case 5:
+      vars[0] = vars[0] * -2.0;
+      Fx = vars[0]*vars[0] + vars[1]*vars[1];
+      break;
 
-	 // because want org to only have 1 shot to use outputs for all functions at once, even if they
-	 // output numbers that give a quality of 0 on a function, still want to mark it as completed
-	 // so give it a very low quality instead of 0 (if using limited resources they still will get
-	 // no reward because set the minimum consumed to max*.001, meaning even if they get the max
-	 // possible fraction they'll be below minimum allowed consumed and will consume nothing
+    case 6:
+      vars[0] = vars[0] * -2.0;
+      Fx = (vars[0] + 2.0)*(vars[0] + 2.0) + vars[1]*vars[1];
+      break;
 
-	 if (quality > 1)
-		 cout << "\n\nquality > 1, wtf?!\n\n";
-	 if (quality < .001)
-		 return .001;
-	 else
-		 return quality;
+    case 7:
+      vars[0] = vars[0] * 4.0;
+      Fx = sqrt(vars[0]) + vars[1];
+      break;
 
-	return 0;
+    case 8:
+      vars[0] = vars[0] * 4.0;
+      Fx = sqrt(4.0 - vars[0]) + vars[1];
+      break;
+
+    case 9:
+    {
+      double sum = 0;
+      for (int i=1; i<5; i++)
+	sum += vars[i]/4.0;
+      Fx = (1.0 + 9*sum) * (1.0 - sqrt(vars[0] / (1.0 + 9*sum)));
+      break;
+    }
+
+    case 10:
+    {
+      double sum = 0;
+      for (int i=1; i<5; i++)
+	sum += vars[i]/4.0;
+      Fx = (1.0 + sum) * (1.0 - pow(vars[0] / (1.0 + sum), 2.0));
+      break;
+    }
+
+    default:
+      quality = .001;
+  }
+
+  ctx.SetTaskValue(Fx);
+  if (args.GetDouble(3) < 0.0)
+  {
+    double q1 = (args.GetDouble(1) - Fx+.001);
+    double q2 = (args.GetDouble(1) - args.GetDouble(2)+.001);
+    assert(q1 > 0.0);
+    assert(q2 > 0.0);
+    quality = q1 / q2;
+  } else {
+    if (args.GetDouble(4) < 0.0)
+    {
+      if (Fx <= (args.GetDouble(1) - args.GetDouble(2))*args.GetDouble(3) + args.GetDouble(2))
+      {
+		  quality = 1.0;
+      }
+      else
+      {
+		  quality = 0.0;
+      }
+    }
+    else
+    {
+		if ( (Fx >= (args.GetDouble(1) - args.GetDouble(2))*args.GetDouble(3) + args.GetDouble(2))
+			&& (Fx <= (args.GetDouble(1) - args.GetDouble(2))*args.GetDouble(4) + args.GetDouble(2)) )
+			quality = 1.0;
+		else
+			quality = 0.0;
+	}
+  }
+
+  // because want org to only have 1 shot to use outputs for all functions at once, even if they
+  // output numbers that give a quality of 0 on a function, still want to mark it as completed
+  // so give it a very low quality instead of 0 (if using limited resources they still will get
+  // no reward because set the minimum consumed to max*.001, meaning even if they get the max
+  // possible fraction they'll be below minimum allowed consumed and will consume nothing
+
+  if (quality > 1)
+    cout << "\n\nquality > 1!  quality= " << quality << "  Fx= " << Fx << endl;
+  
+  if (quality < 0.001) return .001;
+
+  return quality;
 }
 
 void cTaskLib::Load_Mult(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
@@ -2655,477 +2701,4 @@ double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 {
   if (ctx.NetIsValid()) return 1.0;
   return 0.0;
-}
-
-
-
-double cTaskLib::Task_Trans1(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-	
-	//Init 	
-	ctx.task_success_complete = true;	
-
-//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
-//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
-// tagaaa
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(0, 1, 1, 2, 3))
-// temp sensor
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 1, 0, 0, 0))
-	{
-	//	ctx.task_success_complete += 1;	
-		bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-}
-
-double cTaskLib::Task_Trans2(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
-//	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
-// tagaaa
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(1, 2, 0, 0, 0))
-// temp sensor
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 2, 0, 0, 2))
-	{
-			bonus = 1.0;
-	}
-
-	ctx.task_success_complete = ctx.task_success_complete && bonus;		
-	return bonus;
-
-}
-
-double cTaskLib::Task_Trans3(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
-//	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
-// tagaaa
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(2, 3, 0, 3, 1))
-// temp sensor
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 3, 2, 0, 0))
-	{
-			bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-
-}
-
-double cTaskLib::Task_Trans4(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
-// tagaaa
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(3, 4, 2, 1, 2))
-// temp sensor
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 1, 0, 0, 0))
-	{
-			bonus = 1.0;
-	}
-
-	ctx.task_success_complete = ctx.task_success_complete && bonus;		
-	return bonus;
-
-}
-  
-double cTaskLib::Task_Trans5(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
-	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(4, 0, 3, 0, 0))
-	{		
-			bonus = 1.0;
-	}
-
-	ctx.task_success_complete = ctx.task_success_complete && bonus;		
-	return bonus;
-
-}
-
-
-double cTaskLib::Task_Trans6(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
-//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 4, 2, 1, 0))
-	{
-		bonus = 1.0;
-	}
-
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-}
-
-double cTaskLib::Task_Trans7(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
-//	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(4, 1, 0, 1, 0))
-	{
-			bonus = 1.0;
-	}
-
-	ctx.task_success_complete = ctx.task_success_complete && bonus;		
-	return bonus;
-
-}
-
-double cTaskLib::Task_Trans8(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
-//	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 3, 1, 1, 1))
-	{
-			bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-
-}
-
-double cTaskLib::Task_Trans9(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 2, 2, 0, 3))
-	{
-		bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-
-}
-  
-double cTaskLib::Task_Trans10(cTaskContext& ctx) const
-{
-	double bonus = 0.0;
-//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
-	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
-//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
-	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 4, 3, 2, 1))
-	{		
-		bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
-}
-
-double cTaskLib::Task_Scenario1(cTaskContext& ctx) const
-{
-	double bonus = 0.0; 
-	std::deque<std::string> path1;
-	
-	// Check if the tasks are complete so far... 
-	// This provides a basic ordering mechanism for the tasks.
-	if (!ctx.task_success_complete) {
-		return 0;
-	}	
-	
-	// Check if this model is different than the organism's parent's model
-	if (ctx.organism->getParentXMI() != ctx.organism->getUMLModel()->getXMI()) {
-		
-		// create the scenario
-		path1.push_back("^TempSensor.getOpState()");
-		path1.push_back("setTempOpState");
-	
-		// check for scneario
-		bonus = ((ctx.organism->getUMLModel()->getStateDiagram(1)->findPath(path1)) / path1.size());
-	} else { 
-		bonus = ctx.organism->getParentBonus("scenario1"); 
-	}
-	
-	// Set bonus info for current model
-	ctx.organism->getUMLModel()->setBonusInfo("scenario1", bonus);		
-		
-	if (bonus == 1) { 
-		ctx.task_success_complete = true;
-	} else { 
-		ctx.task_success_complete = false;	
-	}
-	
-	return bonus;
-}
-
-
-double cTaskLib::Task_NumStates(cTaskContext& ctx) const
-{
-	double ns = (double) ctx.organism->getStateDiagram()->numStates();
-	
-	if (ns <= 5 ) {
-		return (ns/5); 
-	} else{
-		return 0.0;
-	}
-	
-}
-
-double cTaskLib::Task_NumTrans(cTaskContext& ctx) const
-{
-	double nt = (double) ctx.organism->getStateDiagram()->numTrans();
-	
-	if (nt <= 5 ) {
-		return (nt/5); 
-	} else{
-		return 1;
-	}
-}
-
-
-double cTaskLib::Task_Hydra(cTaskContext& ctx) const
-{
-	cOrganism* organism = ctx.organism;
-	std::string temp;
-	double bonus = 0.0;
-
-
-	temp = organism->getUMLModel()->getXMI();
-	
-	if (!ctx.task_success_complete) {
-		return 0;
-	}
-	
-	
-	m_world->GetStats().HydraAttempt();
-
-	if (ctx.organism->getParentXMI() == temp) {
-	
-		bonus = ctx.organism->getParentBonus("hydra"); 
-		if (bonus) ctx.task_success_complete = true;
-		ctx.organism->getUMLModel()->setBonusInfo("hydra", bonus);	
-		return bonus;
-	}		
-
-
-	unsigned int status_total = 0;
-	int status=0;
-
-	int to_subavida[2]={0};
-	int from_subavida[2]={0};
-	
-	pipe(to_subavida); //write to 1, read from 0
-	pipe(from_subavida);
-	
-	pid_t subavida = fork();
-	if(subavida == 0) {
-		//child
-		close(to_subavida[1]);
-		close(from_subavida[0]);
-		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
-		dup2(from_subavida[1], STDOUT_FILENO);
-		execl("/usr/bin/java", "-cp .", "-jar", "./hydraulic.jar", NULL);
-		// We don't ever get here.
-	} 
-	//parent
-	close(to_subavida[0]);
-	close(from_subavida[1]);
-
-	// At this point, forget about subavida - It's running.
-	// Write the model to to_subavida[1].  Close to_subavida[1] (which wakes up subavida).
-	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
-
-	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
-	do {
-		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
-		if (status < 0) {
-			break;
-		} else {
-			 status_total += status;
-		}
-	} while (status_total < temp.size());
-	close(to_subavida[1]); // Wakes up subavida.
-
-	// Time passes...
-
-	// Read the output from subavida.  Keep reading until subavida closes the pipe.
-	const int read_size=128; // The number of bytes that we're going to try to read from subavida.
-	std::string subavida_output;
-	char line[read_size]={0};
-	do {
-		status = read(from_subavida[0], line, read_size-1);
-		if(status > 0) {
-			subavida_output += line;
-			memset(line, 0, read_size);
-		}
-	} while(((status==-1) && (errno == EINTR)) || (status>0));
-
-	// Done with subavida.
-	close(from_subavida[0]);
-	// Make sure that subavida dies.
-	pid_t done=0;
-	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
-	assert(done==subavida);
-	
-	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
-	if(status != 0) {
-//		organism->setBonusInfo("hydra", 0.0); 
-		ctx.task_success_complete = false;	
-		bonus =  0.0;
-	} else {
-		m_world->GetStats().HydraPassed();
-//		organism->setBonusInfo("hydra", 1.0); 
-		ctx.task_success_complete = true;	
-		bonus = 1.0;
-	}
-	
-	ctx.organism->getUMLModel()->setBonusInfo("hydra", bonus);	
-	return bonus;
-	
-}
-
-
-double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-	cOrganism* organism = ctx.organism;
-	m_world->GetStats().SpinAttempt();
-	int status=0;
-	
-	// break inserted on 6/24
-	organism->absoluteJumpStateDiagram(1);
-	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
-		status += 1;
-	}
-
-	
-	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
-	if(system(cmd.c_str())!=0) return 0.0;
-	m_world->GetStats().SpinPassed();
-	m_world->GetStats().PanAttempt();
-	
-	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
-	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
-//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
-	
-	std::cout << "I AM HERE" << std::endl;
-	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-	strstrm << ".xml";	
-	if(system(strstrm.str().c_str())!=0) return 0.0;
-			
-	m_world->GetStats().PanPassed();
-	return 1.0;
-}
- 
-double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-	cOrganism* organism = ctx.organism;
-//	m_world->GetStats().SpinAttempt();
-	int status=0;
-	int num_witness = 0;
-	
-	ctx.task_success_complete = false;
-	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
-	if(system(cmd.c_str())!=0) return 0.0;
-	
-	cmd = "cat " + neverclaimFile + " >> tmp-witness.pr && ./spin -a tmp-witness.pr &> /dev/null";
-	if(system(cmd.c_str())!=0) return 0.0;
-//	m_world->GetStats().SpinPassed();
-//	m_world->GetStats().PanAttempt();
-	
-	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -e -n -a -w19  -m100000 -c5 &> ./pan.out")!=0) return 0.0;
-	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
-//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
-	
-	
-//	std::ostringstream strstrm;
-//	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-//	strstrm << ".xml";	
-//	if(system(strstrm.str().c_str())!=0) return 0.0;
-			
-//	m_world->GetStats().PanPassed();
-
-	ctx.task_success_complete = num_witness;
-	return num_witness;
-}
-
-double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
-	//cOrganism* organism = ctx.organism;
-	double bonus = 0.0;
-	
-	if (!ctx.task_success_complete) return bonus;
-	
-	if (ctx.organism->getParentXMI() == ctx.organism->getUMLModel()->getXMI()) {
-	
-		bonus = ctx.organism->getParentBonus("spinn1"); 
-//		return bonus;
-	}	else {
-	
-		bonus = SpinCoprocess(ctx, "N1");
-	}
-	
-	if (bonus) {
-		ctx.task_success_complete = true;
-	} else { 
-		ctx.task_success_complete = false;
-	}
-	ctx.organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
-
-	return bonus;
-}
-
-
-
-double cTaskLib::Task_SpinW1(cTaskContext& ctx) const { 
-//	cOrganism* organism = ctx.organism;
-//	double temp1 = 0.0;
-	double bonus = 0.0;
-	if (!ctx.task_success_complete) return bonus;
-	
-	if (ctx.organism->getParentXMI() == ctx.organism->getUMLModel()->getXMI()) {	
-		bonus = ctx.organism->getParentBonus("spinw1"); 
-//		return bonus;
-	}	else {
-	
-		bonus = SpinWitnessCoprocess(ctx, "W1");
-	}
-	
-	if (bonus) {
-		ctx.task_success_complete = true;
-	} else { 
-		ctx.task_success_complete = false;
-	}
-	ctx.organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
-
-	return bonus;
-}
-
-double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
-	return (2^ctx.task_success_complete);
-}
-
-
-double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
-	// This task checks for the trigger of the property.
-	cOrganism* organism = ctx.organism;
-	double bonus = 0.0;
-	
-	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
-		bonus = 1.0;
-	}
-	
-	ctx.task_success_complete = ctx.task_success_complete && bonus;	
-	return bonus;
 }

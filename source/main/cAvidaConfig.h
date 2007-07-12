@@ -206,8 +206,6 @@ public:
   CONFIG_ADD_VAR(ENVIRONMENT_FILE, cString, "environment.cfg", "File that describes the environment");
   CONFIG_ADD_VAR(START_CREATURE, cString, "default-classic.org", "Organism to seed the soup");
   
-  
-  // Deme & germline group.
   CONFIG_ADD_GROUP(DEME_GROUP, "Demes and Germlines");
   CONFIG_ADD_VAR(NUM_DEMES, int, 1, "Number of independent groups in the population.");
   CONFIG_ADD_VAR(DEMES_USE_GERMLINE, int, 0, "Whether demes use a distinct germline; 0=off");
@@ -216,7 +214,6 @@ public:
   CONFIG_ADD_VAR(GERMLINE_REPLACES_SOURCE, int, 0, "Whether the source germline is updated\non replication; 0=no.");
   CONFIG_ADD_VAR(GERMLINE_RANDOM_PLACEMENT, int, 0, "Whether the seed for a germline is placed\n randomly within the deme; 0=no.");
   CONFIG_ADD_VAR(MAX_DEME_AGE, int, 500, "The maximum age of a deme (in updates) to be\nused for age-based replication (default=500).");  
-  CONFIG_ADD_VAR(UML_MODEL, int, 0, "Whether or not we are manipulating UML models; 0=no; 1=DEME; 2=ORG");
   
   CONFIG_ADD_GROUP(REPRODUCTION_GROUP, "Birth and Death");
   CONFIG_ADD_VAR(BIRTH_METHOD, int, 0, "Which organism should be replaced on birth?\n0 = Random organism in neighborhood\n1 = Oldest in neighborhood\n2 = Largest Age/Merit in neighborhood\n3 = None (use only empty cells in neighborhood)\n4 = Random from population (Mass Action)\n5 = Oldest in entire population\n6 = Random within deme\n7 = Organism faced by parent\n8 = Next grid cell (id+1)\n9 = Largest energy used in entire population\n10 = Largest energy used in neighborhood");
@@ -227,8 +224,10 @@ public:
   CONFIG_ADD_VAR(AGE_DEVIATION, int, 0, "Creates a distribution around AGE_LIMIT");
   CONFIG_ADD_VAR(ALLOC_METHOD, int, 0, "(Orignal CPU Only)\n0 = Allocated space is set to default instruction.\n1 = Set to section of dead genome (Necrophilia)\n2 = Allocated space is set to random instruction.");
   CONFIG_ADD_VAR(DIVIDE_METHOD, int, 1, "0 = Divide leaves state of mother untouched.\n1 = Divide resets state of mother\n    (after the divide, we have 2 children)\n2 = Divide resets state of current thread only\n    (does not touch possible parasite threads)");
+  CONFIG_ADD_VAR(INJECT_METHOD, int, 0, "0 = Leaves the parasite thread state untouched.\n1 = Resets the calling thread state on inject");
   CONFIG_ADD_VAR(GENERATION_INC_METHOD, int, 1, "0 = Only the generation of the child is\n    increased on divide.\n1 = Both the generation of the mother and child are\n    increased on divide (good with DIVIDE_METHOD 1).");
-
+	CONFIG_ADD_VAR(RESET_INPUTS_ON_DIVIDE, int, 0, "Reset environment inputs of parent upon successful divide.");
+	
   CONFIG_ADD_GROUP(RECOMBINATION_GROUP, "Sexual Recombination and Modularity");
   CONFIG_ADD_VAR(RECOMBINATION_PROB, double, 1.0, "probability of recombination in div-sex");
   CONFIG_ADD_VAR(MAX_BIRTH_WAIT_TIME, int, -1, "Updates incipiant orgs can wait for crossover");
@@ -246,8 +245,9 @@ public:
   CONFIG_ADD_VAR(REQUIRED_TASK, int, -1, "Task ID required for successful divide.");
   CONFIG_ADD_VAR(IMMUNITY_TASK, int, -1, "Task providing immunity from the required task.");
   CONFIG_ADD_VAR(REQUIRED_REACTION, int, -1, "Reaction ID required for successful divide.");
-  CONFIG_ADD_VAR(REQUIRED_BONUS, int, 0, "The bonus that an organism must accumulate to divide."); 
- 
+  CONFIG_ADD_VAR(IMPLICIT_REPRO_BONUS, int, 0, "Immediately call Inst_Repro to divide when upon achieving this bonus. 0 = OFF");  
+  CONFIG_ADD_VAR(IMPLICIT_REPRO_TIME, int, 0, "Immediately call Inst_Repro after this many cpu cycles. 0 = OFF");  
+
   CONFIG_ADD_GROUP(MUTATION_GROUP, "Mutations");
   CONFIG_ADD_VAR(POINT_MUT_PROB, double, 0.0, "Mutation rate (per-location per update)");
   CONFIG_ADD_VAR(COPY_MUT_PROB, double, 0.0075, "Mutation rate (per copy)");
@@ -257,6 +257,7 @@ public:
   CONFIG_ADD_VAR(DIVIDE_MUT_PROB, double, 0.0, "Mutation rate (per divide)");
   CONFIG_ADD_VAR(DIVIDE_INS_PROB, double, 0.05, "Insertion rate (per divide)");
   CONFIG_ADD_VAR(DIVIDE_DEL_PROB, double, 0.05, "Deletion rate (per divide)");
+  CONFIG_ADD_VAR(DIVIDE_SLIP_PROB, double, 0.0, "Slip rate (per divide) - creates large deletions/duplications");
   CONFIG_ADD_VAR(PARENT_MUT_PROB, double, 0.0, "Per-site, in parent, on divide");
   CONFIG_ADD_VAR(SPECIAL_MUT_LINE, int, -1, "If this is >= 0, ONLY this line is mutated");
   CONFIG_ADD_VAR(INJECT_INS_PROB, double, 0.0, "Insertion rate (per site, applied on inject)");
@@ -276,8 +277,8 @@ public:
   CONFIG_ADD_VAR(STERILIZE_NEUTRAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_BENEFICIAL, double, 0.0, "");
   CONFIG_ADD_VAR(FAIL_IMPLICIT, int, 0, "Should copies that failed *not* due to mutations\nbe eliminated?");
-  CONFIG_ADD_VAR(NEUTRAL_MAX,double, 0.0, "The percent benifical change from parent fitness to be considered neutral.");
-  CONFIG_ADD_VAR(NEUTRAL_MIN,double, 0.0, "The percent deleterious change from parent fitness to be considered neutral.");
+  CONFIG_ADD_VAR(NEUTRAL_MAX,double, 0.0, "The percent benifical change from parent fitness\nto be considered neutral.");
+  CONFIG_ADD_VAR(NEUTRAL_MIN,double, 0.0, "The percent deleterious change from parent fitness\nto be considered neutral.");
   
   CONFIG_ADD_GROUP(TIME_GROUP, "Time Slicing");
   CONFIG_ADD_VAR(AVE_TIME_SLICE, int, 30, "Ave number of insts per org per update");
@@ -286,27 +287,22 @@ public:
   CONFIG_ADD_VAR(BASE_CONST_MERIT, int, 100, "Base merit when BASE_MERIT_METHOD set to 0");
   CONFIG_ADD_VAR(DEFAULT_BONUS, double, 1.0, "Initial bonus before any tasks");
   CONFIG_ADD_VAR(MERIT_DEFAULT_BONUS, int, 0, "Scale the merit of an offspring by the default bonus\nrather than the accumulated bonus of the parent?"); 
-  CONFIG_ADD_VAR(MERIT_BONUS_INST, int, 0, "in BASE_MERIT_METHOD 6, this sets which instruction counts (-1=none, 0= 1st in INST_SET.)"); 
-  CONFIG_ADD_VAR(MERIT_BONUS_EFFECT, int, 0, "in BASE_MERIT_METHOD 6, this sets how much merit is earned per INST (-1=penalty, 0= no effect.)"); 
-  CONFIG_ADD_VAR(FITNESS_VALLEY, int, 0, "in BASE_MERIT_METHOD 6, this creates valleys from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP (0= off, 1=on)"); 
-  CONFIG_ADD_VAR(FITNESS_VALLEY_START, int, 0, "if FITNESS_VALLEY =1, orgs with num_key_instructions from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP get fitness 1 (lowest)"); 
-  CONFIG_ADD_VAR(FITNESS_VALLEY_STOP, int, 0, "if FITNESS_VALLEY =1, orgs with num_key_instructions from FITNESS_VALLEY_START to FITNESS_VALLEY_STOP get fitness 1 (lowest)"); 
+  CONFIG_ADD_VAR(MERIT_BONUS_INST, int, 0, "in BASE_MERIT_METHOD 6, this sets which instruction counts\n(-1 = none, 0 = First in INST_SET.)"); 
+  CONFIG_ADD_VAR(MERIT_BONUS_EFFECT, int, 0, "in BASE_MERIT_METHOD 6, this sets how much merit is earned\nper instruction (-1 = penalty, 0 = no effect.)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY, int, 0, "in BASE_MERIT_METHOD 6, this creates valleys from\nFITNESS_VALLEY_START to FITNESS_VALLEY_STOP\n(0 = off, 1 = on)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY_START, int, 0, "if FITNESS_VALLEY = 1, orgs with num_key_instructions\nfrom FITNESS_VALLEY_START to FITNESS_VALLEY_STOP\nget fitness 1 (lowest)"); 
+  CONFIG_ADD_VAR(FITNESS_VALLEY_STOP, int, 0, "if FITNESS_VALLEY = 1, orgs with num_key_instructions\nfrom FITNESS_VALLEY_START to FITNESS_VALLEY_STOP\nget fitness 1 (lowest)"); 
   CONFIG_ADD_VAR(MAX_CPU_THREADS, int, 1, "Number of Threads a CPU can spawn");
   CONFIG_ADD_VAR(THREAD_SLICING_METHOD, int, 0, "Formula for and organism's thread slicing\n  (num_threads-1) * THREAD_SLICING_METHOD + 1\n0 = One thread executed per time slice.\n1 = All threads executed each time slice.\n");
   CONFIG_ADD_VAR(MAX_LABEL_EXE_SIZE, int, 1, "Max nops marked as executed when labels are used");
-  CONFIG_ADD_VAR(DONATE_SIZE, double, 5.0, "Amount of merit donated with 'donate' command");
-  CONFIG_ADD_VAR(DONATE_MULT, double, 10.0, "Multiple of merit given that the target receives.");
+  CONFIG_ADD_VAR(MERIT_GIVEN, double, 0.0, "Fraction of merit donated with 'donate' command");
+  CONFIG_ADD_VAR(MERIT_RECEIVED, double, 0.0, "Multiplier of merit given with 'donate' command"); 
   CONFIG_ADD_VAR(MAX_DONATE_KIN_DIST, int, -1, "Limit on distance of relation for donate; -1=no max");
-  CONFIG_ADD_VAR(MAX_DONATE_EDIT_DIST, int, -1, "Limit on edit distance for donate; -1=no max");
+  CONFIG_ADD_VAR(MAX_DONATE_EDIT_DIST, int, -1, "Limit on genetic (edit) distance for donate; -1=no max");
+  CONFIG_ADD_VAR(MIN_GB_DONATE_THRESHOLD, int, -1, "threshold green beard donates only to orgs above this\ndonation attempt threshold; -1=no thresh");
+  CONFIG_ADD_VAR(DONATE_THRESH_QUANTA, int, 10, "The size of steps between quanta donate thresholds");
   CONFIG_ADD_VAR(MAX_DONATES, int, 1000000, "Limit on number of donates organisms are allowed.");
-  
-  CONFIG_ADD_GROUP(PROMOTER_GROUP, "Promoters");
-  CONFIG_ADD_VAR(PROMOTERS_ENABLED, int, 0, "Use the promoter/terminator execution scheme.\nCertain instructions must also be included.");
-  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY, double, 1.0, "Chance of not terminating after each cpu cycle.");
-  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY_INST, double, 1.0, "Chance of not terminating after each instruction.");
-  CONFIG_ADD_VAR(PROMOTER_BG_STRENGTH, double, 0, "Probability of positions that are not promoter\ninstructions initiating execution (promoters are 1).");
-  CONFIG_ADD_VAR(REGULATION_STRENGTH, double, 1, "Strength added or subtracted to a promoter by regulation.");
-  CONFIG_ADD_VAR(REGULATION_DECAY_FRAC, double, 0.1, "Fraction of regulation that decays away. \nMax regulation = 2^(REGULATION_STRENGTH/REGULATION_DECAY_FRAC)");
+  CONFIG_ADD_VAR(PRECALC_MERIT, int, 0, "Pre-calculate merit at birth (unlimited resources only).");
 
   CONFIG_ADD_GROUP(GENEOLOGY_GROUP, "Geneology");
   CONFIG_ADD_VAR(TRACK_MAIN_LINEAGE, int, 1, "Keep all ancestors of the active population?\n0=no, 1=yes, 2=yes,w/sexual population");
@@ -341,10 +337,63 @@ public:
   CONFIG_ADD_VAR(SELL_PRICE, int, 0, "price offered by organisms attempting to sell");
   
   CONFIG_ADD_GROUP(ANALYZE_GROUP, "Analysis Settings");
-  CONFIG_ADD_VAR(MT_CONCURRENCY, int, 1, "Number of concurrent analyze threads");
+  CONFIG_ADD_VAR(MAX_CONCURRENCY, int, -1, "Maximum number of analyze threads, -1 == use all available.");
   CONFIG_ADD_VAR(ANALYZE_OPTION_1, cString, "", "String variable accessible from analysis scripts");
   CONFIG_ADD_VAR(ANALYZE_OPTION_2, cString, "", "String variable accessible from analysis scripts");
+  
+  CONFIG_ADD_GROUP(ENERGY_GROUP, "Energy Settings");
+  CONFIG_ADD_VAR(ENERGY_ENABLED, bool, 0, "Enable Energy Model. 0/1 (off/on)");
+  CONFIG_ADD_VAR(ENERGY_GIVEN_ON_INJECT, int, 0, "Energy given to organism upon injection.");
+  CONFIG_ADD_VAR(ENERGY_GIVEN_AT_BIRTH, int, 0, "Energy given to offspring upon birth.");
+  CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_AT_BIRTH, double, 0.5, "Fraction of perent's energy given to offspring.");
+  CONFIG_ADD_VAR(FRAC_ENERGY_DECAY_AT_BIRTH, double, 0.0, "Fraction of energy lost due to decay during reproduction.");
+  CONFIG_ADD_VAR(NUM_INST_EXC_BEFORE_0_ENERGY, int, 0, "Number of instructions executed before energy is exhausted.");
+  CONFIG_ADD_VAR(ENERGY_CAP, int, -1, "Maximum amount of energy that can be stored in an organism.  -1 means the cap is set to Max Int");  // TODO - is this done?
+  CONFIG_ADD_VAR(APPLY_ENERGY_METHOD, int, 0, "When should rewarded energy be applied to current energy?\n0 = on divide\n1 = on completion of task\n2 = on sleep");  
+  CONFIG_ADD_VAR(ENERGY_VERBOSE, bool, 0, "Print energy and merit values. 0/1 (off/on)");
+  CONFIG_ADD_VAR(LOG_SLEEP_TIMES, bool, 0, "Log sleep start and end times. 0/1 (off/on)\nWARNING: may use lots of memory.");
+  //  CONFIG_ADD_VAR(FIX_METABOLIC_RATE, bool, 0, "When activated the metabolic rate of all orgiansims are equal. 0/1 (off/on)"); // TODO - check for correctness
 
+  CONFIG_ADD_GROUP(SECOND_PASS_GROUP, "Tracking metrics known after the running experiment previously");
+  CONFIG_ADD_VAR(TRACK_CCLADES, int, 0, "Enable tracking of coalescence clades");
+  CONFIG_ADD_VAR(TRACK_CCLADES_IDS, cString, "coalescence.ids", "File storing coalescence IDs");
+
+  CONFIG_ADD_GROUP(GX_GROUP, "Gene Expression CPU Settings");
+  CONFIG_ADD_VAR(MAX_PROGRAMIDS, int, 16, "Maximum number of programids an organism can create.");
+  CONFIG_ADD_VAR(MAX_PROGRAMID_AGE, int, 2000, "Max number of CPU cycles a programid executes before it is removed.");
+  CONFIG_ADD_VAR(IMPLICIT_GENE_EXPRESSION, int, 0, "Create executable programids from the genome without explicit allocation and copying?");
+  CONFIG_ADD_VAR(IMPLICIT_BG_PROMOTER_RATE, double, 0.0, "Relative rate of non-promoter sites creating programids.");
+  CONFIG_ADD_VAR(IMPLICIT_TURNOVER_RATE, double, 0.0, "Number of programids recycled per CPU cycle. 0 = OFF");
+  CONFIG_ADD_VAR(IMPLICIT_MAX_PROGRAMID_LENGTH, int, 0, "Creation of an executable programid terminates after this many instructions. 0 = disabled");
+  //  CONFIG_ADD_VAR(CLEAR_ON_OUTPUT, int, 0, "Reset input buffer every time output called?"); @JEB Not fully implemented
+
+  CONFIG_ADD_GROUP(PROMOTER_GROUP, "Promoters");
+  CONFIG_ADD_VAR(PROMOTERS_ENABLED, int, 0, "Use the promoter/terminator execution scheme.\nCertain instructions must also be included.");
+  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY, double, 1.0, "Chance of not terminating after each cpu cycle.");
+  CONFIG_ADD_VAR(PROMOTER_PROCESSIVITY_INST, double, 1.0, "Chance of not terminating after each instruction.");
+  CONFIG_ADD_VAR(PROMOTER_BG_STRENGTH, double, 0, "Probability of positions that are not promoter\ninstructions initiating execution (promoters are 1).");
+  CONFIG_ADD_VAR(REGULATION_STRENGTH, double, 1, "Strength added or subtracted to a promoter by regulation.");
+  CONFIG_ADD_VAR(REGULATION_DECAY_FRAC, double, 0.1, "Fraction of regulation that decays away. \nMax regulation = 2^(REGULATION_STRENGTH/REGULATION_DECAY_FRAC)");
+
+  CONFIG_ADD_GROUP(COLORS_GROUP, "Output colors for when data files are printed in HTML mode.\nThere are two sets of these; the first are for lineages,\nand the second are for mutation tests.");
+  CONFIG_ADD_VAR(COLOR_DIFF, cString, "CCCCFF", "Color to flag stat that has changed since parent.");
+  CONFIG_ADD_VAR(COLOR_SAME, cString, "FFFFFF", "Color to flag stat that has NOT changed since parent.");
+  CONFIG_ADD_VAR(COLOR_NEG2, cString, "FF0000", "Color to flag stat that is significantly worse than parent.");
+  CONFIG_ADD_VAR(COLOR_NEG1, cString, "FFCCCC", "Color to flag stat that is minorly worse than parent.");
+  CONFIG_ADD_VAR(COLOR_POS1, cString, "CCFFCC", "Color to flag stat that is minorly better than parent.");
+  CONFIG_ADD_VAR(COLOR_POS2, cString, "00FF00", "Color to flag stat that is significantly better than parent.");
+
+  CONFIG_ADD_VAR(COLOR_MUT_POS,    cString, "00FF00", "Color to flag stat that has changed since parent.");
+  CONFIG_ADD_VAR(COLOR_MUT_NEUT,   cString, "FFFFFF", "Color to flag stat that has changed since parent.");
+  CONFIG_ADD_VAR(COLOR_MUT_NEG,    cString, "FFFF00", "Color to flag stat that has changed since parent.");
+  CONFIG_ADD_VAR(COLOR_MUT_LETHAL, cString, "FF0000", "Color to flag stat that has changed since parent.");
+
+  // @WRE: Additions for approaching various features of biological organisms
+  CONFIG_ADD_GROUP(BIOMIMETIC_GROUP, "Biomimetic Features Settings");
+  CONFIG_ADD_VAR(BIOMIMETIC_REFRACTORY_PERIOD, double, 0.0, "Number of updates affected by refractory period");
+  CONFIG_ADD_VAR(BIOMIMETIC_MOVEMENT_STEP, int, 0, "Number of cells to move Avidian on move instruction");
+  CONFIG_ADD_VAR(BIOMIMETIC_K, int, 0, "Carrying capacity in number of organisms");
+  
 #endif
   
   void Load(const cString& filename, const bool& crash_if_not_found);

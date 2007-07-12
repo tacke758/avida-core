@@ -26,7 +26,7 @@
 #include <csignal>
 #include <cstdarg>
 
-// All colors are defines except black on black:
+// All colors are defined except black on black:
 #define COLOR_OFF    8
 
 // Define special characters
@@ -81,6 +81,7 @@ public:
   inline int Width() { return win_id->_maxx + 1; }
   inline int Height() { return win_id->_maxy + 1; }
 #endif
+  WINDOW * GetWinID() { return win_id; } // DEBUG!!!
 
   // Clear the screen and redraw all text on it.
   inline void RedrawMain() { touchwin(win_id); wrefresh(win_id); }

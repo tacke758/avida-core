@@ -44,18 +44,21 @@ cPhenotype::cPhenotype(cWorld* world)
   , cur_task_count(m_world->GetEnvironment().GetNumTasks())
   , eff_task_count(m_world->GetEnvironment().GetNumTasks())
   , cur_task_quality(m_world->GetEnvironment().GetNumTasks())  
+  , cur_task_value(m_world->GetEnvironment().GetNumTasks())  
   , cur_reaction_count(m_world->GetEnvironment().GetReactionLib().GetSize())
   , cur_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())
   , cur_inst_count(world->GetHardwareManager().GetInstSet().GetSize())
   , cur_sense_count(m_world->GetStats().GetSenseSize())
   , sensed_resources(m_world->GetEnvironment().GetResourceLib().GetSize())
+  , cur_task_time(m_world->GetEnvironment().GetNumTasks())   // Added for tracking time; WRE 03-18-07
+  , promoter_last_inst_terminated(false) 
   , last_task_count(m_world->GetEnvironment().GetNumTasks())
-  , last_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())  
   , last_task_quality(m_world->GetEnvironment().GetNumTasks())
+  , last_task_value(m_world->GetEnvironment().GetNumTasks())
   , last_reaction_count(m_world->GetEnvironment().GetReactionLib().GetSize())
+  , last_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())  
   , last_inst_count(world->GetHardwareManager().GetInstSet().GetSize())
   , last_sense_count(m_world->GetStats().GetSenseSize())
-  , promoter_last_inst_terminated(false) 
 {
 }
 
@@ -109,6 +112,8 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
 {
   // Copy divide values from parent, which should already be setup.
   merit           = parent_phenotype.merit;
+  energy_store    = min(energy_store, (double) m_world->GetConfig().ENERGY_CAP.Get());
+  energy_tobe_applied = 0.0;
   genome_length   = _genome.GetSize();
   copied_size     = parent_phenotype.child_copied_size;
   executed_size   = parent_phenotype.executed_size;
@@ -127,15 +132,18 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
 
   // Initialize current values, as neeeded.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
   eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
+  cur_task_value.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   cur_sense_count.SetAll(0);  
+  cur_task_time.SetAll(0.0);  // Added for time tracking; WRE 03-18-07
   for (int j = 0; j < sensed_resources.GetSize(); j++)
 	      sensed_resources[j] =  parent_phenotype.sensed_resources[j];
   SetupPromoterWeights(_genome, true);
@@ -147,6 +155,7 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   last_num_donates          = parent_phenotype.last_num_donates;
   last_task_count           = parent_phenotype.last_task_count;
   last_task_quality         = parent_phenotype.last_task_quality;
+  last_task_value			= parent_phenotype.last_task_value;
   last_reaction_count       = parent_phenotype.last_reaction_count;
   last_reaction_add_reward  = parent_phenotype.last_reaction_add_reward;
   last_inst_count           = parent_phenotype.last_inst_count;
@@ -164,12 +173,45 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   neutral_metric  = parent_phenotype.neutral_metric + m_world->GetRandom().GetRandNormal();
   life_fitness    = fitness; 
 
+  num_thresh_gb_donations = 0;
+  num_thresh_gb_donations_last = parent_phenotype.num_thresh_gb_donations_last;
+  num_quanta_thresh_gb_donations = 0;
+  num_quanta_thresh_gb_donations_last = parent_phenotype.num_thresh_gb_donations_last;
+
   // Setup flags...
   is_injected   = false;
-  is_parasite   = false;
   is_donor_cur  = false;
   is_donor_last = parent_phenotype.is_donor_last;
+  is_donor_rand = false;
+  is_donor_rand_last = parent_phenotype.is_donor_rand_last;
+  is_donor_null = false;
+  is_donor_null_last = parent_phenotype.is_donor_null_last;
+  is_donor_kin  = false;
+  is_donor_kin_last = parent_phenotype.is_donor_kin_last;
+  is_donor_edit  = false;
+  is_donor_edit_last = parent_phenotype.is_donor_edit_last;
+  is_donor_gbg  = false;
+  is_donor_gbg_last = parent_phenotype.is_donor_gbg_last;
+  is_donor_truegb  = false;
+  is_donor_truegb_last = parent_phenotype.is_donor_truegb_last;
+  is_donor_threshgb  = false;
+  is_donor_threshgb_last = parent_phenotype.is_donor_threshgb_last;
+  is_donor_quanta_threshgb  = false;
+  is_donor_quanta_threshgb_last = parent_phenotype.is_donor_quanta_threshgb_last;
   is_receiver   = false;
+  is_receiver_last = parent_phenotype.is_receiver_last;
+  is_receiver_rand   = false;
+  is_receiver_kin    = false;
+  is_receiver_kin_last    = parent_phenotype.is_receiver_kin_last;
+  is_receiver_edit   = false;
+  is_receiver_edit_last    = parent_phenotype.is_receiver_edit_last;
+  is_receiver_gbg    = false;
+  is_receiver_truegb = false;
+  is_receiver_truegb_last = parent_phenotype.is_receiver_truegb_last;
+  is_receiver_threshgb = false;
+  is_receiver_threshgb_last = parent_phenotype.is_receiver_threshgb_last;
+  is_receiver_quanta_threshgb = false;
+  is_receiver_quanta_threshgb_last = parent_phenotype.is_receiver_quanta_threshgb_last;
   is_modifier   = false;
   is_modified   = false;
   is_fertile    = parent_phenotype.last_child_fertile;
@@ -210,6 +252,8 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   merit           = genome_length;
   copied_size     = genome_length;
   executed_size   = genome_length;
+  energy_store    = min(m_world->GetConfig().ENERGY_GIVEN_ON_INJECT.Get(), m_world->GetConfig().ENERGY_CAP.Get());
+  energy_tobe_applied = 0.0;
   gestation_time  = 0;
   gestation_start = 0;
   fitness         = 0;
@@ -217,16 +261,19 @@ void cPhenotype::SetupInject(const cGenome & _genome)
 
   // Initialize current values, as neeeded.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
   eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
+  cur_task_value.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   sensed_resources.SetAll(0);
   cur_sense_count.SetAll(0);
+  cur_task_time.SetAll(0.0);
   SetupPromoterWeights(_genome, true);
   
   // Copy last values from parent
@@ -236,8 +283,10 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   last_num_donates = 0;
   last_task_count.SetAll(0);
   last_task_quality.SetAll(0);
+  last_task_value.SetAll(0);
   last_reaction_count.SetAll(0);
   last_reaction_add_reward.SetAll(0);
+  last_inst_count.SetAll(0);
   last_sense_count.SetAll(0);
 
   // Setup other miscellaneous values...
@@ -250,12 +299,45 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   neutral_metric  = 0;
   life_fitness    = 0; 
 
+  num_thresh_gb_donations = 0;
+  num_thresh_gb_donations_last = 0;
+  num_quanta_thresh_gb_donations = 0;
+  num_quanta_thresh_gb_donations_last = 0;
+
   // Setup flags...
   is_injected   = true;
-  is_parasite   = false;
   is_donor_last = false;
   is_donor_cur  = false;
+  is_donor_rand = false;
+  is_donor_rand_last = false;
+  is_donor_null = false;
+  is_donor_null_last = false;
+  is_donor_kin = false;
+  is_donor_kin_last = false;
+  is_donor_edit = false;
+  is_donor_edit_last = false;
+  is_donor_gbg = false;
+  is_donor_gbg_last = false;
+  is_donor_truegb = false;
+  is_donor_truegb_last = false;
+  is_donor_threshgb = false;
+  is_donor_threshgb_last = false;
+  is_donor_quanta_threshgb = false;
+  is_donor_quanta_threshgb_last = false;
   is_receiver   = false;
+  is_receiver_last   = false;
+  is_receiver_rand   = false;
+  is_receiver_kin   = false;
+  is_receiver_kin_last   = false;
+  is_receiver_edit   = false;
+  is_receiver_edit_last   = false;
+  is_receiver_gbg   = false;
+  is_receiver_truegb   = false;
+  is_receiver_truegb_last   = false;
+  is_receiver_threshgb   = false;
+  is_receiver_threshgb_last   = false;
+  is_receiver_quanta_threshgb   = false;
+  is_receiver_quanta_threshgb_last   = false;
   is_modifier   = false;
   is_modified   = false;
   is_fertile    = true;
@@ -302,6 +384,9 @@ void cPhenotype::DivideReset(const cGenome & _genome)
     merit = cur_merit_base * cur_bonus;
   }
   
+  // update energy store
+  energy_store += cur_energy_bonus;
+  
   genome_length   = _genome.GetSize();
   (void) copied_size;          // Unchanged
   (void) executed_size;        // Unchanged
@@ -312,10 +397,12 @@ void cPhenotype::DivideReset(const cGenome & _genome)
   // Lock in cur values as last values.
   last_merit_base           = cur_merit_base;
   last_bonus                = cur_bonus;
+//TODO?  last_energy         = cur_energy_bonus;
   last_num_errors           = cur_num_errors;
   last_num_donates          = cur_num_donates;
   last_task_count           = cur_task_count;
   last_task_quality         = cur_task_quality;
+  last_task_value			= cur_task_value;
   last_reaction_count       = cur_reaction_count;
   last_reaction_add_reward  = cur_reaction_add_reward;
   last_inst_count           = cur_inst_count;
@@ -323,15 +410,18 @@ void cPhenotype::DivideReset(const cGenome & _genome)
 
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
   eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
+  cur_task_value.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   cur_sense_count.SetAll(0);
+  cur_task_time.SetAll(0.0);
 
   // Setup other miscellaneous values...
   num_divides++;
@@ -342,12 +432,45 @@ void cPhenotype::DivideReset(const cGenome & _genome)
   (void) neutral_metric;
   life_fitness = fitness; 
 
+  num_thresh_gb_donations_last = num_thresh_gb_donations;
+  num_thresh_gb_donations = 0;
+  num_quanta_thresh_gb_donations_last = num_quanta_thresh_gb_donations;
+  num_quanta_thresh_gb_donations = 0;
+
   // Leave flags alone...
   (void) is_injected;
-  (void) is_parasite;
   is_donor_last = is_donor_cur;
   is_donor_cur = false;
+  is_donor_rand_last = is_donor_rand;
+  is_donor_rand = false;
+  is_donor_null_last = is_donor_null;
+  is_donor_null = false;
+  is_donor_kin_last = is_donor_kin;
+  is_donor_kin = false;
+  is_donor_edit_last = is_donor_edit;
+  is_donor_edit = false;
+  is_donor_gbg_last = is_donor_gbg;
+  is_donor_gbg = false;
+  is_donor_truegb_last = is_donor_truegb;
+  is_donor_truegb = false;
+  is_donor_threshgb_last = is_donor_threshgb;
+  is_donor_threshgb = false;
+  is_donor_quanta_threshgb_last = is_donor_quanta_threshgb;
+  is_donor_quanta_threshgb = false;
+  is_receiver_last = is_receiver;
   is_receiver = false;
+  is_receiver_rand = false;
+  is_receiver_kin_last = is_receiver_kin;
+  is_receiver_kin = false;
+  is_receiver_edit_last = is_receiver_edit;
+  is_receiver_edit = false;
+  is_receiver_gbg = false;
+  is_receiver_truegb_last = is_receiver_truegb;
+  is_receiver_truegb = false;
+  is_receiver_threshgb_last = is_receiver_threshgb;
+  is_receiver_threshgb = false;
+  is_receiver_quanta_threshgb_last = is_receiver_quanta_threshgb;
+  is_receiver_quanta_threshgb = false;
   (void) is_modifier;
   (void) is_modified;
   (void) is_fertile;
@@ -416,6 +539,7 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   last_num_donates          = cur_num_donates;
   last_task_count           = cur_task_count;
   last_task_quality         = cur_task_quality;
+  last_task_value			= cur_task_value;
   last_reaction_count       = cur_reaction_count;
   last_reaction_add_reward  = cur_reaction_add_reward;
   last_inst_count           = cur_inst_count;
@@ -428,10 +552,12 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   cur_task_count.SetAll(0);
   eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);
+  cur_task_value.SetAll(0);
   cur_reaction_count.SetAll(0);
   cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   cur_sense_count.SetAll(0); 
+  cur_task_time.SetAll(0.0);
   sensed_resources.SetAll(-1.0);
   SetupPromoterWeights(_genome, true);
   
@@ -444,12 +570,45 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   (void) neutral_metric;
   life_fitness = fitness; 
 
+  num_thresh_gb_donations_last = num_thresh_gb_donations;
+  num_thresh_gb_donations = 0;
+  num_quanta_thresh_gb_donations_last = num_quanta_thresh_gb_donations;
+  num_quanta_thresh_gb_donations = 0;
+
   // Leave flags alone...
   (void) is_injected;
-  (void) is_parasite;
   is_donor_last = is_donor_cur;
   is_donor_cur = false;
+  is_donor_rand_last = is_donor_rand;
+  is_donor_rand = false;
+  is_donor_null_last = is_donor_null;
+  is_donor_null = false;
+  is_donor_kin_last = is_donor_kin;
+  is_donor_kin = false;
+  is_donor_edit_last = is_donor_edit;
+  is_donor_edit = false;
+  is_donor_gbg_last = is_donor_gbg;
+  is_donor_gbg = false;
+  is_donor_truegb_last = is_donor_truegb;
+  is_donor_truegb = false;
+  is_donor_threshgb_last = is_donor_threshgb;
+  is_donor_threshgb = false;
+  is_donor_quanta_threshgb_last = is_donor_quanta_threshgb;
+  is_donor_quanta_threshgb = false;
+  is_receiver_last = is_receiver;
   is_receiver = false;
+  is_receiver_rand = false;
+  is_receiver_kin_last = is_receiver_kin;
+  is_receiver_kin = false;
+  is_receiver_edit_last = is_receiver_edit;
+  is_receiver_edit = false;
+  is_receiver_gbg = false;
+  is_receiver_truegb_last = is_receiver_truegb;
+  is_receiver_truegb = false;
+  is_receiver_threshgb_last = is_receiver_threshgb;
+  is_receiver_threshgb = false;
+  is_receiver_quanta_threshgb_last = is_receiver_quanta_threshgb;
+  is_receiver_quanta_threshgb = false;
   (void) is_modifier;
   (void) is_modified;
   (void) is_fertile;
@@ -512,6 +671,7 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   cur_reaction_add_reward.SetAll(0);
   cur_inst_count.SetAll(0);
   cur_sense_count.SetAll(0);  
+  cur_task_time.SetAll(0.0);
   for (int j = 0; j < sensed_resources.GetSize(); j++)
 	      sensed_resources[j] =  clone_phenotype.sensed_resources[j];
   //SetupPromoterWeights(_genome); Do we reset here?
@@ -539,12 +699,46 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   neutral_metric  = clone_phenotype.neutral_metric + m_world->GetRandom().GetRandNormal();
   life_fitness    = fitness; 
 
+  num_thresh_gb_donations_last = clone_phenotype.num_thresh_gb_donations_last;
+  num_thresh_gb_donations  = clone_phenotype.num_thresh_gb_donations;
+  num_quanta_thresh_gb_donations_last = clone_phenotype.num_quanta_thresh_gb_donations_last;
+  num_quanta_thresh_gb_donations  = clone_phenotype.num_quanta_thresh_gb_donations;
+
   // Setup flags...
   is_injected   = false;
-  is_parasite   = false;
   is_donor_last = clone_phenotype.is_donor_last;
   is_donor_cur  = clone_phenotype.is_donor_cur;
   is_receiver = false;
+  is_donor_rand_last = clone_phenotype.is_donor_rand_last;
+  is_donor_rand  = clone_phenotype.is_donor_rand;
+  is_donor_null_last = clone_phenotype.is_donor_null_last;
+  is_donor_null  = clone_phenotype.is_donor_null;
+  is_donor_kin_last = clone_phenotype.is_donor_kin_last;
+  is_donor_kin  = clone_phenotype.is_donor_kin;
+  is_donor_edit_last = clone_phenotype.is_donor_edit_last;
+  is_donor_edit  = clone_phenotype.is_donor_edit;
+  is_donor_gbg_last = clone_phenotype.is_donor_gbg_last;
+  is_donor_gbg  = clone_phenotype.is_donor_gbg;
+  is_donor_truegb_last = clone_phenotype.is_donor_truegb_last;
+  is_donor_truegb  = clone_phenotype.is_donor_truegb;
+  is_donor_threshgb_last = clone_phenotype.is_donor_threshgb_last;
+  is_donor_threshgb  = clone_phenotype.is_donor_threshgb;
+  is_donor_quanta_threshgb_last = clone_phenotype.is_donor_quanta_threshgb_last;
+  is_donor_quanta_threshgb  = clone_phenotype.is_donor_quanta_threshgb;
+  is_receiver = clone_phenotype.is_receiver;
+  is_receiver_last = clone_phenotype.is_receiver_last;
+  is_receiver_rand = clone_phenotype.is_receiver_rand;
+  is_receiver_kin = clone_phenotype.is_receiver_kin;
+  is_receiver_kin_last = clone_phenotype.is_receiver_kin_last;
+  is_receiver_edit = clone_phenotype.is_receiver_edit;
+  is_receiver_edit_last = clone_phenotype.is_receiver_edit_last;
+  is_receiver_gbg = clone_phenotype.is_receiver_gbg;
+  is_receiver_truegb = clone_phenotype.is_receiver_truegb;
+  is_receiver_truegb_last = clone_phenotype.is_receiver_truegb_last;
+  is_receiver_threshgb = clone_phenotype.is_receiver_threshgb;
+  is_receiver_threshgb_last = clone_phenotype.is_receiver_threshgb_last;
+  is_receiver_quanta_threshgb = clone_phenotype.is_receiver_quanta_threshgb;
+  is_receiver_quanta_threshgb_last = clone_phenotype.is_receiver_quanta_threshgb_last;
   is_modifier   = false;
   is_modified   = false;
   is_fertile    = clone_phenotype.last_child_fertile;
@@ -590,6 +784,11 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   const int num_tasks = env.GetNumTasks();
   const int num_reactions = env.GetReactionLib().GetSize();
 
+  // For refractory period @WRE 03-20-07
+  const int cur_update_time = m_world->GetStats().GetUpdate();
+  const double biomimetic_refractory_period = m_world->GetConfig().BIOMIMETIC_REFRACTORY_PERIOD.Get();
+  double refract_factor;
+
   cReactionResult result(num_resources, num_tasks, num_reactions);
 			
   // Run everything through the environment.
@@ -604,13 +803,25 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   // Update the phenotype with the results...
   // Start with updating task and reaction counters
   for (int i = 0; i < num_tasks; i++) {
+    // Calculate refractory period factor @WRE
+    // Modify TaskQuality amount based on refractory period
+    // Logistic equation using refractory period
+    // in update units from configuration file.  @WRE 03-20-07, 04-17-07
+    if (0.0 == biomimetic_refractory_period) {
+      refract_factor = 1.0;
+    } else {
+      refract_factor = 1.0 - (1.0 / (1.0 + exp((cur_update_time - cur_task_time[i])-biomimetic_refractory_period*0.5)));
+    }
     if (result.TaskDone(i) == true) 
     {
       cur_task_count[i]++;
       eff_task_count[i]++;
     }
-    if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i);
+    if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i) * refract_factor;
+    cur_task_value[i] = result.TaskValue(i);
+    cur_task_time[i] = cur_update_time; // Find out time from context
   }
+
   for (int i = 0; i < num_reactions; i++) {
     if (result.ReactionTriggered(i) == true) cur_reaction_count[i]++;
     cur_reaction_add_reward[i] += result.GetReactionAddBonus(i);
@@ -619,7 +830,10 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   // Update the merit bonus
   cur_bonus *= result.GetMultBonus();
   cur_bonus += result.GetAddBonus();
-
+  
+  // Update the energy bonus
+  cur_energy_bonus += result.GetAddEnergy();
+  
   // Denote consumed resources...
   for (int i = 0; i < res_in.GetSize(); i++) {
     res_change[i] = result.GetProduced(i) - result.GetConsumed(i);
@@ -693,11 +907,43 @@ bool cPhenotype::SaveState(ofstream& fp)
   fp << life_fitness        << " ";
 
   fp << is_injected         << " ";
-  fp << is_parasite         << " ";
   fp << is_donor_last       << " ";
   fp << is_donor_cur        << " ";
+  fp << is_donor_rand_last       << " ";
+  fp << is_donor_rand        << " ";
+  fp << is_donor_null_last       << " ";
+  fp << is_donor_null        << " ";
+  fp << is_donor_kin_last       << " ";
+  fp << is_donor_kin        << " ";
+  fp << is_donor_edit_last       << " ";
+  fp << is_donor_edit        << " ";
+  fp << is_donor_gbg_last       << " ";
+  fp << is_donor_gbg        << " ";
+  fp << is_donor_truegb_last       << " ";
+  fp << is_donor_truegb        << " ";
+  fp << is_donor_threshgb_last       << " ";
+  fp << is_donor_threshgb        << " ";
+  fp << is_donor_quanta_threshgb_last       << " ";
+  fp << is_donor_quanta_threshgb        << " ";
+  fp << num_thresh_gb_donations_last       << " ";
+  fp << num_thresh_gb_donations        << " ";
+  fp << num_quanta_thresh_gb_donations_last       << " ";
+  fp << num_quanta_thresh_gb_donations        << " ";
 
+  fp << is_receiver_last         << " ";
   fp << is_receiver         << " ";
+  fp << is_receiver_rand         << " ";
+  fp << is_receiver_kin         << " ";
+  fp << is_receiver_kin_last         << " ";
+  fp << is_receiver_edit         << " ";
+  fp << is_receiver_edit_last         << " ";
+  fp << is_receiver_gbg         << " ";
+  fp << is_receiver_truegb_last         << " ";
+  fp << is_receiver_truegb         << " ";
+  fp << is_receiver_threshgb_last         << " ";
+  fp << is_receiver_threshgb         << " ";
+  fp << is_receiver_quanta_threshgb_last         << " ";
+  fp << is_receiver_quanta_threshgb         << " ";
   fp << is_modifier         << " ";
   fp << is_modified         << " ";
   fp << is_fertile          << " ";
@@ -770,10 +1016,42 @@ bool cPhenotype::LoadState(ifstream & fp)
   fp >> life_fitness;
 
   fp >> is_injected;
-  fp >> is_parasite;
   fp >> is_donor_last;
   fp >> is_donor_cur;
+  fp >> is_donor_rand_last;
+  fp >> is_donor_rand;
+  fp >> is_donor_null_last;
+  fp >> is_donor_null;
+  fp >> is_donor_kin_last;
+  fp >> is_donor_kin;
+  fp >> is_donor_edit_last;
+  fp >> is_donor_edit;
+  fp >> is_donor_gbg_last;
+  fp >> is_donor_gbg;
+  fp >> is_donor_truegb_last;
+  fp >> is_donor_truegb;
+  fp >> is_donor_threshgb_last;
+  fp >> is_donor_threshgb;
+  fp >> is_donor_quanta_threshgb_last;
+  fp >> is_donor_quanta_threshgb;
+  fp >> num_thresh_gb_donations_last;
+  fp >> num_thresh_gb_donations;
+  fp >> num_quanta_thresh_gb_donations_last;
+  fp >> num_quanta_thresh_gb_donations;
+  fp >> is_receiver_last;
   fp >> is_receiver;
+  fp >> is_receiver_rand;
+  fp >> is_receiver_kin;
+  fp >> is_receiver_kin_last;
+  fp >> is_receiver_edit;
+  fp >> is_receiver_edit_last;
+  fp >> is_receiver_gbg;
+  fp >> is_receiver_truegb_last;
+  fp >> is_receiver_truegb;
+  fp >> is_receiver_threshgb_last;
+  fp >> is_receiver_threshgb;
+  fp >> is_receiver_quanta_threshgb_last;
+  fp >> is_receiver_quanta_threshgb;
   fp >> is_modifier;
   fp >> is_modified;
   fp >> is_fertile;
@@ -906,6 +1184,29 @@ void cPhenotype::SetupPromoterWeights(const cGenome & _genome, const bool clear)
   }
 }
 
+/**
+Credit organism with energy reward, but only update energy store if APPLY_ENERGY_METHOD = "no task completion" (1)
+ */
+void cPhenotype::RefreshEnergy() {
+  if(cur_energy_bonus > 0) {
+    if(m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 0 || m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 2) {
+      energy_tobe_applied += cur_energy_bonus;
+    } else if(m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 1) {
+      energy_store += cur_energy_bonus;
+    } else {
+      cerr<< "Unknown APPLY_ENERGY_METHOD value " << m_world->GetConfig().APPLY_ENERGY_METHOD.Get();
+      exit(-1);
+    }
+    cur_energy_bonus = 0;
+  }
+}
+
+double cPhenotype::ApplyToEnergyStore() {
+  energy_store += energy_tobe_applied;
+  energy_tobe_applied = 0.0;
+  return min(100 * energy_store / (m_world->GetConfig().NUM_INST_EXC_BEFORE_0_ENERGY.Get()), (double) m_world->GetConfig().ENERGY_CAP.Get());
+}
+
 void cPhenotype::DecayAllPromoterRegulation()
 {
   for ( int i=0; i<cur_promoter_weights.GetSize(); i++)
@@ -933,4 +1234,3 @@ void cPhenotype::RegulatePromoter(const int i, const bool up )
   
   cur_promoter_weights[i] = base_promoter_weights[i] * exp((1+promoter_activation[i])*log(2.0)) / exp((1+promoter_repression[i])*log(2.0));
 }
-

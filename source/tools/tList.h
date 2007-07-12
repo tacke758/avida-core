@@ -32,11 +32,6 @@
 # endif
 #endif
 
-#ifndef platform_h
-#include "platform.h"
-#endif
-
-
 #ifndef NULL
 #define NULL 0
 #endif
@@ -50,13 +45,9 @@ public:
   tListNode<T> * next;
   tListNode<T> * prev;
   
-// @DMB - Visual Studio doesn't like usage of 'this' in initializers 
-//        and throws a lot of useless warnings. 
-#if AVIDA_PLATFORM(WINDOWS) 
+  // @DMB - Visual Studio doesn't like usage of 'this' in initializers 
+  //        and throws a lot of useless warnings. 
   tListNode() : data(NULL) { next = this; prev = this; } 
-#else 
-  tListNode() : data(NULL), next(this), prev(this) { ; } 
-#endif 
     
   template<class Archive>
   void serialize(Archive & a, const unsigned int version){
@@ -481,7 +472,7 @@ private:
 
 
 // This is an extended version of tList that contains extra functions to
-// allow method pointer associated with the object type being listed.
+// allow method pointers associated with the object type being listed.
 template <class T> class tListPlus : public tList<T> {
 #if USE_tMemTrack
   tMemTrack<tListPlus<T> > mt;

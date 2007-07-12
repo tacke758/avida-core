@@ -30,8 +30,22 @@ SET(LIBRARY_OUTPUT_PATH
 # This section defines default builtin compiler options
 # ------------------------------------------------------------------------------
 IF(UNIX)
-  SET(COMPILER_WARNING_FLAGS "-Wextra -Wno-unknown-pragmas -Wconversion -Wno-trigraphs")
-  SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
+  IF (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
+    SET(COMPILER_WARNING_FLAGS "")
+    SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -fno-rtti -funroll-loops -fstrict-aliasing -OPT:Olimit=0")
+  ELSE (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
+    SET(COMPILER_WARNING_FLAGS "-Wextra -Wno-unknown-pragmas -Wconversion -Wno-trigraphs")
+    SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -fno-rtti -funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
+  ENDIF (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
+
+  INCLUDE(CheckCSourceCompiles)
+  SET(CMAKE_REQUIRED_FLAGS "-mno-fused-madd")
+  CHECK_C_SOURCE_COMPILES("int main() { return 0; }" HAVE_FUSED_MADD)
+  SET(CMAKE_REQUIRED_FLAGS "")
+
+  IF(HAVE_FUSED_MADD)
+    SET(COMPILER_OPTIMIZATION_FLAGS "-mno-fused-madd ${COMPILER_OPTIMIZATION_FLAGS}")
+  ENDIF(HAVE_FUSED_MADD)
 
   # Four types of c++ compilations:
   # - debug (Debug)
@@ -127,6 +141,26 @@ LIST(APPEND AVIDA_CORE_SOURCES ${CLASSIFICATION_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${CLASSIFICATION_DIR})
 
 
+# The core viewer directory
+SET(COREVIEW_DIR ${PROJECT_SOURCE_DIR}/source/viewer-core)
+SET(COREVIEW_SOURCES
+  ${COREVIEW_DIR}/cCoreView_Info.cc
+)
+SOURCE_GROUP(coreview FILES ${COREVIEW_SOURCES})
+LIST(APPEND AVIDA_CORE_SOURCES ${COREVIEW_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${COREVIEW_DIR})
+
+
+# The core GUI  directory
+SET(COREGUI_DIR ${PROJECT_SOURCE_DIR}/source/viewer-coreGUI)
+SET(COREGUI_SOURCES
+  ${COREGUI_DIR}/cGUIDriver.cc
+)
+SOURCE_GROUP(coregui FILES ${COREGUI_SOURCES})
+LIST(APPEND AVIDA_CORE_SOURCES ${COREGUI_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${COREGUI_DIR})
+
+
 # The cpu directory
 SET(CPU_DIR ${PROJECT_SOURCE_DIR}/source/cpu)
 SET(CPU_SOURCES
@@ -172,8 +206,6 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cAvidaConfig.cc
   ${MAIN_DIR}/cBirthChamber.cc
   ${MAIN_DIR}/cDeme.cc
-  ${MAIN_DIR}/cUMLModel.cc
-  ${MAIN_DIR}/cUMLStateDiagram.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
   ${MAIN_DIR}/cFitnessMatrix.cc
@@ -207,6 +239,16 @@ LIST(APPEND AVIDA_CORE_SOURCES ${MAIN_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${MAIN_DIR})
 
 
+# The platform directory
+SET(PLATFORM_DIR ${PROJECT_SOURCE_DIR}/source/platform)
+SET(PLATFORM_SOURCES
+  ${PLATFORM_DIR}/cThread.cc
+  ${PLATFORM_DIR}/PlatformExpert.cc
+)
+LIST(APPEND AVIDA_CORE_SOURCES ${PLATFORM_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${PLATFORM_DIR})
+
+
 # The tools directory
 SET(TOOLS_DIR ${PROJECT_SOURCE_DIR}/source/tools)
 SET(TOOLS_SOURCES
@@ -238,7 +280,6 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cStringIterator.cc
   ${TOOLS_DIR}/cStringList.cc
   ${TOOLS_DIR}/cStringUtil.cc
-  ${TOOLS_DIR}/cThread.cc
   ${TOOLS_DIR}/cTools.cc
   ${TOOLS_DIR}/cWeightedIndex.cc
 )
@@ -299,7 +340,7 @@ IF(AVD_CMDLINE)
 ENDIF(AVD_CMDLINE)
 
 
-# By default, build the console interface to Avida.
+# By default, do not build the console interface to Avida.
 OPTION(AVD_GUI_NCURSES
   "Enable building Avida console interface."
   OFF
@@ -359,6 +400,115 @@ IF(AVD_GUI_NCURSES)
 
   ENDIF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
 ENDIF(AVD_GUI_NCURSES)
+
+
+
+# By default, do not build the console interface to Avida.
+OPTION(AVD_GUI_PROTO_TEXT
+  "Enable building new Avida text interface."
+  OFF
+)
+# Make sure requisites are present for build of console interface.  Give
+# user feedback if they're missing.
+IF(AVD_GUI_PROTO_TEXT)
+  # Locate the ncurses screen handling package (for Avida's console
+  # interface) and the Qt graphics API (for Avida's graphic interface).
+  INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/FindNcurses.cmake)
+  IF(NOT NCURSES_INCLUDE_PATH)
+    MESSAGE("Unable to locate header files for the ncurses CRT screen handling package.  Please set the advanced variable NCURSES_INCLUDE_PATH to their location.")
+  ENDIF(NOT NCURSES_INCLUDE_PATH)
+  IF(NOT NCURSES_LIBRARY)
+    MESSAGE("Unable to locate 'libncurses'.  Please set the advanced variable NCURSES_LIBRARY to its location.")
+  ENDIF(NOT NCURSES_LIBRARY)
+
+  IF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
+
+    INCLUDE_DIRECTORIES(${NCURSES_INCLUDE_PATH})
+    
+    SET(AVIDA_TEXT_VIEWER_DIR source/targets/viewer-text)
+    SET(AVIDA_TEXT_VIEWER_SOURCES
+#      ${AVIDA_TEXT_VIEWER_DIR}/cAnalyzeScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cAnalyzeView.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cBarScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cEnvironmentScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cHistScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cMapScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cMenuWindow.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cOptionsScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cStatsScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cSymbolUtil.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/cTextWindow.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cView.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cViewInfo.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cZoomScreen.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/cDriver_TextViewer.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cTextViewerManager.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/viewer-text.cc
+    )
+    SOURCE_GROUP(targets\\viewer-text FILES ${AVIDA_TEXT_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-textview ${AVIDA_TEXT_VIEWER_SOURCES})
+    
+    SET(AVIDA_TEXT_VIEWER_LIBS avidacore ${NCURSES_LIBRARY})
+    IF(NOT MSVC)
+      LIST(APPEND AVIDA_TEXT_VIEWER_LIBS pthread)
+    ENDIF(NOT MSVC)
+    IF(AVD_ENABLE_TCMALLOC)
+      LIST(APPEND AVIDA_TEXT_VIEWER_LIBS tcmalloc)
+    ENDIF(AVD_ENABLE_TCMALLOC)
+    TARGET_LINK_LIBRARIES(avida-textview ${AVIDA_TEXT_VIEWER_LIBS})
+    
+    INSTALL_TARGETS(/work avida-textview)
+
+  ENDIF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
+ENDIF(AVD_GUI_PROTO_TEXT)
+
+
+
+# By default, do not build the console interface to Avida.
+OPTION(AVD_GUI_PROTO_FLTK
+  "Enable building new Avida FLTK graphical interface."
+  OFF
+)
+# Make sure requisites are present for build of console interface.  Give
+# user feedback if they're missing.
+IF(AVD_GUI_PROTO_FLTK)
+  # Locate the fltk GUI package 
+  INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/FindFLTK.cmake)
+  IF(NOT FLTK_INCLUDE_PATH)
+    MESSAGE("Unable to locate header files for the FLTK graphics package.  Please set the advanced variable FLTK_INCLUDE_PATH to their location.")
+  ENDIF(NOT FLTK_INCLUDE_PATH)
+  IF(NOT FLTK_BASE_LIBRARY)
+    MESSAGE("Unable to locate 'fltk.lib'.  Please set the advanced variable FLTK_BASE_LIBRARY to its location.")
+  ENDIF(NOT FLTK_BASE_LIBRARY)
+
+  IF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
+
+    INCLUDE_DIRECTORIES(${FLTK_INCLUDE_PATH})
+    
+    SET(AVIDA_FLTK_VIEWER_DIR source/targets/viewer-fltk)
+    SET(AVIDA_FLTK_VIEWER_SOURCES
+      ${AVIDA_FLTK_VIEWER_DIR}/cDriver_FltkViewer.cc
+      ${AVIDA_FLTK_VIEWER_DIR}/viewer-fltk.cc
+    )
+    SOURCE_GROUP(targets\\viewer-fltk FILES ${AVIDA_FLTK_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-fltkview ${AVIDA_FLTK_VIEWER_SOURCES})
+    
+    SET(AVIDA_FLTK_VIEWER_LIBS avidacore ${FLTK_BASE_LIBRARY})
+    IF(NOT MSVC)
+      LIST(APPEND AVIDA_FLTK_VIEWER_LIBS pthread)
+    ENDIF(NOT MSVC)
+    IF(AVD_ENABLE_TCMALLOC)
+      LIST(APPEND AVIDA_FLTK_VIEWER_LIBS tcmalloc)
+    ENDIF(AVD_ENABLE_TCMALLOC)
+    TARGET_LINK_LIBRARIES(avida-fltkview ${AVIDA_FLTK_VIEWER_LIBS})
+    SET_TARGET_PROPERTIES(avida-fltkview PROPERTIES LINK_FLAGS ${FLTK_PLATFORM_DEPENDENT_LIBS})
+
+    INSTALL_TARGETS(/work avida-fltkview)
+
+  ENDIF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
+ENDIF(AVD_GUI_PROTO_FLTK)
+
 
 
 OPTION(AVD_TASK_EVENT_GEN

@@ -27,6 +27,12 @@
 
 #include <iostream>
 
+#ifndef AvidaScript_h
+#include "AvidaScript.h"
+#endif
+#ifndef ASTree_h
+#include "ASTree.h"
+#endif
 #ifndef cASLibrary_h
 #include "cASLibrary.h"
 #endif
@@ -40,32 +46,81 @@
 #include "cSymbolTable.h"
 #endif
 
+class cFile;
+
 
 class cParser
 {
 private:
   cASLibrary* m_library;
-  cLexer* m_lexer;
-  cSymbolTable* m_symtbl;
   
-  cParser();
+  cString m_filename;
+  
+  cLexer* m_lexer;
+  cASTNode* m_tree;
+
+  bool m_eof;
+  bool m_success;
+  
+  ASToken_t m_cur_tok;
+  ASToken_t m_next_tok;
+  cString* m_cur_text;
+  
+  bool m_err_eof;
+  
+  
+  cParser(); // @not_implemented
+  cParser(const cParser&); // @not_implemented
+  cParser& operator=(const cParser&); // @not_implemented
+  
   
 public:
-  cParser(cASLibrary* library) : m_library(library), m_symtbl(NULL) { ; }
+  cParser(cASLibrary* library);
+  ~cParser();
   
-  cScriptObject* Parse(std::istream* input);
+  bool Parse(cFile& input);
+  inline void Accept(cASTVisitor& visitor) { if (m_tree) m_tree->Accept(visitor); }
+  
+  
+private:
+  inline ASToken_t currentToken() { return m_cur_tok; }
+  ASToken_t nextToken();
+  ASToken_t peekToken();
+  
+  const cString& currentText();
+  
+  cASTNode* parseArgumentList();
+  cASTNode* parseArrayUnpack();
+  cASTNode* parseAssignment();
+  cASTNode* parseCallExpression();
+  cASTNode* parseCodeBlock(bool& loose);
+  cASTNode* parseExpression();
+  cASTNode* parseExprP0();
+  cASTNode* parseExprP1();
+  cASTNode* parseExprP2();
+  cASTNode* parseExprP3();
+  cASTNode* parseExprP4();
+  cASTNode* parseExprP5();
+  cASTNode* parseExprP6();
+  cASTNode* parseExprP6_Index(cASTNode* l);
+  cASTNode* parseForeachStatement();
+  cASTNode* parseFunctionDefine();
+  cASTNode* parseFunctionHeader(bool declare = true);
+  cASTNode* parseIDStatement();
+  cASTNode* parseIfStatement();
+  cASTNode* parseIndexExpression();
+  cASTNode* parseLooseBlock();
+  cASTNode* parseRefStatement();
+  cASTNode* parseReturnStatement();
+  cASTNode* parseStatementList();
+  cASTNode* parseVarDeclare();
+  cASTNode* parseVarDeclareList();
+  cASTNode* parseWhileStatement();
+  
+  bool checkLineTerm(cASTNode* node);
+  
+  void reportError(ASParseError_t err, const int line);
 };
 
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nParser {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

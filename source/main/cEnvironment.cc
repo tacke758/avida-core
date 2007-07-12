@@ -155,6 +155,7 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
       else if (var_value=="mult") new_process->SetType(nReaction::PROCTYPE_MULT);
       else if (var_value=="pow") new_process->SetType(nReaction::PROCTYPE_POW);
       else if (var_value=="lin") new_process->SetType(nReaction::PROCTYPE_LIN);
+      else if (var_value=="energy") new_process->SetType(nReaction::PROCTYPE_ENERGY);
       else {
         cerr << "Unknown reaction process type '" << var_value
         << "' found in '" << reaction->GetName() << "'." << endl;
@@ -758,7 +759,7 @@ void cEnvironment::SetupInputs(cAvidaContext& ctx, tArray<int>& input_array, boo
   if (random) {
     if (m_true_rand) {
       for (int i = 0; i < m_input_size; i++) {
-        input_array[i] = ctx.GetRandom().GetUInt(1 << 31);
+        input_array[i] = ctx.GetRandom().GetUInt((unsigned int) 1 << 31);
       }
     } else {
       // Set the top 8 bits of the input buffer...
@@ -783,6 +784,17 @@ void cEnvironment::SetupInputs(cAvidaContext& ctx, tArray<int>& input_array, boo
       input_array[i] = input_array[i % 3] << (i / 3);
     }
   }
+}
+
+
+void cEnvironment::SwapInputs(cAvidaContext& ctx, tArray<int>& src_input_array, tArray<int>& dest_input_array) const
+{
+  tArray<int>& tmp_input_array = dest_input_array;
+
+  // Just swap the pointers around.  
+  dest_input_array = src_input_array;
+  src_input_array = tmp_input_array;
+  
 }
 
 
@@ -825,12 +837,14 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
     }
 
     const double task_quality = m_tasklib.TestOutput(taskctx);
+    assert(task_quality >= 0.0);
+	
 
     // If this task wasn't performed, move on to the next one.
     if (task_quality == 0.0) continue;
     
     // Mark this task as performed...
-    result.MarkTask(task_id, task_quality);
+    result.MarkTask(task_id, task_quality, taskctx.GetTaskValue());
 
     // And lets process it!
     DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, task_quality, task_cnt, i, result);
@@ -926,8 +940,11 @@ void cEnvironment::DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>
       // Otherwise we're using a finite resource
       const int res_id = in_resource->GetID();
       
+      assert(resource_count[res_id] >= 0);
+      assert(result.GetConsumed(res_id) >= 0);
       consumed = resource_count[res_id] - result.GetConsumed(res_id);
       consumed *= cur_process->GetMaxFraction();
+      assert(consumed >= 0.0);
       
       // Make sure we're not above the maximum consumption.
       if (consumed > max_consumed) consumed = max_consumed;
@@ -960,6 +977,10 @@ void cEnvironment::DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>
       case nReaction::PROCTYPE_LIN:
         result.AddBonus( bonus * task_count, reaction_id);
         break;
+      case nReaction::PROCTYPE_ENERGY:
+        result.AddEnergy(bonus);
+        break;
+        
       default:
         assert(false);  // Should not get here!
         break;

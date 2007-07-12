@@ -55,6 +55,9 @@
 #ifndef tList_h
 #include "tList.h"
 #endif
+#ifndef tVector_h
+#include "tVector.h"
+#endif
 
 #if USE_tMemTrack
 # ifndef tMemTrack_h
@@ -62,6 +65,7 @@
 # endif
 #endif
 
+#include "cInstSet.h"
 
 class cAvidaContext;
 class cCodeLabel;
@@ -90,6 +94,9 @@ private:
   cBirthChamber birth_chamber;         // Global birth chamber.
   tArray<tList<cSaleItem> > market;   // list of lists of items for sale, each list goes with 1 label
 
+  tVector<pair<int,int> > *sleep_log;
+  int numAsleep;
+  
   // Data Tracking...
   tList<cPopulationCell> reaper_queue; // Death order in some mass-action runs
 
@@ -131,7 +138,8 @@ private:
   void InjectClone(int cell_id, cOrganism& orig_org);
 
   void LineageSetupOrganism(cOrganism* organism, cLineage* lineage, int lin_label, cGenotype* parent_genotype = NULL);
-
+  void CCladeSetupOrganism(cOrganism* organism); 
+	
   // Must be called to activate *any* organism in the population.
   void ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, cPopulationCell& target_cell);
 
@@ -154,9 +162,16 @@ public:
   
   // Deactivate an organism in the population (required for deactivations)
   void KillOrganism(cPopulationCell& in_cell);
+  
+  // @WRE 2007/07/05 Helper function to take care of side effects of Avidian 
+  // movement that cannot be directly handled in cHardwareCPU.cc
+  void MoveOrganisms(cAvidaContext& ctx, cPopulationCell& src_cell, cPopulationCell& dest_cell);
+
+  // Specialized functionality
   void Kaboom(cPopulationCell& in_cell, int distance=0);
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
+  void SwapCells(cPopulationCell & cell1, cPopulationCell & cell2);
 
   // Deme-related methods
   void CompeteDemes(int competition_type);
@@ -166,6 +181,10 @@ public:
   void CopyDeme(int deme1_id, int deme2_id);
   void SpawnDeme(int deme1_id, int deme2_id=-1);
   void PrintDemeStats();
+
+  // Print donation stats
+  void PrintDonationStats();
+
 
   // Process a single organism one instruction...
   int ScheduleOrganism();          // Determine next organism to be processed.
@@ -217,10 +236,14 @@ public:
   void SetChangeList(cChangeList* change_list);
   cChangeList* GetChangeList();
   
-  // UML stats
-  void PrintDemeUMLStats();
-
+  void AddBeginSleep(int cellID, int start_time);
+  void AddEndSleep(int cellID, int end_time);
+ 
+  tVector<pair<int,int> > getCellSleepLog(int i) { return sleep_log[i]; }
   
+  int getNumAsleep() { return numAsleep; }
+  void incNumAsleep() { numAsleep++; }
+  void decNumAsleep() { numAsleep--; }
 };
 
 

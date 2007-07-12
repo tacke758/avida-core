@@ -27,12 +27,6 @@
 #define cOrganism_h
 
 #include <iostream>
-#include <map>
-#include <utility>
-#include <set>
-#include <string>
-#include <vector>
-#include <sstream>
 
 #ifndef cCPUMemory_h
 #include "cCPUMemory.h"
@@ -73,21 +67,7 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
-#ifndef _C_UMLMODEL_H_
-#include "cUMLModel.h"
-#endif
-#ifndef _C_UMLSTATEDIAGRAM_H_
-#include "cUMLStateDiagram.h"
-#endif
-#ifndef _C_DEME_H_
-#include "cDeme.h"
-#endif
-#ifndef _C_POPULATION_H_
-#include "cPopulation.h"
-#endif
-#ifndef _C_POPULATIONCELL_H_
-#include "cPopulationCell.h"
-#endif
+
 
 class cAvidaContext;
 class cCodeLabel;
@@ -100,15 +80,11 @@ class cOrgSinkMessage;
 class cSaleItem;
 
 
-
-
-
-
 class cOrganism
 {
 protected:
   cWorld* m_world;
-  cHardwareBase* m_hardware;              // The actual machinary running this organism.
+  cHardwareBase* m_hardware;              // The actual machinery running this organism.
   cGenotype* m_genotype;                  // Information about organisms with this genome.
   cPhenotype m_phenotype;                 // Descriptive attributes of organism.
   const cGenome m_initial_genome;         // Initial genome; can never be changed!
@@ -119,8 +95,9 @@ protected:
   int m_id;                               // unique id for each org, is just the number it was born
   int m_lineage_label;                    // a lineages tag; inherited unchanged in offspring
   cLineage* m_lineage;                    // A lineage descriptor... (different from label)
-
-  // Other stats
+	int cclade_id;				                  // @MRR Coalescence clade information (set in cPopulation)
+ 
+	// Other stats
   cCPUMemory m_child_genome; // Child genome, while under construction.
   sCPUStats m_cpu_stats;     // Info for statistics
 
@@ -138,20 +115,7 @@ protected:
 
   int m_max_executed;      // Max number of instruction executed before death.  
   bool m_is_running;       // Does this organism have the CPU?
-  
-  // UML
-  int m_state_diag;			// Index of the state diagram that the organism is currently
-							// manipulating
-  int m_orig_state_index;
-  int m_dest_state_index;
-/*  int m_trans_label_index;
-  int m_trigger_index;
-  int m_guard_index;
-  int m_action_index;*/	
-  cUMLModel m_model;		
-  std::string m_parent_xmi; 
-  std::map<std::string, float> m_parent_bonus;
-  
+  bool m_is_sleeping;      // Is this organisms sleeping?
   
   class cNetSupport
   {
@@ -166,7 +130,6 @@ protected:
     ~cNetSupport();
   };
   cNetSupport* m_net;
-
 
 
   cOrganism(); // @not_implemented
@@ -199,6 +162,10 @@ public:
   void SetLineage(cLineage* in_lineage) { m_lineage = in_lineage; }
   cLineage* GetLineage() const { return m_lineage; }
   
+	void SetCCladeLabel( int in_label ) { cclade_id = in_label; };  //@MRR
+	int  GetCCladeLabel() const { return cclade_id; }
+	
+	
   int GetMaxExecuted() const { return m_max_executed; }
   
   cCPUMemory& ChildGenome() { return m_child_genome; }
@@ -206,15 +173,22 @@ public:
 
   void SetRunning(bool in_running) { m_is_running = in_running; }
   bool IsRunning() { return m_is_running; }
+
+  void SetSleeping(bool in_sleeping) { m_is_sleeping = in_sleeping; }
+  bool IsSleeping() { return m_is_sleeping; }
   
   
   // --------  cOrgInterface Methods  --------
   cHardwareBase& GetHardware() { return *m_hardware; }
   cOrganism* GetNeighbor() { return m_interface->GetNeighbor(); }
   int GetNeighborhoodSize() { return m_interface->GetNumNeighbors(); }
+  int GetFacing() { assert(m_interface); return m_interface->GetFacing(); }  // Returns the facing of this organism.
   void Rotate(int direction) { m_interface->Rotate(direction); }
   void DoBreakpoint() { m_interface->Breakpoint(); }
   int GetNextInput() { return m_interface->GetInputAt(m_input_pointer); }
+  int GetNextInput(int& in_input_pointer) { return m_interface->GetInputAt(in_input_pointer); } //@JEB alternate for GX
+  tBuffer<int>& GetInputBuf() { return m_input_buf; }
+  tBuffer<int>& GetOutputBuf() { return m_output_buf; }
   void Die() { m_interface->Die(); }
   void Kaboom(int dist) { m_interface->Kaboom(dist);}
   void SpawnDeme() { m_interface->SpawnDeme(); }
@@ -234,7 +208,10 @@ public:
 
   // --------  Input and Output Methods  --------
   void DoInput(const int value);
+  void DoInput(tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const int value);
   void DoOutput(cAvidaContext& ctx, const int value, const bool on_divide = false);
+  void DoOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, 
+                tBuffer<int>& output_buffer, const int value, const bool on_divide=false);
   void ClearInput() { m_input_buf.Clear(); }
   void AddOutput(int val) { m_output_buf.Add(val); }
 
@@ -259,8 +236,8 @@ public:
   bool InjectHost(const cCodeLabel& in_label, const cGenome& genome);
   void AddParasite(cInjectGenotype* cur) { m_parasites.Push(cur); }
   cInjectGenotype& GetParasite(int x) { return *m_parasites[x]; }
-  int GetNumParasites() { return m_parasites.GetSize(); }
-  void ClearParasites() { m_parasites.Resize(0); }
+  int GetNumParasites() const { return m_parasites.GetSize(); }
+  void ClearParasites();
 		      
 
   // --------  Support Methods  --------
@@ -274,9 +251,12 @@ public:
 
   // --------  Mutation Rate Convenience Methods  --------
   bool TestCopyMut(cAvidaContext& ctx) const { return m_mut_rates.TestCopyMut(ctx); }
+  bool TestCopyIns(cAvidaContext& ctx) const { return m_mut_rates.TestCopyIns(ctx); }
+  bool TestCopyDel(cAvidaContext& ctx) const { return m_mut_rates.TestCopyDel(ctx); }
   bool TestDivideMut(cAvidaContext& ctx) const { return m_mut_rates.TestDivideMut(ctx); }
   bool TestDivideIns(cAvidaContext& ctx) const { return m_mut_rates.TestDivideIns(ctx); }
   bool TestDivideDel(cAvidaContext& ctx) const { return m_mut_rates.TestDivideDel(ctx); }
+  bool TestDivideSlip(cAvidaContext& ctx) const { return m_mut_rates.TestDivideSlip(ctx); } 
   bool TestParentMut(cAvidaContext& ctx) const { return m_mut_rates.TestParentMut(ctx); }
   
   double GetCopyMutProb() const { return m_mut_rates.GetCopyMutProb(); }
@@ -308,58 +288,6 @@ public:
   bool GetSterilizePos() const;
   double GetNeutralMin() const;
   double GetNeutralMax() const;
-  
-  // UML
-  void modelCheck(cAvidaContext& ctx);
-  cUMLModel* getUMLModel();
-//  cUMLModel* getParentUMLModel() { return m_parent_model; } 
-  std::string getParentXMI() { return m_parent_xmi; }
-  int getStateDiagramIndex() { return m_state_diag; } 
-//  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
-//  bool firstStateDiagram() { m_state_diag = 0; }  
-  bool currTrans (int, int, int, int, int, int); 
-  cUMLStateDiagram* getStateDiagram();
-//  void printStats();
-//  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
-  void setParentXMI(std::string s) { m_parent_xmi = s; } 
-  void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
-  float getParentBonus (std::string s) { return m_parent_bonus[s]; }
-  std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
-  
-
- 
-// The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
-/*
-  bool absoluteJumpGuard(int);
-  bool absoluteJumpAction(int);
-  bool absoluteJumpTrigger(int);
-  bool absoluteJumpTransitionLabel(int);
-*/
-  bool absoluteJumpOriginState(int);
-
-  bool absoluteJumpDestinationState(int);
-  bool absoluteJumpStateDiagram (int);
-/*
-  bool relativeJumpGuard(int amount);
-  bool relativeJumpAction(int amount);
-  bool relativeJumpTrigger(int amount);
-  bool relativeJumpTransitionLabel(int amount);
-*/
-  bool relativeJumpOriginState(int amount);
-  bool relativeJumpDestinationState(int amount);
-  bool relativeJumpStateDiagram (int); 
- 
-  bool addTransitionTotal();
-
-  
-  /*
-    int m_orig_state_index;
-  int m_dest_state_index;
-  int m_trigger_index;
-  int m_guard_index;
-  int m_action_index;							
-  */
-  
 };
 
 

@@ -38,6 +38,9 @@
 #ifndef cGenotypeBatch_h
 #include "cGenotypeBatch.h"
 #endif
+#ifndef cFlexVar_h
+#include "cFlexVar.h"
+#endif
 #ifndef cRandom_h
 #include "cRandom.h"
 #endif
@@ -129,6 +132,26 @@ public:
 
   cRandom random;
 
+  // These are a set of constants used to determine what type of comparisons should be done between an
+  // organism and its parent to determine how it should be colored
+  enum eFlexCompareTypes {
+    FLEX_COMPARE_NONE  = 0,  // No comparisons should be done at all.
+    FLEX_COMPARE_DIFF  = 1,  // Only track if a stat has changed, don't worry about direction.
+    FLEX_COMPARE_MAX   = 2,  // Color higher values as beneficial, lower as harmful.
+    FLEX_COMPARE_MIN   = 3,  // Color lower values as beneficial, higher as harmful.
+    FLEX_COMPARE_DIFF2 = 4,  // Same as FLEX_COMPARE_DIFF, but 0 indicates trait is off.
+    FLEX_COMPARE_MAX2  = 5,  // Same as FLEX_COMPARE_MAX, and 0 indicates trait is off.
+    FLEX_COMPARE_MIN2  = 6   // Same as FLEX_COMPARE_MIN, BUT 0 still indicates off.
+  };
+
+  enum eFlexCompareResults {
+    COMPARE_RESULT_OFF  = -2, // Has turned off since parent.
+    COMPARE_RESULT_NEG  = -1, // Has gotten worse since parent.
+    COMPARE_RESULT_SAME =  0, // No difference since parent.
+    COMPARE_RESULT_POS  =  1, // Has improved since parent.
+    COMPARE_RESULT_ON   =  2, // Has turned on since parent.
+    COMPARE_RESULT_DIFF =  3  // Is different from parent (non qualtity).
+  };
 
   // Pop specific types of arguments from an arg list.
   cString PopDirectory(cString & in_string, const cString & default_dir);
@@ -142,13 +165,18 @@ public:
   void PreProcessArgs(cString & args);
   void ProcessCommands(tList<cAnalyzeCommand> & clist);
 
+  // Helper functions for printing to HTML files...
+  void HTMLPrintStat(const cFlexVar & value, std::ostream& fp, int compare=0,
+		     const cString & cell_flags="align=center", const cString & null_text="0", bool print_text=true);
+  int CompareFlexStat(const cFlexVar & org_stat, const cFlexVar & parent_stat, int compare_type=FLEX_COMPARE_MAX);
+
+  // Deal with genotype data list (linking keywords to stats)
   void SetupGenotypeDataList();	
-  void LoadGenotypeDataList(cStringList arg_list,
-	    tList< tDataEntryCommand<cAnalyzeGenotype> > & output_list);
+  tDataEntryCommand<cAnalyzeGenotype> * GetGenotypeDataCommand(const cString & stat_entry);
+  void LoadGenotypeDataList(cStringList arg_list, tList< tDataEntryCommand<cAnalyzeGenotype> > & output_list);
 		      
   void AddLibraryDef(const cString & name, void (cAnalyze::*_fun)(cString));
-  void AddLibraryDef(const cString & name,
-	     void (cAnalyze::*_fun)(cString, tList<cAnalyzeCommand> &));
+  void AddLibraryDef(const cString & name, void (cAnalyze::*_fun)(cString, tList<cAnalyzeCommand> &));
   cAnalyzeCommandDefBase * FindAnalyzeCommandDef(const cString & name);
   void SetupCommandDefLibrary();
   bool FunctionRun(const cString & fun_name, cString args);
@@ -183,6 +211,7 @@ public:
   void LoadFile(cString cur_string);
 
   // Reduction
+  void CommandFilter(cString cur_string);
   void FindGenotype(cString cur_string);
   void FindOrganism(cString cur_string);
   void FindLineage(cString cur_string);
@@ -268,6 +297,7 @@ public:
   void BatchRename(cString cur_string);
   void PrintStatus(cString cur_string);
   void PrintDebug(cString cur_string);
+  void PrintTestInfo(cString cur_string);
   void IncludeFile(cString cur_string);
   void CommandSystem(cString cur_string);
   void CommandInteractive(cString cur_string);

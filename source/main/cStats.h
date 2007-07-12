@@ -195,6 +195,7 @@ private:
   int num_no_birth_creatures;
   int num_single_thread_creatures;
   int num_multi_thread_creatures;
+  int m_num_threads;
   int num_modified;
 
   int num_genotypes_last;
@@ -247,22 +248,6 @@ private:
   tArray<int> sense_last_count;
   tArray<int> sense_last_exe_count;
   tArray<cString> sense_names;
-  
-  // Stats for UML state diagrams
-  cDoubleSum av_number_of_states;
-  cDoubleSum av_number_of_trans;	
-  cDoubleSum av_number_of_triggers;
-  cDoubleSum av_number_of_guards;
-  cDoubleSum av_number_of_actions;
-  cDoubleSum av_number_of_state_diagrams;
-  
-  cDoubleSum av_number_of_trans_lab;
-  cDoubleSum m_hydraAttempt;
-  cDoubleSum m_hydraPassed;
-  cDoubleSum m_spinAttempt;
-  cDoubleSum m_spinPassed;
-  cDoubleSum m_panAttempt;
-  cDoubleSum m_panPassed;
 
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
@@ -352,6 +337,7 @@ public:
   inline void SetNumNoBirthCreatures(int in_num_no_birth_creatures);
   inline void SetNumSingleThreadCreatures(int in_num_single_thread_creatures);
   inline void SetNumMultiThreadCreatures(int in_num_multi_thread_creatures);
+  inline void SetNumThreads(int in_num_threads) { m_num_threads = in_num_threads; }
   inline void SetNumModified(int in_num_modified);
 
   void SetMaxFitness(double in_max_fitness) { max_fitness = in_max_fitness; }
@@ -494,22 +480,6 @@ public:
   void AddMarketItemSold() { num_sold++; }
   void AddMarketItemUsed() { num_used++; }
   void AddMarketOwnItemUsed() { num_own_used++; }
-  
-  // UML Data Function
-  void addState(int x) { av_number_of_states.Add(x); }
-  void addTrans(int x) { av_number_of_trans.Add(x); }
-  void addTriggers(int x) { av_number_of_triggers.Add(x); }
-  void addGuards(int x) { av_number_of_guards.Add(x); }
-  void addActions(int x) { av_number_of_actions.Add(x); }
-  void addStateDiagrams(int x) { av_number_of_state_diagrams.Add(x); }
-  
-  void addTransLabel(int x) { av_number_of_trans_lab.Add(x); }
-  void HydraAttempt() { m_hydraAttempt.Add(1); }
-  void HydraPassed() { m_hydraPassed.Add(1); }
-  void SpinAttempt() { m_spinAttempt.Add(1); }
-  void SpinPassed() { m_spinPassed.Add(1); }
-  void PanAttempt() { m_panAttempt.Add(1); }
-  void PanPassed() { m_panPassed.Add(1); }
 
   // Information retrieval section...
 
@@ -528,6 +498,7 @@ public:
   int GetNumNoBirthCreatures() const{ return num_no_birth_creatures; }
   int GetNumSingleThreadCreatures() const { return num_single_thread_creatures; }
   int GetNumMultiThreadCreatures() const { return num_multi_thread_creatures; }
+  int GetNumThreads() const { return m_num_threads; }
   int GetNumModified() const { return num_modified;}
 
   int GetTotCreatures() const       { return tot_organisms; }
@@ -615,7 +586,7 @@ public:
   void PrintErrorData(const cString& filename);
   void PrintVarianceData(const cString& filename);
   void PrintDominantData(const cString& filename);
-  void PrintDominantParaData(const cString& filename);
+  void PrintParasiteData(const cString& filename);
   void PrintStatsData(const cString& filename);
   void PrintCountData(const cString& filename);
   void PrintTotalsData(const cString& filename);
@@ -634,8 +605,6 @@ public:
   void PrintMarketData(const cString& filename);
   void PrintSenseData(const cString& filename);
   void PrintSenseExeData(const cString& filename);
-  void PrintUMLData(const cString& filename);
-
   
 };
 

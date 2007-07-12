@@ -20,21 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
+
 #include "cDeme.h"
-
-
-cDeme::cDeme()
-: width(0)
-, birth_count(0)
-, org_count(0)
-, _age(0)
-{
-}
-
-
-cDeme::~cDeme()
-{
-}
 
 
 void cDeme::Setup(const tArray<int> & in_cells, int in_width)
@@ -42,7 +29,7 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width)
   cell_ids = in_cells;
   birth_count = 0;
   org_count = 0;
-  
+
   // If width is negative, set it to the full number of cells.
   width = in_width;
   if (width < 1) width = cell_ids.GetSize();
@@ -83,13 +70,6 @@ are all messed up.
 
 \todo Fix lineage labels in germlines.
 */
-/*void cDeme::ReplaceGermline(const cGermline& germline) {
-	_germline = germline;
-}*/
-
 void cDeme::ReplaceGermline(const cGermline& germline) {
 	_germline = germline;
 }
-
-
-

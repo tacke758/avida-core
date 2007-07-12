@@ -226,6 +226,8 @@ void cHardwareExperimental::cLocalThread::Reset(cHardwareBase* in_hardware, int 
   stack.Clear();
   cur_stack = 0;
   cur_head = nHardware::HEAD_IP;
+  
+  reading = false;
   read_label.Clear();
   next_label.Clear();
 }
@@ -305,6 +307,7 @@ num_threads : 1;
   }
   
   organism->SetRunning(false);
+  CheckImplicitRepro(ctx);
 }
 
 
@@ -1080,7 +1083,7 @@ bool cHardwareExperimental::Inst_MoveHead(cAvidaContext& ctx)
 
 bool cHardwareExperimental::Inst_JumpHead(cAvidaContext& ctx)
 {
-  const int head_used = FindModifiedHead(nHardware::HEAD_FLOW);
+  const int head_used = FindModifiedHead(nHardware::HEAD_IP);
   const int reg = FindModifiedRegister(REG_CX);
   GetHead(head_used).Jump(GetRegister(reg));
   if (head_used == nHardware::HEAD_IP) m_advance_ip = false;

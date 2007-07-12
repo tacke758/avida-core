@@ -37,21 +37,13 @@
 #ifndef tHashTable_h
 #include "tHashTable.h"
 #endif
-#ifndef cOrganism
-#include "cOrganism.h"
-#endif
-
 
 class cTaskEntry;
 class cTaskState;
-class cOrganism;
 
 
 class cTaskContext
 {
-
-  friend class cTaskLib;
-
 private:
   cOrgInterface* m_interface;
   const tBuffer<int>& m_input_buffer;
@@ -63,19 +55,19 @@ private:
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
-  bool task_success_complete;
 
-  
+  // for optimize tasks actual value of function org is outputting, for all others nothing
+  // implemented for now...
+  double m_task_value;	
+
   cTaskEntry* m_task_entry;
   tHashTable<void*, cTaskState*>* m_task_states;
-  cOrganism* organism;
-
 
 public:
   cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
                bool in_net_valid, int in_net_completed, bool in_on_divide = false,
-               tBuffer<int>* in_received_messages = NULL, cOrganism* in_org = NULL)
+               tBuffer<int>* in_received_messages = NULL)
     : m_interface(interface)
     , m_input_buffer(inputs)
     , m_output_buffer(outputs)
@@ -88,10 +80,8 @@ public:
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
-    , organism(in_org)
-    , task_success_complete(true)
-
   {
+	  m_task_value = 0;
   }
   
   inline int GetInputAt(int index) { return m_interface->GetInputAt(index); }
@@ -105,6 +95,8 @@ public:
   inline int GetLogicId() const { return m_logic_id; }
   inline void SetLogicId(int v) { m_logic_id = v; }
   inline bool GetOnDivide() const { return m_on_divide; }
+  inline void SetTaskValue(double v) { m_task_value = v; }
+  inline double GetTaskValue() { return m_task_value; }
   
   inline void SetTaskEntry(cTaskEntry* in_entry) { m_task_entry = in_entry; }
   inline cTaskEntry* GetTaskEntry() { return m_task_entry; }

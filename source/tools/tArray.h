@@ -52,7 +52,7 @@ public:
   typedef const T* const_iterator; //!< STL-compatible const_iterator.
 
   explicit tArray(const int size = 0) : m_data(NULL), m_size(0) { ResizeClear(size); }
-  //explicit tArray(const int size = 0, const T& init_val) : m_data(NULL), m_size(0) { Resize(size, init_val); }
+  tArray(const int size, const T& init_val) : m_data(NULL), m_size(0) { Resize(size, init_val); }
 	tArray(const tArray& rhs) : m_data(NULL), m_size(0) { this->operator=(rhs); }
 
   ~tArray() { delete [] m_data; }
@@ -140,10 +140,12 @@ public:
     return m_data[index];
   }    
 
-  void Push(const T& value)
+  int Push(const T& value)
   {
+    const int new_pos = m_size;
     Resize(m_size + 1);
-    m_data[m_size - 1] = value;
+    m_data[new_pos] = value;
+    return new_pos;
   }
 
   void SetAll(const T& value)

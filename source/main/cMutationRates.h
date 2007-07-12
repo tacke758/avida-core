@@ -60,6 +60,7 @@ private:
     double divide_mut_prob;     // Max one per divide
     double divide_ins_prob;     // Max one per divide
     double divide_del_prob;     // Max one per divide
+    double divide_slip_prob;     // Max one per divide
     double parent_mut_prob;
   };
   sDivideMuts divide;
@@ -92,9 +93,15 @@ public:
 
   bool TestPointMut(cAvidaContext& ctx) const { return ctx.GetRandom().P(exec.point_mut_prob); }
   bool TestCopyMut(cAvidaContext& ctx) const { return ctx.GetRandom().P(copy.mut_prob); }
+  bool TestCopyIns(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.ins_prob); }
+  bool TestCopyDel(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.del_prob); }
   bool TestDivideMut(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_mut_prob); }
   bool TestDivideIns(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_ins_prob); }
   bool TestDivideDel(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_del_prob); }
+  bool TestDivideSlip(cAvidaContext& ctx) const { return (divide.divide_slip_prob == 0.0) ? 0 : ctx.GetRandom().P(divide.divide_slip_prob); }
+  //bool TestDivideSlip(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.divide_slip_prob); }
+    // @JEB The conditional just avoids calling for a random number to maintain consistency with past versions.
+    // It can be cleaned up in the future.
   bool TestParentMut(cAvidaContext& ctx) const { return ctx.GetRandom().P(divide.parent_mut_prob); }
   double DoMetaCopyMut(cAvidaContext& ctx) {
     if (ctx.GetRandom().P(meta.copy_mut_prob) == false) return 1.0;

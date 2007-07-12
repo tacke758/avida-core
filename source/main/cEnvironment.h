@@ -119,6 +119,8 @@ public:
 
   // Interaction with the organisms
   void SetupInputs(cAvidaContext& ctx, tArray<int>& input_array, bool random = true) const;
+  void SwapInputs(cAvidaContext& ctx, tArray<int>& src_input_array, tArray<int>& dest_input_array) const;
+
 
   bool TestInput(cReactionResult& result, const tBuffer<int>& inputs,
                  const tBuffer<int>& outputs, const tArray<double>& resource_count) const;
@@ -142,8 +144,8 @@ public:
   cReactionLib& GetReactionLib() { return reaction_lib; }
   cMutationRates& GetMutRates() { return mut_rates; }
   
-  int GetInputSize() { return m_input_size; }
-  int GetOutputSize() { return m_output_size; }
+  int GetInputSize()  const { return m_input_size; };
+  int GetOutputSize() const { return m_output_size; };
 
   double GetReactionValue(int& reaction_id);
   bool SetReactionValue(cAvidaContext& ctx, const cString& name, double value);

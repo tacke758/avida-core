@@ -54,12 +54,13 @@
 #include "cTopology.h"
 #include "cWorld.h"
 #include "cTopology.h"
+#include "cTestCPU.h"
+#include "cCPUTestInfo.h"
 
 #include <fstream>
 #include <vector>
 #include <algorithm>
 #include <set>
-
 #include <cfloat>
 #include <cmath>
 #include <climits>
@@ -72,6 +73,7 @@ cPopulation::cPopulation(cWorld* world)
 , schedule(NULL)
 , resource_count(world->GetEnvironment().GetResourceLib().GetSize())
 , birth_chamber(world)
+, numAsleep(0)
 , environment(world->GetEnvironment())
 , num_organisms(0)
 , sync_events(false)
@@ -79,101 +81,98 @@ cPopulation::cPopulation(cWorld* world)
   // Avida specific information.
   world_x = world->GetConfig().WORLD_X.Get();
   world_y = world->GetConfig().WORLD_Y.Get();
-	int num_demes = m_world->GetConfig().NUM_DEMES.Get();
-	const int num_cells = world_x * world_y;
+  int num_demes = m_world->GetConfig().NUM_DEMES.Get();
+  const int num_cells = world_x * world_y;
   const int geometry = world->GetConfig().WORLD_GEOMETRY.Get();
-	const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
   
+  if(m_world->GetConfig().ENERGY_CAP.Get() == -1) {
+    m_world->GetConfig().ENERGY_CAP.Set(INT_MAX);
+  }
+  
+  if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1)  {
+    sleep_log = new tVector<pair<int,int> >[world_x*world_y];
+  }
   // Print out world details
   if (world->GetVerbosity() > VERBOSE_NORMAL) {
     cout << "Building world " << world_x << "x" << world_y << " = " << num_cells << " organisms." << endl;
     switch(geometry) {
-      case nGeometry::GRID: { cout << "Geometry: Bounded grid" << endl;	break; }
-			case nGeometry::TORUS: { cout << "Geometry: Torus" << endl; break;	}
-			case nGeometry::CLIQUE: { cout << "Geometry: Clique" << endl; break; }
-      case nGeometry::HEX: { cout << "Geometry: Hex" << endl; break; }
-			default: {
-        cout << "Unknown geometry!" << endl;
-        assert(false);
-      }        
+    case nGeometry::GRID: { cout << "Geometry: Bounded grid" << endl; break; }
+    case nGeometry::TORUS: { cout << "Geometry: Torus" << endl; break; }
+    case nGeometry::CLIQUE: { cout << "Geometry: Clique" << endl; break; }
+    case nGeometry::HEX: { cout << "Geometry: Hex" << endl; break; }
+    default:
+      cout << "Unknown geometry!" << endl;
+      assert(false);
     }
   }
   
   // Error checking for demes vs. non-demes setup.
-	if(num_demes > 0) {
-		assert(birth_method != POSITION_CHILD_FULL_SOUP_ELDEST);
-		assert(birth_method != POSITION_CHILD_FULL_SOUP_ELDEST);
-	} else {
-		assert(birth_method != POSITION_CHILD_DEME_RANDOM);
-		num_demes = 1; // One population == one deme.
-	}
-	
+#ifdef DEBUG
+  const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
+#endif
+  if(num_demes > 0) {
+    assert(birth_method != POSITION_CHILD_FULL_SOUP_ELDEST);
+  } else {
+    assert(birth_method != POSITION_CHILD_DEME_RANDOM);
+    num_demes = 1; // One population == one deme.
+  }
+  
   // Allocate the cells, resources, and market.
-	cell_array.Resize(num_cells);
-	resource_count.ResizeSpatialGrids(world_x, world_y);
-	market.Resize(MARKET_SIZE);
+  cell_array.Resize(num_cells);
+  resource_count.ResizeSpatialGrids(world_x, world_y);
+  market.Resize(MARKET_SIZE);
   
   // Setup the cells.  Do things that are not dependent upon topology here.
-	for(int i=0; i<num_cells; ++i) {
-		cell_array[i].Setup(world, i, environment.GetMutRates());
+  for(int i=0; i<num_cells; ++i) {
+    cell_array[i].Setup(world, i, environment.GetMutRates(), i%world_x, i/world_x);
     // Setup the reaper queue.
-		if (world->GetConfig().BIRTH_METHOD.Get() == POSITION_CHILD_FULL_SOUP_ELDEST) {
-			reaper_queue.Push(&(cell_array[i]));
-		}
-	}                         
-
-	// What are the sizes of the demes that we're creating?
-	const int deme_size_x = world_x;
-	const int deme_size_y = world_y / num_demes;
-	const int deme_size = deme_size_x * deme_size_y;
-	deme_array.Resize(num_demes);
-	
+    if (world->GetConfig().BIRTH_METHOD.Get() == POSITION_CHILD_FULL_SOUP_ELDEST) {
+      reaper_queue.Push(&(cell_array[i]));
+    }
+  }                         
+  
+  // What are the sizes of the demes that we're creating?
+  const int deme_size_x = world_x;
+  const int deme_size_y = world_y / num_demes;
+  const int deme_size = deme_size_x * deme_size_y;
+  deme_array.Resize(num_demes);
+  
   // Setup the deme structures.
-	tArray<int> deme_cells(deme_size);
-	for (int deme_id = 0; deme_id < num_demes; deme_id++) {
-		for (int offset = 0; offset < deme_size; offset++) {
-			int cell_id = deme_id * deme_size + offset;
-			deme_cells[offset] = cell_id;
-			cell_array[cell_id].SetDemeID(deme_id);
-		}
-		deme_array[deme_id].Setup(deme_cells, deme_size_x);
-	}
+  tArray<int> deme_cells(deme_size);
+  for (int deme_id = 0; deme_id < num_demes; deme_id++) {
+    for (int offset = 0; offset < deme_size; offset++) {
+      int cell_id = deme_id * deme_size + offset;
+      deme_cells[offset] = cell_id;
+      cell_array[cell_id].SetDemeID(deme_id);
+    }
+    deme_array[deme_id].Setup(deme_cells, deme_size_x);
+  }
   
   // Setup the topology.
   // What we're doing here is chopping the cell_array up into num_demes pieces.
   // Note that having 0 demes (one population) is the same as having 1 deme.  Then
   // we send the cells that comprise each deme into the topology builder.
-	for(int i=0; i<num_cells; i+=deme_size) {
-		switch(geometry) {
-      // We're cheating here; we're using the random access nature of an iterator
-      // to index beyond the end of the cell_array.
-			case nGeometry::GRID: {
-				build_grid(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], 
-                   deme_size_x, deme_size_y);
-				break;
-			}
-			case nGeometry::TORUS: {
-				build_torus(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], 
-                    deme_size_x, deme_size_y);
-				break;
-			}
-			case nGeometry::CLIQUE: {
-				build_clique(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], 
-                     deme_size_x, deme_size_y);
-				break;
-			}
-      case nGeometry::HEX: {
-				build_hex(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], 
-                  deme_size_x, deme_size_y);
-				break;
-			}
-			default: {
-				assert(false);
-			}
-		}
-	}
-  
-  
+  for(int i=0; i<num_cells; i+=deme_size) {
+    // We're cheating here; we're using the random access nature of an iterator
+    // to index beyond the end of the cell_array.
+    switch(geometry) {
+    case nGeometry::GRID:
+      build_grid(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], deme_size_x, deme_size_y);
+      break;
+    case nGeometry::TORUS:
+      build_torus(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], deme_size_x, deme_size_y);
+      break;
+    case nGeometry::CLIQUE:
+      build_clique(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], deme_size_x, deme_size_y);
+      break;
+    case nGeometry::HEX:
+      build_hex(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], deme_size_x, deme_size_y);
+      break;
+    default:
+      assert(false);
+    }
+  }
+	
   BuildTimeSlicer(0);
   
   // Setup the resources...
@@ -233,7 +232,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   
   tArray<cOrganism*> child_array;
   tArray<cMerit> merit_array;
-
+  
+  //for energy model
+/*  double init_energy_given = m_world->GetConfig().ENERGY_GIVEN_AT_BIRTH.Get();
+  int inst_2_exc = m_world->GetConfig().NUM_INST_EXC_BEFORE_0_ENERGY.Get();
+*/
   
   // Update the parent's phenotype.
   // This needs to be done before the parent goes into the birth chamber
@@ -275,22 +278,35 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     // Update the phenotypes of each child....
     const cGenome & child_genome = child_array[i]->GetGenome();
     child_array[i]->GetPhenotype().SetupOffspring(parent_phenotype,child_genome);
-    
     child_array[i]->GetPhenotype().SetMerit(merit_array[i]);
     
     // Do lineage tracking for the new organisms.
     LineageSetupOrganism(child_array[i], parent_organism.GetLineage(),
                          parent_organism.GetLineageLabel(), parent_genotype);
-    
+		
+		//By default, store the parent cclade, this may get modified in ActivateOrgansim (@MRR)
+		child_array[i]->SetCCladeLabel(parent_organism.GetCCladeLabel());
   }
-  
-  
+    
   // If we're not about to kill the parent, do some extra work on it.
   if (parent_alive == true) {
-    schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
-	
-  // In a local run, face the child toward the parent. 
-  const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
+		
+		// Reset inputs and re-calculate merit if required
+		if (m_world->GetConfig().RESET_INPUTS_ON_DIVIDE.Get() > 0){
+			environment.SetupInputs(ctx, parent_cell.input_array);
+			if (m_world->GetConfig().PRECALC_MERIT.Get() > 0){
+				cCPUTestInfo test_info;
+				cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
+				test_info.UseManualInputs(parent_cell.input_array);                               // Test using what the environment will be
+				test_cpu->TestGenome(ctx, test_info, parent_organism.GetHardware().GetMemory()); // Use the true genome
+				parent_phenotype.SetMerit(test_info.GetTestPhenotype().GetMerit());    // Update merit
+				delete test_cpu;
+			}
+		}
+		schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
+    
+    // In a local run, face the child toward the parent. 
+    const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
     if (birth_method < NUM_LOCAL_POSITION_CHILD ||
         birth_method == POSITION_CHILD_PARENT_FACING) {
       for (int i = 0; i < child_array.GetSize(); i++) {
@@ -305,6 +321,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   parent_genotype->AddMerit(         parent_phenotype.GetMerit()         );
   parent_genotype->AddCopiedSize(    parent_phenotype.GetCopiedSize()    );
   parent_genotype->AddExecutedSize(  parent_phenotype.GetExecutedSize()  );
+  
   
   // Place all of the offspring...
   for (int i = 0; i < child_array.GetSize(); i++) {
@@ -393,7 +410,19 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   // Setup the inputs in the target cell.
   environment.SetupInputs(ctx, target_cell.input_array);
   
+	
+	// Precalculate the merit if requested
+	if (m_world->GetConfig().PRECALC_MERIT.Get() > 0){
+		cCPUTestInfo test_info;
+		cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
+		test_info.UseManualInputs(target_cell.input_array);                            // Test using what the environment will be
+		test_cpu->TestGenome(ctx, test_info, in_organism->GetHardware().GetMemory());  // Use the true genome
+		in_organism->GetPhenotype().SetMerit(test_info.GetTestPhenotype().GetMerit()); // Update merit
+		delete test_cpu;
+	}
   // Update the archive...
+	
+	
   in_genotype->AddOrganism();
   
   if (old_genotype != NULL) {
@@ -419,7 +448,10 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   // Statistics...
   m_world->GetStats().RecordBirth(target_cell.GetID(), in_genotype->GetID(),
                                   in_organism->GetPhenotype().ParentTrue());
-                                  
+	
+	// @MRR Do coalescence clade set up for new organisms.
+	CCladeSetupOrganism(in_organism ); 
+	
   //count how many times MERIT_BONUS_INST (rewarded instruction) is in the genome
   //only relevant if merit is proportional to # times MERIT_BONUS_INST is in the genome
   int rewarded_instruction = m_world->GetConfig().MERIT_BONUS_INST.Get();
@@ -441,6 +473,97 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   
 }
 
+// @WRE 2007/07/05 Helper function to take care of side effects of Avidian 
+// movement that cannot be directly handled in cHardwareCPU.cc
+void cPopulation::MoveOrganisms(cAvidaContext& ctx, cPopulationCell& src_cell, cPopulationCell& dest_cell)
+{
+  // Declarations
+  int actualNeighborhoodSize, fromFacing, destFacing, newFacing, success;
+#ifdef DEBBUG
+  int sID, dID, xx1, yy1, xx2, yy2;
+#endif
+
+  // Swap inputs between cells to fix bus error when Avidian moves into an unoccupied cell
+  environment.SwapInputs(ctx, src_cell.input_array, dest_cell.input_array);
+  
+  // Find neighborhood size for facing 
+  if (NULL != dest_cell.GetOrganism()) {
+    actualNeighborhoodSize = dest_cell.GetOrganism()->GetNeighborhoodSize();
+  } else {
+    if (NULL != src_cell.GetOrganism()) {
+      actualNeighborhoodSize = src_cell.GetOrganism()->GetNeighborhoodSize();
+    } else {
+      // Punt
+      actualNeighborhoodSize = 8;
+    }
+  }
+ 
+  // Swap cell facings between cells, so that if movement is directed, it continues to be associated with
+  // the same organism
+  // Determine absolute facing for each cell
+  fromFacing = src_cell.GetFacing();
+  destFacing = dest_cell.GetFacing();
+
+  // Set facing in source cell
+  success = 0;
+  newFacing = destFacing;
+  for(int i = 0; i < actualNeighborhoodSize; i++) {
+    if (src_cell.GetFacing() != newFacing) {
+      src_cell.ConnectionList().CircNext();
+      //cout << "MO: src_cell facing not yet at " << newFacing << endl;
+    } else {
+      //cout << "MO: src_cell facing successfully set to " << newFacing << endl;
+      success = 1;
+      break;
+    }
+  }
+// @DMB this doesn't compile properly -- #ifdef DEBUG
+#if 0
+  if (!success) {
+    sID = src_cell.GetID();
+    dID = dest_cell.GetID();
+    src_cell.GetPosition(xx1,yy1);
+    dest_cell.GetPosition(xx2,yy2);
+    //Conditional for examining only neighbor move without swap in facing
+    //if (1 == abs(xx2-xx1)+abs(yy2-yy1)) {
+    cout << "MO: src: " << sID << "@ (" << xx1 << "," << yy1 << ") dest: " << dID << "@ (" << xx2 << "," << yy2 << "), FAILED to set src_cell facing to " << newFacing << endl;
+    for (int j=0; j < actualNeighborhoodSize; j++) {
+      src_cell.ConnectionList().CircNext();
+      src_cell.GetCellFaced().GetPosition(xx2,yy2);
+      cout << "connlist for " << sID << ": facing " << src_cell.GetFacing() << " -> (" << xx2 << "," << yy2 << ")" << endl;
+    }
+    //}
+  }
+#endif 
+
+  // Set facing in destinatiion cell
+  success = 0;
+  newFacing = fromFacing;
+  for(int i = 0; i < actualNeighborhoodSize; i++) {
+    if (dest_cell.GetFacing() != newFacing) {
+      dest_cell.ConnectionList().CircNext();
+      // cout << "MO: dest_cell facing not yet at " << newFacing << endl;
+    } else {
+      // cout << "MO: dest_cell facing successfully set to " << newFacing << endl;
+      success = 1;
+      break;
+    }
+  }
+// @DMB this doesn't compile properly -- #ifdef DEBUG
+#if 0
+  if (!success) {
+    sID = src_cell.GetID();
+    dID = dest_cell.GetID();
+    src_cell.GetPosition(xx1,yy1);
+    dest_cell.GetPosition(xx2,yy2);
+    if (1 == abs(xx2-xx1)+abs(yy2-yy1)) {
+      cout << "MO: src: " << sID << "@ (" << xx1 << "," << yy1 << ") dest: " << dID << "@ (" << xx2 << "," << yy2 << "), FAILED to set dest_cell facing to " << newFacing << endl;
+    }
+  }
+#endif
+  
+}
+
 void cPopulation::KillOrganism(cPopulationCell& in_cell)
 {
   // do we actually have something to kill?
@@ -450,6 +573,22 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   cOrganism* organism = in_cell.GetOrganism();
   cGenotype* genotype = organism->GetGenotype();
   m_world->GetStats().RecordDeath();
+  
+  int cellID = in_cell.GetID();
+
+  if(GetCell(cellID).GetOrganism()->IsSleeping()) {
+    GetCell(cellID).GetOrganism()->SetSleeping(false);
+    decNumAsleep();
+  }
+  if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1) {
+    if(sleep_log[cellID].Size() > 0) {
+      pair<int,int> p = sleep_log[cellID][sleep_log[cellID].Size()-1];
+      if(p.second == -1) {
+        AddEndSleep(cellID,m_world->GetStats().GetUpdate());
+      }
+    }
+  }
+  
   
   tList<tListNode<cSaleItem> >* sold_items = organism->GetSoldItems();
   if (sold_items)
@@ -474,9 +613,7 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   }
   genotype->RemoveOrganism();
   
-  for (int i = 0; i < organism->GetNumParasites(); i++) {
-    organism->GetParasite(i).RemoveParasite();
-  }
+  organism->ClearParasites();
   
   // And clear it!
   in_cell.RemoveOrganism();
@@ -609,6 +746,36 @@ int cPopulation::BuyValue(const int label, const int buy_price, const int cell_i
 	// finally return recieve value, buyer merit will be updated if return a valid value here
 	int receive_value = chosen->GetData();
 	return receive_value;
+}
+
+void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
+{
+  // Sanity checks: Don't process if the cells are the same and 
+  // don't bother trying to move when given a cell that isn't there
+  //cout << "SwapCells: testing if cell1 and cell2 are non-null" << endl;
+  //if (!(NULL != cell1) || !(NULL != cell2)) return;
+  if ((&cell1 == NULL) || (&cell2 == NULL)) return;
+  //cout << "SwapCells: testing if cell1 and cell2 are different" << endl;  
+  if (cell1.GetID() == cell2.GetID()) return;
+  // Clear current contents of cells
+  //cout << "SwapCells: clearing cell contents" << endl;
+  cOrganism * org1 = cell1.RemoveOrganism();
+  cOrganism * org2 = cell2.RemoveOrganism();
+  //cout << "SwapCells: organism 2 is non-null, fix up source cell" << endl;
+  if (org2 != NULL) {
+    cell1.InsertOrganism(*org2);
+    schedule->Adjust(cell1.GetID(), org2->GetPhenotype().GetMerit());
+  } else {
+    schedule->Adjust(cell1.GetID(), cMerit(0));
+  }
+  //cout << "SwapCells: organism 1 is non-null, fix up dest cell" << endl;
+  if (org1 != NULL) {
+    cell2.InsertOrganism(*org1);
+    schedule->Adjust(cell2.GetID(), org1->GetPhenotype().GetMerit());
+  } else {
+    schedule->Adjust(cell2.GetID(), cMerit(0));
+  }
+  //cout << "SwapCells: Done." << endl;
 }
 
 // CompeteDemes  probabilistically copies demes into the next generation
@@ -817,7 +984,6 @@ void cPopulation::CompeteDemes(int competition_type)
       }
     }
     is_init[to_deme_id] = true;
-	
   }
   
   // Now re-inject all remaining demes into themselves to reset them.
@@ -853,7 +1019,6 @@ void cPopulation::ReplicateDemes(int rep_trigger)
   
   // Determine which demes should be replicated.
   const int num_demes = GetNumDemes();
-  cRandom & random = m_world->GetRandom();
   
   // Loop through all candidate demes...
 	for (int deme_id = 0; deme_id < num_demes; deme_id++) {
@@ -947,7 +1112,7 @@ void cPopulation::ReplicateDemes(int rep_trigger)
 				KillOrganism(cell_array[source_deme.GetCellID(i)]);
 			}
       
-	// Lineage label is wrong here; fix.
+			// Lineage label is wrong here; fix.
       if(m_world->GetConfig().GERMLINE_RANDOM_PLACEMENT.Get()) {
         InjectGenome(source_deme.GetCellID(m_world->GetRandom().GetInt(0, source_deme.GetSize()-1)),
                      source_germline.GetLatest(), 0);
@@ -1102,6 +1267,109 @@ void cPopulation::CopyDeme(int deme1_id, int deme2_id)
 }
 
 
+// Print out statistics about donations
+                  
+void cPopulation::PrintDonationStats()
+{
+  cDoubleSum donation_makers;
+  cDoubleSum donation_receivers;
+  cDoubleSum donation_cheaters;
+
+  cDoubleSum edit_donation_makers;
+  cDoubleSum edit_donation_receivers;
+  cDoubleSum edit_donation_cheaters;
+
+  cDoubleSum kin_donation_makers;
+  cDoubleSum kin_donation_receivers;
+  cDoubleSum kin_donation_cheaters;
+
+  cDoubleSum threshgb_donation_makers;
+  cDoubleSum threshgb_donation_receivers;
+  cDoubleSum threshgb_donation_cheaters;
+
+  cDoubleSum quanta_threshgb_donation_makers;
+  cDoubleSum quanta_threshgb_donation_receivers;
+  cDoubleSum quanta_threshgb_donation_cheaters;
+
+  cStats& stats = m_world->GetStats();
+
+  cDataFile & dn_donors = m_world->GetDataFile("donations.dat");
+  dn_donors.WriteComment("Info about organisms giving donations in the population");
+  dn_donors.WriteTimeStamp();
+  dn_donors.Write(stats.GetUpdate(), "update");
+
+
+  for (int i = 0; i < cell_array.GetSize(); i++)
+    {
+      // Only look at cells with organisms in them.
+      if (cell_array[i].IsOccupied() == false) continue;
+      cOrganism * organism = cell_array[i].GetOrganism();
+      const cPhenotype & phenotype = organism->GetPhenotype();
+   
+      // donors & receivers in general
+      if (phenotype.IsDonorLast()) donation_makers.Add(1);       //found a donor
+      if (phenotype.IsReceiverLast()){
+        donation_receivers.Add(1);                              //found a receiver
+        if (phenotype.IsDonorLast()==0){
+          donation_cheaters.Add(1);                             //found a receiver whose parent did not give
+        }
+      }
+      // edit donors & receivers
+      if (phenotype.IsDonorEditLast()) edit_donation_makers.Add(1);       //found a edit donor
+      if (phenotype.IsReceiverEditLast()){
+        edit_donation_receivers.Add(1);                              //found a edit receiver
+        if (phenotype.IsDonorEditLast()==0){
+          edit_donation_cheaters.Add(1);                             //found a edit receiver whose parent did...
+        }                                                              //...not make a edit donation
+      }
+
+      // kin donors & receivers
+      if (phenotype.IsDonorKinLast()) kin_donation_makers.Add(1);       //found a kin donor
+      if (phenotype.IsReceiverKinLast()){
+        kin_donation_receivers.Add(1);                              //found a kin receiver
+        if (phenotype.IsDonorKinLast()==0){
+          kin_donation_cheaters.Add(1);                             //found a kin receiver whose parent did...
+        }                                                              //...not make a kin donation
+      }
+
+      // threshgb donors & receivers
+      if (phenotype.IsDonorThreshGbLast()) threshgb_donation_makers.Add(1); //found a threshgb donor
+      if (phenotype.IsReceiverThreshGbLast()){
+        threshgb_donation_receivers.Add(1);                              //found a threshgb receiver
+        if (phenotype.IsDonorThreshGbLast()==0){
+          threshgb_donation_cheaters.Add(1);                             //found a threshgb receiver whose parent did...
+        }                                                              //...not make a threshgb donation
+      }
+
+      // quanta_threshgb donors & receivers
+      if (phenotype.IsDonorQuantaThreshGbLast()) quanta_threshgb_donation_makers.Add(1); //found a quanta threshgb donor
+      if (phenotype.IsReceiverQuantaThreshGbLast()){
+        quanta_threshgb_donation_receivers.Add(1);                              //found a quanta threshgb receiver
+        if (phenotype.IsDonorQuantaThreshGbLast()==0){
+          quanta_threshgb_donation_cheaters.Add(1);                             //found a quanta threshgb receiver whose parent did...
+        }                                                              //...not make a quanta threshgb donation
+      }
+
+    }
+
+  dn_donors.Write(donation_makers.Sum(), "parent made at least one donation");
+  dn_donors.Write(donation_receivers.Sum(), "parent received at least one donation");
+  dn_donors.Write(donation_cheaters.Sum(),  "parent received at least one donation but did not make one");
+  dn_donors.Write(edit_donation_makers.Sum(), "parent made at least one edit_donation");
+  dn_donors.Write(edit_donation_receivers.Sum(), "parent received at least one edit_donation");
+  dn_donors.Write(edit_donation_cheaters.Sum(),  "parent received at least one edit_donation but did not make one");
+  dn_donors.Write(kin_donation_makers.Sum(), "parent made at least one kin_donation");
+  dn_donors.Write(kin_donation_receivers.Sum(), "parent received at least one kin_donation");
+  dn_donors.Write(kin_donation_cheaters.Sum(),  "parent received at least one kin_donation but did not make one");
+  dn_donors.Write(threshgb_donation_makers.Sum(), "parent made at least one threshgb_donation");
+  dn_donors.Write(threshgb_donation_receivers.Sum(), "parent received at least one threshgb_donation");
+  dn_donors.Write(threshgb_donation_cheaters.Sum(),  "parent received at least one threshgb_donation but did not make one");
+  dn_donors.Write(quanta_threshgb_donation_makers.Sum(), "parent made at least one quanta_threshgb_donation");
+  dn_donors.Write(quanta_threshgb_donation_receivers.Sum(), "parent received at least one quanta_threshgb_donation");
+  dn_donors.Write(quanta_threshgb_donation_cheaters.Sum(),  "parent received at least one quanta_threshgb_donation but did not make one");
+
+  dn_donors.Endl();
+}
 // Copy a single indvidual out of a deme into a new one (which is first purged
 // of existing organisms.)
 
@@ -1296,6 +1564,31 @@ void cPopulation::LineageSetupOrganism(cOrganism* organism, cLineage* lin, int l
 
 
 /**
+This function will set up coalescence clade information.  If this feature is activated in the configuration,
+ a list of coalescence genotype ids must be read in initially.  These are furnished by doing an initial run 
+ with the same seed and setup and retrieving information from the final dominant lineage and coalescence points.
+ 
+ The value is either (by default) inherited from the parent or the organism's genotypeID if it is known
+ to be a coalescence id.
+ 
+ Defaulting is established in Inject or ActivateOffspring methods of this class.
+ 
+ @MRR May 2007
+ **/
+void cPopulation::CCladeSetupOrganism(cOrganism* organism)
+{
+		int gen_id = organism->GetGenotype()->GetID();	
+		if (m_world->GetConfig().TRACK_CCLADES.Get() > 0)
+		{
+			if (m_world->GetClassificationManager().IsCCladeFounder(gen_id))
+			{	
+				organism->SetCCladeLabel(gen_id);
+			}
+		}
+}
+
+
+/**
 * This function directs which position function should be used.  It
  * could have also been done with a function pointer, but the dividing
  * of an organism takes enough time that this will be a negligible addition,
@@ -1430,25 +1723,28 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
 {
   assert(step_size > 0.0);
   assert(cell_id < cell_array.GetSize());
-  
   // If cell_id is negative, no cell could be found -- stop here.
   if (cell_id < 0) return;
-  
   cPopulationCell& cell = GetCell(cell_id);
   assert(cell.IsOccupied()); // Unoccupied cell getting processor time!
-  
   cOrganism* cur_org = cell.GetOrganism();
   cur_org->GetHardware().SingleProcess(ctx);
   if (cur_org->GetPhenotype().GetToDelete() == true) {
     delete cur_org;
   }
-  m_world->GetStats().IncExecuted();
-  resource_count.Update(step_size);
-}
+   m_world->GetStats().IncExecuted();
+ resource_count.Update(step_size);
+ }
 
 
 void cPopulation::UpdateOrganismStats()
 {
+  // Carrying capacity @WRE 04-20-07
+  // Check for positive non-zero carrying capacity and apply it
+  if (0 < m_world->GetConfig().BIOMIMETIC_K.Get()) {
+    SerialTransfer(m_world->GetConfig().BIOMIMETIC_K.Get(),true);
+  }
+
   // Loop through all the cells getting stats and doing calculations
   // which must be done on a creature by creature basis.
   
@@ -1481,6 +1777,7 @@ void cPopulation::UpdateOrganismStats()
   int num_no_birth = 0;
   int num_multi_thread = 0;
   int num_single_thread = 0;
+  int num_threads = 0;
   int num_modified = 0;
   
   // Maximums...
@@ -1571,18 +1868,17 @@ void cPopulation::UpdateOrganismStats()
     }
     
     // Increment the counts for all qualities the organism has...
+    num_parasites += organism->GetNumParasites();
     if (phenotype.ParentTrue()) num_breed_true++;
-    if (phenotype.IsParasite()) num_parasites++;
-    if( phenotype.GetNumDivides() == 0 ) num_no_birth++;
-    if(phenotype.IsMultiThread()) num_multi_thread++;
+    if (phenotype.GetNumDivides() == 0) num_no_birth++;
+    if (phenotype.IsMultiThread()) num_multi_thread++;
     else num_single_thread++;
+    
     if(phenotype.IsModified()) num_modified++;    
     
-    // Hardware specific collections...
-    if (organism->GetHardware().GetType() == HARDWARE_TYPE_CPU_ORIGINAL) {
-      cHardwareBase & hardware = organism->GetHardware();
-      stats.SumMemSize().Add(hardware.GetMemory().GetSize());
-    }
+    cHardwareBase& hardware = organism->GetHardware();
+    stats.SumMemSize().Add(hardware.GetMemory().GetSize());
+    num_threads += hardware.GetNumThreads();
     
     // Increment the age of this organism.
     organism->GetPhenotype().IncAge();
@@ -1593,6 +1889,7 @@ void cPopulation::UpdateOrganismStats()
   stats.SetNumParasites(num_parasites);
   stats.SetNumSingleThreadCreatures(num_single_thread);
   stats.SetNumMultiThreadCreatures(num_multi_thread);
+  stats.SetNumThreads(num_threads);
   stats.SetNumModified(num_modified);
   
   stats.SetMaxMerit(max_merit.GetDouble());
@@ -2066,7 +2363,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   InjectGenome(cell_id, genome, lineage_label);
   cPhenotype& phenotype = GetCell(cell_id).GetOrganism()->GetPhenotype();
   phenotype.SetNeutralMetric(neutral);
-  
+    
   if (merit > 0) phenotype.SetMerit(cMerit(merit));
   schedule->Adjust(cell_id, phenotype.GetMerit());
   
@@ -2079,7 +2376,6 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
 			deme.GetGermline().Add(GetCell(cell_id).GetOrganism()->GetGenome());
 		}
 	}  
-	
 }
 
 void cPopulation::InjectParasite(const cCodeLabel& label, const cGenome& injected_code, int cell_id)
@@ -2255,14 +2551,27 @@ void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
   cOrganism* new_organism = new cOrganism(m_world, ctx, new_genotype->GetGenome());
+	
+	//Coalescense Clade Setup
+	new_organism->SetCCladeLabel(-1);  
   
   // Set the genotype...
   new_organism->SetGenotype(new_genotype);
   
   // Setup the phenotype...
   cPhenotype & phenotype = new_organism->GetPhenotype();
-  phenotype.SetupInject(new_genotype->GetGenome());
+  phenotype.SetupInject(new_genotype->GetGenome());  //TODO  sets merit to lenght of genotype
+  
+  if(m_world->GetConfig().ENERGY_ENABLED.Get()) {
+    double initial_energy = min(m_world->GetConfig().ENERGY_GIVEN_ON_INJECT.Get(), m_world->GetConfig().ENERGY_CAP.Get());
+    phenotype.SetEnergy(initial_energy);
+  }
+  // BB - Don't need to fix metabolic rate here, only on birth
+
   phenotype.SetMerit( cMerit(new_genotype->GetTestMerit(ctx)) );
+  
+  // @DMB - this appears to be debugging output
+  //cerr<<"initial energy: " << phenotype.GetStoredEnergy() <<endl<<"initial Merit: "<<phenotype.GetMerit().GetDouble()<<endl;
   
   // @CAO are these really needed?
   phenotype.SetLinesCopied( new_genotype->GetTestCopiedSize(ctx) );
@@ -2454,7 +2763,7 @@ bool cPopulation::UpdateMerit(int cell_id, double new_merit)
   if (new_merit <= old_merit) {
 	  phenotype.SetIsDonorCur(); }  
   else  { phenotype.SetIsReceiver(); } 
-  
+  std::cerr<<"[cPopulation::UpdateMerit] phenotype.GetMerit() = "<<phenotype.GetMerit()<< " new_merit = " << new_merit << std::endl; 
   schedule->Adjust(cell_id, phenotype.GetMerit());
   
   return true;
@@ -2467,6 +2776,12 @@ cChangeList *cPopulation::GetChangeList(){
   return schedule->GetChangeList();
 }
 
-
-
-
+void cPopulation::AddBeginSleep(int cellID, int start_time) {
+  sleep_log[cellID].Add(make_pair(start_time,-1));
+}
+  
+void cPopulation::AddEndSleep(int cellID, int end_time) {
+  pair<int,int> p = sleep_log[cellID][sleep_log[cellID].Size()-1];
+  sleep_log[cellID].RemoveAt(sleep_log[cellID].Size()-1);
+  sleep_log[cellID].Add(make_pair(p.first, end_time));
+}

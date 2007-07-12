@@ -6,7 +6,7 @@
 <body>
 
 <div class="revision">
-Revised 2006-09-03 DMB
+Revised 2007-07-01 CAO
 </div>
 
 <p><a href="index.html">Return to the Index</a></p>
@@ -209,6 +209,15 @@ to only include those genotypes that are needed.
   each trace as they would experience during an actual Avida run. By default, 
   the same inputs are provided every time to organisms in analysis mode.
 </dd>
+<dt><strong>FILTER [<span class="cmdarg">stat</span>] [<span class="cmdarg">relation</span>] [<span class="cmdarg">test_value</span>] [<span class="cmdargopt">batch=current</span>]</strong></dt>
+<dd>
+    Perform the given test on all genotypes and Remove all those that do not pass.  Stat indicates which
+    metric you want to compare, relation is the test to perform (==, !=, &lt;, &gt;, &lt;=, or &gt;=), and
+    test_value is the value to compare it to.  For example <br>
+    &nbsp;&nbsp;<kbd>FILTER fitness >= 1.5</kbd><br>
+    will save only those genotypes with a fitness greater than or equal to 1.5.  Set the section on
+    <a href="#GENOTYPE_STATS">Genotype Statistics</a> for more information on what keywords can be used here.
+</dd>
 <dt><strong>FIND_GENOTYPE [<span class="cmdargopt">type='num_cpus' ...</span>]</strong></dt>
 <dd>
   Remove all genotypes but the one selected.  Type indicates which
@@ -326,7 +335,7 @@ save information generated in analyze mode.
   format indicates the layout of columns in the file.  If the filename
   specified ends in <kbd>.html</kbd>, html formatting will be used instead of
   plain text.  For the format, see the section on
-  <a href="#OUTPUT_FORMATS">Output Formats</a> below.
+  <a href="#GENOTYPE_STATS">Genotype Statistics</a> below.
 </dd>
 <dt><strong>
   DETAIL_TIMELINE [<span class="cmdargopt">file='detail_timeline.dat'</span>] 
@@ -389,12 +398,11 @@ the data and output the results.
 	[<span class="cmdargopt">flags ...</span>] [<span class="cmdargopt">format ...</span>]
 </strong></dt>
 <dd>
-  Construct a genotype-phenotype array for each genotype in the
-  current batch.  The format is the list of stats that you want
-  to include as columns in the array.  Additionally you can have
-  special format flags; the possible flags are 'html' to print output
-  in HTML format, and 'link_maps' to create html links between
-  consecutive genotypes in a lineage.
+    Construct a genotype-phenotype array for each genotype in the current batch.  The format is
+    the list of stats that you want to include as columns in the array
+    (see <a href="#GENOTYPE_STATS">Genotype Statistics</a> for more info).  Additionally you can have
+    special format flags; the possible flags are 'html' to print output in HTML format, and
+    'link_maps' to create html links between consecutive genotypes in a lineage.
 </dd>
 <dt><strong>
   MAP_MUTATIONS [<span class="cmdargopt">dir="mutations/"</span>]
@@ -526,13 +534,14 @@ specified in the environment configuration file.
 
 
 <p>&nbsp;</p>
-<h2><a name="OUTPUT_FORMATS">Output Formats</a></h2>
+<h2><a name="GENOTYPE_STATS">Genotype Statistics</a></h2>
 
 <p>
-Several commands (such as DETAIL and MAP) require format parameters
-to specify what genotypic features should be output.  Before the
-such commands are used, other collection functions may need to be
-run.
+    Avida analyze mode recognizes several keywords that correspond to information about genotypes.
+    Several commands (such as DETAIL and MAP) require the use of these as format parameters
+    to specify what genotypic features should be output.  Others (such as FILTER) use them to identify
+    specific genotypes that possess certain qualities.  Before these commands are used, other
+    processing functions may need to be run.
 </p>
 <p>
 Allowable formats after a normal load (assuming these values were available
@@ -543,23 +552,27 @@ from the input file to be loaded in) are:
 <tr>
   <td width="33%"><strong>id</strong> (Genome ID)</td>
   <td width="33%"><strong>parent_id</strong> (Parent ID)</td>
-  <td width="33%"><strong>num_cpus</strong> (Number of CPUs)</td>
+  <td width="33%"><strong>parent2_id</strong> (Second Parent ID in sexual genotypes)</td>
 </tr>
 <tr>
+  <td width="33%"><strong>num_cpus</strong> (Number of CPUs)</td>
   <td><strong>total_cpus</strong> (Total CPUs Ever)</td>
   <td><strong>length</strong> (Genome Length)</td>
-  <td><strong>update_born</strong> (Update Born)</td>
 </tr>
 <tr>
+  <td><strong>update_born</strong> (Update Born)</td>
   <td><strong>update_dead</strong> (Update Dead)</td>
   <td><strong>depth</strong> (Tree Depth)</td>
+</tr>
+<tr>
   <td><strong>sequence</strong> (Genome Sequence)</td>
+  <td><strong>task_list</strong> (List of all tasks performed)</td>
 </tr>
 </table>
 </div>
 
 <p>
-After a RECALCULATE, the additional formats become available:
+After a RECALCULATE, these additional formats become available:
 </p>
 
 <div align="center">
@@ -580,6 +593,12 @@ After a RECALCULATE, the additional formats become available:
   <td><strong>div_type</strong> (Divide type used; 1 is default)</td>
 </tr>
 <tr>
+  <td><strong>mate_id</strong> (Mate Selection ID Number 
+  	(sexual genotypes))</td>
+  <td><strong>executed_flags</strong> (Executed Flags)</td>
+	<td><strong>task_order</strong> (Task Performance Order)</td>
+</tr>
+<tr>
   <td><strong>task.n</strong> (# of times task number n is done)</td>
   <td><strong>task.n:binary</strong> (is task n done, 0/1)</td>
 </tr>
@@ -596,14 +615,17 @@ additional formats:
 <table width="95%">
 <tr>
   <td width="50%"><strong>parent_dist</strong> (Parent Distance)</td>
+  <td width="50%"><strong>ancestor_dist</strong> (Ancestor Distance)</td>
+</tr>
+<tr>
   <td width="50%"><strong>comp_merit_ratio</strong>, (Computational Merit Ratio with parent)</td>
-</tr>
-<tr>
   <td><strong>efficiency_ratio</strong> (Replication Efficiency Ratio with parent)</td>
-  <td><strong>fitness_ratio</strong> (Fitness Ratio with parent)</td>
 </tr>
 <tr>
+  <td><strong>fitness_ratio</strong> (Fitness Ratio with parent)</td>
   <td><strong>parent_muts</strong> (Mutations from Parent)</td>
+</tr>
+<tr>
   <td><strong>html.sequence</strong> (Genome Sequence in Color; html format)</td>
 </tr>
 </table>
@@ -617,6 +639,31 @@ If an ALIGN is run, one additional format is available:
 <table width="95%">
 <tr>
   <td><strong>alignment</strong> (Aligned Sequence)</td>
+</tr>
+</table>
+</div>
+
+<p>
+If a RECALCULATE was done before the ALIGN, the following format is available:
+</p>
+
+<div align="center">
+<table width="95%">
+<tr>
+  <td><strong>alignment_executed_flags</strong> (Alignment Executed Flags)</td>
+</tr>
+</table>
+</div>
+
+<p>
+If tags have been applied to genotypes in analyze mode, an additional format 
+is available:
+</p>
+
+<div align="center">
+<table width="95%">
+<tr>
+  <td><strong>tag</strong> (Genotype Tag)</td>
 </tr>
 </table>
 </div>

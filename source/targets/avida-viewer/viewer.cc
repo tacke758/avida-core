@@ -30,16 +30,16 @@
 #include "cTextViewerDriver.h"
 #include "cWorld.h"
 
+#include "PlatformExpert.h"
+
 using namespace std;
+
 
 int main(int argc, char * argv[])
 {
-  // Catch Interrupt making sure to close appropriately
-  signal(SIGINT, ExitAvida);
-
-  printVersionBanner();
+  PlatformExpert::Initialize();
   
-  cDriverManager::Initialize();
+  printVersionBanner();
   
   // Initialize the configuration data...
   cWorld* world = new cWorld(cAvidaConfig::LoadWithCmdLineArgs(argc, argv));
@@ -57,4 +57,6 @@ int main(int argc, char * argv[])
   
   // Exit Nicely
   ExitAvida(0);
+  
+  return 0;
 }

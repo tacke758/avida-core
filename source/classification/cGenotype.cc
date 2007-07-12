@@ -46,6 +46,7 @@ cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   , defer_adjust(0)
   , id_num(in_id)
   , symbol(0)
+  , map_id(-1)
   , birth_data(in_update_born)
   , num_organisms(0)
   , last_num_organisms(0)
@@ -62,6 +63,7 @@ cGenotype::~cGenotype()
   // Reset some of the variables to make sure program will crash if a deleted
   // cell is read!
   symbol = '!';
+  map_id = -1;
 
   num_organisms = -1;
   total_organisms = -1;
@@ -135,13 +137,14 @@ void cGenotype::RemoveMerit(const cMerit & in)
   sum_merit.Subtract(in.GetDouble());
 }
 
-void cGenotype::SetParent(cGenotype * parent, cGenotype * parent2)
+void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
 {
   birth_data.parent_genotype = parent;
   birth_data.parent2_genotype = parent2;
 
-  // If we have a real parent genotype, collect other data about parent.
   if (parent == NULL) return;
+
+  // If we have a real parent genotype, collect other data about parent.
   birth_data.ancestor_ids[0] = parent->GetID();
   birth_data.ancestor_ids[2] = parent->GetAncestorID(0);
   birth_data.ancestor_ids[3] = parent->GetAncestorID(1);
@@ -151,8 +154,7 @@ void cGenotype::SetParent(cGenotype * parent, cGenotype * parent2)
     birth_data.ancestor_ids[5] = parent2->GetAncestorID(1);    
   }
 
-  birth_data.parent_distance =
-    cGenomeUtil::FindEditDistance(genome, parent->genome);
+  birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
   birth_data.parent_species = parent->GetSpecies();
   birth_data.gene_depth = parent->GetDepth() + 1;
   birth_data.lineage_label = parent->GetLineageLabel();
