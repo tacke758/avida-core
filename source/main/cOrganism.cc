@@ -68,6 +68,9 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_max_executed(-1)
   , m_is_running(false)
   , m_net(NULL)
+  , m_state_diag(0)
+  , m_orig_state_index(0)
+  , m_dest_state_index(0)
 {
   // Initialization of structures...
   m_hardware = m_world->GetHardwareManager().Create(this);
@@ -680,10 +683,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 
 cUMLModel* cOrganism::getUMLModel()
 {
-	cUMLModel* temp_mod;
-	
-	temp_mod = &m_model;
-	return temp_mod;
+  return &m_model;
 }
 
 bool cOrganism::absoluteJumpStateDiagram (int amount )
@@ -716,9 +716,7 @@ bool cOrganism::relativeJumpStateDiagram (int amount )
 
 cUMLStateDiagram* cOrganism::getStateDiagram() 
 { 
-	int m = m_state_diag;
-	return getUMLModel()->getStateDiagram(m); 
-
+  return m_model.getStateDiagram(m_state_diag);
 }
 
 // Determines if this is the transition the organism is about to add

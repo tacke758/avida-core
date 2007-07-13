@@ -44,11 +44,8 @@ cUMLModel::~cUMLModel()
 
 cUMLStateDiagram* cUMLModel::getStateDiagram (int x) 
 {
-	// check to see whether this state diagram exists
-	if (x < state_diagrams.size()) { 
-		return (&(state_diagrams.begin()[x]));
-	}
-
+  assert(x<state_diagrams.size());
+  return &state_diagrams[x];
 }
 
 /* This is a crappy little function to read in from a file. 
