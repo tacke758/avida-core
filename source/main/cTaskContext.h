@@ -37,6 +37,9 @@
 #ifndef tHashTable_h
 #include "tHashTable.h"
 #endif
+#ifndef cOrganism
+#include "cOrganism.h"
+#endif
 
 class cTaskEntry;
 class cTaskState;
@@ -55,6 +58,8 @@ private:
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
+  
+
 
   // for optimize tasks actual value of function org is outputting, for all others nothing
   // implemented for now...
@@ -63,11 +68,18 @@ private:
   cTaskEntry* m_task_entry;
   tHashTable<void*, cTaskState*>* m_task_states;
 
+
 public:
+
+  // For UML branch - Note: should eventually be made private.
+  bool m_task_success_complete;
+  cOrganism* organism;
+  
+
   cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
                bool in_net_valid, int in_net_completed, bool in_on_divide = false,
-               tBuffer<int>* in_received_messages = NULL)
+               tBuffer<int>* in_received_messages = NULL, cOrganism* in_org = NULL)
     : m_interface(interface)
     , m_input_buffer(inputs)
     , m_output_buffer(outputs)
@@ -80,6 +92,8 @@ public:
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
+	, organism(in_org)
+	, m_task_success_complete(true)
   {
 	  m_task_value = 0;
   }

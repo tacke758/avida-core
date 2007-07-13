@@ -599,12 +599,11 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	if(GetCellID()==-1) return;
 	m_model.printXMI();	
 
- assert(m_interface);
   const tArray<double> & resource_count = m_interface->GetResources();
-
+  
   tList<tBuffer<int> > other_input_list;
   tList<tBuffer<int> > other_output_list;
-
+  
   // If tasks require us to consider neighbor inputs, collect them...
   if (m_world->GetEnvironment().UseNeighborInput()) {
     const int num_neighbors = m_interface->GetNumNeighbors();
@@ -612,11 +611,11 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
       m_interface->Rotate();
       cOrganism * cur_neighbor = m_interface->GetNeighbor();
       if (cur_neighbor == NULL) continue;
-
+      
       other_input_list.Push( &(cur_neighbor->m_input_buf) );
     }
   }
-
+  
   // If tasks require us to consider neighbor outputs, collect them...
   if (m_world->GetEnvironment().UseNeighborOutput()) {
     const int num_neighbors = m_interface->GetNumNeighbors();
@@ -624,36 +623,47 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
       m_interface->Rotate();
       cOrganism * cur_neighbor = m_interface->GetNeighbor();
       if (cur_neighbor == NULL) continue;
-
+      
       other_output_list.Push( &(cur_neighbor->m_output_buf) );
     }
   }
   
- // bool net_valid = false;
+//  bool net_valid = false;
  // if (m_net) net_valid = NetValidate(ctx, value);
-
+  
   // Do the testing of tasks performed...
-
+  
   // if on IO add value to m_output_buf, if on divide don't need to
-  //if (!on_divide) m_output_buf.Add(value);
+//  if(!on_divide) output_buffer.Add(value);
   
   tArray<double> res_change(resource_count.GetSize());
   tArray<int> insts_triggered;
-  bool clear_input = false;
-
+  
   tBuffer<int>* received_messages_point = &m_received_messages;
   if (!m_world->GetConfig().SAVE_RECEIVED.Get()) received_messages_point = NULL;
   
-  cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, other_output_list, 0, 0, 0, received_messages_point, this);
-  m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
+  // Edited for UML branch
+  cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, 
+                       other_output_list, 0, 0, 0, received_messages_point);
+  bool task_completed = m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
+  
+  if(m_world->GetConfig().ENERGY_ENABLED.Get() && m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 1 && task_completed) {
+    m_phenotype.RefreshEnergy();
+    double newMerit = m_phenotype.ApplyToEnergyStore();
+    if(newMerit != -1) {
+      m_interface->UpdateMerit(newMerit);
+    }
+  }
+
   m_interface->UpdateResources(res_change);
+
+  //if(m_world->GetConfig().CLEAR_ON_OUTPUT.Get()) input_buffer.Clear();  @JEB Not fully implemented 
 
   for (int i = 0; i < insts_triggered.GetSize(); i++) {
     const int cur_inst = insts_triggered[i];
     m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst));
   }
   
-  if (clear_input) m_input_buf.Clear();
  
 	m_world->GetStats().addState(m_model.numStates());
 	m_world->GetStats().addTrans(m_model.numTrans());

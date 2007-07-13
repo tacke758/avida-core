@@ -249,6 +249,23 @@ private:
   tArray<int> sense_last_exe_count;
   tArray<cString> sense_names;
 
+// Stats for UML state diagrams
+  cDoubleSum av_number_of_states;
+  cDoubleSum av_number_of_trans;	
+  cDoubleSum av_number_of_triggers;
+  cDoubleSum av_number_of_guards;
+  cDoubleSum av_number_of_actions;
+  cDoubleSum av_number_of_state_diagrams;
+  
+  cDoubleSum av_number_of_trans_lab;
+  cDoubleSum m_hydraAttempt;
+  cDoubleSum m_hydraPassed;
+  cDoubleSum m_spinAttempt;
+  cDoubleSum m_spinPassed;
+  cDoubleSum m_panAttempt;
+  cDoubleSum m_panPassed;
+
+
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
   cStats& operator=(const cStats&); // @not_implemented
@@ -605,6 +622,25 @@ public:
   void PrintMarketData(const cString& filename);
   void PrintSenseData(const cString& filename);
   void PrintSenseExeData(const cString& filename);
+  void PrintUMLData(const cString& filename);
+
+  
+   // UML Data Function
+  void addState(int x) { av_number_of_states.Add(x); }
+  void addTrans(int x) { av_number_of_trans.Add(x); }
+  void addTriggers(int x) { av_number_of_triggers.Add(x); }
+  void addGuards(int x) { av_number_of_guards.Add(x); }
+  void addActions(int x) { av_number_of_actions.Add(x); }
+  void addStateDiagrams(int x) { av_number_of_state_diagrams.Add(x); }
+  
+  void addTransLabel(int x) { av_number_of_trans_lab.Add(x); }
+  void HydraAttempt() { m_hydraAttempt.Add(1); }
+  void HydraPassed() { m_hydraPassed.Add(1); }
+  void SpinAttempt() { m_spinAttempt.Add(1); }
+  void SpinPassed() { m_spinPassed.Add(1); }
+  void PanAttempt() { m_panAttempt.Add(1); }
+  void PanPassed() { m_panPassed.Add(1); }
+
   
 };
 

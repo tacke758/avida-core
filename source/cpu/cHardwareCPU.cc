@@ -478,7 +478,15 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("action-2", &cHardwareCPU::Inst_Action2, false, 
 					"Change to action 2"),						
 	tInstLibEntry<tMethod>("action-3", &cHardwareCPU::Inst_Action3, false, 
-					"Change to action 3"),						
+					"Change to action 3"),		
+	tInstLibEntry<tMethod>("action-4", &cHardwareCPU::Inst_Action4, false, 
+					"Change to action 4"),						
+	tInstLibEntry<tMethod>("action-5", &cHardwareCPU::Inst_Action5, false, 
+					"Change to action 5"),						
+	tInstLibEntry<tMethod>("action-6", &cHardwareCPU::Inst_Action6, false, 
+					"Change to action 6"),						
+	tInstLibEntry<tMethod>("action-7", &cHardwareCPU::Inst_Action7, false, 
+					"Change to action 7"),										
 
 	
     // Placebo instructions
@@ -4907,5 +4915,15 @@ bool cHardwareCPU::Inst_Action2(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_Action3(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(3)); }
 
+bool cHardwareCPU::Inst_Action4(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(4)); }
 
+bool cHardwareCPU::Inst_Action5(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(5)); }
+
+bool cHardwareCPU::Inst_Action6(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(6)); }
+
+bool cHardwareCPU::Inst_Action7(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(7)); }
 

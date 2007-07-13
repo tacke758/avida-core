@@ -611,6 +611,10 @@ private:
   bool Inst_Action1(cAvidaContext& ctx);
   bool Inst_Action2(cAvidaContext& ctx);
   bool Inst_Action3(cAvidaContext& ctx);
+  bool Inst_Action4(cAvidaContext& ctx);
+  bool Inst_Action5(cAvidaContext& ctx);
+  bool Inst_Action6(cAvidaContext& ctx);
+  bool Inst_Action7(cAvidaContext& ctx);
     
 };
 

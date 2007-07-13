@@ -288,6 +288,9 @@ private:  // Direct task related methods
   double Task_Trans9(cTaskContext& ctx) const;   
   double Task_Trans10(cTaskContext& ctx) const;
   double Task_Scenario1(cTaskContext& ctx) const;
+  double Task_Scenario2(cTaskContext& ctx) const;
+  double Task_Scenario3(cTaskContext& ctx) const;
+  double Task_Scenario4(cTaskContext& ctx) const;
   double Task_NumStates(cTaskContext& ctx) const;
   double Task_NumTrans(cTaskContext& ctx) const;
   double Task_PropTrigger(cTaskContext& ctx) const;
@@ -295,7 +298,9 @@ private:  // Direct task related methods
   double SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
   double SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
   double Task_SpinN1(cTaskContext& ctx) const;
+  double Task_SpinN2(cTaskContext& ctx) const;
   double Task_SpinW1(cTaskContext& ctx) const;
+  double Task_SpinW2(cTaskContext& ctx) const;	
   double Task_MultTrans(cTaskContext& ctx) const;  
 };
 

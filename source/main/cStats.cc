@@ -996,3 +996,46 @@ void cStats::PrintSenseExeData(const cString& filename)
   }
   df.Endl();
 }
+
+
+void cStats::PrintUMLData(const cString& filename)
+{
+	cDataFile& df = m_world->GetDataFile(filename);
+
+	df.WriteComment( "Avida uml data\n" );
+	df.WriteComment("the average number of transitions and states per organism");
+	df.WriteTimeStamp();
+	df.Write( GetUpdate(), "update" );
+	df.Write( av_number_of_states.Average(), "av num states");
+	df.Write( av_number_of_trans.Average(), "av num trans");
+	df.Write( av_number_of_triggers.Average(), "av num triggers");
+	df.Write( av_number_of_guards.Average(), "av num guards");
+	df.Write( av_number_of_actions.Average(), "av num actions");
+	df.Write( av_number_of_state_diagrams.Average(), "av num state diagrams");
+	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
+	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
+	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
+	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
+	df.Write( m_spinPassed.Sum(), "total number of spin passes" );
+	df.Write( m_panAttempt.Sum(), "total number of pan attempts" );
+	df.Write( m_panPassed.Sum(), "total number of pan passes" );
+	
+	av_number_of_states.Clear();
+	av_number_of_trans.Clear();
+	av_number_of_triggers.Clear();
+	av_number_of_guards.Clear();
+	av_number_of_actions.Clear();
+	av_number_of_state_diagrams.Clear();
+	
+	av_number_of_trans_lab.Clear();
+
+  m_hydraAttempt.Clear();
+  m_hydraPassed.Clear();
+  m_spinAttempt.Clear();
+  m_spinPassed.Clear();
+  m_panAttempt.Clear();
+  m_panPassed.Clear();
+
+
+df.Endl();
+}
