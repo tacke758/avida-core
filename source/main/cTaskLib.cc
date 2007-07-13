@@ -3136,7 +3136,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	temp4= ctx.organism->getUMLModel()->getBonusInfo("scenario4");
 	
 	if (!((ctx.organism->getUMLModel()->getBonusInfo("scenario1") == 2) && 
-	//	(ctx.organism->getUMLModel()->getBonusInfo("scenario2") == 2) && 
+		(ctx.organism->getUMLModel()->getBonusInfo("scenario2") == 2) && 
 		(ctx.organism->getUMLModel()->getBonusInfo("scenario3") == 3) && 
 		(ctx.organism->getUMLModel()->getBonusInfo("scenario4") == 3))) {
 		ctx.organism->getUMLModel()->setBonusInfo("hydra", bonus);
