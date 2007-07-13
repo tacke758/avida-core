@@ -275,6 +275,28 @@ private:  // Direct task related methods
   // Network Tasks
   double Task_NetSend(cTaskContext& ctx) const;
   double Task_NetReceive(cTaskContext& ctx) const;
+  
+    // UML Tasks
+  double Task_Trans1(cTaskContext& ctx) const;
+  double Task_Trans2(cTaskContext& ctx) const;
+  double Task_Trans3(cTaskContext& ctx) const;
+  double Task_Trans4(cTaskContext& ctx) const;   
+  double Task_Trans5(cTaskContext& ctx) const;
+  double Task_Trans6(cTaskContext& ctx) const;
+  double Task_Trans7(cTaskContext& ctx) const;
+  double Task_Trans8(cTaskContext& ctx) const;
+  double Task_Trans9(cTaskContext& ctx) const;   
+  double Task_Trans10(cTaskContext& ctx) const;
+  double Task_Scenario1(cTaskContext& ctx) const;
+  double Task_NumStates(cTaskContext& ctx) const;
+  double Task_NumTrans(cTaskContext& ctx) const;
+  double Task_PropTrigger(cTaskContext& ctx) const;
+  double Task_Hydra(cTaskContext& ctx) const;
+  double SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
+  double SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
+  double Task_SpinN1(cTaskContext& ctx) const;
+  double Task_SpinW1(cTaskContext& ctx) const;
+  double Task_MultTrans(cTaskContext& ctx) const;  
 };
 
 

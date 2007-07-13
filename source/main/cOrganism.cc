@@ -88,6 +88,16 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
+  
+  /*  m_state_diag = 1;
+*/
+  m_orig_state_index = 0;
+  m_dest_state_index = 0;
+/*  m_trigger_index = 0;
+  m_guard_index = 0;
+  m_action_index = 0;*/
+  m_model.seedDiagrams();	
+  m_parent_xmi = "";
 }
 
 
@@ -582,3 +592,234 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 
   m_phenotype.IncErrors();
 }
+/// UML Functions /// 
+/// This function is a copy of DoOutput /// 
+void cOrganism::modelCheck(cAvidaContext& ctx)
+{
+	if(GetCellID()==-1) return;
+	m_model.printXMI();	
+
+ assert(m_interface);
+  const tArray<double> & resource_count = m_interface->GetResources();
+
+  tList<tBuffer<int> > other_input_list;
+  tList<tBuffer<int> > other_output_list;
+
+  // If tasks require us to consider neighbor inputs, collect them...
+  if (m_world->GetEnvironment().UseNeighborInput()) {
+    const int num_neighbors = m_interface->GetNumNeighbors();
+    for (int i = 0; i < num_neighbors; i++) {
+      m_interface->Rotate();
+      cOrganism * cur_neighbor = m_interface->GetNeighbor();
+      if (cur_neighbor == NULL) continue;
+
+      other_input_list.Push( &(cur_neighbor->m_input_buf) );
+    }
+  }
+
+  // If tasks require us to consider neighbor outputs, collect them...
+  if (m_world->GetEnvironment().UseNeighborOutput()) {
+    const int num_neighbors = m_interface->GetNumNeighbors();
+    for (int i = 0; i < num_neighbors; i++) {
+      m_interface->Rotate();
+      cOrganism * cur_neighbor = m_interface->GetNeighbor();
+      if (cur_neighbor == NULL) continue;
+
+      other_output_list.Push( &(cur_neighbor->m_output_buf) );
+    }
+  }
+  
+ // bool net_valid = false;
+ // if (m_net) net_valid = NetValidate(ctx, value);
+
+  // Do the testing of tasks performed...
+
+  // if on IO add value to m_output_buf, if on divide don't need to
+  //if (!on_divide) m_output_buf.Add(value);
+  
+  tArray<double> res_change(resource_count.GetSize());
+  tArray<int> insts_triggered;
+  bool clear_input = false;
+
+  tBuffer<int>* received_messages_point = &m_received_messages;
+  if (!m_world->GetConfig().SAVE_RECEIVED.Get()) received_messages_point = NULL;
+  
+  cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, other_output_list, 0, 0, 0, received_messages_point, this);
+  m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
+  m_interface->UpdateResources(res_change);
+
+  for (int i = 0; i < insts_triggered.GetSize(); i++) {
+    const int cur_inst = insts_triggered[i];
+    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst));
+  }
+  
+  if (clear_input) m_input_buf.Clear();
+ 
+	m_world->GetStats().addState(m_model.numStates());
+	m_world->GetStats().addTrans(m_model.numTrans());
+	m_world->GetStats().addTriggers(m_model.numTriggers());
+	m_world->GetStats().addGuards(m_model.numGuards());
+	m_world->GetStats().addActions(m_model.numActions());
+	m_world->GetStats().addStateDiagrams(m_model.numSDs());
+	
+//	m_world->GetStats().addTransLabel(transition_labels.size());
+
+  
+  
+}
+
+cUMLModel* cOrganism::getUMLModel()
+{
+	cUMLModel* temp_mod;
+	
+	temp_mod = &m_model;
+	return temp_mod;
+}
+
+bool cOrganism::absoluteJumpStateDiagram (int amount )
+{
+	m_state_diag = 0;
+	return relativeJumpStateDiagram(amount);
+}
+
+bool cOrganism::relativeJumpStateDiagram (int amount )
+{
+	int size = getUMLModel()->getStateDiagramSize();
+	
+	if (size == 0) {
+		return false;
+	}
+	
+	if (size > 0) { 
+		m_state_diag += (amount % size);
+
+		// index is greater than vector
+		if (m_state_diag >= size) { 
+			m_state_diag -= size;
+		} else if(m_state_diag < 0) { 
+			m_state_diag += size;
+		}
+	}	
+		
+	return true;
+}
+
+cUMLStateDiagram* cOrganism::getStateDiagram() 
+{ 
+	int m = m_state_diag;
+	return getUMLModel()->getStateDiagram(m); 
+
+}
+
+// Determines if this is the transition the organism is about to add
+/*bool cOrganism::currTrans (int sd, int orig, int dest, int tr, int gu, int act)
+{
+	// check if it is manipulating this diagram 
+	if (sd != m_state_diag) return false;
+	
+	cUMLStateDiagram* s = getUMLModel()->getStateDiagram(m_state_diag); 
+	s->absoluteJumpOriginState(m_orig_state_index);
+	s->absoluteJumpDestinationState(m_dest_state_index);
+	s->absoluteJumpTrigger(m_trigger_index);
+	s->absoluteJumpGuard(m_guard_index);
+	s->absoluteJumpAction(m_action_index);
+	
+	return (s->currTrans(orig, dest, tr, gu, act));
+
+}
+*/
+/*
+bool cOrganism::absoluteJumpGuard(int amount) 
+{
+	m_guard_index = 0;
+	return (relativeJumpGuard(amount));
+}
+
+bool cOrganism::absoluteJumpAction(int amount)
+{
+	m_action_index = 0;
+	return (relativeJumpAction(amount));
+
+}
+
+bool cOrganism::absoluteJumpTrigger(int amount)
+{
+	m_trigger_index = 0;
+	return (relativeJumpTrigger(amount));
+}
+
+bool cOrganism::absoluteJumpTransitionLabel(int amount)
+{
+	m_trans_label_index =0;
+	return (relativeJumpTransitionLabel(amount));
+}
+*/
+
+bool cOrganism::absoluteJumpOriginState(int amount)
+{
+	m_orig_state_index = 0;
+	return (relativeJumpOriginState(amount));
+}
+
+bool cOrganism::absoluteJumpDestinationState(int amount)
+{
+	m_dest_state_index = 0;
+	return (relativeJumpDestinationState(amount));
+}
+
+
+bool cOrganism::addTransitionTotal() 
+{
+	bool val;
+//	val = getStateDiagram()->addTransitionTotal(m_orig_state_index, m_dest_state_index, m_trigger_index, m_guard_index, m_action_index);
+	val = getStateDiagram()->addTransitionTotal();
+
+	
+/*	if (val) {
+		m_orig_state_index = 0;
+		m_dest_state_index = 0;
+		m_trigger_index = 0;
+		m_action_index = 0;
+		m_guard_index = 0;
+	}	*/
+	
+	return val;
+}
+/*
+
+bool cOrganism::relativeJumpGuard(int amount)
+{ 
+	m_guard_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpAction(int amount) 
+{ 
+	m_action_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpTrigger(int amount) 
+{ 
+	m_trigger_index += amount; 
+	return true;
+}
+  
+bool cOrganism::relativeJumpTransitionLabel(int amount) 
+{ 
+	m_trans_label_index += amount; 
+	return true;
+}
+*/
+bool cOrganism::relativeJumpOriginState(int amount) 
+{ 
+	m_orig_state_index += amount; 
+	return true;
+}
+
+bool cOrganism::relativeJumpDestinationState(int amount) 
+{ 
+	m_dest_state_index += amount; 
+	return true;
+}
+

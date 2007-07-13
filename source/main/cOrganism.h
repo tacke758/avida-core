@@ -67,6 +67,12 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
+#ifndef _C_UMLMODEL_H_
+#include "cUMLModel.h"
+#endif
+#ifndef _C_UMLSTATEDIAGRAM_H_
+#include "cUMLStateDiagram.h"
+#endif
 
 
 class cAvidaContext;
@@ -116,6 +122,19 @@ protected:
   int m_max_executed;      // Max number of instruction executed before death.  
   bool m_is_running;       // Does this organism have the CPU?
   bool m_is_sleeping;      // Is this organisms sleeping?
+  
+  // UML
+  int m_state_diag;			// Index of the state diagram that the organism is currently
+							// manipulating
+  int m_orig_state_index;
+  int m_dest_state_index;
+/*  int m_trans_label_index;
+  int m_trigger_index;
+  int m_guard_index;
+  int m_action_index;*/	
+  cUMLModel m_model;		
+  std::string m_parent_xmi; 
+  std::map<std::string, float> m_parent_bonus;  
   
   class cNetSupport
   {
@@ -288,6 +307,49 @@ public:
   bool GetSterilizePos() const;
   double GetNeutralMin() const;
   double GetNeutralMax() const;
+  
+ // UML
+  void modelCheck(cAvidaContext& ctx);
+  cUMLModel* getUMLModel();
+//  cUMLModel* getParentUMLModel() { return m_parent_model; } 
+  std::string getParentXMI() { return m_parent_xmi; }
+  int getStateDiagramIndex() { return m_state_diag; } 
+//  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
+//  bool firstStateDiagram() { m_state_diag = 0; }  
+  bool currTrans (int, int, int, int, int, int); 
+  cUMLStateDiagram* getStateDiagram();
+//  void printStats();
+//  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
+  void setParentXMI(std::string s) { m_parent_xmi = s; } 
+  void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
+  float getParentBonus (std::string s) { return m_parent_bonus[s]; }
+  std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
+  
+
+ 
+// The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
+/*
+  bool absoluteJumpGuard(int);
+  bool absoluteJumpAction(int);
+  bool absoluteJumpTrigger(int);
+  bool absoluteJumpTransitionLabel(int);
+*/
+  bool absoluteJumpOriginState(int);
+
+  bool absoluteJumpDestinationState(int);
+  bool absoluteJumpStateDiagram (int);
+/*
+  bool relativeJumpGuard(int amount);
+  bool relativeJumpAction(int amount);
+  bool relativeJumpTrigger(int amount);
+  bool relativeJumpTransitionLabel(int amount);
+*/
+  bool relativeJumpOriginState(int amount);
+  bool relativeJumpDestinationState(int amount);
+  bool relativeJumpStateDiagram (int); 
+ 
+  bool addTransitionTotal();
+ 
 };
 
 

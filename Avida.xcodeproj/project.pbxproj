@@ -350,6 +350,10 @@
 /* Begin PBXFileReference section */
 		1097463D0AE9606E00929ED6 /* cDeme.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cDeme.cc; sourceTree = "<group>"; };
 		1097463E0AE9606E00929ED6 /* cDeme.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cDeme.h; sourceTree = "<group>"; };
+		3EDCA0150C46C9B70078778D /* cUMLModel.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLModel.cc; sourceTree = "<group>"; };
+		3EDCA0160C46C9B70078778D /* cUMLModel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cUMLModel.h; sourceTree = "<group>"; };
+		3EDCA0170C46C9B70078778D /* cUMLStateDiagram.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLStateDiagram.cc; sourceTree = "<group>"; };
+		3EDCA0180C46C9B70078778D /* cUMLStateDiagram.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cUMLStateDiagram.h; sourceTree = "<group>"; };
 		4201F39A0BE187F6006279B9 /* cTopology.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cTopology.h; sourceTree = "<group>"; };
 		423335880BC067E3000DF681 /* cHardwareGX.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cHardwareGX.cc; sourceTree = "<group>"; };
 		423335890BC067E3000DF681 /* cHardwareGX.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cHardwareGX.h; sourceTree = "<group>"; };
@@ -830,7 +834,7 @@
 		DCC315CE076253A5008F7A48 /* environment.rotate */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = environment.rotate; sourceTree = "<group>"; };
 		DCC315D0076253A5008F7A48 /* task_event_gen.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = task_event_gen.cc; sourceTree = "<group>"; };
 		DCC315D1076253A5008F7A48 /* task_event_gen.old.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = task_event_gen.old.cc; sourceTree = "<group>"; };
-		DCC3164D07626CF3008F7A48 /* avida */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = avida; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCC3164D07626CF3008F7A48 /* avida */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = avida; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1357,6 +1361,10 @@
 		DCC310040762539D008F7A48 /* main */ = {
 			isa = PBXGroup;
 			children = (
+				3EDCA0150C46C9B70078778D /* cUMLModel.cc */,
+				3EDCA0160C46C9B70078778D /* cUMLModel.h */,
+				3EDCA0170C46C9B70078778D /* cUMLStateDiagram.cc */,
+				3EDCA0180C46C9B70078778D /* cUMLStateDiagram.h */,
 				42490EFE0BE2472800318058 /* cGermline.h */,
 				706C6F480B83E69D003174C1 /* cSaleItem.h */,
 				708BF3010AB65DD300A923BF /* cEventList.h */,
@@ -2143,6 +2151,7 @@
 		7023EC350C0A42BC00362B9C /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "avida-core";
 			};
 			name = Development;
@@ -2150,6 +2159,7 @@
 		7023EC360C0A42BC00362B9C /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "avida-core";
 			};
 			name = Deployment;
@@ -2157,6 +2167,7 @@
 		7023EC370C0A42BC00362B9C /* Deployment-G5 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "avida-core";
 			};
 			name = "Deployment-G5";
@@ -2164,6 +2175,7 @@
 		7023EC380C0A42BC00362B9C /* Deployment-Universal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "avida-core";
 			};
 			name = "Deployment-Universal";
@@ -2171,6 +2183,7 @@
 		7023EC390C0A42BC00362B9C /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "avida-core";
 			};
 			name = Profile;
@@ -2222,7 +2235,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
-				HEADER_SEARCH_PATHS = /usr/local/boost;
+				HEADER_SEARCH_PATHS = /opt/local/include;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2235,6 +2248,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				HEADER_SEARCH_PATHS = /opt/local/include;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2333,6 +2347,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				HEADER_SEARCH_PATHS = /opt/local/include;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2345,6 +2360,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				HEADER_SEARCH_PATHS = /opt/local/include;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2586,6 +2602,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				HEADER_SEARCH_PATHS = /opt/local/include;
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,

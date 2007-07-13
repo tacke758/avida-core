@@ -87,6 +87,8 @@ STATS_OUT_FILE(PrintGenotypeMap,            genotype_map.m      );
 STATS_OUT_FILE(PrintMarketData,             market.dat          );
 STATS_OUT_FILE(PrintSenseData,              sense.dat           );
 STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
+STATS_OUT_FILE(PrintUMLData,				uml.dat			    );
+
 
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
@@ -2447,6 +2449,10 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpTaskGrid>("dump_task_grid");
   action_lib->Register<cActionDumpDonorGrid>("dump_donor_grid");
   action_lib->Register<cActionDumpReceiverGrid>("dump_receiver_grid");
+  
+  // UML 
+  action_lib->Register<cActionPrintUMLData>("PrintUMLData");
+
 
   action_lib->Register<cActionSetVerbose>("VERBOSE");
 }

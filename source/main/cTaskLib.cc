@@ -382,7 +382,46 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
     NewTask(name, "Successfully Received Network Message", &cTaskLib::Task_NetReceive);
   
   
-  
+      // UML tasks
+  else if (name == "trans1") // 
+	  NewTask(name, "Successfully created trans 1", &cTaskLib::Task_Trans1);
+  else if (name == "trans2") // 
+	  NewTask(name, "Successfully created trans 2", &cTaskLib::Task_Trans2);	  
+  else if (name == "trans3") // 
+	  NewTask(name, "Successfully created trans 3", &cTaskLib::Task_Trans3);
+  else if (name == "trans4") // 
+	  NewTask(name, "Successfully created trans 4", &cTaskLib::Task_Trans4);
+  else if (name == "trans5") // 
+	  NewTask(name, "Successfully created trans 5", &cTaskLib::Task_Trans5);
+  else if (name == "trans6") // 
+	  NewTask(name, "Successfully created trans 6", &cTaskLib::Task_Trans6);
+  else if (name == "trans7") // 
+	  NewTask(name, "Successfully created trans 7", &cTaskLib::Task_Trans7);	  
+  else if (name == "trans8") // 
+	  NewTask(name, "Successfully created trans 8", &cTaskLib::Task_Trans8);
+  else if (name == "trans9") // 
+	  NewTask(name, "Successfully created trans 9", &cTaskLib::Task_Trans9);
+  else if (name == "trans10") // 
+	  NewTask(name, "Successfully created trans 10", &cTaskLib::Task_Trans10);	  
+  else if (name == "scene-1") // 
+	  NewTask(name, "Successfully created scenario 1", &cTaskLib::Task_Scenario1);
+  else if (name == "numStates") // 
+	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
+  else if (name == "numTrans") // 
+	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);
+  else if (name == "prop-tr") // 
+	  NewTask(name, "Diagram included trigger", &cTaskLib::Task_PropTrigger);	
+  else if (name == "hydra") // 
+	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
+  else if (name == "spin1") // 
+	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN1);	  
+  else if (name == "spin-w1") // 
+	  NewTask(name, "Successfully ran Spin witness trace", &cTaskLib::Task_SpinW1);
+  else if (name == "mult_trans") // 
+	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);
+	  
+	 
+
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
     if (errors != NULL && errors->GetSize() == 0) {
@@ -2701,4 +2740,477 @@ double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 {
   if (ctx.NetIsValid()) return 1.0;
   return 0.0;
+}
+
+
+
+double cTaskLib::Task_Trans1(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+	
+	//Init 	
+	ctx.task_success_complete = true;	
+
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(0, 1, 1, 2, 3))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 1, 0, 0, 0))
+	{
+	//	ctx.task_success_complete += 1;	
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+}
+
+double cTaskLib::Task_Trans2(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(1, 2, 0, 0, 0))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 2, 0, 0, 2))
+	{
+			bonus = 1.0;
+	}
+
+	ctx.task_success_complete = ctx.task_success_complete && bonus;		
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans3(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(2, 3, 0, 3, 1))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 3, 2, 0, 0))
+	{
+			bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans4(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
+// tagaaa
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(3, 4, 2, 1, 2))
+// temp sensor
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 1, 0, 0, 0))
+	{
+			bonus = 1.0;
+	}
+
+	ctx.task_success_complete = ctx.task_success_complete && bonus;		
+	return bonus;
+
+}
+  
+double cTaskLib::Task_Trans5(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
+	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(4, 0, 3, 0, 0))
+	{		
+			bonus = 1.0;
+	}
+
+	ctx.task_success_complete = ctx.task_success_complete && bonus;		
+	return bonus;
+
+}
+
+
+double cTaskLib::Task_Trans6(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, "^TempSensor.getOpState()")) {		
+//	if (ctx.organism->currTrans(1, -1, -1, -1, -1, 1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(0, 4, 2, 1, 0))
+	{
+		bonus = 1.0;
+	}
+
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+}
+
+double cTaskLib::Task_Trans7(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "setTempOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(1, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(4, 1, 0, 1, 0))
+	{
+			bonus = 1.0;
+	}
+
+	ctx.task_success_complete = ctx.task_success_complete && bonus;		
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans8(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, "getOpState", -1, -1)) {		
+//	if (ctx.organism->currTrans(0, -1, -1, 1, -1, -1)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, 1, -1, -1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(1, 3, 1, 1, 1))
+	{
+			bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+
+}
+
+double cTaskLib::Task_Trans9(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "op_state:=1")) {		
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, 3)) {		
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 3))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(3, 2, 2, 0, 3))
+	{
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+
+}
+  
+double cTaskLib::Task_Trans10(cTaskContext& ctx) const
+{
+	double bonus = 0.0;
+//	if (ctx.organism->currTrans(0, -1, -1, -1, -1, "^SoftwareSensor.setTempOpState(op_state)")) {		
+	//if (ctx.organism->currTrans(0, -1, -1, -1, -1, 1)) 
+//	if (ctx.organism->getUMLModel()->getStateDiagram(0)->findTrans(-1, -1, -1, -1, 1))
+	if (ctx.organism->getUMLModel()->getStateDiagram(1)->findTrans(2, 4, 3, 2, 1))
+	{		
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
+}
+
+double cTaskLib::Task_Scenario1(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	
+	// Check if the tasks are complete so far... 
+	// This provides a basic ordering mechanism for the tasks.
+	if (!ctx.task_success_complete) {
+		return 0;
+	}	
+	
+	// Check if this model is different than the organism's parent's model
+	if (ctx.organism->getParentXMI() != ctx.organism->getUMLModel()->getXMI()) {
+		
+		// create the scenario
+		path1.push_back("^TempSensor.getOpState()");
+		path1.push_back("setTempOpState");
+	
+		// check for scneario
+		bonus = ((ctx.organism->getUMLModel()->getStateDiagram(1)->findPath(path1)) / path1.size());
+	} else { 
+		bonus = ctx.organism->getParentBonus("scenario1"); 
+	}
+	
+	// Set bonus info for current model
+	ctx.organism->getUMLModel()->setBonusInfo("scenario1", bonus);		
+		
+	if (bonus == 1) { 
+		ctx.task_success_complete = true;
+	} else { 
+		ctx.task_success_complete = false;	
+	}
+	
+	return bonus;
+}
+
+
+double cTaskLib::Task_NumStates(cTaskContext& ctx) const
+{
+	double ns = (double) ctx.organism->getStateDiagram()->numStates();
+	
+	if (ns <= 5 ) {
+		return (ns/5); 
+	} else{
+		return 0.0;
+	}
+	
+}
+
+double cTaskLib::Task_NumTrans(cTaskContext& ctx) const
+{
+	double nt = (double) ctx.organism->getStateDiagram()->numTrans();
+	
+	if (nt <= 5 ) {
+		return (nt/5); 
+	} else{
+		return 1;
+	}
+}
+
+
+double cTaskLib::Task_Hydra(cTaskContext& ctx) const
+{
+	cOrganism* organism = ctx.organism;
+	std::string temp;
+	double bonus = 0.0;
+
+
+	temp = organism->getUMLModel()->getXMI();
+	
+	if (!ctx.task_success_complete) {
+		return 0;
+	}
+	
+	
+	m_world->GetStats().HydraAttempt();
+
+	if (ctx.organism->getParentXMI() == temp) {
+	
+		bonus = ctx.organism->getParentBonus("hydra"); 
+		if (bonus) ctx.task_success_complete = true;
+		ctx.organism->getUMLModel()->setBonusInfo("hydra", bonus);	
+		return bonus;
+	}		
+
+
+	unsigned int status_total = 0;
+	int status=0;
+
+	int to_subavida[2]={0};
+	int from_subavida[2]={0};
+	
+	pipe(to_subavida); //write to 1, read from 0
+	pipe(from_subavida);
+	
+	pid_t subavida = fork();
+	if(subavida == 0) {
+		//child
+		close(to_subavida[1]);
+		close(from_subavida[0]);
+		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
+		dup2(from_subavida[1], STDOUT_FILENO);
+		execl("/usr/bin/java", "-cp .", "-jar", "./hydraulic.jar", NULL);
+		// We don't ever get here.
+	} 
+	//parent
+	close(to_subavida[0]);
+	close(from_subavida[1]);
+
+	// At this point, forget about subavida - It's running.
+	// Write the model to to_subavida[1].  Close to_subavida[1] (which wakes up subavida).
+	// Then, read from from_subavida[0] as long as is possible, after which point subavida will die.
+
+	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
+	do {
+		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
+		if (status < 0) {
+			break;
+		} else {
+			 status_total += status;
+		}
+	} while (status_total < temp.size());
+	close(to_subavida[1]); // Wakes up subavida.
+
+	// Time passes...
+
+	// Read the output from subavida.  Keep reading until subavida closes the pipe.
+	const int read_size=128; // The number of bytes that we're going to try to read from subavida.
+	std::string subavida_output;
+	char line[read_size]={0};
+	do {
+		status = read(from_subavida[0], line, read_size-1);
+		if(status > 0) {
+			subavida_output += line;
+			memset(line, 0, read_size);
+		}
+	} while(((status==-1) && (errno == EINTR)) || (status>0));
+
+	// Done with subavida.
+	close(from_subavida[0]);
+	// Make sure that subavida dies.
+	pid_t done=0;
+	while((done=waitpid(subavida, &status, 0))==-1 && (errno == EINTR)); 
+	assert(done==subavida);
+	
+	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
+	if(status != 0) {
+//		organism->setBonusInfo("hydra", 0.0); 
+		ctx.task_success_complete = false;	
+		bonus =  0.0;
+	} else {
+		m_world->GetStats().HydraPassed();
+//		organism->setBonusInfo("hydra", 1.0); 
+		ctx.task_success_complete = true;	
+		bonus = 1.0;
+	}
+	
+	ctx.organism->getUMLModel()->setBonusInfo("hydra", bonus);	
+	return bonus;
+	
+}
+
+
+double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
+	cOrganism* organism = ctx.organism;
+	m_world->GetStats().SpinAttempt();
+	int status=0;
+	
+	// break inserted on 6/24
+	organism->absoluteJumpStateDiagram(1);
+	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
+		status += 1;
+	}
+
+	
+	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
+	if(system(cmd.c_str())!=0) return 0.0;
+	m_world->GetStats().SpinPassed();
+	m_world->GetStats().PanAttempt();
+	
+	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
+	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
+	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
+//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
+	
+	std::cout << "I AM HERE" << std::endl;
+	std::ostringstream strstrm;
+	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
+	strstrm << ".xml";	
+	if(system(strstrm.str().c_str())!=0) return 0.0;
+			
+	m_world->GetStats().PanPassed();
+	return 1.0;
+}
+ 
+double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
+	cOrganism* organism = ctx.organism;
+//	m_world->GetStats().SpinAttempt();
+	int status=0;
+	int num_witness = 0;
+	
+	ctx.task_success_complete = false;
+	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
+	if(system(cmd.c_str())!=0) return 0.0;
+	
+	cmd = "cat " + neverclaimFile + " >> tmp-witness.pr && ./spin -a tmp-witness.pr &> /dev/null";
+	if(system(cmd.c_str())!=0) return 0.0;
+//	m_world->GetStats().SpinPassed();
+//	m_world->GetStats().PanAttempt();
+	
+	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
+	if(system("./pan -e -n -a -w19  -m100000 -c5 &> ./pan.out")!=0) return 0.0;
+	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
+//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
+	
+	
+//	std::ostringstream strstrm;
+//	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
+//	strstrm << ".xml";	
+//	if(system(strstrm.str().c_str())!=0) return 0.0;
+			
+//	m_world->GetStats().PanPassed();
+
+	ctx.task_success_complete = num_witness;
+	return num_witness;
+}
+
+double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
+	//cOrganism* organism = ctx.organism;
+	double bonus = 0.0;
+	
+	if (!ctx.task_success_complete) return bonus;
+	
+	if (ctx.organism->getParentXMI() == ctx.organism->getUMLModel()->getXMI()) {
+	
+		bonus = ctx.organism->getParentBonus("spinn1"); 
+//		return bonus;
+	}	else {
+	
+		bonus = SpinCoprocess(ctx, "N1");
+	}
+	
+	if (bonus) {
+		ctx.task_success_complete = true;
+	} else { 
+		ctx.task_success_complete = false;
+	}
+	ctx.organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
+
+	return bonus;
+}
+
+
+
+double cTaskLib::Task_SpinW1(cTaskContext& ctx) const { 
+//	cOrganism* organism = ctx.organism;
+//	double temp1 = 0.0;
+	double bonus = 0.0;
+	if (!ctx.task_success_complete) return bonus;
+	
+	if (ctx.organism->getParentXMI() == ctx.organism->getUMLModel()->getXMI()) {	
+		bonus = ctx.organism->getParentBonus("spinw1"); 
+//		return bonus;
+	}	else {
+	
+		bonus = SpinWitnessCoprocess(ctx, "W1");
+	}
+	
+	if (bonus) {
+		ctx.task_success_complete = true;
+	} else { 
+		ctx.task_success_complete = false;
+	}
+	ctx.organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
+
+	return bonus;
+}
+
+double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
+	return (2^ctx.task_success_complete);
+}
+
+
+double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
+	// This task checks for the trigger of the property.
+	cOrganism* organism = ctx.organism;
+	double bonus = 0.0;
+	
+	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
+		bonus = 1.0;
+	}
+	
+	ctx.task_success_complete = ctx.task_success_complete && bonus;	
+	return bonus;
 }
