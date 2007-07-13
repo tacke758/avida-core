@@ -230,6 +230,8 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cResourceLib.cc
   ${MAIN_DIR}/cSpatialCountElem.cc
   ${MAIN_DIR}/cSpatialResCount.cc
+  ${MAIN_DIR}/cUMLModel.cc
+  ${MAIN_DIR}/cUMLStateDiagram.cc
   ${MAIN_DIR}/cStats.cc
   ${MAIN_DIR}/cTaskLib.cc
   ${MAIN_DIR}/cWorld.cc
