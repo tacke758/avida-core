@@ -58,7 +58,8 @@ void cUMLModel::seedDiagrams()
 	int num_sd = 0;
 	int cur_sd = -1;
 //	char c;
-	std::string tr_l, tr_o, gu, act;
+	std::string tr_l, tr_o, gu, act, temp;
+	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::ifstream infile;
 	infile.open("seed-model.cfg");
 	assert(infile.is_open());
@@ -107,11 +108,20 @@ void cUMLModel::seedDiagrams()
 //				std::cout << "Adding an action " << act << std::endl;
 				infile >> act;
 			}
+		} else if (line == "-TRANSITIONS---------------") { 
+			line.erase();
+			infile >> temp; 
+			while (temp != "-END---------------------------") { 
+//				std::cout << "Ug in here again. Curr sd: " << cur_sd << std::endl;
+				infile >> orig_i >> dest_i >> trig_i >> guard_i >> act_i; 
+				state_diagrams[cur_sd].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
+				infile >> temp; 
+			}
+		
 		}
-		
-		/* Missing code for reading in transition labels and transitions.... */
-		
 
+		
+		/* Missing code for reading in transition labels .... */
 		
 		line.erase();
 	}
@@ -130,12 +140,11 @@ void cUMLModel::printXMI()
 //	int v;
 	
 	xmi = xmi_begin; 
-	
-//	xmi += xmi_class1;
-//	xmi += state_diagrams[0].getXMI();
-//	xmi += xmi_class2;
+	xmi += xmi_class1;
+	xmi += state_diagrams[0].getXMI("sd0");	
+	xmi += xmi_class2;
 //	state_diagrams[1].printXMI();
-	xmi += state_diagrams[1].getXMI();
+	xmi += state_diagrams[1].getXMI("sd1");
 
 	xmi += xmi_end;
 	

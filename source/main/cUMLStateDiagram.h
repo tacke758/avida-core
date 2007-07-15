@@ -64,8 +64,8 @@ public:
   cUMLStateDiagram();
   ~cUMLStateDiagram();
 
-  void printXMI();	 // print the XMI version of the model
-  std::string getXMI (); // get the xmi string (including beginning & end read from file.)
+  void printXMI(std::string);	 // print the XMI version of the model
+  std::string getXMI (std::string); // get the xmi string (including beginning & end read from file.)
   std::string StringifyAnInt(int);
   int numStates();
   int numTrans();
@@ -148,6 +148,7 @@ struct transition_writer {
 
 //  bool addTransition();
   bool addTransitionTotal();
+  bool addTransitionTotal(int, int, int, int, int);
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);

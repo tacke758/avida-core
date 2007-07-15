@@ -369,6 +369,15 @@ bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
 	return true;
 }
 
+bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a) { 
+	absoluteJumpGuard(g);
+	absoluteJumpAction(a);
+	absoluteJumpTrigger(t);
+	absoluteJumpOriginState(o);
+	absoluteJumpDestinationState(d);	
+	return addTransitionTotal();
+
+}
 
 bool cUMLStateDiagram::addTransitionTotal()
 {
@@ -462,17 +471,19 @@ void cUMLStateDiagram::printGraphViz() {
 
 }
 
-std::string cUMLStateDiagram::getXMI()
+std::string cUMLStateDiagram::getXMI(std::string name)
 {
-	printXMI();
+	printXMI(name);
 	return (xmi);
 }
 
-void cUMLStateDiagram::printXMI()
+void cUMLStateDiagram::printXMI(std::string name)
 {
 	std::string temp, temp1, temp2, temp3;
 	std::string trig_label, trig_op_name;
+	std::string sd = name;
 	
+
 	boost::graph_traits<state_diagram>::edge_iterator edge_start, edge_end;
 	boost::graph_traits<state_diagram>::edge_descriptor ed;
 
@@ -484,12 +495,12 @@ void cUMLStateDiagram::printXMI()
 	// edge or not.
 	if (numStates() > 0) {
 		temp = "_1";
-		xmi += "<UML:Pseudostate xmi.id=\"s" + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
+		xmi += "<UML:Pseudostate xmi.id=\"" + sd + "s"  + temp + "\" kind=\"initial\" outgoing=\"\" name=\"s";
 		xmi += temp + "\" isSpecification=\"false\"/>\n";
 	}
 	
 	for (; s_count < numStates(); ++s_count) {
-				temp = "s" + StringifyAnInt(s_count);
+				temp = sd + "s" + StringifyAnInt(s_count);
 			xmi+="<UML:CompositeState xmi.id=\"";
 			xmi+=temp;
 			xmi+= "\" isConcurrent=\"false\" name=\""; 
@@ -505,7 +516,6 @@ void cUMLStateDiagram::printXMI()
 		// start the set of transitions...
 		xmi+="<UML:StateMachine.transitions>\n";
 
-
 	// Get the set of transitions.
 	for (tie(edge_start, edge_end) = edges(sd0);
 			 edge_start != edge_end; ++edge_start) {
@@ -513,9 +523,9 @@ void cUMLStateDiagram::printXMI()
 		ed = *edge_start;
 	 	 
 		// info determined from the trans itself....
-		temp = "t" + StringifyAnInt(t_count);
-		temp1 = "s" + StringifyAnInt(source(ed, sd0));
-		temp2 = "s" + StringifyAnInt(target(ed, sd0));
+		temp = sd + "t" + StringifyAnInt(t_count);
+		temp1 = sd + "s" + StringifyAnInt(source(ed, sd0));
+		temp2 = sd + "s" + StringifyAnInt(target(ed, sd0));
 		temp3 = temp + temp1 + temp2;
 		
 		xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
@@ -559,9 +569,9 @@ void cUMLStateDiagram::printXMI()
 	}
 	
 	// Add one transition to connect the init state to state 0
-	temp = "t" + StringifyAnInt(t_count);
-	temp1 = "s" + StringifyAnInt(-1);
-	temp2 = "s" + StringifyAnInt(0);
+	temp = sd + "t" + StringifyAnInt(t_count);
+	temp1 = sd + "s" + StringifyAnInt(-1);
+	temp2 = sd + "s" + StringifyAnInt(0);
 	temp3 = temp + temp1 + temp2;
 
 	xmi+= "<UML:Transition xmi.id=\"" + temp3 + "\"";
@@ -571,5 +581,6 @@ void cUMLStateDiagram::printXMI()
 		
 	return;
 }
+
 
 
