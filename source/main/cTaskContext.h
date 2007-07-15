@@ -58,23 +58,19 @@ private:
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
-  
-
-
+    
   // for optimize tasks actual value of function org is outputting, for all others nothing
   // implemented for now...
   double m_task_value;	
 
   cTaskEntry* m_task_entry;
   tHashTable<void*, cTaskState*>* m_task_states;
+  
+  // For UML branch 
+  cOrganism* organism;  
 
 
 public:
-
-  // For UML branch - Note: should eventually be made private.
-  bool m_task_success_complete;
-  cOrganism* organism;
-  
 
   cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
@@ -93,7 +89,7 @@ public:
     , m_task_entry(NULL)
     , m_task_states(NULL)
 	, organism(in_org)
-	, m_task_success_complete(true)
+//	, m_task_success_complete(true)
   {
 	  m_task_value = 0;
   }
@@ -111,6 +107,11 @@ public:
   inline bool GetOnDivide() const { return m_on_divide; }
   inline void SetTaskValue(double v) { m_task_value = v; }
   inline double GetTaskValue() { return m_task_value; }
+  
+  // for UML branch 
+  cOrganism* getOrganism() { return organism; } 
+//  bool getTaskSuccessComplete() { return m_task_success_complete; }
+//  void setTaskSuccessComplete( bool x ) { m_task_success_complete = x; } 
   
   inline void SetTaskEntry(cTaskEntry* in_entry) { m_task_entry = in_entry; }
   inline cTaskEntry* GetTaskEntry() { return m_task_entry; }

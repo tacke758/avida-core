@@ -42,7 +42,7 @@ cUMLModel::cUMLModel()
 cUMLModel::~cUMLModel()
 {}
 
-cUMLStateDiagram* cUMLModel::getStateDiagram (int x) 
+cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
 {
   assert(x<state_diagrams.size());
   return &state_diagrams[x];
@@ -57,7 +57,7 @@ void cUMLModel::seedDiagrams()
 	int num_states;
 	int num_sd = 0;
 	int cur_sd = -1;
-	char c;
+//	char c;
 	std::string tr_l, tr_o, gu, act;
 	std::ifstream infile;
 	infile.open("seed-model.cfg");
@@ -150,7 +150,7 @@ std::string cUMLModel::getXMI()
 int cUMLModel::numStates() 
 { 
 	int temp_states = 0;
-	for (int i=0; i<state_diagrams.size(); i++) { 
+	for (unsigned int i=0; i<state_diagrams.size(); i++) { 
 		temp_states += getStateDiagram(i)->numStates();
 	}
 	return temp_states;
@@ -159,7 +159,7 @@ int cUMLModel::numStates()
 int cUMLModel::numTrans()
 {
 int temp_trans = 0;
-	for (int i=0; i<state_diagrams.size(); i++) { 
+	for (unsigned int i=0; i<state_diagrams.size(); i++) { 
 		temp_trans += getStateDiagram(i)->numTrans();
 	}
 	return temp_trans;
@@ -168,7 +168,7 @@ int temp_trans = 0;
 int cUMLModel::numTriggers()
 {
 int temp_trigger = 0;
-	for (int i=0; i<state_diagrams.size(); i++) { 
+	for (unsigned int i=0; i<state_diagrams.size(); i++) { 
 		temp_trigger += getStateDiagram(i)->numTriggers();
 	}
 	return temp_trigger;
@@ -177,7 +177,7 @@ int temp_trigger = 0;
 int cUMLModel::numGuards() 
 {
 int temp = 0;
-	for (int i=0; i<state_diagrams.size(); i++) { 
+	for (unsigned int i=0; i<state_diagrams.size(); i++) { 
 		temp += getStateDiagram(i)->numGuards();
 	}
 	return temp;
@@ -186,7 +186,7 @@ int temp = 0;
 int cUMLModel::numActions()
 {
 int temp = 0;
-	for (int i=0; i<state_diagrams.size(); i++) { 
+	for (unsigned int i=0; i<state_diagrams.size(); i++) { 
 		temp += getStateDiagram(i)->numActions();
 	}
 	return temp;

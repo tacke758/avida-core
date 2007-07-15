@@ -647,7 +647,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
   
   // Edited for UML branch
   cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, 
-                       other_output_list, 0, 0, 0, received_messages_point);
+                       other_output_list, 0, 0, 0, received_messages_point, this);
   bool task_completed = m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() && m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 1 && task_completed) {

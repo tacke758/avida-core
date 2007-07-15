@@ -25,11 +25,11 @@ public:
 	void printXMI(); // create the XMI version of the model.	
 	
 	// Access the size of the state diagrams and also a specific state diagram
-	int getStateDiagramSize() { return state_diagrams.size(); } 
-	cUMLStateDiagram* getStateDiagram (int); 
+	unsigned int getStateDiagramSize() { return state_diagrams.size(); } 
+	cUMLStateDiagram* getStateDiagram (unsigned int); 
 	
 	// Set and access the bonus info for a model. Should be used by the tasks
-	bool setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
+	void setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
 	float getBonusInfo (std::string s) { return bonus_info[s]; }
 	
 	// Get the number of, well, everything

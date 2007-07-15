@@ -31,10 +31,10 @@ cUMLStateDiagram::~cUMLStateDiagram()
 // The function is complicated by the fact that the longest path segment could start at the 
 // beginning, middle, or end of the path itself AND the path could begin at any reachable vertex. 
 int cUMLStateDiagram::findPath(std::deque<std::string> p) { 
-	int path_dist = 0; // the current path distance satisfied is 0. 
+	unsigned int path_dist = 0; // the current path distance satisfied is 0. 
 //	int path_total_length = p.size();
-	int path_longest_length = 0; 
-	int len = 0;
+//	int path_longest_length = 0; 
+	unsigned int len = 0;
 	int num_vert = num_vertices(sd0);
 	std::deque<std::string> p_temp = p;
 
@@ -111,6 +111,7 @@ bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, 
 {
 
 	bool result = false;
+	int num_vert = (int) num_vertices(sd0); 
 	
 	if (num_edges(sd0) == 0) { 
 		return false;
@@ -135,7 +136,7 @@ bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, 
 			}	
 		}
 	} else if (origin == -1 && destination != -1) { 
-		if (destination > num_vertices(sd0)) return result;
+		if (destination > num_vert) return result;
 		d_temp = vertex(destination, sd0);
 		for (tie(in_edge_start, in_edge_end) = in_edges(d_temp, sd0);
 			 in_edge_start != in_edge_end; ++in_edge_start) { 
@@ -148,7 +149,7 @@ bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, 
 			}	
 		}
 	} else if (origin != -1 && destination == -1) { 
-		if (origin > num_vertices(sd0)) return result;
+		if (origin > num_vert) return result;
 		o_temp = vertex(origin, sd0);
 
 		for(tie(out_edge_start, out_edge_end) = out_edges(o_temp, sd0);
@@ -162,8 +163,8 @@ bool cUMLStateDiagram::findTrans(int origin, int destination, int trig, int gu, 
 			}	
 		}
 	} else if (origin != -1 && destination != -1) { 
-		if ((destination > num_vertices(sd0)) || 
-			(origin > num_vertices(sd0))) return result;
+		if ((destination > num_vert) || 
+			(origin > num_vert)) return result;
 		o_temp = vertex(origin, sd0);
 		d_temp = vertex(destination, sd0);
 		for(tie(out_edge_start, out_edge_end) = edge_range (o_temp, d_temp, sd0);
@@ -188,7 +189,8 @@ template <typename T>
 bool cUMLStateDiagram::absoluteMoveIndex (T x, int &index, int amount )
 {
 
-	if (x.size() == 0 || amount > x.size()) {
+	int x_size = (int) x.size();
+	if (x_size == 0 || amount > x_size) {
 		return false;
 	}
 	
@@ -199,18 +201,20 @@ bool cUMLStateDiagram::absoluteMoveIndex (T x, int &index, int amount )
 template <typename T>
 bool cUMLStateDiagram::relativeMoveIndex (T x, int &index, int amount )
 {
-	if (x.size() == 0) {
+	int x_size = (int) x.size();
+
+	if (x_size == 0) {
 		return false;
 	}
 	
 	if (amount > 0) { 
-		index += (amount % x.size());
+		index += (amount % x_size);
 
 		// index is greater than vector
-		if (index >= x.size()) { 
-			index -= x.size();
+		if (index >= x_size) { 
+			index -= x_size;
 		} else if(index < 0) { 
-			index += x.size();
+			index += x_size;
 		}
 	}	
 		
@@ -242,9 +246,9 @@ bool cUMLStateDiagram::absoluteJumpTransitionLabel(int jump_amount)
 bool cUMLStateDiagram::absoluteJumpOriginState(int jump_amount) 
 {	
 	bool result = false;
-	int x = num_vertices(sd0);
+	int num_vert = (int) num_vertices(sd0);
 	
-	if (num_vertices(sd0) > jump_amount) {  	
+	if (num_vert > jump_amount) {  	
 		orig = vertex(jump_amount, sd0);
 		result = true;
 	}
@@ -254,7 +258,9 @@ bool cUMLStateDiagram::absoluteJumpOriginState(int jump_amount)
 bool cUMLStateDiagram::absoluteJumpDestinationState(int jump_amount) 
 {	
 	bool result = false;
-	if (num_vertices(sd0) > jump_amount) {  	
+	int num_vert = (int) num_vertices(sd0);
+
+	if (num_vert > jump_amount) {  	
 		dest = vertex(jump_amount, sd0);
 		result = true;
 	}
@@ -359,6 +365,8 @@ bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
 	// currently, not checking for dupes, since we are seeding the labels.
 	
 	transition_labels.push_back(t);
+	
+	return true;
 }
 
 

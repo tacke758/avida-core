@@ -3994,6 +3994,10 @@ bool cHardwareCPU::Inst_HeadDivideMut(cAvidaContext& ctx, double mut_multiplier)
 
 bool cHardwareCPU::Inst_HeadDivide(cAvidaContext& ctx)
 {
+
+  // modified for UML branch
+  organism->modelCheck(ctx);
+
   return Inst_HeadDivideMut(ctx, 1);
   
 }

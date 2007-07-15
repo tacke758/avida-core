@@ -122,20 +122,7 @@ protected:
   int m_max_executed;      // Max number of instruction executed before death.  
   bool m_is_running;       // Does this organism have the CPU?
   bool m_is_sleeping;      // Is this organisms sleeping?
-  
-  // UML
-  int m_state_diag;			// Index of the state diagram that the organism is currently
-							// manipulating
-  int m_orig_state_index;
-  int m_dest_state_index;
-/*  int m_trans_label_index;
-  int m_trigger_index;
-  int m_guard_index;
-  int m_action_index;*/	
-  cUMLModel m_model;		
-  std::string m_parent_xmi; 
-  std::map<std::string, float> m_parent_bonus;  
-  
+    
   class cNetSupport
   {
   public:
@@ -150,6 +137,18 @@ protected:
   };
   cNetSupport* m_net;
 
+  // UML
+  int m_state_diag;			// Index of the state diagram that the organism is currently
+							// manipulating
+  int m_orig_state_index;
+  int m_dest_state_index;
+/*  int m_trans_label_index;
+  int m_trigger_index;
+  int m_guard_index;
+  int m_action_index;*/	
+  cUMLModel m_model;		
+  std::string m_parent_xmi; 
+  std::map<std::string, float> m_parent_bonus;  
 
   cOrganism(); // @not_implemented
   cOrganism(const cOrganism&); // @not_implemented

@@ -301,7 +301,7 @@ private:  // Direct task related methods
   double Task_SpinN2(cTaskContext& ctx) const;
   double Task_SpinW1(cTaskContext& ctx) const;
   double Task_SpinW2(cTaskContext& ctx) const;	
-  double Task_MultTrans(cTaskContext& ctx) const;  
+//  double Task_MultTrans(cTaskContext& ctx) const;  
 };
 
 
