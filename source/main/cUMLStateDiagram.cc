@@ -38,26 +38,31 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p) {
 	int num_vert = num_vertices(sd0);
 	std::deque<std::string> p_temp = p;
 
-
-
-	// Must start at state 0. 
-	// Must check each state. 
-	while (!p.empty()) {
-
-	for (int i = 0; i<num_vert; i++) { 
-			len = checkForPathStep(p, vertex(i, sd0), 0);
-			// check to see if this path is longer than other paths....
-			if (len > path_dist) { 
-				path_dist = len;
+	// Entire path must start at state 0. 
+	len = checkForPathStep(p, vertex(0, sd0), 0);
+	// If this returns a length, then the path is found & we can exit.
+	if (len > 0) { 
+		path_dist = len;
+	} else { 
+	// Else, check for partial paths, which can start from anywhere... 
+		p.pop_front();
+		// Must check each state other than state 0.
+		while (!p.empty()) {
+			for (int i = 1; i<num_vert; i++) { 
+				len = checkForPathStep(p, vertex(i, sd0), 0);
+				// check to see if this path is longer than other paths....
+				if (len > path_dist) { 
+					path_dist = len;
+				}	
 			}	
-		}
-		p.pop_front(); 
+			p.pop_front(); 
 		
-		if (len > p.size()) break;
-	}
+			if (len > p.size()) break;
+		} 
+	 
+	} 
+	
 	return path_dist;
-	
-	
 }
 
 int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path, 
@@ -386,12 +391,14 @@ bool cUMLStateDiagram::addTransitionTotal()
 		return false;
 	} 
 		
+/*  // Removed on 7/17/2007 - The scenarios should take care of this problem.
 	// Check that the origin state of the transition is reachable.
 	boost::graph_traits<state_diagram>::in_edge_iterator in_start, in_end;
 	tie (in_start, in_end) = in_edges(orig, sd0);
 	if ((in_start == in_end) && (orig != vertex(0, sd0))) { 
 		return false;
 	}
+*/	
 
 	// Check that there is not a duplicate transition
 	if (findTrans(orig, dest, trigger_index, guard_index, action_index)) { 
