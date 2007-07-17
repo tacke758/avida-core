@@ -3317,7 +3317,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 	
-	if (organism->getUMLModel()->getBonusInfo("w1") == 0)	
+	if (organism->getUMLModel()->getBonusInfo("spinw1") == 0)	
 	{ 
 		return bonus;
 	}
@@ -3380,7 +3380,7 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 	
-	if (organism->getUMLModel()->getBonusInfo("w2") == 0)	
+	if (organism->getUMLModel()->getBonusInfo("spinw2") == 0)	
 	{ 
 		return bonus;
 	}
