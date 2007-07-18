@@ -42,6 +42,22 @@ cUMLModel::cUMLModel()
 cUMLModel::~cUMLModel()
 {}
 
+float cUMLModel::getBonusInfo (std::string s)  
+{ 
+	float val;
+	std::map<std::string, float>::iterator bonus_info_pointer;
+	
+	bonus_info_pointer = bonus_info.find(s);
+	
+	if (bonus_info_pointer != bonus_info.end()) { 
+		val = bonus_info[s];
+	} else { 
+		val = 0;
+	}
+	return val; 
+}
+
+
 cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
 {
   assert(x<state_diagrams.size());

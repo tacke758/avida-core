@@ -30,8 +30,8 @@ public:
 	
 	// Set and access the bonus info for a model. Should be used by the tasks
 	void setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
-	float getBonusInfo (std::string s) { return bonus_info[s]; }
-	
+	float getBonusInfo (std::string);  
+		
 	// Get the number of, well, everything
 	int numStates();
 	int numTrans();
