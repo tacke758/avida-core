@@ -3142,10 +3142,11 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	temp3= organism->getUMLModel()->getBonusInfo("scenario3");
 	temp4= organism->getUMLModel()->getBonusInfo("scenario4");
 	
-	if (!((organism->getUMLModel()->getBonusInfo("scenario1") == 2) ||
-		(organism->getUMLModel()->getBonusInfo("scenario2") == 2) || 
-		(organism->getUMLModel()->getBonusInfo("scenario3") == 3) || 
-		(organism->getUMLModel()->getBonusInfo("scenario4") == 3))) {
+	if ((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
+//		(organism->getUMLModel()->getBonusInfo("scenario2") != 2) || 
+		(organism->getUMLModel()->getBonusInfo("scenario3") != 3) //|| 
+//		(organism->getUMLModel()->getBonusInfo("scenario4") != 3)
+		) {
 		
 		organism->getUMLModel()->setBonusInfo("hydra", bonus);
 		
@@ -3268,7 +3269,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	
 //	std::cout << "I AM HERE" << std::endl;
 	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
+	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << organism->GetID();
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
@@ -3351,7 +3352,7 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	
 	if	((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
 		(organism->getUMLModel()->getBonusInfo("scenario3") != 3) || 
-		(organism->getUMLModel()->getBonusInfo("scenario4") != 3) ||
+//		(organism->getUMLModel()->getBonusInfo("scenario4") != 3) ||
 		(organism->getUMLModel()->getBonusInfo("hydra") == 0))	
 	{ 
 		return bonus;
