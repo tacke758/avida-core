@@ -1015,10 +1015,15 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
 	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
 	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
-	df.Write( m_spinAttempt.Sum(), "total number of spin attempts" );
-	df.Write( m_spinPassed.Sum(), "total number of spin passes" );
-	df.Write( m_panAttempt.Sum(), "total number of pan attempts" );
-	df.Write( m_panPassed.Sum(), "total number of pan passes" );
+	df.Write( m_W1Attempt.Sum(), "total number of spin W1 attempts" );
+	df.Write( m_W1Passed.Sum(), "total number of spin W1 passes" );
+	df.Write( m_W2Attempt.Sum(), "total number of spin W2 attempts" );
+	df.Write( m_W2Passed.Sum(), "total number of spin W2 passes" );
+	df.Write( m_N1Attempt.Sum(), "total number of spin N1 attempts" );
+	df.Write( m_N1Passed.Sum(), "total number of spin N1 passes" );
+	df.Write( m_N2Attempt.Sum(), "total number of spin N2 attempts" );
+	df.Write( m_N2Passed.Sum(), "total number of spin N2 passes" );
+	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
 	
 	av_number_of_states.Clear();
 	av_number_of_trans.Clear();
@@ -1031,10 +1036,15 @@ void cStats::PrintUMLData(const cString& filename)
 
   m_hydraAttempt.Clear();
   m_hydraPassed.Clear();
-  m_spinAttempt.Clear();
-  m_spinPassed.Clear();
-  m_panAttempt.Clear();
-  m_panPassed.Clear();
+  m_N1Attempt.Clear();
+  m_N2Attempt.Clear();
+  m_W1Attempt.Clear();
+  m_W2Attempt.Clear();
+  m_N1Passed.Clear();
+  m_N2Passed.Clear();
+  m_W1Passed.Clear();
+  m_W2Passed.Clear();
+  m_N1andN2Passed.Clear();
 
 
 df.Endl();

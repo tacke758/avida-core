@@ -260,10 +260,16 @@ private:
   cDoubleSum av_number_of_trans_lab;
   cDoubleSum m_hydraAttempt;
   cDoubleSum m_hydraPassed;
-  cDoubleSum m_spinAttempt;
-  cDoubleSum m_spinPassed;
-  cDoubleSum m_panAttempt;
-  cDoubleSum m_panPassed;
+  cDoubleSum m_N1Attempt;
+  cDoubleSum m_N1Passed;
+  cDoubleSum m_N2Attempt;
+  cDoubleSum m_N2Passed;
+  cDoubleSum m_W1Attempt;
+  cDoubleSum m_W1Passed;
+  cDoubleSum m_W2Attempt;
+  cDoubleSum m_W2Passed;
+  cDoubleSum m_N1andN2Passed;
+
 
 
   cStats(); // @not_implemented
@@ -636,11 +642,15 @@ public:
   void addTransLabel(int x) { av_number_of_trans_lab.Add(x); }
   void HydraAttempt() { m_hydraAttempt.Add(1); }
   void HydraPassed() { m_hydraPassed.Add(1); }
-  void SpinAttempt() { m_spinAttempt.Add(1); }
-  void SpinPassed() { m_spinPassed.Add(1); }
-  void PanAttempt() { m_panAttempt.Add(1); }
-  void PanPassed() { m_panPassed.Add(1); }
-
+  void N1Attempt() { m_N1Attempt.Add(1); }
+  void N1Passed() { m_N1Passed.Add(1); }
+  void N2Attempt() { m_N2Attempt.Add(1); }
+  void N2Passed() { m_N2Passed.Add(1); }
+  void W1Attempt() { m_W1Attempt.Add(1); }
+  void W1Passed() { m_W1Passed.Add(1); }
+  void W2Attempt() { m_W2Attempt.Add(1); }
+  void W2Passed() { m_W2Passed.Add(1); }
+  void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
   
 };
 

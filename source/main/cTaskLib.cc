@@ -3247,71 +3247,41 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 
 double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
 	cOrganism* organism = ctx.getOrganism();
-	m_world->GetStats().SpinAttempt();
-//	int status=0;
-	
-/*	// break inserted on 6/24
-	organism->absoluteJumpStateDiagram(1);
-	if (organism->getStateDiagram()->findTrans(-1,-1,-1,-1,1)){
-		status += 1;
-	}*/
-
 	
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
-	m_world->GetStats().SpinPassed();
-	m_world->GetStats().PanAttempt();
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 //	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
-	
-//	std::cout << "I AM HERE" << std::endl;
-	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-	strstrm << ".xml";	
-	if(system(strstrm.str().c_str())!=0) return 0.0;
+
+
+// Commented out to remove overhead...	
+//	std::ostringstream strstrm;
+//	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << organism->GetID();
+//	strstrm << ".xml";	
+//	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
-	m_world->GetStats().PanPassed();
 	return 1.0;
 }
  
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-//	cOrganism* organism = ctx.organism;
-//	m_world->GetStats().SpinAttempt();
-//	int status=0;
 	int num_witness = 0;
 	const int max_witness = 5;
 	
-//	ctx.m_task_success_complete = false;
 	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	cmd = "cat " + neverclaimFile + " >> tmp-witness.pr && ./spin -a tmp-witness.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
-//	m_world->GetStats().SpinPassed();
-//	m_world->GetStats().PanAttempt();
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -e -n -a -w19  -m100000 -c5 &> ./pan.out")!=0) return 0.0;
 	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
-//	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.0;
-	
-	
-//	std::ostringstream strstrm;
-//	strstrm << "cp tmp.xmi " << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-//	strstrm << ".xml";	
-//	if(system(strstrm.str().c_str())!=0) return 0.0;
-			
-//	m_world->GetStats().PanPassed();
 
-	/*if (num_witness == max_witness) { 
-		ctx.m_task_success_complete = true;
-	} else { 
-		ctx.m_task_success_complete = false;	
-	}*/	
-	return (num_witness/max_witness);
+	return (1 + (num_witness/max_witness));
+
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
@@ -3320,6 +3290,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	
 	if (organism->getUMLModel()->getBonusInfo("spinw1") == 0)	
 	{ 
+		organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
 		return bonus;
 	}
 
@@ -3327,17 +3298,11 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
 	
 		bonus = organism->getParentBonus("spinn1"); 
-//		return bonus;
 	}	else {
 	
 		bonus = SpinCoprocess(ctx, "N1");
 	}
 	
-	/*if (bonus) {
-		ctx.m_task_success_complete = true;
-	} else { 
-		ctx.m_task_success_complete = false;
-	}*/
 	organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
 
 	return bonus;
@@ -3347,7 +3312,6 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 
 double cTaskLib::Task_SpinW1(cTaskContext& ctx) const { 
 	cOrganism* organism = ctx.getOrganism();
-//	double temp1 = 0.0;
 	double bonus = 0.0;
 	
 	if	((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
@@ -3360,17 +3324,11 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	
 	if ((organism->getParentXMI()) == (organism->getUMLModel()->getXMI())) {	
 		bonus = organism->getParentBonus("spinw1"); 
-//		return bonus;
 	}	else {
 	
 		bonus = SpinWitnessCoprocess(ctx, "W1");
 	}
 	
-	/*if (bonus) {
-		ctx.m_task_success_complete = true;
-	} else { 
-		ctx.m_task_success_complete = false;
-	}*/
 	organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
 
 	return bonus;
@@ -3383,23 +3341,18 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	
 	if (organism->getUMLModel()->getBonusInfo("spinw2") == 0)	
 	{ 
+		organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
 		return bonus;
 	}
 	
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
 	
 		bonus = organism->getParentBonus("spinn2"); 
-//		return bonus;
 	}	else {
 	
 		bonus = SpinCoprocess(ctx, "N2");
 	}
 	
-	/*if (bonus) {
-		ctx.m_task_success_complete = true;
-	} else { 
-		ctx.m_task_success_complete = false;
-	}*/
 	organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
 
 	return bonus;
@@ -3409,7 +3362,6 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 
 double cTaskLib::Task_SpinW2(cTaskContext& ctx) const { 
 	cOrganism* organism = ctx.getOrganism();
-//	double temp1 = 0.0;
 	double bonus = 0.0;
 
 	if	((organism->getUMLModel()->getBonusInfo("scenario2") != 2) ||
@@ -3421,26 +3373,16 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 		
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {	
 		bonus = organism->getParentBonus("spinw2"); 
-//		return bonus;
 	}	else {
 	
 		bonus = SpinWitnessCoprocess(ctx, "W2");
 	}
-	
-	/*if (bonus) {
-		ctx.m_task_success_complete = true;
-	} else { 
-		ctx.m_task_success_complete = false;
-	}*/
+
 	organism->getUMLModel()->setBonusInfo("spinw2", bonus);	
 
 	return bonus;
 }
 
-
-/*double cTaskLib::Task_MultTrans(cTaskContext& ctx) const {
-	return (2^ctx.m_task_success_complete);
-}*/
 
 
 double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
