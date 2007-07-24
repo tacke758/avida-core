@@ -30,6 +30,7 @@ std::string cUMLModel::xmi_begin = loadFile("xmi_begin");
 std::string cUMLModel::xmi_end = loadFile("xmi_end");
 std::string cUMLModel::xmi_class1 = loadFile("class1_xmi");
 std::string cUMLModel::xmi_class2 = loadFile("class2_xmi");
+int cUMLModel::max_trans = 0;
 
 
 cUMLModel::cUMLModel()

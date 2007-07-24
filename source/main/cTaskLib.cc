@@ -430,6 +430,9 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully ran Spin", &cTaskLib::Task_SpinN2);	  
   else if (name == "spin-w2") // 
 	  NewTask(name, "Successfully ran Spin witness trace", &cTaskLib::Task_SpinW2);
+  else if (name == "min-trans") // 
+	  NewTask(name, "Minimizing edges", &cTaskLib::Task_MinTrans);	
+
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -3162,7 +3165,6 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	if (organism->getParentXMI() == temp) {
 	
 		bonus = organism->getParentBonus("hydra"); 
-		//if (bonus) ctx.m_task_success_complete = true;
 		organism->getUMLModel()->setBonusInfo("hydra", bonus);	
 		return bonus;
 	}		
@@ -3228,14 +3230,10 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	assert(done==subavida);
 	
 	// if there are no errors, return 0 from hydraulic.  otherwise, return non-zero.
-	if(status != 0) {
-//		organism->setBonusInfo("hydra", 0.0); 
-//		ctx.m_task_success_complete = false;	
+	if(status != 0) {	
 		bonus =  0.0;
 	} else {
 		m_world->GetStats().HydraPassed();
-//		organism->setBonusInfo("hydra", 1.0); 
-//		ctx.m_task_success_complete = true;	
 		bonus = 1.0;
 	}
 	
@@ -3246,7 +3244,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 
 
 double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-	cOrganism* organism = ctx.getOrganism();
+//	cOrganism* organism = ctx.getOrganism();
 	
 	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
@@ -3263,7 +3261,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 //	strstrm << ".xml";	
 //	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
-	return 1.0;
+	return 5.0;
 }
  
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
@@ -3287,7 +3285,7 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
-	
+		
 	if (organism->getUMLModel()->getBonusInfo("spinw1") == 0)	
 	{ 
 		organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
@@ -3295,6 +3293,9 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	}
 
 	
+	m_world->GetStats().N1Attempt();
+
+
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
 	
 		bonus = organism->getParentBonus("spinn1"); 
@@ -3304,6 +3305,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	}
 	
 	organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
+	if (bonus > 0) 	m_world->GetStats().N1Passed();
 
 	return bonus;
 }
@@ -3314,6 +3316,7 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 	
+	
 	if	((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
 		(organism->getUMLModel()->getBonusInfo("scenario3") != 3) || 
 //		(organism->getUMLModel()->getBonusInfo("scenario4") != 3) ||
@@ -3321,6 +3324,9 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	{ 
 		return bonus;
 	}
+	
+	m_world->GetStats().W1Attempt();
+
 	
 	if ((organism->getParentXMI()) == (organism->getUMLModel()->getXMI())) {	
 		bonus = organism->getParentBonus("spinw1"); 
@@ -3330,6 +3336,8 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	}
 	
 	organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
+	if (bonus > 0) 	m_world->GetStats().W1Passed();
+	
 
 	return bonus;
 }
@@ -3345,6 +3353,9 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 		return bonus;
 	}
 	
+	m_world->GetStats().N2Attempt();
+
+	
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
 	
 		bonus = organism->getParentBonus("spinn2"); 
@@ -3354,6 +3365,7 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	}
 	
 	organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
+	if (bonus > 0) 	m_world->GetStats().N2Passed();
 
 	return bonus;
 }
@@ -3369,7 +3381,8 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 	{ 
 		return bonus;
 	}
-
+	
+	m_world->GetStats().W2Attempt();
 		
 	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {	
 		bonus = organism->getParentBonus("spinw2"); 
@@ -3379,6 +3392,7 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 	}
 
 	organism->getUMLModel()->setBonusInfo("spinw2", bonus);	
+	if (bonus > 0) 	m_world->GetStats().W2Passed();
 
 	return bonus;
 }
@@ -3394,6 +3408,32 @@ double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
 		bonus = 1.0;
 	}
 	
-//	ctx.m_task_success_complete = ctx.m_task_success_complete && bonus;	
 	return bonus;
 }
+
+double cTaskLib::Task_MinTrans(cTaskContext& ctx) const { 
+	// This task rewards organisms for having fewer edges
+	cOrganism* organism = ctx.getOrganism();
+	cUMLModel* mod = organism->getUMLModel();
+	double bonus = 0.0;
+	int mt, nt;
+		
+		
+	if ((organism->getUMLModel()->getBonusInfo("spinw1") == 0)	 &&
+		(organism->getUMLModel()->getBonusInfo("spinw2") == 0)) { 
+			return bonus;
+	}
+	
+	// Ok. Subtract the number of edges from the maximum number of edges seen so far. 
+	mt = mod->getMaxTrans();
+	nt = mod->numTrans();
+	
+	if (mt > 0) {
+		bonus = 1 + mt - nt;
+		bonus /= mt;
+	}	
+	
+	return bonus;
+
+}
+

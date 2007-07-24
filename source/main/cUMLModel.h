@@ -24,6 +24,10 @@ public:
 	std::string getXMI(); // get the XMI version of the model.
 	void printXMI(); // create the XMI version of the model.	
 	
+	// Used to update and get the max number of trans. 
+	int getMaxTrans() { return max_trans; } 
+	void setMaxTrans( int m ) { max_trans = m; } 
+	
 	// Access the size of the state diagrams and also a specific state diagram
 	unsigned int getStateDiagramSize() { return state_diagrams.size(); } 
 	cUMLStateDiagram* getStateDiagram (unsigned int); 
@@ -47,9 +51,12 @@ protected:
 	static std::string xmi_end;
 	static std::string xmi_class1;
 	static std::string xmi_class2;
+	static int max_trans;
 	std::vector<cUMLStateDiagram> state_diagrams;
 	std::map<std::string, float> bonus_info;
 										
 };
+
+
 
 #endif
