@@ -40,7 +40,7 @@ public:
   long S3()           const { return s3; }
   long S4()           const { return s4; }
 
-  double Average() const { return (n > 1) ? ((double)s1/n) : 0; }
+  double Average() const { return (n > 0) ? ((double)s1/n) : 0; }
 
   double Variance() const { return (n > 1) ? (s2 - s1*s1/(double)n) / (double)(n-1) : INF_ERR; }
   double StdDeviation() const { return sqrt(Variance()); }
