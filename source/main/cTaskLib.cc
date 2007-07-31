@@ -3135,6 +3135,11 @@ double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
 		bonus = org->getParentBonus("scenario5"); 
 	}
 	
+	// Track in stats.
+	if (bonus == 7) { 
+		m_world->GetStats().scenario5Complete();
+	}
+	
 	// Set bonus info for current model
 	org->getUMLModel()->setBonusInfo("scenario5", bonus);		
 	
@@ -3163,6 +3168,11 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 
 	} else { 
 		bonus = org->getParentBonus("scenario6"); 
+	}
+	
+	// Track in stats.
+	if (bonus == 5) { 
+		m_world->GetStats().scenario6Complete();
 	}
 	
 	// Set bonus info for current model

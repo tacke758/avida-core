@@ -269,6 +269,8 @@ private:
   cDoubleSum m_W2Attempt;
   cDoubleSum m_W2Passed;
   cDoubleSum m_N1andN2Passed;
+  cDoubleSum m_scenario5;
+  cDoubleSum m_scenario6;
 
 
 
@@ -651,6 +653,9 @@ public:
   void W2Attempt() { m_W2Attempt.Add(1); }
   void W2Passed() { m_W2Passed.Add(1); }
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
+  void scenario5Complete() { m_scenario5.Add(1); } 
+  void scenario6Complete() { m_scenario6.Add(1); } 
+    
   
 };
 

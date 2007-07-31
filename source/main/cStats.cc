@@ -1024,6 +1024,9 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_N2Attempt.Sum(), "total number of spin N2 attempts" );
 	df.Write( m_N2Passed.Sum(), "total number of spin N2 passes" );
 	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
+	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
+	df.Write( m_scenario6.Sum(), "total number of scenario 5 all transitions");
+
 	
 	av_number_of_states.Clear();
 	av_number_of_trans.Clear();
@@ -1045,6 +1048,8 @@ void cStats::PrintUMLData(const cString& filename)
   m_W1Passed.Clear();
   m_W2Passed.Clear();
   m_N1andN2Passed.Clear();
+  m_scenario5.Clear();
+  m_scenario6.Clear();
 
 
 df.Endl();
