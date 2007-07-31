@@ -92,7 +92,8 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 			if (tg == "<null>") tg = "";
 			if (ta == "<null>") ta = "";
 			
-			ts = tt + tg + ta;
+			ts = tt + "[" + tg + "]" + "/" + ta;
+//			std::cout << "transition named: " << ts << std::endl;
 			
 			
 			if (ts == path.front()) { 

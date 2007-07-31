@@ -414,6 +414,10 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created scenario 3", &cTaskLib::Task_Scenario3);
   else if (name == "scene-4") // 
 	  NewTask(name, "Successfully created scenario 4", &cTaskLib::Task_Scenario4);	  
+  else if (name == "scene-5") // 
+	  NewTask(name, "Successfully created scenario 5", &cTaskLib::Task_Scenario5);
+  else if (name == "scene-6") // 
+	  NewTask(name, "Successfully created scenario 6", &cTaskLib::Task_Scenario6);	
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -3102,6 +3106,67 @@ double cTaskLib::Task_Scenario4(cTaskContext& ctx) const
 	} else { 
 		ctx.m_task_success_complete = false;	
 	}*/
+	
+	return bonus;
+}
+
+double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	cOrganism* org = ctx.getOrganism();
+		
+	// Check if this model is different than the organism's parent's model
+	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
+		
+		// create the scenario
+		path1.push_back("[]/");
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
+		path1.push_back("stopped[]/");
+		path1.push_back("[]/^NavigationControl.suspend()");
+		
+		// check for scneario
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+
+	} else { 
+		bonus = org->getParentBonus("scenario5"); 
+	}
+	
+	// Set bonus info for current model
+	org->getUMLModel()->setBonusInfo("scenario5", bonus);		
+	
+	return bonus;
+}
+
+double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	cOrganism* org = ctx.getOrganism();
+	
+	// Check if this model is different than the organism's parent's model
+	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
+		
+		// create the scenario
+		path1.push_back("[]/");				
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=0]/");
+		
+	
+		// check for scneario
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+
+	} else { 
+		bonus = org->getParentBonus("scenario6"); 
+	}
+	
+	// Set bonus info for current model
+	org->getUMLModel()->setBonusInfo("scenario6", bonus);		
 	
 	return bonus;
 }

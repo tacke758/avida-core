@@ -161,7 +161,7 @@ void cUMLModel::printXMI()
 	xmi += state_diagrams[0].getXMI("sd0");	
 	xmi += xmi_class2;
 //	state_diagrams[1].printXMI();
-	xmi += state_diagrams[1].getXMI("sd1");
+//	xmi += state_diagrams[1].getXMI("sd1");
 
 	xmi += xmi_end;
 	
