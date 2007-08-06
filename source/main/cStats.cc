@@ -1008,7 +1008,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( GetUpdate(), "update" );
 	df.Write( av_number_of_states.Average(), "av num states");
 	df.Write( av_number_of_trans.Average(), "av num trans");
-	df.Write( av_number_of_triggers.Average(), "av num triggers");
+/*	df.Write( av_number_of_triggers.Average(), "av num triggers");
 	df.Write( av_number_of_guards.Average(), "av num guards");
 	df.Write( av_number_of_actions.Average(), "av num actions");
 	df.Write( av_number_of_state_diagrams.Average(), "av num state diagrams");
@@ -1024,8 +1024,10 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_N2Attempt.Sum(), "total number of spin N2 attempts" );
 	df.Write( m_N2Passed.Sum(), "total number of spin N2 passes" );
 	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
+*/	
 	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
-	df.Write( m_scenario6.Sum(), "total number of scenario 5 all transitions");
+	df.Write( m_scenario5loop.Sum(), "total number of scenario 5 all transitions - might loop");	
+	df.Write( m_scenario6loop.Sum(), "total number of scenario 6 all transitions - might loop");
 
 	
 	av_number_of_states.Clear();
@@ -1034,7 +1036,6 @@ void cStats::PrintUMLData(const cString& filename)
 	av_number_of_guards.Clear();
 	av_number_of_actions.Clear();
 	av_number_of_state_diagrams.Clear();
-	
 	av_number_of_trans_lab.Clear();
 
   m_hydraAttempt.Clear();
@@ -1050,7 +1051,8 @@ void cStats::PrintUMLData(const cString& filename)
   m_N1andN2Passed.Clear();
   m_scenario5.Clear();
   m_scenario6.Clear();
-
+  m_scenario5loop.Clear();
+  m_scenario6loop.Clear();
 
 df.Endl();
 }

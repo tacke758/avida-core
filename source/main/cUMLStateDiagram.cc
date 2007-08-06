@@ -29,10 +29,10 @@ cUMLStateDiagram::~cUMLStateDiagram()
 // This function accepts a path throught the state diagram as a deque and returns the length 
 // of the longest path segment that the diagram satisfies. 
 // The function is complicated by the fact that the longest path segment could start at the 
-// beginning, middle, or end of the path itself AND the path could begin at any reachable vertex. 
+// beginning, middle, or end of the path itself. 
+// Currently the path must begin at the 0 vertex. 
 int cUMLStateDiagram::findPath(std::deque<std::string> p) { 
 	unsigned int path_dist = 0; // the current path distance satisfied is 0. 
-//	int path_total_length = p.size();
 //	int path_longest_length = 0; 
 	unsigned int len = 0;
 	int num_vert = num_vertices(sd0);

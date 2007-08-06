@@ -3120,13 +3120,34 @@ double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
 	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
 		
 		// create the scenario
-		path1.push_back("[]/");
 		path1.push_back("timerEvent[]/");
 		path1.push_back("[]/^SensorInterface.readSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
-		path1.push_back("stopped[]/");
+		path1.push_back("wheelStopped[]/");
 		path1.push_back("[]/^NavigationControl.suspend()");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[]/^NavigationControl.restart()");
+// sequence is repeated to encourage looping.		
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
+		path1.push_back("wheelStopped[]/");
+		path1.push_back("[]/^NavigationControl.suspend()");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[]/^NavigationControl.restart()");
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
+		path1.push_back("wheelStopped[]/");
+		path1.push_back("[]/^NavigationControl.suspend()");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[]/^NavigationControl.restart()");
 		
 		// check for scneario
 		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
@@ -3136,7 +3157,7 @@ double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
 	}
 	
 	// Track in stats.
-	if (bonus == 7) { 
+	if (bonus == 9) { 
 		m_world->GetStats().scenario5Complete();
 	}
 	
@@ -3156,12 +3177,19 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
 		
 		// create the scenario
-		path1.push_back("[]/");				
 		path1.push_back("timerEvent[]/");
 		path1.push_back("[]/^SensorInterface.readSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=0]/");
-		
+// sequence is repeated to encourage looping.		
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=0]/");
+		path1.push_back("timerEvent[]/");
+		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("sensorData[]/");
+		path1.push_back("[obstacle=0]/");
 	
 		// check for scneario
 		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
@@ -3171,9 +3199,9 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 	}
 	
 	// Track in stats.
-	if (bonus == 5) { 
+	if (bonus == 4) { 
 		m_world->GetStats().scenario6Complete();
-	}
+	} 
 	
 	// Set bonus info for current model
 	org->getUMLModel()->setBonusInfo("scenario6", bonus);		
@@ -3498,8 +3526,8 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		(organism->getUMLModel()->getBonusInfo("spinw2") == 0)) { 
 			return bonus;
 	} */
-	if ((organism->getUMLModel()->getBonusInfo("scenario5") != 7) || 
-		(organism->getUMLModel()->getBonusInfo("scenario6") != 5)) { 
+	if ((organism->getUMLModel()->getBonusInfo("scenario5") != 6) || 
+		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
 			return bonus;
 	}
 	
@@ -3511,6 +3539,8 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		bonus = 1 + mt - nt;
 		bonus /= mt;
 	}	
+	
+	if (bonus > 5) bonus = 5;
 	
 	return bonus;
 
