@@ -3121,31 +3121,31 @@ double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
 		
 		// create the scenario
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
 		path1.push_back("wheelStopped[]/");
 		path1.push_back("[]/^NavigationControl.suspend()");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[]/^NavigationControl.restart()");
 // sequence is repeated to encourage looping.		
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
 		path1.push_back("wheelStopped[]/");
 		path1.push_back("[]/^NavigationControl.suspend()");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[]/^NavigationControl.restart()");
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=1]/^WheelActuatorInterface.stop()");
 		path1.push_back("wheelStopped[]/");
 		path1.push_back("[]/^NavigationControl.suspend()");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[]/^NavigationControl.restart()");
 		
@@ -3180,16 +3180,16 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 		
 		// create the scenario
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=0]/");
 // sequence is repeated to encourage looping.		
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=0]/");
 		path1.push_back("timerEvent[]/");
-		path1.push_back("[]/^SensorInterface.readSensor()");
+		path1.push_back("[]/^SensorInterface.readObstacleSensor()");
 		path1.push_back("sensorData[]/");
 		path1.push_back("[obstacle=0]/");
 	
