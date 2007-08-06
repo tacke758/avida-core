@@ -3530,8 +3530,8 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		(organism->getUMLModel()->getBonusInfo("spinw2") == 0)) { 
 			return bonus;
 	} */
-	if ((organism->getUMLModel()->getBonusInfo("scenario5") == 0) || 
-		(organism->getUMLModel()->getBonusInfo("scenario6") == 0)) { 
+	if ((organism->getUMLModel()->getBonusInfo("scenario5") != 9) || 
+		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
 			return bonus;
 	}
 	
