@@ -1026,6 +1026,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
 */	
 	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
+	df.Write( m_scenario6.Sum(), "total number of scenario 6 all transitions");
 	df.Write( m_scenario5loop.Sum(), "total number of scenario 5 all transitions - might loop");	
 	df.Write( m_scenario6loop.Sum(), "total number of scenario 6 all transitions - might loop");
 
