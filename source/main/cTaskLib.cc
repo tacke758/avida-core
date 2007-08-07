@@ -3229,7 +3229,12 @@ double cTaskLib::Task_Scenario7(cTaskContext& ctx) const
 		path1.push_back("[]/^Environment.checkForObstacle()");
 		path1.push_back("setObstacleSensors[]/^ObstacleAvoidanceTimer.sensorData(obstacle)");
 // sequence is repeated to encourage looping.		
-		
+		path1.push_back("readObstacleSensors[]/");
+		path1.push_back("[]/^Environment.checkForObstacle()");
+		path1.push_back("setObstacleSensors[]/^ObstacleAvoidanceTimer.sensorData(obstacle)");		
+		path1.push_back("readObstacleSensors[]/");
+		path1.push_back("[]/^Environment.checkForObstacle()");
+		path1.push_back("setObstacleSensors[]/^ObstacleAvoidanceTimer.sensorData(obstacle)");		
 	
 		// check for scneario
 		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
