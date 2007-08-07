@@ -572,6 +572,8 @@ private:
   bool Inst_OrigState7(cAvidaContext& ctx);
   bool Inst_OrigState8(cAvidaContext& ctx);
   bool Inst_OrigState9(cAvidaContext& ctx);
+  bool Inst_OrigState10(cAvidaContext& ctx);
+  bool Inst_OrigState11(cAvidaContext& ctx);
 
   bool Inst_DestState0(cAvidaContext& ctx);
   bool Inst_DestState1(cAvidaContext& ctx);
@@ -583,6 +585,8 @@ private:
   bool Inst_DestState7(cAvidaContext& ctx);
   bool Inst_DestState8(cAvidaContext& ctx);
   bool Inst_DestState9(cAvidaContext& ctx);
+  bool Inst_DestState10(cAvidaContext& ctx);
+  bool Inst_DestState11(cAvidaContext& ctx);
   
   bool Inst_TransLab0(cAvidaContext& ctx);
   bool Inst_TransLab1(cAvidaContext& ctx);
@@ -601,11 +605,21 @@ private:
   bool Inst_Trigger1(cAvidaContext& ctx);
   bool Inst_Trigger2(cAvidaContext& ctx);
   bool Inst_Trigger3(cAvidaContext& ctx);
+  bool Inst_Trigger4(cAvidaContext& ctx);
+  bool Inst_Trigger5(cAvidaContext& ctx);
+  bool Inst_Trigger6(cAvidaContext& ctx);
+  bool Inst_Trigger7(cAvidaContext& ctx);
+  bool Inst_Trigger8(cAvidaContext& ctx);
+  bool Inst_Trigger9(cAvidaContext& ctx);
+  bool Inst_Trigger10(cAvidaContext& ctx);
+  bool Inst_Trigger11(cAvidaContext& ctx);
   
   bool Inst_Guard0(cAvidaContext& ctx);
   bool Inst_Guard1(cAvidaContext& ctx);
   bool Inst_Guard2(cAvidaContext& ctx);
   bool Inst_Guard3(cAvidaContext& ctx);
+  bool Inst_Guard4(cAvidaContext& ctx);
+
   
   bool Inst_Action0(cAvidaContext& ctx);
   bool Inst_Action1(cAvidaContext& ctx);
@@ -615,6 +629,12 @@ private:
   bool Inst_Action5(cAvidaContext& ctx);
   bool Inst_Action6(cAvidaContext& ctx);
   bool Inst_Action7(cAvidaContext& ctx);
+  bool Inst_Action8(cAvidaContext& ctx);
+  bool Inst_Action9(cAvidaContext& ctx);
+  bool Inst_Action10(cAvidaContext& ctx);
+  bool Inst_Action11(cAvidaContext& ctx);
+  bool Inst_Action12(cAvidaContext& ctx);
+  bool Inst_Action13(cAvidaContext& ctx);
     
 };
 

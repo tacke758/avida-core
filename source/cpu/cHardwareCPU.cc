@@ -408,6 +408,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change the origin to state 8"),
 	tInstLibEntry<tMethod>("s-orig-9", &cHardwareCPU::Inst_OrigState9, false, 
 					"Change the origin to state 9"),
+	tInstLibEntry<tMethod>("s-orig-10", &cHardwareCPU::Inst_OrigState10, false, 
+					"Change the origin to state 10"),
+	tInstLibEntry<tMethod>("s-orig-11", &cHardwareCPU::Inst_OrigState11, false, 
+					"Change the origin to state 11"),
 	tInstLibEntry<tMethod>("s-dest-0", &cHardwareCPU::Inst_DestState0, false, 
 					"Change the destination to state 0"),																																									
 	tInstLibEntry<tMethod>("s-dest-1", &cHardwareCPU::Inst_DestState1, false, 
@@ -427,7 +431,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("s-dest-8", &cHardwareCPU::Inst_DestState8, false, 
 					"Change the destination to state 8"),		
 	tInstLibEntry<tMethod>("s-dest-9", &cHardwareCPU::Inst_DestState9, false, 
-					"Change the destination to state 9"),		
+					"Change the destination to state 9"),	
+	tInstLibEntry<tMethod>("s-dest-10", &cHardwareCPU::Inst_DestState9, false, 
+					"Change the destination to state 10"),
+	tInstLibEntry<tMethod>("s-dest-11", &cHardwareCPU::Inst_DestState9, false, 
+					"Change the destination to state 11"),											
 	tInstLibEntry<tMethod>("trans-0", &cHardwareCPU::Inst_TransLab0, false, 
 					"Change to transition label 0"),		
 	tInstLibEntry<tMethod>("trans-1", &cHardwareCPU::Inst_TransLab1, false, 
@@ -460,7 +468,23 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("trig-2", &cHardwareCPU::Inst_Trigger2, false, 
 					"Change to trigger 2"),	
 	tInstLibEntry<tMethod>("trig-3", &cHardwareCPU::Inst_Trigger3, false, 
-					"Change to trigger 3"),						
+					"Change to trigger 3"),		
+	tInstLibEntry<tMethod>("trig-4", &cHardwareCPU::Inst_Trigger4, false, 
+					"Change to trigger 4"),	
+	tInstLibEntry<tMethod>("trig-5", &cHardwareCPU::Inst_Trigger5, false, 
+					"Change to trigger 5"),	
+	tInstLibEntry<tMethod>("trig-6", &cHardwareCPU::Inst_Trigger6, false, 
+					"Change to trigger 6"),	
+	tInstLibEntry<tMethod>("trig-7", &cHardwareCPU::Inst_Trigger7, false, 
+					"Change to trigger 7"),
+	tInstLibEntry<tMethod>("trig-8", &cHardwareCPU::Inst_Trigger8, false, 
+					"Change to trigger 8"),	
+	tInstLibEntry<tMethod>("trig-9", &cHardwareCPU::Inst_Trigger9, false, 
+					"Change to trigger 9"),	
+	tInstLibEntry<tMethod>("trig-10", &cHardwareCPU::Inst_Trigger10, false, 
+					"Change to trigger 10"),	
+	tInstLibEntry<tMethod>("trig-11", &cHardwareCPU::Inst_Trigger11, false, 
+					"Change to trigger 11"),																
 
 	tInstLibEntry<tMethod>("guard-0", &cHardwareCPU::Inst_Guard0, false, 
 					"Change to guard 0"),						
@@ -470,6 +494,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change to guard 2"),						
 	tInstLibEntry<tMethod>("guard-3", &cHardwareCPU::Inst_Guard3, false, 
 					"Change to guard 3"),	
+	tInstLibEntry<tMethod>("guard-4", &cHardwareCPU::Inst_Guard4, false, 
+					"Change to guard 4"),					
 					
 	tInstLibEntry<tMethod>("action-0", &cHardwareCPU::Inst_Action0, false, 
 					"Change to action 0"),						
@@ -486,7 +512,20 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("action-6", &cHardwareCPU::Inst_Action6, false, 
 					"Change to action 6"),						
 	tInstLibEntry<tMethod>("action-7", &cHardwareCPU::Inst_Action7, false, 
-					"Change to action 7"),										
+					"Change to action 7"),				
+	tInstLibEntry<tMethod>("action-8", &cHardwareCPU::Inst_Action8, false, 
+					"Change to action 8"),						
+	tInstLibEntry<tMethod>("action-9", &cHardwareCPU::Inst_Action9, false, 
+					"Change to action 9"),						
+	tInstLibEntry<tMethod>("action-10", &cHardwareCPU::Inst_Action10, false, 
+					"Change to action 10"),		
+	tInstLibEntry<tMethod>("action-11", &cHardwareCPU::Inst_Action11, false, 
+					"Change to action 11"),						
+	tInstLibEntry<tMethod>("action-12", &cHardwareCPU::Inst_Action12, false, 
+					"Change to action 12"),						
+	tInstLibEntry<tMethod>("action-13", &cHardwareCPU::Inst_Action13, false, 
+					"Change to action 13"),						
+											
 
 	
     // Placebo instructions
@@ -4816,6 +4855,12 @@ bool cHardwareCPU::Inst_OrigState8(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_OrigState9(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpOriginState(9)); }
 
+bool cHardwareCPU::Inst_OrigState10(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpOriginState(10)); }
+
+bool cHardwareCPU::Inst_OrigState11(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpOriginState(11)); }
+
 bool cHardwareCPU::Inst_DestState0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpDestinationState(0)); }
 
@@ -4845,6 +4890,12 @@ bool cHardwareCPU::Inst_DestState8(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_DestState9(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpDestinationState(9)); }
+
+bool cHardwareCPU::Inst_DestState10(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpDestinationState(10)); }
+
+bool cHardwareCPU::Inst_DestState11(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpDestinationState(11)); }
 
 bool cHardwareCPU::Inst_TransLab0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpTransitionLabel(0)); }
@@ -4895,6 +4946,30 @@ bool cHardwareCPU::Inst_Trigger2(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_Trigger3(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpTrigger(3)); }
 
+bool cHardwareCPU::Inst_Trigger4(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(4)); }
+
+bool cHardwareCPU::Inst_Trigger5(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(5)); }
+
+bool cHardwareCPU::Inst_Trigger6(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(6)); }
+
+bool cHardwareCPU::Inst_Trigger7(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(7)); }
+
+bool cHardwareCPU::Inst_Trigger8(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(8)); }
+
+bool cHardwareCPU::Inst_Trigger9(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(9)); }
+
+bool cHardwareCPU::Inst_Trigger10(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(10)); }
+
+bool cHardwareCPU::Inst_Trigger11(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpTrigger(11)); }
+
 bool cHardwareCPU::Inst_Guard0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpGuard(0)); }
 
@@ -4906,6 +4981,9 @@ bool cHardwareCPU::Inst_Guard2(cAvidaContext& ctx)
 					
 bool cHardwareCPU::Inst_Guard3(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpGuard(3)); }
+
+bool cHardwareCPU::Inst_Guard4(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpGuard(4)); }
 
 bool cHardwareCPU::Inst_Action0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(0)); }
@@ -4931,3 +5009,20 @@ bool cHardwareCPU::Inst_Action6(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_Action7(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(7)); }
 
+bool cHardwareCPU::Inst_Action8(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(8)); }
+
+bool cHardwareCPU::Inst_Action9(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(9)); }
+
+bool cHardwareCPU::Inst_Action10(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(10)); }
+
+bool cHardwareCPU::Inst_Action11(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(11)); }
+
+bool cHardwareCPU::Inst_Action12(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(12)); }
+
+bool cHardwareCPU::Inst_Action13(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpAction(13)); }

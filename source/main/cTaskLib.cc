@@ -3274,14 +3274,14 @@ double cTaskLib::Task_Scenario8(cTaskContext& ctx) const
 		
 	
 		// check for scneario
-		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1, 0, -1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, -1))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario8"); 
 	}
 	
 	// Track in stats.
-	if (bonus >= 3) { 
+	if (bonus >= 2) { 
 		m_world->GetStats().scenario8Complete();
 	} /*else if (bonus >= 6) { 
 		m_world->GetStats().scenario8Loop();
