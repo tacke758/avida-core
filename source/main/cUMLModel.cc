@@ -134,7 +134,6 @@ void cUMLModel::seedDiagrams()
 				state_diagrams[cur_sd].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
 				infile >> temp; 
 			}
-		
 		}
 
 		
@@ -142,7 +141,7 @@ void cUMLModel::seedDiagrams()
 		
 		line.erase();
 	}
-	
+		
 	//read from file; load into string/strstream, and return it.
 	infile.close();
 

@@ -1027,8 +1027,12 @@ void cStats::PrintUMLData(const cString& filename)
 */	
 	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
 	df.Write( m_scenario6.Sum(), "total number of scenario 6 all transitions");
+	df.Write( m_scenario7.Sum(), "total number of scenario 7 all transitions");
+	df.Write( m_scenario8.Sum(), "total number of scenario 8 all transitions");
+
 	df.Write( m_scenario5loop.Sum(), "total number of scenario 5 all transitions - might loop");	
 	df.Write( m_scenario6loop.Sum(), "total number of scenario 6 all transitions - might loop");
+	df.Write( m_scenario7loop.Sum(), "total number of scenario 7 all transitions - might loop");
 
 	
 	av_number_of_states.Clear();
@@ -1052,8 +1056,13 @@ void cStats::PrintUMLData(const cString& filename)
   m_N1andN2Passed.Clear();
   m_scenario5.Clear();
   m_scenario6.Clear();
+  m_scenario7.Clear();
+  m_scenario8.Clear();
+
   m_scenario5loop.Clear();
   m_scenario6loop.Clear();
+  m_scenario7loop.Clear();
+
 
 df.Endl();
 }

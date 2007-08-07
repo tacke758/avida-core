@@ -420,6 +420,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created scenario 6", &cTaskLib::Task_Scenario6);	
   else if (name == "scene-7") // 
 	  NewTask(name, "Successfully created scenario 7", &cTaskLib::Task_Scenario7);
+  else if (name == "scene-8") // 
+	  NewTask(name, "Successfully created scenario 8", &cTaskLib::Task_Scenario8);
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -2966,7 +2968,7 @@ double cTaskLib::Task_Scenario1(cTaskContext& ctx) const
 	
 		// check for scneario
 //		bonus = ((ctx.organism->getUMLModel()->getStateDiagram(1)->findPath(path1)) / path1.size());
-		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario1"); 
@@ -3007,7 +3009,7 @@ double cTaskLib::Task_Scenario2(cTaskContext& ctx) const
 	
 		// check for scneario
 		//bonus = ((ctx.organism->getUMLModel()->getStateDiagram(1)->findPath(path1)) / path1.size());
-		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1, 0, 0))); // / path1.size());
 		
 	} else { 
 		bonus = org->getParentBonus("scenario2"); 
@@ -3050,7 +3052,7 @@ double cTaskLib::Task_Scenario3(cTaskContext& ctx) const
 	
 		// check for scneario
 		//bonus = ((ctx.organism->getUMLModel()->getStateDiagram(0)->findPath(path1)) / path1.size());
-		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario3"); 
@@ -3094,7 +3096,7 @@ double cTaskLib::Task_Scenario4(cTaskContext& ctx) const
 	
 		// check for scneario
 //		bonus = ((ctx.organism->getUMLModel()->getStateDiagram(0)->findPath(path1)) / path1.size());
-		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario4"); 
@@ -3152,7 +3154,7 @@ double cTaskLib::Task_Scenario5(cTaskContext& ctx) const
 		path1.push_back("[]/^NavigationControl.restart()");
 		
 		// check for scneario
-		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario5"); 
@@ -3196,7 +3198,7 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 		path1.push_back("[obstacle=0]/");
 	
 		// check for scneario
-		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario6"); 
@@ -3237,7 +3239,7 @@ double cTaskLib::Task_Scenario7(cTaskContext& ctx) const
 		path1.push_back("setObstacleSensors[]/^ObstacleAvoidanceTimer.sensorData(obstacle)");		
 	
 		// check for scneario
-		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1, 0, 0))); // / path1.size());
 
 	} else { 
 		bonus = org->getParentBonus("scenario7"); 
@@ -3252,6 +3254,41 @@ double cTaskLib::Task_Scenario7(cTaskContext& ctx) const
 	
 	// Set bonus info for current model
 	org->getUMLModel()->setBonusInfo("scenario7", bonus);		
+	
+	return bonus;
+}
+
+double cTaskLib::Task_Scenario8(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	cOrganism* org = ctx.getOrganism();
+	
+	// Check if this model is different than the organism's parent's model
+	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
+		
+		// create the scenario
+		path1.push_back("suspend[]/^NavigationTimer.stopTimer()");
+		path1.push_back("restart[]/^WheelActuatorInterface.start()");
+// sequence is repeated to encourage looping.		
+		
+	
+		// check for scneario
+		bonus = ((org->getUMLModel()->getStateDiagram(1)->findPath(path1, 0, -1))); // / path1.size());
+
+	} else { 
+		bonus = org->getParentBonus("scenario8"); 
+	}
+	
+	// Track in stats.
+	if (bonus >= 3) { 
+		m_world->GetStats().scenario8Complete();
+	} /*else if (bonus >= 6) { 
+		m_world->GetStats().scenario8Loop();
+	} */
+	
+	// Set bonus info for current model
+	org->getUMLModel()->setBonusInfo("scenario8", bonus);		
 	
 	return bonus;
 }

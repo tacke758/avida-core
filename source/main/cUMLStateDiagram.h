@@ -129,9 +129,10 @@ struct transition_writer {
   
   
 // Implement a scenario check.  
-//  void checkForPath(std::deque<std::string>, boost::graph_traits<state_diagram>::vertex_descriptor, bool&, int&);
-  int findPath(std::deque<std::string> p); 
-  int checkForPathStep(std::deque<std::string>, boost::graph_traits<state_diagram>::vertex_descriptor, int); 
+  int findPath(std::deque<std::string>, bool, int); 
+  int checkForPathStep(std::deque<std::string>, 
+		boost::graph_traits<state_diagram>::vertex_descriptor, int); 
+
   
 // The get functions get the value of the index of various vectors  
   int getTriggerIndex();

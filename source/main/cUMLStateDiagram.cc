@@ -4,7 +4,7 @@ cUMLStateDiagram::cUMLStateDiagram()
 {
 
   // initialize the state diagram with 10 states.
-  sd0 = state_diagram(10); 
+  sd0 = state_diagram(12); 
 
   // initialize / seed UML state diagram here
 //  orig_state_index = 0;
@@ -31,27 +31,29 @@ cUMLStateDiagram::~cUMLStateDiagram()
 // The function is complicated by the fact that the longest path segment could start at the 
 // beginning, middle, or end of the path itself. 
 // Currently the path must begin at the 0 vertex. 
-int cUMLStateDiagram::findPath(std::deque<std::string> p) { 
+int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int start_state) { 
 	unsigned int path_dist = 0; // the current path distance satisfied is 0. 
 //	int path_longest_length = 0; 
 	unsigned int len = 0;
 	int num_vert = num_vertices(sd0);
 	std::deque<std::string> p_temp = p;
-
+	int actual_path_start;
+			
 	// Entire path must start at state 0. 
-	len = checkForPathStep(p, vertex(0, sd0), 0);
+//	len = checkForPathStep(p, vertex(0, sd0), 0);
 	// If this returns a length, then the path is found & we can exit.
-	if (len > 0) { 
-		path_dist = len;
-	} else { 
+//	if (len > 0) { 
+//		path_dist = len;
+//	} else { 
 	// Else, check for partial paths, which can start from anywhere... 
-		p.pop_front();
+//		p.pop_front();
 		// Must check each state other than state 0.
 		while (!p.empty()) {
-			for (int i = 1; i<num_vert; i++) { 
+			for (int i = 0; i<num_vert; i++) { 
 				len = checkForPathStep(p, vertex(i, sd0), 0);
 				// check to see if this path is longer than other paths....
 				if (len > path_dist) { 
+					actual_path_start = i;
 					path_dist = len;
 				}	
 			}	
@@ -60,7 +62,16 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p) {
 			if (len > p.size()) break;
 		} 
 	 
-	} 
+	//} 
+	
+	
+	if (start_state != -1) { 
+		if (start_state == actual_path_start) { 
+			path_dist += 1;
+		}
+	}
+
+	
 	
 	return path_dist;
 }
@@ -75,7 +86,9 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 	int longest_dist = curr_dist;
 	int temp;
 
-	if (path.empty()) return curr_dist;
+	if (path.empty()) {
+		return curr_dist;
+	}	
 
 	// Get the outgoing edges of v
 	for(tie(out_edge_start, out_edge_end) = out_edges(v, sd0);
@@ -101,7 +114,10 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 				//std::cout << "Searching vertex " << target(ed, sd0) << "with distance " << curr_dist+1 << std::endl; 
 
 				temp = checkForPathStep(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0), curr_dist+1);
-				if (temp > longest_dist) longest_dist = temp;
+				
+				if (temp > longest_dist) {
+					longest_dist = temp;
+				}	
 			}
 	}
 	
