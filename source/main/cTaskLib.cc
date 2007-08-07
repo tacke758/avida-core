@@ -418,6 +418,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created scenario 5", &cTaskLib::Task_Scenario5);
   else if (name == "scene-6") // 
 	  NewTask(name, "Successfully created scenario 6", &cTaskLib::Task_Scenario6);	
+  else if (name == "scene-7") // 
+	  NewTask(name, "Successfully created scenario 7", &cTaskLib::Task_Scenario7);
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -3212,6 +3214,43 @@ double cTaskLib::Task_Scenario6(cTaskContext& ctx) const
 	
 	return bonus;
 }
+
+double cTaskLib::Task_Scenario7(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	std::deque<std::string> path1;
+	cOrganism* org = ctx.getOrganism();
+	
+	// Check if this model is different than the organism's parent's model
+	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
+		
+		// create the scenario
+		path1.push_back("readObstacleSensors[]/");
+		path1.push_back("[]/^Environment.checkForObstacle()");
+		path1.push_back("setObstacleSensors[]/^ObstacleAvoidanceTimer.sensorData(obstacle)");
+// sequence is repeated to encourage looping.		
+		
+	
+		// check for scneario
+		bonus = ((org->getUMLModel()->getStateDiagram(0)->findPath(path1))); // / path1.size());
+
+	} else { 
+		bonus = org->getParentBonus("scenario7"); 
+	}
+	
+	// Track in stats.
+	if (bonus >= 3) { 
+		m_world->GetStats().scenario7Complete();
+	} else if (bonus >= 6) { 
+		m_world->GetStats().scenario7Loop();
+	} 
+	
+	// Set bonus info for current model
+	org->getUMLModel()->setBonusInfo("scenario7", bonus);		
+	
+	return bonus;
+}
+
 
 double cTaskLib::Task_NumStates(cTaskContext& ctx) const
 {

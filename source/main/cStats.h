@@ -271,9 +271,10 @@ private:
   cDoubleSum m_N1andN2Passed;
   cDoubleSum m_scenario5;
   cDoubleSum m_scenario6;
+  cDoubleSum m_scenario7;
   cDoubleSum m_scenario5loop;
   cDoubleSum m_scenario6loop;
-
+  cDoubleSum m_scenario7loop;
 
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
@@ -656,8 +657,10 @@ public:
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
   void scenario5Complete() { m_scenario5.Add(1); } 
   void scenario6Complete() { m_scenario6.Add(1); } 
+  void scenario7Complete() { m_scenario7.Add(1); } 
   void scenario5Loop() { m_scenario5loop.Add(1); } 
   void scenario6Loop() { m_scenario6loop.Add(1); } 
+  void scenario7Loop() { m_scenario7loop.Add(1); } 
     
   
 };
