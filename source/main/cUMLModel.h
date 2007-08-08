@@ -19,6 +19,12 @@ struct scenario_info {
 	int startState;
 };
 
+struct xmi_info { 
+    std::string xmi_begin;
+    std::string xmi_end;
+	std::vector<std::string> classes_info;
+};
+
 class cUMLModel { 
 public:
 	cUMLModel();
@@ -56,11 +62,8 @@ public:
 	
 
 protected: 
-	static std::string xmi_begin;
+	static xmi_info xi;
 	std::string	xmi; 
-	static std::string xmi_end;
-	static std::string xmi_class1;
-	static std::string xmi_class2;
 	static int max_trans;
 	std::vector<cUMLStateDiagram> state_diagrams;
 	std::map<std::string, float> bonus_info;

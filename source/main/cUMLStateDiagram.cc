@@ -602,6 +602,8 @@ void cUMLStateDiagram::printXMI(std::string name)
 	xmi+= " source=\"" + temp1 + "\"";
 	xmi += " target=\"" + temp2 + "\" name=\"\" isSpecification=\"false\">\n";
 	xmi += "</UML:Transition>\n";
+	xmi +=  "</UML:StateMachine.transitions> </UML:StateMachine> </UML:Namespace.ownedElement> ";
+    xmi +=  " </UML:Class>";
 		
 	return;
 }

@@ -8,37 +8,65 @@
 
 using namespace std;
 
-std::string loadFile(const char* filename) {
+xmi_info loadFile(const char* filename) {
 	std::string data, line; // or maybe stringstream? (strstream?)
 	std::ifstream infile;
 	infile.open(filename);
 	assert(infile.is_open());
+	std::string s;
+	xmi_info x;
 	
 	while (getline (infile, line))
 	{
-		data.append(line);
+		// handle xmi_begin
+		if (line == "=XMI-BEGIN==================") {
+			line.erase();
+			infile >> line;
+			while (line != "=END========================") { 
+				// cat line to the xmi_begin string...
+				x.xmi_begin += (line + " ");
+				infile >> line;
+			}
+//			std::cout << "XMI BEGIN" << x.xmi_begin << std::endl;
+		} else if (line == "=XMI-END====================") { 
+		// handle xmi_end
+//			std::cout << "XMI END"<< std::endl;
+			line.erase();
+			infile >> line;
+			while (line != "=END========================") { 
+				// cat line to the xmi_begin string...
+				x.xmi_end += (line + " ");
+				infile >> line;
+			}
+//			std::cout << "XMI END" << x.xmi_end << std::endl;
+		} else if (line == "=CLASS======================") { 
+		// handle xmi_end
+			line.erase();
+			infile >> line;
+			data = "";
+			while (line != "=END========================") { 
+				// cat line to the xmi_begin string...
+				data += (line + " ");
+				infile >> line;
+			}
+			x.classes_info.push_back(data);			
+//			std::cout << "CLASS" << data << std::endl;
+		}
+
 		line.erase();
 	}
 	
-	//read from file; load into string/strstream, and return it.
 	infile.close();
 
-	return data;
+	return x;
 }
 
-std::string cUMLModel::xmi_begin = loadFile("xmi_begin");
-std::string cUMLModel::xmi_end = loadFile("xmi_end");
-std::string cUMLModel::xmi_class1 = loadFile("class1_xmi");
-std::string cUMLModel::xmi_class2 = loadFile("class2_xmi");
+xmi_info cUMLModel::xi = loadFile("xmi_info");
 int cUMLModel::max_trans = 0;
 
 
 cUMLModel::cUMLModel()
-{
-	// initialize / seed UML model here
-//	state_diagrams.clear();
-//	state_diagrams.resize(2);
-}
+{}
 
 cUMLModel::~cUMLModel()
 {}
@@ -160,14 +188,19 @@ void cUMLModel::printXMI()
 	xmi = "";
 //	int v;
 	
-	xmi = xmi_begin; 
-	xmi += xmi_class1;
-	xmi += state_diagrams[0].getXMI("sd0");	
-	xmi += xmi_class2;
-//	state_diagrams[1].printXMI();
-//	xmi += state_diagrams[1].getXMI("sd1");
-
-	xmi += xmi_end;
+	xmi = xi.xmi_begin; 
+//	std::cout << "xi.classes.size " << xi.classes_info.size() << " state_diagrams.size() " << state_diagrams.size() << std::endl;
+	
+	assert (xi.classes_info.size() == state_diagrams.size());
+	
+	for (unsigned int i=0; i<xi.classes_info.size(); i++) { 
+		xmi += xi.classes_info[i];
+		xmi += state_diagrams[i].getXMI("sd" + i);
+	}
+//	xmi += state_diagrams[0].getXMI("sd0");	
+//	xmi += xmi_class2;
+	
+	xmi += xi.xmi_end;
 	
 }
 
@@ -229,8 +262,8 @@ int cUMLModel::numSDs()
 
 double cUMLModel::checkForScenarios()
 {
-	double total_bonus;
-	double temp_bonus;
+	double total_bonus = 0;
+	double temp_bonus = 0;
 	scenario_info s;
 	
 	// Should check to see if each scenario is satisfied.
@@ -240,7 +273,7 @@ double cUMLModel::checkForScenarios()
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
-		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
+//		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
 		total_bonus += temp_bonus;
 	}
 	
