@@ -12,6 +12,13 @@
 #include <fstream>
 
 
+struct scenario_info { 
+	int stateDiagramID;
+	std::deque<std::string> path; 
+	bool shouldLoop;
+	int startState;
+};
+
 class cUMLModel { 
 public:
 	cUMLModel();
@@ -19,6 +26,9 @@ public:
 
 	// Read in from file seed-model.cfg and add the building blocks for the diagrams.
 	void seedDiagrams(); 
+	
+	// Used to check if the diagrams satisfy the specified scenarios
+	double checkForScenarios();
 	
 	// Used to generate and access the XMI version of the model.
 	std::string getXMI(); // get the XMI version of the model.
@@ -54,6 +64,8 @@ protected:
 	static int max_trans;
 	std::vector<cUMLStateDiagram> state_diagrams;
 	std::map<std::string, float> bonus_info;
+	std::vector<scenario_info> scenarios;
+
 										
 };
 

@@ -28,7 +28,6 @@ struct transition_label {
 	int action;
 };
 
-
 struct state {
 	int identifier;
 	int num_incoming;

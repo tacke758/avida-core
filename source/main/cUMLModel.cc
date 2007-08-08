@@ -74,27 +74,24 @@ void cUMLModel::seedDiagrams()
 	int num_states;
 	int num_sd = 0;
 	int cur_sd = -1;
-//	char c;
 	std::string tr_l, tr_o, gu, act, temp;
 	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::ifstream infile;
 	infile.open("seed-model.cfg");
 	assert(infile.is_open());
+	scenario_info s;
+	std::string path_step;
 	
 	while (getline (infile, line))
 	{
 		// Read in states
 		if (line == "=STATES====================") {
-//			std::cout << "Ooh, I found a state! " << std::endl;
 			line.erase();
 			infile >> num_states;
-//			std::cout << "Numer of states: "<< num_states << std::endl;
 		// Read in number of state diagrams	
 		} else if (line == "=STATE-DIAGRAM=============") { 
-//			std::cout << "Yippee! A state diagram for me! " << std::endl;
 			line.erase();
 			infile >> num_sd;
-//			std::cout << "Numer of sds: "<< num_sd << std::endl;
 			state_diagrams.resize(num_sd);
 		// Read in each state diagram	
 		} else if (line == "=SD========================") { 
@@ -106,7 +103,6 @@ void cUMLModel::seedDiagrams()
 			while (tr_l != "-END---------------------------") { 
 				infile >> tr_o;
 				state_diagrams[cur_sd].addTrigger(tr_l, tr_o);
-//				std::cout << "Adding a trigger " << tr_l << " " << tr_o << std::endl;
 				infile >> tr_l;
 			}
 		}else if (line == "-GUARDS--------------------") { 
@@ -114,7 +110,6 @@ void cUMLModel::seedDiagrams()
 			infile >> gu;
 			while (gu != "-END---------------------------") { 
 				state_diagrams[cur_sd].addGuard(gu);
-//				std::cout << "Adding a guard " << gu << std::endl;
 				infile >> gu;
 			}
 		} else if (line == "-ACTIONS--------------------") { 
@@ -122,20 +117,30 @@ void cUMLModel::seedDiagrams()
 			infile >> act;
 			while (act != "-END---------------------------") { 
 				state_diagrams[cur_sd].addAction(act);
-//				std::cout << "Adding an action " << act << std::endl;
 				infile >> act;
 			}
 		} else if (line == "-TRANSITIONS---------------") { 
 			line.erase();
 			infile >> temp; 
 			while (temp != "-END---------------------------") { 
-//				std::cout << "Ug in here again. Curr sd: " << cur_sd << std::endl;
 				infile >> orig_i >> dest_i >> trig_i >> guard_i >> act_i; 
 				state_diagrams[cur_sd].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
 				infile >> temp; 
 			}
+		}  else if (line == "-SCENARIO----------------------") { 
+			line.erase();
+			s.path.clear();
+			s.stateDiagramID = cur_sd;
+			infile >> s.shouldLoop >> s.startState;
+			infile >> temp;
+			while (temp!= "-END---------------------------") { 
+				infile >> path_step;
+				s.path.push_back(path_step);
+				infile >> temp;
+			}
+			scenarios.push_back(s);
+			
 		}
-
 		
 		/* Missing code for reading in transition labels .... */
 		
@@ -221,4 +226,25 @@ int cUMLModel::numSDs()
 {
 	return state_diagrams.size();
 }
+
+double cUMLModel::checkForScenarios()
+{
+	double total_bonus;
+	double temp_bonus;
+	scenario_info s;
+	
+	// Should check to see if each scenario is satisfied.
+	// Iterate through list of scnearios; Call each scenario on the appropriate state diagram
+	// Accrue results.
+	// Save bonus info.
+	for (unsigned int i=0; i< scenarios.size(); i++) { 
+		s = scenarios[i];
+		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
+		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
+		total_bonus += temp_bonus;
+	}
+	
+	return total_bonus;
+}
+
 
