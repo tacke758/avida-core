@@ -38,6 +38,8 @@
 
 #include <cfloat>
 #include <cmath>
+#include <vector>
+
 
 
 cStats::cStats(cWorld* world)
@@ -205,7 +207,6 @@ cStats::cStats(cWorld* world)
     }
   }
   // End sense tracking initialization
-
   
   genotype_map.Resize( m_world->GetConfig().WORLD_X.Get() * m_world->GetConfig().WORLD_Y.Get() );
   SetupPrintDatabase();
@@ -997,6 +998,15 @@ void cStats::PrintSenseExeData(const cString& filename)
   df.Endl();
 }
 
+void cStats::addScenarioCompletion(std::vector<double> s) 
+{ 
+
+	m_scenario_completion.resize(s.size());
+	for(unsigned int i=0; i<s.size(); ++i) {
+		m_scenario_completion[i].Add(s[i]);
+	}
+
+}
 
 void cStats::PrintUMLData(const cString& filename)
 {
@@ -1025,14 +1035,19 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_N2Passed.Sum(), "total number of spin N2 passes" );
 	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
 */	
-	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
+/*	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
 	df.Write( m_scenario6.Sum(), "total number of scenario 6 all transitions");
 	df.Write( m_scenario7.Sum(), "total number of scenario 7 all transitions");
 	df.Write( m_scenario8.Sum(), "total number of scenario 8 all transitions");
 
 	df.Write( m_scenario5loop.Sum(), "total number of scenario 5 all transitions - might loop");	
 	df.Write( m_scenario6loop.Sum(), "total number of scenario 6 all transitions - might loop");
-	df.Write( m_scenario7loop.Sum(), "total number of scenario 7 all transitions - might loop");
+	df.Write( m_scenario7loop.Sum(), "total number of scenario 7 all transitions - might loop");*/
+	
+	for (unsigned int i = 0; i < m_scenario_completion.size(); i++) {
+		df.Write ( m_scenario_completion[i].Sum(), "total number of scenario passes");
+		m_scenario_completion[i].Clear();
+	}
 
 	
 	av_number_of_states.Clear();
@@ -1054,14 +1069,14 @@ void cStats::PrintUMLData(const cString& filename)
   m_W1Passed.Clear();
   m_W2Passed.Clear();
   m_N1andN2Passed.Clear();
-  m_scenario5.Clear();
+ /* m_scenario5.Clear();
   m_scenario6.Clear();
   m_scenario7.Clear();
   m_scenario8.Clear();
 
   m_scenario5loop.Clear();
   m_scenario6loop.Clear();
-  m_scenario7loop.Clear();
+  m_scenario7loop.Clear();*/
 
 
 df.Endl();

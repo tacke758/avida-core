@@ -91,7 +91,7 @@ public:
  // pass in the path; state to know path step; examine_edge
  // Issue: the need to revisit the same node.
  //! A BGL breadth-first visitor used to see if a path is included in a state diagram.
-class PathVisitor : public boost::bfs_visitor< > {
+/*class PathVisitor : public boost::bfs_visitor< > {
 public:
   PathVisitor() {}
   template <class state_diagram>
@@ -116,7 +116,7 @@ struct transition_writer {
   
 	state_diagram& _sd;
 }; 
- 
+ */
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
   bool absoluteJumpGuard(int);
@@ -131,6 +131,7 @@ struct transition_writer {
   int findPath(std::deque<std::string>, bool, int); 
   int checkForPathStep(std::deque<std::string>, 
 		boost::graph_traits<state_diagram>::vertex_descriptor, int); 
+  int getEndState (std::deque<std::string>, boost::graph_traits<state_diagram>::vertex_descriptor);
 
   
 // The get functions get the value of the index of various vectors  
@@ -140,8 +141,8 @@ struct transition_writer {
   transition_label getTransLabel();
   
 // Visit graph
-  void executeVisitor();
-  void printGraphViz();
+//  void executeVisitor();
+//  void printGraphViz();
 
 
 // Add functions
@@ -158,6 +159,7 @@ protected:
     state_diagram sd0;
 	boost::graph_traits<state_diagram>::vertex_descriptor orig;
 	boost::graph_traits<state_diagram>::vertex_descriptor dest;
+	int actual_end_state;
 	
 
 };

@@ -149,6 +149,7 @@ protected:
   cUMLModel m_model;		
   std::string m_parent_xmi; 
   std::map<std::string, float> m_parent_bonus;  
+  std::vector<double> m_parent_scenario_completion;
 
   cOrganism(); // @not_implemented
   cOrganism(const cOrganism&); // @not_implemented
@@ -323,7 +324,8 @@ public:
   void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
   float getParentBonus (std::string s) { return m_parent_bonus[s]; }
   std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
-  
+  std::vector<double> getParentScenarioCompletion() { return m_parent_scenario_completion; } 
+  void setParentScenarioCompletion (std::vector<double> s) { m_parent_scenario_completion = s; }
 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)

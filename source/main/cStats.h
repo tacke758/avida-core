@@ -29,6 +29,8 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
 
 #ifndef defs_h
 #include "defs.h"
@@ -269,6 +271,7 @@ private:
   cDoubleSum m_W2Attempt;
   cDoubleSum m_W2Passed;
   cDoubleSum m_N1andN2Passed;
+/*  
   cDoubleSum m_scenario5;
   cDoubleSum m_scenario6;
   cDoubleSum m_scenario7;
@@ -277,7 +280,9 @@ private:
   cDoubleSum m_scenario5loop;
   cDoubleSum m_scenario6loop;
   cDoubleSum m_scenario7loop;
+*/  
 
+  std::vector<cDoubleSum> m_scenario_completion;
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
   cStats& operator=(const cStats&); // @not_implemented
@@ -657,13 +662,17 @@ public:
   void W2Attempt() { m_W2Attempt.Add(1); }
   void W2Passed() { m_W2Passed.Add(1); }
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
-  void scenario5Complete() { m_scenario5.Add(1); } 
+/*  void scenario5Complete() { m_scenario5.Add(1); } 
   void scenario6Complete() { m_scenario6.Add(1); } 
   void scenario7Complete() { m_scenario7.Add(1); } 
   void scenario8Complete() { m_scenario8.Add(1); } 
   void scenario5Loop() { m_scenario5loop.Add(1); } 
   void scenario6Loop() { m_scenario6loop.Add(1); } 
-  void scenario7Loop() { m_scenario7loop.Add(1); } 
+  void scenario7Loop() { m_scenario7loop.Add(1); } */
+  void addScenarioCompletion(std::vector<double>); // { m_scenario_bonus[i].Add(j); }
+  /*void resizeScenarioBonus(int i) { m_scenario_bonus.resize(i); }
+  void resetScenarioBonus() { 
+		for (unsigned int i = 0; i< m_scenario_bonus.size(); i++) m_scenario_bonus[i].Clear();  }*/
     
   
 };

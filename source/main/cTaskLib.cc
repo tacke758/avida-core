@@ -2934,6 +2934,8 @@ double cTaskLib::Task_Trans10(cTaskContext& ctx) const
 double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 {
 	double bonus = 0.0; 
+//	double temp_bonus = 0;
+	std::string sc_name;
 	cOrganism* org = ctx.getOrganism();
 	
 	// Check if this model is different than the organism's parent's model
@@ -2941,10 +2943,13 @@ double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 		bonus = org->getUMLModel()->checkForScenarios();
 	} else { 
 		bonus = org->getParentBonus("scenarios"); 
+		org->getUMLModel()->setScenarioCompletion(org->getParentScenarioCompletion());
 	}
 	
 	// Set bonus info for current model
 	org->getUMLModel()->setBonusInfo("scenarios", bonus);		
+	
+	m_world->GetStats().addScenarioCompletion(org->getUMLModel()->getScenarioCompletion());
 	
 	return bonus;
 }
@@ -2982,27 +2987,15 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 
 	temp = organism->getUMLModel()->getXMI();
 	
-	float temp1, temp2, temp3, temp4; 
-	temp1= organism->getUMLModel()->getBonusInfo("scenario1");
-	temp2= organism->getUMLModel()->getBonusInfo("scenario2");
-	temp3= organism->getUMLModel()->getBonusInfo("scenario3");
-	temp4= organism->getUMLModel()->getBonusInfo("scenario4");
-	
-	if ((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
-		(organism->getUMLModel()->getBonusInfo("scenario2") != 2) || 
-		(organism->getUMLModel()->getBonusInfo("scenario3") != 3) //|| 
-//		(organism->getUMLModel()->getBonusInfo("scenario4") != 3)
-		) {
+	// call hydra when a // all scenario hits its max?
+	// all are non-zero?
+	if (!organism->getUMLModel()->readyForHydra()) {
 		
 		organism->getUMLModel()->setBonusInfo("hydra", bonus);
 		
 		return 0;
 	}
-	/*if (!ctx.m_task_success_complete) {
-		return 0;
-	}*/
-	
-	
+		
 	m_world->GetStats().HydraAttempt();
 
 	if (organism->getParentXMI() == temp) {
@@ -3099,10 +3092,10 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 
 
 // Commented out to remove overhead...	
-//	std::ostringstream strstrm;
-//	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << organism->GetID();
-//	strstrm << ".xml";	
-//	if(system(strstrm.str().c_str())!=0) return 0.0;
+	std::ostringstream strstrm;
+	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+	strstrm << ".xml";	
+	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
 	return 5.0;
 }
@@ -3160,10 +3153,7 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	double bonus = 0.0;
 	
 	
-	if	((organism->getUMLModel()->getBonusInfo("scenario1") != 2) ||
-		(organism->getUMLModel()->getBonusInfo("scenario3") != 3) || 
-//		(organism->getUMLModel()->getBonusInfo("scenario4") != 3) ||
-		(organism->getUMLModel()->getBonusInfo("hydra") == 0))	
+	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0)
 	{ 
 		return bonus;
 	}
@@ -3219,8 +3209,7 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 
-	if	((organism->getUMLModel()->getBonusInfo("scenario2") != 2) ||
-		(organism->getUMLModel()->getBonusInfo("hydra") == 0))	
+	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0)	
 	{ 
 		return bonus;
 	}
@@ -3265,11 +3254,15 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 /*	if ((organism->getUMLModel()->getBonusInfo("spinw1") == 0)	 &&
 		(organism->getUMLModel()->getBonusInfo("spinw2") == 0)) { 
 			return bonus;
-	} */
+	} 
 	if ((organism->getUMLModel()->getBonusInfo("scenario5") != 9) || 
 		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
 			return bonus;
+	}*/
+	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
+		return bonus;
 	}
+
 	
 	// Ok. Subtract the number of edges from the maximum number of edges seen so far. 
 	mt = mod->getMaxTrans();

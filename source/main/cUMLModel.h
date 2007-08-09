@@ -51,6 +51,8 @@ public:
 	// Set and access the bonus info for a model. Should be used by the tasks
 	void setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
 	float getBonusInfo (std::string);  
+	std::vector<double> getScenarioCompletion() { return scenario_completion; } 
+	void setScenarioCompletion(std::vector<double> s)  { scenario_completion = s; }
 		
 	// Get the number of, well, everything
 	int numStates();
@@ -59,7 +61,10 @@ public:
 	int numGuards();
 	int numActions();
 	int numSDs();
+	int numSCs();
 	
+	// check if the model is ready for hydra
+	bool readyForHydra(); 
 
 protected: 
 	static xmi_info xi;
@@ -68,7 +73,8 @@ protected:
 	std::vector<cUMLStateDiagram> state_diagrams;
 	std::map<std::string, float> bonus_info;
 	std::vector<scenario_info> scenarios;
-
+	std::vector<double> scenario_completion;
+	int hydraMode; 
 										
 };
 

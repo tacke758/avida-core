@@ -117,6 +117,9 @@ void cUMLModel::seedDiagrams()
 			line.erase();
 			infile >> num_states;
 		// Read in number of state diagrams	
+		} else if (line == "=HYDRA=====================") { 
+			line.erase(); 
+			infile >> hydraMode;
 		} else if (line == "=STATE-DIAGRAM=============") { 
 			line.erase();
 			infile >> num_sd;
@@ -260,24 +263,81 @@ int cUMLModel::numSDs()
 	return state_diagrams.size();
 }
 
+int cUMLModel::numSCs()
+{
+	return scenarios.size();
+}
+
 double cUMLModel::checkForScenarios()
 {
 	double total_bonus = 0;
 	double temp_bonus = 0;
+	double complete_bonus;
 	scenario_info s;
 	
 	// Should check to see if each scenario is satisfied.
 	// Iterate through list of scnearios; Call each scenario on the appropriate state diagram
 	// Accrue results.
 	// Save bonus info.
+	scenario_completion.resize(scenarios.size());
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
 //		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
 		total_bonus += temp_bonus;
+		
+		complete_bonus = s.path.size() + s.shouldLoop; 
+		if (s.startState > 0) complete_bonus++;
+		
+		if (temp_bonus == complete_bonus) {
+//			bonus_info["scenario"+i] = 1;
+			scenario_completion[i] = 1;
+//			std::cout << "scenario complete " << std::endl;
+		} else {
+//			bonus_info["scenario"+i] = 0;
+			scenario_completion[i] = 0;
+//			std::cout << "scenario incomplete " << std::endl;
+
+		}
 	}
-	
+		
 	return total_bonus;
+}
+
+bool cUMLModel::readyForHydra() 
+{
+	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
+	// check which option was selected in the seed-model.cfg
+	// check to see if this condition is true. If so, return 1; otherwise, return 0.
+	
+	bool ret_val = 0;
+//	double complete_bonus = 0;
+
+	switch (hydraMode){
+	case 0:
+		ret_val = 1;
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+				//ret_val &= scenario_completion[i];
+				if (scenario_completion[i] != 1) ret_val &= 0;
+		}
+		break;
+	case 1:
+		ret_val = 0;
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+				if (scenario_completion[i] == 1) ret_val = 1;
+		}
+		break;
+	case 2:
+		ret_val = 0;
+		break;
+	case 3:
+		ret_val = 0;
+		break;
+	default:
+		ret_val = 0;
+	}
+
+	return ret_val;
 }
 
 

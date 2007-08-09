@@ -38,6 +38,7 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 	int num_vert = num_vertices(sd0);
 	std::deque<std::string> p_temp = p;
 	int actual_path_start;
+	int bonus = 0;
 			
 	// Entire path must start at state 0. 
 //	len = checkForPathStep(p, vertex(0, sd0), 0);
@@ -64,17 +65,22 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 	 
 	//} 
 	
-	
+	bonus = path_dist;
 	if (start_state != -1) { 
 		if (start_state == actual_path_start) { 
-			path_dist += 1;
+			bonus += 1;
 		}
+	}
+	if (should_loop == 1 && (path_dist == p_temp.size())) { 
+		int y = getEndState(p_temp, actual_path_start);		
+		if (actual_end_state == actual_path_start) bonus +=1;
 	}
 
 	
 	
-	return path_dist;
+	return bonus;
 }
+
 
 int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path, 
 				boost::graph_traits<state_diagram>::vertex_descriptor v, 
@@ -125,6 +131,50 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 	return longest_dist;
 
 } 
+
+// Given a path and a start state, check if the end state is the same as the start state.
+int cUMLStateDiagram::getEndState(std::deque<std::string> path, 
+		boost::graph_traits<state_diagram>::vertex_descriptor v) {
+	
+	boost::graph_traits<state_diagram>::out_edge_iterator out_edge_start, out_edge_end;
+	boost::graph_traits<state_diagram>::edge_descriptor ed;
+	std::string tt, tg, ta, ts;
+	int temp;
+	
+	if (path.empty()) {
+		actual_end_state = v;
+		return v;
+	}	
+
+	// Get the outgoing edges of v
+	for(tie(out_edge_start, out_edge_end) = out_edges(v, sd0);
+			 out_edge_start != out_edge_end; ++out_edge_start) { 
+			ed = *out_edge_start;
+			
+			// Get the label of the edge
+			tt = triggers[(sd0[ed]._tr)].operation_id;
+			tg = guards[(sd0[ed]._gu)];
+			ta = actions[(sd0[ed]._act)];
+			
+			// eliminate nulls
+			if (tt == "<null>") tt = "";
+			if (tg == "<null>") tg = "";
+			if (ta == "<null>") ta = "";
+			
+			ts = tt + "[" + tg + "]" + "/" + ta;
+//			std::cout << "transition named: " << ts << std::endl;
+			
+			
+			if (ts == path.front()) { 
+				//std::cout << "Searching vertex " << target(ed, sd0) << "with distance " << curr_dist+1 << std::endl; 
+				temp = getEndState(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0));
+			} 
+	}
+	
+	//std::cout << "Returning longest_dist " << longest_dist << std::endl;
+	return v;
+
+}
 
 
 
@@ -466,7 +516,7 @@ std::string cUMLStateDiagram::StringifyAnInt(int x) {
 	return o.str();
 }
 
-void cUMLStateDiagram::executeVisitor() {
+/*void cUMLStateDiagram::executeVisitor() {
 
 	PathVisitor visitor; 
 	boost::graph_traits<state_diagram>::vertex_descriptor o_temp;
@@ -493,7 +543,7 @@ void cUMLStateDiagram::printGraphViz() {
     boost::write_graphviz(outfile, sd0); //, transition_writer(sd0)); //, topo_vertex_writer(_topo_last_network));
     outfile.close();
 
-}
+}*/
 
 std::string cUMLStateDiagram::getXMI(std::string name)
 {
