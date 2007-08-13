@@ -285,9 +285,9 @@ double cUMLModel::checkForScenarios()
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
 //		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
 		total_bonus += temp_bonus;
-		
+				
 		complete_bonus = s.path.size() + s.shouldLoop; 
-		if (s.startState > 0) complete_bonus++;
+		if (s.startState >= 0) complete_bonus++;
 		
 		if (temp_bonus == complete_bonus) {
 //			bonus_info["scenario"+i] = 1;
