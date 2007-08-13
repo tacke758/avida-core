@@ -1023,6 +1023,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( av_number_of_actions.Average(), "av num actions");
 	df.Write( av_number_of_state_diagrams.Average(), "av num state diagrams");
 	df.Write( av_number_of_trans_lab.Average(), "av num of trans lab");
+	*/
 	df.Write( m_hydraAttempt.Sum(), "total number of hydra attempts" );
 	df.Write( m_hydraPassed.Sum(), "total number of hydra passes" );
 	df.Write( m_W1Attempt.Sum(), "total number of spin W1 attempts" );
@@ -1034,7 +1035,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_N2Attempt.Sum(), "total number of spin N2 attempts" );
 	df.Write( m_N2Passed.Sum(), "total number of spin N2 passes" );
 	df.Write( m_N1andN2Passed.Sum(), "total number of spin N1 & N2 passes");
-*/	
+
 /*	df.Write( m_scenario5.Sum(), "total number of scenario 5 all transitions");
 	df.Write( m_scenario6.Sum(), "total number of scenario 6 all transitions");
 	df.Write( m_scenario7.Sum(), "total number of scenario 7 all transitions");
