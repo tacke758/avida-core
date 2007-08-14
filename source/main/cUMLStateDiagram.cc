@@ -1,4 +1,5 @@
 #include "cUMLStateDiagram.h"
+#include <set>
 
 cUMLStateDiagram::cUMLStateDiagram()
 {
@@ -23,6 +24,42 @@ cUMLStateDiagram::cUMLStateDiagram()
 
 cUMLStateDiagram::~cUMLStateDiagram()
 {
+}
+
+
+unsigned int cUMLStateDiagram::getNumberOfNonDeterministicStates() {
+	std::string tt, tg, ta, ts;
+	unsigned int numNonD=0;
+	boost::graph_traits<state_diagram>::out_edge_iterator ei, ei_end;
+	boost::graph_traits<state_diagram>::vertex_iterator vi, vi_end;
+
+	// For each...
+	for(tie(vi,vi_end) = vertices(sd0); vi != vi_end; ++vi) {
+		std::set<std::string> tnames;
+		// out-edge of each vertex:
+		for(tie(ei,ei_end) = out_edges(*vi, sd0); ei != ei_end; ++ei) {
+			boost::graph_traits<state_diagram>::edge_descriptor e = *ei;
+			
+			// Build a string from the trigger and guard for this out-edge.
+			tt = triggers[(sd0[e]._tr)].operation_id;
+			tg = guards[(sd0[e]._gu)];
+			if (tt == "<null>") tt = "";
+			if (tg == "<null>") tg = "";
+			ts = tt + "[" + tg + "]";
+			
+			// See if it's already in the set:
+			if(tnames.find(ts) == tnames.end()) {
+				// no; add it.
+				tnames.insert(ts);
+			} else {
+				// yes; increment the count of non-deterministic states.
+				// We've found a state that has out-edges where the trigger+guard
+				// combination is duplicated at least once.
+				++numNonD;
+			}
+		}
+	}
+	return numNonD;
 }
 
 
@@ -56,7 +93,7 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 				if (len > path_dist) { 
 					actual_path_start = i;
 					path_dist = len;
-				}	
+				}
 			}	
 			p.pop_front(); 
 		
@@ -72,7 +109,7 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 		}
 	}
 	if (should_loop == 1 && (path_dist == p_temp.size())) { 
-		int y = getEndState(p_temp, actual_path_start);		
+		getEndState(p_temp, actual_path_start);		
 		if (actual_end_state == actual_path_start) bonus +=1;
 	}
 

@@ -72,6 +72,8 @@ public:
   int numGuards() { return guards.size(); } 
   int numActions() { return actions.size(); }
 
+  unsigned int getNumberOfNonDeterministicStates();
+
 
   bool findTrans(int, int, int, int, int);
 //  bool findTransLabel(transition_label); // find a specific transition label

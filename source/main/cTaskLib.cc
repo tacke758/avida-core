@@ -426,7 +426,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully ran Spin witness trace", &cTaskLib::Task_SpinW2);
   else if (name == "min-trans") // 
 	  NewTask(name, "Minimizing edges", &cTaskLib::Task_MinTrans);	
-
+  else if (name == "non-determinism")
+	  NewTask(name, "Non-determinism", &cTaskLib::Task_Nondeterminism);
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -3280,3 +3281,17 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 
 }
 
+
+double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
+	cOrganism* organism = ctx.getOrganism();
+	unsigned int bonus = 0;
+
+	for(unsigned int i=0; i<organism->getUMLModel()->getStateDiagramSize(); ++i) {
+		cUMLStateDiagram* sd=organism->getUMLModel()->getStateDiagram(i);
+		if(sd->numTrans() > 0) {
+			bonus += sd->getNumberOfNonDeterministicStates();
+		}
+	}
+	
+	return !bonus;
+}

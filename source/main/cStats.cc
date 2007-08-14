@@ -1046,7 +1046,7 @@ void cStats::PrintUMLData(const cString& filename)
 	df.Write( m_scenario7loop.Sum(), "total number of scenario 7 all transitions - might loop");*/
 	
 	for (unsigned int i = 0; i < m_scenario_completion.size(); i++) {
-		df.Write ( m_scenario_completion[i].Sum(), "total number of scenario passes");
+		df.Write ( m_scenario_completion[i].Average(), "Average ratio of scenario completion (+looping,start-state)");
 		m_scenario_completion[i].Clear();
 	}
 

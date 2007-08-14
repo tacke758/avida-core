@@ -289,16 +289,17 @@ double cUMLModel::checkForScenarios()
 		complete_bonus = s.path.size() + s.shouldLoop; 
 		if (s.startState >= 0) complete_bonus++;
 		
-		if (temp_bonus == complete_bonus) {
-//			bonus_info["scenario"+i] = 1;
-			scenario_completion[i] = 1;
-//			std::cout << "scenario complete " << std::endl;
-		} else {
-//			bonus_info["scenario"+i] = 0;
-			scenario_completion[i] = 0;
-//			std::cout << "scenario incomplete " << std::endl;
-
-		}
+//		if (temp_bonus == complete_bonus) {
+////			bonus_info["scenario"+i] = 1;
+//			scenario_completion[i] = temp_bonus / complete_bonus;
+////			std::cout << "scenario complete " << std::endl;
+//		} else {
+////			bonus_info["scenario"+i] = 0;
+//			scenario_completion[i] = 0;
+////			std::cout << "scenario incomplete " << std::endl;
+//
+//		}
+		scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
 	return total_bonus;
