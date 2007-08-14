@@ -299,7 +299,7 @@ double cUMLModel::checkForScenarios()
 ////			std::cout << "scenario incomplete " << std::endl;
 //
 //		}
-		scenario_completion[i] = temp_bonus / complete_bonus;
+	scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
 	return total_bonus;

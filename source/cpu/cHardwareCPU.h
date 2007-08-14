@@ -561,6 +561,7 @@ private:
   
   bool Inst_StateDiag0(cAvidaContext& ctx);
   bool Inst_StateDiag1(cAvidaContext& ctx);
+  bool Inst_StateDiag2(cAvidaContext& ctx);
   
   bool Inst_OrigState0(cAvidaContext& ctx);
   bool Inst_OrigState1(cAvidaContext& ctx);
