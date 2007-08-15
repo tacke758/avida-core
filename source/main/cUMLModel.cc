@@ -102,6 +102,7 @@ void cUMLModel::seedDiagrams()
 	int num_states;
 	int num_sd = 0;
 	int cur_sd = -1;
+	bool include_trans = 0;
 	std::string tr_l, tr_o, gu, act, temp;
 	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::ifstream infile;
@@ -120,6 +121,9 @@ void cUMLModel::seedDiagrams()
 		} else if (line == "=HYDRA=====================") { 
 			line.erase(); 
 			infile >> hydraMode;
+		} else if (line == "=INCLUDE-TRANSITIONS=======") { 
+			line.erase(); 
+			infile >> include_trans;
 		} else if (line == "=STATE-DIAGRAM=============") { 
 			line.erase();
 			infile >> num_sd;
@@ -155,7 +159,9 @@ void cUMLModel::seedDiagrams()
 			infile >> temp; 
 			while (temp != "-END---------------------------") { 
 				infile >> orig_i >> dest_i >> trig_i >> guard_i >> act_i; 
-				state_diagrams[cur_sd].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
+				if (include_trans) { 
+					state_diagrams[cur_sd].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
+				}	
 				infile >> temp; 
 			}
 		}  else if (line == "-SCENARIO----------------------") { 

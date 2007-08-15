@@ -26,7 +26,8 @@ cUMLStateDiagram::~cUMLStateDiagram()
 {
 }
 
-
+// Technically, this does not actually return the number of non-deterministic states, but rather
+// returns >0 if it is non-deterministic and 0 if it is deterministic.
 unsigned int cUMLStateDiagram::getNumberOfNonDeterministicStates() {
 	std::string tt, tg, ta, ts;
 	unsigned int numNonD=0;
@@ -57,7 +58,15 @@ unsigned int cUMLStateDiagram::getNumberOfNonDeterministicStates() {
 				// combination is duplicated at least once.
 				++numNonD;
 			}
+			
 		}
+		
+		// if there is an empty trigger / guard pair AND there are multiple
+		// transitions leaving this state, then increment the number of non-deterministic
+		// states
+		ts = "[]";
+		if ((tnames.find(ts) != tnames.end()) && (tnames.size() > 1)) ++numNonD;
+		
 	}
 	return numNonD;
 }

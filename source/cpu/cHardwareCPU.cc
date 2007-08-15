@@ -2725,6 +2725,9 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   // these checks should be done, but currently they make some assumptions
   // that crash when evaluating this kind of organism -- JEB
 
+  organism->modelCheck(ctx);
+	
+	
   // Setup child
   cCPUMemory& child_genome = organism->ChildGenome();
   child_genome = GetMemory();
