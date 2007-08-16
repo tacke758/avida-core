@@ -3100,12 +3100,12 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
-	return 5.0;
+	return 1.0;
 }
  
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-	int num_witness = 0;
-	const int max_witness = 5;
+//	int num_witness = 0;
+//	const int max_witness = 1;
 	
 	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
 	if(system(cmd.c_str())!=0) return 0.0;
@@ -3114,11 +3114,10 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -e -n -a -w19  -m100000 -c5 &> ./pan.out")!=0) return 0.0;
-	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
+	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
+//	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 
-	return (1 + (num_witness/max_witness));
-
+	return !(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
@@ -3262,9 +3261,9 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
 			return bonus;
 	}*/
-	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
+	/*if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
 		return bonus;
-	}
+	}*/
 
 	
 	// Ok. Subtract the number of edges from the maximum number of edges seen so far. 
