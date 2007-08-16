@@ -428,6 +428,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Minimizing edges", &cTaskLib::Task_MinTrans);	
   else if (name == "non-determinism")
 	  NewTask(name, "Non-determinism", &cTaskLib::Task_Nondeterminism);
+  else if (name == "export-xmi")
+	  NewTask(name, "Export XMI", &cTaskLib::Task_ExportXMI);
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -3298,3 +3300,28 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 
 	return !bonus;
 }
+
+// This task will be used to see if an organism meets the criteria for 
+// running hydra. If so, the task will export the XMI. It is designed to make it possible
+// for the tasks to run on non-class 5 machines.
+double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
+	cOrganism* organism = ctx.getOrganism();
+	std::string temp, file_name;
+	double bonus = 0.0;
+
+	temp = organism->getUMLModel()->getXMI();
+	
+	// call hydra when a // all scenario hits its max?
+	// all are non-zero?
+	if (organism->getUMLModel()->readyForHydra()) {
+		// print the file to output...
+		file_name =  m_world->GetStats().GetUpdate() + "." + ctx.getOrganism()->GetID();
+		organism->getUMLModel()->printUMLModelToFile(file_name);
+		bonus = 1.0;
+	} 
+	
+	return bonus;
+}
+
+
+

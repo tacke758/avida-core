@@ -357,4 +357,23 @@ bool cUMLModel::readyForHydra()
 	return ret_val;
 }
 
+void cUMLModel::printUMLModelToFile(std::string file_name) 
+{
+	// open outfile. 
+	std::ofstream outfile;
+//	outfile.open(file_name.c_str());
+	outfile.open("out.xmi");
+
+	assert(outfile.is_open());
+	
+	// export xmi to outfile.
+	outfile << xmi << endl;
+	
+	// close outfile.
+	outfile.close();
+	
+	return;
+	
+}
+
 

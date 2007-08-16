@@ -301,6 +301,8 @@ private:  // Direct task related methods
   double Task_MinTrans(cTaskContext& ctx) const;	
 //  double Task_MultTrans(cTaskContext& ctx) const;  
   double Task_Nondeterminism(cTaskContext& ctx) const;
+  double Task_ExportXMI(cTaskContext& ctx) const;
+
 };
 
 
