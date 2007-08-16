@@ -3286,6 +3286,7 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	unsigned int bonus = 0;
 
+	
 	for(unsigned int i=0; i<organism->getUMLModel()->getStateDiagramSize(); ++i) {
 		cUMLStateDiagram* sd=organism->getUMLModel()->getStateDiagram(i);
 		if(sd->numTrans() > 0) {
@@ -3293,5 +3294,7 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 		}
 	}
 	
+	organism->getUMLModel()->setBonusInfo("isDeterministic", !bonus);	
+
 	return !bonus;
 }

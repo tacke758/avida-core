@@ -314,6 +314,7 @@ double cUMLModel::checkForScenarios()
 bool cUMLModel::readyForHydra() 
 {
 	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
+	//          (4) ALL COMPLETE && DETERMINISTIC
 	// check which option was selected in the seed-model.cfg
 	// check to see if this condition is true. If so, return 1; otherwise, return 0.
 	
@@ -339,6 +340,15 @@ bool cUMLModel::readyForHydra()
 		break;
 	case 3:
 		ret_val = 0;
+		break;
+	case 4:
+		ret_val = 1;
+		if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+			//ret_val &= scenario_completion[i];
+			if (scenario_completion[i] != 1) ret_val &= 0;
+		}
+			
 		break;
 	default:
 		ret_val = 0;
