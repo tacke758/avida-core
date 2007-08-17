@@ -3089,7 +3089,8 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
+//	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
+	if(system("./pan &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 //	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
 
