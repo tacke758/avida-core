@@ -3114,7 +3114,9 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
+// Eliminated -a option on 8/16/ it was causing weird errors.
+//	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
+	if(system("./pan -e -n -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
 //	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 
 	return !(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
@@ -3271,12 +3273,12 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 	nt = mod->numTrans();
 	
 	if (mt > 0) {
-		bonus = 1 + mt - nt;
+		bonus = mt - nt;
 		bonus /= mt;
 	}	
 	
 	// cap the amount of bonus.
-	if (bonus > 5) bonus = 5;
+	//if (bonus > 5) bonus = 5;
 	
 	return bonus;
 
