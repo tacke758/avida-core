@@ -512,6 +512,9 @@ bool cUMLStateDiagram::addTransitionTotal()
 		return false;
 	}
 */	
+	// Disable transitions from one state to itself. 
+	
+	if (orig == dest) return false;
 
 	// Check that there is not a duplicate transition
 	if (findTrans(orig, dest, trigger_index, guard_index, action_index)) { 
