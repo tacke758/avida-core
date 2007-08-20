@@ -3089,8 +3089,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-//	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
-	if(system("./pan &> ./pan.out")!=0) return 0.0;
+	if(system("./pan -a &> ./pan.out")!=0) return 0.0;
 	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'")!=0) return 0.0;
 //	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
 
@@ -3105,7 +3104,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 }
  
 double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
-//	int num_witness = 0;
+	int num_witness = 0;
 //	const int max_witness = 1;
 	
 	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
@@ -3115,12 +3114,11 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
-// Eliminated -a option on 8/16/ it was causing weird errors.
-//	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
-	if(system("./pan -e -n -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
-//	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
+	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
+	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 
-	return !(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
+	return num_witness; 
+		//(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
