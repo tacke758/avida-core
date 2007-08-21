@@ -170,12 +170,14 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 				if (temp > longest_dist) {
 					longest_dist = temp;
 				}	
-			} else if (ts == "[]/") {
+			} 
+			
+			/*else if (ts == "[]/") {
 				temp = checkForPathStep(path, target(ed, sd0), curr_dist);
 				if (temp > longest_dist) { 
 					longest_dist = temp;
 				}
-			}	
+			}*/	
 	}
 	
 	//std::cout << "Returning longest_dist " << longest_dist << std::endl;
