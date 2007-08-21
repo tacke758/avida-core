@@ -575,6 +575,8 @@ private:
   bool Inst_OrigState9(cAvidaContext& ctx);
   bool Inst_OrigState10(cAvidaContext& ctx);
   bool Inst_OrigState11(cAvidaContext& ctx);
+  bool Inst_OrigState12(cAvidaContext& ctx);
+  
 
   bool Inst_DestState0(cAvidaContext& ctx);
   bool Inst_DestState1(cAvidaContext& ctx);
@@ -588,6 +590,8 @@ private:
   bool Inst_DestState9(cAvidaContext& ctx);
   bool Inst_DestState10(cAvidaContext& ctx);
   bool Inst_DestState11(cAvidaContext& ctx);
+  bool Inst_DestState12(cAvidaContext& ctx);
+
   
   bool Inst_TransLab0(cAvidaContext& ctx);
   bool Inst_TransLab1(cAvidaContext& ctx);

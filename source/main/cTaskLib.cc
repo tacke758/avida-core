@@ -3085,7 +3085,13 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const {
 //	cOrganism* organism = ctx.getOrganism();
 	
-	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
+	std::string file_name = "tmp-" + neverclaimFile + ".pr";
+	std::string cmd = "cp tmp.pr "+ file_name;
+	if(system(cmd.c_str())!=0) return 0.0;
+	
+
+//	std::string cmd = "cat " + neverclaimFile + " >> tmp.pr && ./spin -a tmp.pr &> /dev/null";
+	cmd = "cat " + neverclaimFile + " >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
@@ -3096,7 +3102,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 
 // Commented out to remove overhead...	
 	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi " << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+	strstrm << "cp " << file_name << " "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
@@ -3107,10 +3113,12 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	int num_witness = 0;
 //	const int max_witness = 1;
 	
-	std::string cmd = "cp tmp.pr tmp-witness.pr" ;
+	std::string file_name = "tmp-witness" + neverclaimFile + ".pr";
+	std::string cmd = "cp tmp.pr "+ file_name;
+	
 	if(system(cmd.c_str())!=0) return 0.0;
 	
-	cmd = "cat " + neverclaimFile + " >> tmp-witness.pr && ./spin -a tmp-witness.pr &> /dev/null";
+	cmd = "cat " + neverclaimFile + " >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;

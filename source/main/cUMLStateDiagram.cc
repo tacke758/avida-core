@@ -5,7 +5,7 @@ cUMLStateDiagram::cUMLStateDiagram()
 {
 
   // initialize the state diagram with 10 states.
-  sd0 = state_diagram(12); 
+  sd0 = state_diagram(13); 
 
   // initialize / seed UML state diagram here
 //  orig_state_index = 0;

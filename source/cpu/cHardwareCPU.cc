@@ -414,6 +414,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change the origin to state 10"),
 	tInstLibEntry<tMethod>("s-orig-11", &cHardwareCPU::Inst_OrigState11, false, 
 					"Change the origin to state 11"),
+	tInstLibEntry<tMethod>("s-orig-12", &cHardwareCPU::Inst_OrigState12, false, 
+							 "Change the origin to state 12"),	  
 	tInstLibEntry<tMethod>("s-dest-0", &cHardwareCPU::Inst_DestState0, false, 
 					"Change the destination to state 0"),																																									
 	tInstLibEntry<tMethod>("s-dest-1", &cHardwareCPU::Inst_DestState1, false, 
@@ -434,10 +436,12 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change the destination to state 8"),		
 	tInstLibEntry<tMethod>("s-dest-9", &cHardwareCPU::Inst_DestState9, false, 
 					"Change the destination to state 9"),	
-	tInstLibEntry<tMethod>("s-dest-10", &cHardwareCPU::Inst_DestState9, false, 
+	tInstLibEntry<tMethod>("s-dest-10", &cHardwareCPU::Inst_DestState10, false, 
 					"Change the destination to state 10"),
-	tInstLibEntry<tMethod>("s-dest-11", &cHardwareCPU::Inst_DestState9, false, 
-					"Change the destination to state 11"),											
+	tInstLibEntry<tMethod>("s-dest-11", &cHardwareCPU::Inst_DestState11, false, 
+					"Change the destination to state 11"),		
+	tInstLibEntry<tMethod>("s-dest-12", &cHardwareCPU::Inst_DestState12, false, 
+							 "Change the destination to state 12"),	  
 	tInstLibEntry<tMethod>("trans-0", &cHardwareCPU::Inst_TransLab0, false, 
 					"Change to transition label 0"),		
 	tInstLibEntry<tMethod>("trans-1", &cHardwareCPU::Inst_TransLab1, false, 
@@ -4869,6 +4873,9 @@ bool cHardwareCPU::Inst_OrigState10(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_OrigState11(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpOriginState(11)); }
 
+bool cHardwareCPU::Inst_OrigState12(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpOriginState(12)); }
+
 bool cHardwareCPU::Inst_DestState0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpDestinationState(0)); }
 
@@ -4904,6 +4911,9 @@ bool cHardwareCPU::Inst_DestState10(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_DestState11(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpDestinationState(11)); }
+
+bool cHardwareCPU::Inst_DestState12(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->absoluteJumpDestinationState(12)); }
 
 bool cHardwareCPU::Inst_TransLab0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpTransitionLabel(0)); }
