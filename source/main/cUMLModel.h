@@ -27,11 +27,9 @@ struct xmi_info {
 
 class cUMLModel { 
 public:
+  //! Constructor that loads state diagram and scenario information from seed-model.cfg.
 	cUMLModel();
 	~cUMLModel();
-
-	// Read in from file seed-model.cfg and add the building blocks for the diagrams.
-	void seedDiagrams(); 
 	
 	// Used to check if the diagrams satisfy the specified scenarios
 	double checkForScenarios();
@@ -76,7 +74,12 @@ protected:
 	std::vector<scenario_info> scenarios;
 	std::vector<double> scenario_completion;
 	int hydraMode; 
-										
+	
+  // The following are set once per Avida experiment, when the first cUMLModel is constructed:
+  static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
+  static std::vector<cUMLStateDiagram> _cfg_state_diagrams; //!< State diagrams as read from seed-model.cfg.
+  static std::vector<scenario_info> _cfg_scenarios; //!< Scenarios as read from seed-model.cfg.
+  static int _cfg_hydra_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
 };
 
 

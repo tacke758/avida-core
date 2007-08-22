@@ -55,50 +55,22 @@ xmi_info loadFile(const char* filename) {
 
 		line.erase();
 	}
-	
-	infile.close();
 
+	infile.close();
 	return x;
 }
 
-xmi_info cUMLModel::xi = loadFile("xmi_info");
-int cUMLModel::max_trans = 0;
 
+/*! This function intializes variables with data read from a file named "seed-model.cfg". 
 
-cUMLModel::cUMLModel()
-{}
-
-cUMLModel::~cUMLModel()
-{}
-
-float cUMLModel::getBonusInfo (std::string s)  
-{ 
-	float val;
-	std::map<std::string, float>::iterator bonus_info_pointer;
-	
-	bonus_info_pointer = bonus_info.find(s);
-	
-	if (bonus_info_pointer != bonus_info.end()) { 
-		val = bonus_info[s];
-	} else { 
-		val = 0;
-	}
-	return val; 
-}
-
-
-cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
-{
-  assert(x<state_diagrams.size());
-  return &state_diagrams[x];
-}
-
-/* This is a crappy little function to read in from a file. 
+"This is a crappy little function to read in from a file. 
 It is not robust. It will not understand things unless you 
-follow the *very* specific file format. */
-void cUMLModel::seedDiagrams()
-{
-	std::string data, line; // or maybe stringstream? (strstream?)
+follow the *very* specific file format."
+*/
+void seed_diagrams(std::vector<cUMLStateDiagram>& state_diagrams,
+                   std::vector<scenario_info>& scenarios,
+                   int& hydra_mode) {
+  std::string data, line; // or maybe stringstream? (strstream?)
 	int num_states;
 	int num_sd = 0;
 	int cur_sd = -1;
@@ -117,10 +89,10 @@ void cUMLModel::seedDiagrams()
 		if (line == "=STATES====================") {
 			line.erase();
 			infile >> num_states;
-		// Read in number of state diagrams	
+      // Read in number of state diagrams	
 		} else if (line == "=HYDRA=====================") { 
 			line.erase(); 
-			infile >> hydraMode;
+			infile >> hydra_mode;
 		} else if (line == "=INCLUDE-TRANSITIONS=======") { 
 			line.erase(); 
 			infile >> include_trans;
@@ -128,7 +100,7 @@ void cUMLModel::seedDiagrams()
 			line.erase();
 			infile >> num_sd;
 			state_diagrams.resize(num_sd);
-		// Read in each state diagram	
+      // Read in each state diagram	
 		} else if (line == "=SD========================") { 
 			line.erase();
 			cur_sd++;
@@ -178,17 +150,61 @@ void cUMLModel::seedDiagrams()
 			scenarios.push_back(s);
 			
 		}
-		
-		/* Missing code for reading in transition labels .... */
-		
-		line.erase();
-	}
-		
-	//read from file; load into string/strstream, and return it.
-	infile.close();
 
-	return;
+		/* Missing code for reading in transition labels .... */
+		line.erase();
+  }
   
+	infile.close();
+	return;
+}
+
+
+xmi_info cUMLModel::xi = loadFile("xmi_info");
+int cUMLModel::max_trans = 0;
+
+
+bool cUMLModel::_cfgLoaded = false;
+std::vector<cUMLStateDiagram> cUMLModel::_cfg_state_diagrams;
+std::vector<scenario_info> cUMLModel::_cfg_scenarios;
+int cUMLModel::_cfg_hydra_mode;
+
+
+cUMLModel::cUMLModel() {
+  if(!_cfgLoaded) {
+    seed_diagrams(_cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode);
+    _cfgLoaded = true;
+  }
+  
+  state_diagrams = _cfg_state_diagrams;
+  scenarios = _cfg_scenarios;
+  hydraMode = _cfg_hydra_mode;  
+}
+
+
+cUMLModel::~cUMLModel()
+{}
+
+float cUMLModel::getBonusInfo (std::string s)  
+{ 
+	float val;
+	std::map<std::string, float>::iterator bonus_info_pointer;
+	
+	bonus_info_pointer = bonus_info.find(s);
+	
+	if (bonus_info_pointer != bonus_info.end()) { 
+		val = bonus_info[s];
+	} else { 
+		val = 0;
+	}
+	return val; 
+}
+
+
+cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
+{
+  assert(x<state_diagrams.size());
+  return &state_diagrams[x];
 }
 
 
