@@ -3025,8 +3025,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 		close(from_subavida[0]);
 		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
 		dup2(from_subavida[1], STDOUT_FILENO);
-		execl("/usr/bin/java", "-cp .", "-jar", "./hydraulic.jar", NULL);
-		// We don't ever get here.
+    execl("/usr/bin/java", "java", "-cp", ".", "-jar", "./hydraulic.jar", NULL);    
 	} 
 	//parent
 	close(to_subavida[0]);
