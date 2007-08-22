@@ -40,6 +40,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 // Various workarounds for Visual Studio shortcomings
 #if AVIDA_PLATFORM(WINDOWS)
@@ -3019,13 +3020,20 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	pipe(from_subavida);
 	
 	pid_t subavida = fork();
+  if(subavida < 0) {
+    std::cerr << "ERROR: fork failed; errno=" << errno << std::endl;
+    assert(false);
+  }
 	if(subavida == 0) {
 		//child
 		close(to_subavida[1]);
 		close(from_subavida[0]);
 		dup2(to_subavida[0], STDIN_FILENO); //oldd, newd
 		dup2(from_subavida[1], STDOUT_FILENO);
-    execl("/usr/bin/java", "java", "-cp", ".", "-jar", "./hydraulic.jar", NULL);    
+    execl("/usr/bin/java", "java", "-cp", ".", "-jar", "./hydraulic.jar", NULL);
+    // There is no return if execl succeeds.
+    std::cerr << "ERROR: execl failed; errno=" << errno << std::endl;
+    assert(false);
 	} 
 	//parent
 	close(to_subavida[0]);
@@ -3038,8 +3046,9 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	// Write the model to STDIN of subavida (be careful; write may not write all that you ask!)
 	do {
 		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
-		if (status < 0) {
-			break;
+		if(status < 0) {
+      std::cerr << "ERROR: could not write to subavida; errno=" << errno << std::endl;
+			assert(false);
 		} else {
 			 status_total += status;
 		}
@@ -3054,6 +3063,10 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 	char line[read_size]={0};
 	do {
 		status = read(from_subavida[0], line, read_size-1);
+    if(status < 0) { 
+      std::cerr << "ERROR: could not read from subavida; errno=" << errno << std::endl;
+      assert(false);
+    }      
 		if(status > 0) {
 			subavida_output += line;
 			memset(line, 0, read_size);
