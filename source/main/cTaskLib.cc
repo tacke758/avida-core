@@ -3048,7 +3048,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 		status = write(to_subavida[1], temp.c_str()+status_total, temp.size());	
 		if(status < 0) {
       std::cerr << "ERROR: could not write to subavida; errno=" << errno << std::endl;
-			assert(false);
+      exit(-1);
 		} else {
 			 status_total += status;
 		}
@@ -3065,7 +3065,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 		status = read(from_subavida[0], line, read_size-1);
     if(status < 0) { 
       std::cerr << "ERROR: could not read from subavida; errno=" << errno << std::endl;
-      assert(false);
+      exit(-1);
     }      
 		if(status > 0) {
 			subavida_output += line;
