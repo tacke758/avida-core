@@ -28,7 +28,7 @@ struct xmi_info {
 class cUMLModel { 
 public:
   //! Constructor that loads state diagram and scenario information from seed-model.cfg.
-	cUMLModel();
+	cUMLModel(const char* seed_model);
 	~cUMLModel();
 	
 	// Used to check if the diagrams satisfy the specified scenarios

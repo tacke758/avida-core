@@ -205,6 +205,7 @@ public:
   CONFIG_ADD_VAR(ANALYZE_FILE, cString, "analyze.cfg", "File used for analysis mode");
   CONFIG_ADD_VAR(ENVIRONMENT_FILE, cString, "environment.cfg", "File that describes the environment");
   CONFIG_ADD_VAR(START_CREATURE, cString, "default-classic.org", "Organism to seed the soup");
+  CONFIG_ADD_VAR(SEED_MODEL, cString, "seed-model.cfg", "UML configuration file.");
   
   CONFIG_ADD_GROUP(DEME_GROUP, "Demes and Germlines");
   CONFIG_ADD_VAR(NUM_DEMES, int, 1, "Number of independent groups in the population.");

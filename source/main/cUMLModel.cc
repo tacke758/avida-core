@@ -67,7 +67,8 @@ xmi_info loadFile(const char* filename) {
 It is not robust. It will not understand things unless you 
 follow the *very* specific file format."
 */
-void seed_diagrams(std::vector<cUMLStateDiagram>& state_diagrams,
+void seed_diagrams(const char* seed_model,
+                   std::vector<cUMLStateDiagram>& state_diagrams,
                    std::vector<scenario_info>& scenarios,
                    int& hydra_mode) {
   std::string data, line; // or maybe stringstream? (strstream?)
@@ -78,7 +79,7 @@ void seed_diagrams(std::vector<cUMLStateDiagram>& state_diagrams,
 	std::string tr_l, tr_o, gu, act, temp;
 	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::ifstream infile;
-	infile.open("seed-model.cfg");
+	infile.open(seed_model);
 	assert(infile.is_open());
 	scenario_info s;
 	std::string path_step;
@@ -170,9 +171,9 @@ std::vector<scenario_info> cUMLModel::_cfg_scenarios;
 int cUMLModel::_cfg_hydra_mode;
 
 
-cUMLModel::cUMLModel() {
+cUMLModel::cUMLModel(const char* seed_model) {
   if(!_cfgLoaded) {
-    seed_diagrams(_cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode);
+    seed_diagrams(seed_model, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode);
     _cfgLoaded = true;
   }
   

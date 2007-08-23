@@ -71,6 +71,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_state_diag(0)
   , m_orig_state_index(0)
   , m_dest_state_index(0)
+  , m_model((const char*)world->GetConfig().SEED_MODEL.Get())
 {
   // Initialization of structures...
   m_hardware = m_world->GetHardwareManager().Create(this);
@@ -91,10 +92,6 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();
-
-  m_orig_state_index = 0;
-  m_dest_state_index = 0;
-  m_parent_xmi = "";
 }
 
 
