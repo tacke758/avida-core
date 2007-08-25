@@ -1,0 +1,11 @@
+#!/bin/bash
+
+module unload ps25
+module unload intelcc
+module load gnu
+cp HPC_CMakeLists.txt CMakeLists.txt
+mkdir -p cbuild
+cd cbuild
+cmake "$@" ../
+make  
+make install
