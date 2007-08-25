@@ -57,6 +57,7 @@ unsigned int cUMLStateDiagram::getNumberOfNonDeterministicStates() {
 				// We've found a state that has out-edges where the trigger+guard
 				// combination is duplicated at least once.
 				++numNonD;
+				break;
 			}
 			
 		}

@@ -3283,9 +3283,9 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
 			return bonus;
 	}*/
-	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
+/*	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
 		return bonus;
-	}
+	}*/
 
 	
 	// Ok. Subtract the number of edges from the maximum number of edges seen so far. 
