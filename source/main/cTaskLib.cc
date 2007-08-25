@@ -3307,19 +3307,19 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 
 double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
-	unsigned int bonus = 0;
-
+	double nd_penalty=0;
+	double max_bonus=0;
 	
-	for(unsigned int i=0; i<organism->getUMLModel()->getStateDiagramSize(); ++i) {
+	for(unsigned int i=0; i<organism->getUMLModel()->getStateDiagramSize(); ++i, ++max_bonus) {
 		cUMLStateDiagram* sd=organism->getUMLModel()->getStateDiagram(i);
-		if(sd->numTrans() > 0) {
-			bonus += sd->getNumberOfNonDeterministicStates();
+		if(sd->numStates() > 0) {
+			nd_penalty += sd->getNumberOfNonDeterministicStates() / sd->numStates();
 		}
 	}
 	
-	organism->getUMLModel()->setBonusInfo("isDeterministic", !bonus);	
+	organism->getUMLModel()->setBonusInfo("isDeterministic", max_bonus - nd_penalty);	
 
-	return !bonus;
+	return max_bonus - nd_penalty;
 }
 
 // This task will be used to see if an organism meets the criteria for 
