@@ -575,56 +575,6 @@ INSTALL_FILES(/work FILES ${CFG_FILES})
 
 
 
-# Avida-ED Related
-# ------------------------------------------------------------------------------
-
-OPTION(AVD_GUI_PYQT
-	"Enable the PyQt GUI interface. (EXPERIMENTAL)"
-	OFF
-)
-IF(AVD_GUI_PYQT)
-	SET(AVD_PY_BINDINGS ON CACHE BOOL "Avida Python Bindings MUST be built for the PyQt GUI." FORCE)
-  FIND_PROGRAM(PYUIC pyuic DOC "Path to pyuic.  Used to compile python files from .ui files.")
-ENDIF(AVD_GUI_PYQT)
-
-
-# Experimental Boost.Python interface to avida is disabled by default.
-OPTION(AVD_PY_BINDINGS
-  "Enable Python interface to Avida. (EXPERIMENTAL)"
-  OFF
-)
-IF(AVD_PY_BINDINGS)
-  INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/avdFindPython.cmake)
-  AVD_FIND_PYTHON(2.4 /Library/Frameworks)
-  SET( BOOST_VERSION "1_32" CACHE STRING "Version of Boost Library to use")
-  FIND_LIBRARY(
-    BOOST_LIBRARY
-    NAMES
-      boost_python-${BOOST_VERSION}
-      boost_python
-    PATHS
-      /usr/local/lib
-    DOC "Path where the Boost Python Library can be found"
-  )
-  FIND_PATH(
-    BOOST_INCLUDE_PATH
-    boost/python/def.hpp
-    /usr/local/include
-    /usr/local/include/boost
-    /usr/local/include/boost-${BOOST_VERSION}
-    DOC "Path where the Boost Python header files can be found"
-  )
-  FIND_PROGRAM(
-    GCCXML
-    gccxml
-    DOC "gccxml must be in the search path specified by your PATH environment variable in order for pyste to operate"
-  )
-  SET(UNIT_TESTS TRUE)
-
-  ADD_SUBDIRECTORY(source/bindings)
-  ADD_SUBDIRECTORY(source/python)
-ENDIF(AVD_PY_BINDINGS)
-
 
 # By default, compile all unit tests of primitive Avida classes.  Tests
 # are run via 'make test' under unix.
@@ -643,9 +593,3 @@ ELSE(AVD_CMAKE_UNIT_TESTS)
   REMOVE_DEFINITIONS(-DUSE_tMemTrack=1)
 ENDIF(AVD_CMAKE_UNIT_TESTS)
 
-
-IF(BUILD_AvidaSupportLibs)
-  IF(EXISTS source/third-party/AvidaSupportLibs/CMakeLists.txt)
-    ADD_SUBDIRECTORY(source/third-party/AvidaSupportLibs)
-  ENDIF(EXISTS source/third-party/AvidaSupportLibs/CMakeLists.txt)
-ENDIF(BUILD_AvidaSupportLibs)
