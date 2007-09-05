@@ -26,10 +26,10 @@ Visualized development/support timeline (* current):
 
 
 Version 2.6 - stable      - Status: End of Life
-Version 2.7 - development - Status: Wrapping Up
-Version 2.8 - stable      - Status: Pre-release preparation
+Version 2.7 - development - Status: Completed
+Version 2.8 - stable      - Status: Active Maintenance
 
-Version 2.9 - development - Target: August 2008    - Status: Soon
+Version 2.9 - development - Target: August 2008    - Status: Active Development
 
 David:
 - Completed AvidaScript
