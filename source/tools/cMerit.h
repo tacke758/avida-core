@@ -78,7 +78,7 @@ public:
   double CalcFitness(int gestation_time) const {
     return ( gestation_time != 0 ) ? value / ((double) gestation_time) : 0; }
 
-  std::ostream& BinaryPrint(std::ostream& os = std::cout) const ;
+  std::ostream& BinaryPrint(std::ostream& os = std::cout) const;
 };
 
 
