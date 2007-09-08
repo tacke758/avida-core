@@ -1,5 +1,5 @@
 # Avida resource data
-# Wed Sep  5 15:37:09 2007
+# Fri Sep  7 16:09:20 2007
 # First column gives the current update, all further columns give the quantity
 # of the particular resource at that update.
 #  1: Update
@@ -12,7 +12,7 @@
 40 1107 
 50 2811 
 60 4908 
-70 4971 
-80 5124 
-90 5723 
-100 7255 
+70 4964 
+80 5123 
+90 5700 
+100 7091 
