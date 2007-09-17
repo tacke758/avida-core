@@ -17,16 +17,17 @@
 
 struct transition_properties { 
 	transition_properties() {}
-	transition_properties(int trigger, int guard, int action) 
-		: _tr(trigger), _gu(guard), _act(action) {}
-	int _tr, _gu, _act; 
+	transition_properties(int trigger, int guard, int action, int edge_id) 
+		: _tr(trigger), _gu(guard), _act(action), _eid(edge_id){}
+	int _tr, _gu, _act, _eid; 
 }; 
 
-struct transition_label { 
+/*struct transition_label { 
 	int trigger;
 	int guard;
 	int action;
-};
+	int edge_id;
+};*/
 
 struct state {
 	int identifier;
@@ -46,17 +47,17 @@ protected:
   std::vector<std::string> guards;
   std::vector<std::string> actions;
 //  std::vector<transition> transitions;
-  std::vector<transition_label> transition_labels;
+//  std::vector<transition_label> transition_labels;
 
 //  int orig_state_index;
 //  int dest_state_index;
-  int trans_label_index;
+//  int trans_label_index;
   int trigger_index;
   int guard_index;
   int action_index;
-
   
   std::string xmi;
+  int edge_id_count;
   	
 public:
 
@@ -140,7 +141,7 @@ struct transition_writer {
   int getTriggerIndex();
   int getGuardIndex();
   int getActionIndex();
-  transition_label getTransLabel();
+//  transition_label getTransLabel();
   
 // Visit graph
 //  void executeVisitor();
@@ -155,7 +156,8 @@ struct transition_writer {
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);
-  bool addTransitionLabel(int, int, int);
+  bool removeTransition(int);
+//  bool addTransitionLabel(int, int, int);
   // END UML functions
 protected:
     state_diagram sd0;

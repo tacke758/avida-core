@@ -593,7 +593,7 @@ private:
   bool Inst_DestState12(cAvidaContext& ctx);
 
   
-  bool Inst_TransLab0(cAvidaContext& ctx);
+/*  bool Inst_TransLab0(cAvidaContext& ctx);
   bool Inst_TransLab1(cAvidaContext& ctx);
   bool Inst_TransLab2(cAvidaContext& ctx);
   bool Inst_TransLab3(cAvidaContext& ctx);
@@ -604,7 +604,7 @@ private:
   bool Inst_TransLab8(cAvidaContext& ctx);
   bool Inst_TransLab9(cAvidaContext& ctx);
   bool Inst_TransLab10(cAvidaContext& ctx);
-  bool Inst_TransLab11(cAvidaContext& ctx);
+  bool Inst_TransLab11(cAvidaContext& ctx);*/
 
   bool Inst_Trigger0(cAvidaContext& ctx);
   bool Inst_Trigger1(cAvidaContext& ctx);
