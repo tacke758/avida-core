@@ -3237,6 +3237,7 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 	{ 
 		return bonus;
 	}
+
 	
 	m_world->GetStats().W2Attempt();
 		
