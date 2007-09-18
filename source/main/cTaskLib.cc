@@ -431,6 +431,11 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Non-determinism", &cTaskLib::Task_Nondeterminism);
   else if (name == "export-xmi")
 	  NewTask(name, "Export XMI", &cTaskLib::Task_ExportXMI);
+  else if (name == "not-n1") 
+	  NewTask(name, "Violate property 1", &cTaskLib::Task_ViolateN1);
+  else if (name == "not-n2") 
+	  NewTask(name, "Violate property 2", &cTaskLib::Task_ViolateN2);
+  
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -3112,9 +3117,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 //	if(system("cat pan.out | perl -e 'while(<STDIN>) { if(/unreached/) {exit(1);}}'")!=0) return 0.2;
 
 
-// Commented out to remove overhead...	
 	std::ostringstream strstrm;
-//	strstrm << "cp " << file_name << " "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
 	strstrm << "cp tmp.xmi "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
@@ -3275,20 +3278,6 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 	double bonus = 0.0;
 	int mt, nt;
 		
-		
-/*	if ((organism->getUMLModel()->getBonusInfo("spinw1") == 0)	 &&
-		(organism->getUMLModel()->getBonusInfo("spinw2") == 0)) { 
-			return bonus;
-	} 
-	if ((organism->getUMLModel()->getBonusInfo("scenario5") != 9) || 
-		(organism->getUMLModel()->getBonusInfo("scenario6") != 4)) { 
-			return bonus;
-	}*/
-/*	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0){ 
-		return bonus;
-	}*/
-
-	
 	// Ok. Subtract the number of edges from the maximum number of edges seen so far. 
 	mt = mod->getMaxTrans();
 	nt = mod->numTrans();
@@ -3297,9 +3286,6 @@ double cTaskLib::Task_MinTrans(cTaskContext& ctx) const {
 		bonus = mt - nt;
 		bonus /= mt;
 	}	
-	
-	// cap the amount of bonus.
-	//if (bonus > 5) bonus = 5;
 	
 	return bonus;
 
@@ -3346,4 +3332,46 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 }
 
 
+double cTaskLib::Task_ViolateN1(cTaskContext& ctx) const { 
+	
+	std::ostringstream strstrm;
+	cOrganism* organism = ctx.getOrganism();
+
+	double bonus = 0; 
+	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
+		
+		bonus = organism->getParentBonus("not-n1"); 
+	}	else {
+		if ((SpinCoprocess(ctx, "N1")) == 0) { 
+			bonus = 1;
+		}
+	}
+	
+	organism->getUMLModel()->setBonusInfo("not-n1", bonus);	
+	
+	if (bonus) {
+		
+		strstrm << "cp tmp.xmi "  << "violate-n1" << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+		strstrm << ".xml";
+		if(system(strstrm.str().c_str())!=0) return 0.0;
+	}	
+	
+	return bonus;
+}
+
+
+double cTaskLib::Task_ViolateN2(cTaskContext& ctx) const { 
+	
+	std::ostringstream strstrm;
+	
+	double bonus = !(SpinCoprocess(ctx, "N2"));
+	
+	if (bonus) {
+		strstrm << "cp tmp.xmi "  << "violate-n2" << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+		strstrm << ".xml";
+		if(system(strstrm.str().c_str())!=0) return 0.0;
+	}	
+	
+	return bonus;
+}
 

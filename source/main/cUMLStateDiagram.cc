@@ -491,7 +491,7 @@ bool cUMLStateDiagram::addTransitionTotal()
 	}
 	
 //	int id_num = num_edges(sd0);
-	std::cout << "Adding an edge with id " << edge_id_count << std::endl;
+//	std::cout << "Adding an edge with id " << edge_id_count << std::endl;
 	
 	// Create the transition properties
 	transition_properties tp = transition_properties(trigger_index, guard_index, action_index, edge_id_count); 
@@ -515,7 +515,7 @@ bool cUMLStateDiagram::addTransitionTotal()
 // true; otherwise, return false.
 bool cUMLStateDiagram::removeTransition(int x) { 
 
-	std::cout << "attempting to remove transition " << x << std::endl;
+//	std::cout << "attempting to remove transition " << x << std::endl;
 	bool val = false;
 	boost::graph_traits<state_diagram>::edge_descriptor ed;
 
@@ -528,13 +528,13 @@ bool cUMLStateDiagram::removeTransition(int x) {
 		 edge_start != edge_end; ++edge_start) {
 		
 		ed = *edge_start;
-		std::cout << "trans id is  " << (sd0[ed]._eid) << std::endl;
+//		std::cout << "trans id is  " << (sd0[ed]._eid) << std::endl;
 
 		if (x == (sd0[ed]._eid)) {
 
 			remove_edge(ed, sd0);	
 			val = true;
-			std::cout << "removed  " << x << std::endl;
+//			std::cout << "removed  " << x << std::endl;
 
 			break;
 		}

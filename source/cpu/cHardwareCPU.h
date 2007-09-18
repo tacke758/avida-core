@@ -605,6 +605,20 @@ private:
   bool Inst_TransLab9(cAvidaContext& ctx);
   bool Inst_TransLab10(cAvidaContext& ctx);
   bool Inst_TransLab11(cAvidaContext& ctx);*/
+  
+  bool Inst_RemoveTrans0(cAvidaContext& ctx);
+  bool Inst_RemoveTrans1(cAvidaContext& ctx);
+  bool Inst_RemoveTrans2(cAvidaContext& ctx);
+  bool Inst_RemoveTrans3(cAvidaContext& ctx);
+  bool Inst_RemoveTrans4(cAvidaContext& ctx);
+  bool Inst_RemoveTrans5(cAvidaContext& ctx);
+  bool Inst_RemoveTrans6(cAvidaContext& ctx);
+  bool Inst_RemoveTrans7(cAvidaContext& ctx);
+  bool Inst_RemoveTrans8(cAvidaContext& ctx);
+  bool Inst_RemoveTrans9(cAvidaContext& ctx);
+  bool Inst_RemoveTrans10(cAvidaContext& ctx);
+  bool Inst_RemoveTrans11(cAvidaContext& ctx);
+  bool Inst_RemoveTrans12(cAvidaContext& ctx);  
 
   bool Inst_Trigger0(cAvidaContext& ctx);
   bool Inst_Trigger1(cAvidaContext& ctx);

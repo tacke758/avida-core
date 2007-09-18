@@ -441,33 +441,33 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("s-dest-11", &cHardwareCPU::Inst_DestState11, false, 
 					"Change the destination to state 11"),		
 	tInstLibEntry<tMethod>("s-dest-12", &cHardwareCPU::Inst_DestState12, false, 
-							 "Change the destination to state 12"),	  
-/*	tInstLibEntry<tMethod>("trans-0", &cHardwareCPU::Inst_TransLab0, false, 
-					"Change to transition label 0"),		
-	tInstLibEntry<tMethod>("trans-1", &cHardwareCPU::Inst_TransLab1, false, 
-					"Change to transition label 1"),		
-	tInstLibEntry<tMethod>("trans-2", &cHardwareCPU::Inst_TransLab2, false, 
-					"Change to transition label 2"),		
-	tInstLibEntry<tMethod>("trans-3", &cHardwareCPU::Inst_TransLab3, false, 
-					"Change to transition label 3"),		
-	tInstLibEntry<tMethod>("trans-4", &cHardwareCPU::Inst_TransLab4, false, 
-					"Change to transition label 4"),		
-	tInstLibEntry<tMethod>("trans-5", &cHardwareCPU::Inst_TransLab5, false, 
-					"Change to transition label 5"),		
-	tInstLibEntry<tMethod>("trans-6", &cHardwareCPU::Inst_TransLab6, false, 
-					"Change to transition label 6"),		
-	tInstLibEntry<tMethod>("trans-7", &cHardwareCPU::Inst_TransLab7, false, 
-					"Change to transition label 7"),		
-	tInstLibEntry<tMethod>("trans-8", &cHardwareCPU::Inst_TransLab8, false, 
-					"Change to transition label 8"),		
-	tInstLibEntry<tMethod>("trans-9", &cHardwareCPU::Inst_TransLab9, false, 
-					"Change to transition label 9"),		
-	tInstLibEntry<tMethod>("trans-10", &cHardwareCPU::Inst_TransLab10, false, 
-					"Change to transition label 10"),		
-	tInstLibEntry<tMethod>("trans-11", &cHardwareCPU::Inst_TransLab11, false, 
-					"Change to transition label 11"),	
-*/
-					
+					"Change the destination to state 12"),	  
+	tInstLibEntry<tMethod>("rm-t-0", &cHardwareCPU::Inst_RemoveTrans0, false, 
+					"Remove transition 0"),		
+	tInstLibEntry<tMethod>("rm-t-1", &cHardwareCPU::Inst_RemoveTrans1, false, 
+					"Remove transition 1"),		
+	tInstLibEntry<tMethod>("rm-t-2", &cHardwareCPU::Inst_RemoveTrans2, false, 
+					"Remove transition 2"),		
+	tInstLibEntry<tMethod>("rm-t-3", &cHardwareCPU::Inst_RemoveTrans3, false, 
+					"Remove transition 3"),		
+	tInstLibEntry<tMethod>("rm-t-4", &cHardwareCPU::Inst_RemoveTrans4, false, 
+					"Remove transition 4"),		
+	tInstLibEntry<tMethod>("rm-t-5", &cHardwareCPU::Inst_RemoveTrans5, false, 
+					"Remove transition 5"),					
+	tInstLibEntry<tMethod>("rm-t-6", &cHardwareCPU::Inst_RemoveTrans6, false, 
+					"Remove transition 6"),		
+	tInstLibEntry<tMethod>("rm-t-7", &cHardwareCPU::Inst_RemoveTrans7, false, 
+					"Remove transition 7"),		
+	tInstLibEntry<tMethod>("rm-t-8", &cHardwareCPU::Inst_RemoveTrans8, false, 
+					"Remove transition 8"),	
+	tInstLibEntry<tMethod>("rm-t-9", &cHardwareCPU::Inst_RemoveTrans9, false, 
+					"Remove transition 9"),					
+	tInstLibEntry<tMethod>("rm-t-10", &cHardwareCPU::Inst_RemoveTrans10, false, 
+					"Remove transition 10"),		
+	tInstLibEntry<tMethod>("rm-t-11", &cHardwareCPU::Inst_RemoveTrans11, false, 
+					"Remove transition 11"),		
+	tInstLibEntry<tMethod>("rm-t-12", &cHardwareCPU::Inst_RemoveTrans12, false, 
+					"Remove transition 12"),	  
 	tInstLibEntry<tMethod>("trig-0", &cHardwareCPU::Inst_Trigger0, false, 
 					"Change to trigger 0"),	
 	tInstLibEntry<tMethod>("trig-1", &cHardwareCPU::Inst_Trigger1, false, 
@@ -5045,3 +5045,45 @@ bool cHardwareCPU::Inst_Action12(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Action13(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(13)); }
+
+bool cHardwareCPU::Inst_RemoveTrans0(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(0)); }
+
+bool cHardwareCPU::Inst_RemoveTrans1(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(1)); }
+
+bool cHardwareCPU::Inst_RemoveTrans2(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(2)); }
+
+bool cHardwareCPU::Inst_RemoveTrans3(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(3)); }
+
+bool cHardwareCPU::Inst_RemoveTrans4(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(4)); }
+
+bool cHardwareCPU::Inst_RemoveTrans5(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(5)); }
+
+bool cHardwareCPU::Inst_RemoveTrans6(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(6)); }
+
+bool cHardwareCPU::Inst_RemoveTrans7(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(7)); }
+
+bool cHardwareCPU::Inst_RemoveTrans8(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(8)); }
+
+bool cHardwareCPU::Inst_RemoveTrans9(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(9)); }
+
+bool cHardwareCPU::Inst_RemoveTrans10(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(10)); }
+
+bool cHardwareCPU::Inst_RemoveTrans11(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(11)); }
+
+bool cHardwareCPU::Inst_RemoveTrans12(cAvidaContext& ctx)
+{ return (organism->getStateDiagram()->removeTransition(12)); }
+
+
+
