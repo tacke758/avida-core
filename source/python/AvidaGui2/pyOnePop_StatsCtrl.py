@@ -300,8 +300,17 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     m_org_name = m_org_name[hyphen_position+1:]   
     self.m_org_name.setText(str(m_org_name))
 
-    m_org_fitness = phenotype.GetFitness()
-    self.m_org_fitness.setText(QString("%1").arg(m_org_fitness))    
+    string_output_length = 6
+    if phenotype.GetFitness()<10000 : 
+      org_fitness = str(phenotype.GetFitness())
+      string_length = len(org_fitness)
+      while string_length < string_output_length:
+        org_fitness = org_fitness + '0'
+        string_length = string_length+1
+      self.m_org_fitness.setText(org_fitness[0:string_output_length])
+    else:
+      org_fitness = "%.2g" %(stats.GetAveFitness())
+      self.m_org_fitness.setText(org_fitness)
 
     m_org_merit = phenotype.GetMerit().GetDouble()
     self.m_org_merit.setText(str(m_org_merit))    
