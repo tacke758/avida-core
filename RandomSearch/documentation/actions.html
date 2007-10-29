@@ -1,0 +1,1359 @@
+<html>
+<head>
+  <title>Avida : List of Actions</title>
+	<link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+
+<div class="revision">
+Revised 2006-09-03 DMB
+</div>
+
+<p>
+<a href="index.html">Return to the Index</a> &nbsp;|&nbsp;
+<a href="events.html">The Events File</a> &nbsp;|&nbsp;
+<a href="analyze.html">The Analyze File</a>
+</p>
+<hr />
+
+<div align="center">
+<h1>List of Actions</h1>
+</div>
+
+<a name="ActionCategories"><h2>Action Categories</h2></a>
+<p>
+There is a large library of actions available for scheduling as events.
+Additionally, all of these actions can be used within analyze scripts.
+Below you will find a listing of the high level groupings of these
+actions, along with detailed sections for each them.
+</p>
+
+
+<dl>
+<dt><a href="#PrintActions">Print</a></dt>
+<dd>Print actions are the primary way of saving data from an Avida experiments.</dd>
+<dt><a href="#PopulationActions">Population</a></dt>
+<dd>Population actions modify the state of the population, and will actually change the course of the run.</dd>
+<dt><a href="#EnvironmentActions">Environment</a></dt>
+<dd>Actions that allow user to change properties of the environment, including resources.</dd>
+<dt><a href="#SaveLoadActions">Save and Load</a></dt>
+<dd>Actions that allow for saving and loading large data sets, such as full populations.</dd>
+<dt><a href="#LandscapeActions">Landscape Analysis</a></dt>
+<dd>Actions that use data from the current state of Avida, process it and then output the results.</dd>
+<dt><a href="#DriverActions">Driver</a></dt>
+<dd>Actions that allow user to control program execution, including experiment termination.</dd>
+</dl>
+
+<p>
+For a brief overview of writing a new action, please see <a href="#CreateAction">Creating an Action</a> below.
+</p>
+
+<p>&nbsp;</p>
+<h2>Alphabetical Listing of Available Actions</h2>
+
+<p>
+<table>
+  <tr>
+    <td>
+      <a href="#AnalyzeLandscape">AnalyzeLandscape</a>
+      <br /><a href="#AnalyzePopulation">AnalyzePopulation</a>
+      <br /><a href="#CompeteDemes">CompeteDemes</a>
+      <br /><a href="#ConnectCells">ConnectCells</a>
+      <br /><a href="#CopyDeme">CopyDeme</a>
+      <br /><a href="#DeletionLandscape">DeletionLandscape</a>
+      <br /><a href="#DisconnectCells">DisconnectCells</a>
+      <br /><a href="#DumpDonorGrid">DumpDonorGrid</a>
+      <br /><a href="#DumpFitnessGrid">DumpFitnessGrid</a>
+      <br /><a href="#DumpGenotypeIDGrid">DumpGenotypeIDGrid</a>
+      <br /><a href="#DumpMemory">DumpMemory</a>
+      <br /><a href="#DumpPopulation">DumpPopulation</a>
+      <br /><a href="#DumpReceiverGrid">DumpReceiverGrid</a>
+      <br /><a href="#DumpTaskGrid">DumpTaskGrid</a>
+      <br /><a href="#Echo">Echo</a>
+      <br /><a href="#Exit">Exit</a>
+      <br /><a href="#ExitAveLineageLabelGreater">ExitAveLineageLabelGreater</a>
+      <br /><a href="#ExitAveLineageLabelLess">ExitAveLineageLabelLess</a>
+      <br /><a href="#FullLandscape">FullLandscape</a>
+      <br /><a href="#HillClimb">HillClimb</a>
+      <br /><a href="#Inject">Inject</a>
+      <br /><a href="#InjectAll">InjectAll</a>
+      <br /><a href="#InjectParasite">InjectParasite</a>
+      <br /><a href="#InjectRandom">InjectRandom</a>
+      <br /><a href="#InjectRange">InjectRange</a>
+      <br /><a href="#InjectResource">InjectResource</a>
+      <br /><a href="#InjectScaledResource">InjectScaledResource</a>
+      <br /><a href="#InjectSequence">InjectSequence</a>
+      <br /><a href="#InsertionLandscape">InsertionLandscape</a>
+      <br /><a href="#JoinGridCol">JoinGridCol</a>
+      <br /><a href="#JoinGridRow">JoinGridRow</a>
+      <br /><a href="#KillProb">KillProb</a>
+      <br /><a href="#KillRate">KillRate</a>
+      <br /><a href="#KillRectangle">KillRectangle</a>
+      <br /><a href="#LoadClone">LoadClone</a>
+    </td>
+    <td>
+      <a href="#LoadPopulation">LoadPopulation</a>
+      <br /><a href="#ModMutProb">ModMutProb</a>
+      <br /><a href="#OutflowScaledResource">OutflowScaledResource</a>
+      <br /><a href="#PairTestLandscape">PairTestLandscape</a>
+      <br /><a href="#PrecalcLandscape">PrecalcLandscape</a>
+      <br /><a href="#PredictNuLandscape">PredictNuLandscape</a>
+      <br /><a href="#PredictWLandscape">PredictWLandscape</a>
+      <br /><a href="#PrintAverageData">PrintAverageData</a>
+      <br /><a href="#PrintCCladeCounts">PrintCCladeCounts</a>
+      <br /><a href="#PrintCCladeFitnessHistogram">PrintCCladeFitnessHistogram</a>
+      <br /><a href="#PrintCCladeRelativeFitnessHistogram">PrintCCladeRelativeFitnessHistogram</a>
+      <br /><a href="#PrintCountData">PrintCountData</a>
+      <br /><a href="#PrintData">PrintData</a>
+      <br /><a href="#PrintDebug">PrintDebug</a>
+      <br /><a href="#PrintDemeStats">PrintDemeStats</a>
+      <br /><a href="#PrintDepthHistogram">PrintDepthHistogram</a>
+      <br /><a href="#PrintDetailedFitnessData">PrintDetailedFitnessData</a>
+      <br /><a href="#PrintDivideMutData">PrintDivideMutData</a>
+      <br /><a href="#PrintDominantData">PrintDominantData</a>
+      <br /><a href="#PrintDominantGenotype">PrintDominantGenotype</a>
+      <br /><a href="#PrintDominantParaData">PrintDominantParaData</a>
+      <br /><a href="#PrintDominantParasiteGenotype">PrintDominantParasiteGenotype</a>
+      <br /><a href="#PrintErrorData">PrintErrorData</a>
+      <br /><a href="#PrintGeneticDistanceData">PrintGeneticDistanceData</a>
+      <br /><a href="#PrintGenomicSiteEntropy">PrintGenomicSiteEntropy</a>
+      <br /><a href="#PrintGenotypeAbundanceHistogram">PrintGenotypeAbundanceHistogram</a>
+      <br /><a href="#PrintGenotypeMap">PrintGenotypeMap</a>
+      <br /><a href="#PrintGenotypes">PrintGenotypes</a>
+      <br /><a href="#PrintInstructionAbundanceHistogram">PrintInstructionAbundanceHistogram</a>
+      <br /><a href="#PrintInstructionData">PrintInstructionData</a>
+      <br /><a href="#PrintLineageCounts">PrintLineageCounts</a>
+      <br /><a href="#PrintLineageTotals">PrintLineageTotals</a>
+      <br /><a href="#PrintLogFitnessHistogram">PrintLogFitnessHistogram</a>
+      <br /><a href="#PrintMutationRateData">PrintMutationRateData</a>
+      <br /><a href="#PrintPhenotypeData">PrintPhenotypeData</a>
+    </td>
+    <td>
+      <a href="#PrintPhenotypeStatus">PrintPhenotypeStatus</a>
+      <br /><a href="#PrintPhenotypicPlasticity">PrintPhenotypicPlasticity</a>
+      <br /><a href="#PrintPopulationDistanceData">PrintPopulationDistanceData</a>
+      <br /><a href="#PrintRelativeFitnessHistogram">PrintRelativeFitnessHistogram</a>
+      <br /><a href="#PrintResourceData">PrintResourceData</a>
+      <br /><a href="#PrintSpeciesAbundanceData">PrintSpeciesAbundanceData</a>
+      <br /><a href="#PrintStatsData">PrintStatsData</a>
+      <br /><a href="#PrintTasksSnapshot">PrintTasksSnapshot</a>
+      <br /><a href="#PrintTasksExeData">PrintTasksExeData</a>
+      <br /><a href="#PrintTasksQualData">PrintTasksQualData</a>
+      <br /><a href="#PrintTimeData">PrintTimeData</a>
+      <br /><a href="#PrintTotalsData">PrintTotalsData</a>
+      <br /><a href="#PrintTreeDepths">PrintTreeDepths</a>
+      <br /><a href="#PrintVarianceData">PrintVarianceData</a>
+      <br /><a href="#PrintViableTasksData">PrintViableTasksData</a>
+      <br /><a href="#RandomLandscape">RandomLandscape</a>
+      <br /><a href="#ResetDemes">ResetDemes</a>
+      <br /><a href="#SampleLandscape">SampleLandscape</a>
+      <br /><a href="#SaveClone">SaveClone</a>
+      <br /><a href="#SaveHistoricPopulation">SaveHistoricPopulation</a>
+      <br /><a href="#SaveHistoricSexPopulation">SaveHistoricSexPopulation</a>
+      <br /><a href="#SaveParasitePopulation">SaveParasitePopulation</a>
+      <br /><a href="#SavePopulation">SavePopulation</a>
+      <br /><a href="#SaveSexPopulation">SaveSexPopulation</a>
+      <br /><a href="#SerialTransfer">SerialTransfer</a>
+      <br /><a href="#SetMutProb">SetMutProb</a>
+      <br /><a href="#SetReactionInst">SetReactionInst</a>
+      <br /><a href="#SetReactionValue">SetReactionValue</a>
+      <br /><a href="#SetReactionValueMult">SetReactionValueMult</a>
+      <br /><a href="#SetResource">SetResource</a>
+      <br /><a href="#SetVerbose">SetVerbose</a>
+      <br /><a href="#SeverGridCol">SeverGridCol</a>
+      <br /><a href="#SeverGridRow">SeverGridRow</a>
+      <br /><a href="#TestDominant">TestDominant</a>
+      <br /><a href="#ZeroMuts">ZeroMuts</a>
+    </td>
+  </tr>
+</table>
+
+
+<p>&nbsp;</p>
+<h2><a name="PrintActions">Print Actions</a></h2>
+
+<p>
+Output events are the primary way of saving data from an Avida experiments.
+The main two types are <em>continuous output</em>, which append to a single file 
+every time the event is trigged, and <em>singular output</em>, which produce
+a single, complete file for each trigger.
+</p>
+
+<ul>
+<!-------- Stats Out Files -------->
+<li>
+  <strong><a name="PrintAverageData">PrintAverageData</a></strong>
+  [<span class="cmdarg">string filename='average.dat'</span>]
+  
+  <p>
+  Print all of the population averages the specified file.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintCCladeCounts">PrintCCladeCounts</a></strong>
+  [<span class="cmdarg">string filename="cclade_count.dat"</span>]
+  <p>
+    Print a count of the number of oraganisms belonging to a each coalescence clade currently in the population.
+    <br />This action will only work in run mode.
+    <br />This action will require TRACK_CCLADE to be enabled.
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintCCladeFitnessHistogram">PrintCCladeFitnessHistogram</a></strong>
+  [<span class="cmdarg">string filename="cclade_fitness_hist.dat"</span>]
+  [<span class="cmdarg">string mode="CURRENT"</span>] 
+  [<span class="cmdarg">double lower_bound=-3.0</span>] 
+  [<span class="cmdarg">double step=0.5</span>] 
+  [<span class="cmdarg">double upper_bound=12.0</span>]
+  <p>
+    Print a histogram of fitnesses for each coalescence clade in the population.
+    <br />This action will only work in run mode.
+    <br />This action will rerequire TRACK_CCLADE to be enabled.
+    <br/>
+    <kbd>mode</kbd> may be {<kbd>CURRENT, ACTUAL, TESTCPU</kbd>}, where
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>CURRENT</kbd> uses the current phenotype value of fitness</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>ACTUAL</kbd> uses the current merit and the true gestation time (via test cpu calculation)</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>TESTCPU</kbd> uses the test cpu measurement.</li>
+      <br />
+    <kbd>lower_bound, step, upper_bound</kbd> are log10 values for the individual histogram bins.</kbd>
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintCCladeRelativeFitnessHistogram">PrintCCladeRelativeFitnessHistogram</a></strong>
+  [<span class="cmdarg">string filename="cclade_rel_fitness_histogram.dat"</span>]
+  [<span class="cmdarg">string mode="CURRENT"</span>] 
+  [<span class="cmdarg">double lower_bound=0.0</span>] 
+  [<span class="cmdarg">double step=0.1</span>] 
+  [<span class="cmdarg">double upper_bound=2.0</span>]
+  <p>
+    Print a histogram of parent-relative fitness ratios for each coalescence clade in the population.
+    <br />This action will only work in run mode.
+    <br />This action will rerequire TRACK_CCLADE to be enabled.
+    <br/>
+    <kbd>mode</kbd> may be {<kbd>CURRENT, ACTUAL, TESTCPU</kbd>}, where
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>CURRENT</kbd> uses the current phenotype value of fitness</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>ACTUAL</kbd> uses the current merit and the true gestation time (via test cpu calculation)</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>TESTCPU</kbd> uses the test cpu measurement.</li>
+      <br />
+    <kbd>lower_bound, step, upper_bound</kbd> are values for the individual histogram bins.</kbd>
+  </p>
+</li>
+
+
+<li>
+  <strong><a name="PrintErrorData">PrintErrorData</a></strong>
+  [<span class="cmdarg">string filename='error.dat'</span>]
+  
+  <p>
+  Print all of the standard errors of the average population statistics.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintVarianceData">PrintVarianceData</a></strong>
+  [<span class="cmdarg">string filename='variance.dat'</span>]
+  
+  <p>
+  Print all of the variances of the average population statistics.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDominantData">PrintDominantData</a></strong>
+  [<span class="cmdarg">string filename='dominant.dat'</span>]
+  
+  <p>
+  Print all of the statistics relating to the dominant genotype.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintStatsData">PrintStatsData</a></strong>
+  [<span class="cmdarg">string filename='stats.dat'</span>]
+  
+  <p>
+  Print all of the miscellanous population statistics.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintCountData">PrintCountData</a></strong>
+  [<span class="cmdarg">string filename='count.dat'</span>]
+  
+  <p>
+  Print all of the statistics the keep track of counts (such as the number of organisms
+  in the population or the number of instructions executed).
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTotalsData">PrintTotalsData</a></strong>
+  [<span class="cmdarg">string filename='totals.dat'</span>]
+  
+  <p>
+  Print various totals for the entire length of the run (for example, the total number of
+  organisms ever).
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTasksData">PrintTasksData</a></strong>
+  [<span class="cmdarg">string filename='tasks.dat'</span>]
+  
+  <p>
+  Print the number of organisms that are able to perform each task.  This uses the
+  environment configuration to determine what tasks are in use.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTasksExeData">PrintTasksExeData</a></strong>
+  [<span class="cmdarg">string filename='tasks_exe.dat'</span>]
+  
+  <p>
+  Print number of times the particular task has been executed this update.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTasksQualData">PrintTasksQualData</a></strong>
+  [<span class="cmdarg">string filename='tasks_quality.dat'</span>]
+  
+  <p>
+  Print the total quality of each task.  By default a successful task is valued
+  as 1.0.  Some tasks, however, can grant partial values and/or special bonuses
+  via the quality value.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintResourceData">PrintResourceData</a></strong>
+  [<span class="cmdarg">string filename='resource.dat'</span>]
+  
+  <p>
+  Print the current counts of each resource available to the population.  This uses
+  the environment configuration to determine what resources are in use.  Also creates
+  seperate files <kbd>resource_<em>resource_name</em>.m</kbd> (in a format that is
+  designed to be read into Matlab) for each spatial resource.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTimeData">PrintTimeData</a></strong>
+  [<span class="cmdarg">string filename='time.dat'</span>]
+  
+  <p>
+  Print all of the timing related statistics.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintMutationRateData">PrintMutationRateData</a></strong>
+  [<span class="cmdarg">string filename='mutation_rates.dat'</span>]
+  
+  <p>
+  Output (regular and log) statistics about individual copy mutation rates
+  (aver, stdev, skew, cur). Useful only when mutation rate is set per organism.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDivideMutData">PrintDivideMutData</a></strong>
+  [<span class="cmdarg">string filename='divide_mut.dat'</span>]
+  
+  <p>
+  Output (regular and log) statistics about individual, per site, rates divide mutation
+  rates (aver, stdev, skew, cur) to divide_mut.dat. Use with multiple divide instuction set.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDominantParaData">PrintDominantParaData</a></strong>
+  [<span class="cmdarg">string filename='parasite.dat'</span>]
+  
+  <p>
+  Print various quantites related to the dominant parasite.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintInstructionData">PrintInstructionData</a></strong>
+  [<span class="cmdarg">string filename='instruction.dat'</span>]
+  
+  <p>
+  Print the by-organisms counts of what instructions they _successfully_ executed
+  beteween birth and divide. Prior to their first divide, organisms values for their parents.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintGenotypeMap">PrintGenotypeMap</a></strong>
+  [<span class="cmdarg">string filename='genotype_map.m'</span>]
+  
+  <p>
+  This event is used to output a map of the genotype IDs for the
+  population grid to a file that is suitable to be read into Matlab.
+  </p>
+</li>
+
+<!-------- Population Out Files -------->
+<li>
+  <strong><a name="PrintPhenotypeData">PrintPhenotypeData</a></strong>
+  [<span class="cmdarg">string filename='phenotype_count.dat'</span>]
+  
+  <p>
+  Print the number of phenotypes based on tasks executed this update.  Executing
+  a task any number of times is considered the same as executing it once. 
+  </p>
+</li>
+<li>
+  <strong><a name="PrintPhenotypeStatus">PrintPhenotypeStatus</a></strong>
+  [<span class="cmdarg">string filename='phenotype_status.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDemeStats">PrintDemeStats</a></strong>
+  
+  <p>
+  </p>
+</li>
+
+<!-------- Processed Data -------->
+<li>
+  <strong><a name="PrintData">PrintData</a></strong>
+  &lt;<span class="cmdarg">string fname</span>&gt; &lt;<span class="cmdarg">string format</span>&gt;
+  
+  <p>
+  Append to the file specified (continuous output), the data given in the
+  column list.  The column list needs to be a comma-seperated list of
+  keywords representing the data types.  Many possible data types can be
+  output; see the <a href="print_data.html">complete listing</a> for details.
+  Note that this event will even create a detailed column legend at the top
+  of your file so you don't need to seperately keep track of what the
+  columns mean.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintInstructionAbundanceHistogram">PrintInstructionAbundanceHistogram</a></strong>
+  [<span class="cmdarg">string filename='instruction_histogram.dat'</span>]
+  
+  <p>
+  Appends a line containing the bulk count (abundance) of each instruction
+  in the population onto a file.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDepthHistogram">PrintDepthHistogram</a></strong>
+  [<span class="cmdarg">string filename='depth_histogram.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="Echo">Echo</a></strong>
+  &lt;<span class="cmdarg">string message</span>&gt;
+  
+  <p>
+  Print the supplied message to standard output.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintGenotypeAbundanceHistogram">PrintGenotypeAbundanceHistogram</a></strong>
+  [<span class="cmdarg">string fname='genotype_abundance_histogram.dat'</span>]
+  
+  <p>
+  Writes out a genotype abundance histogram.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintSpeciesAbundanceHistogram">PrintSpeciesAbundanceHistogram</a></strong>
+  [<span class="cmdarg">string fname='species_abundance_histogram.dat'</span>]
+  
+  <p>
+  Writes out a species abundance histogram.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintLineageTotals">PrintLineageTotals</a></strong>
+  [<span class="cmdarg">string fname='lineage_totals.dat'</span>] [<span class="cmdarg">int verbose=1</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintLineageCounts">PrintLineageCounts</a></strong>
+  [<span class="cmdarg">string fname='lineage_counts.dat'</span>] [<span class="cmdarg">int verbose=1</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDominantGenotype">PrintDominantGenotype</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Print the dominant organism's genome (and lots of information about it)
+  into the file specified.  If no filename is given, the genotype's assigned name
+  is used and the file is placed into the archive subdirectory.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDominantParasiteGenotype">PrintDominantParasiteGenotype</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Print the dominant parasite's genome (and lots of information about it)
+  into the file specified.  If no filename is given, the parasite's assigned name
+  is used and the file is placed into the archive subdirectory.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDetailedFitnessData">PrintDetailedFitnessData</a></strong>
+  [<span class="cmdarg">int save_max_f_genotype=0</span>] [<span class="cmdarg">int print_fitness_histo=0</span>]
+  [<span class="cmdarg">double hist_fmax=1</span>] [<span class="cmdarg">double hist_fstep=0.1</span>]
+  [<span class="cmdarg">string datafn='fitness.dat'</span>]
+  [<span class="cmdarg">string histofn='fitness_histos.dat'</span>]
+  [<span class="cmdarg">string histotestfn='fitness_histos_testCPU.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+
+
+<li>
+  <strong><a name="PrintLogFitnessHistogram">PrintLogFitnessHistogram</a></strong>
+  [<span class="cmdarg">string filename="fitness_log_hist.dat"</span>]
+  [<span class="cmdarg">string mode="CURRENT"</span>] 
+  [<span class="cmdarg">double lower_bound=-3.0</span>] 
+  [<span class="cmdarg">double step=0.5</span>] 
+  [<span class="cmdarg">double upper_bound=12.0</span>]
+  <p>
+    Print a histogram of organism fitnesses in the current population.
+    <br />This action will only work in run mode.
+    <br/>
+    <kbd>mode</kbd> may be {<kbd>CURRENT, ACTUAL, TESTCPU</kbd>}, where
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>CURRENT</kbd> uses the current phenotype value of fitness</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>ACTUAL</kbd> uses the current merit and the true gestation time (via test cpu calculation)</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>TESTCPU</kbd> uses the test cpu measurement.</li>
+      <br />
+    <kbd>lower_bound, step, upper_bound</kbd> are log10 values for the individual histogram bins.</kbd>
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintRelativeFitnessHistogram">PrintRelativeFitnessHistogram</a></strong>
+  [<span class="cmdarg">string filename="rel_fitness_histogram.dat"</span>]
+  [<span class="cmdarg">string mode="CURRENT"</span>] 
+  [<span class="cmdarg">double lower_bound=0.0</span>] 
+  [<span class="cmdarg">double step=0.1</span>] 
+  [<span class="cmdarg">double upper_bound=2.0</span>]
+  <p>
+    Print a histogram of parent-relative fitness ratios for each coalescence clade in the population.
+    <br />This action will only work in run mode.
+    <br/>
+    <kbd>mode</kbd> may be {<kbd>CURRENT, ACTUAL, TESTCPU</kbd>}, where
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>CURRENT</kbd> uses the current phenotype value of fitness</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>ACTUAL</kbd> uses the current merit and the true gestation time (via test cpu calculation)</li>
+      <br/>&nbsp; &nbsp; &nbsp;<kbd>TESTCPU</kbd> uses the test cpu measurement.</li>
+      <br />
+    <kbd>lower_bound, step, upper_bound</kbd> are values for the individual histogram bins.</kbd>
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintGenomicSiteEntropy">PrintGenomicSiteEntropy</a></strong>
+  [<span class="cmdarg">string filename="GenomicSiteEntropy.dat"</span>]
+  <p>
+   This function will take the initial genotype for each organism in the
+   population/batch, align them, and calculate the per-site entropy of the
+   aligned sequences.  Please note that there may be a variable number
+   of columns in each line if the runs are not fixed length.  The site
+   entropy will be measured in mers, normalized by the instruction set size.
+   This is a population/batch measure of entropy, not a mutation-selection balance
+   measure.  
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintPhenotypicPlasticity">PrintPhenotypicPlasticity</a></strong>
+  [<span class="cmdarg">string filename="phenplast.dat | phenplast-Update.dat"</span>] [<span class="cmdarg">int num_trials=1000</span>]
+  <p>
+  This function will provided detailed information about the phenotypic varients
+  of the current population/batch by running each genome through a test cpu <kbd>num_trials</kbd> times.
+  If this command is executed in run mode, the
+  <kbd>filename</kbd> will be appeneded with <kbd>-Update.dat</kbd> where <kbd>Update</kbd>
+  is the current update.  In analyze mode, the default file is merely </kbd>phenplast.dat</kbd>.
+  The output file contains the following: id, parent_id, phenotypic_varient_number, frequency, fitness, merit, 
+  gestation_time, and task counts for each phenotypic variant of each genotype.  
+  </p>
+</li>
+<li>
+  <strong><a name="PrintGeneticDistanceData">PrintGeneticDistanceData</a></strong>
+  [<span class="cmdarg">string ref_creature_file='START_CREATURE'</span>]
+  [<span class="cmdarg">string filename='genetic_distance.dat'</span>]
+   
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintPopulationDistanceData">PrintPopulationDistanceData</a></strong>
+  [<span class="cmdarg">string creature='START_CREATURE'</span>] [<span class="cmdarg">string fname=''</span>]
+  [<span class="cmdarg">int save_genotypes=0</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintDebug">PrintDebug</a></strong>
+  
+  <p>
+  </p>
+</li>
+
+<li>
+  <strong><a name="PrintGenotypes">PrintGenotypes</a></strong>
+  [<span class="cmdarg">string data_fields='all'</span>]
+  [<span class="cmdarg">int print_historic=0</span>]
+  [<span class="cmdarg">string filename='genotypes-&lt;update&gt;.dat'</span>]
+  
+  <p>
+  This command is used to print out information about all of the genotypes
+  in the population.  The file output from here can be read
+  back into the analyze mode of Avida with the <code>LOAD</code> command.
+  </p>
+  <p>
+  The <span class="cmdarg">data_fields</span> parameter indicates what
+  columns should be included in the file, which must be comma seperated.
+  Options are:
+  <em>all, id, parent_id, parent2_id (for sex), parent_dist, num_cpus,
+  total_cpus, length, merit, gest_time, fitness, update_born, update_dead,
+  depth, lineage, sequence.</em>
+  Use <em>all</em> (the default) if you want all of the fields included.
+  </p>
+  <p>
+  The <span class="cmdarg">print_historic</span> parameter indicates how
+  many updates back in time should be included in this output.  For example,
+  '200' would indicate that any ancestor of the current population that died
+  out in the last 200 updates should also be printed. A '-1' in this field
+  indicates that all ancestors should be printed.
+  </p>
+  <p>
+  The <span class="cmdarg">filename</span> parameter simply indicates what
+  you want to call the file.
+  </p>
+  <p>
+  <em>Example</em>:
+  <br />&nbsp;&nbsp;<kbd>u 1000:1000 print_genotypes id,parent_id,fitness 1000</kbd>
+  <br />This will print out the full population every 1000 updates, including all
+  genotypes that have died out since the last time it was printed.
+  </p>
+</li>
+
+<li>
+  <strong><a name="TestDominant">TestDominant</a></strong>
+  [<span class="cmdarg">string fname='dom-test.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTaskSnapshot">PrintTaskSnapshot</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Run all organisms in the population through test cpus and print out the
+  number of tasks each can perform.
+  </p>
+</li>
+<li>
+  <strong><a name="PrintViableTasksData">PrintViableTasksData</a></strong>
+  [<span class="cmdarg">string fname='viable_tasks.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrintTreeDepths">PrintTreeDepths</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Reconstruction of phylogenetic trees.
+  </p>
+</li>
+
+
+<!-------- Grid Information Dumps -------->
+<li>
+  <strong><a name="DumpMemory">DumpMemory</a></strong>
+  [<span class="cmdarg">string filename='memory_dump-&lt;update&gt;.dat'</span>]
+  
+  <p>
+  Dump memory summary information.
+  </p>
+</li>
+<li>
+  <strong><a name="DumpFitnessGrid">DumpFitnessGrid</a></strong>
+  [<span class="cmdarg">string filename='grid_fitness.&lt;update&gt;.dat'</span>]
+  
+  <p>
+  Print out the grid of organism fitness values.
+  </p>
+</li>
+<li>
+  <strong><a name="DumpGenotypeIDGrid">DumpGenotypeIDGrid</a></strong>
+  [<span class="cmdarg">string filename='grid_genotype_id.&lt;update&gt;.dat'</span>]
+  
+  <p>
+  Print out the grid of genotype IDs.
+  </p>
+</li>
+<li>
+  <strong><a name="DumpTaskGrid">DumpTaskGrid</a></strong>
+  [<span class="cmdarg">string filename='grid_task.&lt;update&gt;.dat'</span>]
+
+  <p>
+  Print out the grid of takss that organisms do. For each organism, tasks are first 
+  encoded as a binary string (e.g. 100000001 means that organism is doing NOT and EQU
+  and then reported as a base-10 number (257 in the example above).
+  </p>
+</li>
+<li>
+  <strong><a name="DumpDonorGrid">DumpDonorGrid</a></strong>
+  [string filename='grid_donor.&lt;update&gt;.dat'</span>]
+  
+  <p>
+  Print out the grid of organisms who donated their merit.
+  </p>
+</li>
+<li>
+  <strong><a name="DumpReceiverGrid">DumpRecieverGrid</a></strong>
+  [<span class="cmdarg">string filename='grid_receiver.&lt;update&gt;.dat'</span>]
+  
+  <p>
+  Print out the grid of organisms who received merit.
+  </p>
+</li>
+<li>
+  <strong><a name="SetVerbose">SetVerbose</a></strong>
+  [<span class="cmdarg">string verbosity=''</span>]
+  
+  <p>
+  Change the level of output verbosity.  Verbose messages will print all
+  of the details of what is happening to the screen.  Minimal messages
+  will only briefly state the process being run.  Verbose messages are
+  recommended if you're in interactive analysis mode. When no arguments
+  are supplied, action will toggle between NORMAL and ON.
+  <br />Levels: SILENT, NORMAL, ON, DETAILS, DEBUG
+  </p>
+</li>
+</ul>
+
+
+<p>&nbsp;</p>
+<h2><a name="PopulationActions">Population Actions</a></h2>
+
+<p>
+Population events modify the state of the population, and will actually
+change the course of the run.  There are a wide variety of these.
+</p>
+<ul>
+<li>
+  <strong><a name="Inject">Inject</a></strong>
+  [<span class="cmdarg">string fname='START_CREATURE'</span>] [<span class="cmdarg">int cell_id=0</span>]
+  [<span class="cmdarg">double merit=-1</span>] [<span class="cmdarg">int lineage_label=0</span>]
+  [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Inject a single organisms into the population.  Arguments must be
+  included from left to right; if all arguments are left out, the default
+  creature is the ancestral organism, and it will be injected into cell 0,
+  have an uninitialized merit, and be marked as liniage id 0.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectRandom">InjectRandom</a></strong>
+  &lt;<span class="cmdarg">int length</span>&gt; [<span class="cmdarg">int cell_id=0</span>]
+  [<span class="cmdarg">double merit=-1</span>] [<span class="cmdarg">int lineage_label=0</span>]
+  [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Injects a randomly generated genome of the supplied length into the population.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectAll">InjectAll</a></strong>
+  [<span class="cmdarg">string fname='START_CREATURE'</span>] [<span class="cmdarg">double merit=-1</span>]
+  [<span class="cmdarg">int lineage_label=0] [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Same as Inject, but no cell_id is specified and the organism is placed
+  into <em>all</em> cells in the population.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectRange">InjectRange</a></strong>
+  [<span class="cmdarg">string fname='START_CREATURE'</span>] [<span class="cmdarg">int cell_start=0</span>]
+  [<span class="cmdarg">int cell_end=-1</span>] [<span class="cmdarg">double merit=-1</span>]
+  [<span class="cmdarg">int lineage_label=0</span>] [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Injects identical organisms into a range of cells of the population.
+  </p>
+  <p>
+  <em>Example</em>:
+  <br /><code>InjectRange 000-aaaaa.org 0 10</code>
+  <br />Will inject 10 organisms into cells 0 through 9.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectSequence">InjectSequence</a></strong>
+  &lt;<span class="cmdarg">string sequence</span>&gt; [<span class="cmdarg">int cell_start=0</span>]
+  [<span class="cmdarg">int cell_end=-1</span>] [<span class="cmdarg">double merit=-1</span>]
+  [<span class="cmdarg">int lineage_label=0</span>] [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Injects identical organisms based on the supplied genome sequence into
+  a range of cells of the population.
+  </p>
+  <p>
+  <em>Example</em>:
+  <br /><code>InjectSequence ckdfhgklsahnfsaggdsgajfg 0 10 100</code>
+  <br />Will inject 10 organisms into cells 0 through 9 with a merit of 100.
+  </p>
+</li>
+
+<li>
+  <strong><a name="InjectParasite">InjectParasite</a></strong>
+  &lt;<span class="cmdarg">string filename</span>&gt; &lt;<span class="cmdarg">string label</span>&gt;
+  [<span class="cmdarg">int cell_start=0</span>] [<span class="cmdarg">int cell_end=-1</span>]
+  
+  <p>
+  Attempt to inject a parasite genome into the supplied population cell
+  range with the specified label.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectParasitePair">InjectParasitePair</a></strong>
+  &lt;<span class="cmdarg">string filename_genome</span>&gt; &lt;<span class="cmdarg">string filename_parasite</span>&gt;
+  &lt;<span class="cmdarg">string label</span>&gt; [<span class="cmdarg">int cell_start=0</span>]
+  [<span class="cmdarg">int cell_end=-1</span>] [<span class="cmdarg">double merit=-1</span>]
+  [<span class="cmdarg">int lineage_label=0</span>] [<span class="cmdarg">double neutral_metric=0</span>]
+  
+  <p>
+  Inject host parasite pairs into the population cell range specified. 
+  </p>
+</li>
+
+<li>
+  <strong><a name="KillProb">KillProb</a></strong>
+  [<span class="cmdarg">double probability=0.9</span>]
+  
+  <p>
+  Using the specified probability, test each organism to see if it is killed off.
+  </p>
+</li>
+<li>
+  <strong><a name="KillRate">KillRate</a></strong>
+  [<span class="cmdarg">double probability=0.9</span>]
+  
+  <p>
+  Randomly removes a certain proportion of the population.
+  In principle, this action does the same thing as the KillProb event.
+  However, instead of a probability, here one has to specify a rate. The
+  rate has the same unit as fitness. So if the average fitness is 20000,
+  than you remove 50% of the population on every update with a removal rate
+  of 10000.
+  </p>
+</li>
+<li>
+  <strong><a name="KillRectangle">KillRectangle</a></strong>
+  [<span class="cmdarg">int x1=0</span>] [<span class="cmdarg">int y1=0</span>]
+  [<span class="cmdarg">int x2=0</span>] [<span class="cmdarg">int y2=0</span>]
+  
+  <p>
+  Kill off all organisms in a rectangle defined by the points (x1, y1) and (x2, y2).
+  </p>
+</li>
+<li>
+  <strong><a name="SerialTransfer">SerialTransfer</a></strong>
+  [<span class="cmdarg">int transfer_size=1</span>] [<span class="cmdarg">int ignore_deads=1</span>]
+  
+  <p>
+  Similar to KillProb, but we specify the exact number of organisms to
+  keep alive after the event.  The <span class="cmdarg">ignore_deads</span>
+  argument determines whether only living organisms are retainted.
+  </p>
+</li>
+
+<li>
+  <strong><a name="SetMutProb">SetMutProb</a></strong>
+  [<span class="cmdarg">string mut_type='copy'</span>] [<span class="cmdarg">double prob=0.0</span>]
+  [<span class="cmdarg">int start_cell=-1</span>] [<span class="cmdarg">int end_cell=-1</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="ModMutProb">ModMutProb</a></strong>
+  [<span class="cmdarg">string mut_type='copy'] [<span class="cmdarg">double prob=0.0</span>]
+  [<span class="cmdarg">int start_cell=-1</span>] [<span class="cmdarg">int end_cell=-1</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="ZeroMuts">ZeroMuts</a></strong>
+  
+  <p>
+  This event will set all mutation rates to zero.
+  </p>
+</li>
+
+<li>
+  <strong><a name="CompeteDemes">CompeteDemes</a></strong>
+  [<span class="cmdarg">int type=1</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="ResetDemes">ResetDemes</a></strong>
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="CopyDeme">CopyDeme</a></strong>
+  &lt;<span class="cmdarg">int src_id</span>&gt; &lt;<span class="cmdarg">int dest_id</span>&gt;
+  
+  <p>
+  </p>
+</li>
+
+<li>
+  <strong><a name="SeverGridCol">SeverGridCol</a></strong>
+  [<span class="cmdarg">int col_id=-1</span>] [<span class="cmdarg">int min_row=0</span>]
+  [<span class="cmdarg">int max_row=-1</span>]
+  
+  <p>
+  Remove the connections between cells along a column in an Avida grid.
+  </p>
+</li>
+<li>
+  <strong><a name="SeverGridRow">SeverGridRow</a></strong>
+  [<span class="cmdarg">int row_id=-1</span>] [<span class="cmdarg">int min_col=0</span>]
+  [<span class="cmdarg">int max_col=-1</span>]
+  
+  <p>
+  Remove the connections between cells along a row in an Avida grid.
+  </p>
+</li>
+<li>
+  <strong><a name="JoinGridCol">JoinGridCol</a></strong>
+  [<span class="cmdarg">int col_id=-1</span>] [<span class="cmdarg">int min_row=0</span>]
+  [<span class="cmdarg">int max_row=-1</span>]
+ 
+  <p>
+  Add connections between cells along a column in an Avida grid.
+  </p>
+</li>
+<li>
+  <strong><a name="JoinGridRow">JoinGridRow</a></strong>
+  [<span class="cmdarg">int row_id=-1</span>] [<span class="cmdarg">int min_col=0</span>]
+  [<span class="cmdarg">int max_col=-1</span>]
+  
+  <p>
+  Add connections between cells along a row in an Avida grid.
+  </p>
+</li>
+
+<li>
+  <strong><a name="ConnectCells">ConnectCells</a></strong>
+  &lt;<span class="cmdarg">int cellA_x</span>&gt; &lt;<span class="cmdarg">int cellA_y</span>&gt;
+  &lt;<span class="cmdarg">int cellB_x</span>&gt; &lt;<span class="cmdarg">int cellB_y</span>&gt;
+  
+  <p>
+  Connects a pair of specified cells.
+  </p>
+</li>
+<li>
+  <strong><a name="DisconnectCells">DisconnectCells</a></strong>
+  &lt;<span class="cmdarg">int cellA_x</span>&gt; &lt;<span class="cmdarg">int cellA_y</span>&gt;
+  &lt;<span class="cmdarg">int cellB_x</span>&gt; &lt;<span class="cmdarg">int cellB_y</span>&gt;
+  
+  <p>
+  Disconnects a pair of specified cells.
+  </p>
+</li>
+</ul>
+
+
+
+<p>&nbsp;</p>
+<h2><a name="EnvironmentActions">Environment Actions</a></h2>
+
+<p>
+Events that allow user to change environment properties, such as resources
+and reaction parameters.
+</p>
+<ul>
+<li>
+  <strong><a name="InjectResource">InjectResource</a></strong>
+  &lt;<span class="cmdarg">string res_name</span>&gt; &lt;<span class="cmdarg">double res_count</span>&gt;
+  
+  <p>
+  Inject (add) a specified amount of a specified resource. 
+  <span class="cmdarg">res_name</span> must already exist as
+  a resource in environment file.
+  </p>
+</li>
+<li>
+  <strong><a name="InjectScaledResource">InjectScaledResource</a></strong>
+  &lt;<span class="cmdarg">string res_name</span>&gt; &lt;<span class="cmdarg">double res_count</span>&gt;
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="OutflowScaledResource">OutflowScaledResource</a></strong>
+  &lt;<span class="cmdarg">string res_name</span>&gt; &lt;<span class="cmdarg">double res_percent</span>&gt;
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="SetResource">SetResource</a></strong>
+  &lt;<span class="cmdarg">string res_name</span>&gt; &lt;<span class="cmdarg">double res_count</span>&gt;
+  
+  <p>
+  Set the resource amount to a specific level.
+  <span class="cmdarg">res_name</span> must already exist as
+  a resource in environment file.
+  </p>
+</li>
+
+<li>
+  <strong><a name="SetReactionValue">SetReactionValue</a></strong>
+  &lt;<span class="cmdarg">string reaction_name</span>&gt; &lt;<span class="cmdarg">double value</span>&gt;
+  
+  <p>
+  Set the reaction value to a specific level.
+  <span class="cmdarg">reaction_name</span> must already 
+  exist in the environment file.
+  <span class="cmdarg">value</span> can be negative. 
+  </p>
+</li>
+<li>
+  <strong><a name="SetReactionValueMult">SetReactionValueMult</a></strong>
+  &lt;<span class="cmdarg">string reaction_name</span>&gt; &lt;<span class="cmdarg">double value</span>&gt;
+  
+  <p>
+  Multiply the reaction value by the <span class="cmdarg">value</span>.
+  <span class="cmdarg">reaction_name</span> must already 
+  exist in the environment file.
+  <span class="cmdarg">value</span> can be negative. 
+  </p>
+</li>
+<li>
+  <strong><a name="SetReactionInst">SetReactionInst</a></strong>
+  &lt;<span class="cmdarg">string reaction_name</span>&gt; &lt;<span class="cmdarg">string inst</span>&gt;
+  
+  <p>
+  Set the instruction triggered by this reaction.
+  <span class="cmdarg">reaction_name</span> must already
+  exist in the environment file.
+  <span class="cmdarg">inst</span> must be in the instruction set. 
+  </p>
+</li>
+</ul>
+
+
+
+<p>&nbsp;</p>
+<h2><a name="SaveLoadActions">Save Load Actions</a></h2>
+
+<p>
+</p>
+<ul>
+<li>
+  <strong><a name="SaveClone">SaveClone</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Save a clone of this organism to the file specified; if no filename is
+  given, use the name clone.<em>update</em>.  The update number allows regular
+  clones with distinct filenames to be saved with the same periodic event.
+  Running <kbd>avida -l filename</kbd> will start an Avida population with the
+  saved clone.  Note that a clone only consists of the genomes in
+  the population, and their current state is lost, so the run may not
+  proceed identically as to if it had continued as it was going.
+  </p>
+</li>
+<li>
+  <strong><a name="LoadClone">LoadClone</a></strong>
+  &lt;<span class="cmdarg">string fname</span>&gt;
+  
+  <p>
+  </p>
+</li>
+
+<li>
+  <strong><a name="LoadPopulation">LoadPopulation</a></strong>
+  &lt;<span class="cmdarg">string fname</span>&gt; [<span class="cmdarg">int update=-1</span>]
+  
+  <p>
+  Sets up a population based on a save file such as written out by
+  SavePopulation. It is also possible to append a history file to the
+  save file, in order to preserve the history of a previous run.
+  </p>
+</li>
+
+<li>
+  <strong><a name="DumpPopulation">DumpPopulation</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="SavePopulation">SavePopulation</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  Save the genotypes and lots of statistics about the population to the
+  file specified; if not filename is given, use the name
+  <kbd>detail-<em>update</em>.pop</kbd>.  As with clones, the update number
+  allows a single event to produce many detail files.  The details are used
+  to collect crossection data about the population.
+  </p>
+</li>
+<li>
+  <strong><a name="SaveSexPopulation">SaveSexPopulation</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="SaveParasitePopulation">SaveParasitePopulation</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="SaveHistoricPopulation">SaveHistoricPopulation</a></strong>
+  [<span class="cmdarg">int back_dist=-1</span>] [<span class="cmdarg">string fname=''</span>]
+  
+  <p>
+  This action is used to output all of the ancestors of the currently
+  living population to the file specified, or <kbd>historic-<em>update</em>.pop</kbd>.
+  </p>
+</li>
+<li>
+  <strong><a name="SaveHistoricSexPopulation">SaveHistoricSexPopulation</a></strong>
+  [<span class="cmdarg">string fname=''</span>]
+
+  <p>
+  </p>
+</li>
+</ul>
+
+
+
+<p>&nbsp;</p>
+<h2><a name="LandscapeActions">Landscape Analysis Actions</a></h2>
+
+<p>
+Landscape analysis actions perform various types mutation studies to
+calculate properties of the fitness landscape for a particular genome.
+When scheduled as an event during a run, these actions will typically
+perform analysis on the dominant genotype.  In analyze mode, analysis
+is performed on the entire currently selected batch.
+</p>
+<p>
+These actions are often very computationally intensive, thus will
+take a long time to compute.  In order to take advantage of increasingly
+available multi-processor/multi-core systems, a number of these actions
+have been enhanced to make use of multiple threads to parallize work.
+Set the configuration setting <code>MT_CONCURRENCY</code> to the number
+of logical processors available to make use of all processor resources
+for these compuations.
+</p>
+<ul>
+<li>
+  <strong><a name="AnalyzeLandscape">AnalyzeLandscape</a></strong>
+  [<span class="cmdarg">filename='land-analyze.dat'</span>] [<span class="cmdarg">int trials=1000</span>]
+  [<span class="cmdarg">int min_found=0</span>] [<span class="cmdarg">int max_trials=0</span>]
+  [<span class="cmdarg">int max_dist=10</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PrecalcLandscape">PrecalcLandscape</a></strong>
+  
+  <p>
+  Precalculate the distance 1 full landscape for the current batch in parallel
+  using multiple threads.  The resulting data is stored into the current batch
+  and can be used by many subsequent output commands within Analyze mode.
+  </p>
+</li>
+<li>
+  <strong><a name="FullLandscape">FullLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-full.dat'</span>] [<span class="cmdarg">int distance=1</span>]
+  [<span class="cmdarg">string entropy_file=''</span>] [<span class="cmdarg">string sitecount_file=''</span>]
+  
+  <p>
+  Do a landscape analysis of the dominant genotype or current batch of genotypes,
+  depending on the current mode.  The resulting output is a collection of 
+  statistics obtained from examining all possible mutations at the distance
+  specified.  The default distance is one.
+  </p>
+</li>
+<li>
+  <strong><a name="DeletionLandscape">DeletionLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-del.dat'</span>] [<span class="cmdarg">int distance=1</span>]
+  [<span class="cmdarg">string sitecount_file=''</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="InsertionLandscape">InsertionLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-ins.dat'</span>] [<span class="cmdarg">int distance=1</span>]
+  [<span class="cmdarg">string sitecount_file=''</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PredictWLandscape">PredictWLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-predict.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="PredictNuLandscape">PredictNuLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-predict.dat'</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="RandomLandscape">RandomLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-random.dat'</span>] [<span class="cmdarg">int distance=1</span>]
+  [<span class="cmdarg">int trials=0</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="SampleLandscape">SampleLandscape</a></strong>
+  [<span class="cmdarg">string filename='land-sample.dat'</span>] [<span class="cmdarg">int trials=0</span>]
+  
+  <p>
+  </p>
+</li>
+<li>
+  <strong><a name="HillClimb">HillClimb</a></strong>
+  [<span class="cmdarg">string filename='hillclimb.dat'</span>]
+  
+  <p>
+  Does a hill climb with the dominant genotype.
+  </p>
+</li>
+<li>
+  <strong><a name="PairTestLandscape">PairTestLandscape</a></strong>
+  [<span class="cmdarg">string filename=''</span>] [<span class="cmdarg">int sample_size=0</span>]
+  
+  <p>
+  If sample_size = 0, pairtest the full landscape.
+  </p>
+</li>
+<li>
+  <strong><a name="AnalyzePopulation">AnalyzePopulation</a></strong>
+  [<span class="cmdarg">double sample_prob=1</span>] [<span class="cmdarg">int landscape=0</span>]
+  [<span class="cmdarg">int save_genotype=0</span>] [<span class="cmdarg">string filename=''</span>]
+
+  <p>
+  </p>
+</li>
+</ul>
+
+
+
+<p>&nbsp;</p>
+<h2><a name="DriverActions">Driver Actions</a></h2>
+
+<p>
+These actions control the driver object responsible for executing the current run.
+</p>
+<ul>
+<li>
+  <strong><a name="Exit">Exit</a></strong>
+  
+  <p>
+  Unconditionally terminate the current run.
+  </p>
+</li>
+<li>
+  <strong><a name="ExitAveLineageLabelGreater">ExitAveLineageLabelGreater</a></strong>
+  &lt;<span class="cmdarg">double threshold</span>&gt;
+  
+  <p>
+   Halts the run if the current average lineage label is larger
+   than <span class="cmdarg">threshold</span>.
+  </p>
+</li>
+<li>
+  <strong><a name="ExitAveLineageLabelLess">ExitAveLineageLabelLess</a></strong>
+  &lt;<span class="cmdarg">double threshold</span>&gt;
+  
+  <p>
+   Halts the run if the current average lineage label is smaller
+   than <span class="cmdarg">threshold</span>.
+  </p>
+</li>
+</ul>
+
+
+<p>&nbsp;</p>
+<h2><a name="CreateAction">Creating an Action</a></h2>
+
+<p>
+The action source code is contained in the source/action directory.  
+Each of the individual <a href="#ActionCategories">action categories</a> has its own source code files (e.g. Landcape Actions are located in the LandscapeActions files).
+</p>
+<p>Each action is derrived from the cAction class.  Briefly, to get an action to work you must create a child class that has a Process and GetDescription function defined as well as a constructor.  You must also register this new class with the action library.</p>
+<p>So, with that quick review of what must be done, here is a step by step guide to creating an action:
+<ol>
+	<li>Identify which of the action categories your action should be assigned to.  There are six different action categories described <a href="#ActionCategories">above</a>.  Each category has a similar means of creating a new action, but do note that some action commands are generated via macros defined at the top of the files.  For instance, in the PrintActions file, you will notice a number of STATS_OUT_FILE macros being used to generate rather repetitively coded standard output files.&nbsp;</p></li>
+	<li><p>Create a new class in the file that follows proper naming conventions.  Any class should begin with "cAction" and be followed by the name of the action command you will register with the library.  For instance, if we were to create a new command "MyAction", we'd name the class cActionMyAction.  Below is a stub for this new action class:</p>
+			<p>
+			<pre>
+class cActionMyAction : public cAction
+{
+	private:
+		// Private data members for this action
+	public:
+		cActionMyAction(cWorld* world, const cString& args) : cAction(world, args) { ; }
+		
+		static const cString GetDescription() { return "Arguments: My Arguments"; }
+		
+		void Process(cAvidaContext& ctx)
+		{
+			//Perform whatever processing is needed when the action is triggered.
+		}
+};
+</pre></p>
+
+	<li><p>Define the private data members, constructor, description string in GetDescription, and the Process function.  Any arguments that you specify after the action name in the events configuration will be passed to your new class via the args argument in the constructor.</p></li>
+	<li><p>Register the new action with the action library.  At the bottom of each action definitions file, there are the commands that register the individual actions with the action library.  In the PrintActions.cc file, for instance, this function is called RegisterPrintActions.
+	<p>  To register our example action "MyAction", we'd write:<p>
+<p><pre>action_lib->Register&lt;cActionMyAction&gt;("MyAction");</pre><p>
+	<li><p>Test your action.</p></li>
+</ol>
+</p>
+
+
+
+<hr />
+<p>
+<a href="index.html">Return to the Index</a> &nbsp;|&nbsp;
+<a href="events.html">The Events File</a> &nbsp;|&nbsp;
+<a href="analyze.html">The Analyze File</a>
+</p>
+
+</body>
+</html>
