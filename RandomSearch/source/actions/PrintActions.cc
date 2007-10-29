@@ -1510,6 +1510,7 @@ class cActionPrintPhenotypicPlasticity : public cAction
           << "# parent genotype id" << endl
           << "# phenotypic varient number" << endl
           << "# varient frequency" << endl
+          << "# viable" << endl
           << "# fitness" << endl
           << "# merit" << endl
           << "# gestation time" << endl;
@@ -1527,6 +1528,7 @@ class cActionPrintPhenotypicPlasticity : public cAction
             << pid << " "
             << k << " "
             << pp->GetFrequency() << " "
+            << pp->IsViable() <<  " "
             << pp->GetFitness() << " "
             << pp->GetMerit() << " "
             << pp->GetGestationTime() << " ";

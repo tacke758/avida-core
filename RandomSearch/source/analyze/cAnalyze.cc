@@ -3718,6 +3718,138 @@ void cAnalyze::CommandPairwiseEntropy(cString cur_string)
 
 
 
+/*
+ CommandRandomSearch
+ This command will go through each genotype in the batch
+ and then randomly replace sites not specified as static 
+ using the distribution of instructions in the loaded
+ instruction set.
+
+ This function is not designed to be merged into the development
+ branch!
+*/
+void cAnalyze::CommandRandomSearch(cString cur_string)
+{
+  //Quick and dirty implementation
+  //Length 50
+  const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccutycasvab";
+                            // ######                                   #########";
+                            // 012345                                   123456789
+                            // These sites need to remain static for a viable organism
+  //Length 100
+  //const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab";
+
+  int num_trials = 10000000;  // 10 million trials
+  int num_tests  = 100;        // Number of random numbers to test
+  
+  //Stochasticity
+  //[<=10 frequency, <=20 frequent, <= 30 frequent ... <= 90 frequent >90 frequent static]
+  //  0             1 2 3 4 5 6 7 8 9 10 
+  tMatrix<int> num_tasks(512,11);    // Task counter (rows<-task combination, columns<-stochasticity);  [All viable]
+  
+  
+  //Initialize our task matrix
+  for (int t = 0; t < 512; t++)
+   for (int s = 0; s < 11; s++)
+    num_tasks.ElementAt(t,s) = 0;
+  
+  //[rows = 1 phenotype ... 10 phenotypes > 10 phenotypes]
+  //[columns = 0% viable, <10% viable <20% viable ... >90% viable all viable]
+  tMatrix<int> viability(11,12);  
+  for (int i = 0; i < 11; i++)
+    for (int j = 0; j < 12; j++)
+      viability.ElementAt(i,j) = 0;
+  
+  //File output
+  ofstream fot2("data/equ_genomes.dat");
+  if (!fot2.is_open())
+    m_world->GetDriver().RaiseFatalException(2, "Cannot open equ_genomes.dat.");
+  
+  
+  cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
+  cCPUTestInfo* test_info = new cCPUTestInfo();
+  for (int n = 0; n < num_trials; n++){
+    cString new_genome = base_genome;
+    for (int pos = 6; pos < 41; pos++)
+      new_genome[pos] = inst_set.GetRandomInst(m_ctx).GetSymbol();
+    
+    cPhenPlastGenotype ppgenotype(new_genome, num_tests, *test_info, m_world, m_ctx);
+
+    //Process our individual phenotypes
+    tArray<double> gen_tasks(512,0.0);
+    int    num_phens = ppgenotype.GetNumPhenotypes();
+    double freq_via  = 0.0;
+    bool   print_equ_genome = false;
+    for (int pp = 0; pp < num_phens; pp++){
+      const cPlasticPhenotype* phen = ppgenotype.GetPlasticPhenotype(pp);
+      freq_via += (phen->IsViable()) ? phen->GetFrequency() : 0.0;
+      tArray<int> tasks = phen->GetLastTaskCount();
+      int task_combination = 0;
+      if (phen->IsViable()){
+        for (int t = 0; t < 9; t++){
+          task_combination += (tasks[t] > 0) ? 1 << t : 0;
+          if (tasks[t] > 0 && t == 8)
+            print_equ_genome = true;
+        }
+        gen_tasks[task_combination] += phen->GetFrequency();
+      }
+    }
+    
+    //Process our genotype
+    if (print_equ_genome)
+      fot2 << new_genome << endl;
+    
+    //How often do viable task combinations occur and at what plasticity?
+    //Excluding zero performance
+    for (int t = 0; t < 512; t++){
+      if (gen_tasks[t] > 0){
+        int s = static_cast<int>(gen_tasks[t] * 100) / 10;
+        num_tasks.ElementAt(t,s)++;
+      }
+    }
+    
+    //How many phenotypes were there and how often are they viable?
+    int s  = (freq_via > 0.0) ? static_cast<int>(freq_via * 100) / 10 + 1 : 0;
+    int np = (num_phens <= 10) ? num_phens-1 : 10;
+    viability.ElementAt(np,s)++;
+  }
+  delete test_cpu;
+  delete test_info;
+
+  //We're done with our EQU genotype file
+  fot2.close();
+  
+  ofstream fot("data/task_summary.dat");
+  if (!fot.is_open())
+    m_world->GetDriver().RaiseFatalException(2, "Cannot open task_summary.dat.");
+  
+  fot << "# Search summary for " << num_trials << " trials @ " <<  num_tests << " num_tests ea. trial." << endl;
+  fot << "# Row is a particular combination (Power of two, lowest bit = NOT" << endl;
+  fot << "# Column is count of genotypes with a task performance range (e.g. first column = <= 10% excl 0, <20% ... 100%)" << endl;
+  
+  for (int t = 0; t < 512; t++){
+    for (int s = 0; s < 11; s++)
+      fot << num_tasks.ElementAt(t,s) << " ";
+    fot << endl;
+  }
+  fot.close();
+  
+  fot.open("data/via_summary.dat");
+  if (!fot.is_open())
+    m_world->GetDriver().RaiseFatalException(2, "Cannot open via_summary.dat.");
+  fot << "# Search summary for " << num_trials << " trials @ " << num_tests << " num_tests ea. trial." << endl;
+  fot << "# Row is number of phenoytypes observed (last row > 10)" << endl;
+  fot << "# Column is viability frequency count (all non-viable, <10% non-viable  ... >90% viable, all viable)" << endl;
+  for (int p = 0; p < 11; p++){
+    for (int nv = 0; nv < 12 ; nv++)
+      fot << viability.ElementAt(p,nv) << " ";
+    fot << endl;
+  }
+  fot.close();
+  
+  
+}
+
 
 
 // This command will take the current batch and analyze how well organisms
@@ -8433,6 +8565,7 @@ void cAnalyze::SetupCommandDefLibrary()
   AddLibraryDef("ANALYZE_POP_COMPLEXITY", &cAnalyze::AnalyzePopComplexity);
   AddLibraryDef("MAP_DEPTH", &cAnalyze::CommandMapDepth);
   // (Untested) AddLibraryDef("PAIRWISE_ENTROPY", &cAnalyze::CommandPairwiseEntropy); 
+  AddLibraryDef("RANDOM_SEARCH", &cAnalyze::CommandRandomSearch);
   
   // Population comparison commands...
   AddLibraryDef("HAMMING", &cAnalyze::CommandHamming);

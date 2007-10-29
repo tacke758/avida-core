@@ -391,7 +391,7 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnaly
   
   //Allocate our own test info if it wasn't provided
   cCPUTestInfo* temp_test_info = NULL;
-  if (!test_info)
+  if (test_info == NULL)
   {
       temp_test_info = new cCPUTestInfo();
       test_info = temp_test_info;
@@ -442,8 +442,8 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnaly
   if (num_trials > 1)
     SummarizePhenotypicPlasticity(recalc_data);
   
-  //Deallocate if we created
-  if (temp_test_info) delete temp_test_info;
+  //Deallocate if we created temp test info
+  if (temp_test_info != NULL) delete temp_test_info;
 }
 
 

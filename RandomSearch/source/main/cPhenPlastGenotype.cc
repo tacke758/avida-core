@@ -47,7 +47,7 @@ cPhenPlastGenotype::~cPhenPlastGenotype()
 {
   UniquePhenotypes::iterator it = m_unique.begin();
   while (it != m_unique.end()){
-    delete *it;
+    delete static_cast<cPlasticPhenotype*>(*it);
     ++it;
   }
 }
