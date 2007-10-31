@@ -13,6 +13,10 @@
 #include "tList.h"
 #endif
 
+#ifndef cException_h
+#include "cException.h"
+#endif
+
 /* FIXME this is not defined in Visual Studio.net. -- kgn */
 //#ifdef MSVC_COMPILER
 /* FIXME find out what the VS.n macro might be. for now use WIN32 -- kgn */
@@ -39,9 +43,16 @@ const double cRandom::_RAND_mP_FAC=(_RAND_MBIG/1000);
 const double cRandom::_RAND_uP_FAC=(_RAND_MBIG/1000000);
 
 
+// Debugging Exception ////////////////////////////////////////////////////////
+
+void cRandom::throwDebuggingException(const char* msg){
+  throw cRandomDebugException(msg);
+}
+
 // Constructor and setup //////////////////////////////////////////////////////
 
 cRandom::cRandom(const int in_seed) :
+ m_throw_debugging_exceptions(false),
  seed(0),
  original_seed(0),
  inext(0),
@@ -59,6 +70,7 @@ cRandom::cRandom(const int in_seed) :
 
 void cRandom::ResetSeed(const int in_seed){
   //if( in_seed<0 ){  // @TCC - make 0 also be seeded with time * pid
+  checkDebuggingException("cRandom::ResetSeed");
   original_seed = in_seed;
   
   if( in_seed<=0 ){
@@ -83,6 +95,7 @@ void cRandom::ResetSeed(const int in_seed){
 
 
 void cRandom::init(){
+  checkDebuggingException("cRandom::init");
   int mj, mk, ii, i;
 
   // Clear variables
@@ -118,6 +131,7 @@ void cRandom::init(){
 }
 
 void cRandom::initStatFunctions(){
+  checkDebuggingException("cRandom::initStatFunctions");
   // Setup variables used by Statistical Distribution functions
   expRV=-log(GetDouble());
 }
@@ -126,6 +140,7 @@ void cRandom::initStatFunctions(){
 // Statistical functions //////////////////////////////////////////////////////
 
 double cRandom::GetRandNormal(){
+  checkDebuggingException("cRandom::GetRandNormal");
   // Draw from a Unit Normal Dist
   // Using Rejection Method and saving of initial exponential random variable
   double expRV2;
@@ -142,6 +157,7 @@ double cRandom::GetRandNormal(){
 }
 
 unsigned int cRandom::GetRandPoisson(const double mean){
+  checkDebuggingException("cRandom::GetRandPoisson");
   // Draw from a Poisson Dist with mean
   // if cannot calculate, returns UINT_MAX
   // Uses Rejection Method
@@ -157,6 +173,7 @@ unsigned int cRandom::GetRandPoisson(const double mean){
 }
 
 unsigned int cRandom::GetFullRandBinomial(const double n, const double p){
+  checkDebuggingException("cRandom::GetFullRandBinomial");
   // Actually try n Bernoulli events with probability p
   unsigned int k=0;
   for( unsigned int i=0; i<n; ++i )
@@ -165,6 +182,7 @@ unsigned int cRandom::GetFullRandBinomial(const double n, const double p){
 }
 
 unsigned int cRandom::GetRandBinomial(const double n, const double p){
+  checkDebuggingException("cRandom::GetRandBinomial");
   // Approximate Binomial if appropriate
   // if np(1-p) is large, use a Normal approx
   if( n*p*(1-p) >= _BINOMIAL_TO_NORMAL ){
@@ -182,6 +200,7 @@ unsigned int cRandom::GetRandBinomial(const double n, const double p){
 
 
 bool cRandom::Choose(int num_in, tArray<int> & out_array){
+  checkDebuggingException("cRandom::Choose");
   // If you ask for more than you pass in...
   assert ( num_in >= out_array.GetSize() );
 

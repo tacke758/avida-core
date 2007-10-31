@@ -37,6 +37,8 @@ Random variables from various statistical distributions
 template <class T> class tArray;
 
 class cRandom{
+  bool m_throw_debugging_exceptions;
+  void throwDebuggingException(const char* msg = 0);
 public:
   /**
    * Set up the random generator object.
@@ -45,6 +47,14 @@ public:
    * seed from the actual system time.
    **/
   cRandom(const int in_seed=-1);
+
+  void enableDebuggingException(void){ m_throw_debugging_exceptions = true; }
+  void disableDebuggingException(void){ m_throw_debugging_exceptions = false; }
+  void checkDebuggingException(const char* msg = 0){
+    if(m_throw_debugging_exceptions){
+      throwDebuggingException(msg);
+    }
+  }
 
   /**
    * Makes this random number generator's state match the original.
@@ -83,7 +93,9 @@ public:
    *
    * @return The pseudo random number.
    **/
-  inline double GetDouble(){ return Get()*_RAND_FAC; }
+  inline double GetDouble(){
+    checkDebuggingException("cRandom::GetDouble");
+    return Get()*_RAND_FAC; }
   
   /**
    * Generate a double between 0 and a given number.
@@ -110,6 +122,7 @@ public:
    * @param max The upper bound for the random numbers (will never be returned).
    **/
   inline unsigned int GetUInt(const unsigned int max){
+    checkDebuggingException("cRandom::GetUInt");
     return (int) (GetDouble()*max);}
   
   /**
@@ -130,6 +143,7 @@ public:
    * @param max The upper bound for the random numbers (will never be returned).
    **/
   inline int GetInt(const int max){
+    checkDebuggingException("cRandom::GetInt");
     return (int)GetUInt(max); }
   inline int GetInt(const int min, const int max){
     return ((int)GetUInt(max - min)) + min; }
@@ -139,12 +153,16 @@ public:
   
   // P(p) => if p < [0,1) random variable
   inline bool P(const double _p){
+    checkDebuggingException("cRandom::P");
     return (Get()<(_p*_RAND_MBIG));}
   inline bool mP(const double _p){	// p = _p*10^-3
+    checkDebuggingException("cRandom::mP");
     return (Get()<_RAND_mP_FAC && Get()<(_p*_RAND_MBIG));}
   inline bool uP(const double _p){	// p = _p*10^-6
+    checkDebuggingException("cRandom::uP");
     return (Get()<_RAND_uP_FAC && Get()<(_p*_RAND_MBIG));}
   inline bool pP(const double _p){	// p = _p*10^-6
+    checkDebuggingException("cRandom::pP");
     return (Get()<_RAND_uP_FAC && Get()<_RAND_uP_FAC &&
 	    Get()<(_p*_RAND_MBIG));}
 
@@ -171,6 +189,7 @@ public:
    * mean and variance.
    **/
   inline double GetRandNormal(const double mean, const double variance){
+    checkDebuggingException("cRandom::GetRandNormal");
     return mean+GetRandNormal()*sqrt(variance);
   }
   
@@ -178,6 +197,7 @@ public:
    * Generate a random variable drawn from a Poisson distribution.
    **/
   inline unsigned int GetRandPoisson(const double n, double p) {
+    checkDebuggingException("cRandom::GetRandPoisson");
     // Optimizes for speed and calculability using symetry of the distribution
     if( p>.5 ) return (unsigned int)n-GetRandPoisson(n*(1-p));
     else return GetRandPoisson(n*p);
@@ -243,6 +263,7 @@ private:
   // Basic Random number
   // Returns a random number [0,_RAND_MBIG)
   inline unsigned int Get(){
+    checkDebuggingException("cRandom::Get");
     // use_count++;  // Turn this on if random uses need to be tracked.
 
     if (++inext == 56) inext = 0;
@@ -256,6 +277,7 @@ private:
 };
 
 inline UINT cRandom::MutateByte(UINT value) {
+  checkDebuggingException("cRandom::MutateByte");
   int byte_pos = 8 * GetUInt(4);
   int new_byte = GetUInt(256);
   value &= ~(255 << byte_pos);
@@ -264,18 +286,21 @@ inline UINT cRandom::MutateByte(UINT value) {
 }
 
 inline UINT cRandom::ClearByte(UINT value) {
+  checkDebuggingException("cRandom::ClearByte");
   int byte_pos = 8 * GetUInt(4);
   value &= ~(255 << byte_pos);
   return value;
 }
 
 inline UINT cRandom::MutateBit(UINT value) {
+  checkDebuggingException("cRandom::MutateBit");
   int bit_pos = GetUInt(32);
   value ^= (1 << bit_pos);
   return value;
 }
 
 inline UINT cRandom::MutateBit(UINT value, int in_byte) {
+  checkDebuggingException("cRandom::MutateBit");
   int bit_pos = (in_byte) * 8 + GetUInt(8);
   value ^= (1 << bit_pos);
   return value;

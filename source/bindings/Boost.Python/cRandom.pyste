@@ -1,6 +1,26 @@
 
 Include("tList.h")
 Include("tArray.h")
+Include("cException.h")
+
+declaration_code("""
+void translate_cRandomDebugException(cRandomDebugException const& e)
+{
+  // Use the Python 'C' API to set up an exception object
+  PyErr_SetString(PyExc_RuntimeError, e.what());
+}
+
+void throws_cRandomDebugException(const char * msg = 0)
+{
+  throw cRandomDebugException(msg);
+}
+
+""")
+
+module_code("""
+register_exception_translator<cRandomDebugException>(&translate_cRandomDebugException);
+def("throws_cRandomDebugException", throws_cRandomDebugException);
+""")
 
 cRandom = Class("cRandom", "cRandom.h")
 
