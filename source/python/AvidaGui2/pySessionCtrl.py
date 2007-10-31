@@ -5,7 +5,7 @@ from pyMdtr import *
 from pySessionControllerFactory import *
 from pyBeforeStartingCtrl import *
 
-from AvidaCore import cString
+from AvidaCore import cRandom, cString, cTools 
 
 import qt
 
@@ -29,6 +29,8 @@ class pySessionCtrl(qt.QObject):
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
     # print "pySessionCtrl.__del__() sending setAvidaSig(None) ..."
+    self.m_session_mdl.m_session_mdtr.emit(
+      qt.PYSIGNAL("setAvidaSig"), (None,))
 
     # print 'pySessionCtrl.__del__() done.'
 

@@ -600,9 +600,14 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     if 0 == genesis.IsOpen():
       warningNoMethodName("Unable to find file " +  genesisFileName)
       return
+    descr("self.setAvidaSlot(None) ...")
+    self.setAvidaSlot(None)
+    descr("self.setAvidaSlot(None) done.")
     avida = pyAvida()
     avida.construct(genesis)
+    descr("self.setAvidaSlot(avida) ...")
     self.setAvidaSlot(avida)
+    descr("self.setAvidaSlot(avida) done.")
 
     # Stops self from hearing own setAvidaSig signal
 

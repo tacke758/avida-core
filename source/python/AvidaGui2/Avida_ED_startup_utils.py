@@ -14,6 +14,8 @@ s_splash.show()
 s_splash.message("Loading core Avida modules ...")
 
 import AvidaCore
+
+import os
 import sys
 
 from descr import descr, info, question, warning, critical
@@ -101,6 +103,59 @@ def AvidaEd():
     """
   return edu_main_controller
 
+
+res_dir = os.getcwd()
+
+def AvidaConsole():
+  sys.exc_clear()
+  sys.exc_traceback = sys.last_traceback = None
+  s_splash.message("Loading Avida-ED in console mode ...")
+  s_splash.show()
+
+  avida = None
+
+  genesis_file_name = "./genesis.default"
+
+  try:
+    Reload()
+    from pyAvida import pyAvida
+
+    s_splash.message("Running Avida-ED in console mode ...")
+
+    os.chdir(os.path.join(res_dir, "console_work"))
+    print "os.getcwd()", os.getcwd()
+    genesis = AvidaCore.cGenesis()
+    genesis.Open(AvidaCore.cString(genesis_file_name))
+    if 0 == genesis.IsOpen():
+      print "Unable to find file " + genesis_file_name
+      return None
+    avida = pyAvida()
+    avida.construct(genesis)
+
+  finally:
+    s_splash.clear()
+    s_splash.hide()
+
+    # BDB temporarily turn off prompting for new/existing workspace at
+    # the beginning of a new program.  Leave just in case we decide to
+    # go back to this system
+    #
+    # edu_main_controller.m_prompt_for_workspace_ctrl.showDialog()
+    print """
+    
+    To disable debugging messages, type 'AvidaGui2.descr.DEBUG = False'.
+
+    Type 'avida_ed=AvidaEd()' to reload the AvidaEd user interface.
+    
+    """
+  return avida
+
+def LoopTest():
+  for i in range(10):
+    avida = AvidaConsole()
+    for j in range(200):
+      avida.m_avida_threaded_driver.ProcessUpdate()
+    os.rename('average.dat', 'average.dat.%d' % i)
 
 # Instantiate (or reinstantiate) the Avida-ED gui. Return controller for
 # new gui instance.

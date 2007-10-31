@@ -1,5 +1,5 @@
 
-from AvidaCore import pyAvidaDriver
+from AvidaCore import pyAvidaDriver, cTools
 import atexit, threading
 
 from descr import descr
@@ -45,6 +45,10 @@ class pyAvidaThreadedDriver(pyAvidaDriver):
       self.m_do_update_semaphore.acquire()
       # begin update.
       self.m_lock.acquire()
+      if self.getDoneFlag():
+        self.m_lock.release()
+        self.m_updated_semaphore.release()
+        return
       self.m_updating = self.ProcessSome(self.m_process_bitesize)
       while self.m_updating:
         # yield lock to other threads.

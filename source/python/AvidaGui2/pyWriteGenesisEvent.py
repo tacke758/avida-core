@@ -115,7 +115,9 @@ class pyWriteGenesisEvent:
     #   I need to make a merits_dict with organism number as key, and
     #   merit as value.
     genesis = cGenesis()
+
     cConfig.Setup(genesis)
+
     genesis.Open(cString(genesis_file_name))
     environment = cEnvironment()
     environment.Load(cString(settings_dict["ENVIRONMENT_FILE"]))
@@ -138,7 +140,11 @@ class pyWriteGenesisEvent:
     for key in organisms_dict.keys():
       genome = organisms_dict[key]
       analyze_genotype = cAnalyzeGenotype(cString(genome), inst_set) 
+
+      random_number_generator_state = cRandom(cTools.globalRandom())
       analyze_genotype.Recalculate()
+      cTools.globalRandom().Clone(random_number_generator_state)
+
       merit = analyze_genotype.GetMerit()
       merits_dict[key] = merit
 
