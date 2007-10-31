@@ -17,13 +17,13 @@ import site
 # commit their changes). The variable to change is py2app.util.SCMDIRS,
 # which usually reads ['CVS', '.svn'].
 # 
-py2app.util.SCMDIRS=['CVS']
+#py2app.util.SCMDIRS=['CVS']
 
 # Hack, similar to above in purpose, for an earlier version of py2app.
 #
-def do_not_skip_scm(ofn):
-  return True
-py2app.util.skipscm = do_not_skip_scm
+#def do_not_skip_scm(ofn):
+#  return True
+#py2app.util.skipscm = do_not_skip_scm
 
 # Tell Python where to find Avida and Avida-ED python modules and packages.
 avida_ed_python_basedir = '${CMAKE_CURRENT_SOURCE_DIR}'
@@ -38,7 +38,7 @@ setup(
     # Options for py2app
     py2app = dict(
       # Python modules to copy :
-      includes = ['iqt', 'qt', 'qwt', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore'],
+      includes = ['iqt', 'sip', 'qt', 'qwt', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore'],
       # Python packages to copy :
       packages = ['IPython', 'AvidaGui2'],
       # Additional frameworks and dylibs to include
@@ -48,6 +48,7 @@ setup(
       # Extra files and folders to  :copy into Resources subdirectory
       resources = [
         '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/avidalogo.png',
+        '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/avida-ED-logo.png',
         '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/open.png',
         '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/closed.png',
         '${CMAKE_CURRENT_SOURCE_DIR}/default.workspace',
