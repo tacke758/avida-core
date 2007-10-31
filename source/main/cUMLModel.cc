@@ -332,7 +332,7 @@ double cUMLModel::checkForScenarios()
 bool cUMLModel::readyForHydra() 
 {
 	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
-	//          (4) ALL COMPLETE && DETERMINISTIC
+	//          (4) ALL COMPLETE && DETERMINISTIC, (5) ALL THE TIME
 	// check which option was selected in the seed-model.cfg
 	// check to see if this condition is true. If so, return 1; otherwise, return 0.
 	
@@ -366,7 +366,9 @@ bool cUMLModel::readyForHydra()
 			//ret_val &= scenario_completion[i];
 			if (scenario_completion[i] != 1) ret_val &= 0;
 		}
-			
+		break;
+	case 5: 
+		ret_val =1;
 		break;
 	default:
 		ret_val = 0;

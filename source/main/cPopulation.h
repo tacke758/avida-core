@@ -27,6 +27,8 @@
 #define cPopulation_h
 
 #include <fstream>
+#include <map>
+#include <string>
 
 #ifndef cBirthChamber_h
 #include "cBirthChamber.h"
@@ -59,6 +61,7 @@
 #include "tVector.h"
 #endif
 
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -78,6 +81,8 @@ class cOrganism;
 class cPopulationCell;
 class cSchedule;
 class cSaleItem;
+
+
 
 
 class cPopulation
@@ -108,6 +113,14 @@ private:
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
   tArray<cDeme> deme_array;            // Deme structure of the population.
+  
+
+  // For the UML branch.	
+  map<string, map<string, float> > model_cache;						// This variable is used for caching models
+																	// and how well the models satisfied the
+																	// property, scenario, and software engineering
+																	// tasks.
+
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -185,7 +198,6 @@ public:
   // Print donation stats
   void PrintDonationStats();
 
-
   // Process a single organism one instruction...
   int ScheduleOrganism();          // Determine next organism to be processed.
   void ProcessStep(cAvidaContext& ctx, double step_size, int cell_id);
@@ -196,6 +208,11 @@ public:
 
   // Clear all but a subset of cells...
   void SerialTransfer(int transfer_size, bool ignore_deads);
+  
+  // UML Branch: 
+  bool findModel(string);						// Check to see if a model is present in a model cache. 
+  float getReward(string, string);				// Get the reward for a specific task for a specific model.
+  void addAModel(string, map<string, float>);	// Add a model to the cache.
 
   // Saving and loading...
   bool SaveClone(std::ofstream& fp);

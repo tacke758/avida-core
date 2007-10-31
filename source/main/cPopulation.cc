@@ -2785,3 +2785,25 @@ void cPopulation::AddEndSleep(int cellID, int end_time) {
   sleep_log[cellID].RemoveAt(sleep_log[cellID].Size()-1);
   sleep_log[cellID].Add(make_pair(p.first, end_time));
 }
+
+// Check to see if a model is already present in the model_cache
+bool cPopulation::findModel(string mod){
+	bool ret_val = false;
+	if (model_cache.find(mod) != model_cache.end()){
+		ret_val = true;
+	}
+	return ret_val;
+}
+ 
+// Check what the reward is for a model in the model_cache
+float cPopulation::getReward(string mod, string task_name){
+	return 0.0;
+}
+
+// Add a model to the cache
+void cPopulation::addAModel(string mod, map<string, float> rewards){
+	model_cache[mod] = rewards;
+}
+
+  
+  
