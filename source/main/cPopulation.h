@@ -212,7 +212,7 @@ public:
   // UML Branch: 
   bool findModel(string);						// Check to see if a model is present in a model cache. 
   float getReward(string, string);				// Get the reward for a specific task for a specific model.
-  void addAModel(string, map<string, float>);	// Add a model to the cache.
+  void addModel(string);	// Add a model to the cache.
 
   // Saving and loading...
   bool SaveClone(std::ofstream& fp);

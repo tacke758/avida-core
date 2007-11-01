@@ -2801,9 +2801,12 @@ float cPopulation::getReward(string mod, string task_name){
 }
 
 // Add a model to the cache
-void cPopulation::addAModel(string mod, map<string, float> rewards){
+void cPopulation::addModel(string mod){
+	map<string, float> rewards;
 	model_cache[mod] = rewards;
 }
 
   
+  
+
   

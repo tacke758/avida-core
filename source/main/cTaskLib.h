@@ -290,7 +290,7 @@ private:  // Direct task related methods
   double Task_Scenarios(cTaskContext& ctx) const;
   double Task_NumStates(cTaskContext& ctx) const;
   double Task_NumTrans(cTaskContext& ctx) const;
-  double Task_PropTrigger(cTaskContext& ctx) const;
+//  double Task_PropTrigger(cTaskContext& ctx) const;
   double Task_Hydra(cTaskContext& ctx) const;
   double SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
   double SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;

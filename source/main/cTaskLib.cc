@@ -413,8 +413,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
 	  NewTask(name, "Successfully created 5 transitions", &cTaskLib::Task_NumTrans);
-  else if (name == "prop-tr") // 
-	  NewTask(name, "Diagram included trigger", &cTaskLib::Task_PropTrigger);	
+/*  else if (name == "prop-tr") // 
+	  NewTask(name, "Diagram included trigger", &cTaskLib::Task_PropTrigger);	*/
   else if (name == "hydra") // 
 	  NewTask(name, "Successfully ran hydra", &cTaskLib::Task_Hydra);	  	
   else if (name == "spin1") // 
@@ -2943,22 +2943,12 @@ double cTaskLib::Task_Trans10(cTaskContext& ctx) const
 double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 {
 	double bonus = 0.0; 
-//	double temp_bonus = 0;
 	std::string sc_name;
 	cOrganism* org = ctx.getOrganism();
 	
-	// Check if this model is different than the organism's parent's model
-	if (org->getParentXMI() != org->getUMLModel()->getXMI()) {
-		bonus = org->getUMLModel()->checkForScenarios();
-	} else { 
-		bonus = org->getParentBonus("scenarios"); 
-		org->getUMLModel()->setScenarioCompletion(org->getParentScenarioCompletion());
-	}
+	bonus = org->getUMLModel()->checkForScenarios();
 	
-	// Set bonus info for current model
-	org->getUMLModel()->setBonusInfo("scenarios", bonus);		
-	
-	m_world->GetStats().addScenarioCompletion(org->getUMLModel()->getScenarioCompletion());
+//	m_world->GetStats().addScenarioCompletion(org->getUMLModel()->getScenarioCompletion());
 	
 	return bonus;
 }
@@ -2996,25 +2986,16 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 
 	temp = organism->getUMLModel()->getXMI();
 	
-	// call hydra when a // all scenario hits its max?
-	// all are non-zero?
-	if (!organism->getUMLModel()->readyForHydra()) {
+	// trigger when?
+/*	if (!organism->getUMLModel()->readyForHydra()) {
 		
 		organism->getUMLModel()->setBonusInfo("hydra", bonus);
 		
 		return 0;
-	}
+	}*/
 		
 	m_world->GetStats().HydraAttempt();
-
-	if (organism->getParentXMI() == temp) {
 	
-		bonus = organism->getParentBonus("hydra"); 
-		organism->getUMLModel()->setBonusInfo("hydra", bonus);	
-		return bonus;
-	}		
-
-
 	unsigned int status_total = 0;
 	int status=0;
 
@@ -3093,7 +3074,6 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 		bonus = 1.0;
 	}
 	
-	organism->getUMLModel()->setBonusInfo("hydra", bonus);	
 	return bonus;
 	
 }
@@ -3146,28 +3126,16 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 }
 
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
-	cOrganism* organism = ctx.getOrganism();
+//	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 		
-	if (organism->getUMLModel()->getBonusInfo("spinw1") <= 1)	
-	{ 
-		organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
-		return bonus;
-	}
+	// Only trigger if W1 passes
 
 	
 	m_world->GetStats().N1Attempt();
 
-
-	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
+	bonus = SpinCoprocess(ctx, "N1");
 	
-		bonus = organism->getParentBonus("spinn1"); 
-	}	else {
-	
-		bonus = SpinCoprocess(ctx, "N1");
-	}
-	
-	organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
 	if (bonus > 0) 	m_world->GetStats().N1Passed();
 
 	return bonus;
@@ -3176,29 +3144,17 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 
 
 double cTaskLib::Task_SpinW1(cTaskContext& ctx) const { 
-	cOrganism* organism = ctx.getOrganism();
+//	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 	
-	
-	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0)
-	{ 
-		return bonus;
-	}
+	// Only trigger if Hydra passes?
 	
 	m_world->GetStats().W1Attempt();
 
+	bonus = SpinWitnessCoprocess(ctx, "W1");
 	
-	if ((organism->getParentXMI()) == (organism->getUMLModel()->getXMI())) {	
-		bonus = organism->getParentBonus("spinw1"); 
-	}	else {
-	
-		bonus = SpinWitnessCoprocess(ctx, "W1");
-	}
-	
-	organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
 	if (bonus > 0) 	m_world->GetStats().W1Passed();
 	
-
 	return bonus;
 }
 
@@ -3207,24 +3163,11 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 	
-	if (organism->getUMLModel()->getBonusInfo("spinw2") <= 1)	
-	{ 
-		organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
-		return bonus;
-	}
-	
+	// Only trigger if witness is true?	
 	m_world->GetStats().N2Attempt();
 
+	bonus = SpinCoprocess(ctx, "N2");
 	
-	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
-	
-		bonus = organism->getParentBonus("spinn2"); 
-	}	else {
-	
-		bonus = SpinCoprocess(ctx, "N2");
-	}
-	
-	organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
 	if (bonus > 0) 	m_world->GetStats().N2Passed();
 
 	return bonus;
@@ -3236,22 +3179,11 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
 
-	if	(organism->getUMLModel()->getBonusInfo("hydra") == 0)	
-	{ 
-		return bonus;
-	}
-
-	
+	// Only trigger if Hydra passed.
 	m_world->GetStats().W2Attempt();
 		
-	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {	
-		bonus = organism->getParentBonus("spinw2"); 
-	}	else {
+	bonus = SpinWitnessCoprocess(ctx, "W2");
 	
-		bonus = SpinWitnessCoprocess(ctx, "W2");
-	}
-
-	organism->getUMLModel()->setBonusInfo("spinw2", bonus);	
 	if (bonus > 0) 	m_world->GetStats().W2Passed();
 
 	return bonus;
@@ -3259,7 +3191,7 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 
 
 
-double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
+/*double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
 	// This task checks for the trigger of the property.
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
@@ -3269,7 +3201,7 @@ double cTaskLib::Task_PropTrigger(cTaskContext& ctx) const {
 	}
 	
 	return bonus;
-}
+}*/
 
 double cTaskLib::Task_MinTrans(cTaskContext& ctx) const { 
 	// This task rewards organisms for having fewer edges
@@ -3304,8 +3236,6 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 		}
 	}
 	
-	organism->getUMLModel()->setBonusInfo("isDeterministic", max_bonus - nd_penalty);	
-
 	return max_bonus - nd_penalty;
 }
 
@@ -3335,20 +3265,14 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 double cTaskLib::Task_ViolateN1(cTaskContext& ctx) const { 
 	
 	std::ostringstream strstrm;
-	cOrganism* organism = ctx.getOrganism();
+//	cOrganism* organism = ctx.getOrganism();
 
 	double bonus = 0; 
-	if (organism->getParentXMI() == organism->getUMLModel()->getXMI()) {
-		
-		bonus = organism->getParentBonus("not-n1"); 
-	}	else {
-		if ((SpinCoprocess(ctx, "N1")) == 0) { 
+
+	if ((SpinCoprocess(ctx, "N1")) == 0) { 
 			bonus = 1;
-		}
 	}
-	
-	organism->getUMLModel()->setBonusInfo("not-n1", bonus);	
-	
+		
 	if (bonus) {
 		
 		strstrm << "cp tmp.xmi "  << "violate-n1" << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();

@@ -180,13 +180,14 @@ cUMLModel::cUMLModel(const char* seed_model) {
   state_diagrams = _cfg_state_diagrams;
   scenarios = _cfg_scenarios;
   hydraMode = _cfg_hydra_mode;  
+  isCached = false;
 }
 
 
 cUMLModel::~cUMLModel()
 {}
 
-float cUMLModel::getBonusInfo (std::string s)  
+/*float cUMLModel::getBonusInfo (std::string s)  
 { 
 	float val;
 	std::map<std::string, float>::iterator bonus_info_pointer;
@@ -199,7 +200,7 @@ float cUMLModel::getBonusInfo (std::string s)
 		val = 0;
 	}
 	return val; 
-}
+}*/
 
 
 cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
@@ -302,28 +303,16 @@ double cUMLModel::checkForScenarios()
 	// Iterate through list of scnearios; Call each scenario on the appropriate state diagram
 	// Accrue results.
 	// Save bonus info.
-	scenario_completion.resize(scenarios.size());
+//	scenario_completion.resize(scenarios.size());
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
-//		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
-//		total_bonus += temp_bonus;
 				
 		complete_bonus = s.path.size() + s.shouldLoop; 
 		if (s.startState >= 0) complete_bonus++;
 		
-//		if (temp_bonus == complete_bonus) {
-////			bonus_info["scenario"+i] = 1;
-//			scenario_completion[i] = temp_bonus / complete_bonus;
-////			std::cout << "scenario complete " << std::endl;
-//		} else {
-////			bonus_info["scenario"+i] = 0;
-//			scenario_completion[i] = 0;
-////			std::cout << "scenario incomplete " << std::endl;
-//
 		total_bonus += (temp_bonus / complete_bonus);
-//		}
-	scenario_completion[i] = temp_bonus / complete_bonus;
+//	scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
 	return total_bonus;
@@ -342,16 +331,16 @@ bool cUMLModel::readyForHydra()
 	switch (hydraMode){
 	case 0:
 		ret_val = 1;
-		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		/*for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 				//ret_val &= scenario_completion[i];
 				if (scenario_completion[i] != 1) ret_val &= 0;
-		}
+		}*/
 		break;
 	case 1:
 		ret_val = 0;
-		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		/*for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 				if (scenario_completion[i] == 1) ret_val = 1;
-		}
+		}*/
 		break;
 	case 2:
 		ret_val = 0;
@@ -361,11 +350,11 @@ bool cUMLModel::readyForHydra()
 		break;
 	case 4:
 		ret_val = 1;
-		if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
+		/*if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
 		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 			//ret_val &= scenario_completion[i];
 			if (scenario_completion[i] != 1) ret_val &= 0;
-		}
+		}*/
 		break;
 	case 5: 
 		ret_val =1;
@@ -396,4 +385,7 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 	
 }
 
-
+bool cUMLModel::checkIsCached()
+{
+	return isCached;
+}
