@@ -88,7 +88,7 @@ class pyAvida(qt.QObject):
       self.m_update_ck_timer,
       qt.SIGNAL("timeout()"),
       self.updateCheckSlot)
-    self.m_update_ck_timer.start(0)
+    self.m_update_ck_timer.start(10)
 
     return self
 
