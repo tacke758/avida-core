@@ -3739,7 +3739,7 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
   //Length 100
   //const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab";
 
-  int num_trials = 10000000;  // 10 million trials
+  int num_trials = 100000;  // 10 million trials
   int num_tests  = 100;        // Number of random numbers to test
   
   //Stochasticity
@@ -3765,16 +3765,15 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
   if (!fot2.is_open())
     m_world->GetDriver().RaiseFatalException(2, "Cannot open equ_genomes.dat.");
   
-  
-  cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
-  cCPUTestInfo* test_info = new cCPUTestInfo();
+  cCPUTestInfo* test_info = new cCPUTestInfo;
   for (int n = 0; n < num_trials; n++){
+    
     cString new_genome = base_genome;
     for (int pos = 6; pos < 41; pos++)
       new_genome[pos] = inst_set.GetRandomInst(m_ctx).GetSymbol();
     
     cPhenPlastGenotype ppgenotype(new_genome, num_tests, *test_info, m_world, m_ctx);
-
+    
     //Process our individual phenotypes
     tArray<double> gen_tasks(512,0.0);
     int    num_phens = ppgenotype.GetNumPhenotypes();
@@ -3795,6 +3794,7 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
       }
     }
     
+    
     //Process our genotype
     if (print_equ_genome)
       fot2 << new_genome << endl;
@@ -3806,6 +3806,7 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
         int s = static_cast<int>(gen_tasks[t] * 100) / 10;
         num_tasks.ElementAt(t,s)++;
       }
+      
     }
     
     //How many phenotypes were there and how often are they viable?
@@ -3813,9 +3814,8 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
     int np = (num_phens <= 10) ? num_phens-1 : 10;
     viability.ElementAt(np,s)++;
   }
-  delete test_cpu;
   delete test_info;
-
+  
   //We're done with our EQU genotype file
   fot2.close();
   
