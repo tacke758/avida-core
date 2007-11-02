@@ -584,7 +584,7 @@
 		70B0865808F4974300FC65FE /* cMxCodeArray.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMxCodeArray.cc; sourceTree = "<group>"; };
 		70B0867208F499C100FC65FE /* nMutation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = nMutation.h; sourceTree = "<group>"; };
 		70B0868308F49E9700FC65FE /* cOrganism.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cOrganism.h; sourceTree = "<group>"; };
-		70B0868508F49E9700FC65FE /* cPopulation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cPopulation.h; sourceTree = "<group>"; };
+		70B0868508F49E9700FC65FE /* cPopulation.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = cPopulation.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		70B0868608F49E9700FC65FE /* cPopulationCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cPopulationCell.h; sourceTree = "<group>"; };
 		70B0868708F49EA800FC65FE /* cOrganism.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cOrganism.cc; sourceTree = "<group>"; };
 		70B0868908F49EA800FC65FE /* cPopulation.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cPopulation.cc; sourceTree = "<group>"; };

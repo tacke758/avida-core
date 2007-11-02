@@ -38,6 +38,9 @@
 #ifndef cWorld_h
 #include "cWorld.h"
 #endif
+#ifndef cPopulation_h
+#include "cPopulation.h"
+#endif
 #ifndef cStats_h
 #include "cStats.h"
 #endif
@@ -46,6 +49,7 @@
 class cEnvReqs;
 class cString;
 class cWorld;
+class cPopulation;
 
 
 class cTaskLib

@@ -385,7 +385,3 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 	
 }
 
-bool cUMLModel::checkIsCached()
-{
-	return isCached;
-}

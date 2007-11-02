@@ -98,7 +98,7 @@ private:
   cResourceCount resource_count;       // Global resources available
   cBirthChamber birth_chamber;         // Global birth chamber.
   tArray<tList<cSaleItem> > market;   // list of lists of items for sale, each list goes with 1 label
-
+  
   tVector<pair<int,int> > *sleep_log;
   int numAsleep;
   
@@ -115,11 +115,13 @@ private:
   tArray<cDeme> deme_array;            // Deme structure of the population.
   
 
-  // For the UML branch.	
-  map<string, map<string, float> > model_cache;						// This variable is used for caching models
-																	// and how well the models satisfied the
-																	// property, scenario, and software engineering
-																	// tasks.
+  // For the UML branch.
+  typedef map<string, float> model_reward_type;
+  typedef map<string, model_reward_type > model_cache_type;
+  model_cache_type model_cache;			// This variable is used for caching models
+														// and how well the models satisfied the
+														// property, scenario, and software engineering
+														// tasks.
 
  
   // Outside interactions...
@@ -205,14 +207,15 @@ public:
 
   // Calculate the statistics from the most recent update.
   void CalcUpdateStats();
-
+  
   // Clear all but a subset of cells...
   void SerialTransfer(int transfer_size, bool ignore_deads);
   
   // UML Branch: 
   bool findModel(string);						// Check to see if a model is present in a model cache. 
-  float getReward(string, string);				// Get the reward for a specific task for a specific model.
-  void addModel(string);	// Add a model to the cache.
+  float getModelTaskReward(string, string);				// Get the reward for a specific task for a specific model.
+  void setModelTaskReward(string, string, float);        // Set the reward for a specific task for a specific model.
+  void addModel(string);                        // Add a model to the cache.
 
   // Saving and loading...
   bool SaveClone(std::ofstream& fp);

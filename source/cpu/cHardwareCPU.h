@@ -655,6 +655,11 @@ private:
   bool Inst_Action12(cAvidaContext& ctx);
   bool Inst_Action13(cAvidaContext& ctx);
     
+  // UML instructions used to construct properties
+  bool Inst_AbsenceProperty(cAvidaContext& ctx);
+  bool Inst_UniversialityProperty(cAvidaContext& ctx);
+  bool Inst_ExistenceProperty(cAvidaContext& ctx);
+  
 };
 
 

@@ -64,7 +64,7 @@ public:
 	
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
-	bool checkIsCached();
+	bool checkIsCached() { return isCached; }
 	void setIsCached (bool b) {isCached = b; }
 
 

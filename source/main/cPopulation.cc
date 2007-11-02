@@ -2796,8 +2796,23 @@ bool cPopulation::findModel(string mod){
 }
  
 // Check what the reward is for a model in the model_cache
-float cPopulation::getReward(string mod, string task_name){
-	return 0.0;
+float cPopulation::getModelTaskReward(string mod, string task_name){
+	model_cache_type::iterator mi = model_cache.find(mod);
+	int ms = model_cache.size();
+	assert(mi!=model_cache.end());
+	
+	model_reward_type::iterator ri = mi->second.find(task_name);
+	int rs = mi->second.size();
+	assert (ri != mi->second.end());
+	
+	return ri->second;
+}
+
+// Set the reward for a specific model for a specific task
+void cPopulation::setModelTaskReward(string mod, string task_name, float val){
+	
+    model_cache[mod][task_name] = val;
+	return;
 }
 
 // Add a model to the cache
