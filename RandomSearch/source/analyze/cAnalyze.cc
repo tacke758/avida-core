@@ -3739,7 +3739,7 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
   //Length 100
   //const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab";
 
-  int num_trials = 100000;  // 10 million trials
+  int num_trials = 10000000;  // 10 million trials
   int num_tests  = 100;        // Number of random numbers to test
   
   //Stochasticity
