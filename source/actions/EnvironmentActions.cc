@@ -22,7 +22,13 @@
  *
  */
 
-#include "math.h"
+#include <cmath>
+
+// M_PI is not defined under windows, so define it here
+#ifndef M_PI
+#define M_PI        3.14159265358979323846
+#endif
+
 #include "EnvironmentActions.h"
 
 #include "cAction.h"
