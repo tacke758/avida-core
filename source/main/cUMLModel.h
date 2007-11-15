@@ -48,10 +48,10 @@ public:
 	cUMLStateDiagram* getStateDiagram (unsigned int); 
 	
 	// Set and access the bonus info for a model. Should be used by the tasks
-//	void setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
-//	float getBonusInfo (std::string);  
-//	std::vector<double> getScenarioCompletion() { return scenario_completion; } 
-//	void setScenarioCompletion(std::vector<double> s)  { scenario_completion = s; }
+	void setBonusInfo (std::string s, float f) { bonus_info[s] = f; } 
+	float getBonusInfo (std::string);  
+	std::vector<double> getScenarioCompletion() { return scenario_completion; } 
+	void setScenarioCompletion(std::vector<double> s)  { scenario_completion = s; }
 		
 	// Get the number of, well, everything
 	int numStates();
@@ -64,9 +64,7 @@ public:
 	
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
-	bool checkIsCached() { return isCached; }
-	void setIsCached (bool b) {isCached = b; }
-
+	bool getWitnessMode() {return witnessMode; }
 
 protected: 
 	static xmi_info xi;
@@ -75,15 +73,17 @@ protected:
 	std::vector<cUMLStateDiagram> state_diagrams;
 	std::map<std::string, float> bonus_info;
 	std::vector<scenario_info> scenarios;
-//	std::vector<double> scenario_completion;
+	std::vector<double> scenario_completion;
 	int hydraMode; 
-	bool isCached; // This value indicates whether the model has previously been cached.
+	bool witnessMode;
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
   static std::vector<cUMLStateDiagram> _cfg_state_diagrams; //!< State diagrams as read from seed-model.cfg.
   static std::vector<scenario_info> _cfg_scenarios; //!< Scenarios as read from seed-model.cfg.
   static int _cfg_hydra_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
+  static bool _cfg_witness_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
+
 };
 
 

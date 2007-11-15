@@ -598,13 +598,6 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 		m_model.setMaxTrans(m_model.numTrans());
 	} 
 
-	// Check if the model has been previously cached
-	if (m_world->GetPopulation().findModel(m_model.getXMI())) {
-		m_model.setIsCached(true);
-	} else {
-	// If not, enter it into the cache.
-		m_world->GetPopulation().addModel(m_model.getXMI());
-	}
 
   const tArray<double> & resource_count = m_interface->GetResources();
   
@@ -678,7 +671,19 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	m_world->GetStats().addGuards(m_model.numGuards());
 	m_world->GetStats().addActions(m_model.numActions());
 	m_world->GetStats().addStateDiagrams(m_model.numSDs());
+	
+	
+	if ((m_model.getBonusInfo("spinn1") > 0) && 
+		(m_model.getBonusInfo("spinn2") > 0)) { 
+		m_world->GetStats().N1andN2Passed();
+	}
+	
 
+	
+//	m_world->GetStats().addTransLabel(transition_labels.size());
+
+  
+  
 }
 
 cUMLModel* cOrganism::getUMLModel()

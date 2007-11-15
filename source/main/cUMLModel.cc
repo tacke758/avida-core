@@ -70,7 +70,8 @@ follow the *very* specific file format."
 void seed_diagrams(const char* seed_model,
                    std::vector<cUMLStateDiagram>& state_diagrams,
                    std::vector<scenario_info>& scenarios,
-                   int& hydra_mode) {
+                   int& hydra_mode, 
+				   bool& witness_mode) {
   std::string data, line; // or maybe stringstream? (strstream?)
 	int num_states;
 	int num_sd = 0;
@@ -94,6 +95,9 @@ void seed_diagrams(const char* seed_model,
 		} else if (line == "=HYDRA=====================") { 
 			line.erase(); 
 			infile >> hydra_mode;
+		} else if (line == "=WITNESS===================") { 
+			line.erase(); 
+			infile >> witness_mode;
 		} else if (line == "=INCLUDE-TRANSITIONS=======") { 
 			line.erase(); 
 			infile >> include_trans;
@@ -169,25 +173,26 @@ bool cUMLModel::_cfgLoaded = false;
 std::vector<cUMLStateDiagram> cUMLModel::_cfg_state_diagrams;
 std::vector<scenario_info> cUMLModel::_cfg_scenarios;
 int cUMLModel::_cfg_hydra_mode;
+bool cUMLModel::_cfg_witness_mode;
 
 
 cUMLModel::cUMLModel(const char* seed_model) {
   if(!_cfgLoaded) {
-    seed_diagrams(seed_model, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode);
+    seed_diagrams(seed_model, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode);
     _cfgLoaded = true;
   }
   
   state_diagrams = _cfg_state_diagrams;
   scenarios = _cfg_scenarios;
-  hydraMode = _cfg_hydra_mode;  
-  isCached = false;
+  hydraMode = _cfg_hydra_mode; 
+  witnessMode = _cfg_witness_mode;
 }
 
 
 cUMLModel::~cUMLModel()
 {}
 
-/*float cUMLModel::getBonusInfo (std::string s)  
+float cUMLModel::getBonusInfo (std::string s)  
 { 
 	float val;
 	std::map<std::string, float>::iterator bonus_info_pointer;
@@ -200,7 +205,7 @@ cUMLModel::~cUMLModel()
 		val = 0;
 	}
 	return val; 
-}*/
+}
 
 
 cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
@@ -303,16 +308,28 @@ double cUMLModel::checkForScenarios()
 	// Iterate through list of scnearios; Call each scenario on the appropriate state diagram
 	// Accrue results.
 	// Save bonus info.
-//	scenario_completion.resize(scenarios.size());
+	scenario_completion.resize(scenarios.size());
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
+//		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
+//		total_bonus += temp_bonus;
 				
 		complete_bonus = s.path.size() + s.shouldLoop; 
 		if (s.startState >= 0) complete_bonus++;
 		
+//		if (temp_bonus == complete_bonus) {
+////			bonus_info["scenario"+i] = 1;
+//			scenario_completion[i] = temp_bonus / complete_bonus;
+////			std::cout << "scenario complete " << std::endl;
+//		} else {
+////			bonus_info["scenario"+i] = 0;
+//			scenario_completion[i] = 0;
+////			std::cout << "scenario incomplete " << std::endl;
+//
 		total_bonus += (temp_bonus / complete_bonus);
-//	scenario_completion[i] = temp_bonus / complete_bonus;
+//		}
+	scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
 	return total_bonus;
@@ -321,7 +338,7 @@ double cUMLModel::checkForScenarios()
 bool cUMLModel::readyForHydra() 
 {
 	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
-	//          (4) ALL COMPLETE && DETERMINISTIC, (5) ALL THE TIME
+	//          (4) ALL COMPLETE && DETERMINISTIC
 	// check which option was selected in the seed-model.cfg
 	// check to see if this condition is true. If so, return 1; otherwise, return 0.
 	
@@ -331,16 +348,16 @@ bool cUMLModel::readyForHydra()
 	switch (hydraMode){
 	case 0:
 		ret_val = 1;
-		/*for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 				//ret_val &= scenario_completion[i];
 				if (scenario_completion[i] != 1) ret_val &= 0;
-		}*/
+		}
 		break;
 	case 1:
 		ret_val = 0;
-		/*for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 				if (scenario_completion[i] == 1) ret_val = 1;
-		}*/
+		}
 		break;
 	case 2:
 		ret_val = 0;
@@ -350,14 +367,14 @@ bool cUMLModel::readyForHydra()
 		break;
 	case 4:
 		ret_val = 1;
-		/*if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
+		if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
 		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 			//ret_val &= scenario_completion[i];
 			if (scenario_completion[i] != 1) ret_val &= 0;
-		}*/
+		}
 		break;
 	case 5: 
-		ret_val =1;
+		ret_val = 1;
 		break;
 	default:
 		ret_val = 0;
@@ -384,4 +401,5 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 	return;
 	
 }
+
 

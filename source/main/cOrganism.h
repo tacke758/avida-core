@@ -147,9 +147,9 @@ protected:
   int m_guard_index;
   int m_action_index;*/	
   cUMLModel m_model;		
-//  std::string m_parent_xmi; 
-//  std::map<std::string, float> m_parent_bonus;  
-//  std::vector<double> m_parent_scenario_completion;
+  std::string m_parent_xmi; 
+  std::map<std::string, float> m_parent_bonus;  
+  std::vector<double> m_parent_scenario_completion;
 
   cOrganism(); // @not_implemented
   cOrganism(const cOrganism&); // @not_implemented
@@ -312,7 +312,7 @@ public:
   void modelCheck(cAvidaContext& ctx);
   cUMLModel* getUMLModel();
 //  cUMLModel* getParentUMLModel() { return m_parent_model; } 
-//  std::string getParentXMI() { return m_parent_xmi; }
+  std::string getParentXMI() { return m_parent_xmi; }
   int getStateDiagramIndex() { return m_state_diag; } 
 //  bool lastStateDiagram () { m_state_diag = getUMLModel()->getStateDiagramSize(); }
 //  bool firstStateDiagram() { m_state_diag = 0; }  
@@ -320,12 +320,12 @@ public:
   cUMLStateDiagram* getStateDiagram();
 //  void printStats();
 //  void setParentModel(cUMLModel* m) { m_parent_model = m; } 
-//  void setParentXMI(std::string s) { m_parent_xmi = s; } 
-//  void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
-//  float getParentBonus (std::string s) { return m_parent_bonus[s]; }
-//  std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
-//  std::vector<double> getParentScenarioCompletion() { return m_parent_scenario_completion; } 
-//  void setParentScenarioCompletion (std::vector<double> s) { m_parent_scenario_completion = s; }
+  void setParentXMI(std::string s) { m_parent_xmi = s; } 
+  void setParentBonus (std::map<std::string, float> v) { m_parent_bonus = v; }
+  float getParentBonus (std::string s) { return m_parent_bonus[s]; }
+  std::map<std::string, float> getParentBonus() { return m_parent_bonus; }
+  std::vector<double> getParentScenarioCompletion() { return m_parent_scenario_completion; } 
+  void setParentScenarioCompletion (std::vector<double> s) { m_parent_scenario_completion = s; }
 
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)

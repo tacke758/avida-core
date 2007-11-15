@@ -27,8 +27,6 @@
 #define cPopulation_h
 
 #include <fstream>
-#include <map>
-#include <string>
 
 #ifndef cBirthChamber_h
 #include "cBirthChamber.h"
@@ -61,7 +59,6 @@
 #include "tVector.h"
 #endif
 
-
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -83,8 +80,6 @@ class cSchedule;
 class cSaleItem;
 
 
-
-
 class cPopulation
 {
 #if USE_tMemTrack
@@ -98,7 +93,7 @@ private:
   cResourceCount resource_count;       // Global resources available
   cBirthChamber birth_chamber;         // Global birth chamber.
   tArray<tList<cSaleItem> > market;   // list of lists of items for sale, each list goes with 1 label
-  
+
   tVector<pair<int,int> > *sleep_log;
   int numAsleep;
   
@@ -113,16 +108,6 @@ private:
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
   tArray<cDeme> deme_array;            // Deme structure of the population.
-  
-
-  // For the UML branch.
-  typedef map<string, float> model_reward_type;
-  typedef map<string, model_reward_type > model_cache_type;
-  model_cache_type model_cache;			// This variable is used for caching models
-														// and how well the models satisfied the
-														// property, scenario, and software engineering
-														// tasks.
-
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -200,6 +185,7 @@ public:
   // Print donation stats
   void PrintDonationStats();
 
+
   // Process a single organism one instruction...
   int ScheduleOrganism();          // Determine next organism to be processed.
   void ProcessStep(cAvidaContext& ctx, double step_size, int cell_id);
@@ -207,15 +193,9 @@ public:
 
   // Calculate the statistics from the most recent update.
   void CalcUpdateStats();
-  
+
   // Clear all but a subset of cells...
   void SerialTransfer(int transfer_size, bool ignore_deads);
-  
-  // UML Branch: 
-  bool findModel(string);						// Check to see if a model is present in a model cache. 
-  float getModelTaskReward(string, string);				// Get the reward for a specific task for a specific model.
-  void setModelTaskReward(string, string, float);        // Set the reward for a specific task for a specific model.
-  void addModel(string);                        // Add a model to the cache.
 
   // Saving and loading...
   bool SaveClone(std::ofstream& fp);

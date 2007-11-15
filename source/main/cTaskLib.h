@@ -38,9 +38,6 @@
 #ifndef cWorld_h
 #include "cWorld.h"
 #endif
-#ifndef cPopulation_h
-#include "cPopulation.h"
-#endif
 #ifndef cStats_h
 #include "cStats.h"
 #endif
@@ -49,7 +46,6 @@
 class cEnvReqs;
 class cString;
 class cWorld;
-class cPopulation;
 
 
 class cTaskLib
@@ -294,7 +290,7 @@ private:  // Direct task related methods
   double Task_Scenarios(cTaskContext& ctx) const;
   double Task_NumStates(cTaskContext& ctx) const;
   double Task_NumTrans(cTaskContext& ctx) const;
-//  double Task_PropTrigger(cTaskContext& ctx) const;
+  double Task_PropTrigger(cTaskContext& ctx) const;
   double Task_Hydra(cTaskContext& ctx) const;
   double SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
   double SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neverclaimFile) const;
@@ -306,8 +302,6 @@ private:  // Direct task related methods
 //  double Task_MultTrans(cTaskContext& ctx) const;  
   double Task_Nondeterminism(cTaskContext& ctx) const;
   double Task_ExportXMI(cTaskContext& ctx) const;
-  double Task_ViolateN1(cTaskContext& ctx) const;
-  double Task_ViolateN2(cTaskContext& ctx) const;
 
 };
 
