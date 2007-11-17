@@ -5,6 +5,11 @@ Digital Evolution Laboratory at Michigan State University
 
 I.   REQUIREMENTS
 II.  GETTING STARTED
+  A. Unix/Linux Systems
+  B. Apple Xcode Tools
+  C. Microsoft Visual Studio
+    1. CMake
+    2. VC Project
 III. CMAKE CONFIGURATION OPTIONS
 IV.  CONFIGURING THE CMAKE BUILD
 V.   RUNNING CONSISTENCY TESTS
@@ -29,6 +34,9 @@ greater is required (2.4 or greater recommended).
 II. GETTING STARTED
 ----------------------------------------------------------------------
 
+
+A. Unix/Linux Systems
+
 To compile and install Avida, all you have to do is run:
 $ ./build_avida
 
@@ -37,13 +45,61 @@ the NCurses viewer. The installation goes into a directory called
 'work' that is created in a subdirectory named 'cbuild' directory.
 See below how to change that.
 
-OR 
 
-In Mac OS X's Xcode, select the Deployment for an optimized build
+
+B. Apple Xcode Tools
+
+In Apple's Xcode, select the Deployment for an optimized build
 configured for your CPU platform.  Click the 'Build' button on
 the project window.  The compiled binary and starting config files
 will be copied (by default) into:
 ${PROJECT_DIR}/build/Deployment/work
+
+
+
+C. Microsoft Visual Studio
+
+There are two ways to build Avida using MS Visual Studio, via CMake
+and via the provided project file in the top level directory.  The
+CMake method is recommended for most users.  It is the most supported
+version and shares the same build instructions as the main line Unix/
+Linux build.  The included Visual Studio 2005 project file, on the
+other hand, is the only supported method for building the current text
+GUI environment on Windows, but is not maintained as much.
+
+
+1. CMake
+
+Open CMake via the Start Menu.  Select the location of the Avida
+source code for the "Where is the source code" box.  Select a location
+for CMake to build the binaries ("Where to build the binaries").  This
+MUST be a NEW directory.  DO NOT set this directory to the top level
+of the Avida source code.
+
+Press the "Configure" button.  You may see some errors regarding
+NCurses.  If so, click to continue for each, then select
+AVD_GUI_NCURSES in the options on the screen and change it to "OFF".
+Press "Configure" again.  Once all the Cache Values are in gray, press
+the "OK" button to generate the project files.  This will create a
+Visual Studio project and solution in directory that you specified
+above.  Go to this directory and open up the Solution file.  In
+Visual Studio change the Solution Configuration to "Release".  In the
+build menu select "Build Solution".  After this finishes you should
+have an avida.exe in "${build binaries dir}\bin\release\".  To run
+avida you will need to copy the default configuration files from
+"${avida sourcecode}\support\config" into the directory alongside
+the executable.  From a command window (Type cmd.exe into
+Start Menu -> Run and press enter) change into the directory that
+contains avida.exe and the configuration files.  Type avida and press
+enter.
+
+
+2. VC Project
+
+The included Visual Studio 2005 project file will build the text based
+GUI for Avida.  Open the Solution, select Release for the solution
+configuration and run "Build Solution" from the Build menu.
+
 
 
 III. CMAKE CONFIGURATION OPTIONS
