@@ -431,6 +431,8 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Non-determinism", &cTaskLib::Task_Nondeterminism);
   else if (name == "export-xmi")
 	  NewTask(name, "Export XMI", &cTaskLib::Task_ExportXMI);
+  else if (name == "check-props") 
+	  NewTask(name, "Check Properties", &cTaskLib::Task_Properties);
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -2956,6 +2958,18 @@ double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 	m_world->GetStats().addScenarioCompletion(org->getUMLModel()->getScenarioCompletion());
 	
 	return bonus;
+}
+
+double cTaskLib::Task_Properties(cTaskContext& ctx) const
+{
+	double bonus = 0.0; 
+	cOrganism* org = ctx.getOrganism();
+	
+	// call some sort of check properties function for the model.
+	bonus = org->getUMLModel()->checkProperties();
+	
+	return bonus;
+	
 }
 
 double cTaskLib::Task_NumStates(cTaskContext& ctx) const

@@ -23,6 +23,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3E26D9070CFA0453009616CC /* cMDEAbsenceProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */; };
+		3E26D9080CFA0453009616CC /* cMDEAbsenceProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */; };
+		3E26D9090CFA0453009616CC /* cMDEExistenceProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D9010CFA0453009616CC /* cMDEExistenceProperty.cc */; };
+		3E26D90A0CFA0453009616CC /* cMDEExistenceProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9020CFA0453009616CC /* cMDEExistenceProperty.h */; };
+		3E26D90C0CFA0453009616CC /* cMDEProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9040CFA0453009616CC /* cMDEProperty.h */; };
+		3E26D90D0CFA0453009616CC /* cMDEUniversalProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */; };
+		3E26D90E0CFA0453009616CC /* cMDEUniversalProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */; };
+		3E54F4170CFB147300FC5B63 /* cMDEProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */; };
 		3EDCA1BC0C47FAB50078778D /* cUMLModel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EDCA0150C46C9B70078778D /* cUMLModel.cc */; };
 		3EDCA1BD0C47FAB70078778D /* cUMLStateDiagram.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3EDCA0170C46C9B70078778D /* cUMLStateDiagram.cc */; };
 		5629D8110C3EE14800C5F152 /* cTextWindow.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5629D80D0C3EE13500C5F152 /* cTextWindow.cc */; };
@@ -324,6 +332,10 @@
 				70B1A7430B7E3FFD00067486 /* instset-experimental.cfg in CopyFiles */,
 				70B1A75A0B7E431F00067486 /* experimental.org in CopyFiles */,
 				70D046610C32EA90000614E7 /* cBirthChamber.h in CopyFiles */,
+				3E26D9080CFA0453009616CC /* cMDEAbsenceProperty.h in CopyFiles */,
+				3E26D90A0CFA0453009616CC /* cMDEExistenceProperty.h in CopyFiles */,
+				3E26D90C0CFA0453009616CC /* cMDEProperty.h in CopyFiles */,
+				3E26D90E0CFA0453009616CC /* cMDEUniversalProperty.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +364,14 @@
 /* Begin PBXFileReference section */
 		1097463D0AE9606E00929ED6 /* cDeme.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cDeme.cc; sourceTree = "<group>"; };
 		1097463E0AE9606E00929ED6 /* cDeme.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cDeme.h; sourceTree = "<group>"; };
+		3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEAbsenceProperty.cc; sourceTree = "<group>"; };
+		3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEAbsenceProperty.h; sourceTree = "<group>"; };
+		3E26D9010CFA0453009616CC /* cMDEExistenceProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEExistenceProperty.cc; sourceTree = "<group>"; };
+		3E26D9020CFA0453009616CC /* cMDEExistenceProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExistenceProperty.h; sourceTree = "<group>"; };
+		3E26D9040CFA0453009616CC /* cMDEProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEProperty.h; sourceTree = "<group>"; };
+		3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEUniversalProperty.cc; sourceTree = "<group>"; };
+		3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEUniversalProperty.h; sourceTree = "<group>"; };
+		3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEProperty.cc; sourceTree = "<group>"; };
 		3EDCA0150C46C9B70078778D /* cUMLModel.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLModel.cc; sourceTree = "<group>"; };
 		3EDCA0160C46C9B70078778D /* cUMLModel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cUMLModel.h; sourceTree = "<group>"; };
 		3EDCA0170C46C9B70078778D /* cUMLStateDiagram.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cUMLStateDiagram.cc; sourceTree = "<group>"; };
@@ -1363,6 +1383,14 @@
 		DCC310040762539D008F7A48 /* main */ = {
 			isa = PBXGroup;
 			children = (
+				3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */,
+				3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */,
+				3E26D9010CFA0453009616CC /* cMDEExistenceProperty.cc */,
+				3E26D9020CFA0453009616CC /* cMDEExistenceProperty.h */,
+				3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */,
+				3E26D9040CFA0453009616CC /* cMDEProperty.h */,
+				3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */,
+				3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */,
 				3EDCA0150C46C9B70078778D /* cUMLModel.cc */,
 				3EDCA0160C46C9B70078778D /* cUMLModel.h */,
 				3EDCA0170C46C9B70078778D /* cUMLStateDiagram.cc */,
@@ -1993,6 +2021,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				70DCAC9C097AF7C0002F8733 /* primitive.cc in Sources */,
+				3E26D9070CFA0453009616CC /* cMDEAbsenceProperty.cc in Sources */,
+				3E26D9090CFA0453009616CC /* cMDEExistenceProperty.cc in Sources */,
+				3E26D90D0CFA0453009616CC /* cMDEUniversalProperty.cc in Sources */,
+				3E54F4170CFB147300FC5B63 /* cMDEProperty.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

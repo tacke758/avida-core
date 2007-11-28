@@ -71,6 +71,7 @@ public:
   int numTriggers() { return triggers.size(); } 
   int numGuards() { return guards.size(); } 
   int numActions() { return actions.size(); }
+  void addName(std::string s) { name = s; } 
 
   unsigned int getNumberOfNonDeterministicStates();
 
@@ -140,7 +141,9 @@ struct transition_writer {
   int getTriggerIndex();
   int getGuardIndex();
   int getActionIndex();
+  std::string getGuard() { return guards[getGuardIndex()]; } 
   transition_label getTransLabel();
+  std::string getName() { return name; } 
   
 // Visit graph
 //  void executeVisitor();
@@ -162,6 +165,7 @@ protected:
 	boost::graph_traits<state_diagram>::vertex_descriptor orig;
 	boost::graph_traits<state_diagram>::vertex_descriptor dest;
 	int actual_end_state;
+	std::string name;
 	
 
 };

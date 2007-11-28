@@ -530,7 +530,13 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("action-12", &cHardwareCPU::Inst_Action12, false, 
 					"Change to action 12"),						
 	tInstLibEntry<tMethod>("action-13", &cHardwareCPU::Inst_Action13, false, 
-					"Change to action 13"),						
+					"Change to action 13"),		
+	tInstLibEntry<tMethod>("prop-abs", &cHardwareCPU::Inst_AbsenceProperty, false, 
+							 "Add an absence property"),						
+	tInstLibEntry<tMethod>("prop-uni", &cHardwareCPU::Inst_UniversialityProperty, false, 
+							 "Add a universality property"),						
+	tInstLibEntry<tMethod>("prop-ex", &cHardwareCPU::Inst_ExistenceProperty, false, 
+							 "Add an existence property"),	
 											
 
 	
@@ -5044,3 +5050,48 @@ bool cHardwareCPU::Inst_Action12(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Action13(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(13)); }
+
+
+bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
+{ 
+	bool val = 0;
+	// Call a function on the model to create this property.
+	std::string s = organism->getStateDiagram()->getGuard();
+	
+	if (s != "<null>" ) {
+//		std::string n = organism->getStateDiagram()->getName();
+//		s = n + "." + s;
+		val = organism->getUMLModel()->addAbsenceProperty(s);
+	}
+	return val;
+} 
+
+bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx) 
+{ 
+	bool val = 0;
+	// Call a function on the model to create this property.
+	std::string s = organism->getStateDiagram()->getGuard();
+	
+	if (s != "<null>" ) {
+//		std::string n = organism->getStateDiagram()->getName();
+//		s = n + "." + s;
+		val = organism->getUMLModel()->addUniversalProperty(s);
+	}
+	return val;
+} 
+
+bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
+{
+	bool val = 0;
+	// Call a function on the model to create this property.
+	std::string s = organism->getStateDiagram()->getGuard();
+	
+	if (s != "<null>" ) {
+//		std::string n = organism->getStateDiagram()->getName();
+//		s = n + "." + s;
+		val = organism->getUMLModel()->addExistenceProperty(s);
+	}
+	return val;
+} 
+
+

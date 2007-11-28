@@ -2,6 +2,10 @@
 #define _C_UMLMODEL_H_
 
 #include "cUMLStateDiagram.h"
+#include "cMDEProperty.h"
+#include "cMDEExistenceProperty.h"
+#include "cMDEAbsenceProperty.h"
+#include "cMDEUniversalProperty.h"
 
 #include <string>
 #include <iostream>
@@ -62,9 +66,15 @@ public:
 	int numSDs();
 	int numSCs();
 	
+	// Properties
+	bool addExistenceProperty(std::string);
+	bool addAbsenceProperty(std::string);
+	bool addUniversalProperty(std::string);
+	
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
+	float checkProperties();
 
 protected: 
 	static xmi_info xi;
@@ -76,6 +86,10 @@ protected:
 	std::vector<double> scenario_completion;
 	int hydraMode; 
 	bool witnessMode;
+	
+	// set of properties.
+	std::set<cMDEProperty*> mdeprops;
+
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
