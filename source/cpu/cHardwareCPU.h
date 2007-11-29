@@ -56,6 +56,9 @@
 #ifndef tInstLib_h
 #include "tInstLib.h"
 #endif
+#ifndef cPopulation_h
+#include "cPopulation.h"
+#endif
 
 #ifndef defs_h
 #include "defs.h"

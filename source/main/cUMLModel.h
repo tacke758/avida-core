@@ -65,16 +65,20 @@ public:
 	int numActions();
 	int numSDs();
 	int numSCs();
+	int numSuccess() { return m_property_success; } 
+	int numFailure() { return m_property_failure; }
 	
 	// Properties
 	bool addExistenceProperty(std::string);
 	bool addAbsenceProperty(std::string);
 	bool addUniversalProperty(std::string);
 	
+	
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
 	float checkProperties();
+	
 
 protected: 
 	static xmi_info xi;
@@ -89,6 +93,8 @@ protected:
 	
 	// set of properties.
 	std::set<cMDEProperty*, ltcMDEProperty> mdeprops;
+	int m_property_success;
+	int m_property_failure;
 
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:

@@ -41,6 +41,9 @@
 #ifndef cStats_h
 #include "cStats.h"
 #endif
+#ifndef cPopulation_h
+#include "cPopulation.h"
+#endif
 
 
 class cEnvReqs;

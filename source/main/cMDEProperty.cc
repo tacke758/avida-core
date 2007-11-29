@@ -60,6 +60,9 @@ float cMDEProperty::verify() {
 void cMDEProperty::evaluate() { 
 	float wit_reward = 0;
 	float verify_reward = 0;
+	std::string cmd;
+	std::string work_prop = "properties_that_passed";
+
 	
 	// print the witness property
 	printWitness();
@@ -72,6 +75,13 @@ void cMDEProperty::evaluate() {
 		print();
 		verify_reward = verify();
 	}
+	
+	// if this property passed, then save it to a file
+	if (verify_reward) { 
+		cmd = "cat " + _name + " >> " + work_prop;
+		system(cmd.c_str());
+	}
+	
 	_reward = wit_reward + verify_reward;
 	
 }

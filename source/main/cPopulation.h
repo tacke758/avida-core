@@ -113,7 +113,7 @@ private:
   tArray<cDeme> deme_array;            // Deme structure of the population.
   
   // UML branch -- for property generation
-  cUMLModel* m_model;
+  cUMLModel m_model;
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -255,7 +255,7 @@ public:
   
   
   // UML branch -- get the UML model
-  cUMLModel* getUMLModel() { return m_model; }
+  cUMLModel* getUMLModel() { return &m_model; }
 };
 
 

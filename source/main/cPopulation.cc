@@ -77,6 +77,7 @@ cPopulation::cPopulation(cWorld* world)
 , environment(world->GetEnvironment())
 , num_organisms(0)
 , sync_events(false)
+, m_model((const char*)world->GetConfig().SEED_MODEL.Get())
 {
   // Avida specific information.
   world_x = world->GetConfig().WORLD_X.Get();

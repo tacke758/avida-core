@@ -5061,7 +5061,8 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
-		val = organism->getUMLModel()->addAbsenceProperty(s);
+//		val = organism->getUMLModel()->addAbsenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->addAbsenceProperty(s);
 	}
 	return val;
 } 
@@ -5075,7 +5076,8 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
-		val = organism->getUMLModel()->addUniversalProperty(s);
+//		val = organism->getUMLModel()->addUniversalProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->addUniversalProperty(s);
 	}
 	return val;
 } 
@@ -5089,7 +5091,8 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
-		val = organism->getUMLModel()->addExistenceProperty(s);
+//		val = organism->getUMLModel()->addExistenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->addExistenceProperty(s);
 	}
 	return val;
 } 

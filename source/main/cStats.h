@@ -271,6 +271,11 @@ private:
   cDoubleSum m_W2Attempt;
   cDoubleSum m_W2Passed;
   cDoubleSum m_N1andN2Passed;
+  cDoubleSum m_propertySuccess;
+  cDoubleSum m_propertyFailure;
+    
+
+  
 /*  
   cDoubleSum m_scenario5;
   cDoubleSum m_scenario6;
@@ -640,6 +645,7 @@ public:
   void PrintSenseData(const cString& filename);
   void PrintSenseExeData(const cString& filename);
   void PrintUMLData(const cString& filename);
+  void PrintPropertyData(const cString& filename);
 
   
    // UML Data Function
@@ -662,6 +668,8 @@ public:
   void W2Attempt() { m_W2Attempt.Add(1); }
   void W2Passed() { m_W2Passed.Add(1); }
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
+  void propSuccess(int x) {m_propertySuccess.Add(x); }
+  void propFailure(int x) {m_propertyFailure.Add(x); }
 /*  void scenario5Complete() { m_scenario5.Add(1); } 
   void scenario6Complete() { m_scenario6.Add(1); } 
   void scenario7Complete() { m_scenario7.Add(1); } 

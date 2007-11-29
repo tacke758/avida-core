@@ -60,6 +60,13 @@ void cMDEUniversalProperty::evaluate()
 	// print the property
 	print();
 	verify_reward = verify();
+	
+	// if this property passed, then save it to a file
+	if (verify_reward) { 
+		cmd = "cat " + _name + " >> " + work_prop;
+		system(cmd.c_str());
+	}
+	
 	_reward = verify_reward;
 }
 

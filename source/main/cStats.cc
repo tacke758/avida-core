@@ -1008,6 +1008,15 @@ void cStats::addScenarioCompletion(std::vector<double> s)
 
 }
 
+void cStats::PrintPropertyData(const cString& filename)
+{
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.Write( m_propertySuccess.Sum(), "total number of properties that passed" );
+	df.Write( m_propertyFailure.Sum(), "total number of properties that failed" );
+	df.Endl();
+
+}
+
 void cStats::PrintUMLData(const cString& filename)
 {
 	cDataFile& df = m_world->GetDataFile(filename);

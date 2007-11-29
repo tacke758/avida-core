@@ -88,6 +88,8 @@ STATS_OUT_FILE(PrintMarketData,             market.dat          );
 STATS_OUT_FILE(PrintSenseData,              sense.dat           );
 STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
 STATS_OUT_FILE(PrintUMLData,				uml.dat			    );
+STATS_OUT_FILE(PrintPropertyData,			property.dat			    );
+
 
 
 
@@ -2452,6 +2454,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   
   // UML 
   action_lib->Register<cActionPrintUMLData>("PrintUMLData");
+  action_lib->Register<cActionPrintPropertyData>("PrintPropertyData");
 
 
   action_lib->Register<cActionSetVerbose>("VERBOSE");

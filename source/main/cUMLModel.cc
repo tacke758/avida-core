@@ -193,7 +193,16 @@ cUMLModel::cUMLModel(const char* seed_model) {
 
 
 cUMLModel::~cUMLModel()
-{}
+{
+	for( std::set<cMDEProperty*, ltcMDEProperty>::iterator it = mdeprops.begin(),
+		e = mdeprops.end(); it != e; )
+	{
+		cMDEProperty *p = *it;
+		mdeprops.erase(it++);
+		delete p;
+	}
+
+}
 
 float cUMLModel::getBonusInfo (std::string s)  
 { 
@@ -337,7 +346,7 @@ double cUMLModel::checkForScenarios()
 bool cUMLModel::readyForHydra() 
 {
 	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
-	//          (4) ALL COMPLETE && DETERMINISTIC
+	//          (4) ALL COMPLETE && DETERMINISTIC, (5) NONE
 	// check which option was selected in the seed-model.cfg
 	// check to see if this condition is true. If so, return 1; otherwise, return 0.
 	
@@ -406,8 +415,8 @@ float cUMLModel::checkProperties()
 	std::set<cMDEProperty*>::iterator prop_ptr;
 	float total = 0;
 	float temp_val = 0;
-	int success = 0;
-	int failure = 0;
+	m_property_success = 0;
+	m_property_failure = 0;
 
 	for (prop_ptr=mdeprops.begin(); prop_ptr!=mdeprops.end(); prop_ptr++)  
 	{
@@ -416,14 +425,19 @@ float cUMLModel::checkProperties()
 			(*prop_ptr)->evaluate();
 			temp_val = (*prop_ptr)->getEvaluationInformation();
 			// increment the temp_val by 1 more, since this is a new property
-			if (temp_val >0) temp_val += 1;
+			if (temp_val >0) {
+				temp_val += 1;
+				m_property_success++;
+			} else { 
+				m_property_failure++;
+			}
 		} 
 		
-		if (temp_val == 0) {
-			failure++;
+		/*if (temp_val == 0) {
+			m_property_failure++;
 		} else { 
-			success++;
-		}
+			m_property_success++;
+		}*/
 		
 		
 		total += temp_val;
