@@ -88,7 +88,7 @@ protected:
 	bool witnessMode;
 	
 	// set of properties.
-	std::set<cMDEProperty*> mdeprops;
+	std::set<cMDEProperty*, ltcMDEProperty> mdeprops;
 
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:

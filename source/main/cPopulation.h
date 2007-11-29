@@ -58,6 +58,9 @@
 #ifndef tVector_h
 #include "tVector.h"
 #endif
+#ifndef _C_UMLMODEL_H_
+#include "cUMLModel.h"
+#endif
 
 #if USE_tMemTrack
 # ifndef tMemTrack_h
@@ -108,6 +111,9 @@ private:
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
   tArray<cDeme> deme_array;            // Deme structure of the population.
+  
+  // UML branch -- for property generation
+  cUMLModel* m_model;
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -151,6 +157,8 @@ public:
   cPopulation(cWorld* world);
   ~cPopulation();
 
+
+  
   // Activate the offspring of an organism in the population
   bool ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, cOrganism& parent_organism);
   bool ActivateParasite(cOrganism& parent, const cCodeLabel& label, const cGenome& injected_code);
@@ -244,6 +252,10 @@ public:
   int getNumAsleep() { return numAsleep; }
   void incNumAsleep() { numAsleep++; }
   void decNumAsleep() { numAsleep--; }
+  
+  
+  // UML branch -- get the UML model
+  cUMLModel* getUMLModel() { return m_model; }
 };
 
 

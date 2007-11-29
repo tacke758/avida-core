@@ -406,6 +406,8 @@ float cUMLModel::checkProperties()
 	std::set<cMDEProperty*>::iterator prop_ptr;
 	float total = 0;
 	float temp_val = 0;
+	int success = 0;
+	int failure = 0;
 
 	for (prop_ptr=mdeprops.begin(); prop_ptr!=mdeprops.end(); prop_ptr++)  
 	{
@@ -413,7 +415,16 @@ float cUMLModel::checkProperties()
 		if (temp_val == -1) { 
 			(*prop_ptr)->evaluate();
 			temp_val = (*prop_ptr)->getEvaluationInformation();
+			// increment the temp_val by 1 more, since this is a new property
+			if (temp_val >0) temp_val += 1;
 		} 
+		
+		if (temp_val == 0) {
+			failure++;
+		} else { 
+			success++;
+		}
+		
 		
 		total += temp_val;
 	}

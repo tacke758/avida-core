@@ -3150,7 +3150,10 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 	if(system("/usr/bin/gcc -DMEMLIM=512 pan.c -o pan &> /dev/null")!=0) return 0.0;
 	if(system("./pan -e -n -a -w19  -m100000 -c1 &> ./pan.out")!=0) return 0.0;
 	num_witness = (system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
-
+	if (num_witness != 0) {
+		num_witness = 1;
+	}
+	
 	return num_witness; 
 		//(system("cat pan.out | perl -e 'while(<STDIN>) { if(/errors:\\s(\\d+)/) {exit($1);}}'"));
 }

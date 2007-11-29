@@ -19,6 +19,8 @@ public:
 	// A function that prints the property to a file.
 	virtual void print() = 0;
 	virtual void printWitness() = 0;
+	
+	
 	// A function that checks to see if there is a witness trace for the property
 	float numWitnesses();
 	// A function that verifies a property
@@ -34,6 +36,13 @@ protected:
 	std::string _scope;
 	float _reward;
 	
+};
+
+struct ltcMDEProperty{ 
+	bool operator() (const cMDEProperty* p1, const cMDEProperty* p2) const
+	{
+		return (p1 < p2);
+	}
 };
 
 #endif
