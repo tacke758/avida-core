@@ -15,6 +15,7 @@ void cMDEExistenceProperty::print() {
 	outfile.open (_name.c_str());
 	assert(outfile.is_open());
 	
+	outfile << "/* Existence property " << _expr_p << "*/" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never { /* !(<>(p)) */ " << std::endl;
 	outfile << "accept_init :    /* init */" << std::endl;

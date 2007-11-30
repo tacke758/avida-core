@@ -15,6 +15,7 @@ void cMDEUniversalProperty::print() {
 	outfile.open (_name.c_str());
 	assert(outfile.is_open());
 	
+	outfile << "/* Universal property " << _expr_p << "*/" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never { /* ![]p */" << std::endl;
 	outfile << "T0_init :    /* init */" << std::endl;
@@ -60,6 +61,8 @@ void cMDEUniversalProperty::evaluate()
 	// print the property
 	print();
 	verify_reward = verify();
+	std::string cmd;
+	std::string work_prop = "properties_that_passed";
 	
 	// if this property passed, then save it to a file
 	if (verify_reward) { 

@@ -454,7 +454,7 @@ bool cUMLModel::addExistenceProperty(std::string s)
 	// a pointer to the existence property
 	std::string temp = getStateDiagram(0)->StringifyAnInt(mdeprops.size());
 	cMDEExistenceProperty* e = new cMDEExistenceProperty(s, temp);
-	mdeprops.insert (mdeprops.end(), e);
+	mdeprops.insert (e);
 	//int q = mdeprops.size();
 	return true;
 }
@@ -464,7 +464,7 @@ bool cUMLModel::addAbsenceProperty(std::string s)
 	// a pointer to the absence property
 	std::string temp = getStateDiagram(0)->StringifyAnInt(mdeprops.size());
 	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s, temp);
-	mdeprops.insert (mdeprops.end(), e);
+	mdeprops.insert (e);
 	//int q = mdeprops.size();
 	return true;
 	
@@ -475,7 +475,7 @@ bool cUMLModel::addUniversalProperty(std::string s)
 	// a pointer to the universal property
 	std::string temp = getStateDiagram(0)->StringifyAnInt(mdeprops.size());
 	cMDEUniversalProperty* e = new cMDEUniversalProperty(s, temp);
-	mdeprops.insert (mdeprops.end(), e);
+	mdeprops.insert (e);
 	//int q = mdeprops.size();
 	return true;
 	

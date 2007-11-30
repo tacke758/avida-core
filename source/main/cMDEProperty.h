@@ -19,6 +19,8 @@ public:
 	// A function that prints the property to a file.
 	virtual void print() = 0;
 	virtual void printWitness() = 0;
+	virtual std::string getPropertyType() = 0;
+	virtual std::string getPropertyParameters() { return ""; } 
 	
 	
 	// A function that checks to see if there is a witness trace for the property
@@ -39,9 +41,15 @@ protected:
 };
 
 struct ltcMDEProperty{ 
-	bool operator() (const cMDEProperty* p1, const cMDEProperty* p2) const
+	bool operator() (cMDEProperty* p1, cMDEProperty* p2) const
 	{
-		return (p1 < p2);
+	std::string name1, name2;
+	
+	name1 = p1->getPropertyType() + p1->getPropertyParameters();
+	name2 = p2->getPropertyType() + p2->getPropertyParameters(); 
+	// 1st less than 2nd & 2nd never equal to the first. 
+	
+		return (name1 < name2);
 	}
 };
 

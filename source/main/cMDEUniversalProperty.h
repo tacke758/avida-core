@@ -27,6 +27,9 @@ public:
 	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
 	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
 	void evaluate();
+	std::string getPropertyType() { return "Universal"; } 
+	std::string getPropertyParameters() { return _expr_p; }
+
 
 private:
 	std::string _expr_p;
