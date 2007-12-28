@@ -350,6 +350,7 @@ public:
   bool relativeJumpStateDiagram (int); 
  
   bool addTransitionTotal();
+//  bool addTransitionFromLabel();
  
 };
 

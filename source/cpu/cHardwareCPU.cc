@@ -372,7 +372,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 /*
 	tInstLibEntry<tMethod>("addTrans", &cHardwareCPU::Inst_AddTransition, false, 
 					"Add a transition"),		
-*/								
+*/							
+	tInstLibEntry<tMethod>("addTransL", &cHardwareCPU::Inst_AddTransitionFromLabel, false, 
+							 "Add a transition without adding a label."),	  
 	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
 					"Add a transition without adding a label."),				
 /*	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
@@ -4823,6 +4825,15 @@ bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
 }
 */
 
+bool cHardwareCPU::Inst_AddTransitionFromLabel(cAvidaContext& ctx)
+{
+	if(organism->GetCellID()==-1) return false;
+	
+	//organism->modelCheck(ctx);
+	
+	return organism->getStateDiagram()->addTransitionFromLabel();
+	
+}
 
 bool cHardwareCPU::Inst_AddTransitionTotal(cAvidaContext& ctx)
 {
