@@ -163,8 +163,9 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "-END---------------------------") { 
 				infile >> trig_i >> guard_i >> act_i; 
 				state_diagrams[cur_sd].addTransitionLabel(trig_i, guard_i, act_i); 
+				infile >> temp; 
 			}
-			infile >> temp;
+		//	infile >> temp;
 		}
 
 		line.erase();
