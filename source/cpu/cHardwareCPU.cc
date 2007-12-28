@@ -392,6 +392,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change to state diagram 1"),				
 	tInstLibEntry<tMethod>("sd-2", &cHardwareCPU::Inst_StateDiag2, false, 
 							 "Change to state diagram 2"),
+	tInstLibEntry<tMethod>("sd-3", &cHardwareCPU::Inst_StateDiag3, false, 
+							 "Change to state diagram 3"),
 	tInstLibEntry<tMethod>("s-orig-0", &cHardwareCPU::Inst_OrigState0, false, 
 					"Change the origin to state 0"),
 	tInstLibEntry<tMethod>("s-orig-1", &cHardwareCPU::Inst_OrigState1, false, 
@@ -4853,7 +4855,10 @@ bool cHardwareCPU::Inst_StateDiag1(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_StateDiag2(cAvidaContext& ctx)
 { return (organism->absoluteJumpStateDiagram(2)); }
-  
+
+bool cHardwareCPU::Inst_StateDiag3(cAvidaContext& ctx)
+{ return (organism->absoluteJumpStateDiagram(3)); }
+
 bool cHardwareCPU::Inst_OrigState0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpOriginState(0)); }
 
