@@ -14,6 +14,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 
 /* Used to represent properties of the form: Globally, P eventually holds  */
