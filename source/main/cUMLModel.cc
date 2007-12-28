@@ -157,9 +157,16 @@ void seed_diagrams(const char* seed_model,
 			}
 			scenarios.push_back(s);
 			
+		} else if (line == "-TRANSITION-LABELS-------------") { 
+			line.erase();
+			infile >> temp;			
+			while (temp!= "-END---------------------------") { 
+				infile >> trig_i >> guard_i >> act_i; 
+				state_diagrams[cur_sd].addTransitionLabel(trig_i, guard_i, act_i); 
+			}
+			infile >> temp;
 		}
 
-		/* Missing code for reading in transition labels .... */
 		line.erase();
   }
   
@@ -320,23 +327,11 @@ double cUMLModel::checkForScenarios()
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
-//		std::cout << "TEMP BONUS: " << temp_bonus << std::endl;
-//		total_bonus += temp_bonus;
-				
+
 		complete_bonus = s.path.size() + s.shouldLoop; 
 		if (s.startState >= 0) complete_bonus++;
 		
-//		if (temp_bonus == complete_bonus) {
-////			bonus_info["scenario"+i] = 1;
-//			scenario_completion[i] = temp_bonus / complete_bonus;
-////			std::cout << "scenario complete " << std::endl;
-//		} else {
-////			bonus_info["scenario"+i] = 0;
-//			scenario_completion[i] = 0;
-////			std::cout << "scenario incomplete " << std::endl;
-//
 		total_bonus += (temp_bonus / complete_bonus);
-//		}
 	scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
@@ -432,13 +427,6 @@ float cUMLModel::checkProperties()
 				m_property_failure++;
 			}
 		} 
-		
-		/*if (temp_val == 0) {
-			m_property_failure++;
-		} else { 
-			m_property_success++;
-		}*/
-		
 		
 		total += temp_val;
 	}

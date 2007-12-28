@@ -8,8 +8,6 @@ cUMLStateDiagram::cUMLStateDiagram()
   sd0 = state_diagram(13); 
 
   // initialize / seed UML state diagram here
-//  orig_state_index = 0;
-//  dest_state_index = 0;
 	orig = vertex(0, sd0);
 	dest = vertex(0, sd0);
   
@@ -87,15 +85,6 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 	int actual_path_start;
 	int bonus = 0;
 			
-	// Entire path must start at state 0. 
-//	len = checkForPathStep(p, vertex(0, sd0), 0);
-	// If this returns a length, then the path is found & we can exit.
-//	if (len > 0) { 
-//		path_dist = len;
-//	} else { 
-	// Else, check for partial paths, which can start from anywhere... 
-//		p.pop_front();
-		// Must check each state other than state 0.
 		while (!p.empty()) {
 			for (int i = 0; i<num_vert; i++) { 
 				len = checkForPathStep(p, vertex(i, sd0), 0);
@@ -109,8 +98,6 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 		
 			if (len > p.size()) break;
 		} 
-	 
-	//} 
 	
 	bonus = path_dist;
 	if (start_state != -1) { 
@@ -123,8 +110,6 @@ int cUMLStateDiagram::findPath(std::deque<std::string> p, bool should_loop, int 
 		if (actual_end_state == actual_path_start) bonus +=1;
 	}
 
-	
-	
 	return bonus;
 }
 
@@ -163,8 +148,6 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 			
 			
 			if (ts == path.front()) { 
-				//std::cout << "Looking for and found a path named: " << ts << std::endl;
-				//std::cout << "Searching vertex " << target(ed, sd0) << "with distance " << curr_dist+1 << std::endl; 
 
 				temp = checkForPathStep(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0), curr_dist+1);
 				
@@ -173,15 +156,7 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 				}	
 			} 
 			
-			/*else if (ts == "[]/") {
-				temp = checkForPathStep(path, target(ed, sd0), curr_dist);
-				if (temp > longest_dist) { 
-					longest_dist = temp;
-				}
-			}*/	
 	}
-	
-	//std::cout << "Returning longest_dist " << longest_dist << std::endl;
 	return longest_dist;
 
 } 
@@ -216,16 +191,12 @@ int cUMLStateDiagram::getEndState(std::deque<std::string> path,
 			if (ta == "<null>") ta = "";
 			
 			ts = tt + "[" + tg + "]" + "/" + ta;
-//			std::cout << "transition named: " << ts << std::endl;
-			
-			
+						
 			if (ts == path.front()) { 
-				//std::cout << "Searching vertex " << target(ed, sd0) << "with distance " << curr_dist+1 << std::endl; 
 				temp = getEndState(std::deque<std::string>(++path.begin(), path.end()), target(ed,sd0));
 			} 
 	}
 	
-	//std::cout << "Returning longest_dist " << longest_dist << std::endl;
 	return v;
 
 }
@@ -394,28 +365,6 @@ bool cUMLStateDiagram::absoluteJumpDestinationState(int jump_amount)
 }
 
 
-int cUMLStateDiagram::getTriggerIndex()
-{
-	return trigger_index;
-}
-
-int cUMLStateDiagram::getGuardIndex()
-{
-		return guard_index;
-}
-
-int cUMLStateDiagram::getActionIndex()
-{
-		return action_index;
-	
-}
-
-
-transition_label cUMLStateDiagram::getTransLabel()
-{
-	return transition_labels[trans_label_index];
-}
-
 bool cUMLStateDiagram::addTrigger(std::string op_id, std::string lab) 
 {
 	trigger_info t;
@@ -439,61 +388,13 @@ bool cUMLStateDiagram::addAction(std::string act)
 	return true;
 }
 
-/*
-bool cUMLStateDiagram::addTransition()
-{
+bool cUMLStateDiagram::addTransitionLabel(int t, int g, int a) { 
 	
-	if ((states.size() == 0) || (transition_labels.size() == 0)) {
-
-		return false;
-	} 
-
-	transition t;
-	t.orig_state = getOrigStateIndex();
-	t.dest_state = getDestStateIndex();
-	// increment number of edges for a state
-	states[getOrigStateIndex()].num_outgoing += 1;
-	states[getDestStateIndex()].num_incoming += 1;
-	
-	t.trans = getTransLabel();
-	
-	if ((t.orig_state != 0) && (states[t.orig_state].num_incoming == 0)) {
-		return false;
-	}
-	
-	// no dupes
-    if (findTrans(t.orig_state, t.dest_state, t.trans.trigger, t.trans.guard, t.trans.action)) {
-		return false;
-	}
-
-	transitions.push_back(t);
-//	boost::add_edge(transition_properties());
-
-	orig_state_index = 0;
-	dest_state_index = 0;
-	trans_label_index = 0;
-	trigger_index = 0;
-	guard_index = 0 ;
-	action_index = 0;
-	
-	return true;
-
-}
-*/
-
-bool cUMLStateDiagram::addTransitionLabel(int tr, int gu, int act)
-{
-	transition_label t;
-	t.trigger = tr;
-	t.guard = gu;
-	t.action = act;
-
-	// currently, not checking for dupes, since we are seeding the labels.
-	
-	transition_labels.push_back(t);
-	
+	transition_properties tp = transition_properties(t, g, a); 
+	transition_labels.push_back(tp); 
 	return true;
 }
+
 
 bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a) { 
 	absoluteJumpGuard(g);
@@ -505,6 +406,17 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a) {
 
 }
 
+bool cUMLStateDiagram::addTransitionFromLabel() {
+	// get the properties of the transition label. 
+	transition_properties tp = transition_labels[trans_label_index];
+	
+	absoluteJumpTrigger(tp._tr);
+	absoluteJumpGuard(tp._gu); 
+	absoluteJumpAction(tp._act);
+	
+	return addTransitionTotal();
+}
+
 bool cUMLStateDiagram::addTransitionTotal()
 {
 	// Check that there are two vertices
@@ -512,14 +424,6 @@ bool cUMLStateDiagram::addTransitionTotal()
 		return false;
 	} 
 		
-/*  // Removed on 7/17/2007 - The scenarios should take care of this problem.
-	// Check that the origin state of the transition is reachable.
-	boost::graph_traits<state_diagram>::in_edge_iterator in_start, in_end;
-	tie (in_start, in_end) = in_edges(orig, sd0);
-	if ((in_start == in_end) && (orig != vertex(0, sd0))) { 
-		return false;
-	}
-*/	
 	// Disable transitions from one state to itself. 
 	
 	if (orig == dest) return false;
@@ -572,35 +476,6 @@ std::string cUMLStateDiagram::StringifyAnInt(int x) {
 	o << x;
 	return o.str();
 }
-
-/*void cUMLStateDiagram::executeVisitor() {
-
-	PathVisitor visitor; 
-	boost::graph_traits<state_diagram>::vertex_descriptor o_temp;
-	o_temp = vertex(0, sd0);
-	
-	boost::breadth_first_search(sd0, o_temp, boost::visitor(visitor));
-
-}
-
-
-struct transition_writer {
-	transition_writer(cUMLStateDiagram::state_diagram& sd) : _sd(sd) { }
-	
-	template<typename Edge>
-	void operator()(std::ostream& out) {
-		out << "working?";
-	}
-  
-	cUMLStateDiagram::state_diagram& _sd;
-}; 
-
-void cUMLStateDiagram::printGraphViz() { 
-	std::ofstream outfile("gv");
-    boost::write_graphviz(outfile, sd0); //, transition_writer(sd0)); //, topo_vertex_writer(_topo_last_network));
-    outfile.close();
-
-}*/
 
 std::string cUMLStateDiagram::getXMI(std::string name)
 {

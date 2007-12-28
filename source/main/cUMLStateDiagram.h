@@ -22,12 +22,6 @@ struct transition_properties {
 	int _tr, _gu, _act; 
 }; 
 
-struct transition_label { 
-	int trigger;
-	int guard;
-	int action;
-};
-
 struct state {
 	int identifier;
 	int num_incoming;
@@ -42,14 +36,15 @@ struct trigger_info {
 
 class cUMLStateDiagram { 
 protected: 
+
+  // used for both alphabet options
   std::vector<trigger_info> triggers;
   std::vector<std::string> guards;
   std::vector<std::string> actions;
-//  std::vector<transition> transitions;
-  std::vector<transition_label> transition_labels;
+	
+  // used for alphabet where a word is a transition label
+  std::vector<transition_properties> transition_labels;
 
-//  int orig_state_index;
-//  int dest_state_index;
   int trans_label_index;
   int trigger_index;
   int guard_index;
@@ -77,7 +72,6 @@ public:
 
 
   bool findTrans(int, int, int, int, int);
-//  bool findTransLabel(transition_label); // find a specific transition label
 
 // Boost graph type for a state diagram.
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, 
@@ -89,37 +83,6 @@ public:
  
   template <typename T>
   bool relativeMoveIndex (T x, int &y, int z);  
- 
- 
- // pass in the path; state to know path step; examine_edge
- // Issue: the need to revisit the same node.
- //! A BGL breadth-first visitor used to see if a path is included in a state diagram.
-/*class PathVisitor : public boost::bfs_visitor< > {
-public:
-  PathVisitor() {}
-  template <class state_diagram>
-  void tree_edge(typename boost::graph_traits<state_diagram>::edge_descriptor e, state_diagram& g) {
-    typename boost::graph_traits<state_diagram>::vertex_descriptor u, v;
-    u = boost::source(e, g);
-    v = boost::target(e, g);
-//    distance[v] = distance[u] + 1;
-	std::cout << "origin: " << u << std::endl;
-	std::cout << "destination: " << v << std::endl;
-	std::cout << "tga: " << g[e]._tr << g[e]._gu << g[e]._act << std::endl;
-	}
-  };
-  
-struct transition_writer {
-	transition_writer(state_diagram& sd) : _sd(sd) { }
-	
-	template<typename Edge>
-	void operator()(std::ostream& out) {
-		out << "working?";
-	}
-  
-	state_diagram& _sd;
-}; 
- */
  
 // The jump functions jump the index of the various vectors either forward (+ int) or backwards (- int)
   bool absoluteJumpGuard(int);
@@ -138,28 +101,24 @@ struct transition_writer {
 
   
 // The get functions get the value of the index of various vectors  
-  int getTriggerIndex();
-  int getGuardIndex();
-  int getActionIndex();
+  int getTriggerIndex() { return trigger_index; } 
+  int getGuardIndex() { return guard_index; } 
+  int getActionIndex() { return action_index; } 
+  int getTransitionLabelIndex() { return trans_label_index; }
   std::string getGuard() { return guards[getGuardIndex()]; } 
-  transition_label getTransLabel();
   std::string getName() { return sd_name; } 
   
-// Visit graph
-//  void executeVisitor();
-//  void printGraphViz();
-
-
 // Add functions
 
-//  bool addTransition();
   bool addTransitionTotal();
+  bool addTransitionFromLabel(); 
   bool addTransitionTotal(int, int, int, int, int);
   bool addTrigger(std::string, std::string);
   bool addGuard(std::string);
   bool addAction(std::string);
   bool addTransitionLabel(int, int, int);
-  // END UML functions
+
+  
 protected:
     state_diagram sd0;
 	boost::graph_traits<state_diagram>::vertex_descriptor orig;
