@@ -332,7 +332,10 @@ double cUMLModel::checkForScenarios()
 		complete_bonus = s.path.size() + s.shouldLoop; 
 		if (s.startState >= 0) complete_bonus++;
 		
-		total_bonus += (temp_bonus / complete_bonus);
+		// The next line is commented out to increase the reward for a given scenario. 
+		// total_bonus += (temp_bonus / complete_bonus);
+		total_bonus += temp_bonus;
+		
 	scenario_completion[i] = temp_bonus / complete_bonus;
 	}
 		
