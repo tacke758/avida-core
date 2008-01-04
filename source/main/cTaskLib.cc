@@ -3368,7 +3368,10 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 // for the tasks to run on non-class 5 machines.
 double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
-	std::string temp, file_name;
+	std::string temp;
+	std::string file_name;
+	std::ostringstream strstrm;
+
 	double bonus = 0.0;
 
 	temp = organism->getUMLModel()->getXMI();
@@ -3377,8 +3380,14 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 	// all are non-zero?
 	if (organism->getUMLModel()->readyForHydra()) {
 		// print the file to output...
-		file_name =  m_world->GetStats().GetUpdate() + "." + ctx.getOrganism()->GetID();
-		organism->getUMLModel()->printUMLModelToFile(file_name);
+//		file_name =  "file1" + m_world->GetStats().GetUpdate();
+//		file_name += "." + organism->GetID();
+// Commented out to remove overhead...	
+		strstrm.clear();
+		strstrm << "working."  << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+		strstrm << ".xml";	
+//	if(system(strstrm.str().c_str())!=0) return 0.0;
+		organism->getUMLModel()->printUMLModelToFile(strstrm.str());
 		bonus = 1.0;
 	} 
 	
