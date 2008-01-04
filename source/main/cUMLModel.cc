@@ -315,7 +315,7 @@ int cUMLModel::numSCs()
 
 double cUMLModel::checkForScenarios()
 {
-	double total_bonus = 1;
+	double total_bonus = 0;
 	double temp_bonus = 0;
 	double complete_bonus;
 	scenario_info s;
