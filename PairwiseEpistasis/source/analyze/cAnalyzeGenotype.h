@@ -63,6 +63,10 @@ class cInstSet;
 class cTestCPU;
 class cWorld;
 
+// @ MRR Default number of trails for phenotypic
+// plasticity
+# define DEFAULT_NUM_PP_TRIALS 100
+
 
 class cAnalyzeGenotype;
 class cAnalyzeGenotypeLink {
@@ -351,7 +355,7 @@ public:
   double GetLikelyFrequency()  const { CheckPhenPlast(); return m_phenplast_stats->m_likely_frequency; }
   double GetLikelyFitness()     const { CheckPhenPlast(); return m_phenplast_stats->m_likely_fitness; }
   int    GetNumTrials()         const { CheckPhenPlast(); return m_phenplast_stats->m_recalculate_trials; }
-  
+  bool   PhenPlastCalculated()  const { return m_phenplast_stats != NULL; }
   
   double GetFitnessRatio() const { return fitness_ratio; }
   double GetEfficiencyRatio() const { return efficiency_ratio; }

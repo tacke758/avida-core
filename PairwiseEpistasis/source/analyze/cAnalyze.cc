@@ -6998,155 +6998,224 @@ return;
 
 
 /* MRR
- * August 2007
+ * January 2008
  * This function will go through the lineage, align the genotypes, and
- * preform mutation reversion a specified number of descendents ahead
- * assuming they keep within a certain alignment distance (specified as well).
- * The output will give fitness information for the mutation-reverted genotypes
- * as described below.
+ * perform pairwise reversions for all pairs of genotypes in the current
+ * batch.
+ * Arguments:
+ *      filename [= "pairwise_reversion.dat" ]
+ *      num_trails [= DEFAULT_NUM_PP_TRIALS] default if plasticity has not been set
+ *                 (value defined in cAnalyzeGenotype.h)
 */
 void cAnalyze::MutationRevert(cString cur_string)
 {
   
   //This function takes in three parameters, all defaulted:
-  cString filename("XXX.dat");   //The name of the output file
-  int      max_dist      = -1;    //The maximum edit distance allowed in the search
-  int	   max_depth     = 5;     //The maximum depth forward one wishes to search
+  cString filename;   //The name of the output file
+  int num_trials;
   
-  if (cur_string.GetSize() != 0) filename = cur_string.PopWord();
-  if (cur_string.GetSize() != 0) max_dist = cur_string.PopWord().AsInt();
-  if (cur_string.GetSize() != 0) max_depth = cur_string.PopWord().AsInt();
+  filename   =  (cur_string.GetSize() > 0) ? "pairwise_reversion.dat" : cur_string.PopWord();
+  num_trials =  (cur_string.GetSize() > 0) ? DEFAULT_NUM_PP_TRIALS    : cur_string.PopWord().AsInt();
   
-	//Warning notifications
+  //Right now, only perform this on actual lineages
   if (!batch[cur_batch].IsLineage())
-  {
-		cout << "Error: This command requires a lineage.  Skipping." << endl;
-		return;
-  }
-  
+    m_world->GetDriver().RaiseFatalException(2, "MutationRevert: Current batch must be a lineage.");
 	
 	//Request a file
-	ofstream& FOT = m_world->GetDataFileOFStream(filename);
-	/*
-   FOT output per line
-   ID
-   FITNESS
-   BIRTH
-   DISTANCE
-   PID
-   P_FITNESS
-   P_BIRTH
-			@ea depth past
-   CHILDX_ID
-   CHILDX_BIRTH
-   CHILDX_FITNESS
-   CHILDX_DISTANCE
-   CHILDX_FITNESS_SANS_MUT
-   */
+	cDataFile& df = m_world->GetDataFile(filename);
+  if (!df.Good())
+    m_world->GetDriver().RaiseFatalException(2, "MutationRevert: Unable to open requested file for output.");
+  
+  
 	
 	
   //Align the batch... we're going to keep the fitnesses intact from the runs
 	CommandAlign("");
   
 	//Our edit distance is already stored in the historical dump.
-	
-	//Test hardware
-	cTestCPU*     test_cpu  = m_world->GetHardwareManager().CreateTestCPU();
-	cCPUTestInfo* test_info = new cCPUTestInfo();
-	test_info->UseRandomInputs(true); 
   
-	tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
-  cAnalyzeGenotype* parent_genotype = batch_it.Next();
-	cAnalyzeGenotype* other_genotype  = NULL;
-	cAnalyzeGenotype* genotype        = NULL;
-	
-  while( (genotype = batch_it.Next()) != NULL && parent_genotype != NULL)
-  {
-		if (true)
-		{
-			FOT << genotype->GetID()			<< " "
-      << genotype->GetFitness()		<< " "
-      << genotype->GetUpdateBorn() << " "
-      << genotype->GetParentDist() << " "
-      << parent_genotype->GetID()				<< " "
-      << parent_genotype->GetFitness()		<< " "
-      << parent_genotype->GetUpdateBorn()	<< " ";
+  const tListPlus<cAnalyzeGenotype>& lineage = batch[cur_batch].List();
+  int   batch_size = lineage.GetSize();
+  
+  // This isn't the most efficient way to do this...
+  int dist_from_root = 0; // Number of mutations from the start ancestor
+  
+  const cAnalyzeGenotype* genotype_0  = NULL;       //Initial Genotype
+  const cAnalyzeGenotype* genotype_A  = NULL;       //Mutant A
+  const cAnalyzeGenotype* genotype_AB = NULL;       //Mutant AB
+  
+  for (int A = 1; A < batch_size; A++){
+    genotype_0 = lineage.GetPos(A-1);
+    genotype_A = lineage.GetPos(A);
+    dist_from_root += genotype_A->GetParentDist();
+    int dist_from_A = 0;  // Number of mutations from genotype_A
+    tArray<bool> mutated_from_A(genotype_0->GetAlignedSequence().GetSize());
+    mutated_from_A.SetAll(false);
+    
+    for (int AB = A+1; AB < batch_size; AB++){
+      genotype_AB = lineage.GetPos(AB);
+      dist_from_A += genotype_AB->GetParentDist();
       
-			int cum_dist = 0;
-			cString str_parent = parent_genotype->GetSequence();
-			cString str_other  = "";
-			cString str_align_parent = parent_genotype->GetAlignedSequence();
-			cString str_align_other  = genotype->GetAlignedSequence();
+      // Gather our genotype strings 
+      cString str_0  = genotype_0->GetAlignedSequence();
+			cString str_A  = genotype_A->GetAlignedSequence();
+			cString str_AB = genotype_AB->GetAlignedSequence();
+      cString str_B  = "";
 			cString reversion  = ""; //Reversion mask
-			
-			//Find what changes to revert
-			for (int k = 0; k < str_align_parent.GetSize(); k++)
-			{
-				char p = str_align_parent[k];
-				char c = str_align_other[k];
-				if (p == c)
-					reversion += " ";	//Nothing
-				else if (p == '_' && c != '_')
-					reversion += "+";	//Insertion
-				else if (p != '_' && c == '_')
-					reversion += "-";  //Deletion
-				else
-					reversion += p;			//Point Mutation
-			}
-			
-			tListIterator<cAnalyzeGenotype> next_it(batch_it);
-			for (int i = 0; i < max_depth; i++)
-			{
-				if ( (other_genotype = next_it.Next()) != NULL && 
-             (cum_dist <= max_dist || max_dist == -1) )
-				{
-					cum_dist += other_genotype->GetParentDist();
-					if (cum_dist > max_dist && max_dist != -1)
-						break;
-					str_other = other_genotype->GetSequence();
-					str_align_other = other_genotype->GetAlignedSequence();
-					
-					//Revert "background" to parental form
-					cString reverted = "";
-					for (int k = 0; k < reversion.GetSize(); k++)
-					{
-						if (reversion[k] == '+')       continue;  //Insertion, so skip
-						else if (reversion[k] == '-')  reverted += str_align_parent[k]; //Add del
-						else if (reversion[k] != ' ')       reverted += reversion[k];        //Revert mut
-						else if (str_align_other[k] != '_') reverted += str_align_other[k];  //Keep current
-					}
-					
-					cAnalyzeGenotype new_genotype(m_world, reverted, inst_set);  //Get likely fitness
-					new_genotype.Recalculate(m_ctx, test_cpu, NULL, test_info, 50);
-					
-					
-          FOT << other_genotype->GetID()			<< " "
-            << other_genotype->GetFitness()		<< " "
-            << other_genotype->GetUpdateBorn() << " "
-            << cum_dist                        << " "
-            << new_genotype.GetFitness()       << " ";
-				}
-				else
-				{
-					FOT << -1 << " "
-          << -1 << " "
-          << -1 << " "
-          << -1 << " "
-          << -1 << " ";
-				}
-			}
-			FOT << endl;
-		}
-		parent_genotype = genotype;
+		
+      // For point mutations, has this site been mutated from A before AB?
+      for (int k = 0; k  < str_A.GetSize(); k++)
+        if (str_A[k] != str_AB[k])
+          mutated_from_A[k] = true;
+      
+      int dist_0_A = 0;
+			// Find Reversion Mask for Mutant A
+			for (int k = 0; k < str_A.GetSize(); k++){
+				char c0 = str_0[k];
+				char cA = str_A[k];
+				if (c0 == cA)                     // No change
+					reversion += " ";	
+				else if (c0 == '_' && cA != '_'){  // Insertion
+					reversion += "+";	
+          dist_0_A++;
+        }
+				else if (c0 != '_' && cA == '_'){  // Deletion
+					reversion += "-";  
+          dist_0_A++;
+        }
+				else{
+					reversion += "m";			            //Point Mutation
+          dist_0_A++;
+        }
+      }
+			      
+      //Revert "background" to remove mutation from genotype0 to genotypeA 
+      cString tmp_B;  // Debugging string
+			for (int k = 0; k < reversion.GetSize(); k++){
+        switch(reversion[k]){
+          case '+':      // Insertion from 0 to A, so remove site all together
+            tmp_B += str_AB[k];
+            continue;
+            break;
+            
+          case '-':      // Deletion from 0 to A, add the site back in
+            str_B += str_0[k];
+            tmp_B += str_AB[k];
+            break;
+            
+          case ' ':      // No change from 0 to A
+            if (str_AB[k] != '_'){  // If the site still exists
+              str_B += str_AB[k];  // Keep current state
+            }
+            tmp_B += str_AB[k];
+            break;
+            
+          case 'm':      // Point mutation from 0 to A
+            if (str_AB[k] != '_' && !mutated_from_A[k]){ // If the site still exists and is the
+              str_B += str_0[k];                           // same as mutant A, revert to mutant 0 
+              tmp_B += str_0[k];
+            }
+            else{
+              str_B += str_AB[k];  // Otherwise keep the AB form.
+              tmp_B += str_AB[k];
+            }
+            break;  
+        }
+      }
+      
+      // Get our fitness values
+      double fitness_A  = genotype_A->GetFitness();
+      double fitness_AB = genotype_AB->GetFitness();
+      double fitness_B  = -1.0;
+      double  P_H_A     = -1.0;  //Phenotypic Entropies
+      double  P_H_AB    = -1.0;
+      double  P_H_B     = -1.0;
+      
+      //Calculate (or reclaculate) fitnesses to account for plasticity
+      if (!genotype_A->PhenPlastCalculated()){
+        cPhenPlastGenotype pp(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
+        fitness_A = pp.GetLikelyFitness();
+        P_H_A = pp.GetPhenotypicEntropy();
+      } 
+      else
+        P_H_A = genotype_A->GetPhenotypicEntropy();
+      
+      if (genotype_AB->PhenPlastCalculated()){
+        cPhenPlastGenotype pp(genotype_AB->GetGenome(), num_trials, m_world, m_ctx);
+        fitness_AB = pp.GetLikelyFitness();
+        P_H_AB = pp.GetPhenotypicEntropy();
+      } 
+      else
+        P_H_AB = genotype_AB->GetPhenotypicEntropy();
+      
+      cPhenPlastGenotype pp(str_B, num_trials, m_world, m_ctx);
+      fitness_B = pp.GetLikelyFitness();
+      P_H_B = pp.GetPhenotypicEntropy();
+      
+      
+      /*
+       FOT output per line
+       ID_A
+       DEPTH_A
+       BIRTH_A
+       FITNESS_A
+       PHEN_PLAST_ENTROPY_A
+       ID_AB
+       DEPTH_AB
+       BIRTH_AB
+       FITNESS_AB
+       PHEN_PLAST_ENTROPY_AB
+       DISTANCE_A_AB
+       FITNESS_B
+       PHEN_PLAST_ENTROPY_B
+       */
+      
+      df.Write(genotype_A->GetID(), "ID_A");
+      df.Write(genotype_A->GetDepth(), "Depth_A");
+      df.Write(genotype_A->GetUpdateBorn(), "Birth_A");
+      df.Write(fitness_A, "Fitness_A");
+      df.Write(P_H_A, "Phenotypic_Entropy_A");
+      df.Write(dist_0_A, "Mutation_Distance_0_A");
+      
+      df.Write(genotype_AB->GetID(), "ID_AB");
+      df.Write(genotype_AB->GetDepth(), "Depth_AB");
+      df.Write(genotype_AB->GetUpdateBorn(), "Birth_AB");
+      df.Write(fitness_AB, "Fitness_AB");
+      df.Write(P_H_AB, "Phenotypic_Entropy_AB");
+      df.Write(dist_from_A, "Mutation_Distance_A_AB");
+      
+      df.Write(fitness_AB, "Fitness_B");
+      df.Write(P_H_AB, "Phenotypic_Entropy_B");
+      df.Endl();
+      
+      /* Debug
+      cout << "0:  " << str_0  << endl;
+      cout << "    " << reversion << endl;
+      cout << "A:  " << str_A  << endl;
+      cout << "AB: " << str_AB << endl;
+      cout << "BX: " << tmp_B  << endl;
+      cout << "    ";
+      for (int k = 0; k < mutated_from_A.GetSize(); k++){
+        if (!mutated_from_A[k])
+          cout << " ";
+        else
+          cout << "*";
+      }
+      cout << endl;
+      cout << "B:  " << str_B << endl;
+      cout << endl;
+      */
+      
+      
+    }
+    
+    
   }
-  
   //Clean up
-	delete test_cpu;
-	delete test_info;
-	
+  m_world->GetDataFileManager().Remove(filename);
   return;
 }
-
+  
 void cAnalyze::EnvironmentSetup(cString cur_string)
 {
   cout << "Running environment command: " << endl << "  " << cur_string << endl;  
