@@ -7052,7 +7052,8 @@ void cAnalyze::MutationRevert(cString cur_string)
     int dist_from_A = 0;  // Number of mutations from genotype_A
     tArray<bool> mutated_from_A(genotype_0->GetAlignedSequence().GetSize());
     mutated_from_A.SetAll(false);
-    
+    bool performed_reversion = false; //Was there anything to revert?
+
     for (int AB = A+1; AB < batch_size; AB++){
       genotype_AB = lineage.GetPos(AB);
       dist_from_A += genotype_AB->GetParentDist();
@@ -7092,7 +7093,6 @@ void cAnalyze::MutationRevert(cString cur_string)
 			      
       //Revert "background" to remove mutation from genotype0 to genotypeA 
       cString tmp_B;  // Debugging string
-      bool performed_reversion = false; //Was there anything to revert?
 			for (int k = 0; k < reversion.GetSize(); k++){
         switch(reversion[k]){
           case '+':      // Insertion from 0 to A, so remove site all together
@@ -7127,8 +7127,8 @@ void cAnalyze::MutationRevert(cString cur_string)
             break;  
         }
       }
-      if (!performed_reversion)  // Mutation 0->A has been removed from the background.
-        continue;
+      if (!performed_reversion)  // Mutation 0->A has been removed from the background skip this pair.
+        break;                   // Move on to next 0,A pairing
       
       // Get our fitness values
       double fitness_A  = genotype_A->GetFitness();
