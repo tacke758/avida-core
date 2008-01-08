@@ -7010,6 +7010,7 @@ return;
 void cAnalyze::MutationRevert(cString cur_string)
 {
   
+  m_world->GetDriver().NotifyComment("Reverting all pairs of mutations along LOD...");
   //This function takes in three parameters, all defaulted:
   cString filename;   //The name of the output file
   int num_trials;
@@ -7091,21 +7092,24 @@ void cAnalyze::MutationRevert(cString cur_string)
 			      
       //Revert "background" to remove mutation from genotype0 to genotypeA 
       cString tmp_B;  // Debugging string
+      bool performed_reversion = false; //Was there anything to revert?
 			for (int k = 0; k < reversion.GetSize(); k++){
         switch(reversion[k]){
           case '+':      // Insertion from 0 to A, so remove site all together
-            tmp_B += str_AB[k];
+            tmp_B += "-";
+            performed_reversion = true;
             continue;
             break;
             
           case '-':      // Deletion from 0 to A, add the site back in
             str_B += str_0[k];
-            tmp_B += str_AB[k];
+            tmp_B += str_0[k];
+            performed_reversion = true;
             break;
             
           case ' ':      // No change from 0 to A
             if (str_AB[k] != '_'){  // If the site still exists
-              str_B += str_AB[k];  // Keep current state
+              str_B += str_AB[k];   // Keep current state
             }
             tmp_B += str_AB[k];
             break;
@@ -7114,6 +7118,7 @@ void cAnalyze::MutationRevert(cString cur_string)
             if (str_AB[k] != '_' && !mutated_from_A[k]){ // If the site still exists and is the
               str_B += str_0[k];                           // same as mutant A, revert to mutant 0 
               tmp_B += str_0[k];
+              performed_reversion = true;
             }
             else{
               str_B += str_AB[k];  // Otherwise keep the AB form.
@@ -7122,6 +7127,8 @@ void cAnalyze::MutationRevert(cString cur_string)
             break;  
         }
       }
+      if (!performed_reversion)  // Mutation 0->A has been removed from the background.
+        continue;
       
       // Get our fitness values
       double fitness_A  = genotype_A->GetFitness();
