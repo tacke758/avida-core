@@ -7002,26 +7002,36 @@ return;
  * This function will go through the lineage, align the genotypes, and
  * perform pairwise reversions for all pairs of genotypes in the current
  * batch.
+ * Recalculating the current batch for phenotypic plasticity prior to use
+ * speeds up this function.
  * Arguments:
  *      filename [= "pairwise_reversion.dat" ]
  *      num_trails [= DEFAULT_NUM_PP_TRIALS] default if plasticity has not been set
  *                 (value defined in cAnalyzeGenotype.h)
+ *      adjacent_only [=false]  Revert only adjacent pairs
 */
 void cAnalyze::MutationRevert(cString cur_string)
 {
   
-  m_world->GetDriver().NotifyComment("Reverting all pairs of mutations along LOD...");
   //This function takes in three parameters, all defaulted:
   cString filename;   //The name of the output file
   int num_trials;
+  bool adjacent_only;
   
-  filename   =  (cur_string.GetSize() > 0) ? "pairwise_reversion.dat" : cur_string.PopWord();
-  num_trials =  (cur_string.GetSize() > 0) ? DEFAULT_NUM_PP_TRIALS    : cur_string.PopWord().AsInt();
+  filename      =  (cur_string.GetSize() == 0) ? "pairwise_reversion.dat" : cur_string.PopWord();
+  num_trials    =  (cur_string.GetSize() == 0) ? DEFAULT_NUM_PP_TRIALS    : cur_string.PopWord().AsInt();
+  adjacent_only =  (cur_string.GetSize() == 0) ? false    : cur_string.PopWord().AsInt() > 0;
+
+  if (!adjacent_only)
+    m_world->GetDriver().NotifyComment("Reverting all pairs of mutations along LOD...");  
+  else
+    m_world->GetDriver().NotifyComment("Reverting all adjacent pairs of mutations along LOD...");  
   
   //Right now, only perform this on actual lineages
   if (!batch[cur_batch].IsLineage())
     m_world->GetDriver().RaiseFatalException(2, "MutationRevert: Current batch must be a lineage.");
 	
+  
 	//Request a file
 	cDataFile& df = m_world->GetDataFile(filename);
   if (!df.Good())
@@ -7031,7 +7041,8 @@ void cAnalyze::MutationRevert(cString cur_string)
 	
 	
   //Align the batch... we're going to keep the fitnesses intact from the runs
-	CommandAlign("");
+	if (!batch[cur_batch].IsAligned())
+    CommandAlign("");
   
 	//Our edit distance is already stored in the historical dump.
   
@@ -7052,7 +7063,6 @@ void cAnalyze::MutationRevert(cString cur_string)
     int dist_from_A = 0;  // Number of mutations from genotype_A
     tArray<bool> mutated_from_A(genotype_0->GetAlignedSequence().GetSize());
     mutated_from_A.SetAll(false);
-    bool performed_reversion = false; //Was there anything to revert?
 
     for (int AB = A+1; AB < batch_size; AB++){
       genotype_AB = lineage.GetPos(AB);
@@ -7093,6 +7103,7 @@ void cAnalyze::MutationRevert(cString cur_string)
 			      
       //Revert "background" to remove mutation from genotype0 to genotypeA 
       cString tmp_B;  // Debugging string
+      bool performed_reversion = false; //Was there anything to revert?
 			for (int k = 0; k < reversion.GetSize(); k++){
         switch(reversion[k]){
           case '+':      // Insertion from 0 to A, so remove site all together
@@ -7115,7 +7126,7 @@ void cAnalyze::MutationRevert(cString cur_string)
             break;
             
           case 'm':      // Point mutation from 0 to A
-            if (str_AB[k] != '_' && !mutated_from_A[k]){ // If the site still exists and is the
+            if (str_AB[k] != '_' && true){ //!mutated_from_A[k]){ // If the site still exists and is the
               str_B += str_0[k];                           // same as mutant A, revert to mutant 0 
               tmp_B += str_0[k];
               performed_reversion = true;
@@ -7127,18 +7138,32 @@ void cAnalyze::MutationRevert(cString cur_string)
             break;  
         }
       }
-      if (!performed_reversion)  // Mutation 0->A has been removed from the background skip this pair.
+      if (!performed_reversion)  // Mutation 0->A has been removed from the background of AB, skip this pair.
         break;                   // Move on to next 0,A pairing
       
+      
+      //cout << reversion << A << endl;
+     
+      
       // Get our fitness values
+      double fitness_0  = genotype_0->GetFitness();
       double fitness_A  = genotype_A->GetFitness();
       double fitness_AB = genotype_AB->GetFitness();
       double fitness_B  = -1.0;
+      double  P_H_0     = -1.0;
       double  P_H_A     = -1.0;  //Phenotypic Entropies
       double  P_H_AB    = -1.0;
       double  P_H_B     = -1.0;
       
       //Calculate (or reclaculate) fitnesses to account for plasticity
+      if (!genotype_0->PhenPlastCalculated()){
+        cPhenPlastGenotype pp(genotype_0->GetGenome(), num_trials, m_world, m_ctx);
+        fitness_0 = pp.GetLikelyFitness();
+        P_H_0 = pp.GetPhenotypicEntropy();
+      } 
+      else
+        P_H_0 = genotype_0->GetPhenotypicEntropy();
+      
       if (!genotype_A->PhenPlastCalculated()){
         cPhenPlastGenotype pp(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
         fitness_A = pp.GetLikelyFitness();
@@ -7162,6 +7187,11 @@ void cAnalyze::MutationRevert(cString cur_string)
       
       /*
        FOT output per line
+       ID_0
+       DEPTH_0
+       BIRTH_0
+       FITNESS_0
+       PHEN_PLAST_ENTROPY_0
        ID_A
        DEPTH_A
        BIRTH_A
@@ -7177,25 +7207,41 @@ void cAnalyze::MutationRevert(cString cur_string)
        PHEN_PLAST_ENTROPY_B
        */
       
-      df.Write(genotype_A->GetID(), "ID_A");
-      df.Write(genotype_A->GetDepth(), "Depth_A");
-      df.Write(genotype_A->GetUpdateBorn(), "Birth_A");
-      df.Write(fitness_A, "Fitness_A");
-      df.Write(P_H_A, "Phenotypic_Entropy_A");
-      df.Write(dist_0_A, "Mutation_Distance_0_A");
+/*
+      cout << str_B << " " << A 
+           << " " << fitness_0 
+           << " " << fitness_A 
+           << " " << fitness_AB 
+           << " " << fitness_B
+           << endl;
+  */    
+      df.Write(genotype_0->GetDepth(), "Depth_0"); // 1
+      df.Write(genotype_0->GetID(), "ID_0"); // 2
+      df.Write(genotype_0->GetUpdateBorn(), "Birth_0"); // 3
+      df.Write(fitness_0, "Fitness_0"); //4
+      df.Write(P_H_0, "Phenotypic_Entropy_0"); //5
       
-      df.Write(genotype_AB->GetID(), "ID_AB");
-      df.Write(genotype_AB->GetDepth(), "Depth_AB");
-      df.Write(genotype_AB->GetUpdateBorn(), "Birth_AB");
-      df.Write(fitness_AB, "Fitness_AB");
-      df.Write(P_H_AB, "Phenotypic_Entropy_AB");
-      df.Write(dist_from_A, "Mutation_Distance_A_AB");
+      df.Write(genotype_A->GetDepth(), "Depth_A"); // 6
+      df.Write(genotype_A->GetID(), "ID_A"); // 7
+      df.Write(genotype_A->GetUpdateBorn(), "Birth_A"); // 8
+      df.Write(fitness_A, "Fitness_A");  // 9
+      df.Write(P_H_A, "Phenotypic_Entropy_A");  // 10
+      df.Write(dist_0_A, "Mutation_Distance_0_A");  //11
       
-      df.Write(fitness_AB, "Fitness_B");
-      df.Write(P_H_AB, "Phenotypic_Entropy_B");
+      df.Write(genotype_AB->GetDepth(), "Depth_AB"); //12
+      df.Write(genotype_AB->GetID(), "ID_AB");  //13
+      df.Write(genotype_AB->GetUpdateBorn(), "Birth_AB"); //14
+      df.Write(fitness_AB, "Fitness_AB"); //15
+      df.Write(P_H_AB, "Phenotypic_Entropy_AB"); //16
+      df.Write(dist_from_A, "Mutation_Distance_A_AB"); //17
+      
+      df.Write(fitness_B, "Fitness_B"); //18
+      df.Write(P_H_B, "Phenotypic_Entropy_B"); //19
+      
+     
       df.Endl();
-      
-      /* Debug
+      /*
+      cout << "Depth A: " << A << endl;
       cout << "0:  " << str_0  << endl;
       cout << "    " << reversion << endl;
       cout << "A:  " << str_A  << endl;
@@ -7210,12 +7256,12 @@ void cAnalyze::MutationRevert(cString cur_string)
       }
       cout << endl;
       cout << "B:  " << str_B << endl;
-      cout << endl;
+      cout << endl << endl;;
       */
       
-      
+      if (adjacent_only)
+        break;  
     }
-    
     
   }
   //Clean up
