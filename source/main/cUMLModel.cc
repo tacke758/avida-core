@@ -1,3 +1,4 @@
+
 #include "cUMLModel.h"
 
 #include <sys/types.h>
@@ -180,8 +181,7 @@ cUMLModel::cUMLModel(const char* seed_model) {
   expression_q = 0;
   expression_r = 0;
   createExpressionsFromClasses();
-  int t = expressions.size();
-
+  m_property_reward = 0;
 }
 
 
@@ -246,7 +246,7 @@ std::string cUMLModel::getXMI()
 int cUMLModel::numStates() 
 { 
 	int temp_states = 0;
-	for (unsigned int i=0; i<numSDs(); i++) { 
+	for (int i=0; i<numSDs(); i++) { 
 		temp_states += getStateDiagram(i)->numStates();
 	}
 	return temp_states;
@@ -255,7 +255,7 @@ int cUMLModel::numStates()
 int cUMLModel::numTrans()
 {
 int temp_trans = 0;
-	for (unsigned int i=0;  i<numSDs(); i++) { 
+	for (int i=0;  i<numSDs(); i++) { 
 		temp_trans += getStateDiagram(i)->numTrans();
 	}
 	return temp_trans;
@@ -264,7 +264,7 @@ int temp_trans = 0;
 int cUMLModel::numTriggers()
 {
 int temp_trigger = 0;
-	for (unsigned int i=0;  i<numSDs(); i++) { 
+	for (int i=0;  i<numSDs(); i++) { 
 		temp_trigger += getStateDiagram(i)->numTriggers();
 	}
 	return temp_trigger;
@@ -273,7 +273,7 @@ int temp_trigger = 0;
 int cUMLModel::numGuards() 
 {
 int temp = 0;
-	for (unsigned int i=0;  i<numSDs(); i++) { 
+	for (int i=0;  i<numSDs(); i++) { 
 		temp += getStateDiagram(i)->numGuards();
 	}
 	return temp;
@@ -282,7 +282,7 @@ int temp = 0;
 int cUMLModel::numActions()
 {
 int temp = 0;
-	for (unsigned int i=0;  i<numSDs(); i++) { 
+	for (int i=0;  i<numSDs(); i++) { 
 		temp += getStateDiagram(i)->numActions();
 	}
 	return temp;
@@ -393,7 +393,7 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 	return;	
 }
 
-float cUMLModel::checkProperties() 
+/*float cUMLModel::checkProperties() 
 {
 	// for all properties:
 	std::set<cMDEProperty*>::iterator prop_ptr;
@@ -401,6 +401,7 @@ float cUMLModel::checkProperties()
 	float temp_val = 0;
 	m_property_success = 0;
 	m_property_failure = 0;
+
 
 	for (prop_ptr=mdeprops.begin(); prop_ptr!=mdeprops.end(); prop_ptr++)  
 	{
@@ -420,43 +421,96 @@ float cUMLModel::checkProperties()
 		total += temp_val;
 	}
 	
-	
+//		int size = mdeprops.size();
 	// return the reward.
 	return total;
-}
+}*/
 
 
-bool cUMLModel::addExistenceProperty(std::string s)
+float cUMLModel::addExistenceProperty(std::string s)
 {
 	// a pointer to the existence property
 	std::string temp = StringifyAnInt(mdeprops.size());
+	float val = 0;
 	cMDEExistenceProperty* e = new cMDEExistenceProperty(s, temp);
-	mdeprops.insert (e);
-	//int q = mdeprops.size();
-	return true;
+	// first, try to find the property
+	//
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+	} else {
+		e->evaluate();
+		val = e->getEvaluationInformation();
+		mdeprops.insert (e);
+		if (val >0) {
+				m_property_success++;
+				m_existence_property_success++;
+			} else { 
+				m_property_failure++;
+				m_existence_property_failure++;
+			}
+	}
+	
+	return val;
 }
 
-bool cUMLModel::addAbsenceProperty(std::string s)
+float cUMLModel::addAbsenceProperty(std::string s)
 {
 	// a pointer to the absence property
 	std::string temp = StringifyAnInt(mdeprops.size());
+	float val = 0;
 	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s, temp);
-	mdeprops.insert (e);
+//	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	return true;
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+	} else {
+		e->evaluate();
+		val = e->getEvaluationInformation();
+		mdeprops.insert (e);
+		if (val >0) {
+				m_property_success++;
+				m_absence_property_success++;
+			} else { 
+				m_property_failure++;
+				m_absence_property_failure++;
+			}
+	}
+
+	return val;
 	
 }
 
-bool cUMLModel::addUniversalProperty(std::string s)
+float cUMLModel::addUniversalProperty(std::string s)
 {
 	// a pointer to the universal property
 	std::string temp = StringifyAnInt(mdeprops.size());
+	float val = 0;	
 	cMDEUniversalProperty* e = new cMDEUniversalProperty(s, temp);
-	mdeprops.insert (e);
+//	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	return true;
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+	} else {
+		e->evaluate();
+		val = e->getEvaluationInformation();
+		mdeprops.insert (e);
+		if (val >0) {
+				m_property_success++;
+				m_universal_property_success++;
+			} else { 
+				m_property_failure++;
+				m_universal_property_failure++;
+			}
+	}
+
+	return val;
 	
 }
+
+
 
 
 // Create expressions for each class. Expressions are: 
@@ -479,7 +533,7 @@ void cUMLModel::createExpressionsFromClasses()
 		temp_size = c.numAttributes();
 		
 		// For each attribute...
-		for (unsigned int j=0; j<temp_size; j++) {
+		for (int j=0; j<temp_size; j++) {
 			a = c.getAttribute(j);
 			temp1 = class_name + "_V." + a.attribute_name;
 			
@@ -498,7 +552,7 @@ void cUMLModel::createExpressionsFromClasses()
 		
 		// For each method
 		temp_size = c.numOperations();
-		for (unsigned int m=0; m<temp_size; m++) {
+		for (int m=0; m<temp_size; m++) {
 			o = c.getOperation(m);
 			temp1 = class_name + "_q??[" + o.op_name + "]";
 			addExpression(temp1);
@@ -545,7 +599,6 @@ void cUMLModel::createExpressionsFromClasses()
 
 
 std::string cUMLModel::getP() {
-	int t = expressions.size();
 	return expressions[expression_p]; 
 } 
 
@@ -563,3 +616,4 @@ std::string cUMLModel::StringifyAnInt(int x) {
 	o << x;
 	return o.str();
 }
+

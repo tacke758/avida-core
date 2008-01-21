@@ -271,8 +271,18 @@ private:
   cDoubleSum m_W2Attempt;
   cDoubleSum m_W2Passed;
   cDoubleSum m_N1andN2Passed;
-  cDoubleSum m_propertySuccess;
-  cDoubleSum m_propertyFailure;
+  int m_propertySuccess;
+  int m_propertyFailure;
+  int m_propertyTotal;
+  int m_absPropertySuccess; 
+  int m_absPropertyFailure;
+  int m_absPropertyTotal;
+  int m_uniPropertySuccess; 
+  int m_uniPropertyFailure;
+  int m_uniPropertyTotal;
+  int m_existPropertySuccess; 
+  int m_existPropertyFailure; 
+  int m_existPropertyTotal; 
     
 
   
@@ -668,8 +678,23 @@ public:
   void W2Attempt() { m_W2Attempt.Add(1); }
   void W2Passed() { m_W2Passed.Add(1); }
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
-  void propSuccess(int x) {m_propertySuccess.Add(x); }
-  void propFailure(int x) {m_propertyFailure.Add(x); }
+  
+  void propSuccess(int x) {m_propertySuccess = x; }
+  void propFailure(int x) {m_propertyFailure = x; }
+  void propTotal(int x)  {m_propertyTotal= x; }
+  void absPropSuccess(int x) {m_absPropertySuccess =x; }
+  void absPropFailure(int x) {m_absPropertyFailure =x;}
+  void absPropTotal(int x)  {m_absPropertyTotal =x;}
+  void uniPropSuccess(int x) {m_uniPropertySuccess =x; }
+  void uniPropFailure(int x) {m_uniPropertyFailure =x; }
+  void uniPropTotal(int x)  { m_uniPropertyTotal =x;}
+  void existPropSuccess(int x) {m_existPropertySuccess =x; }
+  void existPropFailure(int x) {m_existPropertyFailure =x;}
+  void existPropTotal(int x)  {m_existPropertyTotal =x;}
+      
+
+  
+  
 /*  void scenario5Complete() { m_scenario5.Add(1); } 
   void scenario6Complete() { m_scenario6.Add(1); } 
   void scenario7Complete() { m_scenario7.Add(1); } 

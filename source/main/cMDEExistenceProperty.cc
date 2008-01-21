@@ -12,7 +12,8 @@
 void cMDEExistenceProperty::print() {
 	
 	std::ofstream outfile;
-	outfile.open (_name.c_str());
+//	outfile.open (_name.c_str());
+	outfile.open ("property");
 	assert(outfile.is_open());
 	
 	outfile << "/* Existence property " << _expr_p << "*/" << std::endl;
@@ -30,7 +31,7 @@ void cMDEExistenceProperty::print() {
 void cMDEExistenceProperty::printWitness() {
 	
 	std::ofstream outfile;
-	std::string file_name = "w" + _name;
+	std::string file_name = "witness-property";
 	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	

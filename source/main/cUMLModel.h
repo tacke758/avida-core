@@ -69,11 +69,27 @@ public:
 	int numSCs();
 	int numSuccess() { return m_property_success; } 
 	int numFailure() { return m_property_failure; }
+	int numTotalProperty() { return m_property_success + m_property_failure; }
+	int numAbsencePropertySuccess() { return m_absence_property_success; }
+	int numAbsencePropertyFailure() { return m_absence_property_failure; }
+	int numAbsencePropertyTotal() { return m_absence_property_success + m_absence_property_failure; }
+	int numExistencePropertySuccess() { return m_existence_property_success; }
+	int numExistencePropertyFailure() { return m_existence_property_failure; }
+	int numExistencePropertyTotal() { return m_existence_property_success + m_existence_property_failure; }
+	int numUniversalPropertySuccess() { return m_universal_property_success; }
+	int numUniversalPropertyFailure() { return m_universal_property_failure; }
+	int numUniversalPropertyTotal() { return m_universal_property_success + m_universal_property_failure; }	
+	
+	void resetPropertyReward() { m_property_reward = 0; }
+	void addPropertyReward(float x) { m_property_reward += x; }
+	float getPropertyReward() { return m_property_reward; }
+	
+	
 	
 	// Properties
-	bool addExistenceProperty(std::string);
-	bool addAbsenceProperty(std::string);
-	bool addUniversalProperty(std::string);
+	float addExistenceProperty(std::string);
+	float addAbsenceProperty(std::string);
+	float addUniversalProperty(std::string);
 	void addExpression(std::string s) { expressions.push_back(s); }
 	void createExpressionsFromClasses();
 	std::string StringifyAnInt(int);
@@ -121,7 +137,7 @@ public:
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
-	float checkProperties();
+//	float checkProperties();
 	
 
 protected: 
@@ -143,6 +159,14 @@ protected:
 	std::set<cMDEProperty*, ltcMDEProperty> mdeprops;
 	int m_property_success;
 	int m_property_failure;
+	int m_absence_property_success;
+	int m_absence_property_failure;
+	int m_existence_property_success;
+	int m_existence_property_failure;
+	int m_universal_property_success;
+	int m_universal_property_failure;
+	float m_property_reward;
+	
 
 	// vector of expressions
 	std::vector<std::string> expressions;

@@ -2963,13 +2963,14 @@ double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 double cTaskLib::Task_Properties(cTaskContext& ctx) const
 {
 	double bonus = 0.0; 
-	//cOrganism* org = ctx.getOrganism();
-	cPopulation* pop = (&m_world->GetPopulation());
+	cOrganism* org = ctx.getOrganism();
+	//cPopulation* pop = (&m_world->GetPopulation());
 	
 	// call some sort of check properties function for the model.
-	bonus = pop->getUMLModel()->checkProperties();
-	m_world->GetStats().propSuccess(pop->getUMLModel()->numSuccess());
-	m_world->GetStats().propFailure(pop->getUMLModel()->numFailure());
+	bonus =  org->getUMLModel()->getPropertyReward();
+	//pop->getUMLModel()->checkProperties();
+	//m_world->GetStats().propSuccess(pop->getUMLModel()->numSuccess());
+	//m_world->GetStats().propFailure(pop->getUMLModel()->numFailure());
 	
 	return bonus;
 	

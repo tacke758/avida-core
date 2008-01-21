@@ -672,11 +672,26 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	m_world->GetStats().addActions(m_model.numActions());
 	m_world->GetStats().addStateDiagrams(m_model.numSDs());
 	
-	
 	if ((m_model.getBonusInfo("spinn1") > 0) && 
 		(m_model.getBonusInfo("spinn2") > 0)) { 
 		m_world->GetStats().N1andN2Passed();
 	}
+	
+	cUMLModel* pop_model = m_world->GetPopulation().getUMLModel();
+	m_world->GetStats().propSuccess(pop_model->numSuccess());
+	m_world->GetStats().propFailure(pop_model->numFailure());
+	m_world->GetStats().propTotal(pop_model->numTotalProperty());
+	m_world->GetStats().absPropSuccess(pop_model->numAbsencePropertySuccess());
+	m_world->GetStats().absPropFailure(pop_model->numAbsencePropertyFailure());
+	m_world->GetStats().absPropTotal(pop_model->numAbsencePropertyTotal());
+	m_world->GetStats().uniPropSuccess(pop_model->numUniversalPropertySuccess());
+	m_world->GetStats().uniPropFailure(pop_model->numUniversalPropertyFailure());
+	m_world->GetStats().uniPropTotal(pop_model->numUniversalPropertyTotal());
+	m_world->GetStats().existPropSuccess(pop_model->numExistencePropertySuccess());
+	m_world->GetStats().existPropFailure(pop_model->numExistencePropertyFailure());
+	m_world->GetStats().existPropTotal(pop_model->numExistencePropertyTotal());
+		
+	m_model.resetPropertyReward();
 	
 
 	

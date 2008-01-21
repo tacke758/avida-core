@@ -1010,9 +1010,22 @@ void cStats::addScenarioCompletion(std::vector<double> s)
 
 void cStats::PrintPropertyData(const cString& filename)
 {
+	
 	cDataFile& df = m_world->GetDataFile(filename);
-	df.Write( m_propertySuccess.Sum(), "total number of properties that passed" );
-	df.Write( m_propertyFailure.Sum(), "total number of properties that failed" );
+	df.Write( m_propertySuccess, "total number of properties that passed" );
+	df.Write( m_propertyFailure, "total number of properties that failed" );
+	df.Write( m_propertyTotal, "total number of properties" );
+	df.Write( m_absPropertySuccess, "absence properties that passed" );
+	df.Write( m_absPropertyFailure, "absence properties that failed" );
+	df.Write( m_absPropertyTotal, "total number of absence properties" );
+    df.Write( m_uniPropertySuccess, "universal properties that passed" );
+	df.Write( m_uniPropertyFailure, "universal properties that failed" );
+	df.Write( m_uniPropertyTotal, "total number of universal properties" );
+	df.Write( m_existPropertySuccess, "existence properties that passed" );
+	df.Write( m_existPropertyFailure, "existence properties that failed" );
+	df.Write( m_existPropertyTotal, "total number of existence properties" ); 
+	
+
 	df.Endl();
 
 }
