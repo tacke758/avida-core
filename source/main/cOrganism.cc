@@ -591,12 +591,12 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 	if(GetCellID()==-1) return;
-	m_model.printXMI();	
+//	m_model.printXMI();	
 	
 	// Update the value of max trans
-	if (m_model.numTrans() > m_model.getMaxTrans()) { 
-		m_model.setMaxTrans(m_model.numTrans());
-	} 
+//	if (m_model.numTrans() > m_model.getMaxTrans()) { 
+//		m_model.setMaxTrans(m_model.numTrans());
+//	} 
 
 
   const tArray<double> & resource_count = m_interface->GetResources();

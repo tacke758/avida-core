@@ -650,6 +650,11 @@ private:
   bool Inst_UniversialityProperty(cAvidaContext& ctx);
   bool Inst_ExistenceProperty(cAvidaContext& ctx);
     
+  bool Inst_RelativeMoveExpressionP(cAvidaContext& ctx);
+  bool Inst_NextExpressionP(cAvidaContext& ctx);
+  bool Inst_PrevExpressionP(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveExpressionP(cAvidaContext& ctx);
+//  bool 
 };
 
 
