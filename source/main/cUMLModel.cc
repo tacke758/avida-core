@@ -182,6 +182,14 @@ cUMLModel::cUMLModel(const char* seed_model) {
   expression_r = 0;
   createExpressionsFromClasses();
   m_property_reward = 0;
+  m_property_success =0;
+  m_property_failure =0;
+  m_absence_property_success =0;
+  m_absence_property_failure =0;
+  m_existence_property_success =0;
+  m_existence_property_failure =0;
+  m_universal_property_success =0;
+  m_universal_property_failure =0;
 }
 
 
@@ -562,42 +570,6 @@ void cUMLModel::createExpressionsFromClasses()
 }
 
 
-//template <typename T>
-//bool cUMLModel::absoluteMoveIndex (T x, int &index, int amount )
-//{
-//	
-//	int x_size = (int) x.size();
-//	if (x_size == 0 || amount > x_size) {
-//		return false;
-//	}
-//	
-//	index = 0;
-//	return relativeMoveIndex(x, index, amount);
-//}
-//
-//template <typename T>
-//bool cUMLModel::relativeMoveIndex (T x, int &index, int amount )
-//{
-//	int x_size = (int) x.size();
-//	
-//	if (x_size == 0) {
-//		return false;
-//	}
-//	
-//	if (amount > 0) { 
-//		index += (amount % x_size);
-//		
-//		// index is greater than vector
-//		if (index >= x_size) { 
-//			index -= x_size;
-//		} else if(index < 0) { 
-//			index += x_size;
-//		}
-//	}	
-//	return true;
-//}
-
-
 std::string cUMLModel::getP() {
 	return expressions[expression_p]; 
 } 
@@ -607,13 +579,57 @@ std::string cUMLModel::getP() {
 std::string cUMLModel::StringifyAnInt(int x) { 
 	
 	std::ostringstream o;
-	
 	if (x < 0) {
 		x = abs(x);
 		o << "_";
 	} 
-	
 	o << x;
 	return o.str();
 }
+
+// Check if the expression exists in the vector. If not, add it.
+bool cUMLModel::addExpression(std::string s)
+{ 
+	bool val = false;
+	std::vector<std::string>::iterator exprit;
+	exprit = find(expressions.begin(), expressions.end(), s); 
+	if (exprit == expressions.end()) { 
+		expressions.push_back(s); 
+		val = true;
+	}
+	return val;
+}
+
+// AND expressions p & q to create a new expression
+// return true if this is a new expression
+// return false otherwise
+bool cUMLModel::ANDExpressions()
+{
+	bool val = false;
+	std::string pstring, qstring, totalstring;
+	if (expression_p != expression_q){
+		pstring = getP();
+		qstring = getQ();
+		totalstring = pstring + " && " + qstring;
+		val = addExpression(totalstring); 
+	}
+	return (val);
+}
+
+// OR expressions p & q to create a new expression
+// return true if this is a new expression
+// return false otherwise
+bool cUMLModel::ORExpressions()
+{
+	
+	bool val = false;
+	std::string pstring, qstring, totalstring;
+	if (expression_p != expression_q){
+		pstring = getP();
+		qstring = getQ();
+		totalstring = pstring + " || " + qstring;
+		val = addExpression(totalstring); 
+	}
+	return (val);}
+	
 

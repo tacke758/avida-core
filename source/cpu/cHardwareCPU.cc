@@ -549,6 +549,28 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "Next p"),						
 	tInstLibEntry<tMethod>("prev-p", &cHardwareCPU::Inst_PrevExpressionP, false, 
 							 "Previous p"),	
+	tInstLibEntry<tMethod>("move-rel-q", &cHardwareCPU::Inst_RelativeMoveExpressionQ, false, 
+							 "Relative move q"),		
+	tInstLibEntry<tMethod>("move-abs-q", &cHardwareCPU::Inst_AbsoluteMoveExpressionQ, false, 
+							 "Absolute move q"),						
+	tInstLibEntry<tMethod>("next-q", &cHardwareCPU::Inst_NextExpressionQ, false, 
+							 "Next q"),						
+	tInstLibEntry<tMethod>("prev-q", &cHardwareCPU::Inst_PrevExpressionQ, false, 
+							 "Previous q"),	
+	tInstLibEntry<tMethod>("move-rel-r", &cHardwareCPU::Inst_RelativeMoveExpressionR, false, 
+							 "Relative move r"),		
+	tInstLibEntry<tMethod>("move-abs-r", &cHardwareCPU::Inst_AbsoluteMoveExpressionR, false, 
+							 "Absolute move r"),						
+	tInstLibEntry<tMethod>("next-r", &cHardwareCPU::Inst_NextExpressionR, false, 
+							 "Next r"),						
+	tInstLibEntry<tMethod>("prev-r", &cHardwareCPU::Inst_PrevExpressionR, false, 
+							 "Previous r"),						
+	tInstLibEntry<tMethod>("and-exp", &cHardwareCPU::Inst_ANDExpressions, false, 
+							 "AND expressions"),						
+	tInstLibEntry<tMethod>("or-exp", &cHardwareCPU::Inst_ORExpressions, false, 
+							 "OR expressions"),									 
+							
+													
 	  
 											
 	
@@ -5131,6 +5153,7 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	return val;
 } 
 
+
 bool cHardwareCPU::Inst_RelativeMoveExpressionP(cAvidaContext& ctx) 
 {
 	ReadLabel();
@@ -5154,3 +5177,63 @@ bool cHardwareCPU::Inst_AbsoluteMoveExpressionP(cAvidaContext& ctx)
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
 	return (organism->getUMLModel()->absoluteMoveExpressionP(jump_amount));
 }
+
+bool cHardwareCPU::Inst_RelativeMoveExpressionQ(cAvidaContext& ctx) 
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getUMLModel()->relativeMoveExpressionQ(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextExpressionQ(cAvidaContext& ctx)
+{
+	return (organism->getUMLModel()->relativeMoveExpressionQ(1));
+}
+
+bool cHardwareCPU::Inst_PrevExpressionQ(cAvidaContext& ctx)
+{
+	return (organism->getUMLModel()->relativeMoveExpressionQ(-1));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveExpressionQ(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getUMLModel()->absoluteMoveExpressionQ(jump_amount));
+}
+
+bool cHardwareCPU::Inst_RelativeMoveExpressionR(cAvidaContext& ctx) 
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getUMLModel()->relativeMoveExpressionR(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextExpressionR(cAvidaContext& ctx)
+{
+	return (organism->getUMLModel()->relativeMoveExpressionR(1));
+}
+
+bool cHardwareCPU::Inst_PrevExpressionR(cAvidaContext& ctx)
+{
+	return (organism->getUMLModel()->relativeMoveExpressionR(-1));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveExpressionR(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getUMLModel()->absoluteMoveExpressionR(jump_amount));
+}
+
+bool cHardwareCPU::Inst_ANDExpressions(cAvidaContext& ctx)
+{	
+	return (organism->getUMLModel()->ANDExpressions());
+}
+
+bool cHardwareCPU::Inst_ORExpressions(cAvidaContext& ctx)
+{
+	return (organism->getUMLModel()->ORExpressions());
+}
+  
+  

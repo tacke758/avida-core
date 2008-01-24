@@ -79,6 +79,7 @@ public:
 	int numUniversalPropertySuccess() { return m_universal_property_success; }
 	int numUniversalPropertyFailure() { return m_universal_property_failure; }
 	int numUniversalPropertyTotal() { return m_universal_property_success + m_universal_property_failure; }	
+	int propertySize() { return mdeprops.size(); }
 	
 	void resetPropertyReward() { m_property_reward = 0; }
 	void addPropertyReward(float x) { m_property_reward += x; }
@@ -90,7 +91,7 @@ public:
 	float addExistenceProperty(std::string);
 	float addAbsenceProperty(std::string);
 	float addUniversalProperty(std::string);
-	void addExpression(std::string s) { expressions.push_back(s); }
+	bool addExpression(std::string s);  
 	void createExpressionsFromClasses();
 	std::string StringifyAnInt(int);
 	template <typename T>
@@ -132,7 +133,13 @@ public:
 	std::string getR() { return expressions[expression_r]; }
 	bool relativeMoveExpressionP(int x) { return relativeMoveIndex(expressions, expression_p, x); }
 	bool absoluteMoveExpressionP(int x) { return absoluteMoveIndex(expressions, expression_p, x); }
-
+	bool relativeMoveExpressionQ(int x) { return relativeMoveIndex(expressions, expression_q, x); }
+	bool absoluteMoveExpressionQ(int x) { return absoluteMoveIndex(expressions, expression_q, x); }
+	bool relativeMoveExpressionR(int x) { return relativeMoveIndex(expressions, expression_r, x); }
+	bool absoluteMoveExpressionR(int x) { return absoluteMoveIndex(expressions, expression_r, x); }
+	
+	bool ANDExpressions();
+	bool ORExpressions();
 	
 	// check if the model is ready for hydra
 	bool readyForHydra(); 

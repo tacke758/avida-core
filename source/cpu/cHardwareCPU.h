@@ -649,11 +649,22 @@ private:
   bool Inst_AbsenceProperty(cAvidaContext& ctx);
   bool Inst_UniversialityProperty(cAvidaContext& ctx);
   bool Inst_ExistenceProperty(cAvidaContext& ctx);
+  
+  bool Inst_ANDExpressions(cAvidaContext& ctx);
+  bool Inst_ORExpressions(cAvidaContext& ctx);  
     
   bool Inst_RelativeMoveExpressionP(cAvidaContext& ctx);
   bool Inst_NextExpressionP(cAvidaContext& ctx);
   bool Inst_PrevExpressionP(cAvidaContext& ctx);
   bool Inst_AbsoluteMoveExpressionP(cAvidaContext& ctx);
+  bool Inst_RelativeMoveExpressionQ(cAvidaContext& ctx);
+  bool Inst_NextExpressionQ(cAvidaContext& ctx);
+  bool Inst_PrevExpressionQ(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveExpressionQ(cAvidaContext& ctx);
+  bool Inst_RelativeMoveExpressionR(cAvidaContext& ctx);
+  bool Inst_NextExpressionR(cAvidaContext& ctx);
+  bool Inst_PrevExpressionR(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveExpressionR(cAvidaContext& ctx);
 //  bool 
 };
 

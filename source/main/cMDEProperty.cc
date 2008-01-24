@@ -87,7 +87,8 @@ void cMDEProperty::evaluate() {
 		system(cmd.c_str());
 	}
 	
-	_reward = wit_reward + verify_reward;
+//	_reward = wit_reward + verify_reward;
+	_reward = verify_reward;
 	
 }
 

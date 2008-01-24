@@ -68,8 +68,6 @@ void cMDEAbsenceProperty::evaluate()
 	std::string cmd;
 	std::string work_prop = "properties_that_passed";
 
-	
-	
 		// if this property passed, then save it to a file
 	if (verify_reward) { 
 		cmd = "cat property >> " + work_prop;
