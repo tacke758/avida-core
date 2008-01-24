@@ -231,6 +231,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cSpatialCountElem.cc
   ${MAIN_DIR}/cSpatialResCount.cc
   ${MAIN_DIR}/cUMLModel.cc
+  ${MAIN_DIR}/cUMLClass.cc
   ${MAIN_DIR}/cUMLStateDiagram.cc
   ${MAIN_DIR}/cMDEProperty.cc
   ${MAIN_DIR}/cMDEExistenceProperty.cc
