@@ -541,6 +541,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "Add a universality property"),						
 	tInstLibEntry<tMethod>("prop-ex", &cHardwareCPU::Inst_ExistenceProperty, false, 
 							 "Add an existence property"),	
+	tInstLibEntry<tMethod>("prop-prec", &cHardwareCPU::Inst_PrecedenceProperty, false, 
+							 "Add a precedence property"),						
+	tInstLibEntry<tMethod>("prop-resp", &cHardwareCPU::Inst_ResponseProperty, false, 
+							 "Add a response property"),
 	tInstLibEntry<tMethod>("move-rel-p", &cHardwareCPU::Inst_RelativeMoveExpressionP, false, 
 							 "Relative move p"),		
 	tInstLibEntry<tMethod>("move-abs-p", &cHardwareCPU::Inst_AbsoluteMoveExpressionP, false, 
@@ -5153,6 +5157,37 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	return val;
 } 
 
+bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
+{
+	float val = 0;
+	// Call a function on the model to create this property.
+	std::string p = organism->getUMLModel()->getP();
+	std::string q = organism->getUMLModel()->getQ();
+	
+	if (p != "<null>" && q != "<null>") {
+		val = m_world->GetPopulation().getUMLModel()->addPrecedenceProperty(p, q);
+	}
+	
+	organism->getUMLModel()->addPropertyReward(val);
+	
+	return val;
+} 
+
+bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
+{
+	float val = 0;
+	// Call a function on the model to create this property.
+	std::string p = organism->getUMLModel()->getP();
+	std::string q = organism->getUMLModel()->getQ();
+	
+	if (p != "<null>" && q != "<null>") {
+		val = m_world->GetPopulation().getUMLModel()->addResponseProperty(p, q);
+	}
+	
+	organism->getUMLModel()->addPropertyReward(val);
+	
+	return val;
+} 
 
 bool cHardwareCPU::Inst_RelativeMoveExpressionP(cAvidaContext& ctx) 
 {

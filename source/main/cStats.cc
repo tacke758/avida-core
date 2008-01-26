@@ -1012,6 +1012,9 @@ void cStats::PrintPropertyData(const cString& filename)
 {
 	
 	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment( "Avida uml properties\n" );
+	df.WriteTimeStamp();
+	df.Write( GetUpdate(), "update" );
 	df.Write( m_propertySuccess, "total number of properties that passed" );
 	df.Write( m_propertyFailure, "total number of properties that failed" );
 	df.Write( m_propertyTotal, "total number of properties" );
@@ -1024,7 +1027,12 @@ void cStats::PrintPropertyData(const cString& filename)
 	df.Write( m_existPropertySuccess, "existence properties that passed" );
 	df.Write( m_existPropertyFailure, "existence properties that failed" );
 	df.Write( m_existPropertyTotal, "total number of existence properties" ); 
-	
+	df.Write( m_precPropertySuccess, "precedence properties that passed" );
+	df.Write( m_precPropertyFailure, "precedence properties that failed" );
+	df.Write( m_precPropertyTotal, "total number of precedence properties" ); 
+	df.Write( m_respPropertySuccess, "response properties that passed" );
+	df.Write( m_respPropertyFailure, "response properties that failed" );
+	df.Write( m_respPropertyTotal, "total number of response properties" ); 
 
 	df.Endl();
 

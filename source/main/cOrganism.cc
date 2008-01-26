@@ -690,6 +690,12 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	m_world->GetStats().existPropSuccess(pop_model->numExistencePropertySuccess());
 	m_world->GetStats().existPropFailure(pop_model->numExistencePropertyFailure());
 	m_world->GetStats().existPropTotal(pop_model->numExistencePropertyTotal());
+	m_world->GetStats().precPropSuccess(pop_model->numPrecedencePropertySuccess());
+	m_world->GetStats().precPropFailure(pop_model->numPrecedencePropertyFailure());
+	m_world->GetStats().precPropTotal(pop_model->numPrecedencePropertyTotal());
+	m_world->GetStats().respPropSuccess(pop_model->numResponsePropertySuccess());
+	m_world->GetStats().respPropFailure(pop_model->numResponsePropertyFailure());
+	m_world->GetStats().respPropTotal(pop_model->numResponsePropertyTotal());	
 //	int x = pop_model->propertySize();
 //	int y = pop_model->numTotalProperty();
 	

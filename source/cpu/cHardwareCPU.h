@@ -649,6 +649,8 @@ private:
   bool Inst_AbsenceProperty(cAvidaContext& ctx);
   bool Inst_UniversialityProperty(cAvidaContext& ctx);
   bool Inst_ExistenceProperty(cAvidaContext& ctx);
+  bool Inst_ResponseProperty(cAvidaContext& ctx);
+  bool Inst_PrecedenceProperty(cAvidaContext& ctx);
   
   bool Inst_ANDExpressions(cAvidaContext& ctx);
   bool Inst_ORExpressions(cAvidaContext& ctx);  

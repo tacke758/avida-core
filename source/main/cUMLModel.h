@@ -7,6 +7,8 @@
 #include "cMDEExistenceProperty.h"
 #include "cMDEAbsenceProperty.h"
 #include "cMDEUniversalProperty.h"
+#include "cMDEResponseProperty.h"
+#include "cMDEPrecedenceProperty.h"
 
 #include <string>
 #include <iostream>
@@ -75,10 +77,20 @@ public:
 	int numAbsencePropertyTotal() { return m_absence_property_success + m_absence_property_failure; }
 	int numExistencePropertySuccess() { return m_existence_property_success; }
 	int numExistencePropertyFailure() { return m_existence_property_failure; }
-	int numExistencePropertyTotal() { return m_existence_property_success + m_existence_property_failure; }
+	int numExistencePropertyTotal() { 
+		return m_existence_property_success + m_existence_property_failure; }
 	int numUniversalPropertySuccess() { return m_universal_property_success; }
 	int numUniversalPropertyFailure() { return m_universal_property_failure; }
-	int numUniversalPropertyTotal() { return m_universal_property_success + m_universal_property_failure; }	
+	int numUniversalPropertyTotal() { 
+		return m_universal_property_success + m_universal_property_failure; }	
+	int numPrecedencePropertySuccess() { return m_precedence_property_success; }
+	int numPrecedencePropertyFailure() { return m_precedence_property_failure; }
+	int numPrecedencePropertyTotal() { 
+		return m_precedence_property_success + m_precedence_property_failure; }	
+	int numResponsePropertySuccess() { return m_response_property_success; }
+	int numResponsePropertyFailure() { return m_response_property_failure; }
+	int numResponsePropertyTotal() { return m_response_property_success + m_response_property_failure; }	
+	
 	int propertySize() { return mdeprops.size(); }
 	
 	void resetPropertyReward() { m_property_reward = 0; }
@@ -91,6 +103,9 @@ public:
 	float addExistenceProperty(std::string);
 	float addAbsenceProperty(std::string);
 	float addUniversalProperty(std::string);
+	float addResponseProperty(std::string, std::string);
+	float addPrecedenceProperty(std::string, std::string);
+
 	bool addExpression(std::string s);  
 	void createExpressionsFromClasses();
 	std::string StringifyAnInt(int);
@@ -172,6 +187,10 @@ protected:
 	int m_existence_property_failure;
 	int m_universal_property_success;
 	int m_universal_property_failure;
+	int m_precedence_property_success;
+	int m_precedence_property_failure;
+	int m_response_property_success;
+	int m_response_property_failure;
 	float m_property_reward;
 	
 

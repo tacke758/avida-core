@@ -190,6 +190,10 @@ cUMLModel::cUMLModel(const char* seed_model) {
   m_existence_property_failure =0;
   m_universal_property_success =0;
   m_universal_property_failure =0;
+  m_precedence_property_success =0;
+  m_precedence_property_failure =0;
+  m_response_property_success =0;
+  m_response_property_failure =0;
 }
 
 
@@ -630,6 +634,61 @@ bool cUMLModel::ORExpressions()
 		totalstring = pstring + " || " + qstring;
 		val = addExpression(totalstring); 
 	}
-	return (val);}
+	return (val);
+}
+
+float cUMLModel::addResponseProperty(std::string s1, std::string s2)
+{
+	// a pointer to the universal property
+	std::string temp = StringifyAnInt(mdeprops.size());
+	float val = 0;	
+	cMDEResponseProperty* e = new cMDEResponseProperty(s1, s2, temp);
+	//	mdeprops.insert (e);
+	//int q = mdeprops.size();
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+	} else {
+		e->evaluate();
+		val = e->getEvaluationInformation();
+		mdeprops.insert (e);
+		if (val >0) {
+			m_property_success++;
+			m_response_property_success++;
+		} else { 
+			m_property_failure++;
+			m_response_property_failure++;
+		}
+	}
+	return val;
+}
+
+float cUMLModel::addPrecedenceProperty(std::string s1, std::string s2)
+{
+	// a pointer to the universal property
+	std::string temp = StringifyAnInt(mdeprops.size());
+	float val = 0;	
+	cMDEPrecedenceProperty* e = new cMDEPrecedenceProperty(s1, s2, temp);
+	//	mdeprops.insert (e);
+	//int q = mdeprops.size();
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+	} else {
+		e->evaluate();
+		val = e->getEvaluationInformation();
+		mdeprops.insert (e);
+		if (val >0) {
+			m_property_success++;
+			m_precedence_property_success++;
+		} else { 
+			m_property_failure++;
+			m_precedence_property_failure++;
+		}
+	}
+	return val;	
+	
+}
+
 	
 

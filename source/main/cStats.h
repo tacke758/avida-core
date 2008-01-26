@@ -283,6 +283,12 @@ private:
   int m_existPropertySuccess; 
   int m_existPropertyFailure; 
   int m_existPropertyTotal; 
+  int m_precPropertySuccess; 
+  int m_precPropertyFailure; 
+  int m_precPropertyTotal; 
+  int m_respPropertySuccess; 
+  int m_respPropertyFailure; 
+  int m_respPropertyTotal; 
     
 
   
@@ -691,7 +697,12 @@ public:
   void existPropSuccess(int x) {m_existPropertySuccess =x; }
   void existPropFailure(int x) {m_existPropertyFailure =x;}
   void existPropTotal(int x)  {m_existPropertyTotal =x;}
-      
+  void precPropSuccess(int x) {m_precPropertySuccess =x; }
+  void precPropFailure(int x) {m_precPropertyFailure =x;}
+  void precPropTotal(int x)  {m_precPropertyTotal =x;}
+  void respPropSuccess(int x) {m_respPropertySuccess =x; }
+  void respPropFailure(int x) {m_respPropertyFailure =x;}
+  void respPropTotal(int x)  {m_respPropertyTotal =x;}
 
   
   
