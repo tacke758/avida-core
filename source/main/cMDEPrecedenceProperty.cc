@@ -15,6 +15,9 @@ void cMDEPrecedenceProperty::print() {
 	outfile.open ("property");
 	assert(outfile.is_open());
 	
+	outfile << "/* Precedence property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
+	outfile << "#define s (" << _expr_q << ")" << std::endl;
+	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never {    /*  !(([](!p)) || ((!p) U  s))  */" << std::endl;
 	outfile << "T0_init:" << std::endl;
 	outfile << "if" << std::endl;

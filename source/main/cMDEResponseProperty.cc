@@ -17,7 +17,7 @@ void cMDEResponseProperty::print() {
 	assert(outfile.is_open());
 	
 	outfile << "/* Response property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
-	outfile << "#define q (" << _expr_q << ")" << std::endl;
+	outfile << "#define s (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never {  /*  !([](p -> <>s))  */ " << std::endl;
 	outfile << "T0_init:" << std::endl;
@@ -41,6 +41,7 @@ void cMDEResponseProperty::printWitness() {
 	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
+	outfile << "/* Response property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
 	outfile << "#define s (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never {    /* !(!(<>(p && <>s))) */" << std::endl;
