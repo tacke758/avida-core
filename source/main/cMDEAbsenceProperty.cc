@@ -70,9 +70,23 @@ void cMDEAbsenceProperty::evaluate()
 
 		// if this property passed, then save it to a file
 	if (verify_reward) { 
-		cmd = "cat property >> " + work_prop;
+		cmd = "cat english-property >> " + work_prop;
 		system(cmd.c_str());
 	}
 	
 	_reward = verify_reward;
+}
+
+
+void cMDEAbsenceProperty::printInEnglish() {
+	
+	std::ofstream outfile;
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
+	assert(outfile.is_open());
+	
+	outfile << "Globally, it is never the case that " << _expr_p  << " holds." << std::endl << std::endl;
+	
+	outfile.close();
+	
 }

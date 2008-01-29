@@ -29,6 +29,7 @@ public:
 
 	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
 	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	void printInEnglish();
 	std::string getPropertyType() { return "Existence"; } 
 	std::string getPropertyParameters() { return _expr_p; }
 

@@ -32,6 +32,7 @@ public:
 
 	void print(); 
 	void printWitness(); 
+	void printInEnglish();
 	std::string getPropertyType() { return "Precedence"; } 
 	std::string getPropertyParameters() { return (_expr_p + " " + _expr_q); }
 

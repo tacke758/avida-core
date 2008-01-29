@@ -63,3 +63,17 @@ void cMDEResponseProperty::printWitness() {
 	
 }
 
+
+void cMDEResponseProperty::printInEnglish() {
+	
+	std::ofstream outfile;
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
+	assert(outfile.is_open());
+	
+	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
+	outfile << "then "<< _expr_q << " eventually holds." << std::endl << std::endl;
+	
+	outfile.close();
+	
+}

@@ -82,8 +82,9 @@ void cMDEProperty::evaluate() {
 	
 	// if this property passed, then save it to a file
 	if (verify_reward) { 
+		printInEnglish();
 //		cmd = "cat " + _name + " >> " + work_prop;
-		cmd = "cat property >> " + work_prop;
+		cmd = "cat english-property >> " + work_prop;
 		system(cmd.c_str());
 	}
 	

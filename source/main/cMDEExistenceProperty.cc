@@ -50,3 +50,15 @@ void cMDEExistenceProperty::printWitness() {
 	
 }
 
+void cMDEExistenceProperty::printInEnglish() {
+	
+	std::ofstream outfile;
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
+	assert(outfile.is_open());
+	
+	outfile << "Globally, " << _expr_p  << " eventually holds." << std::endl<< std::endl;
+	
+	outfile.close();
+	
+}

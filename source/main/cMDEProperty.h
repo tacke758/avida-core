@@ -21,6 +21,7 @@ public:
 	// A function that prints the property to a file.
 	virtual void print() = 0;
 	virtual void printWitness() = 0;
+	virtual void printInEnglish() =0;
 	virtual std::string getPropertyType() = 0;
 	virtual std::string getPropertyParameters() { return ""; } 
 	

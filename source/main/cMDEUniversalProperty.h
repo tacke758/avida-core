@@ -26,6 +26,7 @@ public:
 	virtual ~cMDEUniversalProperty() {}
 	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
 	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	void printInEnglish();
 	void evaluate();
 	std::string getPropertyType() { return "Universal"; } 
 	std::string getPropertyParameters() { return _expr_p; }
