@@ -5164,7 +5164,7 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 	std::string p = organism->getUMLModel()->getP();
 	std::string q = organism->getUMLModel()->getQ();
 	
-	if ((p != "<null>") && (q != "<null>")) {
+	if (p != q) {
 		val = m_world->GetPopulation().getUMLModel()->addPrecedenceProperty(p, q);
 	}
 	
@@ -5180,7 +5180,7 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 	std::string p = organism->getUMLModel()->getP();
 	std::string q = organism->getUMLModel()->getQ();
 	
-	if ((p != "<null>") && (q != "<null>")) {
+	if (p != q) {
 		val = m_world->GetPopulation().getUMLModel()->addResponseProperty(p, q);
 	}
 	

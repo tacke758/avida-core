@@ -22,7 +22,7 @@ void cMDEResponseProperty::print() {
 	outfile << "never {  /*  !([](p -> <>s))  */ " << std::endl;
 	outfile << "T0_init:" << std::endl;
 	outfile << "if" << std::endl;
-	outfile << "(! ((s)) && (p)) -> goto accept_S4" << std::endl;
+	outfile << ":: (! ((s)) && (p)) -> goto accept_S4" << std::endl;
 	outfile << ":: (1) -> goto T0_init" << std::endl;
 	outfile << "fi;" << std::endl;
 	outfile << "accept_S4:" << std::endl;

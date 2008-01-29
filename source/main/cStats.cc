@@ -208,6 +208,26 @@ cStats::cStats(cWorld* world)
   }
   // End sense tracking initialization
   
+  // initialize UML property values
+  m_propertySuccess =0;
+  m_propertyFailure =0;
+  m_propertyTotal = 0;
+  m_absPropertySuccess =0; 
+  m_absPropertyFailure =0;
+  m_absPropertyTotal =0;
+  m_uniPropertySuccess =0; 
+  m_uniPropertyFailure =0;
+  m_uniPropertyTotal =0;
+  m_existPropertySuccess =0; 
+  m_existPropertyFailure =0; 
+  m_existPropertyTotal =0; 
+  m_precPropertySuccess =0; 
+  m_precPropertyFailure =0; 
+  m_precPropertyTotal =0; 
+  m_respPropertySuccess =0; 
+  m_respPropertyFailure =0; 
+  m_respPropertyTotal =0; 
+  
   genotype_map.Resize( m_world->GetConfig().WORLD_X.Get() * m_world->GetConfig().WORLD_Y.Get() );
   SetupPrintDatabase();
 }
