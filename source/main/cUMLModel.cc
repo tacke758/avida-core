@@ -444,16 +444,20 @@ float cUMLModel::addExistenceProperty(std::string s)
 	// a pointer to the existence property
 	std::string temp = StringifyAnInt(mdeprops.size());
 	float val = 0;
-	cMDEExistenceProperty* e = new cMDEExistenceProperty(s, temp);
+	//cMDEExistenceProperty* e = new cMDEExistenceProperty(s, temp);
+	
+	cMDEExistenceProperty e(s, temp);
+	
 	// first, try to find the property
 	//
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+//		delete e;
 	} else {
-		e->evaluate();
-		val = e->getEvaluationInformation();
-		mdeprops.insert (e);
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert(new cMDEExistenceProperty(e));
 		if (val >0) {
 				m_property_success++;
 				m_existence_property_success++;
@@ -471,16 +475,18 @@ float cUMLModel::addAbsenceProperty(std::string s)
 	// a pointer to the absence property
 	std::string temp = StringifyAnInt(mdeprops.size());
 	float val = 0;
-	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s, temp);
+//	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s, temp);
+	cMDEAbsenceProperty e(s, temp);
+	
 //	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 	} else {
-		e->evaluate();
-		val = e->getEvaluationInformation();
-		mdeprops.insert (e);
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert (new cMDEAbsenceProperty(e));
 		if (val >0) {
 				m_property_success++;
 				m_absence_property_success++;
@@ -499,16 +505,18 @@ float cUMLModel::addUniversalProperty(std::string s)
 	// a pointer to the universal property
 	std::string temp = StringifyAnInt(mdeprops.size());
 	float val = 0;	
-	cMDEUniversalProperty* e = new cMDEUniversalProperty(s, temp);
+//	cMDEUniversalProperty* e = new cMDEUniversalProperty(s, temp);
+	cMDEUniversalProperty e(s, temp);
+	
 //	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 	} else {
-		e->evaluate();
-		val = e->getEvaluationInformation();
-		mdeprops.insert (e);
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert (new cMDEUniversalProperty(e));
 		if (val >0) {
 				m_property_success++;
 				m_universal_property_success++;
@@ -642,16 +650,18 @@ float cUMLModel::addResponseProperty(std::string s1, std::string s2)
 	// a pointer to the universal property
 	std::string temp = StringifyAnInt(mdeprops.size());
 	float val = 0;	
-	cMDEResponseProperty* e = new cMDEResponseProperty(s1, s2, temp);
+//	cMDEResponseProperty* e = new cMDEResponseProperty(s1, s2, temp);
+	cMDEResponseProperty e(s1, s2, temp);
+	
 	//	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 	} else {
-		e->evaluate();
-		val = e->getEvaluationInformation();
-		mdeprops.insert (e);
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert (new cMDEResponseProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_response_property_success++;
@@ -668,16 +678,18 @@ float cUMLModel::addPrecedenceProperty(std::string s1, std::string s2)
 	// a pointer to the universal property
 	std::string temp = StringifyAnInt(mdeprops.size());
 	float val = 0;	
-	cMDEPrecedenceProperty* e = new cMDEPrecedenceProperty(s1, s2, temp);
+//	cMDEPrecedenceProperty* e = new cMDEPrecedenceProperty(s1, s2, temp);
+	cMDEPrecedenceProperty e(s1, s2, temp);
+	
 	//	mdeprops.insert (e);
 	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(e);
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 	} else {
-		e->evaluate();
-		val = e->getEvaluationInformation();
-		mdeprops.insert (e);
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert (new cMDEPrecedenceProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_precedence_property_success++;
