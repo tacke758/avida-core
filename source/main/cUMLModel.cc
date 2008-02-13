@@ -114,9 +114,9 @@ void seed_diagrams(const char* seed_model,
 		} else if (line == "==ATTRIBUTES==") {
 			line.erase();
 			infile >> att_name;
-			att_vals.clear();
 			while (att_name != "==END==") { 
 				infile >> att_type >> temp1 >> att_val;
+				att_vals.clear();
 			//	std::cout << "attribute " << att_name << " " << att_type << std::endl;
 				while (att_val != "]") { // && att_val != "==END=CLASS==") { 
 					att_vals.push_back(att_val);
@@ -566,6 +566,19 @@ void cUMLModel::createExpressionsFromClasses()
 				temp3 = temp1 + "!=" + temp2;
 				//std::cout << temp3 << std::endl;
 				addExpression(temp3, c.getAssociatedClasses());
+				
+				temp3 = temp1 + ">" + temp2;
+				addExpression(temp3, c.getAssociatedClasses());
+
+				temp3 = temp1 + "<" + temp2;
+				addExpression(temp3, c.getAssociatedClasses());
+				
+				temp3 = temp1 + ">=" + temp2;
+				addExpression(temp3, c.getAssociatedClasses());
+				
+				temp3 = temp1 + "<=" + temp2;
+				addExpression(temp3, c.getAssociatedClasses());
+				
 			}
 		}
 		
