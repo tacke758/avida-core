@@ -5107,7 +5107,7 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	float val = 0;
 	// Call a function on the model to create this property.
 	// Currently it just uses p
-	std::string s = organism->getUMLModel()->getP();
+	std::string s = organism->getUMLModel()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
@@ -5125,7 +5125,7 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 { 
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string s = organism->getUMLModel()->getP();
+	std::string s = organism->getUMLModel()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
@@ -5143,7 +5143,7 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string s = organism->getUMLModel()->getP();
+	std::string s = organism->getUMLModel()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
@@ -5161,8 +5161,8 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string p = organism->getUMLModel()->getP();
-	std::string q = organism->getUMLModel()->getQ();
+	std::string p = organism->getUMLModel()->getPstring();
+	std::string q = organism->getUMLModel()->getQstring();
 	
 	if (p != q) {
 		val = m_world->GetPopulation().getUMLModel()->addPrecedenceProperty(p, q);
@@ -5177,8 +5177,8 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string p = organism->getUMLModel()->getP();
-	std::string q = organism->getUMLModel()->getQ();
+	std::string p = organism->getUMLModel()->getPstring();
+	std::string q = organism->getUMLModel()->getQstring();
 	
 	if (p != q) {
 		val = m_world->GetPopulation().getUMLModel()->addResponseProperty(p, q);

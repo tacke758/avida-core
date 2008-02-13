@@ -36,7 +36,7 @@ class cUMLClass{
 	
 public:
 	void addOperation(std::string, std::string);
-	void addAssociatedClass(std::string s) { associated_class_names.push_back(s); }
+	void addAssociatedClass(std::string s) { associated_class_names.insert(s); }
 	void addAttribute(std::string, std::string, std::vector<std::string>);
 	void addClassName(std::string s) { name = s; }
 	
@@ -45,10 +45,11 @@ public:
 	int numOperations() { return operations.size(); }
 	class_attribute getAttribute(int i) { return attributes[i]; }
 	operation getOperation(int i) { return operations[i]; }
+	std::set<std::string> getAssociatedClasses() { return associated_class_names; }
 	
 		
 protected:
-	std::vector<std::string> associated_class_names;
+	std::set<std::string> associated_class_names;
 	std::vector<operation> operations;
 	std::vector<class_attribute> attributes;
 	std::string name;

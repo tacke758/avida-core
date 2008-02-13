@@ -9,6 +9,7 @@
 #include "cMDEUniversalProperty.h"
 #include "cMDEResponseProperty.h"
 #include "cMDEPrecedenceProperty.h"
+#include "cMDEExpression.h"
 
 #include <string>
 #include <iostream>
@@ -106,8 +107,9 @@ public:
 	float addResponseProperty(std::string, std::string);
 	float addPrecedenceProperty(std::string, std::string);
 
-	bool addExpression(std::string s);  
+	bool addExpression(std::string, std::set<std::string>);  
 	void createExpressionsFromClasses();
+	void printExpressions();
 	std::string StringifyAnInt(int);
 	template <typename T>
 		bool absoluteMoveIndex (T x, int &y, int z)
@@ -143,9 +145,12 @@ public:
 			}	
 			return true;
 	}	
-	std::string getP(); // { return expressions[expression_p]; } 
-	std::string getQ() { return expressions[expression_q]; }
-	std::string getR() { return expressions[expression_r]; }
+	cMDEExpression getP() { return expressions[expression_p]; } 
+	cMDEExpression getQ() { return (expressions[expression_q]);  }
+	cMDEExpression getR() { return (expressions[expression_r]); }
+	std::string getPstring() { return (expressions[expression_p]).getExpr(); } 
+	std::string getQstring() { return (expressions[expression_q]).getExpr();  }
+	std::string getRstring() { return (expressions[expression_r]).getExpr(); }
 	bool relativeMoveExpressionP(int x) { return relativeMoveIndex(expressions, expression_p, x); }
 	bool absoluteMoveExpressionP(int x) { return absoluteMoveIndex(expressions, expression_p, x); }
 	bool relativeMoveExpressionQ(int x) { return relativeMoveIndex(expressions, expression_q, x); }
@@ -195,7 +200,7 @@ protected:
 	
 
 	// vector of expressions
-	std::vector<std::string> expressions;
+	std::vector<cMDEExpression> expressions;
 	
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
