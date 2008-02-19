@@ -703,6 +703,7 @@ public:
   void respPropSuccess(int x) {m_respPropertySuccess =x; }
   void respPropFailure(int x) {m_respPropertyFailure =x;}
   void respPropTotal(int x)  {m_respPropertyTotal =x;}
+  int getPropTotal () { return m_propertyTotal; }
 
   
   
