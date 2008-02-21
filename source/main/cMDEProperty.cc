@@ -62,6 +62,7 @@ void cMDEProperty::evaluate() {
 	float verify_reward = 0;
 	std::string cmd;
 	std::string work_prop = "properties_that_passed";
+	_count =1;
 
 	
 	// print the witness property

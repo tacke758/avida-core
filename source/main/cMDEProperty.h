@@ -41,6 +41,8 @@ public:
 	std::string getMDEPropertyName() { return _name; } 
 	void setEvaluationInformation (float eval) { _reward = eval; }
 	float getEvaluationInformation() { return _reward; }
+	void incCount() { _count++; }
+	int getCount() {return _count; }
 		
 protected:
 	std::string _name;
@@ -50,6 +52,7 @@ protected:
 	std::string _witness_file_name; // = "tmp-witness.pr";
 	std::string _properties; // = "properties_that_passed";
 	std::string _promela; 
+	int _count; 
 	
 };
 

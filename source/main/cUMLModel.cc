@@ -467,6 +467,7 @@ float cUMLModel::addExistenceProperty(std::string s)
 		}
 	}
 	
+	val = (val / e.getCount()); 
 	return val;
 }
 
@@ -496,6 +497,7 @@ float cUMLModel::addAbsenceProperty(std::string s)
 		}
 	}
 	
+	val = (val / e.getCount()); 
 	return val;
 	
 }
@@ -526,6 +528,7 @@ float cUMLModel::addUniversalProperty(std::string s)
 		}
 	}
 	
+	val = (val / e.getCount()); 
 	return val;
 	
 }
@@ -708,6 +711,8 @@ float cUMLModel::addResponseProperty(std::string s1, std::string s2)
 			m_response_property_failure++;
 		}
 	}
+	
+	val = (val / e.getCount()); 
 	return val;
 }
 
@@ -736,6 +741,8 @@ float cUMLModel::addPrecedenceProperty(std::string s1, std::string s2)
 			m_precedence_property_failure++;
 		}
 	}
+	
+	val = (val / e.getCount()); 
 	return val;	
 	
 }

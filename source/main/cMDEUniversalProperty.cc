@@ -70,6 +70,8 @@ bool cMDEUniversalProperty::printWitness() {
 void cMDEUniversalProperty::evaluate()
 {
 	float verify_reward = 0;
+	_count =1;
+
 	
 	// print the property
 	print();

@@ -69,6 +69,8 @@ bool cMDEAbsenceProperty::printWitness() {
 void cMDEAbsenceProperty::evaluate()
 {
 	float verify_reward = 0;
+	_count =1;
+
 	
 	// print the property
 	print();
