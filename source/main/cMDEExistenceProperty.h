@@ -23,13 +23,18 @@ class cMDEExistenceProperty : public cMDEProperty{
 	
 public:
 	cMDEExistenceProperty(std::string expr, std::string q) { _expr_p = expr; 
-		_name = ("Existence" + q); _reward = -1;}
+		_name = ("Existence" + q); _reward = -1;
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
+	}
 	
 	virtual ~cMDEExistenceProperty() {}
 
-	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	void printInEnglish();
+	bool print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	bool printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	bool printInEnglish();
 	std::string getPropertyType() { return "Existence"; } 
 	std::string getPropertyParameters() { return _expr_p; }
 

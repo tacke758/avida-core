@@ -26,13 +26,17 @@ public:
 		_expr_p = p;
 		_expr_q = q;
 		_name = ("Response" + r); _reward = -1;
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
 	}
 	
 	virtual ~cMDEResponseProperty() {}
 
-	void print(); 
-	void printWitness(); 
-	void printInEnglish();
+	bool print(); 
+	bool printWitness(); 
+	bool printInEnglish();
 	std::string getPropertyType() { return "Response"; } 
 	std::string getPropertyParameters() { return (_expr_p + " " + _expr_q); }
 

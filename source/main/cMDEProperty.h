@@ -11,17 +11,23 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include<fstream>
 
 
 
 class cMDEProperty{
 	
 public:
-	virtual ~cMDEProperty() {}
+	virtual ~cMDEProperty() {
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
+	}
 	// A function that prints the property to a file.
-	virtual void print() = 0;
-	virtual void printWitness() = 0;
-	virtual void printInEnglish() =0;
+	virtual bool print() = 0;
+	virtual bool printWitness() = 0;
+	virtual bool printInEnglish() =0;
 	virtual std::string getPropertyType() = 0;
 	virtual std::string getPropertyParameters() { return ""; } 
 	
@@ -40,6 +46,10 @@ protected:
 	std::string _name;
 	std::string _scope;
 	float _reward;
+	std::string _property_file_name; // = "tmp-property.pr"; 
+	std::string _witness_file_name; // = "tmp-witness.pr";
+	std::string _properties; // = "properties_that_passed";
+	std::string _promela; 
 	
 };
 

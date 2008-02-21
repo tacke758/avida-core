@@ -544,6 +544,7 @@ void cUMLModel::createExpressionsFromClasses()
 	cUMLClass c;
 	int temp_size;
 	std::string temp1, temp2, temp3;
+	std::string at_type;
 	
 	// For each class, create its set of expressions. 
 	for (unsigned int i=0; i<classes.size(); i++) { 
@@ -555,30 +556,44 @@ void cUMLModel::createExpressionsFromClasses()
 		for (int j=0; j<temp_size; j++) {
 			a = c.getAttribute(j);
 			temp1 = class_name + "_V." + a.attribute_name;
+			at_type = a.attribute_type;
 			
-			// For each attribute value
-			for (unsigned int k=0; k<a.attribute_values.size(); k++){
-				// create both an equality and an inequality expression
-				temp2 = a.attribute_values[k];
-				temp3 = temp1 + "==" + temp2;
-				addExpression(temp3, c.getAssociatedClasses());
-				//std::cout << temp3 << std::endl;
-				temp3 = temp1 + "!=" + temp2;
-				//std::cout << temp3 << std::endl;
-				addExpression(temp3, c.getAssociatedClasses());
+			if ((at_type == "int") || (at_type == "integer")) {
+				// For each attribute value
+				for (unsigned int k=0; k<a.attribute_values.size(); k++){
+					// create both an equality and an inequality expression
+					temp2 = a.attribute_values[k];
+					temp3 = temp1 + "==" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
+					//std::cout << temp3 << std::endl;
+					temp3 = temp1 + "!=" + temp2;
+					//std::cout << temp3 << std::endl;
+					addExpression(temp3, c.getAssociatedClasses());
 				
-				temp3 = temp1 + ">" + temp2;
-				addExpression(temp3, c.getAssociatedClasses());
+					temp3 = temp1 + ">" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
 
-				temp3 = temp1 + "<" + temp2;
-				addExpression(temp3, c.getAssociatedClasses());
+					temp3 = temp1 + "<" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
 				
-				temp3 = temp1 + ">=" + temp2;
-				addExpression(temp3, c.getAssociatedClasses());
+					temp3 = temp1 + ">=" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
 				
-				temp3 = temp1 + "<=" + temp2;
-				addExpression(temp3, c.getAssociatedClasses());
+					temp3 = temp1 + "<=" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
 				
+				}
+			} else if ((at_type == "bool")||(at_type == "boolean")) {
+				for (unsigned int k=0; k<a.attribute_values.size(); k++){
+					// create both an equality and an inequality expression
+					temp2 = a.attribute_values[k];
+					temp3 = temp1 + "==" + temp2;
+					addExpression(temp3, c.getAssociatedClasses());
+					//std::cout << temp3 << std::endl;
+					temp3 = temp1 + "!=" + temp2;
+					//std::cout << temp3 << std::endl;
+					addExpression(temp3, c.getAssociatedClasses());
+				}
 			}
 		}
 		
@@ -637,7 +652,7 @@ bool cUMLModel::ANDExpressions()
 	if (expression_p != expression_q){
 		p = getP();
 		q = getQ();
-		totalstring = p.getExpr() + " && " + q.getExpr();
+		totalstring = "(" + p.getExpr() + " && " + q.getExpr() + ")";
 
 	//	classes = p.getRelatedClasses();
 	//	classes.insert(q.getRelatedClasses().begin(), q.getRelatedClasses().end());
@@ -662,7 +677,7 @@ bool cUMLModel::ORExpressions()
 		q = getQ();
 //		classes = p.getRelatedClasses();
 //		classes.insert(q.getRelatedClasses().begin(), q.getRelatedClasses().end());
-		totalstring = p.getExpr() + " || " + q.getExpr();
+		totalstring = "(" + p.getExpr() + " || " + q.getExpr() + ")";
 		val = addExpression(totalstring, classes); 
 	}
 	return (val);

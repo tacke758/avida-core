@@ -22,11 +22,16 @@ class cMDEAbsenceProperty : public cMDEProperty{
 	
 public:
 	cMDEAbsenceProperty(std::string expr, std::string q) { _expr_p = expr; 
-		_name = ("Absence" + q); _reward = -1; }
+		_name = ("Absence" + q); _reward = -1; 
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
+	}
 	virtual ~cMDEAbsenceProperty() {}
-	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	void printInEnglish();
+	bool print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	bool printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	bool printInEnglish();
 	void evaluate();
 	std::string getPropertyType() { return "Absence"; } 
 	std::string getPropertyParameters() { return _expr_p; }

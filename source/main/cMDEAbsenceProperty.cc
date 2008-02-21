@@ -9,13 +9,18 @@
 
 #include "cMDEAbsenceProperty.h"
 
-void cMDEAbsenceProperty::print() {
+bool cMDEAbsenceProperty::print() {
 	
+	// Create the file...
+	std::string cmd = "cp " + _promela + " " + _property_file_name;
+	if(system(cmd.c_str())!=0) return false;
+	
+	// Open the file in append mode...
 	std::ofstream outfile;
-//	outfile.open (_name.c_str());
-	outfile.open ("property");
+	outfile.open (_property_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
+	// Add the absence property to the end of the file...
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never { /* !([](!p)) */" << std::endl;
 	outfile << "T0_init :    /* init */" << std::endl;
@@ -28,15 +33,19 @@ void cMDEAbsenceProperty::print() {
 	outfile << "}" << std::endl;
 	
 	outfile.close();
+	return true;
 
 }
 
-void cMDEAbsenceProperty::printWitness() {
+bool cMDEAbsenceProperty::printWitness() {
 	
+	// Create the file
+	std::string cmd = "cp " + _promela + " " + _witness_file_name;
+	if(system(cmd.c_str())!=0) return false;
+	
+	// Open the file in append mode
 	std::ofstream outfile;
-//	std::string file_name= "w" + _name;
-	std::string file_name = "witness-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "/* Absence property " << _expr_p << "*/" << std::endl;
@@ -51,9 +60,8 @@ void cMDEAbsenceProperty::printWitness() {
 	outfile << "skip " << std::endl;
 	outfile << "}" << std::endl;
 	
-
-	
 	outfile.close();
+	return true;
 	
 }
 
@@ -70,23 +78,24 @@ void cMDEAbsenceProperty::evaluate()
 
 		// if this property passed, then save it to a file
 	if (verify_reward) { 
-		cmd = "cat english-property >> " + work_prop;
-		system(cmd.c_str());
+//		cmd = "cat english-property >> " + work_prop;
+//		system(cmd.c_str());
+		printInEnglish();
 	}
 	
 	_reward = verify_reward;
 }
 
 
-void cMDEAbsenceProperty::printInEnglish() {
+bool cMDEAbsenceProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	std::string file_name = "english-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_properties.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "Globally, it is never the case that " << _expr_p  << " holds." << std::endl << std::endl;
 	
 	outfile.close();
+	return true;
 	
 }
