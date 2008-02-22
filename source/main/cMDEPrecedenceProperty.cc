@@ -9,19 +9,12 @@
 
 #include "cMDEPrecedenceProperty.h"
 
-bool cMDEPrecedenceProperty::print() {
+void cMDEPrecedenceProperty::print() {
 	
-	// Create the file...
-	std::string cmd = "cp " + _promela + " " + _property_file_name;
-	if(system(cmd.c_str())!=0) return false;
-	
-	// Open the file in append mode...
 	std::ofstream outfile;
-	outfile.open (_property_file_name.c_str(), std::ios_base::app);
+	outfile.open ("property");
 	assert(outfile.is_open());
 	
-	
-	// Add the precedence property to the end of the file...
 	outfile << "/* Precedence property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
 	outfile << "#define s (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -52,22 +45,16 @@ bool cMDEPrecedenceProperty::print() {
 	outfile << "skip }" << std::endl;
 	
 	outfile.close();
-	return true;
 
 }
 
-bool cMDEPrecedenceProperty::printWitness() {
+void cMDEPrecedenceProperty::printWitness() {
 	
-	// Create the file
-	std::string cmd = "cp " + _promela + " " + _witness_file_name;
-	if(system(cmd.c_str())!=0) return false;
-	
-	// Open the file in append mode
 	std::ofstream outfile;
-	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
+	std::string file_name = "witness-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
-	// Add precedence property witness to the end of the file....
 	outfile << "/* Precedence property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
 	outfile << "#define q (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -87,21 +74,20 @@ bool cMDEPrecedenceProperty::printWitness() {
     outfile << "skip }" << std::endl;
 
 	outfile.close();
-	return true;
 	
 }
 
-bool cMDEPrecedenceProperty::printInEnglish() {
+void cMDEPrecedenceProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	outfile.open (_properties.c_str(), std::ios_base::app);
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
 	outfile << "then "<< _expr_q << " previously held." << std::endl << std::endl;
 	
 	outfile.close();
-	return true;
 	
 }
 

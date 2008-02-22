@@ -22,21 +22,17 @@
 class cMDEPrecedenceProperty : public cMDEProperty{
 	
 public:
-	cMDEPrecedenceProperty(std::string p, std::string q, std::string r) { 
+	cMDEPrecedenceProperty(std::string p, std::string q) { 
 		_expr_p = p;
 		_expr_q = q;
-		_name = ("Precedence" + r); _reward = -1;
-		_property_file_name = "tmp-property.pr"; 
-		_witness_file_name = "tmp-witness.pr";
-		_properties = "properties_that_passed";
-		_promela = "tmp.pr";
+		_reward = -1;
 	}
 	
 	virtual ~cMDEPrecedenceProperty() {}
 
-	bool print(); 
-	bool printWitness(); 
-	bool printInEnglish();
+	void print(); 
+	void printWitness(); 
+	void printInEnglish();
 	std::string getPropertyType() { return "Precedence"; } 
 	std::string getPropertyParameters() { return (_expr_p + " " + _expr_q); }
 

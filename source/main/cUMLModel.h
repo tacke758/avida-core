@@ -3,13 +3,7 @@
 
 #include "cUMLClass.h"
 #include "cUMLStateDiagram.h"
-#include "cMDEProperty.h"
-#include "cMDEExistenceProperty.h"
-#include "cMDEAbsenceProperty.h"
-#include "cMDEUniversalProperty.h"
-#include "cMDEResponseProperty.h"
-#include "cMDEPrecedenceProperty.h"
-#include "cMDEExpression.h"
+#include "cMDEPropertyGenerator.h"
 
 #include <string>
 #include <iostream>
@@ -70,47 +64,10 @@ public:
 	int numActions();
 	int numSDs();
 	int numSCs();
-	int numSuccess() { return m_property_success; } 
-	int numFailure() { return m_property_failure; }
-	int numTotalProperty() { return m_property_success + m_property_failure; }
-	int numAbsencePropertySuccess() { return m_absence_property_success; }
-	int numAbsencePropertyFailure() { return m_absence_property_failure; }
-	int numAbsencePropertyTotal() { return m_absence_property_success + m_absence_property_failure; }
-	int numExistencePropertySuccess() { return m_existence_property_success; }
-	int numExistencePropertyFailure() { return m_existence_property_failure; }
-	int numExistencePropertyTotal() { 
-		return m_existence_property_success + m_existence_property_failure; }
-	int numUniversalPropertySuccess() { return m_universal_property_success; }
-	int numUniversalPropertyFailure() { return m_universal_property_failure; }
-	int numUniversalPropertyTotal() { 
-		return m_universal_property_success + m_universal_property_failure; }	
-	int numPrecedencePropertySuccess() { return m_precedence_property_success; }
-	int numPrecedencePropertyFailure() { return m_precedence_property_failure; }
-	int numPrecedencePropertyTotal() { 
-		return m_precedence_property_success + m_precedence_property_failure; }	
-	int numResponsePropertySuccess() { return m_response_property_success; }
-	int numResponsePropertyFailure() { return m_response_property_failure; }
-	int numResponsePropertyTotal() { return m_response_property_success + m_response_property_failure; }	
-	
-	int propertySize() { return mdeprops.size(); }
-	
-	void resetPropertyReward() { m_property_reward = 0; }
-	void addPropertyReward(float x) { m_property_reward += x; }
-	float getPropertyReward() { return m_property_reward; }
-	
-	
-	
-	// Properties
-	float addExistenceProperty(std::string);
-	float addAbsenceProperty(std::string);
-	float addUniversalProperty(std::string);
-	float addResponseProperty(std::string, std::string);
-	float addPrecedenceProperty(std::string, std::string);
-
-	bool addExpression(std::string, std::set<std::string>);  
+	cMDEPropertyGenerator* getPropertyGenerator() { return gen; }
 	void createExpressionsFromClasses();
-	void printExpressions();
-	std::string StringifyAnInt(int);
+
+
 	template <typename T>
 		bool absoluteMoveIndex (T x, int &y, int z)
 	{
@@ -145,22 +102,7 @@ public:
 			}	
 			return true;
 	}	
-	cMDEExpression getP() { return expressions[expression_p]; } 
-	cMDEExpression getQ() { return (expressions[expression_q]);  }
-	cMDEExpression getR() { return (expressions[expression_r]); }
-	std::string getPstring() { return (expressions[expression_p]).getExpr(); } 
-	std::string getQstring() { return (expressions[expression_q]).getExpr();  }
-	std::string getRstring() { return (expressions[expression_r]).getExpr(); }
-	bool relativeMoveExpressionP(int x) { return relativeMoveIndex(expressions, expression_p, x); }
-	bool absoluteMoveExpressionP(int x) { return absoluteMoveIndex(expressions, expression_p, x); }
-	bool relativeMoveExpressionQ(int x) { return relativeMoveIndex(expressions, expression_q, x); }
-	bool absoluteMoveExpressionQ(int x) { return absoluteMoveIndex(expressions, expression_q, x); }
-	bool relativeMoveExpressionR(int x) { return relativeMoveIndex(expressions, expression_r, x); }
-	bool absoluteMoveExpressionR(int x) { return absoluteMoveIndex(expressions, expression_r, x); }
-	
-	bool ANDExpressions();
-	bool ORExpressions();
-	
+
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
@@ -178,30 +120,6 @@ protected:
 	std::vector<double> scenario_completion;
 	int hydraMode; 
 	bool witnessMode;
-	int expression_p;
-	int expression_q;
-	int expression_r;
-	
-	// set of properties.
-	std::set<cMDEProperty*, ltcMDEProperty> mdeprops;
-	int m_property_success;
-	int m_property_failure;
-	int m_absence_property_success;
-	int m_absence_property_failure;
-	int m_existence_property_success;
-	int m_existence_property_failure;
-	int m_universal_property_success;
-	int m_universal_property_failure;
-	int m_precedence_property_success;
-	int m_precedence_property_failure;
-	int m_response_property_success;
-	int m_response_property_failure;
-	float m_property_reward;
-	
-
-	// vector of expressions
-	std::vector<cMDEExpression> expressions;
-	
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
@@ -211,6 +129,8 @@ protected:
   static std::vector<scenario_info> _cfg_scenarios; //!< Scenarios as read from seed-model.cfg.
   static int _cfg_hydra_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
   static bool _cfg_witness_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
+  
+  cMDEPropertyGenerator* gen; 
 
 };
 

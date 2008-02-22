@@ -177,36 +177,16 @@ cUMLModel::cUMLModel(const char* seed_model) {
   scenarios = _cfg_scenarios;
   hydraMode = _cfg_hydra_mode; 
   witnessMode = _cfg_witness_mode;
-  expression_p = 0;
-  expression_q = 0;
-  expression_r = 0;
+  
+  // Initialize the property generator.
+  gen = new cMDEPropertyGenerator();
   createExpressionsFromClasses();
-  m_property_reward = 0;
-  m_property_success =0;
-  m_property_failure =0;
-  m_absence_property_success =0;
-  m_absence_property_failure =0;
-  m_existence_property_success =0;
-  m_existence_property_failure =0;
-  m_universal_property_success =0;
-  m_universal_property_failure =0;
-  m_precedence_property_success =0;
-  m_precedence_property_failure =0;
-  m_response_property_success =0;
-  m_response_property_failure =0;
 }
 
 
 cUMLModel::~cUMLModel()
 {
-	for( std::set<cMDEProperty*, ltcMDEProperty>::iterator it = mdeprops.begin(),
-		e = mdeprops.end(); it != e; )
-	{
-		cMDEProperty *p = *it;
-		mdeprops.erase(it++);
-		delete p;
-	}
-
+	delete gen;
 }
 
 float cUMLModel::getBonusInfo (std::string s)  
@@ -439,101 +419,6 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 }*/
 
 
-float cUMLModel::addExistenceProperty(std::string s)
-{
-	// a pointer to the existence property
-	std::string temp = StringifyAnInt(mdeprops.size());
-	float val = 0;
-	//cMDEExistenceProperty* e = new cMDEExistenceProperty(s, temp);
-	
-	cMDEExistenceProperty e(s, temp);
-	
-	// first, try to find the property
-	//
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-		e.incCount();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert(new cMDEExistenceProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_existence_property_success++;
-		} else { 
-			m_property_failure++;
-			m_existence_property_failure++;
-		}
-	}
-	
-	val = (val / e.getCount()); 
-	return val;
-}
-
-float cUMLModel::addAbsenceProperty(std::string s)
-{
-	// a pointer to the absence property
-	std::string temp = StringifyAnInt(mdeprops.size());
-	float val = 0;
-	//	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s, temp);
-	cMDEAbsenceProperty e(s, temp);
-	
-	//	mdeprops.insert (e);
-	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-		e.incCount();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEAbsenceProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_absence_property_success++;
-		} else { 
-			m_property_failure++;
-			m_absence_property_failure++;
-		}
-	}
-	
-	val = (val / e.getCount()); 
-	return val;
-	
-}
-
-float cUMLModel::addUniversalProperty(std::string s)
-{
-	// a pointer to the universal property
-	std::string temp = StringifyAnInt(mdeprops.size());
-	float val = 0;	
-	//	cMDEUniversalProperty* e = new cMDEUniversalProperty(s, temp);
-	cMDEUniversalProperty e(s, temp);
-	
-	//	mdeprops.insert (e);
-	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-		e.incCount();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEUniversalProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_universal_property_success++;
-		} else { 
-			m_property_failure++;
-			m_universal_property_failure++;
-		}
-	}
-	
-	val = (val / e.getCount()); 
-	return val;
-	
-}
 
 
 
@@ -569,23 +454,23 @@ void cUMLModel::createExpressionsFromClasses()
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
 					temp3 = temp1 + "==" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 					//std::cout << temp3 << std::endl;
 					temp3 = temp1 + "!=" + temp2;
 					//std::cout << temp3 << std::endl;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 				
 					temp3 = temp1 + ">" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 
 					temp3 = temp1 + "<" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 				
 					temp3 = temp1 + ">=" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 				
 					temp3 = temp1 + "<=" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 				
 				}
 			} else if ((at_type == "bool")||(at_type == "boolean")) {
@@ -593,11 +478,11 @@ void cUMLModel::createExpressionsFromClasses()
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
 					temp3 = temp1 + "==" + temp2;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 					//std::cout << temp3 << std::endl;
 					temp3 = temp1 + "!=" + temp2;
 					//std::cout << temp3 << std::endl;
-					addExpression(temp3, c.getAssociatedClasses());
+					gen->addExpression(temp3, c.getAssociatedClasses());
 				}
 			}
 		}
@@ -608,158 +493,11 @@ void cUMLModel::createExpressionsFromClasses()
 			o = c.getOperation(m);
 			temp1 = class_name;
 			temp3 = class_name + "_q??[" + o.op_name + "]";
-			addExpression(temp3, c.getAssociatedClasses());
+			gen->addExpression(temp3, c.getAssociatedClasses());
 			//std::cout << temp1 << std::endl;
 		}
 	}
 }
 
-
-
-// print the label. Change - signs to _
-std::string cUMLModel::StringifyAnInt(int x) { 
-	
-	std::ostringstream o;
-	if (x < 0) {
-		x = abs(x);
-		o << "_";
-	} 
-	o << x;
-	return o.str();
-}
-
-// Check if the expression exists in the vector. If not, add it.
-bool cUMLModel::addExpression(std::string s, std::set<std::string> t)
-{ 
-	bool val = false;
-	cMDEExpression e; 
-	e.setExpr(s);
-	e.setRelatedClasses(t);
-	std::vector<cMDEExpression>::iterator exprit;
-	exprit = find(expressions.begin(), expressions.end(), e); 
-	if (exprit == expressions.end()) { 
-		expressions.push_back(e); 
-		val = true;
-	} 
-	return val;
-}
-
-// AND expressions p & q to create a new expression
-// return true if this is a new expression
-// return false otherwise
-bool cUMLModel::ANDExpressions()
-{
-	bool val = false;
-	std::set<std::string> classes;
-	std::string totalstring;
-	cMDEExpression p, q;
-	
-	if (expression_p != expression_q){
-		p = getP();
-		q = getQ();
-		totalstring = "(" + p.getExpr() + " && " + q.getExpr() + ")";
-
-	//	classes = p.getRelatedClasses();
-	//	classes.insert(q.getRelatedClasses().begin(), q.getRelatedClasses().end());
-		val = addExpression(totalstring, classes); 
-	}
-	return (val);
-}
-
-// OR expressions p & q to create a new expression
-// return true if this is a new expression
-// return false otherwise
-bool cUMLModel::ORExpressions()
-{
-	
-	bool val = false;
-	std::set<std::string> classes;
-	std::string totalstring;
-	cMDEExpression p, q;
-
-	if (expression_p != expression_q){
-		p = getP();
-		q = getQ();
-//		classes = p.getRelatedClasses();
-//		classes.insert(q.getRelatedClasses().begin(), q.getRelatedClasses().end());
-		totalstring = "(" + p.getExpr() + " || " + q.getExpr() + ")";
-		val = addExpression(totalstring, classes); 
-	}
-	return (val);
-}
-
-float cUMLModel::addResponseProperty(std::string s1, std::string s2)
-{
-	// a pointer to the universal property
-	std::string temp = StringifyAnInt(mdeprops.size());
-	float val = 0;	
-	//	cMDEResponseProperty* e = new cMDEResponseProperty(s1, s2, temp);
-	cMDEResponseProperty e(s1, s2, temp);
-	
-	//	mdeprops.insert (e);
-	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-		e.incCount();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEResponseProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_response_property_success++;
-		} else { 
-			m_property_failure++;
-			m_response_property_failure++;
-		}
-	}
-	
-	val = (val / e.getCount()); 
-	return val;
-}
-
-float cUMLModel::addPrecedenceProperty(std::string s1, std::string s2)
-{
-	// a pointer to the universal property
-	std::string temp = StringifyAnInt(mdeprops.size());
-	float val = 0;	
-	//	cMDEPrecedenceProperty* e = new cMDEPrecedenceProperty(s1, s2, temp);
-	cMDEPrecedenceProperty e(s1, s2, temp);
-	
-	//	mdeprops.insert (e);
-	//int q = mdeprops.size();
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-		e.incCount();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEPrecedenceProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_precedence_property_success++;
-		} else { 
-			m_property_failure++;
-			m_precedence_property_failure++;
-		}
-	}
-	
-	val = (val / e.getCount()); 
-	return val;	
-	
-}
-
-
-	
-void cUMLModel::printExpressions() 
-{
-	std::vector<cMDEExpression>::iterator exprit;
-	for (exprit = expressions.begin(); exprit < expressions.end(); exprit++){
-		std::cout << exprit->getExpr() << std::endl;
-	}
-
-}
 
 

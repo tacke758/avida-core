@@ -23,6 +23,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3E13BB350D6F49BD0014F96F /* cMDEPropertyGenerator.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E13BB330D6F49BD0014F96F /* cMDEPropertyGenerator.cc */; };
+		3E13BB360D6F49BD0014F96F /* cMDEPropertyGenerator.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E13BB340D6F49BD0014F96F /* cMDEPropertyGenerator.h */; };
 		3E26D9070CFA0453009616CC /* cMDEAbsenceProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */; };
 		3E26D9080CFA0453009616CC /* cMDEAbsenceProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */; };
 		3E26D9090CFA0453009616CC /* cMDEExistenceProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D9010CFA0453009616CC /* cMDEExistenceProperty.cc */; };
@@ -347,6 +349,7 @@
 				3E849FD60D4A7ECB003DE1BF /* cMDEExistenceProperty.h in CopyFiles */,
 				3E849FF00D4A8331003DE1BF /* cMDEPrecedenceProperty.h in CopyFiles */,
 				3E97D6CA0D63307E00FA7028 /* cMDEExpression.h in CopyFiles */,
+				3E13BB360D6F49BD0014F96F /* cMDEPropertyGenerator.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,6 +378,8 @@
 /* Begin PBXFileReference section */
 		1097463D0AE9606E00929ED6 /* cDeme.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cDeme.cc; sourceTree = "<group>"; };
 		1097463E0AE9606E00929ED6 /* cDeme.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cDeme.h; sourceTree = "<group>"; };
+		3E13BB330D6F49BD0014F96F /* cMDEPropertyGenerator.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEPropertyGenerator.cc; sourceTree = "<group>"; };
+		3E13BB340D6F49BD0014F96F /* cMDEPropertyGenerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEPropertyGenerator.h; sourceTree = "<group>"; };
 		3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEAbsenceProperty.cc; sourceTree = "<group>"; };
 		3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEAbsenceProperty.h; sourceTree = "<group>"; };
 		3E26D9010CFA0453009616CC /* cMDEExistenceProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEExistenceProperty.cc; sourceTree = "<group>"; };
@@ -874,7 +879,7 @@
 		DCC315CE076253A5008F7A48 /* environment.rotate */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = environment.rotate; sourceTree = "<group>"; };
 		DCC315D0076253A5008F7A48 /* task_event_gen.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = task_event_gen.cc; sourceTree = "<group>"; };
 		DCC315D1076253A5008F7A48 /* task_event_gen.old.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = task_event_gen.old.cc; sourceTree = "<group>"; };
-		DCC3164D07626CF3008F7A48 /* avida */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = avida; sourceTree = BUILT_PRODUCTS_DIR; };
+		DCC3164D07626CF3008F7A48 /* avida */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = avida; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1401,6 +1406,8 @@
 		DCC310040762539D008F7A48 /* main */ = {
 			isa = PBXGroup;
 			children = (
+				3E13BB330D6F49BD0014F96F /* cMDEPropertyGenerator.cc */,
+				3E13BB340D6F49BD0014F96F /* cMDEPropertyGenerator.h */,
 				3E97D6C90D63307D00FA7028 /* cMDEExpression.h */,
 				3E26D8FF0CFA0453009616CC /* cMDEAbsenceProperty.cc */,
 				3E26D9000CFA0453009616CC /* cMDEAbsenceProperty.h */,
@@ -2053,6 +2060,7 @@
 				3ED30B220D43D73D00B3E0A7 /* cUMLClass.cc in Sources */,
 				3E849FD80D4A7F04003DE1BF /* cMDEResponseProperty.cc in Sources */,
 				3E849FEF0D4A8331003DE1BF /* cMDEPrecedenceProperty.cc in Sources */,
+				3E13BB350D6F49BD0014F96F /* cMDEPropertyGenerator.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

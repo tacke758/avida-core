@@ -21,17 +21,11 @@
 class cMDEUniversalProperty : public cMDEProperty{
 	
 public:
-	cMDEUniversalProperty(std::string expr, std::string q) { _expr_p = expr; 
-		_name = ("Universal" + q); _reward = -1;
-		_property_file_name = "tmp-property.pr"; 
-		_witness_file_name = "tmp-witness.pr";
-		_properties = "properties_that_passed";
-		_promela = "tmp.pr";
-	}
+	cMDEUniversalProperty(std::string expr) { _expr_p = expr; _reward = -1;}
 	virtual ~cMDEUniversalProperty() {}
-	bool print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	bool printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
-	bool printInEnglish();
+	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
+	void printInEnglish();
 	void evaluate();
 	std::string getPropertyType() { return "Universal"; } 
 	std::string getPropertyParameters() { return _expr_p; }

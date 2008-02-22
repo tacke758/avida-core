@@ -9,19 +9,13 @@
 
 #include "cMDEResponseProperty.h"
 
-bool cMDEResponseProperty::print() {
+void cMDEResponseProperty::print() {
 	
-	// Create the file...
-	std::string cmd = "cp " + _promela + " " + _property_file_name;
-	if(system(cmd.c_str())!=0) return false;
-	
-	// Open the file in append mode...
 	std::ofstream outfile;
-	outfile.open (_property_file_name.c_str(), std::ios_base::app);
+//	outfile.open (_name.c_str());
+	outfile.open ("property");
 	assert(outfile.is_open());
 	
-	
-	// Add the response property to the end of the file...
 	outfile << "/* Response property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
 	outfile << "#define s (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -37,22 +31,16 @@ bool cMDEResponseProperty::print() {
 	outfile << "fi; }" << std::endl;
 	
 	outfile.close();
-	return true;
 
 }
 
-bool cMDEResponseProperty::printWitness() {
+void cMDEResponseProperty::printWitness() {
 	
-	// Create the file
-	std::string cmd = "cp " + _promela + " " + _witness_file_name;
-	if(system(cmd.c_str())!=0) return false;
-	
-	// Open the file in append mode
 	std::ofstream outfile;
-	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
+	std::string file_name = "witness-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
-	// Add response property to the end of the file...
 	outfile << "/* Response property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
 	outfile << "#define s (" << _expr_q << ")" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -72,21 +60,20 @@ bool cMDEResponseProperty::printWitness() {
 	outfile << "skip}" << std::endl;
 	
 	outfile.close();
-	return true;
 	
 }
 
 
-bool cMDEResponseProperty::printInEnglish() {
+void cMDEResponseProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	outfile.open (_properties.c_str(), std::ios_base::app);
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
 	outfile << "then "<< _expr_q << " eventually holds." << std::endl << std::endl;
 	
 	outfile.close();
-	return true;
 	
 }

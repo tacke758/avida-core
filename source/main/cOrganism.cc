@@ -678,29 +678,29 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	}
 	
 	cUMLModel* pop_model = m_world->GetPopulation().getUMLModel();
-	m_world->GetStats().propSuccess(pop_model->numSuccess());
-	m_world->GetStats().propFailure(pop_model->numFailure());
-	m_world->GetStats().propTotal(pop_model->numTotalProperty());
-	m_world->GetStats().absPropSuccess(pop_model->numAbsencePropertySuccess());
-	m_world->GetStats().absPropFailure(pop_model->numAbsencePropertyFailure());
-	m_world->GetStats().absPropTotal(pop_model->numAbsencePropertyTotal());
-	m_world->GetStats().uniPropSuccess(pop_model->numUniversalPropertySuccess());
-	m_world->GetStats().uniPropFailure(pop_model->numUniversalPropertyFailure());
-	m_world->GetStats().uniPropTotal(pop_model->numUniversalPropertyTotal());
-	m_world->GetStats().existPropSuccess(pop_model->numExistencePropertySuccess());
-	m_world->GetStats().existPropFailure(pop_model->numExistencePropertyFailure());
-	m_world->GetStats().existPropTotal(pop_model->numExistencePropertyTotal());
-	m_world->GetStats().precPropSuccess(pop_model->numPrecedencePropertySuccess());
-	m_world->GetStats().precPropFailure(pop_model->numPrecedencePropertyFailure());
-	m_world->GetStats().precPropTotal(pop_model->numPrecedencePropertyTotal());
-	m_world->GetStats().respPropSuccess(pop_model->numResponsePropertySuccess());
-	m_world->GetStats().respPropFailure(pop_model->numResponsePropertyFailure());
-	m_world->GetStats().respPropTotal(pop_model->numResponsePropertyTotal());	
+	m_world->GetStats().propSuccess(pop_model->getPropertyGenerator()->numSuccess());
+	m_world->GetStats().propFailure(pop_model->getPropertyGenerator()->numFailure());
+	m_world->GetStats().propTotal(pop_model->getPropertyGenerator()->numTotalProperty());
+	m_world->GetStats().absPropSuccess(pop_model->getPropertyGenerator()->numAbsencePropertySuccess());
+	m_world->GetStats().absPropFailure(pop_model->getPropertyGenerator()->numAbsencePropertyFailure());
+	m_world->GetStats().absPropTotal(pop_model->getPropertyGenerator()->numAbsencePropertyTotal());
+	m_world->GetStats().uniPropSuccess(pop_model->getPropertyGenerator()->numUniversalPropertySuccess());
+	m_world->GetStats().uniPropFailure(pop_model->getPropertyGenerator()->numUniversalPropertyFailure());
+	m_world->GetStats().uniPropTotal(pop_model->getPropertyGenerator()->numUniversalPropertyTotal());
+	m_world->GetStats().existPropSuccess(pop_model->getPropertyGenerator()->numExistencePropertySuccess());
+	m_world->GetStats().existPropFailure(pop_model->getPropertyGenerator()->numExistencePropertyFailure());
+	m_world->GetStats().existPropTotal(pop_model->getPropertyGenerator()->numExistencePropertyTotal());
+	m_world->GetStats().precPropSuccess(pop_model->getPropertyGenerator()->numPrecedencePropertySuccess());
+	m_world->GetStats().precPropFailure(pop_model->getPropertyGenerator()->numPrecedencePropertyFailure());
+	m_world->GetStats().precPropTotal(pop_model->getPropertyGenerator()->numPrecedencePropertyTotal());
+	m_world->GetStats().respPropSuccess(pop_model->getPropertyGenerator()->numResponsePropertySuccess());
+	m_world->GetStats().respPropFailure(pop_model->getPropertyGenerator()->numResponsePropertyFailure());
+	m_world->GetStats().respPropTotal(pop_model->getPropertyGenerator()->numResponsePropertyTotal());	
 //	int x = pop_model->propertySize();
 //	int y = pop_model->numTotalProperty();
 	
 		
-	m_model.resetPropertyReward();
+	m_model.getPropertyGenerator()->resetPropertyReward();
 	
 
 	

@@ -9,19 +9,13 @@
 
 #include "cMDEExistenceProperty.h"
 
-/* This function prepares the file tmp-property.pr to be verified. */
-
-bool cMDEExistenceProperty::print() {
-	// Create the file...
-	std::string cmd = "cp " + _promela + " " + _property_file_name;
-	if(system(cmd.c_str())!=0) return false;
+void cMDEExistenceProperty::print() {
 	
-	// Open the file in append mode...
 	std::ofstream outfile;
-	outfile.open (_property_file_name.c_str(), std::ios_base::app);
+//	outfile.open (_name.c_str());
+	outfile.open ("property");
 	assert(outfile.is_open());
 	
-	// Add the existence property to the end of the file...
 	outfile << "/* Existence property " << _expr_p << "*/" << std::endl;
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never { /* !(<>(p)) */ " << std::endl;
@@ -30,23 +24,17 @@ bool cMDEExistenceProperty::print() {
 	outfile << ":: (!p) -> goto accept_init " << std::endl;
 	outfile << "fi; }" << std::endl;
 	
-	// close the file...
 	outfile.close();
-	return true;
+
 }
 
-bool cMDEExistenceProperty::printWitness() {
+void cMDEExistenceProperty::printWitness() {
 	
-	// Create the file
-	std::string cmd = "cp " + _promela + " " + _witness_file_name;
-	if(system(cmd.c_str())!=0) return false;
-	
-	// Open the file in append mode
 	std::ofstream outfile;
-	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
+	std::string file_name = "witness-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
-	// Add existence witness
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
 	outfile << "never { /* !([](!p)) */ " << std::endl;
 	outfile << "T0_init :    /* init */ " << std::endl;
@@ -59,19 +47,18 @@ bool cMDEExistenceProperty::printWitness() {
 
 	
 	outfile.close();
-	return true;
 	
 }
 
-bool cMDEExistenceProperty::printInEnglish() {
+void cMDEExistenceProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	outfile.open (_properties.c_str(), std::ios_base::app);
+	std::string file_name = "english-property";
+	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
 	outfile << "Globally, " << _expr_p  << " eventually holds." << std::endl<< std::endl;
 	
 	outfile.close();
-	return true;
 	
 }

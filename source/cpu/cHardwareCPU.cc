@@ -5107,16 +5107,16 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	float val = 0;
 	// Call a function on the model to create this property.
 	// Currently it just uses p
-	std::string s = organism->getUMLModel()->getPstring();
+	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addAbsenceProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->addAbsenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addAbsenceProperty(s);
 	}
 	
-	organism->getUMLModel()->addPropertyReward(val);
+	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
 
 	return val;
 } 
@@ -5125,16 +5125,16 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 { 
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string s = organism->getUMLModel()->getPstring();
+	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addUniversalProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->addUniversalProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addUniversalProperty(s);
 	}
 	
-	organism->getUMLModel()->addPropertyReward(val);
+	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
 
 	return val;
 } 
@@ -5143,16 +5143,16 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string s = organism->getUMLModel()->getPstring();
+	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addExistenceProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->addExistenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addExistenceProperty(s);
 	}
 	
-	organism->getUMLModel()->addPropertyReward(val);
+	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
 		
 	return val;
 } 
@@ -5161,14 +5161,14 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string p = organism->getUMLModel()->getPstring();
-	std::string q = organism->getUMLModel()->getQstring();
+	std::string p = organism->getUMLModel()->getPropertyGenerator()->getPstring();
+	std::string q = organism->getUMLModel()->getPropertyGenerator()->getQstring();
 	
 	if (p != q) {
-		val = m_world->GetPopulation().getUMLModel()->addPrecedenceProperty(p, q);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addPrecedenceProperty(p, q);
 	}
 	
-	organism->getUMLModel()->addPropertyReward(val);
+	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
 	
 	return val;
 } 
@@ -5177,14 +5177,14 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 {
 	float val = 0;
 	// Call a function on the model to create this property.
-	std::string p = organism->getUMLModel()->getPstring();
-	std::string q = organism->getUMLModel()->getQstring();
+	std::string p = organism->getUMLModel()->getPropertyGenerator()->getPstring();
+	std::string q = organism->getUMLModel()->getPropertyGenerator()->getQstring();
 	
 	if (p != q) {
-		val = m_world->GetPopulation().getUMLModel()->addResponseProperty(p, q);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addResponseProperty(p, q);
 	}
 	
-	organism->getUMLModel()->addPropertyReward(val);
+	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
 	
 	return val;
 } 
@@ -5193,82 +5193,82 @@ bool cHardwareCPU::Inst_RelativeMoveExpressionP(cAvidaContext& ctx)
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->relativeMoveExpressionP(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionP(jump_amount));
 }
 
 bool cHardwareCPU::Inst_NextExpressionP(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionP(1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionP(1));
 }
 
 bool cHardwareCPU::Inst_PrevExpressionP(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionP(-1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionP(-1));
 }
 
 bool cHardwareCPU::Inst_AbsoluteMoveExpressionP(cAvidaContext& ctx)
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->absoluteMoveExpressionP(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->absoluteMoveExpressionP(jump_amount));
 }
 
 bool cHardwareCPU::Inst_RelativeMoveExpressionQ(cAvidaContext& ctx) 
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->relativeMoveExpressionQ(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionQ(jump_amount));
 }
 
 bool cHardwareCPU::Inst_NextExpressionQ(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionQ(1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionQ(1));
 }
 
 bool cHardwareCPU::Inst_PrevExpressionQ(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionQ(-1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionQ(-1));
 }
 
 bool cHardwareCPU::Inst_AbsoluteMoveExpressionQ(cAvidaContext& ctx)
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->absoluteMoveExpressionQ(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->absoluteMoveExpressionQ(jump_amount));
 }
 
 bool cHardwareCPU::Inst_RelativeMoveExpressionR(cAvidaContext& ctx) 
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->relativeMoveExpressionR(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionR(jump_amount));
 }
 
 bool cHardwareCPU::Inst_NextExpressionR(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionR(1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionR(1));
 }
 
 bool cHardwareCPU::Inst_PrevExpressionR(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->relativeMoveExpressionR(-1));
+	return (organism->getUMLModel()->getPropertyGenerator()->relativeMoveExpressionR(-1));
 }
 
 bool cHardwareCPU::Inst_AbsoluteMoveExpressionR(cAvidaContext& ctx)
 {
 	ReadLabel();
 	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	return (organism->getUMLModel()->absoluteMoveExpressionR(jump_amount));
+	return (organism->getUMLModel()->getPropertyGenerator()->absoluteMoveExpressionR(jump_amount));
 }
 
 bool cHardwareCPU::Inst_ANDExpressions(cAvidaContext& ctx)
 {	
-	return (organism->getUMLModel()->ANDExpressions());
+	return (organism->getUMLModel()->getPropertyGenerator()->ANDExpressions());
 }
 
 bool cHardwareCPU::Inst_ORExpressions(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->ORExpressions());
+	return (organism->getUMLModel()->getPropertyGenerator()->ORExpressions());
 }
   
   
