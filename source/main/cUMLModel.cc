@@ -70,28 +70,26 @@ follow the *very* specific file format."
 */
 void seed_diagrams(const char* seed_model,
 				   std::vector<cUMLClass>& classes,
-//                   std::vector<cUMLStateDiagram>& state_diagrams,
+                   std::vector<cUMLStateDiagram>& state_diagrams,
                    std::vector<scenario_info>& scenarios,
                    int& hydra_mode, 
-				   bool& witness_mode) {
+				   bool& witness_mode, 
+				   int& gen_mode) {
   std::string data, line; 
-	//int num_states;
-	//int num_sd = 0;
 	int cur_class = -1;
-	//bool include_trans = 0;
-	//std::string tr_l, tr_o, gu, act, temp;
-	//int trig_i, guard_i, act_i, orig_i, dest_i;
 	int num_classes;
 	std::ifstream infile;
 	infile.open(seed_model);
 	assert(infile.is_open());
-	//scenario_info s;
-	//std::string path_step;
 	std::string class_name;
-	std::string temp1, temp2;
+	std::string temp, temp1, temp2;
 	std::string op_name, op_code;
 	std::string att_name, att_type, att_val;
+	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::vector<std::string> att_vals;
+	scenario_info s;
+	std::string path_step;
+
 	
 	while (getline (infile, line))
 	{
@@ -100,27 +98,23 @@ void seed_diagrams(const char* seed_model,
 			infile >> temp1 >> num_classes;
 			infile >> temp1 >> hydra_mode;
 			infile >> temp1 >> witness_mode;
-			//std::cout << "num_classes " << num_classes << std::endl;
-			//std::cout << "hydra_mode " << hydra_mode << std::endl;
-			//std::cout << "witness_mode " << witness_mode << std::endl;
+			infile >> temp1 >> gen_mode;
+			// resize state diagrams & classes to correspond to the number of classes.
 			classes.resize(num_classes);
+			state_diagrams.resize(classes.size());
 		} else if (line == "==CLASS==") { 
 			line.erase();
 			infile >> temp1 >> class_name;
 			cur_class++;
 			classes[cur_class].addClassName(class_name);
-			//std::cout << "current class " << cur_class << std::endl;
-			//std::cout << "class name " << class_name << std::endl;
 		} else if (line == "==ATTRIBUTES==") {
 			line.erase();
 			infile >> att_name;
 			while (att_name != "==END==") { 
 				infile >> att_type >> temp1 >> att_val;
 				att_vals.clear();
-			//	std::cout << "attribute " << att_name << " " << att_type << std::endl;
-				while (att_val != "]") { // && att_val != "==END=CLASS==") { 
+				while (att_val != "]") { 
 					att_vals.push_back(att_val);
-			//		std::cout << "value " << att_val << std::endl;
 					infile >> att_val;
 				}
 				
@@ -132,9 +126,7 @@ void seed_diagrams(const char* seed_model,
 			infile >> op_name;
 			while (op_name != "==END==") { 
 				infile >> op_code;
-//				state_diagrams[cur_sd].addTrigger(tr_l, tr_o);
 				classes[cur_class].addOperation(op_name, op_code);
-			//	std::cout << "operation " << op_name << " " << op_code << std::endl;
 				infile >> op_name;				
 			}
 		} else if (line == "==ASSOCIATIONS==") {
@@ -142,16 +134,180 @@ void seed_diagrams(const char* seed_model,
 			infile >> class_name;
 			while (class_name != "==END==") { 
 				classes[cur_class].addAssociatedClass(class_name);
-			//	std::cout << "Associated Class " << class_name << std::endl;
 				infile >> class_name;			
+			}
+		} else if (line == "==SCENARIO==") { 
+			line.erase();
+			s.path.clear();
+			s.stateDiagramID = cur_class;
+			infile >> s.shouldLoop >> s.startState;
+			infile >> temp;
+			while (temp != "==END==") { 
+				infile >> path_step;
+				s.path.push_back(path_step);
+				infile >> temp;
+			} 
+		} else if (line == "==TRANSITIONS==") { 
+			line.erase();
+			infile >> temp; 
+			while (temp != "==END==") { 
+				infile >> orig_i >> dest_i >> trig_i >> guard_i >> act_i; 
+				if (temp == "1") { 
+					state_diagrams[cur_class].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
+				}	
+				infile >> temp; 
+			}
+		}	
+	}
+		
+//	seedTriggersGuardsActions(classes, state_diagrams);
+	// For each class... 
+	// triggers = methods
+	// guards = attribute equality / inequality
+	// actions = methods of related classes.
+	cUMLClass c;
+	class_attribute a;
+	operation o;
+	int temp_size;
+	std::string temp3;
+	std::string at_type;
+	std::set<std::string> rc;
+	std::set<std::string>::iterator rcit;
+
+	for (unsigned int i=0; i<classes.size(); i++) { 
+		c = classes[i];
+		temp_size = c.numAttributes();
+		
+		// add nulls.
+		state_diagrams[i].addGuard("<null>");
+		state_diagrams[i].addTrigger("<null>", "<null>");
+		state_diagrams[i].addAction("<null>");
+		
+		// For each attribute...
+		for (int j=0; j<temp_size; j++) {
+			a = c.getAttribute(j);
+			for (unsigned int k=0; k<a.attribute_values.size(); k++){
+				// create both an equality and an inequality expression
+				temp2 = a.attribute_values[k];
+				temp3 = a.attribute_name + "=" + temp2;
+				state_diagrams[i].addGuard(temp3);
+				//cout << "guard: " << temp3 << std::endl;
+				temp3 = a.attribute_name + "!=" + temp2;
+				state_diagrams[i].addGuard(temp3);
+				//cout << "guard: " << temp3 << std::endl;
 			}
 		}
 		
+		// For each method
+		temp_size = c.numOperations();
+		for (int m=0; m<temp_size; m++) {
+			o = c.getOperation(m);
+			state_diagrams[i].addTrigger(o.op_name, o.op_code);
+			//std::cout << "trigger: " << o.op_name << " " << o.op_code << std::endl;
+		}
+		
+		// For each of the related classes, add an action for each of 
+		// its methods... (yucky...)
+		rc.clear();
+		rc = classes[i].getAssociatedClasses();
+		for (rcit=rc.begin(); rcit!=rc.end(); rcit++) { 
+			//cout << "Related class " << (*rcit) << std::endl;
+			// Find the related class in the list of classes...
+			for (unsigned int k=0; k<classes.size(); k++){
+				if (classes[k].getClassName() == (*rcit)){
+					// For each of its operations, add an action...
+					temp_size = classes[k].numOperations();
+					for (int m=0; m<temp_size; m++) {
+						o = classes[k].getOperation(m);
+						temp2 = "^" + classes[k].getClassName() + "." + o.op_name + "()";
+						state_diagrams[i].addAction(temp2);
+						//std::cout << "action: " << temp2 << std::endl;
+					}
+				}
+			}
+		}
 	}
   
 	infile.close();
 	return;
 }
+/*
+// This function uses the information generated
+void seedTriggersGuardsActions(std::vector<cUMLClass>& classes,
+								std::vector<cUMLStateDiagram>& state_diagrams) { 
+	
+	std::string class_name;
+	class_attribute a;
+	operation o;
+	cUMLClass c;
+	int temp_size;
+	std::string temp1, temp2, temp3;
+	std::string at_type;
+	
+	state_diagrams.resize(classes.size());
+	// For each class... 
+	// triggers = methods
+	// guards = attribute equality / inequality
+	// actions = methods of related classes.
+	for (unsigned int i=0; i<classes.size(); i++) { 
+		c = classes[i];
+		temp_size = c.numAttributes();
+		
+		// For each attribute...
+		for (int j=0; j<temp_size; j++) {
+			a = c.getAttribute(j);
+			temp1 = class_name + "_V." + a.attribute_name;
+			at_type = a.attribute_type;
+			
+			if ((at_type == "int") || (at_type == "integer")) {
+				// For each attribute value
+				for (unsigned int k=0; k<a.attribute_values.size(); k++){
+					// create both an equality and an inequality expression
+					temp2 = a.attribute_values[k];
+					temp3 = temp1 + "==" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					//std::cout << temp3 << std::endl;
+					temp3 = temp1 + "!=" + temp2;
+					//std::cout << temp3 << std::endl;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					
+					temp3 = temp1 + ">" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					
+					temp3 = temp1 + "<" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					
+					temp3 = temp1 + ">=" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					
+					temp3 = temp1 + "<=" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					
+				}
+			} else if ((at_type == "bool")||(at_type == "boolean")) {
+				for (unsigned int k=0; k<a.attribute_values.size(); k++){
+					// create both an equality and an inequality expression
+					temp2 = a.attribute_values[k];
+					temp3 = temp1 + "==" + temp2;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+					//std::cout << temp3 << std::endl;
+					temp3 = temp1 + "!=" + temp2;
+					//std::cout << temp3 << std::endl;
+					gen->addExpression(temp3, c.getAssociatedClasses());
+				}
+			}
+		}
+		
+		// For each method
+		temp_size = c.numOperations();
+		for (int m=0; m<temp_size; m++) {
+			o = c.getOperation(m);
+			state_diagrams[i].addTrigger(o.op_name, o.op_code);
+			std::cout << "trigger: " << o.op_name << " " << o.op_code << std::endl;
+		}
+	}
+	
+}*/
 
 
 xmi_info cUMLModel::xi = loadFile("xmi_info");
@@ -164,19 +320,21 @@ std::vector<cUMLClass> cUMLModel::_cfg_classes;
 std::vector<scenario_info> cUMLModel::_cfg_scenarios;
 int cUMLModel::_cfg_hydra_mode;
 bool cUMLModel::_cfg_witness_mode;
+int cUMLModel::_cfg_gen_mode;
 
 
 cUMLModel::cUMLModel(const char* seed_model) {
   if(!_cfgLoaded) {
-    seed_diagrams(seed_model, _cfg_classes, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode);
+    seed_diagrams(seed_model, _cfg_classes, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode, _cfg_gen_mode);
     _cfgLoaded = true;
   }
   
-  //state_diagrams = _cfg_state_diagrams;
   classes = _cfg_classes;
+	state_diagrams = _cfg_state_diagrams;
   scenarios = _cfg_scenarios;
   hydraMode = _cfg_hydra_mode; 
   witnessMode = _cfg_witness_mode;
+  genMode = _cfg_gen_mode;
   
   // Initialize the property generator.
   gen = new cMDEPropertyGenerator();
@@ -322,12 +480,13 @@ double cUMLModel::checkForScenarios()
 bool cUMLModel::readyForHydra() 
 {
 	// options: (0) ALL_COMPLETE, (1) ONE_COMPLETE, (2) ONE_NON_EMPTY, (3) ALL_NON_EMPTY
-	//          (4) ALL COMPLETE && DETERMINISTIC, (5) NONE
+	//          (4) ALL COMPLETE && DETERMINISTIC, (5) NONE, (6) PERCENTAGE COMPLETE
 	// check which option was selected in the seed-model.cfg
 	// check to see if this condition is true. If so, return 1; otherwise, return 0.
 	
 	bool ret_val = 0;
-//	double complete_bonus = 0;
+	double temp = 0;
+
 
 	switch (hydraMode){
 	case 0:
@@ -360,6 +519,13 @@ bool cUMLModel::readyForHydra()
 	case 5: 
 		ret_val = 1;
 		break;
+	case 6: 
+		ret_val = 1;
+		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+			temp += scenario_completion[i];
+		}
+		if ((temp/scenario_completion.size()) < .75){ ret_val = 0; }
+		break;		
 	default:
 		ret_val = 0;
 	}

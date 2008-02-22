@@ -106,6 +106,7 @@ public:
 	// check if the model is ready for hydra
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
+	int getGenMode() { return genMode; }
 //	float checkProperties();
 	
 
@@ -120,6 +121,8 @@ protected:
 	std::vector<double> scenario_completion;
 	int hydraMode; 
 	bool witnessMode;
+	// Mode 0 = model generation; mode 1 = property generation
+	int genMode;
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
@@ -129,6 +132,7 @@ protected:
   static std::vector<scenario_info> _cfg_scenarios; //!< Scenarios as read from seed-model.cfg.
   static int _cfg_hydra_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
   static bool _cfg_witness_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
+  static int _cfg_gen_mode; //!< Generation mode, as read from seed-model.cfg.
   
   cMDEPropertyGenerator* gen; 
 
