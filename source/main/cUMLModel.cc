@@ -453,7 +453,7 @@ float cUMLModel::addExistenceProperty(std::string s)
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
-		//		delete e;
+		e.incCount();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -484,6 +484,7 @@ float cUMLModel::addAbsenceProperty(std::string s)
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		e.incCount();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -515,6 +516,7 @@ float cUMLModel::addUniversalProperty(std::string s)
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		e.incCount();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -699,6 +701,7 @@ float cUMLModel::addResponseProperty(std::string s1, std::string s2)
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		e.incCount();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -729,6 +732,7 @@ float cUMLModel::addPrecedenceProperty(std::string s1, std::string s2)
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		e.incCount();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
