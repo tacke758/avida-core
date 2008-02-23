@@ -41,6 +41,7 @@ public:
 	std::string getXMI(); // get the XMI version of the model.
 	void printXMI(); // create the XMI version of the model.
 	void printUMLModelToFile(std::string);  // print the UML model to a file.
+	int getUMLValue(); // print movie info
 	
 	// Used to update and get the max number of trans. 
 	int getMaxTrans() { return max_trans; } 

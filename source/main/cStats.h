@@ -684,6 +684,7 @@ public:
   void W2Attempt() { m_W2Attempt.Add(1); }
   void W2Passed() { m_W2Passed.Add(1); }
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
+  double getN2Passed() { return m_N2Passed.Count(); }
   
   void propSuccess(int x) {m_propertySuccess = x; }
   void propFailure(int x) {m_propertyFailure = x; }

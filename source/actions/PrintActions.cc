@@ -2248,6 +2248,50 @@ public:
 };
 
 
+class cActionDumpUMLGrid : public cAction
+{
+	
+private:
+	cString m_filename;
+	
+public:
+	cActionDumpUMLGrid(cWorld* m_world, const cString& args) : cAction(m_world, args), m_filename("")
+	{;}
+	
+	static const cString GetDescription() { return "No Arguments"; }
+	
+	void Process(cAvidaContext& ctx)
+	{
+		cString filename(m_filename);
+		if (filename == "") filename.Set("grid_genotype_id.%d.dat", m_world->GetStats().GetUpdate());
+		ofstream& fp = m_world->GetDataFileOFStream(filename);
+		
+		//    cPopulation* pop = &m_world->GetPopulation();
+		
+		int uml_val;
+		
+		for (int i = 0; i < m_world->GetPopulation().GetWorldX(); i++) {
+			for (int j = 0; j < m_world->GetPopulation().GetWorldY(); j++) {
+				cPopulationCell& cell = m_world->GetPopulation().GetCell(j * m_world->GetPopulation().GetWorldX() + i);
+				
+				if(cell.IsOccupied()) {
+					// then need to call something on the model that determines its value...
+					uml_val = cell.GetOrganism()->getUMLModel()->getUMLValue();
+					//				uml_val = 0;
+				} else {
+					uml_val = -1;
+				}
+				//(cell.IsOccupied()) ? cell.GetOrganism()->GetPhenotype().IsReceiver() : -1;
+				fp << uml_val << " ";
+			}
+			fp << endl;
+		}
+		
+		m_world->GetDataFileManager().Remove(filename);
+	}
+}; 
+
+
 class cActionPrintDonationStats : public cAction
 {
 public:
@@ -2451,6 +2495,8 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpTaskGrid>("dump_task_grid");
   action_lib->Register<cActionDumpDonorGrid>("dump_donor_grid");
   action_lib->Register<cActionDumpReceiverGrid>("dump_receiver_grid");
+  action_lib->Register<cActionDumpUMLGrid>("dump_uml_grid");
+
   
   // UML 
   action_lib->Register<cActionPrintUMLData>("PrintUMLData");

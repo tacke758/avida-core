@@ -102,6 +102,26 @@ public:
   }
 };
 
+class cActionExitModelsPassedPropertyGreater : public cAction
+{
+private:
+	double m_threshold;
+public:
+	cActionExitModelsPassedPropertyGreater(cWorld* world, const cString& args) : cAction(world, args), m_threshold(0.0)
+	{
+		cString largs(args);
+		if (largs.GetSize()) m_threshold = largs.PopWord().AsDouble();
+	}
+	
+	static const cString GetDescription() { return "Arguments: <double "; }
+	
+	void Process(cAvidaContext& ctx)
+	{
+		if (m_world->GetStats().getN2Passed() > m_threshold ) {
+			m_world->GetDriver().SetDone();
+		}
+	}
+};
 
 void RegisterDriverActions(cActionLibrary* action_lib)
 {
@@ -109,6 +129,7 @@ void RegisterDriverActions(cActionLibrary* action_lib)
   action_lib->Register<cActionExitAveLineageLabelGreater>("ExitAveLineageLabelGreater");
   action_lib->Register<cActionExitAveLineageLabelLess>("ExitAveLineageLabelLess");
   action_lib->Register<cActionExitPropertyGeneratedGreater>("ExitPropGeneratedGreater");
+  action_lib->Register<cActionExitModelsPassedPropertyGreater>("ExitModelsPassedPropertyGreater");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionExit>("exit");

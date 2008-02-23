@@ -699,4 +699,27 @@ void cUMLModel::createExpressionsFromClasses()
 }
 
 
+int cUMLModel::getUMLValue() 
+{
+	float temp = 0;
+	int val;
+	float w1 = getBonusInfo("spinw1");
+	float w2 = getBonusInfo("spinw2");
+	float n1 = getBonusInfo("spinn1");
+	float n2 = getBonusInfo("spinn2");
+	for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		temp += scenario_completion[i];
+	}
+	val = (int)((temp/scenario_completion.size()) * 10);
+	if (w1 || w2) val = 11;
+	if (w1 && w2) val = 12;
+	if (n1 || n2) val = 13;
+	if (n1 && n2) val = 14;
+	
+	//	(organism->getUMLModel()->getBonusInfo("spinw1") == 0)	 &&
+	//		(organism->getUMLModel()->getBonusInfo("spinw2")
+	return val;
+	
+}
+
 
