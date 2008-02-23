@@ -117,7 +117,7 @@ public:
 	
 	void Process(cAvidaContext& ctx)
 	{
-		if (m_world->GetStats().getN2Passed() > m_threshold ) {
+		if (m_world->GetStats().getN1Passed() > m_threshold ) {
 			m_world->GetDriver().SetDone();
 		}
 	}
