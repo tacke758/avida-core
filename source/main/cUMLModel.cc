@@ -147,6 +147,7 @@ void seed_diagrams(const char* seed_model,
 				s.path.push_back(path_step);
 				infile >> temp;
 			} 
+			scenarios.push_back(s);
 		} else if (line == "==TRANSITIONS==") { 
 			line.erase();
 			infile >> temp; 
@@ -157,7 +158,32 @@ void seed_diagrams(const char* seed_model,
 				}	
 				infile >> temp; 
 			}
-		}	
+		}	else if (line == "==TRANSITION=LABELS==") { 
+			line.erase();
+			infile >> temp;
+			while (temp != "==END==") { 
+				infile >> trig_i >> guard_i >> act_i; 
+				if (temp=="1") { 
+					state_diagrams[cur_class].addTransitionLabel(trig_i, guard_i, act_i);
+				}
+				infile >> temp;
+			} 
+		} else if (line == "==ACTIONS==") { 
+//			int count =1;
+			line.erase();
+			infile >> temp;
+			state_diagrams[cur_class].addAction("<null>");
+			while (temp != "==END==") { 
+				infile >> temp2; 
+				if (temp=="1") { 
+					state_diagrams[cur_class].addAction(temp2);
+//					std::cout << "action : " << count << " " << temp2 << std::endl;
+//					count++;
+				}
+				infile >> temp;
+			} 
+		}
+		
 	}
 		
 //	seedTriggersGuardsActions(classes, state_diagrams);
@@ -181,7 +207,8 @@ void seed_diagrams(const char* seed_model,
 		// add nulls.
 		state_diagrams[i].addGuard("<null>");
 		state_diagrams[i].addTrigger("<null>", "<null>");
-		state_diagrams[i].addAction("<null>");
+//		state_diagrams[i].addAction("<null>");
+//		int counter =1;
 		
 		// For each attribute...
 		for (int j=0; j<temp_size; j++) {
@@ -191,10 +218,12 @@ void seed_diagrams(const char* seed_model,
 				temp2 = a.attribute_values[k];
 				temp3 = a.attribute_name + "=" + temp2;
 				state_diagrams[i].addGuard(temp3);
-				//cout << "guard: " << temp3 << std::endl;
+//				cout << "guard: " << counter << " " << temp3 << std::endl;
 				temp3 = a.attribute_name + "!=" + temp2;
 				state_diagrams[i].addGuard(temp3);
-				//cout << "guard: " << temp3 << std::endl;
+//				counter ++;
+//				cout << "guard: " << counter << " " << temp3 << std::endl;
+//				counter ++;
 			}
 		}
 		
@@ -203,11 +232,12 @@ void seed_diagrams(const char* seed_model,
 		for (int m=0; m<temp_size; m++) {
 			o = c.getOperation(m);
 			state_diagrams[i].addTrigger(o.op_name, o.op_code);
-			//std::cout << "trigger: " << o.op_name << " " << o.op_code << std::endl;
+			// std::cout << "trigger: " << (m+1) << " " << o.op_name << " " << o.op_code << std::endl;
 		}
 		
 		// For each of the related classes, add an action for each of 
 		// its methods... (yucky...)
+//		counter =1;
 		rc.clear();
 		rc = classes[i].getAssociatedClasses();
 		for (rcit=rc.begin(); rcit!=rc.end(); rcit++) { 
@@ -221,7 +251,8 @@ void seed_diagrams(const char* seed_model,
 						o = classes[k].getOperation(m);
 						temp2 = "^" + classes[k].getClassName() + "." + o.op_name + "()";
 						state_diagrams[i].addAction(temp2);
-						//std::cout << "action: " << temp2 << std::endl;
+//						std::cout << "action: " << counter << " " << temp2 << std::endl;
+//						counter++;
 					}
 				}
 			}
@@ -366,7 +397,7 @@ float cUMLModel::getBonusInfo (std::string s)
 cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x) 
 {
   assert(x<classes.size());
-  return (getStateDiagram(x));
+  return (&state_diagrams[x]);
 }
 
 
@@ -465,7 +496,9 @@ double cUMLModel::checkForScenarios()
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
 
 		complete_bonus = s.path.size() + s.shouldLoop; 
+		
 		if (s.startState >= 0) complete_bonus++;
+		
 		
 		// The next line is commented out to increase the reward for a given scenario. 
 		// total_bonus += (temp_bonus / complete_bonus);
