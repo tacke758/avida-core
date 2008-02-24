@@ -3131,10 +3131,10 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 
 
 // Commented out to remove overhead...	
-	std::ostringstream strstrm;
-	strstrm << "cp tmp.xmi "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
-	strstrm << ".xml";	
-	if(system(strstrm.str().c_str())!=0) return 0.0;
+//	std::ostringstream strstrm;
+//	strstrm << "cp tmp.xmi "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+//	strstrm << ".xml";	
+//	if(system(strstrm.str().c_str())!=0) return 0.0;
 			
 	return 1.0;
 }
