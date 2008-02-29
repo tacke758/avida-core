@@ -37,7 +37,6 @@
 		3E36C88C0D78538500802E27 /* cMDEExpressionAttribute.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */; };
 		3E36C88D0D78538500802E27 /* cMDESimpleAttAttExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */; };
 		3E36C88E0D78538500802E27 /* cMDESimpleAttValExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */; };
-		3E36C88F0D78538500802E27 /* cMDESimpleExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8880D78538500802E27 /* cMDESimpleExpression.h */; };
 		3E36C8900D78538500802E27 /* cMDESimpleOperationExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */; };
 		3E54F4170CFB147300FC5B63 /* cMDEProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */; };
 		3E849FD60D4A7ECB003DE1BF /* cMDEExistenceProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E849FD50D4A7ECB003DE1BF /* cMDEExistenceProperty.h */; };
@@ -362,7 +361,6 @@
 				3E36C88C0D78538500802E27 /* cMDEExpressionAttribute.h in CopyFiles */,
 				3E36C88D0D78538500802E27 /* cMDESimpleAttAttExpression.h in CopyFiles */,
 				3E36C88E0D78538500802E27 /* cMDESimpleAttValExpression.h in CopyFiles */,
-				3E36C88F0D78538500802E27 /* cMDESimpleExpression.h in CopyFiles */,
 				3E36C8900D78538500802E27 /* cMDESimpleOperationExpression.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -406,7 +404,6 @@
 		3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExpressionAttribute.h; sourceTree = "<group>"; };
 		3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleAttAttExpression.h; sourceTree = "<group>"; };
 		3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleAttValExpression.h; sourceTree = "<group>"; };
-		3E36C8880D78538500802E27 /* cMDESimpleExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleExpression.h; sourceTree = "<group>"; };
 		3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleOperationExpression.h; sourceTree = "<group>"; };
 		3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEProperty.cc; sourceTree = "<group>"; };
 		3E849FD50D4A7ECB003DE1BF /* cMDEExistenceProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExistenceProperty.h; sourceTree = "<group>"; };
@@ -1447,7 +1444,6 @@
 				3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */,
 				3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */,
 				3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */,
-				3E36C8880D78538500802E27 /* cMDESimpleExpression.h */,
 				3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */,
 				3EDCA0150C46C9B70078778D /* cUMLModel.cc */,
 				3EDCA0160C46C9B70078778D /* cUMLModel.h */,

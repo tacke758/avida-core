@@ -24,7 +24,7 @@ public:
 		_att_1 = a1;
 		_att_val = val;
 		_att_operator = op;
-		_expr = getInEnglish();
+		_expr = getInPromela();
 	}
  	~cMDESimpleAttValExpression() {}
 	

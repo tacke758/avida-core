@@ -24,7 +24,7 @@ public:
 		_exp_2 = e2;
 		// Op must be either && or ||
 		_exp_op = op;
-		_expr = getInEnglish();
+		_expr = getInPromela();
 	}
 // 	~cMDECompoundExpression() {}
 	

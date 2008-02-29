@@ -18,7 +18,7 @@ class cMDESimpleOperationExpression : public cMDEExpression{
 	
 public:
 	cMDESimpleOperationExpression (std::string n, std::string c) { 
-		_op_name =n; _op_class=c; _expr = getInEnglish();}
+		_op_name =n; _op_class=c; _expr = getInPromela();}
 	~cMDESimpleOperationExpression() {}
 	
 	// get functions
