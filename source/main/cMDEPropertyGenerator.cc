@@ -39,21 +39,32 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 		mdeprops.erase(it++);
 		delete p;
 	}
+	
+	/*for( std::vector<cMDEExpression*>::iterator it = expressions.begin(),
+		 exp = expressions.end(); it != exp; )
+	{
+		cMDEExpression* p = *it;
+		delete p;
+	}*/
+	
+	//expressions.erase(expressions.begin(), expressions.end());
 
 }
 
 
-float cMDEPropertyGenerator::addExistenceProperty(std::string s)
+float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
 {
 	// a pointer to the existence property
 	float val = 0;	
+	float interesting = (i + 0)/5; // 0 points for an existence property.
+	
 	cMDEExistenceProperty e(s);
 	
 	// first, try to find the property
-	//
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		val += (*mdepropiter)->getInteresting();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -61,24 +72,29 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s)
 		if (val >0) {
 			m_property_success++;
 			m_existence_property_success++;
+			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_existence_property_failure++;
+			e.setInterestingProperty(0);
 		}
 	}
 	
 	return val;
 }
 
-float cMDEPropertyGenerator::addAbsenceProperty(std::string s)
+float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i)
 {
 	// a pointer to the absence property
 	float val = 0;
+	float interesting = (i + 2)/5; // 2 points for an absence property.
+
 	cMDEAbsenceProperty e(s);
 	
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		val += (*mdepropiter)->getInteresting();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -86,9 +102,11 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s)
 		if (val >0) {
 			m_property_success++;
 			m_absence_property_success++;
+			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_absence_property_failure++;
+			e.setInterestingProperty(0);
 		}
 	}
 	
@@ -96,15 +114,18 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s)
 	
 }
 
-float cMDEPropertyGenerator::addUniversalProperty(std::string s)
+float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i)
 {
 	// a pointer to the universal property
 	float val = 0;	
+	float interesting = (i + 2)/5; // 2 points for a universal property.
+
 	cMDEUniversalProperty e(s);
 	
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
+		val += (*mdepropiter)->getInteresting();
 	} else {
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -112,9 +133,11 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s)
 		if (val >0) {
 			m_property_success++;
 			m_universal_property_success++;
+			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_universal_property_failure++;
+			e.setInterestingProperty(0);
 		}
 	}
 	
@@ -123,22 +146,147 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s)
 }
 
 
+float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2, float i)
+{
+	// a pointer to the universal property
+	float val = 0;	
+	float interesting = (i + 1)/5; // 1 points for a response property.
 
-// Check if the expression exists in the vector. If not, add it.
-bool cMDEPropertyGenerator::addExpression(std::string s, std::set<std::string> t)
-{ 
+	cMDEResponseProperty e(s1, s2);
+	
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+		val += (*mdepropiter)->getInteresting();
+	} else {
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		mdeprops.insert (new cMDEResponseProperty(e));
+		if (val >0) {
+			m_property_success++;
+			m_response_property_success++;
+			e.setInterestingProperty(interesting);
+		} else { 
+			m_property_failure++;
+			m_response_property_failure++;
+			e.setInterestingProperty(0);
+		}
+	}
+	return val;
+}
+
+float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s2, float i)
+{
+	// a pointer to the universal property
+	float val = 0;	
+	float interesting = (i + 1)/5; // 1 points for a precedence property.
+
+	cMDEPrecedenceProperty e(s1, s2);
+	
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
+	if (mdepropiter != mdeprops.end()) {
+		val = (*mdepropiter)->getEvaluationInformation();
+		val += (*mdepropiter)->getInteresting();
+	} else {
+		e.evaluate();
+		val = e.getEvaluationInformation();
+		
+		mdeprops.insert (new cMDEPrecedenceProperty(e));
+		if (val >0) {
+			m_property_success++;
+			m_precedence_property_success++;
+			e.setInterestingProperty(interesting);
+		} else { 
+			m_property_failure++;
+			m_precedence_property_failure++;
+			e.setInterestingProperty(0);
+
+		}
+	}
+	return val;	
+	
+}
+
+
+bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n, std::string c) 
+{
 	bool val = false;
-	cMDEExpression e; 
-	e.setExpr(s);
-	e.setRelatedClasses(t);
-	std::vector<cMDEExpression>::iterator exprit;
+	cMDESimpleOperationExpression* e = new cMDESimpleOperationExpression(n, c); 
+	// set related classes? 
+	// 
+	std::vector<cMDEExpression*>::iterator exprit;
 	exprit = find(expressions.begin(), expressions.end(), e); 
 	if (exprit == expressions.end()) { 
 		expressions.push_back(e); 
 		val = true;
-	} 
+	} else {
+		delete e;
+	}
 	return val;
 }
+
+
+bool cMDEPropertyGenerator::addSimpleAttAttExpression(cMDEExpressionAttribute* a1, 
+												   cMDEExpressionAttribute* a2, 
+												   std::string op) 
+{
+	bool val = false;
+	cMDESimpleAttAttExpression* e = new cMDESimpleAttAttExpression(a1, a2, op); 
+	// set related classes? 
+	// 
+	std::vector<cMDEExpression*>::iterator exprit;
+	exprit = find(expressions.begin(), expressions.end(), e); 
+	if (exprit == expressions.end()) { 
+		expressions.push_back(e); 
+		val = true;
+	} else {
+		delete e;
+	}
+	return val;
+}
+
+bool cMDEPropertyGenerator::addSimpleAttValExpression(cMDEExpressionAttribute* a1, 
+												   std::string value, 
+												   std::string op)
+{
+	bool val = false;
+	cMDESimpleAttValExpression* e = new cMDESimpleAttValExpression(a1, value, op); 
+	// set related classes? 
+	// 
+	std::vector<cMDEExpression*>::iterator exprit;
+	exprit = find(expressions.begin(), expressions.end(), e); 
+	if (exprit == expressions.end()) { 
+		expressions.push_back(e); 
+		val = true;
+	} else {
+		delete e;
+	}
+	return val;
+	
+}
+
+bool cMDEPropertyGenerator::addCompoundExpression(cMDEExpression* e1, 
+												  cMDEExpression* e2,
+												  std::string op)
+{
+	bool val = false;
+	cMDECompoundExpression* e = new cMDECompoundExpression(e1, e2, op); 
+	// set related classes? 
+	// 
+	std::vector<cMDEExpression*>::iterator exprit;
+	exprit = find(expressions.begin(), expressions.end(), e); 
+	if (exprit == expressions.end()) { 
+		expressions.push_back(e); 
+		val = true;
+	} else {
+		delete e;
+	}
+	return val;
+	
+}
+
+
+
 
 // AND expressions p & q to create a new expression
 // return true if this is a new expression
@@ -146,24 +294,9 @@ bool cMDEPropertyGenerator::addExpression(std::string s, std::set<std::string> t
 bool cMDEPropertyGenerator::ANDExpressions()
 {
 	bool val = false;
-	std::set<std::string> class_names, class_names2;
-	std::set<std::string>::iterator c;
-	std::string totalstring;
-	cMDEExpression p, q;
 	
 	if (expression_p != expression_q){
-		p = getP();
-		q = getQ();
-		totalstring = "(" + p.getExpr() + " && " + q.getExpr() + ")";
-
-		class_names = p.getRelatedClasses();
-		class_names2 = q.getRelatedClasses();
-		
-		for (c=class_names2.begin(); c != class_names2.end(); c++) { 
-			class_names.insert(*c);
-		}
-		
-		val = addExpression(totalstring, class_names); 
+		val = addCompoundExpression(getP(), getQ(), "&&");
 	}
 	return (val);
 }
@@ -175,84 +308,23 @@ bool cMDEPropertyGenerator::ORExpressions()
 {
 	
 	bool val = false;
-	std::set<std::string> class_names, class_names2;
-	std::set<std::string>::iterator c;
-	std::string totalstring;
-	cMDEExpression p, q;
-
+	
 	if (expression_p != expression_q){
-		p = getP();
-		q = getQ();
-		
-		class_names = p.getRelatedClasses();
-		class_names2 = q.getRelatedClasses();
-
-		for (c=class_names2.begin(); c != class_names2.end(); c++) { 
-			class_names.insert(*c);
-		}
-		
-		totalstring = "(" + p.getExpr() + " || " + q.getExpr() + ")";
-		val = addExpression(totalstring, class_names); 
+		val = addCompoundExpression(getP(), getQ(), "||");
 	}
 	return (val);
 }
 
-float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2)
-{
-	// a pointer to the universal property
-	float val = 0;	
-	cMDEResponseProperty e(s1, s2);
-	
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEResponseProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_response_property_success++;
-		} else { 
-			m_property_failure++;
-			m_response_property_failure++;
-		}
-	}
-	return val;
-}
-
-float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s2)
-{
-	// a pointer to the universal property
-	float val = 0;	
-	cMDEPrecedenceProperty e(s1, s2);
-	
-	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
-	if (mdepropiter != mdeprops.end()) {
-		val = (*mdepropiter)->getEvaluationInformation();
-	} else {
-		e.evaluate();
-		val = e.getEvaluationInformation();
-		mdeprops.insert (new cMDEPrecedenceProperty(e));
-		if (val >0) {
-			m_property_success++;
-			m_precedence_property_success++;
-		} else { 
-			m_property_failure++;
-			m_precedence_property_failure++;
-		}
-	}
-	return val;	
-	
-}
 
 
 	
 void cMDEPropertyGenerator::printExpressions() 
 {
-	std::vector<cMDEExpression>::iterator exprit;
+	std::vector<cMDEExpression*>::iterator exprit;
+	int count =0; 
 	for (exprit = expressions.begin(); exprit < expressions.end(); exprit++){
-		std::cout << exprit->getExpr() << std::endl;
+		std::cout << count << " " << (*exprit)->getExpr() << std::endl;
+		count++;
 	}
 
 }

@@ -32,6 +32,13 @@
 		3E26D90C0CFA0453009616CC /* cMDEProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9040CFA0453009616CC /* cMDEProperty.h */; };
 		3E26D90D0CFA0453009616CC /* cMDEUniversalProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */; };
 		3E26D90E0CFA0453009616CC /* cMDEUniversalProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */; };
+		3E36C88A0D78538500802E27 /* cMDECompoundExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8830D78538500802E27 /* cMDECompoundExpression.h */; };
+		3E36C88B0D78538500802E27 /* cMDEExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8840D78538500802E27 /* cMDEExpression.h */; };
+		3E36C88C0D78538500802E27 /* cMDEExpressionAttribute.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */; };
+		3E36C88D0D78538500802E27 /* cMDESimpleAttAttExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */; };
+		3E36C88E0D78538500802E27 /* cMDESimpleAttValExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */; };
+		3E36C88F0D78538500802E27 /* cMDESimpleExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8880D78538500802E27 /* cMDESimpleExpression.h */; };
+		3E36C8900D78538500802E27 /* cMDESimpleOperationExpression.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */; };
 		3E54F4170CFB147300FC5B63 /* cMDEProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */; };
 		3E849FD60D4A7ECB003DE1BF /* cMDEExistenceProperty.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3E849FD50D4A7ECB003DE1BF /* cMDEExistenceProperty.h */; };
 		3E849FD80D4A7F04003DE1BF /* cMDEResponseProperty.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3E849FD70D4A7F04003DE1BF /* cMDEResponseProperty.cc */; };
@@ -350,6 +357,13 @@
 				3E849FF00D4A8331003DE1BF /* cMDEPrecedenceProperty.h in CopyFiles */,
 				3E97D6CA0D63307E00FA7028 /* cMDEExpression.h in CopyFiles */,
 				3E13BB360D6F49BD0014F96F /* cMDEPropertyGenerator.h in CopyFiles */,
+				3E36C88A0D78538500802E27 /* cMDECompoundExpression.h in CopyFiles */,
+				3E36C88B0D78538500802E27 /* cMDEExpression.h in CopyFiles */,
+				3E36C88C0D78538500802E27 /* cMDEExpressionAttribute.h in CopyFiles */,
+				3E36C88D0D78538500802E27 /* cMDESimpleAttAttExpression.h in CopyFiles */,
+				3E36C88E0D78538500802E27 /* cMDESimpleAttValExpression.h in CopyFiles */,
+				3E36C88F0D78538500802E27 /* cMDESimpleExpression.h in CopyFiles */,
+				3E36C8900D78538500802E27 /* cMDESimpleOperationExpression.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -387,6 +401,13 @@
 		3E26D9040CFA0453009616CC /* cMDEProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEProperty.h; sourceTree = "<group>"; };
 		3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEUniversalProperty.cc; sourceTree = "<group>"; };
 		3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEUniversalProperty.h; sourceTree = "<group>"; };
+		3E36C8830D78538500802E27 /* cMDECompoundExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDECompoundExpression.h; sourceTree = "<group>"; };
+		3E36C8840D78538500802E27 /* cMDEExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExpression.h; sourceTree = "<group>"; };
+		3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExpressionAttribute.h; sourceTree = "<group>"; };
+		3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleAttAttExpression.h; sourceTree = "<group>"; };
+		3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleAttValExpression.h; sourceTree = "<group>"; };
+		3E36C8880D78538500802E27 /* cMDESimpleExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleExpression.h; sourceTree = "<group>"; };
+		3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDESimpleOperationExpression.h; sourceTree = "<group>"; };
 		3E54F4160CFB147300FC5B63 /* cMDEProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEProperty.cc; sourceTree = "<group>"; };
 		3E849FD50D4A7ECB003DE1BF /* cMDEExistenceProperty.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMDEExistenceProperty.h; sourceTree = "<group>"; };
 		3E849FD70D4A7F04003DE1BF /* cMDEResponseProperty.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMDEResponseProperty.cc; sourceTree = "<group>"; };
@@ -1421,6 +1442,13 @@
 				3E26D9040CFA0453009616CC /* cMDEProperty.h */,
 				3E26D9050CFA0453009616CC /* cMDEUniversalProperty.cc */,
 				3E26D9060CFA0453009616CC /* cMDEUniversalProperty.h */,
+				3E36C8830D78538500802E27 /* cMDECompoundExpression.h */,
+				3E36C8840D78538500802E27 /* cMDEExpression.h */,
+				3E36C8850D78538500802E27 /* cMDEExpressionAttribute.h */,
+				3E36C8860D78538500802E27 /* cMDESimpleAttAttExpression.h */,
+				3E36C8870D78538500802E27 /* cMDESimpleAttValExpression.h */,
+				3E36C8880D78538500802E27 /* cMDESimpleExpression.h */,
+				3E36C8890D78538500802E27 /* cMDESimpleOperationExpression.h */,
 				3EDCA0150C46C9B70078778D /* cUMLModel.cc */,
 				3EDCA0160C46C9B70078778D /* cUMLModel.h */,
 				3ED30B200D43D73D00B3E0A7 /* cUMLClass.cc */,

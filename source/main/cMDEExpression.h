@@ -18,14 +18,36 @@
 class cMDEExpression{
 	
 public:
+
+
+	virtual ~cMDEExpression() {}
+	
 	// A function that returns an expression
 	std::string getExpr() const { return _expr; }
-	void setExpr(std::string s) { _expr = s; }
-	bool operator==(const cMDEExpression that) {
+
+	bool operator==(const cMDEExpression &that) const {
 		return (_expr == that.getExpr());
 	}
 	
-	// the related classes are the classes that this expression may be 
+	virtual std::string getInEnglish() =0;
+	virtual std::string getInPromela() =0;
+	
+	// This function is used to see if an expression uses a given attribute
+	virtual bool usesAttribute(std::string) { return false; }
+	
+	// This function is used to see if an expression uses a given operation
+	virtual bool usesOperation(std::string) { return false; }
+	
+	// This function calculates the number of ANDs used by a given expression
+	virtual int numANDs() { return 0; }
+	
+	// This function calculates the number of ORs used by a given expression
+	virtual int numORs() { return 0; }
+	
+	virtual void interestingExpressionEval() { _interesting = 0; }
+	virtual float getInterestingExpressionEval() { return _interesting; } 
+	
+/*	// the related classes are the classes that this expression may be 
 	// related to.
 	void addRelatedClass(std::string c) { _related_classes.insert(c); }
 	void setRelatedClasses(std::set<std::string> s) { _related_classes = s; }	
@@ -38,13 +60,14 @@ public:
 	void addClass(std::string c) {_class_names.insert(c); }
 	bool isClass(std::string c) { 
 		return false; //find(_class_names.begin(), _class_names.end(), c)
-	}
+	}*/
 
 		
 protected:
 	std::string _expr;
-	std::set<std::string> _related_classes;
-	std::set<std::string> _class_names;
+	float _interesting;
+//	std::set<std::string> _related_classes;
+//	std::set<std::string> _class_names;
 	// Ok, eventually, to do more complex expression creation, we need to get it to check the types...
 	
 //	std::string _types;

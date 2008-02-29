@@ -8,6 +8,11 @@
 #include "cMDEResponseProperty.h"
 #include "cMDEPrecedenceProperty.h"
 #include "cMDEExpression.h"
+#include "cMDEExpressionAttribute.h"
+#include "cMDESimpleOperationExpression.h"
+#include "cMDESimpleAttAttExpression.h"
+#include "cMDESimpleAttValExpression.h"
+#include "cMDECompoundExpression.h"
 
 #include <string>
 #include <iostream>
@@ -53,24 +58,41 @@ public:
 	void addPropertyReward(float x) { m_property_reward += x; }
 	float getPropertyReward() { return m_property_reward; }
 	
+	bool addSimpleOperationExpression(std::string, std::string); 
+	bool addSimpleAttAttExpression(cMDEExpressionAttribute*, cMDEExpressionAttribute*, std::string);
+	bool addSimpleAttValExpression(cMDEExpressionAttribute*, std::string, std::string); 
+	bool addCompoundExpression(cMDEExpression*, cMDEExpression*, std::string);
+
+	void printExpressions();
+																											  
 
 	// Properties
-	float addExistenceProperty(std::string);
-	float addAbsenceProperty(std::string);
-	float addUniversalProperty(std::string);
-	float addResponseProperty(std::string, std::string);
-	float addPrecedenceProperty(std::string, std::string);
+	float addExistenceProperty(std::string, float);
+	float addAbsenceProperty(std::string, float);
+	float addUniversalProperty(std::string, float);
+	float addResponseProperty(std::string, std::string, float);
+	float addPrecedenceProperty(std::string, std::string, float);
 
 	bool addExpression(std::string, std::set<std::string>);  
 //	bool relatedExpressions(cMDEExpression*, cMDEExpression*); 
-	void printExpressions();
 
-	cMDEExpression getP() { return expressions[expression_p]; } 
-	cMDEExpression getQ() { return (expressions[expression_q]);  }
-	cMDEExpression getR() { return (expressions[expression_r]); }
-	std::string getPstring() { return (expressions[expression_p]).getExpr(); } 
-	std::string getQstring() { return (expressions[expression_q]).getExpr();  }
-	std::string getRstring() { return (expressions[expression_r]).getExpr(); }
+	cMDEExpression* getP() { return expressions[expression_p]; } 
+	cMDEExpression* getQ() { return (expressions[expression_q]);  }
+	cMDEExpression* getR() { return (expressions[expression_r]); }
+	std::string getPstring() { return (expressions[expression_p])->getExpr(); } 
+	std::string getQstring() { return (expressions[expression_q])->getExpr();  }
+	std::string getRstring() { return (expressions[expression_r])->getExpr(); }
+	
+	float getPInterest() { 
+		(expressions[expression_p])->interestingExpressionEval(); 
+		return (expressions[expression_p])->getInterestingExpressionEval() ; }
+	float getQInterest() { 		
+		(expressions[expression_q])->interestingExpressionEval(); 
+		return (expressions[expression_q])->getInterestingExpressionEval() ; }
+	float getRInterest() { 
+		(expressions[expression_r])->interestingExpressionEval(); 
+		return (expressions[expression_r])->getInterestingExpressionEval() ; }
+	
 	bool relativeMoveExpressionP(int x) { return relativeMoveIndex(expressions, expression_p, x); }
 	bool absoluteMoveExpressionP(int x) { return absoluteMoveIndex(expressions, expression_p, x); }
 	bool relativeMoveExpressionQ(int x) { return relativeMoveIndex(expressions, expression_q, x); }
@@ -80,6 +102,7 @@ public:
 	
 	bool ANDExpressions();
 	bool ORExpressions();
+ 
 	template <typename T>
 		bool absoluteMoveIndex (T x, int &y, int z)
 	{
@@ -139,7 +162,7 @@ protected:
 	
 
 	// vector of expressions
-	std::vector<cMDEExpression> expressions;
+	std::vector<cMDEExpression*> expressions;
 	
 };
 

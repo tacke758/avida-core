@@ -34,10 +34,18 @@ public:
 	virtual void evaluate(); 
 	void setEvaluationInformation (float eval) { _reward = eval; }
 	float getEvaluationInformation() { return _reward; }
+	
+	// These functions get and set how interesting a property is. This 
+	// information is calculated by the property generator when
+	// the property is created.
+	void setInterestingProperty(float inter) {_interesting = inter; }
+	float getInteresting() { return _interesting; }
+	
 		
 protected:
 	std::string _scope;
 	float _reward;
+	float _interesting;
 	
 };
 

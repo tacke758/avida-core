@@ -5108,12 +5108,13 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	// Call a function on the model to create this property.
 	// Currently it just uses p
 	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
+	float intp = organism->getUMLModel()->getPropertyGenerator()->getPInterest();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addAbsenceProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addAbsenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addAbsenceProperty(s, intp);
 	}
 	
 	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
@@ -5126,12 +5127,13 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 	float val = 0;
 	// Call a function on the model to create this property.
 	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
+	float intp = organism->getUMLModel()->getPropertyGenerator()->getPInterest();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addUniversalProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addUniversalProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addUniversalProperty(s, intp);
 	}
 	
 	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
@@ -5144,12 +5146,13 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	float val = 0;
 	// Call a function on the model to create this property.
 	std::string s = organism->getUMLModel()->getPropertyGenerator()->getPstring();
+	float intp = organism->getUMLModel()->getPropertyGenerator()->getPInterest();
 	
 	if (s != "<null>" ) {
 //		std::string n = organism->getStateDiagram()->getName();
 //		s = n + "." + s;
 //		val = organism->getUMLModel()->addExistenceProperty(s);
-		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addExistenceProperty(s);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addExistenceProperty(s, intp);
 	}
 	
 	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
@@ -5163,9 +5166,12 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 	// Call a function on the model to create this property.
 	std::string p = organism->getUMLModel()->getPropertyGenerator()->getPstring();
 	std::string q = organism->getUMLModel()->getPropertyGenerator()->getQstring();
+	float intp = organism->getUMLModel()->getPropertyGenerator()->getPInterest();
+	float intq = organism->getUMLModel()->getPropertyGenerator()->getQInterest();
+	float inttotal = intp + intq;
 	
 	if (p != q) {
-		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addPrecedenceProperty(p, q);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addPrecedenceProperty(p, q, inttotal);
 	}
 	
 	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);
@@ -5179,9 +5185,12 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 	// Call a function on the model to create this property.
 	std::string p = organism->getUMLModel()->getPropertyGenerator()->getPstring();
 	std::string q = organism->getUMLModel()->getPropertyGenerator()->getQstring();
+	float intp = organism->getUMLModel()->getPropertyGenerator()->getPInterest();
+	float intq = organism->getUMLModel()->getPropertyGenerator()->getQInterest();
+	float inttotal = intp + intq;
 	
 	if (p != q) {
-		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addResponseProperty(p, q);
+		val = m_world->GetPopulation().getUMLModel()->getPropertyGenerator()->addResponseProperty(p, q, inttotal);
 	}
 	
 	organism->getUMLModel()->getPropertyGenerator()->addPropertyReward(val);

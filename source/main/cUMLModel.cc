@@ -28,10 +28,8 @@ xmi_info loadFile(const char* filename) {
 				x.xmi_begin += (line + " ");
 				infile >> line;
 			}
-//			std::cout << "XMI BEGIN" << x.xmi_begin << std::endl;
 		} else if (line == "=XMI-END====================") { 
 		// handle xmi_end
-//			std::cout << "XMI END"<< std::endl;
 			line.erase();
 			infile >> line;
 			while (line != "=END========================") { 
@@ -39,7 +37,6 @@ xmi_info loadFile(const char* filename) {
 				x.xmi_end += (line + " ");
 				infile >> line;
 			}
-//			std::cout << "XMI END" << x.xmi_end << std::endl;
 		} else if (line == "=CLASS======================") { 
 		// handle xmi_end
 			line.erase();
@@ -51,7 +48,6 @@ xmi_info loadFile(const char* filename) {
 				infile >> line;
 			}
 			x.classes_info.push_back(data);			
-//			std::cout << "CLASS" << data << std::endl;
 		}
 
 		line.erase();
@@ -169,7 +165,6 @@ void seed_diagrams(const char* seed_model,
 				infile >> temp;
 			} 
 		} else if (line == "==ACTIONS==") { 
-//			int count =1;
 			line.erase();
 			infile >> temp;
 			state_diagrams[cur_class].addAction("<null>");
@@ -177,8 +172,6 @@ void seed_diagrams(const char* seed_model,
 				infile >> temp2; 
 				if (temp=="1") { 
 					state_diagrams[cur_class].addAction(temp2);
-//					std::cout << "action : " << count << " " << temp2 << std::endl;
-//					count++;
 				}
 				infile >> temp;
 			} 
@@ -208,7 +201,6 @@ void seed_diagrams(const char* seed_model,
 		state_diagrams[i].addGuard("<null>");
 		state_diagrams[i].addTrigger("<null>", "<null>");
 //		state_diagrams[i].addAction("<null>");
-//		int counter =1;
 		
 		// For each attribute...
 		for (int j=0; j<temp_size; j++) {
@@ -218,12 +210,8 @@ void seed_diagrams(const char* seed_model,
 				temp2 = a.attribute_values[k];
 				temp3 = a.attribute_name + "=" + temp2;
 				state_diagrams[i].addGuard(temp3);
-//				cout << "guard: " << counter << " " << temp3 << std::endl;
 				temp3 = a.attribute_name + "!=" + temp2;
 				state_diagrams[i].addGuard(temp3);
-//				counter ++;
-//				cout << "guard: " << counter << " " << temp3 << std::endl;
-//				counter ++;
 			}
 		}
 		
@@ -232,16 +220,13 @@ void seed_diagrams(const char* seed_model,
 		for (int m=0; m<temp_size; m++) {
 			o = c.getOperation(m);
 			state_diagrams[i].addTrigger(o.op_name, o.op_code);
-			// std::cout << "trigger: " << (m+1) << " " << o.op_name << " " << o.op_code << std::endl;
 		}
 		
 		// For each of the related classes, add an action for each of 
 		// its methods... (yucky...)
-//		counter =1;
 		rc.clear();
 		rc = classes[i].getAssociatedClasses();
 		for (rcit=rc.begin(); rcit!=rc.end(); rcit++) { 
-			//cout << "Related class " << (*rcit) << std::endl;
 			// Find the related class in the list of classes...
 			for (unsigned int k=0; k<classes.size(); k++){
 				if (classes[k].getClassName() == (*rcit)){
@@ -251,8 +236,6 @@ void seed_diagrams(const char* seed_model,
 						o = classes[k].getOperation(m);
 						temp2 = "^" + classes[k].getClassName() + "." + o.op_name + "()";
 						state_diagrams[i].addAction(temp2);
-//						std::cout << "action: " << counter << " " << temp2 << std::endl;
-//						counter++;
 					}
 				}
 			}
@@ -262,84 +245,6 @@ void seed_diagrams(const char* seed_model,
 	infile.close();
 	return;
 }
-/*
-// This function uses the information generated
-void seedTriggersGuardsActions(std::vector<cUMLClass>& classes,
-								std::vector<cUMLStateDiagram>& state_diagrams) { 
-	
-	std::string class_name;
-	class_attribute a;
-	operation o;
-	cUMLClass c;
-	int temp_size;
-	std::string temp1, temp2, temp3;
-	std::string at_type;
-	
-	state_diagrams.resize(classes.size());
-	// For each class... 
-	// triggers = methods
-	// guards = attribute equality / inequality
-	// actions = methods of related classes.
-	for (unsigned int i=0; i<classes.size(); i++) { 
-		c = classes[i];
-		temp_size = c.numAttributes();
-		
-		// For each attribute...
-		for (int j=0; j<temp_size; j++) {
-			a = c.getAttribute(j);
-			temp1 = class_name + "_V." + a.attribute_name;
-			at_type = a.attribute_type;
-			
-			if ((at_type == "int") || (at_type == "integer")) {
-				// For each attribute value
-				for (unsigned int k=0; k<a.attribute_values.size(); k++){
-					// create both an equality and an inequality expression
-					temp2 = a.attribute_values[k];
-					temp3 = temp1 + "==" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					//std::cout << temp3 << std::endl;
-					temp3 = temp1 + "!=" + temp2;
-					//std::cout << temp3 << std::endl;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					
-					temp3 = temp1 + ">" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					
-					temp3 = temp1 + "<" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					
-					temp3 = temp1 + ">=" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					
-					temp3 = temp1 + "<=" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					
-				}
-			} else if ((at_type == "bool")||(at_type == "boolean")) {
-				for (unsigned int k=0; k<a.attribute_values.size(); k++){
-					// create both an equality and an inequality expression
-					temp2 = a.attribute_values[k];
-					temp3 = temp1 + "==" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					//std::cout << temp3 << std::endl;
-					temp3 = temp1 + "!=" + temp2;
-					//std::cout << temp3 << std::endl;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-				}
-			}
-		}
-		
-		// For each method
-		temp_size = c.numOperations();
-		for (int m=0; m<temp_size; m++) {
-			o = c.getOperation(m);
-			state_diagrams[i].addTrigger(o.op_name, o.op_code);
-			std::cout << "trigger: " << o.op_name << " " << o.op_code << std::endl;
-		}
-	}
-	
-}*/
-
 
 xmi_info cUMLModel::xi = loadFile("xmi_info");
 int cUMLModel::max_trans = 0;
@@ -403,9 +308,7 @@ cUMLStateDiagram* cUMLModel::getStateDiagram (unsigned int x)
 
 void cUMLModel::printXMI()
 {
-	xmi = "";
-//	int v;
-	
+	xmi = "";	
 	xmi = xi.xmi_begin; 
 	
 	assert (xi.classes_info.size() == state_diagrams.size());
@@ -525,7 +428,6 @@ bool cUMLModel::readyForHydra()
 	case 0:
 		ret_val = 1;
 		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
-				//ret_val &= scenario_completion[i];
 				if (scenario_completion[i] != 1) ret_val &= 0;
 		}
 		break;
@@ -545,7 +447,6 @@ bool cUMLModel::readyForHydra()
 		ret_val = 1;
 		if (!(getBonusInfo("isDeterministic"))) { ret_val=0; break; }
 		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
-			//ret_val &= scenario_completion[i];
 			if (scenario_completion[i] != 1) ret_val &= 0;
 		}
 		break;
@@ -571,7 +472,6 @@ void cUMLModel::printUMLModelToFile(std::string file_name)
 	// open outfile. 
 	std::ofstream outfile;
 	outfile.open(file_name.c_str());
-//	outfile.open("out.xmi");
 
 	assert(outfile.is_open());
 	
@@ -634,54 +534,44 @@ void cUMLModel::createExpressionsFromClasses()
 	int temp_size;
 	std::string temp1, temp2, temp3;
 	std::string at_type;
-	
+	cMDEExpressionAttribute* a1, a2;
+			
 	// For each class, create its set of expressions. 
 	for (unsigned int i=0; i<classes.size(); i++) { 
 		c = classes[i];
 		class_name = c.getClassName();
 		temp_size = c.numAttributes();
-		
+
 		// For each attribute...
 		for (int j=0; j<temp_size; j++) {
-			a = c.getAttribute(j);
-			temp1 = class_name + "_V." + a.attribute_name;
-			at_type = a.attribute_type;
 			
+			a = c.getAttribute(j);
+			at_type = a.attribute_type;
+			a1 = new cMDEExpressionAttribute(a.attribute_name, at_type, class_name);
+			
+
 			if ((at_type == "int") || (at_type == "integer")) {
+				
 				// For each attribute value
 				for (unsigned int k=0; k<a.attribute_values.size(); k++){
+
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
-					temp3 = temp1 + "==" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					//std::cout << temp3 << std::endl;
-					temp3 = temp1 + "!=" + temp2;
-					//std::cout << temp3 << std::endl;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-				
-					temp3 = temp1 + ">" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-
-					temp3 = temp1 + "<" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-				
-					temp3 = temp1 + ">=" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-				
-					temp3 = temp1 + "<=" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
+					gen->addSimpleAttValExpression(a1, temp2, "==");
+					gen->addSimpleAttValExpression(a1, temp2, "!=");
+					gen->addSimpleAttValExpression(a1, temp2, ">");
+					gen->addSimpleAttValExpression(a1, temp2, ">=");
+					gen->addSimpleAttValExpression(a1, temp2, "<=");
+					gen->addSimpleAttValExpression(a1, temp2, "<");
 				
 				}
 			} else if ((at_type == "bool")||(at_type == "boolean")) {
 				for (unsigned int k=0; k<a.attribute_values.size(); k++){
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
-					temp3 = temp1 + "==" + temp2;
-					gen->addExpression(temp3, c.getAssociatedClasses());
-					//std::cout << temp3 << std::endl;
-					temp3 = temp1 + "!=" + temp2;
-					//std::cout << temp3 << std::endl;
-					gen->addExpression(temp3, c.getAssociatedClasses());
+					gen->addSimpleAttValExpression(a1, temp2, "==");
+					gen->addSimpleAttValExpression(a1, temp2, "!=");
+					
 				}
 			}
 		}
@@ -690,10 +580,7 @@ void cUMLModel::createExpressionsFromClasses()
 		temp_size = c.numOperations();
 		for (int m=0; m<temp_size; m++) {
 			o = c.getOperation(m);
-			temp1 = class_name;
-			temp3 = class_name + "_q??[" + o.op_name + "]";
-			gen->addExpression(temp3, c.getAssociatedClasses());
-			//std::cout << temp1 << std::endl;
+			gen->addSimpleOperationExpression(o.op_name, class_name);
 		}
 	}
 }

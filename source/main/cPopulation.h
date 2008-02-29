@@ -111,12 +111,12 @@ private:
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
   tArray<cDeme> deme_array;            // Deme structure of the population.
+   
+  // Outside interactions...
+  bool sync_events;   // Do we need to sync up the event list with population?
   
   // UML branch -- for property generation
   cUMLModel m_model;
- 
-  // Outside interactions...
-  bool sync_events;   // Do we need to sync up the event list with population?
 
   ///////////////// Private Methods ////////////////////
   void BuildTimeSlicer(cChangeList* change_list); // Build the schedule object
