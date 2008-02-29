@@ -1,7 +1,6 @@
 #!/bin/bash
 
-module unload ps25
-module unload intelcc
+module rm sgicluster
 module load gnu
 cp HPC_CMakeLists.txt CMakeLists.txt
 mkdir -p cbuild

@@ -1063,7 +1063,7 @@ void cStats::PrintUMLData(const cString& filename)
 	cDataFile& df = m_world->GetDataFile(filename);
 
   // This to force every row to have the same number of columns.
-  if(m_scenario_completion.size()==0) return;
+//  if(m_scenario_completion.size()==0) return;
   
 	df.WriteComment( "Avida uml data\n" );
 	df.WriteComment("the average number of transitions and states per organism");

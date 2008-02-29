@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cp Alice_CMakeLists.txt CMakeLists.txt
 mkdir -p cbuild
 cd cbuild
 cmake "$@" ../

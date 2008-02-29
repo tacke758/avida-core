@@ -4,7 +4,7 @@
 #include "cUMLClass.h"
 #include "cUMLStateDiagram.h"
 #include "cMDEPropertyGenerator.h"
-#include "cMDEExpressionAttribute.H"
+#include "cMDEExpressionAttribute.h"
 
 #include <string>
 #include <iostream>
