@@ -85,7 +85,7 @@ void cMDEUniversalProperty::printInEnglish() {
 	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
-	outfile << "Globally, it is always the case that " << _expr_p  << " holds." << std::endl << std::endl;
+	outfile << "Globally, it is always the case that " << _expr_p  << " holds.     " << _interesting << std::endl << std::endl;
 	
 	outfile.close();
 	

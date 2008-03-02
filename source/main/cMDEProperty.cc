@@ -20,14 +20,12 @@
 
 float cMDEProperty::numWitnesses() {
 	
-//	std::string file_name = "tmp-witness" + _name + ".pr";
 	std::string file_name = "tmp-witness.pr";
 	std::string cmd = "cp tmp.pr "+ file_name;
 	int num_witness = 0;
 	
 	if(system(cmd.c_str())!=0) return 0.0;
 	
-//	cmd = "cat w" + _name + " >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	cmd = "cat witness-property >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 	
@@ -43,13 +41,11 @@ float cMDEProperty::numWitnesses() {
 
 
 float cMDEProperty::verify() { 
-//	std::string file_name = "tmp-" + _name + ".pr";
 	std::string file_name = "tmp-property.pr";
 	std::string cmd = "cp tmp.pr "+ file_name;
 	if(system(cmd.c_str())!=0) return 0.0;
 	
 	
-//	cmd = "cat " + _name + " >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	cmd = "cat property >> " + file_name + " && ./spin -a " +  file_name + " &> /dev/null";
 	if(system(cmd.c_str())!=0) return 0.0;
 	
@@ -83,12 +79,10 @@ void cMDEProperty::evaluate() {
 	// if this property passed, then save it to a file
 	if (verify_reward) { 
 		printInEnglish();
-//		cmd = "cat " + _name + " >> " + work_prop;
 		cmd = "cat english-property >> " + work_prop;
 		system(cmd.c_str());
 	}
 	
-//	_reward = wit_reward + verify_reward;
 	_reward = verify_reward;
 	
 }

@@ -40,15 +40,14 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 		delete p;
 	}
 	
-	/*for( std::vector<cMDEExpression*>::iterator it = expressions.begin(),
-		 exp = expressions.end(); it != exp; )
+	for( std::vector<cMDEExpression*>::iterator it = expressions.begin();
+		 it != expressions.end(); it++ )
 	{
-		cMDEExpression* p = *it;
-		delete p;
-	}*/
-	
-	//expressions.erase(expressions.begin(), expressions.end());
-
+//		cMDEExpression *p = *it;
+//		expressions.erase(it++);
+		delete *it;
+	}
+	expressions.erase(expressions.begin(), expressions.end());
 }
 
 
@@ -66,13 +65,13 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		mdeprops.insert(new cMDEExistenceProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_existence_property_success++;
-			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_existence_property_failure++;
@@ -96,17 +95,17 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i)
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		mdeprops.insert (new cMDEAbsenceProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_absence_property_success++;
-			e.setInterestingProperty(interesting);
 		} else { 
+			e.setInterestingProperty(0);
 			m_property_failure++;
 			m_absence_property_failure++;
-			e.setInterestingProperty(0);
 		}
 	}
 	
@@ -127,13 +126,13 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i)
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		mdeprops.insert (new cMDEUniversalProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_universal_property_success++;
-			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_universal_property_failure++;
@@ -159,13 +158,13 @@ float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2,
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		mdeprops.insert (new cMDEResponseProperty(e));
 		if (val >0) {
 			m_property_success++;
 			m_response_property_success++;
-			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_response_property_failure++;
@@ -188,6 +187,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		
@@ -195,7 +195,6 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s
 		if (val >0) {
 			m_property_success++;
 			m_precedence_property_success++;
-			e.setInterestingProperty(interesting);
 		} else { 
 			m_property_failure++;
 			m_precedence_property_failure++;

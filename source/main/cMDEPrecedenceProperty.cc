@@ -85,7 +85,7 @@ void cMDEPrecedenceProperty::printInEnglish() {
 	assert(outfile.is_open());
 	
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
-	outfile << "then "<< _expr_q << " previously held." << std::endl << std::endl;
+	outfile << "then "<< _expr_q << " previously held.     " << _interesting << std::endl << std::endl;
 	
 	outfile.close();
 	
