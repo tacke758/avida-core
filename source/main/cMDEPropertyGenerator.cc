@@ -55,7 +55,7 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
 {
 	// a pointer to the existence property
 	float val = 0;	
-	float interesting = (i + 0)/5; // 0 points for an existence property.
+	float interesting = (i/5) + 1; // 1 point for an existence property.
 	
 	cMDEExistenceProperty e(s);
 	
@@ -86,7 +86,7 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i)
 {
 	// a pointer to the absence property
 	float val = 0;
-	float interesting = (i + 2)/5; // 2 points for an absence property.
+	float interesting = (i/5) + 3; // 3 points for an absence property.
 
 	cMDEAbsenceProperty e(s);
 	
@@ -117,7 +117,7 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i)
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = (i + 2)/5; // 2 points for a universal property.
+	float interesting = (i/5) + 3; // 3 points for a universal property.
 
 	cMDEUniversalProperty e(s);
 	
@@ -149,7 +149,7 @@ float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2,
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = (i + 1)/5; // 1 points for a response property.
+	float interesting = (i/5) + 2; // 2 points for a response property.
 
 	cMDEResponseProperty e(s1, s2);
 	
@@ -178,7 +178,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = (i + 1)/5; // 1 points for a precedence property.
+	float interesting = (i/5) + 2; // 2 points for a precedence property.
 
 	cMDEPrecedenceProperty e(s1, s2);
 	
