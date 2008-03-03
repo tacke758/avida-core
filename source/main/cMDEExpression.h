@@ -47,31 +47,26 @@ public:
 	virtual void interestingExpressionEval() { _interesting = 0; }
 	virtual float getInterestingExpressionEval() { return _interesting; } 
 	
-/*	// the related classes are the classes that this expression may be 
+	// the related classes are the classes that this expression may be 
 	// related to.
-	void addRelatedClass(std::string c) { _related_classes.insert(c); }
-	void setRelatedClasses(std::set<std::string> s) { _related_classes = s; }	
-	std::set<std::string> getRelatedClasses() { return _related_classes; }
-	bool isRelatedClass(std::string c) { 
-		return false;// find(_related_classes.begin(), _related_classes.end(), c)
-	}
+	void addRelatedClassName(std::string c) { _related_class_names.insert(c); }
+	void setRelatedClassNames(std::set<std::string> s) { _related_class_names = s; }	
+	std::set<std::string> getRelatedClassNames() { return _related_class_names; }
 
 	// the classes are the classes involved in the expression
-	void addClass(std::string c) {_class_names.insert(c); }
-	bool isClass(std::string c) { 
-		return false; //find(_class_names.begin(), _class_names.end(), c)
-	}*/
-
+	void addUsedClassName(std::string c) {_used_class_names.insert(c); }
+	void setUsedClassNames(std::set<std::string> s) { _used_class_names = s; }	
+	std::set<std::string> getUsedClassNames() { return _used_class_names; }
+	
+	bool isUsesRelatedClasses() { return _uses_related_classes; } 
+	void setUsesRelatedClasses(bool t) { _uses_related_classes = t; }
 		
 protected:
 	std::string _expr;
 	float _interesting;
-//	std::set<std::string> _related_classes;
-//	std::set<std::string> _class_names;
-	// Ok, eventually, to do more complex expression creation, we need to get it to check the types...
-	
-//	std::string _types;
-	
+	std::set<std::string> _related_class_names;
+	std::set<std::string> _used_class_names;
+	bool _uses_related_classes; 
 };
 
 

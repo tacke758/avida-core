@@ -43,8 +43,6 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 	for( std::vector<cMDEExpression*>::iterator it = expressions.begin();
 		 it != expressions.end(); it++ )
 	{
-//		cMDEExpression *p = *it;
-//		expressions.erase(it++);
 		delete *it;
 	}
 	expressions.erase(expressions.begin(), expressions.end());
@@ -207,12 +205,17 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s
 }
 
 
-bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n, std::string c) 
+bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n, 
+														std::string c, 
+														std::set<std::string> rcs) 
 {
 	bool val = false;
 	cMDESimpleOperationExpression* e = new cMDESimpleOperationExpression(n, c); 
-	// set related classes? 
-	// 
+	// set related class names
+	e->setRelatedClassNames(rcs);
+	e->addUsedClassName(c);
+	e->setUsesRelatedClasses(true);
+		
 	std::vector<cMDEExpression*>::iterator exprit;
 	exprit = find(expressions.begin(), expressions.end(), e); 
 	if (exprit == expressions.end()) { 
@@ -227,12 +230,16 @@ bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n, std::str
 
 bool cMDEPropertyGenerator::addSimpleAttAttExpression(cMDEExpressionAttribute* a1, 
 												   cMDEExpressionAttribute* a2, 
-												   std::string op) 
+												   std::string op ,
+												   std::set<std::string> rcs) 
 {
 	bool val = false;
 	cMDESimpleAttAttExpression* e = new cMDESimpleAttAttExpression(a1, a2, op); 
-	// set related classes? 
-	// 
+	// set related class names
+	e->setRelatedClassNames(rcs);
+	e->addUsedClassName(a1->getClassName());
+	e->setUsesRelatedClasses(true);
+	
 	std::vector<cMDEExpression*>::iterator exprit;
 	exprit = find(expressions.begin(), expressions.end(), e); 
 	if (exprit == expressions.end()) { 
@@ -246,12 +253,16 @@ bool cMDEPropertyGenerator::addSimpleAttAttExpression(cMDEExpressionAttribute* a
 
 bool cMDEPropertyGenerator::addSimpleAttValExpression(cMDEExpressionAttribute* a1, 
 												   std::string value, 
-												   std::string op)
+												   std::string op, 
+												   std::set<std::string> rcs)
 {
 	bool val = false;
 	cMDESimpleAttValExpression* e = new cMDESimpleAttValExpression(a1, value, op); 
-	// set related classes? 
-	// 
+	// set related class names
+	e->setRelatedClassNames(rcs);
+	e->addUsedClassName(a1->getClassName());
+	e->setUsesRelatedClasses(true);
+
 	std::vector<cMDEExpression*>::iterator exprit;
 	exprit = find(expressions.begin(), expressions.end(), e); 
 	if (exprit == expressions.end()) { 
@@ -270,8 +281,30 @@ bool cMDEPropertyGenerator::addCompoundExpression(cMDEExpression* e1,
 {
 	bool val = false;
 	cMDECompoundExpression* e = new cMDECompoundExpression(e1, e2, op); 
-	// set related classes? 
-	// 
+	
+	// Get the related class names of expression 1
+	// Get the used class names of expression 2
+	std::set<std::string> rcns = e1->getRelatedClassNames();
+	std::set<std::string> ucns = e2->getUsedClassNames();
+	
+	// determine if it uses related classes
+	bool test = includes(rcns.begin(), rcns.end(), ucns.begin(), ucns.end());
+	e->setUsesRelatedClasses(test);
+	
+	// set related class names
+	e->setRelatedClassNames(e1->getRelatedClassNames()); 
+	rcns = e2->getRelatedClassNames();
+	for (std::set<std::string>::iterator it = rcns.begin(); it!=rcns.end(); it++) { 
+		e->addRelatedClassName(*it);
+	}
+	
+	// set used class names
+	e->setUsedClassNames(e1->getUsedClassNames()); 
+	ucns = e2->getUsedClassNames();
+	for (std::set<std::string>::iterator it = ucns.begin(); it!=ucns.end(); it++) { 
+		e->addUsedClassName(*it);
+	}	
+	
 	std::vector<cMDEExpression*>::iterator exprit;
 	exprit = find(expressions.begin(), expressions.end(), e); 
 	if (exprit == expressions.end()) { 

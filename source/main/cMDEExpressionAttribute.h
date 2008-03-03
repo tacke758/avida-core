@@ -25,18 +25,19 @@ public:
 	// get functions
 	std::string getInEnglish() { return (_att_class + "." + _att_name); }
 	std::string getInPromela() { return (_att_class + "_V." + _att_name); }	
-	std::set<std::string> getRelatedClasses() { return _related_classes; }
+	//std::set<std::string> getRelatedClasses() { return _related_classes; }
 	std::string getAttName() { return _att_name; }
+	std::string getClassName() { return _att_class; }
 	
 	// set functions
-	void setRelatedClasses(std::set<std::string> s) { _related_classes = s; }	
+	//void setRelatedClasses(std::set<std::string> s) { _related_classes = s; }	
 
 		
 protected:
 	std::string _att_name;
 	std::string _att_type;
 	std::string _att_class; 
-	std::set<std::string> _related_classes;
+	//std::set<std::string> _related_classes;
 	
 };
 

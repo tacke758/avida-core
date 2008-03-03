@@ -58,9 +58,9 @@ public:
 	void addPropertyReward(float x) { m_property_reward += x; }
 	float getPropertyReward() { return m_property_reward; }
 	
-	bool addSimpleOperationExpression(std::string, std::string); 
-	bool addSimpleAttAttExpression(cMDEExpressionAttribute*, cMDEExpressionAttribute*, std::string);
-	bool addSimpleAttValExpression(cMDEExpressionAttribute*, std::string, std::string); 
+	bool addSimpleOperationExpression(std::string, std::string, std::set<std::string>); 
+	bool addSimpleAttAttExpression(cMDEExpressionAttribute*, cMDEExpressionAttribute*, std::string, std::set<std::string>);
+	bool addSimpleAttValExpression(cMDEExpressionAttribute*, std::string, std::string, std::set<std::string>); 
 	bool addCompoundExpression(cMDEExpression*, cMDEExpression*, std::string);
 
 	void printExpressions();
@@ -73,7 +73,7 @@ public:
 	float addResponseProperty(std::string, std::string, float);
 	float addPrecedenceProperty(std::string, std::string, float);
 
-	bool addExpression(std::string, std::set<std::string>);  
+//	bool addExpression(std::string, std::set<std::string>);  
 //	bool relatedExpressions(cMDEExpression*, cMDEExpression*); 
 
 	cMDEExpression* getP() { return expressions[expression_p]; } 
