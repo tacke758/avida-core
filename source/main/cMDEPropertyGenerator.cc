@@ -9,7 +9,7 @@
 
 using namespace std;
 
-cMDEPropertyGenerator::cMDEPropertyGenerator() {
+cMDEPropertyGenerator::cMDEPropertyGenerator(bool rcm) {
   //init property data
   expression_p = 0;
   expression_q = 0;
@@ -27,6 +27,7 @@ cMDEPropertyGenerator::cMDEPropertyGenerator() {
   m_precedence_property_failure =0;
   m_response_property_success =0;
   m_response_property_failure =0;
+  m_related_class_mode = rcm; 
 }
 
 
@@ -49,13 +50,14 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 }
 
 
-float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
+float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i, bool related)
 {
 	// a pointer to the existence property
 	float val = 0;	
 	float interesting = (i/5) + 1; // 1 point for an existence property.
 	
 	cMDEExistenceProperty e(s);
+	
 	
 	// first, try to find the property
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
@@ -64,6 +66,7 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
 		val += (*mdepropiter)->getInteresting();
 	} else {
 		e.setInterestingProperty(interesting);
+		e.setUsesRelatedClasses(related);
 		e.evaluate();
 		val = e.getEvaluationInformation();
 		mdeprops.insert(new cMDEExistenceProperty(e));
@@ -77,10 +80,13 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i)
 		}
 	}
 	
+	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	
 	return val;
 }
 
-float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i)
+float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i, bool related)
 {
 	// a pointer to the absence property
 	float val = 0;
@@ -107,11 +113,14 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i)
 		}
 	}
 	
+	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	
 	return val;
 	
 }
 
-float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i)
+float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i, bool related)
 {
 	// a pointer to the universal property
 	float val = 0;	
@@ -138,12 +147,18 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i)
 		}
 	}
 	
+	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	
 	return val;
 	
 }
 
 
-float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2, float i)
+float cMDEPropertyGenerator::addResponseProperty(std::string s1, 
+												 std::string s2, 
+												 float i, 
+												 bool related)
 {
 	// a pointer to the universal property
 	float val = 0;	
@@ -169,10 +184,17 @@ float cMDEPropertyGenerator::addResponseProperty(std::string s1, std::string s2,
 			e.setInterestingProperty(0);
 		}
 	}
+	
+	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+
 	return val;
 }
 
-float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s2, float i)
+float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, 
+												   std::string s2, 
+												   float i, 
+												   bool related)
 {
 	// a pointer to the universal property
 	float val = 0;	
@@ -200,6 +222,10 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, std::string s
 
 		}
 	}
+	
+	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+
 	return val;	
 	
 }
@@ -214,6 +240,7 @@ bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n,
 	// set related class names
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(c);
+	e->addRelatedClassName(c);
 	e->setUsesRelatedClasses(true);
 		
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -238,6 +265,7 @@ bool cMDEPropertyGenerator::addSimpleAttAttExpression(cMDEExpressionAttribute* a
 	// set related class names
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(a1->getClassName());
+	e->addRelatedClassName(a1->getClassName());
 	e->setUsesRelatedClasses(true);
 	
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -261,6 +289,7 @@ bool cMDEPropertyGenerator::addSimpleAttValExpression(cMDEExpressionAttribute* a
 	// set related class names
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(a1->getClassName());
+	e->addRelatedClassName(a1->getClassName());
 	e->setUsesRelatedClasses(true);
 
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -281,26 +310,20 @@ bool cMDEPropertyGenerator::addCompoundExpression(cMDEExpression* e1,
 {
 	bool val = false;
 	cMDECompoundExpression* e = new cMDECompoundExpression(e1, e2, op); 
-	
-	// Get the related class names of expression 1
-	// Get the used class names of expression 2
-	std::set<std::string> rcns = e1->getRelatedClassNames();
-	std::set<std::string> ucns = e2->getUsedClassNames();
-	
+		
 	// determine if it uses related classes
-	bool test = includes(rcns.begin(), rcns.end(), ucns.begin(), ucns.end());
-	e->setUsesRelatedClasses(test);
+	e->setUsesRelatedClasses(areExpressionsRelated(e1, e2));
 	
 	// set related class names
 	e->setRelatedClassNames(e1->getRelatedClassNames()); 
-	rcns = e2->getRelatedClassNames();
+	std::set<std::string> rcns = e2->getRelatedClassNames();
 	for (std::set<std::string>::iterator it = rcns.begin(); it!=rcns.end(); it++) { 
 		e->addRelatedClassName(*it);
 	}
 	
 	// set used class names
 	e->setUsedClassNames(e1->getUsedClassNames()); 
-	ucns = e2->getUsedClassNames();
+	std::set<std::string> ucns = e2->getUsedClassNames();
 	for (std::set<std::string>::iterator it = ucns.begin(); it!=ucns.end(); it++) { 
 		e->addUsedClassName(*it);
 	}	
@@ -353,13 +376,41 @@ bool cMDEPropertyGenerator::ORExpressions()
 void cMDEPropertyGenerator::printExpressions() 
 {
 	std::vector<cMDEExpression*>::iterator exprit;
+	std::set<std::string> used_class_names;
+	std::set<std::string> related_class_names;
+	std::set<std::string>::iterator it;
+	
 	int count =0; 
 	for (exprit = expressions.begin(); exprit < expressions.end(); exprit++){
+		used_class_names = (*exprit)->getUsedClassNames(); 
+		related_class_names = (*exprit)->getRelatedClassNames();
 		std::cout << count << " " << (*exprit)->getExpr() << std::endl;
+		std::cout << "     uses related classes: " << (*exprit)->getUsesRelatedClasses() << std::endl;
+		std::cout << "     used class names: " << std::endl;
+		for (it = used_class_names.begin(); it!=used_class_names.end(); it++) {
+			std::cout << "          " << (*it) << std::endl;
+		}
+		std::cout << "     related class names: " << std::endl;
+		for (it = related_class_names.begin(); it!=related_class_names.end(); it++) {
+			std::cout << "          " << (*it) << std::endl;
+		}
+		
 		count++;
 	}
 
 }
 
 
+bool cMDEPropertyGenerator::areExpressionsRelated(cMDEExpression* e1, cMDEExpression* e2)
+{
+	// Get the related class names of expression 1
+	// Get the used class names of expression 2
+	std::set<std::string> rcns = e1->getRelatedClassNames();
+	std::set<std::string> ucns = e2->getUsedClassNames();
+	
+	// determine if it uses related classes
+	bool test = includes(rcns.begin(), rcns.end(), ucns.begin(), ucns.end());
+	
+	return test;
+}
 

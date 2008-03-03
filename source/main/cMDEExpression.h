@@ -58,7 +58,7 @@ public:
 	void setUsedClassNames(std::set<std::string> s) { _used_class_names = s; }	
 	std::set<std::string> getUsedClassNames() { return _used_class_names; }
 	
-	bool isUsesRelatedClasses() { return _uses_related_classes; } 
+	bool getUsesRelatedClasses() { return _uses_related_classes; } 
 	void setUsesRelatedClasses(bool t) { _uses_related_classes = t; }
 		
 protected:

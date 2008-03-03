@@ -70,7 +70,8 @@ void seed_diagrams(const char* seed_model,
                    std::vector<scenario_info>& scenarios,
                    int& hydra_mode, 
 				   bool& witness_mode, 
-				   int& gen_mode) {
+				   int& gen_mode, 
+				   int& related_class_mode) {
   std::string data, line; 
 	int cur_class = -1;
 	int num_classes;
@@ -95,6 +96,7 @@ void seed_diagrams(const char* seed_model,
 			infile >> temp1 >> hydra_mode;
 			infile >> temp1 >> witness_mode;
 			infile >> temp1 >> gen_mode;
+			infile >> temp1 >> related_class_mode;
 			// resize state diagrams & classes to correspond to the number of classes.
 			classes.resize(num_classes);
 			state_diagrams.resize(classes.size());
@@ -257,11 +259,12 @@ std::vector<scenario_info> cUMLModel::_cfg_scenarios;
 int cUMLModel::_cfg_hydra_mode;
 bool cUMLModel::_cfg_witness_mode;
 int cUMLModel::_cfg_gen_mode;
+int cUMLModel::_cfg_related_class_mode;
 
 
 cUMLModel::cUMLModel(const char* seed_model) {
   if(!_cfgLoaded) {
-    seed_diagrams(seed_model, _cfg_classes, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode, _cfg_gen_mode);
+    seed_diagrams(seed_model, _cfg_classes, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode, _cfg_gen_mode, _cfg_related_class_mode);
     _cfgLoaded = true;
   }
   
@@ -271,9 +274,10 @@ cUMLModel::cUMLModel(const char* seed_model) {
   hydraMode = _cfg_hydra_mode; 
   witnessMode = _cfg_witness_mode;
   genMode = _cfg_gen_mode;
+  relatedClassMode = _cfg_related_class_mode;
   
   // Initialize the property generator.
-  gen = new cMDEPropertyGenerator();
+  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);
   createExpressionsFromClasses();
 }
 

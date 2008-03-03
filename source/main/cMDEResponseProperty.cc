@@ -72,7 +72,8 @@ void cMDEResponseProperty::printInEnglish() {
 	assert(outfile.is_open());
 	
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
-	outfile << "then "<< _expr_q << " eventually holds.     " << _interesting  << std::endl << std::endl;
+	outfile << "then "<< _expr_q << " eventually holds.     "; 
+	outfile << _interesting << "     " << _uses_related_classes << std::endl << std::endl;
 	
 	outfile.close();
 	

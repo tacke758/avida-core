@@ -41,11 +41,18 @@ public:
 	void setInterestingProperty(float inter) {_interesting = inter; }
 	float getInteresting() { return _interesting; }
 	
+	// These functions get and set whether the expressions used by the property
+	// involve classes that are (or are not) related to one another. 
+	// This information is calculated and set by the property generator class.
+	void setUsesRelatedClasses( bool r) { _uses_related_classes = r; }
+	bool getUsesRelatedClasses() { return _uses_related_classes; }
+	
 		
 protected:
 	std::string _scope;
 	float _reward;
 	float _interesting;
+	bool _uses_related_classes;
 	
 };
 

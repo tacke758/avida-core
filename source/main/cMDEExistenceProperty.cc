@@ -57,7 +57,8 @@ void cMDEExistenceProperty::printInEnglish() {
 	outfile.open (file_name.c_str());
 	assert(outfile.is_open());
 	
-	outfile << "Globally, " << _expr_p  << " eventually holds.     " << _interesting << std::endl<< std::endl;
+	outfile << "Globally, " << _expr_p  << " eventually holds.     "; 
+	outfile << _interesting << "     " << _uses_related_classes << std::endl << std::endl;
 	
 	outfile.close();
 	

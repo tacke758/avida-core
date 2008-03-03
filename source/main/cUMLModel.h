@@ -109,6 +109,7 @@ public:
 	bool readyForHydra(); 
 	bool getWitnessMode() {return witnessMode; }
 	int getGenMode() { return genMode; }
+	int getRelatedClassMode() { return relatedClassMode; }
 //	float checkProperties();
 	
 
@@ -125,6 +126,10 @@ protected:
 	bool witnessMode;
 	// Mode 0 = model generation; mode 1 = property generation
 	int genMode;
+	// Mode 0 = print
+	// Mode 1 = contribute to interest + print
+	// Mode 2 = forbid unrelated + print
+	int relatedClassMode;
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
@@ -135,6 +140,8 @@ protected:
   static int _cfg_hydra_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
   static bool _cfg_witness_mode; //!< Execution mode for hydra, as read from seed-model.cfg.
   static int _cfg_gen_mode; //!< Generation mode, as read from seed-model.cfg.
+  static int _cfg_related_class_mode; //!< Related class mode, as read from seed-model.cfg
+								  // where 0 = print, 1 = interest + print, 2 = forbid + print
   
   cMDEPropertyGenerator* gen; 
 

@@ -26,7 +26,7 @@
 
 class cMDEPropertyGenerator { 
 public:
-	cMDEPropertyGenerator();
+	cMDEPropertyGenerator(bool);
 	~cMDEPropertyGenerator();
 	
 	// Get info about the properties satisfied by the model.
@@ -67,11 +67,11 @@ public:
 																											  
 
 	// Properties
-	float addExistenceProperty(std::string, float);
-	float addAbsenceProperty(std::string, float);
-	float addUniversalProperty(std::string, float);
-	float addResponseProperty(std::string, std::string, float);
-	float addPrecedenceProperty(std::string, std::string, float);
+	float addExistenceProperty(std::string, float, bool);
+	float addAbsenceProperty(std::string, float, bool);
+	float addUniversalProperty(std::string, float, bool);
+	float addResponseProperty(std::string, std::string, float, bool);
+	float addPrecedenceProperty(std::string, std::string, float, bool);
 
 //	bool addExpression(std::string, std::set<std::string>);  
 //	bool relatedExpressions(cMDEExpression*, cMDEExpression*); 
@@ -99,6 +99,7 @@ public:
 	bool absoluteMoveExpressionQ(int x) { return absoluteMoveIndex(expressions, expression_q, x); }
 	bool relativeMoveExpressionR(int x) { return relativeMoveIndex(expressions, expression_r, x); }
 	bool absoluteMoveExpressionR(int x) { return absoluteMoveIndex(expressions, expression_r, x); }
+	bool areExpressionsRelated(cMDEExpression*, cMDEExpression*);
 	
 	bool ANDExpressions();
 	bool ORExpressions();
@@ -159,6 +160,7 @@ protected:
 	int m_response_property_success;
 	int m_response_property_failure;
 	float m_property_reward;
+	int m_related_class_mode;
 	
 
 	// vector of expressions

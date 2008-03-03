@@ -59,6 +59,9 @@
 #ifndef cPopulation_h
 #include "cPopulation.h"
 #endif
+#ifndef CMDEPROPERTYGENERATOR_H
+#include "cMDEPropertyGenerator.h"
+#endif
 
 #ifndef defs_h
 #include "defs.h"
