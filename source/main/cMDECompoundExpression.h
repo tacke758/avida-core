@@ -65,7 +65,7 @@ public:
 	void interestingExpressionEval() { 
 		// Currently, the interesting reward is evaluated based on: 
 		// - whether it includes one of the significant variables/operations
-		float temp;
+		float temp =0;
 		
 		// Check to see if the expressions use suspend or restart operations
 		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
