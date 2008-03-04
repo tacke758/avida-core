@@ -7001,7 +7001,7 @@ return;
  * January 2008
  * This function will go through the lineage, align the genotypes, and
  * perform pairwise reversions for all pairs of genotypes in the current
- * batch.
+ * batch.  Reversions from a mutation will not be performed once the mutation
  * Recalculating the current batch for phenotypic plasticity prior to use
  * speeds up this function.
  * Arguments:
@@ -7126,7 +7126,7 @@ void cAnalyze::MutationRevert(cString cur_string)
             break;
             
           case 'm':      // Point mutation from 0 to A
-            if (str_AB[k] != '_' && true){ //!mutated_from_A[k]){ // If the site still exists and is the
+            if (str_AB[k] != '_' && !mutated_from_A[k]){ // If the site still exists and is the
               str_B += str_0[k];                           // same as mutant A, revert to mutant 0 
               tmp_B += str_0[k];
               performed_reversion = true;
@@ -7184,6 +7184,7 @@ void cAnalyze::MutationRevert(cString cur_string)
       fitness_B = pp.GetLikelyFitness();
       P_H_B = pp.GetPhenotypicEntropy();
       
+      double sign_epistasis = log( (fitness_0 * fitness_AB) / (fitness_A * fitness_B) );
       
       /*
        FOT output per line
@@ -7205,6 +7206,7 @@ void cAnalyze::MutationRevert(cString cur_string)
        DISTANCE_A_AB
        FITNESS_B
        PHEN_PLAST_ENTROPY_B
+       SIGN_EPISTASIS (Nats)
        */
       
 /*
@@ -7237,6 +7239,8 @@ void cAnalyze::MutationRevert(cString cur_string)
       
       df.Write(fitness_B, "Fitness_B"); //18
       df.Write(P_H_B, "Phenotypic_Entropy_B"); //19
+      
+      df.Write(sign_epistasis, "Sign_Epistasis_(nats)");
       
      
       df.Endl();
