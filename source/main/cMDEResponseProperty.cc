@@ -13,7 +13,7 @@ void cMDEResponseProperty::print() {
 	
 	// Create the file...
 	std::string cmd = "cp " + _promela + " " + _property_file_name;
-	assert(system(cmd.c_str())!=0);
+	if(system(cmd.c_str())!=0) return;
 	
 	// Open the file in append mode...
 	std::ofstream outfile;
@@ -42,7 +42,7 @@ void cMDEResponseProperty::printWitness() {
 	
 	// Create the file
 	std::string cmd = "cp " + _promela + " " + _witness_file_name;
-	assert(system(cmd.c_str())!=0);
+	if(system(cmd.c_str())!=0) return;
 	
 	// Open the file in append mode
 	std::ofstream outfile;
