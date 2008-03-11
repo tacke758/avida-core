@@ -10,9 +10,13 @@
 #include "cMDEPrecedenceProperty.h"
 
 void cMDEPrecedenceProperty::print() {
+	// Create the file...
+	std::string cmd = "cp " + _promela + " " + _property_file_name;
+	assert(system(cmd.c_str())!=0);
 	
+	// Open the file in append mode...
 	std::ofstream outfile;
-	outfile.open ("property");
+	outfile.open (_property_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "/* Precedence property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
@@ -50,9 +54,13 @@ void cMDEPrecedenceProperty::print() {
 
 void cMDEPrecedenceProperty::printWitness() {
 	
+	// Create the file
+	std::string cmd = "cp " + _promela + " " + _witness_file_name;
+	assert(system(cmd.c_str())!=0);
+	
+	// Open the file in append mode
 	std::ofstream outfile;
-	std::string file_name = "witness-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "/* Precedence property " << _expr_p  << " " << _expr_q << "*/" << std::endl;
@@ -80,13 +88,14 @@ void cMDEPrecedenceProperty::printWitness() {
 void cMDEPrecedenceProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	std::string file_name = "english-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_properties.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
+	
+	outfile << _interesting << ", " << _uses_related_classes << ", ";
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
 	outfile << "then "<< _expr_q << " previously held.     "; 
-	outfile << _interesting << "     " << _uses_related_classes << std::endl << std::endl;
+	outfile << std::endl << std::endl;
 
 	
 	outfile.close();

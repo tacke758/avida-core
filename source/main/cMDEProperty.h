@@ -25,7 +25,6 @@ public:
 	virtual std::string getPropertyType() = 0;
 	virtual std::string getPropertyParameters() { return ""; } 
 	
-	
 	// A function that checks to see if there is a witness trace for the property
 	float numWitnesses();
 	// A function that verifies a property
@@ -53,6 +52,12 @@ protected:
 	float _reward;
 	float _interesting;
 	bool _uses_related_classes;
+	
+	// Name of the output filesw:
+	std::string _property_file_name; // = "tmp-property.pr"; 
+	std::string _witness_file_name; // = "tmp-witness.pr";
+	std::string _properties; // = "properties_that_passed";
+	std::string _promela; 
 	
 };
 

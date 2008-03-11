@@ -21,7 +21,13 @@
 class cMDEUniversalProperty : public cMDEProperty{
 	
 public:
-	cMDEUniversalProperty(std::string expr) { _expr_p = expr; _reward = -1;}
+	cMDEUniversalProperty(std::string expr) { _expr_p = expr; 
+		_reward = -1;
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
+	}
 	virtual ~cMDEUniversalProperty() {}
 	void print(); // { std::cout << _scope << " " << _expr_p  << std::endl; }
 	void printWitness(); // { std::cout << _scope << " " << _expr_p  << std::endl; }

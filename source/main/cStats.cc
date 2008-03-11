@@ -1035,6 +1035,7 @@ void cStats::PrintPropertyData(const cString& filename)
 	df.WriteComment( "Avida uml properties\n" );
 	df.WriteTimeStamp();
 	df.Write( GetUpdate(), "update" );
+	df.Write(sum_merit.Average(), "Merit");	
 	df.Write( m_propertySuccess, "total number of properties that passed" );
 	df.Write( m_propertyFailure, "total number of properties that failed" );
 	df.Write( m_propertyTotal, "total number of properties" );

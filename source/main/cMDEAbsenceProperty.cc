@@ -11,9 +11,13 @@
 
 void cMDEAbsenceProperty::print() {
 	
+	// Create the file...
+	std::string cmd = "cp " + _promela + " " + _property_file_name;
+	assert(system(cmd.c_str())!=0);
+	
+	// Open the file in append mode...
 	std::ofstream outfile;
-//	outfile.open (_name.c_str());
-	outfile.open ("property");
+	outfile.open (_property_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -33,10 +37,13 @@ void cMDEAbsenceProperty::print() {
 
 void cMDEAbsenceProperty::printWitness() {
 	
+	// Create the file
+	std::string cmd = "cp " + _promela + " " + _witness_file_name;
+	assert(system(cmd.c_str())!=0);
+	
+	// Open the file in append mode
 	std::ofstream outfile;
-//	std::string file_name= "w" + _name;
-	std::string file_name = "witness-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "/* Absence property " << _expr_p << "*/" << std::endl;
@@ -66,12 +73,13 @@ void cMDEAbsenceProperty::evaluate()
 	print();
 	verify_reward = verify();
 	std::string cmd;
-	std::string work_prop = "properties_that_passed";
+//	std::string work_prop = "properties_that_passed";
 
 		// if this property passed, then save it to a file
 	if (verify_reward) { 
-		cmd = "cat english-property >> " + work_prop;
-		system(cmd.c_str());
+//		cmd = "cat english-property >> " + work_prop;
+//		system(cmd.c_str());
+		printInEnglish();
 	}
 	
 	_reward = verify_reward;
@@ -81,12 +89,13 @@ void cMDEAbsenceProperty::evaluate()
 void cMDEAbsenceProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	std::string file_name = "english-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_properties.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
+	
+	outfile << _interesting << ", " << _uses_related_classes << ", ";
 	outfile << "Globally, it is never the case that " << _expr_p  << " holds.     "; 
-	outfile << _interesting << "     " << _uses_related_classes << std::endl << std::endl;
+	outfile << std::endl << std::endl;
 	
 	outfile.close();
 	

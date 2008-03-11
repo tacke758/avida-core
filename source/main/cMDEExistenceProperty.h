@@ -22,7 +22,14 @@
 class cMDEExistenceProperty : public cMDEProperty{
 	
 public:
-	cMDEExistenceProperty(std::string expr) { _expr_p = expr; _reward = -1;}
+	cMDEExistenceProperty(std::string expr) { 
+		_expr_p = expr; 
+		_reward = -1;
+		_property_file_name = "tmp-property.pr"; 
+		_witness_file_name = "tmp-witness.pr";
+		_properties = "properties_that_passed";
+		_promela = "tmp.pr";
+	}
 	
 	virtual ~cMDEExistenceProperty() {}
 

@@ -11,9 +11,13 @@
 
 void cMDEUniversalProperty::print() {
 	
+	// Create the file...
+	std::string cmd = "cp " + _promela + " " + _property_file_name;
+	assert(system(cmd.c_str())!=0);
+	
+	// Open the file in append mode...
 	std::ofstream outfile;
-//	outfile.open (_name.c_str());
-	outfile.open ("property");
+	outfile.open (_property_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "/* Universal property " << _expr_p << "*/" << std::endl;
@@ -34,10 +38,13 @@ void cMDEUniversalProperty::print() {
 
 void cMDEUniversalProperty::printWitness() {
 	
+	// Create the file
+	std::string cmd = "cp " + _promela + " " + _witness_file_name;
+	assert(system(cmd.c_str())!=0);
+	
+	// Open the file in append mode
 	std::ofstream outfile;
-//	std::string file_name = "w" + _name;
-	std::string file_name = "witness-property";
-	outfile.open (file_name.c_str());
+	outfile.open (_witness_file_name.c_str(), std::ios_base::app);
 	assert(outfile.is_open());
 	
 	outfile << "#define p (" << _expr_p << ")" << std::endl;
@@ -63,14 +70,15 @@ void cMDEUniversalProperty::evaluate()
 	// print the property
 	print();
 	verify_reward = verify();
-	std::string cmd;
-	std::string work_prop = "properties_that_passed";
+//	std::string cmd;
+//	std::string work_prop = "properties_that_passed";
 	
 	// if this property passed, then save it to a file
 	if (verify_reward) { 
+		printInEnglish();
 //		cmd = "cat " + _name + " >> " + work_prop;
-		cmd = "cat english-property >> " + work_prop;
-		system(cmd.c_str());
+//		cmd = "cat english-property >> " + work_prop;
+//		system(cmd.c_str());
 	}
 	
 	_reward = verify_reward;
@@ -81,12 +89,12 @@ void cMDEUniversalProperty::evaluate()
 void cMDEUniversalProperty::printInEnglish() {
 	
 	std::ofstream outfile;
-	std::string file_name = "english-property";
-	outfile.open (file_name.c_str());
-	assert(outfile.is_open());
+	outfile.open (_properties.c_str(), std::ios_base::app);
+	assert(outfile.is_open());	
 	
+	outfile << _interesting << ", " << _uses_related_classes << ", ";
 	outfile << "Globally, it is always the case that " << _expr_p  << " holds.     ";
-	outfile << _interesting << "     " << _uses_related_classes << std::endl << std::endl;
+	outfile << std::endl << std::endl;
 	
 	outfile.close();	
 }
