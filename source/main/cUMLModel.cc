@@ -561,12 +561,26 @@ void cUMLModel::createExpressionsFromClasses()
 
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
-					gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, ">", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, "<", c.getAssociatedClasses());
+					
+					// Can't be less than the first value.
+					if (k==0) {
+						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, ">", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
+					} else if (k==(a.attribute_values.size() -1)) {
+						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "<", c.getAssociatedClasses());
+					} else {
+						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, "<", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, ">", c.getAssociatedClasses());
+						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
+					}
 				
 				}
 			} else if ((at_type == "bool")||(at_type == "boolean")) {

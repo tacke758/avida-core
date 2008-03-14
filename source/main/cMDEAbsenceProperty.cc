@@ -93,7 +93,10 @@ void cMDEAbsenceProperty::printInEnglish() {
 	assert(outfile.is_open());
 	
 	
-	outfile << _interesting << ", " << _uses_related_classes << ", ";
+	outfile << _interesting << ", ";
+	if (_uses_related_classes) {
+		outfile << "true" << ", ";
+	} else { outfile << "false" << ", "; }
 	outfile << "Globally, it is never the case that " << _expr_p  << " holds.     "; 
 	outfile << std::endl << std::endl;
 	

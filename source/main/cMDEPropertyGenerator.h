@@ -100,6 +100,8 @@ public:
 	bool relativeMoveExpressionR(int x) { return relativeMoveIndex(expressions, expression_r, x); }
 	bool absoluteMoveExpressionR(int x) { return absoluteMoveIndex(expressions, expression_r, x); }
 	bool areExpressionsRelated(cMDEExpression*, cMDEExpression*);
+	bool areExpressionsAtsOpsDependent(cMDEExpression*, cMDEExpression*);
+
 	
 	bool ANDExpressions();
 	bool ORExpressions();

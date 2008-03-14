@@ -25,6 +25,7 @@ public:
 	std::string getInEnglish() { return (_op_class + "." + _op_name + "()"); }
 	std::string getInPromela() { return (_op_class + "_q??[" + _op_name + "]"); }	
 	std::set<std::string> getRelatedClasses() { return _related_classes; }
+	std::string getOpName() { return _op_name; }
 	
 	// set functions
 	void setRelatedClasses(std::set<std::string> s) { _related_classes = s; }	

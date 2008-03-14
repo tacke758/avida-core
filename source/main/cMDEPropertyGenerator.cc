@@ -224,7 +224,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1,
 	}
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { val = 0; }
 
 	return val;	
 	
@@ -241,6 +241,7 @@ bool cMDEPropertyGenerator::addSimpleOperationExpression(std::string n,
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(c);
 	e->addRelatedClassName(c);
+	e->addAttOpName(c + "." + n);
 	e->setUsesRelatedClasses(true);
 		
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -266,6 +267,8 @@ bool cMDEPropertyGenerator::addSimpleAttAttExpression(cMDEExpressionAttribute* a
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(a1->getClassName());
 	e->addRelatedClassName(a1->getClassName());
+	e->addAttOpName(a1->getClassName() + "." + a1->getAttName());
+	e->addAttOpName(a1->getClassName() + "." + a2->getAttName());
 	e->setUsesRelatedClasses(true);
 	
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -290,6 +293,7 @@ bool cMDEPropertyGenerator::addSimpleAttValExpression(cMDEExpressionAttribute* a
 	e->setRelatedClassNames(rcs);
 	e->addUsedClassName(a1->getClassName());
 	e->addRelatedClassName(a1->getClassName());
+	e->addAttOpName(a1->getClassName() + "." + a1->getAttName());
 	e->setUsesRelatedClasses(true);
 
 	std::vector<cMDEExpression*>::iterator exprit;
@@ -310,13 +314,24 @@ bool cMDEPropertyGenerator::addCompoundExpression(cMDEExpression* e1,
 {
 	bool val = false;
 	cMDECompoundExpression* e = new cMDECompoundExpression(e1, e2, op); 
-		
+	
+	// If ats/ops are dependent, then don't create the expression
+	if (areExpressionsAtsOpsDependent(e1, e2)) return false;
+	
 	// determine if it uses related classes
 	e->setUsesRelatedClasses(areExpressionsRelated(e1, e2));
 	
+	
+	// set at op names.
+	e->setAttOpNames(e1->getAtOpNames()); 
+	std::set<std::string> rcns = e2->getAtOpNames();
+	for (std::set<std::string>::iterator it = rcns.begin(); it!=rcns.end(); it++) { 
+		e->addAttOpName(*it);
+	}
+	
 	// set related class names
 	e->setRelatedClassNames(e1->getRelatedClassNames()); 
-	std::set<std::string> rcns = e2->getRelatedClassNames();
+	rcns = e2->getRelatedClassNames();
 	for (std::set<std::string>::iterator it = rcns.begin(); it!=rcns.end(); it++) { 
 		e->addRelatedClassName(*it);
 	}
@@ -414,3 +429,21 @@ bool cMDEPropertyGenerator::areExpressionsRelated(cMDEExpression* e1, cMDEExpres
 	return test;
 }
 
+// try a set intersection and check that it is null.
+bool cMDEPropertyGenerator::areExpressionsAtsOpsDependent(cMDEExpression* e1, cMDEExpression* e2)
+{
+	// Get the at op names of expression 1
+	// Get the at op names of expression 2
+	std::set<std::string> atop1 = e1->getAtOpNames();
+	std::set<std::string> atop2 = e2->getAtOpNames();
+	std::set<std::string> results;
+	insert_iterator<std::set<std::string> > it1(results, results.begin());
+	
+	// determine if it uses related classes
+	set_intersection(atop1.begin(), atop1.end(), atop2.begin(), atop2.end(), it1);
+	
+	// If the set is empty then the expressions are independent.
+	if (results.size() == 0) return false; 
+	
+	return true;
+}

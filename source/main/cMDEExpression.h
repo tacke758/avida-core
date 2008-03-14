@@ -58,6 +58,12 @@ public:
 	void setUsedClassNames(std::set<std::string> s) { _used_class_names = s; }	
 	std::set<std::string> getUsedClassNames() { return _used_class_names; }
 	
+	// the attributes and operations involved in the expression
+	void addAttOpName(std::string a) {_at_op_names.insert(a); }
+	void setAttOpNames(std::set<std::string> s) { _at_op_names = s; }	
+	std::set<std::string> getAtOpNames() { return _at_op_names; }
+	
+	
 	bool getUsesRelatedClasses() { return _uses_related_classes; } 
 	void setUsesRelatedClasses(bool t) { _uses_related_classes = t; }
 		
@@ -66,6 +72,7 @@ protected:
 	float _interesting;
 	std::set<std::string> _related_class_names;
 	std::set<std::string> _used_class_names;
+	std::set<std::string> _at_op_names;
 	bool _uses_related_classes; 
 };
 
