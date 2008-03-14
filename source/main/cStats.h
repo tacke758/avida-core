@@ -289,6 +289,7 @@ private:
   int m_respPropertySuccess; 
   int m_respPropertyFailure; 
   int m_respPropertyTotal; 
+  int m_suppressed;
     
 
   
@@ -707,6 +708,7 @@ public:
   void respPropFailure(int x) {m_respPropertyFailure =x;}
   void respPropTotal(int x)  {m_respPropertyTotal =x;}
   int getPropTotal () { return m_propertyTotal; }
+  void suppressedTotal(int x) { m_suppressed = x; }
 
   
   

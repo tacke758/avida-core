@@ -97,6 +97,7 @@ void cMDEAbsenceProperty::printInEnglish() {
 	if (_uses_related_classes) {
 		outfile << "true" << ", ";
 	} else { outfile << "false" << ", "; }
+	outfile << "Absence, ";
 	outfile << "Globally, it is never the case that " << _expr_p  << " holds.     "; 
 	outfile << std::endl << std::endl;
 	

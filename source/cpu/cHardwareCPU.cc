@@ -5110,14 +5110,15 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	std::string s = pg->getPstring();
+	/*std::string s = pg->getPstring();
 	float intp = pg->getPInterest();
 	bool related = pg->getP()->getUsesRelatedClasses();
 	
 	if (s != "<null>" ) {
 		val = pop_pg->addAbsenceProperty(s, intp, related);
-	}
+	}*/
 	
+	val = pop_pg->addAbsenceProperty(pg->getP());
 	pg->addPropertyReward(val);
 
 	return val;
@@ -5131,15 +5132,16 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	std::string s = pg->getPstring();
+	/*std::string s = pg->getPstring();
 	float intp = pg->getPInterest();
 	bool related = pg->getP()->getUsesRelatedClasses();
 	
 	if (s != "<null>" ) {
 
 		val = pop_pg->addUniversalProperty(s, intp, related);
-	}
+	}*/
 	
+	val = pop_pg->addUniversalProperty(pg->getP());
 	pg->addPropertyReward(val);
 
 	return val;
@@ -5153,14 +5155,15 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	std::string s = pg->getPstring();
+	/*std::string s = pg->getPstring();
 	float intp = pg->getPInterest();
 	bool related = pg->getP()->getUsesRelatedClasses();
 	
 	if (s != "<null>" ) {
 		val = pop_pg->addExistenceProperty(s, intp, related);
-	}
+	}*/
 	
+	val = pop_pg->addExistenceProperty(pg->getP());
 	pg->addPropertyReward(val);
 		
 	return val;
@@ -5172,17 +5175,20 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	std::string p = pg->getPstring();
+	/*std::string p = pg->getPstring();
 	std::string q = pg->getQstring();
 	float intp = pg->getPInterest();
 	float intq = pg->getQInterest();
 	float inttotal = intp + intq;
 	bool related = pg->areExpressionsRelated(pg->getP(), pg->getQ());
+	bool dependent = pg->areExpressionsAtsOpsDependent(pg->getP(), pg->getQ());
 	
-	if (p != q) {
+	// Check that the two expressions are not the same and that they are not dependent.
+	if ((p != q) && (!dependent)) {
 		val = pop_pg->addPrecedenceProperty(p, q, inttotal, related);
-	}
+	}*/
 	
+	val = pop_pg->addPrecedenceProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
 	
 	return val;
@@ -5194,18 +5200,19 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	std::string p = pg->getPstring();
+/*	std::string p = pg->getPstring();
 	std::string q = pg->getQstring();
 	float intp = pg->getPInterest();
 	float intq = pg->getQInterest();
 	float inttotal = intp + intq;
 	bool related = pg->areExpressionsRelated(pg->getP(), pg->getQ());
+	bool dependent = pg->areExpressionsAtsOpsDependent(pg->getP(), pg->getQ());
 	
-	
-	if (p != q) {
+	if ((p != q) && (!dependent)) {
 		val = pop_pg->addResponseProperty(p, q, inttotal, related);
 	}
-	
+	*/
+	val = pop_pg->addResponseProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
 	
 	return val;

@@ -51,6 +51,7 @@ public:
 	int numResponsePropertySuccess() { return m_response_property_success; }
 	int numResponsePropertyFailure() { return m_response_property_failure; }
 	int numResponsePropertyTotal() { return m_response_property_success + m_response_property_failure; }	
+	int numSuppressed() { return m_suppressed; }
 	
 	int propertySize() { return mdeprops.size(); }
 	
@@ -67,11 +68,16 @@ public:
 																											  
 
 	// Properties
-	float addExistenceProperty(std::string, float, bool);
-	float addAbsenceProperty(std::string, float, bool);
-	float addUniversalProperty(std::string, float, bool);
-	float addResponseProperty(std::string, std::string, float, bool);
-	float addPrecedenceProperty(std::string, std::string, float, bool);
+//	float addExistenceProperty(std::string, float, bool);
+	float addExistenceProperty(cMDEExpression*);
+//	float addAbsenceProperty(std::string, float, bool);
+	float addAbsenceProperty(cMDEExpression*);
+//	float addUniversalProperty(std::string, float, bool);
+	float addUniversalProperty(cMDEExpression*);
+//	float addResponseProperty(std::string, std::string, float, bool);
+	float addResponseProperty(cMDEExpression*, cMDEExpression*);
+//	float addPrecedenceProperty(std::string, std::string, float, bool);
+	float addPrecedenceProperty(cMDEExpression*, cMDEExpression*);
 
 //	bool addExpression(std::string, std::set<std::string>);  
 //	bool relatedExpressions(cMDEExpression*, cMDEExpression*); 
@@ -83,7 +89,7 @@ public:
 	std::string getQstring() { return (expressions[expression_q])->getExpr();  }
 	std::string getRstring() { return (expressions[expression_r])->getExpr(); }
 	
-	float getPInterest() { 
+/*	float getPInterest() { 
 		(expressions[expression_p])->interestingExpressionEval(); 
 		return (expressions[expression_p])->getInterestingExpressionEval() ; }
 	float getQInterest() { 		
@@ -91,7 +97,7 @@ public:
 		return (expressions[expression_q])->getInterestingExpressionEval() ; }
 	float getRInterest() { 
 		(expressions[expression_r])->interestingExpressionEval(); 
-		return (expressions[expression_r])->getInterestingExpressionEval() ; }
+		return (expressions[expression_r])->getInterestingExpressionEval() ; }*/
 	
 	bool relativeMoveExpressionP(int x) { return relativeMoveIndex(expressions, expression_p, x); }
 	bool absoluteMoveExpressionP(int x) { return absoluteMoveIndex(expressions, expression_p, x); }
@@ -161,6 +167,7 @@ protected:
 	int m_precedence_property_failure;
 	int m_response_property_success;
 	int m_response_property_failure;
+	int m_suppressed;
 	float m_property_reward;
 	int m_related_class_mode;
 	

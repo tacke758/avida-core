@@ -27,6 +27,7 @@ cMDEPropertyGenerator::cMDEPropertyGenerator(bool rcm) {
   m_precedence_property_failure =0;
   m_response_property_success =0;
   m_response_property_failure =0;
+  m_suppressed = 0;
   m_related_class_mode = rcm; 
 }
 
@@ -50,26 +51,76 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 }
 
 
-float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i, bool related)
+float cMDEPropertyGenerator::addExistenceProperty(cMDEExpression* expr)
 {
-	// a pointer to the existence property
+
 	float val = 0;	
-	float interesting = i + 1; // 1 point for an existence property.
+	float interesting = 1; // 1 point for an existence property.
+	bool related;
+	bool left = false;
+	bool right = false;
 	
-	cMDEExistenceProperty e(s);
+	// get the string representation of the expression.
+	cMDEExistenceProperty e(expr->getExpr());
 	
+	// exit if expression is null. (Should never be the case)
+	if (expr->getExpr() == "<null>") return val;
 	
-	// first, try to find the property
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdeiterleft, mdeiterright;
+	// if an OR compound, compute the left & right pieces of the OR. 
+	if (expr->getCompound()) { 
+		if (expr->getOp() == "||") { 
+			cMDEExistenceProperty e_left(expr->getLeft()->getExpr()); 
+			cMDEExistenceProperty e_right(expr->getRight()->getExpr()); 
+			
+			mdeiterleft = mdeprops.find(&e_left);
+			mdeiterright = mdeprops.find(&e_right);
+		
+			if (mdeiterleft != mdeprops.end()) {
+				left = ((*mdeiterleft)->getEvaluationInformation());
+			}
+			if (mdeiterright != mdeprops.end()) {
+				right = ((*mdeiterright)->getEvaluationInformation());
+			}
+
+		}
+	}
+	
+	// first, try to find the property & check for redundancy....
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
+	
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+		// add in how interesting the expression is. Use the STRONG and form. 
+		expr->interestingStrongANDExpressionEval(); 
+		interesting += expr->getInterestingExpressionEval();
+			
+		// determine if they are related
+		related = expr->getUsesRelatedClasses();
 		e.setInterestingProperty(interesting);
 		e.setUsesRelatedClasses(related);
-		e.evaluate();
-		val = e.getEvaluationInformation();
+
+		if (left) { 
+//			std::cout << "LEFT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterleft)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else if (right) {
+//			std::cout << "RIGHT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterright)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else {
+			e.evaluate();
+			val = e.getEvaluationInformation();
+			e.setSuppressed(false);
+		}
 		mdeprops.insert(new cMDEExistenceProperty(e));
+//		std::cout << "val: " << val << std::endl;
 		if (val >0) {
 			m_property_success++;
 			m_existence_property_success++;
@@ -86,22 +137,78 @@ float cMDEPropertyGenerator::addExistenceProperty(std::string s, float i, bool r
 	return val;
 }
 
-float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i, bool related)
+
+
+float cMDEPropertyGenerator::addAbsenceProperty(cMDEExpression* expr)
 {
 	// a pointer to the absence property
 	float val = 0;
-	float interesting = i + 3; // 3 points for an absence property.
+	float interesting = 3; // 3 points for an absence property.
+	bool related;	
+	bool left = false;
+	bool right = false;
 
-	cMDEAbsenceProperty e(s);
+
+	// get the string representation of the expression.
+	cMDEAbsenceProperty e(expr->getExpr());
 	
+	// exit if expression is null. (Should never be the case)
+	if (expr->getExpr() == "<null>") return val;
+	
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdeiterleft, mdeiterright;
+	// if an AND compound, compute the left & right pieces of the OR. 
+	if (expr->getCompound()) { 
+		if (expr->getOp() == "&&") { 
+			cMDEExistenceProperty e_left(expr->getLeft()->getExpr()); 
+			cMDEExistenceProperty e_right(expr->getRight()->getExpr()); 
+			
+			mdeiterleft = mdeprops.find(&e_left);
+			mdeiterright = mdeprops.find(&e_right);
+		
+			if (mdeiterleft != mdeprops.end()) {
+				left = ((*mdeiterleft)->getEvaluationInformation());
+			}
+			if (mdeiterright != mdeprops.end()) {
+				right = ((*mdeiterright)->getEvaluationInformation());
+			}
+
+		}
+	}
+	
+	// first, try to find the property & check for redundancy....
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+	
+		// add in how interesting the expression is. Use the WEAK and form. 
+		expr->interestingWeakANDExpressionEval(); 
+		interesting += expr->getInterestingExpressionEval();
+		
+		// determine if they are related
+		related = expr->getUsesRelatedClasses();
+		
 		e.setInterestingProperty(interesting);
-		e.evaluate();
-		val = e.getEvaluationInformation();
+		
+		if (left) { 
+			std::cout << "LEFT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterleft)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else if (right) {
+//			std::cout << "RIGHT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterright)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else {
+			e.evaluate();
+			val = e.getEvaluationInformation();
+			e.setSuppressed(false);
+		}
+		
 		mdeprops.insert (new cMDEAbsenceProperty(e));
 		if (val >0) {
 			m_property_success++;
@@ -113,6 +220,7 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i, bool rel
 		}
 	}
 	
+	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
 	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
 	
@@ -120,22 +228,71 @@ float cMDEPropertyGenerator::addAbsenceProperty(std::string s, float i, bool rel
 	
 }
 
-float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i, bool related)
+float cMDEPropertyGenerator::addUniversalProperty(cMDEExpression* expr)
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = i + 3; // 3 points for a universal property.
-
-	cMDEUniversalProperty e(s);
+	float interesting = 3; // 3 points for a universal property.
+	bool related;
+	bool left = false;
+	bool right = false;
+	
+	cMDEUniversalProperty e(expr->getExpr());
+	// exit if expression is null. (Should never be the case)
+	if (expr->getExpr() == "<null>") return val;
+	
+	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdeiterleft, mdeiterright;
+	// if an OR compound, compute the left & right pieces of the OR. 
+	if (expr->getCompound()) { 
+		if (expr->getOp() == "||") { 
+			cMDEExistenceProperty e_left(expr->getLeft()->getExpr()); 
+			cMDEExistenceProperty e_right(expr->getRight()->getExpr()); 
+			
+			mdeiterleft = mdeprops.find(&e_left);
+			mdeiterright = mdeprops.find(&e_right);
+					
+			if (mdeiterleft != mdeprops.end()) {
+				left = ((*mdeiterleft)->getEvaluationInformation());
+			}
+			if (mdeiterright != mdeprops.end()) {
+				right = ((*mdeiterright)->getEvaluationInformation());
+			}
+		}
+	}
+	
 	
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+	
+		// add in how interesting the expression is. Use the STRONG and form. 
+		expr->interestingStrongANDExpressionEval(); 
+		interesting += expr->getInterestingExpressionEval();
 		e.setInterestingProperty(interesting);
-		e.evaluate();
-		val = e.getEvaluationInformation();
+		
+		// determine if they are related
+		related = expr->getUsesRelatedClasses();
+		
+		if (left) { 
+			std::cout << "LEFT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterleft)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else if (right) {
+			std::cout << "RIGHT" << std::endl;
+			// the left expression is the stronger form of this expression... 
+			val = (*mdeiterright)->getEvaluationInformation();
+			e.setSuppressed(true);
+			m_suppressed++;
+		} else {
+			e.evaluate();
+			val = e.getEvaluationInformation();
+			e.setSuppressed(false);
+		}
+		
 		mdeprops.insert (new cMDEUniversalProperty(e));
 		if (val >0) {
 			m_property_success++;
@@ -155,22 +312,31 @@ float cMDEPropertyGenerator::addUniversalProperty(std::string s, float i, bool r
 }
 
 
-float cMDEPropertyGenerator::addResponseProperty(std::string s1, 
-												 std::string s2, 
-												 float i, 
-												 bool related)
+float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpression* e2)
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = i + 2; // 2 points for a response property.
-
-	cMDEResponseProperty e(s1, s2);
+	float interesting = 2; // 2 points for a response property.
+	bool related;
 	
+
+	cMDEResponseProperty e(e1->getExpr(), e2->getExpr());
+	bool dependent = areExpressionsAtsOpsDependent(e1, e2);
+	// exit if the expressions are dependent.
+	if (dependent) return val;
+
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+	
+		e1->interestingStrongANDExpressionEval(); 
+		e2->interestingStrongANDExpressionEval(); 
+		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
+		bool related = areExpressionsRelated(e1, e2);
+
+		e.setSuppressed(false);
 		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();
@@ -191,22 +357,32 @@ float cMDEPropertyGenerator::addResponseProperty(std::string s1,
 	return val;
 }
 
-float cMDEPropertyGenerator::addPrecedenceProperty(std::string s1, 
-												   std::string s2, 
-												   float i, 
-												   bool related)
+float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpression* e2)
 {
 	// a pointer to the universal property
 	float val = 0;	
-	float interesting = i + 2; // 2 points for a precedence property.
+	float interesting = 2; // 2 points for a precedence property.
+	bool related;
 
-	cMDEPrecedenceProperty e(s1, s2);
+	
+	bool dependent = areExpressionsAtsOpsDependent(e1, e2);
+	// exit if the expressions are dependent.
+	if (dependent) return val;
+
+	cMDEPrecedenceProperty e(e1->getExpr(), e2->getExpr());
 	
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
 	} else {
+	
+		e.setSuppressed(false);
+		e1->interestingStrongANDExpressionEval(); 
+		e2->interestingStrongANDExpressionEval(); 
+		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
+		bool related = areExpressionsRelated(e1, e2);
+		
 		e.setInterestingProperty(interesting);
 		e.evaluate();
 		val = e.getEvaluationInformation();

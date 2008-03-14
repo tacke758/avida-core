@@ -96,6 +96,7 @@ void cMDEPrecedenceProperty::printInEnglish() {
 	if (_uses_related_classes) {
 		outfile << "true" << ", ";
 	} else { outfile << "false" << ", "; }
+	outfile << "Precedence, ";
 	outfile << "Globally, it is always the case that if " << _expr_p  << " holds, ";
 	outfile << "then "<< _expr_q << " previously held.     "; 
 	outfile << std::endl << std::endl;

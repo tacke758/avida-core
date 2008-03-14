@@ -567,19 +567,19 @@ void cUMLModel::createExpressionsFromClasses()
 						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, ">", c.getAssociatedClasses());
-						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
+//						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
 					} else if (k==(a.attribute_values.size() -1)) {
 						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
-						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
+//						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, "<", c.getAssociatedClasses());
 					} else {
 						gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
-						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
+//						gen->addSimpleAttValExpression(a1, temp2, "<=", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, "<", c.getAssociatedClasses());
 						gen->addSimpleAttValExpression(a1, temp2, ">", c.getAssociatedClasses());
-						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
+//						gen->addSimpleAttValExpression(a1, temp2, ">=", c.getAssociatedClasses());
 					}
 				
 				}

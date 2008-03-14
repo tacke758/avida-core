@@ -44,7 +44,8 @@ public:
 	// This function calculates the number of ORs used by a given expression
 	virtual int numORs() { return 0; }
 	
-	virtual void interestingExpressionEval() { _interesting = 0; }
+	virtual void interestingStrongANDExpressionEval() { _interesting = 0; }
+	virtual void interestingWeakANDExpressionEval() { _interesting = 0; }
 	virtual float getInterestingExpressionEval() { return _interesting; } 
 	
 	// the related classes are the classes that this expression may be 
@@ -66,10 +67,16 @@ public:
 	
 	bool getUsesRelatedClasses() { return _uses_related_classes; } 
 	void setUsesRelatedClasses(bool t) { _uses_related_classes = t; }
+	
+	bool getCompound() { return _compound; }
+	virtual std::string getOp() { return ""; }
+	virtual cMDEExpression* getLeft() { return 0; }
+	virtual cMDEExpression* getRight() { return 0; }
 		
 protected:
 	std::string _expr;
 	float _interesting;
+	bool _compound; 
 	std::set<std::string> _related_class_names;
 	std::set<std::string> _used_class_names;
 	std::set<std::string> _at_op_names;

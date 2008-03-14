@@ -71,6 +71,7 @@ void cMDEExistenceProperty::printInEnglish() {
 	if (_uses_related_classes) {
 		outfile << "true" << ", ";
 	} else { outfile << "false" << ", "; }
+	outfile << "Existence, ";
 	outfile << "Globally, " << _expr_p  << " eventually holds." << std::endl<< std::endl;
 	
 	outfile.close();

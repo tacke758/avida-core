@@ -702,6 +702,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 	m_world->GetStats().respPropSuccess(pop_model->getPropertyGenerator()->numResponsePropertySuccess());
 	m_world->GetStats().respPropFailure(pop_model->getPropertyGenerator()->numResponsePropertyFailure());
 	m_world->GetStats().respPropTotal(pop_model->getPropertyGenerator()->numResponsePropertyTotal());	
+	m_world->GetStats().suppressedTotal(pop_model->getPropertyGenerator()->numSuppressed());
 //	int x = pop_model->propertySize();
 //	int y = pop_model->numTotalProperty();
 	

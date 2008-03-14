@@ -40,6 +40,9 @@ public:
 	void setInterestingProperty(float inter) {_interesting = inter; }
 	float getInteresting() { return _interesting; }
 	
+	// True means the property's value was determined without checking it.
+	void setSuppressed(bool s) { _suppressed = s; }
+	
 	// These functions get and set whether the expressions used by the property
 	// involve classes that are (or are not) related to one another. 
 	// This information is calculated and set by the property generator class.
@@ -52,6 +55,7 @@ protected:
 	float _reward;
 	float _interesting;
 	bool _uses_related_classes;
+	bool _suppressed;
 	
 	// Name of the output filesw:
 	std::string _property_file_name; // = "tmp-property.pr"; 

@@ -1038,6 +1038,7 @@ void cStats::PrintPropertyData(const cString& filename)
 	df.Write(sum_merit.Average(), "Merit");	
 	df.Write( m_propertySuccess, "total number of properties that passed" );
 	df.Write( m_propertyFailure, "total number of properties that failed" );
+	df.Write( m_suppressed, "total number of suppressed properties" );
 	df.Write( m_propertyTotal, "total number of properties" );
 	df.Write( m_absPropertySuccess, "absence properties that passed" );
 	df.Write( m_absPropertyFailure, "absence properties that failed" );

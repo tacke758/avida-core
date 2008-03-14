@@ -24,6 +24,7 @@ public:
 		_exp_2 = e2;
 		// Op must be either && or ||
 		_exp_op = op;
+		_compound = true;
 		_expr = getInPromela();
 	}
 // 	~cMDECompoundExpression() {}
@@ -39,6 +40,10 @@ public:
 		s = "(" + _exp_1->getInPromela() + " " + _exp_op + " "; 
 		s = s + _exp_2->getInPromela() + ")";
 		return (s);}
+	
+	std::string getOp() { return _exp_op; }
+	cMDEExpression* getLeft() { return _exp_1; }
+	cMDEExpression* getRight() { return _exp_2; }
 	
 	// This function is used to see if an expression uses a given attribute
 	bool usesAttribute(std::string s) { 
@@ -62,7 +67,7 @@ public:
 		return (num + _exp_1->numANDs() + _exp_2->numANDs());
 	}
 
-	void interestingExpressionEval() { 
+	void interestingStrongANDExpressionEval() { 
 		// Currently, the interesting reward is evaluated based on: 
 		// - whether it includes one of the significant variables/operations
 		float temp =0;
@@ -79,6 +84,26 @@ public:
 		
 		_interesting = temp;
 		
+	}
+	
+	void interestingWeakANDExpressionEval() {
+			// Currently, the interesting reward is evaluated based on: 
+		// - whether it includes one of the significant variables/operations
+		float temp =0;
+		
+		// Check to see if the expressions use suspend or restart operations
+		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
+		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
+		
+		// Increase interesting based on the number of ORs
+		temp += _exp_1->numORs() + _exp_2->numORs();
+		
+		// Decrease interesting based on the number of ANDs
+		temp = temp - ((_exp_1->numANDs())/2) - ((_exp_2->numANDs())/2);
+		
+		_interesting = temp;
+
+	
 	}
 	
 	//std::set<std::string> getRelatedClasses() { return _related_classes; }
