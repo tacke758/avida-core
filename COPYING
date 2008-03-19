@@ -1,0 +1,42 @@
+This is the license file for the avida system and associated programs.
+Any questions about use or distribution should be directed to the Avida
+Group at the e-mail address 'avida@alife.org' or at the following
+U.S. postal address:
+ 
+        Digital Life Laboratory
+	c/o Claus O. Wilke
+        Mail-Code 136-93
+        California Institute of Technology
+        Pasadena, California 91125
+ 
+---------------------------------------------------------------------
+All materials contained in this directory and subdirectories are
+   Copyright (C) 1993-2000 California Institute of Technology.
+
+
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License (GPL)
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version, under the
+condition that you comply to the following additional requirement:
+If you redistribute a modified but complete and functional(1) version
+of the Avida software, you are required to indicate at a prominent
+place, preferably the AUTHORS file in this directory, what kind of
+modifications you have done, and that a unmodified copy of the
+software can be obtained from the California Institue of Technology.
+This additional requirement does not waive any obligations imposed
+by the GPL. You are not allowed to amend or alter this requirement.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+(1) The software is considered to be complete and functional if it
+compiles, and the resulting binary can be used to conduct digital
+life experiments.

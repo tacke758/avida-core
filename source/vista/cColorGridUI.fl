@@ -1,0 +1,44 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.00 
+header_name {.hh} 
+code_name {.cc} 
+gridx 5 
+gridy 5 
+snap 3
+decl {\#include <iostream.h>} {} 
+
+decl {\#include "VistaUI.hh"} {} 
+
+decl {\#include "vista_main.hh"} {} 
+
+class cMapWindowUI {open
+} {
+  Function {cMapWindowUI(cVistaUI * ui, int x_size, int y_size)} {open
+  } {
+    Fl_Window map_window {
+      label Map
+      callback {CloseMapWindow();} open
+      xywh {475 118 500 500} visible
+    } {
+      Fl_Button {} {
+        label Close
+        callback {CloseMapWindow();}
+        xywh {420 470 75 25}
+      }
+    }
+  }
+  Function {show()} {open
+  } {
+    code {map_window->show();} {}
+    code {ui->map_window_button->set();} {}
+  }
+  Function {hide()} {selected
+  } {
+    code {map_window->hide();} {}
+    code {ui->map_window_button->clear();} {}
+  }
+  Function {~cMapWindowUI()} {} {
+    code {CloseMapWindow();} {}
+    code {Fl::wait(0.025);} {}
+  }
+} 

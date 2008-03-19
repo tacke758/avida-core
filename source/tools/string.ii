@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          //
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+#include "string.hh"
+
+cString::cCharProxy & cString::cCharProxy::operator= (char c){  // lvalue
+  string.CopyOnWrite();
+  (*(string.value))[index] = c;
+  return *this;
+}
+
+cString::cCharProxy & cString::cCharProxy::operator+= (char c){  // lvalue
+  string.CopyOnWrite();
+  (*(string.value))[index] += c;
+  return *this;
+}
+
+cString::cCharProxy & cString::cCharProxy::operator-= (char c){  // lvalue
+  string.CopyOnWrite();
+  (*(string.value))[index] -= c;
+  return *this;
+}
+
+cString::cCharProxy & cString::cCharProxy::operator++ (){  // lvalue (prefix)
+  string.CopyOnWrite();
+  ++(*(string.value))[index];
+  return *this;
+}
+
+char cString::cCharProxy::operator++ (int dummy){  // lvalue (postfix)
+  (void)dummy;
+  char rv = (*(string.value))[index];
+  string.CopyOnWrite();
+  ++(*(string.value))[index];
+  return rv;
+}
+
+cString::cCharProxy & cString::cCharProxy::operator-- (){  // lvalue (prefix)
+  string.CopyOnWrite();
+  --(*(string.value))[index];
+  return *this;
+}
+
+char cString::cCharProxy::operator-- (int dummy){  // lvalue (postfix)
+  (void)dummy;
+  char rv = (*(string.value))[index];
+  string.CopyOnWrite();
+  --(*(string.value))[index];
+  return rv;
+}
+
+cString::cCharProxy::operator char () const {  // rvalue
+  //return (char)((*(string.value))[index]);
+  // Below should work, but fails in HP CC -- TCC
+  return const_cast(const cStringData&, *(string.value))[index];
+}
+
+
+

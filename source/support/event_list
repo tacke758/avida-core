@@ -1,0 +1,103 @@
+# Event list file...  (full description at end)
+
+u 0	inject_all START_CREATURE	# Inject all the begining
+
+u 10:10 print_dom			# Regularly save the dominant organism
+
+# Print all of the standard data files...
+u 10:10:end print_average_data
+u 10:10:end print_dominant_data
+u 10:10:end print_stats_data
+u 10:10:end print_count_data
+u 10:10:end print_tasks_data
+u 10:10:end print_time_data
+
+# A few data files not printed by default
+#u 10:10:end print_totals_data
+#u 10:10:end print_tasks_exe_data
+#u 10:10:end print_resource_data
+
+# And lets calculate the landscape info by default.
+u 100:100 calc_landscape
+
+# Setup the exit time.
+u 25000 exit				# exit
+
+
+# basic syntax: "trigger  start:interval:stop  event..."
+# (begin|#:all|once|#:end|#)
+#
+# trigger can be omitted and "update" is assumed
+#
+# If trigger is "i" or "immediate" timing must be skipped
+# Example: i pause
+#
+# If trigger and timing are skipped, immediate trigger is assumed
+# Example: pause
+#
+# start can be a value or "begin"
+# interval can be a value, "once", or "all" (implies every update)
+# stop can be a value or "end"
+#
+# Examples:
+# trigger start event
+#	once when trigger passes start
+#	same as [start:once:end]
+# trigger start:interval event
+#	every time after start that interval has been passed (like cycle)
+#	same as [start:interval:end]
+# trigger start:interval:stop event
+#	every time after start that interval has been passed until stop
+#
+# Examples:
+# update  	begin:100:end	calc_consensus 200
+#	from the beginning to the end of the run, every 100 updates ...
+# generation  	 1000:all:20000	inject creature.parasite 0
+#	from when generation crosses 1000 to when generation crosses 20000,
+#	every update (when events are processed) ...
+
+# TRIGGERS:
+# update (or u)
+# generation (or g)
+
+# EVENTS:
+# echo
+# pause
+# save_clone
+# load_clone
+# inject
+# inject_all
+# inject_random
+# mod_copy_mut
+# set_copy_mut
+# set_point_mut
+# calc_landscape
+# sample_landscape
+# random_landscape
+# analyze_landscape
+# analyze_population
+# pairtest_landscape
+# pairtest_full_landscape
+# calc_consensus
+# test_threads
+# print_threads
+# dump_basic_grid
+# dump_fitness_grid
+# print_dom
+# print_geneology_tree  (untested but should work)
+# print_geneology_depth (untested but should work)
+# exit
+#
+# print_average_data
+# print_error_data
+# print_variance_data
+# print_dominant_data
+# print_stats_data
+# print_count_data
+# print_totals_data
+# print_tasks_data
+# print_tasks_exe_data  // count zeros on output!
+# print_time_data
+# print_resource_data
+# apocalypse
+# rate_kill

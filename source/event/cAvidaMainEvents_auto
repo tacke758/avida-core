@@ -1,0 +1,178 @@
+######### Meta Events ###########
+exit
+:args:
+:body:
+cAvidaMain::SetDoneFlag();
+
+exit_if_generation_greater_than
+:args:
+int max_generation
+:body:
+if( cStats::GetAveGeneration() > max_generation ){
+  cAvidaMain::SetDoneFlag();
+}
+
+exit_if_update_greater_than
+:args:
+int max_update
+:body:
+if( cStats::GetUpdate() > max_update ){
+  cAvidaMain::SetDoneFlag();
+}
+
+exit_if_ave_lineage_label_equals
+:args:
+double ave_lineage_label
+:body:
+if( cStats::GetAveLineageLabel() == ave_lineage_label ){
+  cAvidaMain::SetDoneFlag();
+}
+
+exit_if_ave_lineage_label_smaller
+:args:
+double ave_lineage_label
+:body:
+if( cStats::GetAveLineageLabel() < ave_lineage_label ){
+  cAvidaMain::SetDoneFlag();
+}
+
+exit_if_ave_lineage_label_larger
+:args:
+double ave_lineage_label
+:body:
+if( cStats::GetAveLineageLabel() > ave_lineage_label ){
+  cAvidaMain::SetDoneFlag();
+}
+
+
+pause
+:args:
+:body:
+cAvidaMain::TogglePause();
+
+echo
+:args:
+cString mesg
+:body:
+if( mesg == "" ){
+   mesg.Set("Echo : Update = %f\t AveGeneration = %f",
+	     cStats::GetUpdate(), cStats::GetAveGeneration());
+}
+cAvidaMain::NotifyComment(mesg);
+
+####### Changing Viewer ###########
+start_viewer
+:args:
+cString viewer_name
+:body:
+cAvidaMain::StartViewer(viewer_name);
+
+####### Printing Internal State ###########
+print_event_list
+:args:
+:body:
+event_list->PrintEventList(cout);
+
+####### Printing Data Files ###########
+print_average_data
+:args:
+cString fname "average.dat"
+:body:
+cStats::PrintAverageData(fname);
+
+print_error_data
+:args:
+cString fname "error.dat"
+:body:
+cStats::PrintErrorData(fname);
+
+print_variance_data
+:args:
+cString fname "variance.dat"
+:body:
+cStats::PrintVarianceData(fname);
+
+print_dominant_data
+:args:
+cString fname "dominant.dat"
+:body:
+cStats::PrintDominantData(fname);
+
+print_stats_data
+:args:
+cString fname "stats.dat"
+:body:
+cStats::PrintStatsData(fname);
+
+print_count_data
+:args:
+cString fname "count.dat"
+:body:
+cStats::PrintCountData(fname);
+
+print_totals_data
+:args:
+cString fname "totals.dat"
+:body:
+cStats::PrintTotalsData(fname);
+
+print_tasks_data
+:args:
+cString fname "tasks.dat"
+:body:
+cStats::PrintTasksData(fname);
+
+print_tasks_exe_data
+:args:
+cString fname "tasks_exe.dat"
+:body:
+cStats::PrintTasksExeData(fname);
+
+print_time_data
+:args:
+cString fname "time.dat"
+:body:
+cStats::PrintTimeData(fname);
+
+print_mutation_data
+:args:
+cString fname "mutation.dat"
+:body:
+cStats::PrintMutationData(fname);
+
+####### Environmental #############
+change_tasks
+:args:
+double prob_change 0.10
+double min_bonus   0.95
+double max_bonus   1.5
+:body:
+cConfig::ChangeTaskSet(prob_change, min_bonus, max_bonus);
+
+print_task_bonus
+:args:
+cString fname "task_bonus.dat"
+:body:
+ofstream & fp = cStats::GetDataFileOFStream(fname);
+cConfig::GetDefaultTaskLib()->PrintBonus(fp);
+
+######### Instruction Data Output ##############
+print_instruction_data
+:args:
+cString fname "instruction.dat"
+:body:
+cStats::PrintInstructionData(fname);
+
+print_dom_instruction_data
+:args:
+cString fname "dom_instruction.dat"
+:body:
+cStats::PrintDomInstructionData(fname);
+
+######### Resouce Data Output ##############
+print_resource_data
+:args:
+cString fname "resource.dat"
+:body:
+cConfig::GetDefaultTaskLib()->PrintResourceData(fname);
+

@@ -1,0 +1,7 @@
+If you got the Avida source from the cvs repository, you have to 
+do 'make -f Makefile.cvs' the first time you want to compile Avida.
+You need autoconf and automake installed on your machine in order for 
+that to work. 
+
+'make -f Makefile.cvs' builds the configure script from configure.in. 
+After this has happened, you can continue as described in the file 'README'.

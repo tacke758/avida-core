@@ -1,0 +1,44 @@
+# Heads:
+#  A = IP
+#  B = Read Head
+#  C = Write Head
+#
+# New commands:
+#  set-head -- sets a head ?AH? to be active.
+#  if-label -- if the next label mathes the one previous read, execute
+#              the next instruction, otherwise skip it.
+#  h-read -- Read value pointed to by ?BH? into BX & increment ?BH?
+#  h-write -- Write value in BX to position of ?CH?
+#  h-alloc -- Allocate maximal CPU space.
+#  h-divide -- cut the creature from BH to CH.
+#
+#
+# Altered commands:
+#  jump-f (and jump-b) -- now uses current head, not IP
+
+set-head  # 0: Place write-head at beginning of offspring.
+nop-C     # 1:
+jump-f    # 2:
+nop-A     # 3:
+nop-A     # 4:
+
+set-head  # 5: Setup for copy loop.
+nop-A     # 6:
+h-alloc   # 7
+adv-head  # 8
+
+nop-C     # 8: Copy Loop.
+h-read    # 9:
+h-write   # 10:
+if-label  # 11:
+nop-A     # 12:
+nop-A     # 13:
+jump-f    # 14:
+nop-A     # 15:
+jump-b    # 16:
+nop-B     # 17:
+
+h-divide  # 18: Chop off offspring.
+
+nop-B     # 19: End label.
+nop-B     # 20:

@@ -1,0 +1,227 @@
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          // 
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+// This file defines the inline functions for the various cpu objects.
+
+#ifndef CPU_HEAD_II
+#define CPU_HEAD_II
+
+#include "head.hh"
+#include "cpu.hh"
+#include "environment.hh"
+// #include "cpu.ii"
+
+/////////////
+// cCPUHead
+/////////////
+
+inline const cCodeArray & cCPUHead::GetMemory() const {
+  return cur_cpu->GetMemory();
+}
+
+inline int cCPUHead::AtEnd() const
+{
+  return (position + 1 == GetMemory().GetSize());
+}
+
+inline int cCPUHead::InMemory() const
+{
+  return (position >= 0 && position < GetMemory().GetSize());
+}
+
+inline int cCPUHead::GetCurID() const {
+  return cur_cpu->GetEnvironment()->GetID();
+}
+
+inline int cCPUHead::GetMainID() const {
+  return main_cpu->GetEnvironment()->GetID();
+}
+
+inline const cInstruction & cCPUHead::GetInst() const {
+  return GetMemory().Get(position);
+}
+
+inline const cInstruction & cCPUHead::GetInst(int offset) const {
+  int new_pos = position + offset;
+
+#ifdef DEBUG
+  if (new_pos >= GetMemory().GetSize() || new_pos < 0) {
+    g_debug.Warning("UD %d.%d: Trying to get inst %d in code array size %d",
+		    cStats::GetUpdate(), cStats::GetSubUpdate(), new_pos,
+		    GetMemory().GetSize());
+      return cInstruction::GetInstNone();
+  }
+#endif
+
+  return GetMemory().Get(new_pos);
+}
+
+inline int cCPUHead::GetFlag(int id) const
+{
+  return GetMemory().GetFlag(position, id);
+}
+
+inline void cCPUHead::SetInst(const cInstruction & value)
+{
+#ifdef WRITE_PROTECTION
+  if (main_cpu == cur_cpu) cur_cpu->SetMemory(position, value);
+#else
+  cur_cpu->SetMemory(position, value);
+  if (main_cpu != cur_cpu) cur_cpu->SetModified();
+#endif
+}
+
+inline void cCPUHead::SetArgValue(int arg_id, int value)
+{
+  cInstruction out_inst(GetInst());
+  out_inst.SetArgValue(arg_id, value);
+
+#ifdef WRITE_PROTECTION
+  if (main_cpu == cur_cpu) cur_cpu->SetMemory(position, out_inst);
+#else
+  cur_cpu->SetMemory(position, out_inst);
+  if (main_cpu != cur_cpu) cur_cpu->SetModified();
+#endif
+}
+
+inline void cCPUHead::InsertInst(const cInstruction & value)
+{
+#ifdef WRITE_PROTECTION
+  if (main_cpu == cur_cpu) cur_cpu->InsertMemory(position, value);
+#else
+  cur_cpu->InsertMemory(position, value);
+  if (main_cpu != cur_cpu) cur_cpu->SetModified();
+#endif
+}
+
+inline void cCPUHead::RemoveInst()
+{
+#ifdef WRITE_PROTECTION
+  if (main_cpu == cur_cpu) cur_cpu->RemoveMemory(position);
+#else
+  cur_cpu->RemoveMemory(position);
+  if (main_cpu != cur_cpu) cur_cpu->SetModified();
+#endif
+}
+
+inline const cInstruction & cCPUHead::GetNextInst()
+{
+  return (AtEnd()) ? cInstruction::GetInstNone() : GetMemory().Get(position+1);
+}
+
+inline void cCPUHead::SetFlag(int flag)
+{
+#ifdef WRITE_PROTECTION
+  if (cur_cpu == main_cpu) 
+#endif
+    cur_cpu->SetMemFlag(position, flag);
+}
+
+inline void cCPUHead::UnsetFlag(int flag)
+{
+#ifdef WRITE_PROTECTION
+  if (cur_cpu == main_cpu) 
+#endif
+    cur_cpu->SetMemFlag(position, flag);
+}
+
+inline void cCPUHead::ToggleFlag(int flag)
+{
+#ifdef WRITE_PROTECTION
+  if (cur_cpu == main_cpu) 
+#endif
+    cur_cpu->ToggleMemFlag(position, flag);
+}
+
+inline void cCPUHead::Reset(cBaseCPU * new_cpu) {
+  if (new_cpu) main_cpu = new_cpu;
+  cur_cpu  = main_cpu;
+  position = 0;
+}
+
+inline void cCPUHead::Set(int new_pos, cBaseCPU * in_cpu)
+{
+  position = new_pos;
+  if (in_cpu) cur_cpu = in_cpu;
+  Adjust();
+}
+
+
+inline void cCPUHead::Jump(int jump)
+{
+  position += jump;
+  Adjust();
+}
+
+inline void cCPUHead::LoopJump(int jump)
+{
+  position += jump;
+
+  // If we are out of range, bring back in.
+  if (position < 0 || position >= GetMemory().GetSize()) {
+    position %= GetMemory().GetSize();
+    if (position <= 0) position += GetMemory().GetSize();
+  }
+}
+
+inline void cCPUHead::AbsJump(int jump)
+{
+  position += jump;
+}
+
+inline void cCPUHead::Advance()
+{
+  position++;
+  Adjust();
+}
+
+inline void cCPUHead::Retreat()
+{
+  position--;
+  Adjust();
+}
+
+
+inline cCPUHead & cCPUHead::operator=(const cCPUHead & in_cpu_head) {
+  main_cpu = in_cpu_head.main_cpu;
+  cur_cpu  = in_cpu_head.cur_cpu;
+  position = in_cpu_head.position;
+  return *this;
+}
+
+
+inline cCPUHead & cCPUHead::operator++()
+{
+  position++;
+  Adjust();
+  return *this;
+}
+
+inline cCPUHead & cCPUHead::operator--()
+{
+  position--;
+  Adjust();
+  return *this;
+}
+
+inline cCPUHead & cCPUHead::operator++(int)
+{
+  return operator++();
+}
+
+inline cCPUHead & cCPUHead::operator--(int)
+{
+  return operator--();
+}
+
+inline int cCPUHead::TestParasite() const
+{
+  // If CPU has a head in another creature, mark it as a parasite.
+  return (cur_cpu != main_cpu);
+}
+
+#endif
