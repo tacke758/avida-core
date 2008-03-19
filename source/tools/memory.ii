@@ -1,0 +1,98 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          //
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+// Inline includes for memory.hh
+
+inline char * cMemTrack::Get(int num_bytes)
+{
+#ifdef DEBUG
+  if (num_bytes > MAX_BYTES_ALLOCATED) {
+    fprintf(fp_mem, "Allocating too many bytes!\n");
+    fflush(fp_mem);
+  }
+  if (num_bytes < 0) {
+    fprintf(fp_mem, "Allocating negative memory!\n");
+    fflush(fp_mem);
+  }
+  bytes_used += num_bytes;
+#endif
+
+#ifdef DEBUG_MEM_CHECK
+  char * ptr = new char[num_bytes];
+  InsertCheckList(ptr);
+  return ptr;
+#else
+  return new char[num_bytes];
+#endif
+}
+
+inline int * cMemTrack::GetInts(int num_ints)
+{
+#ifdef DEBUG
+  bytes_used += num_ints * 4;
+  if (num_ints > MAX_BYTES_ALLOCATED / 4) {
+    fprintf(fp_mem, "Allocating too many ints!\n");
+    fflush(fp_mem);
+  }
+  if (num_ints < 0) {
+    fprintf(fp_mem, "Allocating negative memory (ints)!\n");
+    fflush(fp_mem);
+  }
+#endif
+
+#ifdef DEBUG_MEM_CHECK
+  int * ptr = new int[num_ints];
+  InsertCheckList(ptr);
+  return ptr;
+#else
+  return new int[num_ints];
+#endif
+}
+
+inline void cMemTrack::Free(char * pointer, int num_bytes)
+{
+  bytes_used -= num_bytes;
+
+#ifdef DEBUG_MEM_CHECK
+  if (!pointer)
+    fprintf(fp_mem, "Error trying to delete NULL pointer of %d bytes\n",
+	    num_bytes);
+  RemoveCheckList(pointer);
+#endif
+
+  delete [] pointer;
+}
+
+inline void cMemTrack::Free(int * pointer, int num_ints)
+{
+  bytes_used -= num_ints * 4;
+
+#ifdef DEBUG_MEM_CHECK
+  if (!pointer)
+    fprintf(fp_mem, "Error trying to delete NULL pointer of %d ints\n",
+	    num_ints);
+  RemoveCheckList(pointer);
+#endif
+
+  delete [] pointer;
+}
+
+inline void cMemTrack::Add(int type)
+{
+  mem_used[type]++;
+}
+
+inline void cMemTrack::Remove(int type)
+{
+  mem_used[type]--;
+
+#ifdef DEBUG
+  if (mem_used[type] < 0) {
+    printf("ERROR: Negative number of objects type %d.\n", type);
+  }
+#endif
+}
+

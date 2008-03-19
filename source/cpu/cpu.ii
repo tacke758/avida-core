@@ -1,0 +1,376 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          //
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+// This file defines the inline functions for the various cpu objects.
+
+#ifndef CPU_II
+#define CPU_II
+
+#include "cpu.hh"
+#include "../main/population.hh"
+#include "environment.hh"
+
+#include "head.ii"
+#include "hardware.ii"
+
+///////////////
+//  cBaseCPU
+///////////////
+
+
+inline void cBaseCPU::PrintStatus()
+{
+  hardware.PrintStatus(environment->GetID());
+}
+
+inline cCPUHead cBaseCPU::FindFullLabel(const cCodeLabel & in_label, int direction)
+{
+  return hardware.FindFullLabel(in_label, direction);
+}
+
+inline cInstruction cBaseCPU::ReadArg(int arg_id)
+{
+  return hardware.ReadArg(arg_id, *phenotype);
+}
+
+inline int cBaseCPU::ReadArgValue(int arg_id)
+{
+  return ReadArg(arg_id).GetArg(0).GetValue();
+}
+
+/*
+#define WRITE_MUT_TYPE_MUTVAL     0
+#define WRITE_MUT_TYPE_MUTBYTE    1
+#define WRITE_MUT_TYPE_MUTBIT     2
+#define WRITE_MUT_TYPE_CLEARVAL   3
+#define WRITE_MUT_TYPE_CLEARBYTE  4
+#define NUM_WRITE_MUT_TYPES       5
+*/
+
+inline void cBaseCPU::WriteArg(int arg_id, const cInstruction & in_inst)
+{
+  // Check to see if we screw up in writing this value.
+
+  if (environment->InPopulation() && !flags[CPU_FLAG_INJECTED] &&
+      environment->TestCopyMut()) {
+    // Lets do a full mutations of this instruction.
+    // @CAO in the future, we should do more intelligent mutations...
+    cInstruction out_inst(hardware.GetRandomInst());
+    // Arg 0...
+    char type = g_random.GetUInt(256);
+    int value = g_random.GetUInt(256) << g_random.GetUInt(4);
+    out_inst.SetArg(0, type, value);
+    // Arg 1...
+    type = g_random.GetUInt(256);
+    value = g_random.GetUInt(256) << g_random.GetUInt(4);
+    out_inst.SetArg(1, type, value);
+
+    hardware.WriteArg(arg_id, out_inst, *phenotype);
+  } else {
+    hardware.WriteArg(arg_id, in_inst, *phenotype);
+  }
+}
+
+inline void cBaseCPU::WriteArg(int arg_id, int value) {
+  cInstruction out_inst;
+  out_inst.SetArg(0, 0, value);
+  WriteArg(arg_id, out_inst);
+}
+
+inline void cBaseCPU::LoadArgs()
+{
+  hardware.LoadArgs(*phenotype);
+}
+
+inline cInstruction cBaseCPU::ReadRedcodeArg(int arg_id)
+{
+  return hardware.ReadRedcodeArg(arg_id, *phenotype);
+}
+
+inline int cBaseCPU::ReadRedcodeArgValue(int arg_id)
+{
+  return ReadRedcodeArg(arg_id).GetArg(0).GetValue();
+}
+
+inline void cBaseCPU::WriteRedcodeArg(int arg_id, const cInstruction & in_inst)
+{
+  hardware.WriteRedcodeArg(arg_id, in_inst, *phenotype);
+}
+
+inline void cBaseCPU::WriteRedcodeArg(int arg_id, int value) {
+  cInstruction out_inst(cInstruction::GetInstNone());
+  out_inst.SetArg(0, 0, value);
+  WriteRedcodeArg(arg_id, out_inst);
+}
+
+inline void cBaseCPU::LoadRedcodeArgs()
+{
+  hardware.LoadRedcodeArgs(*phenotype);
+}
+
+inline void cBaseCPU::InjectCode(cCodeArray * inject_code, int line_num)
+{
+  flags.SetFlag(CPU_FLAG_MODIFIED);
+  hardware.InjectCode(inject_code, line_num);
+}
+
+
+// This function processes the very next command in the genome, and is made
+// to be as optimized as possible.  This is the heart of avida.  Note that
+// any changes here should also be reflected within 'TestProcess()' in
+// cpu.cc
+
+inline void cBaseCPU::SingleProcess(){
+  flags.SetFlag(CPU_FLAG_ADVANCE_IP);
+  hardware.IncTimeUsed();
+  
+#ifdef THREADS
+  for (int i = 0; i < hardware.GetNumThreads(); i++)
+#endif
+    {
+      hardware.SetupProcess();
+      
+#ifdef DEBUG
+      // @CAO Some test code...
+      cStats::IncSubUpdate();
+      if ((cStats::GetUpdate() == -1 || cStats::GetUpdate() == -1) &&
+	  cStats::GetSubUpdate() > -1 && cStats::GetSubUpdate() > -1) {
+	PrintStatus();
+      }
+#endif
+      
+      
+#ifdef BREAKPOINTS
+      if (hardware.GetCurMemFlag(INST_FLAG_BREAKPOINT)) {
+	environment->DoBreakpoint();
+      }
+#endif
+
+      // Find the instruction to be executed 
+      const cInstruction & cur_inst = hardware.GetCurInst();
+
+#ifdef INSTRUCTION_COSTS
+      // Asses Costs
+      int exec = TRUE;  // Flag to say if we exec or not...
+      assert(cur_inst.GetOp() < num_inst_cost);
+      // first time cost
+      if( hardware.GetInstLib().GetFTCost(cur_inst) > 0 ){ 
+	if( inst_ft_cost[cur_inst.GetOp()] > 0 ){ // if isn't paid off (>0)
+	  --inst_ft_cost[cur_inst.GetOp()];       // dec cost
+	  // cerr<<"first time cost"<<inst_ft_cost[cur_inst.GetOp()]<<endl;
+	  exec = FALSE;
+	}
+      }
+      // Per use cost
+      if( hardware.GetInstLib().GetCost(cur_inst) > 0 && exec ){
+	if( inst_cost[cur_inst.GetOp()] > 0 ){ // if isn't paid off (>0)
+	  --inst_cost[cur_inst.GetOp()];       // dec cost
+	  // cerr<<"per use cost"<<inst_cost[cur_inst.GetOp()]<<endl;
+	  exec = FALSE;
+	}else{                                 // else, reset cost array
+	  inst_cost[cur_inst.GetOp()] =hardware.GetInstLib().GetCost(cur_inst);
+	}
+      }
+      // Prob of exec
+      if( hardware.GetInstLib().GetProbExe(cur_inst) < 1 && exec ){
+	assert( hardware.GetInstLib().GetProbExe(cur_inst) > 0 );
+	exec = g_random.P(hardware.GetInstLib().GetProbExe(cur_inst));
+	// cerr<<"Prob exec "<<exec<<endl;
+      }
+
+      
+      // If we are to execute it...
+      if( exec )
+#endif
+	{
+	  // get a pointer to the corrisponding method...
+	  tCPUMethod inst_ptr=hardware.GetInstLib().GetActiveFunction(cur_inst);
+	  
+#ifdef INST_ARGS
+	  if (cur_inst.GetOp() >= hardware.GetInstLib().GetSize()) {
+	    // @CAO This is where a page fault would occur!
+	    inst_ptr = hardware.GetInstLib().
+	      GetActiveFunction(cInstruction::GetInstDefault());
+	  }
+#endif
+	  
+	  // Mark the instruction as executed
+	  hardware.SetIPFlag(INST_FLAG_EXECUTED);
+
+	  // instruction execution count 
+#ifdef INSTRUCTION_COUNT
+	  cpu_stats.inst_stats.IncCount(cur_inst.GetOp());
+#endif
+	  
+	  // And execute it.
+	  // Execution Error?
+#ifdef EXECUTION_ERRORS
+	  if( environment->TestExeErr() ){
+	    // Get random inst
+	    inst_ptr = hardware.GetInstLib().GetRandFunction();
+	  }
+#endif
+	  (this->*inst_ptr)();
+	  
+	  if (hardware.GetTimeUsed() &&
+	      flags.GetFlag(CPU_FLAG_ADVANCE_IP)) hardware.AdvanceIP();
+	  
+	} // if exec (& #ifdef INSTRUCTION_COSTS)
+
+      // Kill creatures who have reached their max num of instructions executed
+      if (hardware.GetTimeUsed() == info.max_executed) {
+	Kill();
+	ChangeGenotype(NULL);
+	environment->AdjustTimeSlice();
+      }
+    } // for each thread (& #ifdef THREADS)
+}
+
+
+inline int cBaseCPU::FindModifiedHead(int default_head)
+{
+#ifdef DEBUG
+  if (default_head >= NUM_HEADS) {
+    g_debug.Error("FindModReg: Setting default to %d with %d heads.",
+		  default_head, NUM_HEADS);
+  }
+#endif
+
+  if (hardware.GetInstLib().IsNop(hardware.GetNextInst())) {
+    hardware.AdvanceIP();
+    default_head = hardware.GetInstLib().GetNopMod(hardware.GetCurInst());
+    hardware.SetIPFlag(INST_FLAG_EXECUTED);
+  }
+  return default_head;
+}
+
+inline int cBaseCPU::FindModifiedRegister(int default_register)
+{
+#ifdef DEBUG
+  if (default_register >= NUM_REGISTERS) {
+    g_debug.Error("FindModReg: Setting default to %d with %d reg.",
+		  default_register, NUM_REGISTERS);
+  }
+#endif
+
+  if (hardware.GetInstLib().IsNop(hardware.GetNextInst())) {
+    hardware.AdvanceIP();
+    default_register = hardware.GetInstLib().GetNopMod(hardware.GetCurInst());
+    hardware.SetIPFlag(INST_FLAG_EXECUTED);
+  }
+  return default_register;
+}
+
+inline cCPUHead cBaseCPU::GetHeadPosition(cBaseCPU * cur_cpu, int offset)
+{
+  return environment->GetHeadPosition(cur_cpu, offset);
+}
+
+inline char cBaseCPU::GetBasicSymbol()
+{
+  return (info.active_genotype) ? info.active_genotype->GetSymbol() : ' ';
+}
+
+inline char cBaseCPU::GetSpeciesSymbol()
+{
+  return (info.active_genotype) ?
+    info.active_genotype->GetSpeciesSymbol() : ' ';
+}
+
+inline char cBaseCPU::GetModifiedSymbol()
+{
+  char inj_symbol;
+  if (flags[CPU_FLAG_INST_INJECT]) {
+    if (flags[CPU_FLAG_MODIFIED]) inj_symbol = 'I';
+    else inj_symbol = 'i';
+  }
+  else if (flags[CPU_FLAG_MODIFIED]) inj_symbol = 'h';
+  else if (info.active_genotype) inj_symbol = '-';
+  else inj_symbol = ' ';
+
+  return inj_symbol;
+}
+
+inline char cBaseCPU::GetResourceSymbol(int resource_num)
+{
+  int num_res = environment->GetResource(resource_num);
+  char res_symbol;
+  
+  if (num_res < 0) res_symbol = '-';
+  else if (!num_res) res_symbol = ' ';
+  else if (num_res < 10) res_symbol = (char) ('0' + num_res);
+  else if (num_res < 20) res_symbol = 'X';
+  else if (num_res < 80) res_symbol = 'L';
+  else if (num_res < 200)res_symbol = 'C';
+  else res_symbol = '+';
+
+  return res_symbol;
+}
+
+inline char cBaseCPU::GetAgeSymbol()
+{
+  char age_symbol;
+
+  if (!info.active_genotype) age_symbol = ' ';
+  else if (info.age < 0) age_symbol = '-';
+  else if (info.age < 10) age_symbol = (char) ('0' + info.age);
+  else if (info.age < 20) age_symbol = 'X';
+  else if (info.age < 80) age_symbol = 'L';
+  else if (info.age < 200) age_symbol = 'C';
+  else age_symbol = '+';  
+
+  return age_symbol;
+}
+
+inline char cBaseCPU::GetBreedSymbol()
+{
+  char breed_symbol;
+  if (!info.active_genotype) breed_symbol = ' ';
+  else if (flags[CPU_FLAG_PARENT_TRUE]) breed_symbol = '*';
+  else breed_symbol = '-';
+
+  return breed_symbol;
+}
+
+inline char cBaseCPU::GetParasiteSymbol()
+{
+  char p_symbol;
+  if (!info.active_genotype) p_symbol = ' ';
+  else if (flags[CPU_FLAG_PARASITE]) p_symbol = '*';
+  else p_symbol = '-';
+
+  return p_symbol;
+}
+
+inline char cBaseCPU::GetPointMutSymbol()
+{
+  char p_symbol;
+  if (!info.active_genotype) p_symbol = ' ';
+  else if (flags[CPU_FLAG_POINT_MUT]) p_symbol = '*';
+  else p_symbol = '-';
+
+  return p_symbol;
+}
+
+inline char cBaseCPU::GetThreadSymbol()
+{
+  char thread_symbol;
+
+  if (!info.active_genotype) thread_symbol = ' ';
+  else if (hardware.GetNumThreads() < 0) thread_symbol = '-';
+  else if (hardware.GetNumThreads() < 10) {
+    thread_symbol = (char) ('0' + hardware.GetNumThreads());
+  }
+  else if (hardware.GetNumThreads() < 20) thread_symbol = 'X';
+  else if (hardware.GetNumThreads() < 80) thread_symbol = 'L';
+  else if (hardware.GetNumThreads() < 200) thread_symbol = 'C';
+  else thread_symbol = '+';
+
+  return thread_symbol;
+}
+
+#endif

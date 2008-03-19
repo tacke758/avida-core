@@ -1,0 +1,306 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          //
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef POPULATION_HH
+#define POPULATION_HH
+
+#define HEAD_RANGE 4096
+
+#include "../defs.hh"
+#include "../tools/int.hh"
+#include "../tools/file.hh"
+#include "../cpu/cpu.hh"
+#include "landscape.hh"
+
+class cSchedule;
+class cEnvironment;
+class cGeneology;
+
+class cPopulation {
+private:
+  // Components...
+  cSchedule * schedule;
+  cInstLib * inst_lib;
+  cBaseCPU * cpu_array;
+  cEnvironment * default_environment;
+
+  // Data Tracking...
+  cGenebank * genebank;
+  cGeneology * geneology;
+  cList * reaper_queue;   // Death order in certain global allocation methods.
+
+  // Other data...
+  int world_x;
+  int world_y;
+  int num_cells;       // Total cells in population.
+  int num_creatures;   // Total living cells in population.
+  cMerit max_merit;
+
+private:
+  void BuildTimeSlicer(); // Build the schedule object
+  void PositionAge(cBaseCPU * parent_cpu, cList & found_list);
+  void PositionMerit(cBaseCPU * parent_cpu, cList & found_list);
+  void FindEmptyCell(cList * cell_list, cList & found_list);
+
+
+public:  // Called from cEventList
+  void SetCopyMutProb(double new_cmut, int cell = -1); // cell=-1 => all
+  void SetPointMutProb(double new_pmut, int cell = -1); // cell=-1 => all
+  void CalcConsensus(int lines_saved);
+  cCodeArray CalcLandscape(int dist, const cCodeArray & code);
+  cCodeArray PredictWLandscape(const cCodeArray & code, cString & filename);
+  cCodeArray PredictNuLandscape(const cCodeArray & code, cString & filename);
+  cCodeArray SampleLandscape(int sample_size, const cCodeArray & code);
+  cCodeArray RandomLandscape(int dist, int sample_size, int min_found,
+     int max_sample_size, const cCodeArray & code, int print_if_found=FALSE);
+  void AnalyzeLandscape(const cCodeArray & code, int sample_size=1000,
+			int min_found=0, int max_sample_size = 0);
+  void PairTestLandscape(const cCodeArray & code, int sample_size=1000);
+  void PairTestFullLandscape(const cCodeArray & code);
+  void AnalyzeTasksites(const cCodeArray & code);
+  void TestCode(const cCodeArray & code);
+  void HillClimb(const cCodeArray & code);
+  void HillClimb_Neut(const cCodeArray & code);
+  void HillClimb_Rand(const cCodeArray & code);
+
+  /**
+   * This function goes through all the creatures in the soup and kills
+   * them randomly, according to the probability kill_prob.
+   **/
+  void Apocalypse(double kill_prob);
+
+  /**
+   * This function does mainly the same thing as Apocalypse, but it takes
+   * a kill rate that is measured in the same units as fitness. Creatures
+   * are killed according to this rate. The function makes sure that the
+   * kill rate gets appropriately rescaled with the current average merrit
+   * and the average time slice, so that the rate is not influenced by the
+   * current population structure. It is assumed to be called on every update.
+   *
+   * If you want to kill creatures at a constant rate, this is the function
+   * you want to use.
+   **/
+  void RateKill( double kill_rate );
+
+   /**
+   * This function goes through all creatures in the soup, and saves the
+   * basic landscape data (neutrality, fitness, and so on) into a stream.
+   *
+   * @param fp The stream into which the data should be saved.
+   *
+   * @param sample_prob The probability with which a particular creature should
+   * be analyzed (a value of 1 analyzes all creatures, a value of 0.1 analyzes
+   * 10%, and so on).
+   *
+   * @param landscape A bool that indicates whether the creatures should be
+   * landscaped (calc. neutrality and so on) or not.
+   *
+   * @param save_genotype A bool that indicates whether the creatures should
+   * be saved or not.
+   **/
+  void AnalyzePopulation(ofstream & fp, double sample_prob = 1, bool landscape = false, bool save_genotype = false);
+
+
+  /**
+   * This function prints accurate fitness data of the population. It goes
+   * through all creatures in the soup, and caculates their fitness based on
+   * their *current* merit and the *actual* gestation time.
+   *
+   * The function can also print a histogram of the fitness data.
+   *
+   * @param datafp  A stream into which the data should be written.
+   * @param histofp A stream into which the histogram data should be written.
+   * @param save_max_f_genotype Should the genoytpe with the maximum fitness
+   * be saved to disk?
+   * @param print_fitness_histo Should the fitness histogram be written?
+   * @param hist_fmax If a fitness histogram is written, what is the max.
+   * fitness to record?
+   * @param hist_fstep Bin width of the fitness histogram.
+   **/
+  void PrintDetailedFitnessData(ofstream & datafp, ofstream & histofp, bool save_max_f_genotype, bool print_fitness_histo, double hist_fmax, double hist_fstep);
+  /**
+   * This function goes through all genotypes currently present in the soup,
+   * and writes into an output file the average Hamming distance between the
+   * creatures in the population and a given reference genome.
+   *
+   * @param fp The stream into which the data should be saved.
+   * @param reference_code The reference genome.
+   **/
+  void PrintGeneticDistanceData(ofstream & fp, const char *creature_name );
+
+  void PrintMapData( ofstream & fp, int mode );
+
+  /**
+   * This function goes through all genotypes currently present in the soup,
+   * and writes into an output file the names of the genotypes, the fitness
+   * as determined in the test cpu, and the genetic distance to a reference
+   * genome.
+   *
+   * @param fp The stream into which the data should be saved.
+   * @param reference_code The reference genome.
+   * @param save_creatures A bool that indicates whether creatures should be
+   * saved into the genebank or not.
+   **/
+  void GeneticDistancePopDump(ofstream & fp, const char *creature_name, bool save_creatures = false );
+
+  void TestInsSizeChangeRobustness(const cString & filename,
+				   const cCodeArray & in_code, int num_trials);
+
+
+public:
+  cPopulation();
+  ~cPopulation();
+
+    /**
+     * Place the initial creatures in the soup...
+     **/
+    void InitSoup();
+
+    /**
+     * Stat functions...
+     */
+    void MapGeneticDistance();
+
+    /**
+     * Update all of the creatures currently in the soup by whatever means the
+     * soup is currently configured for.
+     **/
+    void DoUpdate();
+
+    /**
+     * This function is called when a mother successfully executed a divide
+     * command.  The population is given back all the information it needs on
+     * the child, as well as a pointer to the mother's cpu.
+     **/
+    void ActivateChild(sReproData & child_info, cBaseCPU * in_cpu=NULL);
+
+    /**
+     * This function directs which position function should be used.  It
+     * could have also been done with a function pointer, but the dividing
+     * of a CPU takes enough time that this will be a negligible addition,
+     * and it gives a centralized function to work with.
+     **/
+    cBaseCPU * PositionChild(cBaseCPU * parent_cpu);
+
+    /**
+     * This function is to be run whenever the merit of a creature has changed
+     * so as to do whatever adjustments may be needed to the time-slicing
+     * method used.
+     **/
+    void AdjustTimeSlice(int);
+
+    /**
+     * The following function is called whenever a tagged CPU executes an
+     * instruction so that the population object can in turn inform any other
+     * object (such as the viewer) which need to know.  NOTE: The bodies of
+     * these methods are located in avida.hh.
+     **/
+    void NotifyUpdate();
+
+    void NotifyError(const cString & in_string);
+    void NotifyWarning(const cString & in_string);
+    void NotifyComment(const cString & in_string);
+    void Pause();
+    void DoBreakpoint();
+
+    /**
+     * For block time slice, this function gets the merit of the incoming
+     * creature, and returns the number of instructions to be processed.
+     **/
+    int ScaleMerit(const cMerit & in_merit);
+
+    void CalcUpdateStats();
+
+  // Other useful functions...
+
+  int SaveClone(ofstream & fp);
+  int LoadClone(ifstream & fp);
+
+  int SavePopulation(ofstream & fp);
+  int LoadPopulation(ifstream & fp);
+
+  int SaveOrganism(cString & filename, int cpu_num);
+  int LoadOrganism(cString & filename, int cpu_num, int lineage_label);
+
+  int OK();
+
+  void Clear();
+
+  /**
+   * This function loads a genome from a given file, and initializes
+   * a cpu with it.
+   *
+   * @param filename The name of the file to load.
+   *
+   * @param in_cpu The grid-position into which the code should be loaded.
+   *
+   * @param merit An initial merit value.
+   *
+   * @param lineage_label A value that allows to track the daughters of
+   * this creature.
+   **/
+  void Inject(const char * filename, int in_cpu = 0, double merit = -1, int lineage_label = 0 );
+
+  void InjectAll(const char * filename);
+  void InjectRandom(int mem_size);
+  cGenotype * GetGenotype(int thread);
+  cBaseCPU * GetRandomCPU();
+  cCPUHead GetHeadPosition(cBaseCPU * in_cpu, int offset);
+
+  inline void AddCreature(int id_num, int genotype_id) {
+    cStats::AddCreature(id_num, genotype_id);
+    if (genotype_id >= 0) num_creatures++;
+  }
+  inline void RemoveCreature(int id_num, int divides, int age) {
+    cStats::RemoveCreature(id_num, divides, age);
+    num_creatures--;
+  }
+
+  inline int GetSize() { return num_cells; }
+  inline int GetWorldX() { return world_x; }
+  inline int GetWorldY() { return world_y; }
+
+  inline cBaseCPU & GetCPU(int in_num) { return cpu_array[in_num]; }
+  inline cBaseCPU * GetCPUArray() { return cpu_array; }
+
+  inline cGenebank & GetGenebank() { return *genebank; }
+  inline cGeneology * GetGeneology() { return geneology; }
+  inline cInstLib * GetInstLib() { return inst_lib; }
+  inline cSchedule * GetSchedule() { return schedule; }
+  inline cEnvironment * GetDefaultEnvironment()
+    { return default_environment; }
+
+  // Statistics...
+
+  unsigned int GetTotalMemory();
+
+  inline int GetNumCreatures() { return num_creatures; }
+  int GetNumGenotypes();
+  int GetNumSpecies();
+
+  // Called from viewer...
+
+  char * GetBasicGrid();
+  char * GetSpeciesGrid();
+  char * GetModifiedGrid();
+  char * GetResourceGrid();
+  char * GetAgeGrid();
+  char * GetBreedGrid();
+  char * GetParasiteGrid();
+  char * GetPointMutGrid();
+  char * GetThreadGrid();
+
+
+  // Event Triggers & Outputs
+  void PrintDepthHistogram(const cString & filename);
+  void PrintGenotypeAbundanceHistogram(const cString & filename);
+  void PrintSpeciesAbundanceHistogram(const cString & filename);
+
+};
+
+#endif
+

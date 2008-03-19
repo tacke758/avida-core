@@ -1,0 +1,89 @@
+# This is for instruction sets of type BASE_ARGUMENT _only_
+SET_TYPE  BASE_ARG
+
+add       1
+nand      1
+# and       1
+shift     1
+
+if-equ    1
+if-less   1
+copy      1
+# swap      1
+
+nop       1
+label     1
+allocate  1
+divide    1
+# rotate    1   # not useful yet (no parasite stuff...)
+
+
+#---
+# add       1
+# if-equ    1
+# if-less   1
+# copy      1
+#
+# and       1
+# label     1    # First arg is match, second is tightness around match.
+#
+#--- These last three only need one arg!
+# resize    1    Allocate -or- Divide
+# rotate    1    What more can this do?
+#---
+
+
+
+# Note: jump can be done by adding to or copying to the inst_pointer.
+#
+# Arguments are in the form: <value>, <cpu_component>, or @<cpu_component>
+# '@' indicartes the value pointed at by that component in memory.  'value'
+# is any number and <cpu_component> is one of:
+#
+#    REG:<id>
+#    MEM:<id>
+#    IP
+#    STACK
+#    IO
+#    LABEL
+#
+# Additionally, Arguments can be pre-fixed with:
+#
+#    -Prefix-        -Meaning-
+#       ++           increment
+#       --           decrement
+#        -           negate
+#        ~           bitwise-negate
+#        >           shift-right
+#        <           shift-left
+#
+# Yyou can only do one of these at a time, and they affect the argument
+# before it is used in the instruction.
+#
+# Finally, a CPU type can begin with a '*' to indicate a parasitic
+# instruction.
+#
+# Hence the command:
+#
+#    copy *REG:0 STACK
+#
+# would look at the creature we're pointing at, take their register 0, and
+# put it on our stack.
+#
+# The combination:
+#
+#    if-equ --@REG:2 0
+#    add -14 IP
+#
+# Decrements the value in memory pointed to by register 2, then tests to
+# see if it is 0.  If so, it jumps the instruction pointer backwards by
+# 14 lines.
+#
+#
+# Some Notes:
+#   Reading from a stack always does a pop, and writing to it does a push.
+#   If you want to keep the value on a stack, make sure you save it to a
+#   register before you start manipulating it.
+#
+#   Likewise, reading from IO does a get, and writing to it does a put.
+#

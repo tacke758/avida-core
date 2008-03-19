@@ -1,0 +1,111 @@
+nop-A     1
+nop-B     1
+nop-C     1
+nop-X     1
+
+if-equ-0  1
+if-not-0  1
+if-grt-0  1
+if->=-0   1
+if-les-0  1
+if-<=-0   1
+if-n-equ  1
+if-grt    1
+if->=     1
+if-less   1
+if-<=     1
+if-A!=B   1
+if-B!=C   1
+if-A!=B   1
+if-bit-1  1
+
+jump-f    1
+jump-b    1
+jump-p      0
+jump-slf    0
+call      1
+return    1
+
+pop       1
+push      1
+pop-A     1
+pop-B     1
+pop-C     1
+push-A    1
+push-B    1
+push-C    1
+
+flip-stk  1
+swap      1
+swap-AB   1
+swap-BC   1
+swap-AC   1
+copy-reg  1
+set_A=B   1
+set_A=C   1
+set_B=A   1
+set_B=C   1
+set_C=A   1
+set_C=B   1
+reset     1
+set-num   1
+
+shift-r   1
+shift-l   1
+bit-1     1
+
+inc       1
+dec       1
+zero      1
+neg       1
+square    1
+sqrt      1
+not         0
+
+add       1
+sub       1
+mult      1
+div       1
+mod       1
+order     1
+
+nand      1
+nor         0
+and         0
+xor         0
+
+copy      1
+read      1
+write     1
+stk-read  1
+stk-write 1
+compare     0
+if-n-cpy    0
+allocate  1
+divide    1
+c-alloc   1
+c-divide  1
+inject      0
+get       1
+stk-get   1
+stk-load  1
+put       1
+search-f  1
+search-b  1
+mem-size    0
+rotate-l  1
+rotate-r  1
+set-cmut    0
+mod-cmut    0
+fork-th     0
+kill-th     0
+
+dm-jp-f   1
+dm-jp-b   1
+dm-sch-f  1
+dm-sch-b  1
+
+re-jp-f   1
+re-jp-b   1
+abs-jp    1
+

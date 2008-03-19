@@ -1,0 +1,43 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.00 
+header_name {.hh} 
+code_name {.cc} 
+gridx 5 
+gridy 5 
+snap 3
+class cDialogWindow {open
+} {
+  decl {bool close_dialog;} {}
+  Function {cDialogWindow(const char * label, const char * mesg)} {open
+  } {
+    Fl_Window dialog_window {open
+      private xywh {1021 427 304 186} visible
+    } {
+      Fl_Output dialog_text {
+        label foo
+        private xywh {10 25 285 125} type Multiline box ENGRAVED_BOX color 50 labeltype ENGRAVED_LABEL align 133
+      }
+      Fl_Button {} {
+        label Close
+        callback {close_dialog = true;
+dialog_window->hide();}
+        private xywh {225 155 75 25} color 50
+      }
+    }
+    code {close_dialog =false;} {}
+    code {dialog_window->label(label);} {}
+    code {dialog_text->label(label);} {}
+    code {dialog_text->value(mesg);} {}
+    code {dialog_window->show();} {}
+  }
+  Function {~cDialogWindow()} {open
+  } {
+    code {dialog_window->hide();} {}
+    code {Fl::wait(0.025);} {}
+  }
+  Function {Block()} {open
+  } {
+    code {while( close_dialog == false && Fl::wait() );} {selected
+    }
+  }
+} 

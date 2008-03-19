@@ -1,0 +1,403 @@
+########### Misc Output #################3
+print_depth_histogram
+:args:
+cString fname "depth_histogram.dat"
+:body:
+population->PrintDepthHistogram(fname);
+
+print_genotype_abundance_histogram
+:args:
+cString fname "genotype_abundance_histogram.dat"
+:body:
+population->PrintGenotypeAbundanceHistogram(fname);
+
+print_species_abundance_histogram
+:args:
+cString fname "species_abundance_histogram.dat"
+:body:
+population->PrintSpeciesAbundanceHistogram(fname);
+
+print_dom
+:args:
+cString in_filename ""
+:body:
+cGenotype * dom = population->GetGenebank().GetBestGenotype();
+cString filename;
+if( in_filename != "" ){
+  filename = in_filename;
+}else{
+  filename.Set("genebank/%s", dom->GetName()());
+}
+cTestCPU::PrintCode(dom->GetCode(), filename);
+
+######### SAVE/LOAD POPULATION  ######################
+save_population
+:args:
+cString fname ""
+:body:
+cString filename;
+if( fname == "" ){
+  filename.Set("save_pop.%d", cStats::GetUpdate());
+}
+ofstream fp(filename());
+population->SavePopulation(fp);
+
+load_population
+:args:
+cString fname
+:body:
+ifstream fp(fname());
+population->LoadPopulation(fp);
+
+######### SAVE/LOAD ORGANISM  ######################
+save_organism
+:args:
+cString filename ""
+int cpu_num 0
+:body:
+population->SaveOrganism(filename, cpu_num);
+
+load_organism
+:args:
+cString filename
+int cpu_num 0
+int lineage_label 0
+:body:
+population->LoadOrganism(filename, cpu_num, lineage_label);
+
+######### CLONES ######################
+save_clone
+:args:
+cString fname ""
+:body:
+cString filename;
+if( fname == "" ){
+  filename.Set("clone.%d", cStats::GetUpdate());
+}
+ofstream fp(filename());
+population->SaveClone(fp);
+
+load_clone
+:args:
+cString fname
+:body:
+ifstream fp(fname());
+population->LoadClone(fp);
+
+################ INJECT ###################
+inject
+:args:
+cString fname ""
+int cpu_num 0
+double merit -1
+int lineage_label 1
+:body:
+if( fname == "" || fname == "START_CREATURE" ){
+  fname = cConfig::GetStartCreature(); }
+population->Inject(fname(), cpu_num, merit, lineage_label);
+
+inject_all
+:args:
+cString fname ""
+:body:
+if( fname == "" || fname == "START_CREATURE" ){
+  fname = cConfig::GetStartCreature(); }
+population->InjectAll(fname());
+cStats::ClearAveGeneration(); // Zero the average generation
+cAvidaMain::SyncEventList();
+
+inject_random
+:args:
+int mem_size
+:body:
+population->InjectRandom(mem_size);
+
+################ MUTATION RATES ###############
+mod_copy_mut
+:args:
+double cmut_inc
+int cell -1
+:body:
+population->SetCopyMutProb(cConfig::GetCopyMutProb()+cmut_inc, cell);
+
+set_copy_mut
+:args:
+double cmut
+int cell -1
+:body:
+population->SetCopyMutProb(cmut, cell);
+
+mod_point_mut
+:args:
+double pmut_inc
+int cell -1
+:body:
+population->SetPointMutProb(cConfig::GetPointMutProb()+pmut_inc, cell);
+
+set_point_mut
+:args:
+double pmut
+int cell -1
+:body:
+population->SetPointMutProb(pmut, cell);
+
+######## Landscapeing #########
+calc_landscape
+:args:
+int landscape_dist  1
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->CalcLandscape(landscape_dist, code);
+
+predict_w_landscape
+:args:
+cString datafile "land-predict.dat"
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->PredictWLandscape(code, datafile);
+
+predict_nu_landscape
+:args:
+cString datafile "land-predict.dat"
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->PredictNuLandscape(code, datafile);
+
+random_landscape
+:args:
+int landscape_dist  1
+int sample_size     0
+int min_found       0
+int max_sample_size 0
+int print_if_found  FALSE
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->RandomLandscape(landscape_dist, sample_size, min_found,
+                            max_sample_size, code, print_if_found);
+
+analyze_landscape
+:args:
+int sample_size     1000
+int min_found       0
+int max_sample_size 0
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->AnalyzeLandscape(code, sample_size, min_found, max_sample_size);
+
+pairtest_landscape
+:args:
+int sample_size 1000
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->PairTestLandscape(code, sample_size);
+
+pairtest_full_landscape
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->PairTestFullLandscape(code);
+
+analyze_tasksites
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->AnalyzeTasksites(code);
+
+test_dom
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->TestCode(code);
+
+analyze_population
+:args:
+double sample_prob 1
+int landscape 0
+int save_genotype 0
+cString filename ""
+:body:
+if( filename == "" )
+  filename.Set("population_info_%d.dat",cStats::GetUpdate());
+ofstream population_info(filename());
+population->AnalyzePopulation( population_info, sample_prob, landscape, save_genotype );
+
+print_detailed_fitness_data
+:args:
+int save_max_f_genotype 0
+int print_fitness_histo 0
+double hist_fmax 1
+double hist_fstep 0.1
+cString filename "fitness.dat"
+cString filename2 "fitness_histos.dat"
+:body:
+static ofstream datafile(filename());
+static ofstream histofile;
+if (print_fitness_histo && !histofile.is_open())
+  histofile.open(filename2());
+population->PrintDetailedFitnessData( datafile, histofile, save_max_f_genotype, print_fitness_histo, hist_fmax, hist_fstep );
+
+print_genetic_distance_data
+:args:
+cString creature_name ""
+cString filename "genetic_distance.dat"
+:body:
+static ofstream popdump(filename());
+if( creature_name == "" || creature_name == "START_CREATURE" ){
+  creature_name = cConfig::GetStartCreature(); }
+population->PrintGeneticDistanceData( popdump, creature_name() );
+
+print_map_data
+:args:
+int mode 0
+cString fname ""
+:body:
+cString filename;
+if( fname == "" ){
+  filename.Set("map-%d.dat", cStats::GetUpdate());
+}
+ofstream fp(filename());
+population->PrintMapData(fp, mode);
+
+
+genetic_distance_pop_dump
+:args:
+cString creature_name ""
+cString filename ""
+int save_genotype 0
+:body:
+static bool auto_filename = false;
+if( creature_name == "" || creature_name == "START_CREATURE" ){
+  creature_name = cConfig::GetStartCreature(); }
+if( filename == "" )
+  auto_filename = true;
+if ( auto_filename )
+  filename.Set("pop_dump_%d.dat",cStats::GetUpdate());
+ofstream popdump(filename());
+population->GeneticDistancePopDump( popdump, creature_name(), save_genotype );
+
+
+############ Removal of creatures #############
+apocalypse
+:args:
+double kill_prob .9
+:body:
+population->Apocalypse(kill_prob);
+
+rate_kill
+:args:
+double kill_rate 10000
+:body:
+population->RateKill( kill_rate );
+
+############ Hill Climbing #############
+hillclimb
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->HillClimb(code);
+
+hillclimb_neut
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->HillClimb_Neut(code);
+
+hillclimb_rand
+:args:
+:body:
+cCodeArray & code = population->GetGenebank().GetBestGenotype()->GetCode();
+population->HillClimb_Rand(code);
+
+############ Consensus #############
+calc_consensus
+:args:
+int lines_saved 0
+:body:
+population->CalcConsensus(lines_saved);
+
+############ Other Population Called Tests ##########
+test_size_change_robustness
+:args:
+int num_trials 100
+cString filename "size_change.dat"
+:body:
+population->TestInsSizeChangeRobustness( filename,
+	population->GetGenebank().GetBestGenotype()->GetCode(), num_trials);
+
+########### Threads ################
+test_threads
+:args:
+:body:
+cStats::TestThreads( population->GetGenebank().GetBestGenotype()->GetCode() );
+
+print_threads
+:args:
+:body:
+cStats::PrintThreads( population->GetGenebank().GetBestGenotype()->GetCode() );
+
+########### Grid Output ##############
+dump_basic_grid
+:args:
+:body:
+cString filename;
+filename.Set("grid.%	05d.out", cStats::GetUpdate());
+ofstream fp(filename());
+for (int i = 0; i < population->GetWorldX(); i++) {
+  for (int j = 0; j < population->GetWorldY(); j++) {
+    char out_char = population->GetCPU(j * population->GetWorldX()
+				       + i).GetBasicSymbol();
+    switch (out_char) {
+      case ' ':
+        fp << -3;
+        break;
+      case '.':
+        fp << -2;
+        break;
+      case '+':
+        fp << -1;
+        break;
+      default:
+        fp << out_char - 'A';
+    }
+    fp << " ";
+  }
+  fp << endl;
+}
+
+dump_fitness_grid
+:args:
+:body:
+cString filename;
+filename.Set("fgrid.%05d.out", cStats::GetUpdate());
+ofstream fp(filename());
+for (int i = 0; i < population->GetWorldX(); i++) {
+  for (int j = 0; j < population->GetWorldY(); j++) {
+    cGenotype * genotype = population->
+	  GetCPU(j * population->GetWorldX() + i).GetActiveGenotype();
+    double fitness = (genotype != NULL) ? genotype->GetFitness() : 0.0;
+    fp << fitness << " ";
+  }
+  fp << endl;
+}
+
+########### Task Set ##############
+perturb_task_set
+:args:
+double max_factor 1.01
+:body:
+cConfig::PerturbTaskSet(max_factor);
+cMerit tmp_merit;
+double tmp_fitness;
+for (int i = 0; i < population->GetWorldX()*population->GetWorldY(); i++) {
+  if( population->GetCPU(i).GetActiveGenotype() != NULL ){
+    tmp_merit = population->GetCPU(i).GetPhenotype()->GetMerit();
+    tmp_fitness = population->GetCPU(i).GetPhenotype()->GetFitness();
+    population->GetCPU(i).GetActiveGenotype()->RemoveMerit(tmp_merit);
+    population->GetCPU(i).GetActiveGenotype()->RemoveFitness(tmp_fitness);
+    population->GetCPU(i).GetPhenotype()->ReCalcMerit();
+    tmp_merit = population->GetCPU(i).GetPhenotype()->GetMerit();
+    tmp_fitness = population->GetCPU(i).GetPhenotype()->GetFitness();
+    population->GetCPU(i).GetActiveGenotype()->AddMerit(tmp_merit);
+    population->GetCPU(i).GetActiveGenotype()->AddFitness(tmp_fitness);
+  }
+}

@@ -1,0 +1,63 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 2000 California Institute of Technology             //
+//                                                                          //
+// Read the COPYING and README files, or contact 'avida@alife.org',         //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+// Inline includes for debug.hh  
+
+#ifdef DEBUG
+
+inline int cDebug::GetLevel()
+{
+  return debug_level;
+}
+
+inline void cDebug::SetLevel(int new_level)
+{
+  debug_level = new_level;
+}
+
+inline void cDebug::SetFS(char * comment)
+{
+  cFunctionStats * cur_function = FindFS(comment);
+  cur_function->Inc();
+}
+
+inline void cDebug::PrintFS()
+{
+  // Just print them all for now... later make it look nicer (sorted)...
+  int i;
+  for (i = 0; i < FS_HASH_SIZE; i++) {
+    cFunctionStats * cur_function = function_lists[i]->GetNext();
+    while (cur_function != function_lists[i]) {
+      cur_function->Print();
+      cur_function = cur_function->GetNext();
+    }
+  }
+}
+
+inline void cDebug::PrintFS(FILE * fp)
+{
+  //// Just print them all for now... later make it look nicer (sorted)...
+  int i;
+  for (i = 0; i < FS_HASH_SIZE; i++) {
+    cFunctionStats * cur_function = function_lists[i]->GetNext();
+    while (cur_function != function_lists[i]) {
+      cur_function->Print(fp);
+      cur_function = cur_function->GetNext();
+    }
+  }
+}
+
+#endif   // #ifdef DEBUG
+
+#ifndef DEBUG
+
+inline int cDebug::GetLevel() { return DEBUG_NONE; }
+inline void cDebug::SetLevel(int /* new_level */) { ; }
+inline void cDebug::SetFS(char * /* comment */) { ; }
+inline void cDebug::PrintFS() { ; }
+inline void cDebug::PrintFS(FILE * /* fp */) { ; }
+
+#endif // #ifndef DEBUG

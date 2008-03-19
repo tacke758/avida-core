@@ -1,0 +1,249 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.00 
+header_name {.hh} 
+code_name {.cc} 
+gridx 5 
+gridy 5 
+snap 3
+decl {\#include <Fl/fl_ask.h>} {} 
+
+decl {\#include <iostream.h>} {} 
+
+decl {\#include "vista_main.hh"} {} 
+
+class cVistaUI {open
+} {
+  decl {bool redraw_on_birth;} {public
+  }
+  Function {cVistaUI()} {open
+  } {
+    code {redraw_on_birth=false;} {}
+    Fl_Window main_window {
+      label Vista
+      callback {vista_main->Close();} open selected
+      private xywh {322 481 275 275} type Single non_modal visible
+    } {
+      Fl_Output update_text {
+        label Update
+        xywh {5 5 65 25} align 8
+      }
+      Fl_Output average_generation_text {
+        label {Ave Generation}
+        xywh {5 30 65 25} align 8
+      }
+      Fl_Light_Button pause_button {
+        label {&Pause}
+        callback {vista_main->TogglePauseState();}
+        xywh {5 245 75 25} value 1 color 50 selection_color 1
+      }
+      Fl_Button {} {
+        label {&Quit}
+        callback {if( fl_ask("Quit the Vista Viewer?\\nAvida will switch to primitive viewer mode.") )
+  vista_main->Close();}
+        private xywh {215 220 55 25}
+      }
+      Fl_Button {} {
+        label {&Exit}
+        callback {if( fl_ask("Exit Avida Run?\\nAvida will exit too!!!.") )
+vista_main->ExitEvent();}
+        private xywh {215 245 55 25}
+      }
+      Fl_Group {} {
+        label Windows
+        xywh {195 80 75 95}
+      } {
+        Fl_Light_Button stats_window_button {
+          label {&Stats}
+          callback {if( ((Fl_Button*)o)->value() ){
+  OpenStatsWindow();
+}else{
+  CloseStatsWindow();
+}}
+          xywh {195 80 75 25} selection_color 2
+        }
+        Fl_Light_Button map_window_button {
+          label {&Map}
+          callback {if( ((Fl_Button*)o)->value() ){
+  vista_main->OpenMapWindow();
+}else{
+  vista_main->CloseMapWindow();
+}}
+          xywh {195 105 75 25} selection_color 2
+        }
+      }
+      Fl_Group {} {
+        label {Redraw On}
+        private xywh {5 185 75 50}
+      } {
+        Fl_Light_Button birth_redraw_button {
+          label {&Birth}
+          callback {redraw_on_birth = true;}
+          private xywh {5 210 75 25} type Radio
+        }
+        Fl_Light_Button update_redraw_button {
+          label {&Update}
+          callback {redraw_on_birth = false;}
+          private xywh {5 185 75 25} type Radio value 1
+        }
+      }
+      Fl_Repeat_Button {} {
+        label Step
+        callback {redraw_on_birth = true;
+update_redraw_button->value(0);
+birth_redraw_button->value(1);
+vista_main->Step();}
+        xywh {105 220 60 25}
+      }
+    }
+    Fl_Window stats_window {
+      label Statistics
+      callback {CloseStatsWindow();} open
+      xywh {326 19 745 418} visible
+    } {
+      Fl_Button {} {
+        label {&Close}
+        callback {CloseStatsWindow();}
+        xywh {665 390 75 25}
+      }
+      Fl_Group {} {
+        label population
+        xywh {90 5 85 150} labeltype NO_LABEL
+      } {
+        Fl_Output total_births {
+          label {Total Births:}
+          xywh {90 5 85 25} box FLAT_BOX
+        }
+        Fl_Output breed_true {
+          label {Breed True:}
+          xywh {90 30 85 25} box FLAT_BOX
+        }
+        Fl_Output parasites {
+          label {Parasites:}
+          xywh {90 55 85 25} box FLAT_BOX
+        }
+        Fl_Output energy {
+          label {Energy:}
+          xywh {90 105 85 25} box FLAT_BOX
+        }
+        Fl_Output max_fitness {
+          label {Max Fitness:}
+          xywh {90 80 85 25} box FLAT_BOX
+        }
+        Fl_Output max_merit {
+          label {Max Merit:}
+          xywh {90 130 85 25} box FLAT_BOX
+        }
+      }
+      Fl_Group {} {
+        label {dom & ave}
+        xywh {540 0 180 295}
+      } {
+        Fl_Group {} {
+          label Dominant
+          xywh {540 25 85 270}
+        } {
+          Fl_Output dom_fitness {
+            label {Fitness:}
+            xywh {540 25 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_merit {
+            label {Merit:}
+            xywh {540 50 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_gestation {
+            label {Gestation:}
+            xywh {540 75 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_size {
+            label {Size:}
+            xywh {540 100 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_copy_size {
+            label {Copy Size:}
+            xywh {540 125 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_exec_size {
+            label {Exec Size}
+            xywh {540 150 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_abundance {
+            label Abundance
+            xywh {540 175 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_births {
+            label Births
+            xywh {540 200 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_birth_rate {
+            label {Birth Rate}
+            xywh {540 225 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_num_threads {
+            label {Num Threads}
+            xywh {540 250 85 25} box FLAT_BOX
+          }
+          Fl_Output dom_thread_dist {
+            label {Thread Dist}
+            xywh {540 275 85 20} box FLAT_BOX
+          }
+        }
+        Fl_Group {} {
+          label Average
+          xywh {630 25 90 270}
+        } {
+          Fl_Output ave_fitness {
+            xywh {630 25 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_merit {
+            xywh {630 50 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_gestation {
+            xywh {630 75 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_size {
+            xywh {630 100 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_copy_size {
+            xywh {630 125 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_exec_size {
+            xywh {630 150 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_abundance {
+            xywh {630 175 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_births {
+            xywh {630 200 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_birth_rate {
+            xywh {630 225 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_num_threads {
+            xywh {630 250 90 25} box FLAT_BOX
+          }
+          Fl_Output ave_thread_dist {
+            xywh {630 275 90 20} box FLAT_BOX
+          }
+        }
+      }
+    }
+  }
+  Function {show()} {} {
+    code {main_window->show();} {}
+  }
+  Function {OpenStatsWindow()} {} {
+    code {stats_window->show();} {}
+    code {stats_window_button->set();} {}
+    code {vista_main->UpdateStatsWindow();} {}
+  }
+  Function {CloseStatsWindow()} {} {
+    code {stats_window->hide();} {}
+    code {stats_window_button->clear();} {}
+  }
+  Function {~cVistaUI()} {} {
+    code {vista_main->CloseMapWindow();} {}
+    code {CloseStatsWindow();} {}
+    code {main_window->hide();} {}
+    code {Fl::wait(0.025);} {}
+  }
+} 

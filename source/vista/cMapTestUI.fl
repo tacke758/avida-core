@@ -1,0 +1,87 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.00 
+header_name {.hh} 
+code_name {.cc} 
+gridx 5 
+gridy 5 
+snap 3
+decl {\#include <iostream.h>} {} 
+
+decl {\#include <Fl/fl_ask.h>} {} 
+
+class cMapTestUI {open
+} {
+  Function {cMapTestUI(int x_size, int y_size)} {open
+  } {
+    Fl_Window map_window {
+      label Map open selected
+      xywh {895 23 701 498} type Double visible
+    } {
+      Fl_Value_Slider zoom_slider {
+        label Zoom
+        callback {legend->SetCellSize(((Fl_Slider*)o)->value() );}
+        xywh {150 470 230 20} type Horizontal align 4 minimum 1 maximum 20 step 1 value 5
+      }
+      Fl_Group pan_group {open
+        xywh {0 5 665 440} align 22
+      } {
+        Fl_Roller {} {
+          label Y
+          callback {if(  ((Fl_Roller*)o)->value() >= 1 )
+ ((Fl_Roller*)o)->value( ((Fl_Roller*)o)->value()-1 );
+if(  ((Fl_Roller*)o)->value() < 0 )
+ ((Fl_Roller*)o)->value( ((Fl_Roller*)o)->value()+1 );
+grid->SetYOrigin( ((Fl_Roller*)o)->value() * grid->GetRows() );
+origin_label->value(grid->GetOriginString());}
+          xywh {10 220 20 170} minimum -0.9 maximum 1.9 step 0.005
+        }
+        Fl_Roller {} {
+          label X
+          callback {if(  ((Fl_Roller*)o)->value() >= 1 )
+ ((Fl_Roller*)o)->value( ((Fl_Roller*)o)->value()-1 );
+if(  ((Fl_Roller*)o)->value() < 0 )
+ ((Fl_Roller*)o)->value( ((Fl_Roller*)o)->value()+1 );
+grid->SetXOrigin( ((Fl_Roller*)o)->value() *grid->GetCols() );
+origin_label->value(grid->GetOriginString());}
+          xywh {65 415 180 20} type Horizontal align 4 minimum -0.9 maximum 1.9 step 0.005
+        }
+        Fl_Output origin_label {
+          label {Origin:}
+          xywh {560 15 105 20} box FLAT_BOX color 49
+        }
+      }
+      Fl_Group {} {
+        label Legend open
+        private xywh {465 130 200 280} box ENGRAVED_BOX
+        code0 {\#include <Fl/Fl_Scroll.h>}
+        class Fl_Scroll
+      } {
+        Fl_Box legend {
+          xywh {470 135 160 270} labeltype NO_LABEL align 1
+          code0 {\#include "color_legend.hh"}
+          class cColorLegend
+        }
+      }
+      Fl_Box {} {
+        xywh {40 5 415 405} box ENGRAVED_FRAME
+      }
+      Fl_Box grid {
+        xywh {40 5 415 405}
+        code0 {\#include "grid.hh"}
+        class cGrid
+      }
+    }
+    code {grid->SetupSize(x_size, y_size, legend);} {}
+  }
+  Function {show()} {open
+  } {
+    code {map_window->show();} {}
+    code {grid->show();} {}
+    code {legend->show();} {}
+  }
+  Function {~cMapTestUI()} {open
+  } {
+    code {map_window->hide();} {}
+    code {Fl::wait(0.025);} {}
+  }
+} 
