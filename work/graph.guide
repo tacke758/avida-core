@@ -1,0 +1,160 @@
+Data Files:
+ average.dat   // Average values in the soup.
+ dominant.dat  // Data about the dominant creatures in the soup.
+ count.dat     // Numbers of things existing or occuring this update.
+ totals.dat    // Like count.dat, but totaled over the entire run.
+ tasks.dat     // A count of all tasks completed in the soup.
+ stats.dat     // Any special stats which don't fit in the other files.
+
+average.dat
+1:  Update Number
+2:  Ave   Merit
+3:  StDev Merit
+4:  Ave   Gestation
+5:  StDev Gestation
+6:  Ave   Fitness
+7:  StDev Fitness
+8:  Ave   Birth Rate
+9:  StDev Birth Rate
+10: Ave   Size
+11: StDev Size
+12: Ave   Copied Size
+13: StDev Copied Size
+14: Ave   Executed Size
+15: StDev Executed Size
+16: Ave   Births per creature
+17: Var   Births per creature
+18: Ave   Abundance
+19: Ave   Genotypic Depth
+20: StDev of Genotypic Depth
+
+dominant.dat
+1:  Update Number
+2:  Dom Merit
+3:  Dom Gestation Time
+4:  Dom Fitness
+5:  Dom Repro-Rate
+6:  Dom Size
+7:  Dom Copied Size
+8:  Dom Executed Size
+9:  Dom Births (this update)
+10: Dom Breed True (this update)
+11: Dom Breed In (this update)
+12: Dom Abundance
+13: Dom Genotypic Depth
+14: Maximal Fitness
+15: Maximal Repro-Rate
+16: Dominant name
+
+stats.dat
+1: Update Number
+2: Energy (Average Inferiority) = log (best_fitness / ave_fitness)
+3: Effective Mutation Probability (Average Creature)   1 - ave_fidelity
+4: Effective Mutation Probability (Dominant Creature)  1 - dom_fidelity
+5: log(ave_fidelity)    (approx. R * l_ave)
+6: log(dom_fidelity)    (approx. R * l_dom)
+7: Genotype Change  (in number from last update to this) 
+8: Genotype Entropy
+9: Species Entropy
+
+count.dat
+1:  Update Number
+2:  Num Instructions Executed
+3:  Num Creatures
+4:  Num Genotypes
+5:  Num Threshold Genotypes
+6:  Num Species
+7:  Num Threshold Species
+8:  Num Births/Deaths
+9:  Num Breed True
+10: Num Parasites
+
+totals.dat
+1: Update Number
+2: Total Instructions Executed
+3: Total Creatures
+4: Total Genotypes
+5: Total Threshold Genotypes
+6: Total Species
+
+tasks.dat
+1:  Update Number
+2:  Get Count
+3:  Put Count
+4:  GGP Count
+5+: Task counts
+
+creature.log : printed every time a creature is born.
+1: Update Number
+2: Cell ID# (location)
+3: Genotype ID#
+
+genotype.log : printed every time a (threshold) genotype dies.
+1: Update Number
+2: Genotype ID
+3: Parent Genotype ID       (-1 for injected creatures)
+4: Parent Genotype Distance (-1 for injected creatures)
+5: Genotypic Depth          (0 for injected creatures)
+5: Max genotype abundance
+6: Genotype Age
+
+threshold.log : printed when a genotype becomes threshold.
+1: Update Number
+2: Genotype ID
+3: Species ID
+4: Name
+
+species.log : printed every time a species _dies_
+1: Update Number
+2: Species ID
+3: Parent Species ID
+4: Total threshold genotypes
+5: Total creatures
+6: Species Age
+
+breed.log : printed every time a creature _dies_
+1: Update Number
+2: Genotype ID
+3: Num Divides
+4: Age
+
+phylogeny.log : printed every time a creature is _born_
+1: Update Number
+2: Genotype ID
+3: Parent Genotype ID
+4: Parent Genotype Distance
+
+geneology.log : output whenever a genotype and all its decendants go extinct
+1: Update Number
+2: Genotype ID
+3: Parent Genotype ID
+4: Update Genotype was Born
+5: Update Genotype went Extinct
+6: Genotypic Depth
+7: Genotypic Sub-Tree Depth
+8: Number of Sub-Trees (Daughters with Daughters)
+9: Number of time Breed True
+10+: Number of Decendants at that level in Sub-Tree
+
+
+consensus.dat:
+stats.GetUpdate(),                         //  1
+con_genotype->GetMerit().GetDouble(),      //  2
+con_genotype->GetGestationTime(),          //  3
+con_genotype->GetFitness(),                //  4
+con_genotype->GetReproRate(),              //  5
+con_genotype->GetLength(),                 //  6
+con_genotype->GetCopiedSize(),             //  7
+con_genotype->GetExecutedSize(),           //  8
+con_genotype->GetBirths(),                 //  9
+con_genotype->GetBreedTrue(),              // 10
+con_genotype->GetBreedIn(),                // 11
+con_genotype->GetNumCPUs(),                // 12
+con_genotype->GetDepth(),                  // 13
+con_genotype->GetID(),                     // 14
+con_genotype->GetAge(),                    // 15
+best_dist,                                 // 16
+ave_dist,                                  // 17
+var_dist,                                  // 18
+total_entropy,                             // 19
+complexity_base                            // 20

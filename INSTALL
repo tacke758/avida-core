@@ -1,0 +1,57 @@
+                          INSTALLING AVIDA
+
+Version 1.3 of Avida is working under Microsoft Windows 95, NT, and most
+Unix platforms (specifically tested under HPUX, linux, OSF1, SunOS, Solaris,
+IRIX, and IBM AIX).  Separate versions of the program are included for both
+Win95/NT and Unix (with text-based user-interfaces).  Current versions of the
+software, as well as updated versions of the manual will be placed on the
+Avida ftp site at ftp://ftp.krl.caltech.edu/pub/avida/
+
+--=  Windows 95 and NT  =--
+
+The Windows version of Avida is the easiest to work with. Retrieve the file
+avida-1.3.win.zip and unzip it.  This will create a directory called Avida/
+with two sub-directories: The avida/ sub-directory contains all of the
+source code for the program, and the work/ sub-directory is where all of the
+configuration files are located, and where Avida should be run.  Upon
+un-packing, there will be a pre-compiled Avida.exe executable in the work
+sub-directory, which can be run immediately. 
+
+
+--=  Unix Systems  =--
+
+The file avida-1.3.0.tgz contains the source code for version 1.3 of Avida.
+Compiling avida from this source code should be a simple process on most
+systems.  The command ``gunzip avida-1.3.0.tar.gz'' will uncompress the file,
+then ``tar -xvf avida-1.3.0.tar'' will extract the actual Avida files.  If
+this does not work, consult your system administrator for the specifics of
+your system.  
+
+Extracting the program creates an avida/ directory with source/ and work/
+sub-directories.  In order to produce an executable file, Avida has to be
+compiled on your system.  To do this, type:
+
+  configure
+  make
+
+This will cause the compiler to move through the avida files one at a time;
+in a few minutes an executable is produced.  A link should exist to this
+executable in the sub-directory work, as this is where all the
+configuration files, such as ``genesis''. are located.  When in that
+directory, it is sufficient to type ``avida'' to run the program.
+
+Once you are happy with your executable, feel free to delete the .tar file.
+
+--=  Final Notes =--
+
+If you wish to install avida on your system such that it knows where to look
+for its configuration files, you may wish to change the final portion of the
+line in defs.hh which reads ``#define DEFAULT_DIR ../work/" to something
+with a full path of where it should look for these files.  If this default
+directory is set, avida will look in it for the config files _only if_ it
+can't find them locally (the local files always have precedence).
+
+Read the README file in the work directory to find out about setting up
+customized avida runs.
+
+Contact 'avida-help@krl.caltech.edu' with any questions you may have.

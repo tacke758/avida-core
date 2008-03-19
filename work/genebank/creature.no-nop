@@ -1,0 +1,35 @@
+# Calculate size.
+
+pop-B    # 00000 = 0  (Clear BX)
+inc      # 00001 = 1
+shift-l  # 00010 = 2
+shift-l  # 00100 = 4
+shift-l  # 01000 = 8
+inc      # 01001 = 9
+
+push-B   # Place the copy loop size on the stack.
+inc      # 01010 = 10  (Continue calculating Size)
+inc      # 01011 = 11
+inc      # 01100 = 12
+shift-l  # 10100 = 24
+
+allocate # Allocate the Size calculated.
+push-A   # Copy the size to CX.
+pop-C
+
+
+# Copy Loop:  AX=Size, BX=0, Stack=CopyLoopSize
+
+swap-stk   # Pull current position from stackB ; starts at 0 w/empty stack.
+pop-B
+copy       # Do the copy-inc
+inc
+push-B     # Put current position back on StackB
+
+if-n-equ   # If we are not done, the swap back to stackA
+swap-stk
+
+pop-B      # pop CopyLoopSize or (if finished) FullSize
+jump-b     # Jump to beginning of copy loop -or- (if done) to the next line.
+
+divide     # yay!  We're done.

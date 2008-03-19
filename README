@@ -1,0 +1,28 @@
+This distribution contains the source code and default configuration
+files for the Artificial Life system 'avida'.  If you didn't get this
+distribution off of the FTP site ftp.krl.caltech.edu, or the WWW site
+www.krl.caltech.edu, you might not have the latest version (with all
+the latest features and bug fixes).
+
+Please read the file 'LICENSE', in the same directory as this file.  It
+limits your usage rights and limits our liability.
+
+If you have any questions about this software, or if you are interested
+in being placed on the avida-announce mailing list, contact the Avida
+Group at 'avida-help@krl.caltech.edu' or at the following U.S. Postal
+address:
+
+	Charles Ofria
+	Beckman Institute 139-74
+	California Institute of Technology
+	Pasadena, California 91125
+
+You can get more information about Avida (including the prototype manual) on
+the avida web page which is at <URL:http://www.krl.caltech.edu/avida/>
+The avida group as a whole may be contacted at the e-mail address
+'avida@krl.caltech.edu'.  You can contact Chris Adami at
+'adami@krl.caltech.edu'; Travis Collier at 'travc@gg.caltech.edu'; and
+Charles Ofria at 'charles@krl.caltech.edu'.
+
+To find out more information on installing avida on your system, read the
+INSTALL file.

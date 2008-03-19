@@ -1,0 +1,127 @@
+nop-A     # Start Label
+nop-A
+nop-A
+nop-A
+
+call      # Call size calculator
+nop-A
+nop-B
+nop-A
+nop-A
+
+swap-stk  # Save the size on the second stack
+push
+nop-B
+swap-stk
+
+call      # Call the copy proceedure
+nop-A
+nop-B
+nop-B
+nop-A
+
+swap-stk  # Restore the size from the second stack
+pop
+nop-B
+swap-stk
+
+jump-b    # Restart just the copy section of code.
+nop-C
+nop-A
+nop-C
+nop-C
+
+divide    # section divider (never executed)
+
+### Fluff
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+nop-C
+nop-A
+nop-B
+
+divide    # section divider (never executed)
+
+
+### Size Calculation Module
+
+nop-B     # Call label
+nop-C
+nop-B
+nop-B
+
+search-b  # Search backwards & save
+nop-C
+nop-C
+nop-C
+nop-C
+add
+push
+nop-B
+
+search-f  # Search forwards
+nop-C
+nop-C
+nop-C
+nop-C
+add
+
+add       # Add forwards, backwards, and 4 extra for middle.
+pop
+nop-C
+add
+return    # return size in BX
+
+
+### Copy module  (Needs size in BX)
+nop-B     # Call label
+nop-C
+nop-C
+nop-B
+allocate
+
+push      # Move size into CX and clear BX
+nop-B
+pop
+nop-C
+sub
+
+nop-B     # Copy Loop
+nop-A
+nop-B
+nop-C
+
+copy
+inc
+if-n-equ
+jump-b
+
+nop-A
+nop-C
+nop-A
+nop-B
+
+divide
+
+return
+
+### End label
+nop-A
+nop-A
+nop-A
+nop-A

@@ -1,0 +1,148 @@
+# Filename......: genebank/056-aekdf
+# Update Output.: 49511
+# Update Created: 49320
+# Merit.........: 7538
+# Gestation Time: 343
+# Fitness.......: 21.9767
+# Generation....: 500
+# Errors........: 0
+# Copied Size...: 56
+# Executed Size.: 56
+
+# logic:0a	8
+# logic:0b	4
+# logic:1a	2
+# logic:1b	2
+# logic:2a	2
+# logic:2b	2
+# logic:2c	2
+# logic:2d	2
+# logic:2e	0
+# logic:2f	2
+# logic:2g	0
+# logic:2h	0
+# logic:3a	0
+# logic:3b	0
+# logic:3c	0
+# logic:3d	0
+# logic:3e	0
+# logic:3f	0
+# logic:3g	0
+# logic:3h	0
+# logic:3i	0
+# logic:3j	0
+# logic:3k	0
+# logic:3l	2
+# logic:3m	0
+# logic:3n	0
+# logic:3o	2
+# logic:3p	0
+# logic:3q	2
+# logic:3r	0
+# logic:3s	0
+# logic:3t	0
+# logic:3u	0
+# logic:3v	0
+# logic:3w	0
+# logic:3x	0
+# logic:3y	0
+# logic:3z	4
+# logic:3aa	0
+# logic:3ab	0
+# logic:3ac	0
+# logic:3ad	0
+# logic:3ae	0
+# logic:3af	0
+# logic:3ag	0
+# logic:3ah	0
+# logic:3ai	0
+# logic:3aj	0
+# logic:3ak	0
+# logic:3al	0
+# logic:3am	0
+# logic:3an	0
+# logic:3ao	0
+# logic:3ap	0
+# logic:3aq	0
+# logic:3ar	0
+# logic:3as	0
+# logic:3at	0
+# logic:3au	0
+# logic:3av	0
+# logic:3aw	0
+# logic:3ax	0
+# logic:3ay	0
+# logic:3az	0
+# logic:3ba	0
+# logic:3bb	0
+# logic:3bc	0
+# logic:3bd	0
+# logic:3be	0
+# logic:3bf	0
+# logic:3bg	2
+# logic:3bh	2
+# logic:3bi	0
+# logic:3bj	0
+# logic:3bk	0
+# logic:3bl	0
+# logic:3bm	0
+# logic:3bn	0
+# logic:3bo	0
+# logic:3bp	0
+
+jump-f
+nand
+search-f
+nop-B
+search-f
+nop-B
+shift-l
+jump-f
+get
+allocate
+shift-r
+push
+search-f
+call
+get
+call
+call
+call
+dec
+put
+put
+copy
+jump-f
+dec
+put
+put
+add
+put
+dec
+nand
+put
+add
+get
+nop-C
+nand
+nop-C
+nand
+put
+pop
+jump-b
+shift-l
+get
+nand
+nop-C
+nop-B
+nop-B
+copy
+inc
+copy
+inc
+if-n-equ
+nop-A
+jump-b
+nop-A
+inc
+divide

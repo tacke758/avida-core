@@ -1,0 +1,44 @@
+This file describes how to configure and customize avida runs.  The work
+directory has all of the configuration files in it.  To find out how to
+install avida on your system, read the INSTALL and README files.
+
+Currently these files are:
+
+  * genesis		The main configuration file for avida; this file
+			allows you to setup most of the parameters for the
+			environment of a run, how long to make the run,
+			what statistics to take, and which of the other
+			configuration files should be read.
+
+  * inst_set.xx.<name>	Several different instruction sets come with avida.
+			These are named such that xx is the size of the
+			set, and <name> is an identifying name.  The
+			instruction set used is listed in the genesis file.
+
+  * task_set		This file lists the bonuses given for different
+			tasks.  It is not reccomended to be changed at this
+			point...  (though it does work properly, there is
+			just not much to it).  Alternative filenames can
+			also be specified in the genesis file.
+
+  * genebank/		This directory contains potential creatures to
+			insert into an avida soup.  The initial creatures
+			are listed in the genesis file.
+
+Avida will produce a number of output files when you run it.  The *.dat
+files give the status of specific variables at specified intervals during
+the run (set in the genesis file).  For more information about what
+information these files contain, see the graph.guide file.
+
+The *.log files keep track of every time certain events occur.  At the
+moment, these files are only interesting for the purpuses of replaying
+a run (This may change soon).
+
+Finally, the genebank directory is where the code for creatures is printed.
+In the genesis file, there are a number of setting which require that either
+threshold creatures, dominant creatures, or species are printed, and this
+is where they are put.  Note that this directory fills up *FAST* so watch
+out when printing genotypes.
+
+See the Avida Users Manual for more detailed information on both the
+configurations files and output files.

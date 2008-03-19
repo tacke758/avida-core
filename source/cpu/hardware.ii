@@ -1,0 +1,347 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 1998 California Institute of Technology             //
+//                                                                          //
+// Read the LICENSE and README files, or contact 'charles@krl.caltech.edu', //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+// This file defines the inline functions for the various cpu objects.
+
+#ifndef HARDWARE_II
+#define HARDWARE_II
+
+#include "../main/inst_lib.hh"
+#include "head.ii"
+
+inline void cHardware::AdvanceIP()
+{
+  threads[CUR_THREAD].inst_pointer++;
+}
+
+inline void cHardware::AdjustIP()
+{
+  threads[CUR_THREAD].inst_pointer.Adjust();
+}
+
+inline void cHardware::JumpIP(int in_distance)
+{
+  threads[CUR_THREAD].inst_pointer.Jump(in_distance);
+}
+
+inline void cHardware::AbsJumpIP(int in_distance)
+{
+  threads[CUR_THREAD].inst_pointer.AbsJump(in_distance);
+}
+
+inline void cHardware::SetIP(int in_position, cBaseCPU * in_cpu)
+{
+  threads[CUR_THREAD].inst_pointer.Set(in_position, in_cpu);
+}
+
+inline void cHardware::SetIPFlag(int flag) 
+{
+  threads[CUR_THREAD].inst_pointer.SetFlag(flag);
+}
+
+inline const cInstruction & cHardware::GetCurInst()
+{
+  return threads[CUR_THREAD].inst_pointer.GetInst();
+}
+
+inline const cInstruction & cHardware::GetNextInst()
+{
+  return threads[CUR_THREAD].inst_pointer.GetNextInst();
+}
+
+inline int cHardware::GetIPPosition()
+{
+  return threads[CUR_THREAD].inst_pointer.GetPosition();
+}
+
+inline void cHardware::SetCurInst(const cInstruction & in_inst)
+{
+  threads[CUR_THREAD].inst_pointer.SetInst(in_inst);
+}
+
+
+inline int cHardware::GetNumInst()
+{
+  return inst_lib->GetSize();
+}
+
+inline cInstruction cHardware::GetRandomInst()
+{
+  return inst_lib->GetRandomInst();
+}
+
+
+inline cInstruction cHardware::ReadArg(int arg_id, cPhenotype & phenotype)
+{
+  // @CAO Must still deal with Parasites...
+
+  const cInstArgument & arg = GetCurInst().GetArg(arg_id);
+
+  cInstruction out_inst;
+  cCPUHead read_head(GetInstPointer());
+
+  // If we have a direct value, return it.
+  if (arg.IsValue()) {
+    out_inst.SetArg(0, 0, arg.GetValue());
+    return out_inst;
+  }
+  
+  // Determine the component type.
+
+  switch (arg.GetType()) {
+  case ARG_TYPE_REG:
+    out_inst.SetArg(0, 0, GetRegister(RegRange(arg.GetValue())));
+    break;
+  case ARG_TYPE_IP:
+    // @CAO allow for parasite indication?
+    out_inst.SetArg(0, 0, GetInstPointer().GetPosition());
+    break;
+  case ARG_TYPE_STACK:
+    out_inst.SetArg(0, 0, StackPop());
+    break;
+  case ARG_TYPE_IO: {
+    int value = GetInput();
+    out_inst.SetArg(0, 0, GetInput());
+    DoInput(value, phenotype);
+    break;
+  }
+  case ARG_TYPE_MEM:
+    read_head.Set(arg.GetValue());
+    out_inst = read_head.GetInst();
+    break;
+  case ARG_TYPE_LABEL:
+    out_inst.SetArg(0, 0, FindArgLabel(arg.GetValue()).GetPosition());
+    break;
+#ifdef DEBUG
+  default:
+    g_debug.Error("Unknown type: %d", arg.GetType());
+#endif
+  }
+
+  // Determine if we are using an indirect value.
+
+  if (arg.IsPointer()) {
+    read_head.Set(out_inst.GetArg(0).GetValue());
+    out_inst = read_head.GetInst();
+  }
+
+  return out_inst;
+}
+
+inline void cHardware::WriteArg(int arg_id, const cInstruction & in_inst,
+				cPhenotype & phenotype)
+{
+  // @CAO Must still deal with Parasites...
+
+  const cInstArgument & arg = GetCurInst().GetArg(arg_id);
+  cCPUHead write_head(GetInstPointer());
+
+  // Do all writing to memory in one place...
+  int mem_write = FALSE;
+  int write_pos = 0;
+
+  int value = in_inst.GetArg(0).GetValue();
+
+  switch (arg.GetType()) {
+  case ARG_TYPE_REG:    
+    if (arg.IsPointer()) {
+      write_pos = GetRegister(RegRange(arg.GetValue()));
+      mem_write = TRUE;
+    }
+    else Reg_Set(RegRange(arg.GetValue()), value);
+    break;
+  case ARG_TYPE_IP:
+    if (arg.IsPointer()) {
+      write_pos = GetIPPosition();
+      mem_write = TRUE;
+    }
+    else {
+      SetIP(value);  // @CAO parasites possible?
+    }
+    break;
+  case ARG_TYPE_STACK:
+    if (arg.IsPointer()) {
+      write_pos = StackPop();
+      mem_write = TRUE;
+    } else StackPush(value);
+    break;
+  case ARG_TYPE_IO:    
+    if (arg.IsPointer());  // No indirect IO...
+    DoOutput(value, phenotype);
+    break;
+  case ARG_TYPE_MEM:
+    if (arg.IsPointer()) {
+      write_head.Set(arg.GetValue());
+      write_pos = write_head.GetInst().GetArg(0).GetValue();
+    }
+    else  write_pos = arg.GetValue();
+    mem_write = TRUE;
+    break;
+  case ARG_TYPE_LABEL:
+    // @CAO Labels need to be implemented....
+    if (arg.IsPointer()) {
+    } else {
+    }
+    break;
+  }
+
+  // If we're suppose to write to memory, do so.
+  if (mem_write) {
+    write_head.Set(write_pos);
+    write_head.SetFlag(INST_FLAG_COPIED);    // Set the copied flag.    
+    write_head.SetInst(in_inst);  // Write the line!
+  }
+}
+
+
+inline void cHardware::LoadArgs(cPhenotype & phenotype)
+{
+  // And get the values in subsequent arguments.
+  for (int i = 0; i < inst_lib->GetNumArgs(); i++) {
+    // If possible (ie. there is something to modify and we have write
+    // access) then update the arguments.  Otherwise, short the loop.
+    
+    const cInstArgument & arg_info = GetCurInst().GetArg(i);
+
+    if ((arg_info.GetModType() == ARG_MOD_NONE_A) ||
+	(arg_info.GetModType() == ARG_MOD_NONE_B) ||
+	(arg_info.GetType() == ARG_TYPE_IO) ||
+	(arg_info.GetType() == ARG_TYPE_IP) ||
+	!arg_info.WriteOK())  continue;
+
+    // @CAO make this more efficient!
+    cInstruction cur_inst = ReadArg(i, phenotype);
+    int value = cur_inst.GetArg(0).GetValue();
+    
+    if (arg_info.GetModType() == ARG_MOD_INC) value++;
+    else if (arg_info.GetModType() == ARG_MOD_DEC) value--;
+    else if (arg_info.GetModType() == ARG_MOD_NEG) value *= -1;
+    else if (arg_info.GetModType() == ARG_MOD_BITNEG) value = ~value;
+    else if (arg_info.GetModType() == ARG_MOD_SHIFTL) value <<= 1;
+    else if (arg_info.GetModType() == ARG_MOD_SHIFTR) value >>= 1;
+ 
+    cur_inst.SetArg(0, 0, value);
+    WriteArg(i, cur_inst, phenotype);
+  }
+}
+
+
+inline cInstruction cHardware::ReadRedcodeArg(int arg_id,
+					      cPhenotype & phenotype)
+{
+  (void) phenotype;  // For the moment, no way to earn merit.
+
+  // @CAO Must still deal with Parasites...
+  const cInstArgument & arg = GetCurInst().GetArg(arg_id);
+
+  cInstruction out_inst(cInstruction::GetInstNone());
+  cCPUHead read_head(GetInstPointer());
+
+  // Determine the component type.
+
+  switch (arg.GetRedcodeType()) {
+  case REDCODE_OP_VALUE:
+    out_inst.SetArg(0, 0, arg.GetValue());
+    break;
+  case REDCODE_OP_DIRECT:
+    read_head.Set(arg.GetValue());
+    out_inst = read_head.GetInst();
+    break;
+  case REDCODE_OP_INDIRECT:
+  case REDCODE_OP_DEC_INDIRECT:  // Dec should have been handled when loaded.
+    read_head.Set(arg.GetValue());
+    read_head.Set(read_head.GetInst().GetArg(0).GetValue());
+    out_inst = read_head.GetInst();
+    break;
+  }
+
+  return out_inst;
+}
+
+inline void cHardware::WriteRedcodeArg(int arg_id,
+		       const cInstruction & in_inst, cPhenotype & phenotype)
+{
+  (void) phenotype;  // No merit bonus currently possible.
+
+  // @CAO Must still deal with Parasites...
+  const cInstArgument & arg = GetCurInst().GetArg(arg_id);
+  int arg_type = arg.GetRedcodeType();
+
+  if (arg_type != REDCODE_OP_VALUE) {
+    cCPUHead write_head(GetInstPointer());
+    write_head.Set(arg.GetValue());
+  
+    if (arg_type == REDCODE_OP_INDIRECT ||
+	arg_type == REDCODE_OP_DEC_INDIRECT) {
+      write_head.Set(write_head.GetInst().GetArg(0).GetValue());
+    }
+
+    write_head.SetFlag(INST_FLAG_COPIED);   // Set the copied flag.    
+    if (in_inst.GetOp() == cInstruction::GetInstNone().GetOp()) {
+      // We can only write integers to dat instructions...
+      if (write_head.GetInst().GetOp() == 0)
+	write_head.SetArgValue(0, in_inst.GetArg(0).GetValue());
+    } else {
+      write_head.SetInst(in_inst);            // Write the line!
+    }
+  }
+  else {
+    // @CAO should we throw a fault for trying to write to a value?
+  }
+}
+
+
+inline void cHardware::LoadRedcodeArgs(cPhenotype & phenotype)
+{
+  for (int i = 0; i < inst_lib->GetNumArgs(); i++) {
+    if (GetCurInst().GetArg(i).GetRedcodeType() == REDCODE_OP_DEC_INDIRECT) {
+      cInstruction cur_inst = ReadArg(i, phenotype);
+      cur_inst.SetArg(0, 0, cur_inst.GetArg(0).GetValue() - 1);
+      WriteArg(i, cur_inst, phenotype);
+    }
+  }
+}
+
+
+inline void cHardware::SetupProcess()
+{
+#ifdef THREADS
+  NextThread();
+#endif
+  AdjustIP();
+}
+
+// This function looks at the current position in the info of a creature,
+// and sets the next_label to be the sequence of nops which follows.  The
+// instruction pointer is left on the last line of the label found.
+
+inline void cHardware::ReadLabel(int max_size)
+{
+  int count = 0;
+  cCPUHead * inst_ptr = &(threads[CUR_THREAD].inst_pointer);
+  
+  threads[CUR_THREAD].next_label.Clear();
+  
+  while (inst_lib->IsNop(inst_ptr->GetNextInst()) &&
+	 (count < max_size)) {
+    count++;
+    inst_ptr->Advance();    
+    threads[CUR_THREAD].next_label.
+      AddNop(inst_lib->GetNopMod(inst_ptr->GetInst()));
+    
+    // If this is the first line of the template, mark it executed.
+    if (threads[CUR_THREAD].next_label.GetSize() == 1)
+      inst_ptr->SetFlag(INST_FLAG_EXECUTED);
+  }
+}
+
+inline int cHardware::TestParasite()
+{
+  return threads[CUR_THREAD].inst_pointer.TestParasite();
+}
+
+#endif

@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!-- $Id: events.html,v 1.2 2000-07-11 23:20:45 n8gray Exp $ -->
+<html> <head>
+<title>Events</title>
+</head>
+
+<body>
+<h2> Avida Classic </h2>
+
+<h4> Events (Event List) </h4>
+
+<h4> Event List Format</h4>
+<pre>
+ basic syntax: "trigger  start:interval:stop  event..."
+ (begin|#:all|once|#:end|#)
+
+ start can be a value or "begin"
+ interval can be a value, "once", or "all" (implies every update)
+ stop can be a value or "end"
+
+ trigger start event
+	once when trigger passes start
+	same as [start:once:end]
+ trigger start:interval event
+	every time after start that interval has been passed (like cycle)
+	same as [start:interval:end]
+ trigger start:interval:stop event
+	every time after start that interval has been passed until stop
+
+ Examples:
+ update  	begin:100:end	calc_consensus 200
+	from the beginning to the end of the run, every 100 updates ...
+ generation  	 1000:all:20000	inject creature.parasite 0
+	from when generation crosses 1000 to when generation crosses 20000,
+	every update (when events are processed) ...
+
+ TRIGGERS:
+ update (or u)
+ generation (or g)
+</pre>
+
+
+<h4> Events </h4>
+
+<b> Control </b>
+<ul>
+  <li> <b> echo </b> string <br>
+      Outputs string to stdout (primitive mode)  or comment window
+  <li> <b> pause </b> <br>
+      Pauses Avida (waits for unpause from user input)<br>
+      Only works in non-primitive mode
+  <li> <b> exit </b> <br>
+      Exits Avida
+</ul>
+
+<b> Load & Save Creature or Population </b>
+<ul>
+  <li> <b> inject </b> {filename=START_CREATURE} {cell#=0} {merit=-1} {lineage_label=0} <br>
+      Loads the creature filename into cell#<br>
+      If merit > 0, sets initial merit to this value
+  <li> <b> inject_all </b> {filename=START_CREATURE} <br>
+      Loads the creature filename into all cells
+  <li> <b> inject_random </b> length <br>
+      Sets a random cell to a completely randomized genome of size length
+<!--  Events that are in develop but not classic:
+  <li> <b> save_organism </b> {filename=genebank/genotype->GetName().save} {cell#=0} <br>
+      Saves complete organism state (phenotype, registers, etc)
+  <li> <b> load_organism </b> filename {cell#=0} {lineage_label=0} <br>
+      Loads complete organism state, recalculating merit from phenotype 
+-->
+  <li> <b> save_clone </b> {filename=clone.{update#}}<br>
+      Saves population clone to "clone.{update#}"
+  <li> <b> load_clone </b> filename <br>
+      Loads the population from clone filename
+<!--  Events that are in develop but not classic:
+  <li> <b> save_population </b> {filename=save_pop.{update#}}<br>
+      Saves population to "save_pop.{update#}" (complete state save)
+  <li> <b> load_population </b> filename <br>
+      Loads the population from filename (complete state)
+-->
+  <li> <b> print_dom </b> {filename=genebank/dom->GetName()} <br>
+      Outputs the dominant genotype to filename or the genebank (default)
+</ul>
+
+<b> Print to Data Files </b> : Output a line to the appropriate dat file
+<ul>
+  <li> <b> print_average_data </b> {filename=average.dat} <br>
+  <li> <b> print_error_data </b> {filename=error.dat} <br>
+  <li> <b> print_variance_data </b> {filename=variance.dat} <br>
+  <li> <b> print_dominant_data </b> {filename=dominant.dat} <br>
+  <li> <b> print_stats_data </b> {filename=stats.dat} <br>
+  <li> <b> print_count_data </b> {filename=count.dat} <br>
+  <li> <b> print_totals_data </b> {filename=totals.dat} <br>
+  <li> <b> print_tasks_data </b> {filename=tasks.dat} <br>
+  <li> <b> print_time_data </b> {filename=time.dat} <br>
+  <li> <b> print_mutation_data </b> {filename=mutation.dat} <br>
+<!--  Events that are in develop but not classic:
+  <li> <b> print_instruction_data </b> {filename=instruction.dat} <br>
+  <li> <b> print_dom_instruction_data </b> {filename=dom_instruction.dat} <br>
+-->
+  <li> <b> print_depth_histogram </b> {filename=depth_histogram.dat} <br>
+<!--  Events that are in develop but not classic:
+  <li> <b> print_task_bonus </b> {filename=task_bonus.dat} <br>
+-->
+</ul>
+
+<b> Other Ouptut </b>
+<ul>
+  <li> <b> dump_basic_grid </b> <br>
+      Outputs an image of the grid to "grid.{update#}.out" <br>
+      Basic Map Symbols go to... <br>
+      ' ' = -3 <br>
+      '.' = -2 <br>
+      '+' = -1 <br>
+      letter = letter-'A' [transformed to number]
+  <li> <b> dump_fitness_grid </b> <br>
+      Outputs a grid of fitness values to "fgrid.{update#}.out"
+</ul>
+
+<b> Modify Environemnt </b>
+<ul>
+  <li> <b> mod_copy_mut </b> value <br>
+      Changes the copy mutation rate for the entire population by += value
+  <li> <b> set_copy_mut </b> value <br>
+      Changes the copy mutation rate for the entire population to value
+  <li> <b> set_point_mut </b> value <br>
+      Changes the point mutation rate for the entire population to value
+<!--  Events that are in develop but not classic:
+  <li> <b> preturb_tasks </b> {factor=1.01} <br>
+      ????
+  <li> <b> change_tasks </b> prob_change min_bonus max_bonus <br>
+      ????
+-->
+</ul>
+
+<b> Landscaping & Consensus </b>
+<ul>
+  <li> <b> calc_landscape </b> {distance=1} {fitness_chart_filename}<br>
+        Computes the fitness of all mutants to a depth of <code>distance</code>.
+        Statistics are printed to <code>"landscape.dat"</code>.
+        If <code>fitness_chart_filename</code> is specified, the fitness of each
+        mutant produced is recorded along with the mutation that produced it.
+  <li> <b> sample_landscape </b> {sample_size=inst_lib_size-1} <br>
+  <li> <b> random_landscape </b> {distance=1} {sample_size=0} {min_found=0}
+      {max_sample_size=0} {print_if_found=FALSE} <br>
+  <li> <b> analyze_landscape </b> {sample_size=1000} {min_found=0}
+      {max_sample_size=0} <br>
+  <li> <b> pairtest_landscape </b> {sample_size=1000} <br>
+  <li> <b> pairtest_full_landscape </b> <br>
+  <li> <b> calc_consensus </b> {lines_saved=0} <br>
+</ul>
+
+<b> Other Tests </b>
+<ul>
+  <li> <b> hillclimb </b> <br>
+      Does single-mutation hillclimbing, starting from the best creature in 
+      the soup.  Performs point mutations, insertion mutations, and deletion
+      mutations.  Writes statistics of each step to
+      <code>"hillclimb.dat"</code>
+      and writes the best creature found to <code>"hillclimb-creature"</code>.
+<!--  Events that are in develop but not classic:
+  <li> <b> test_size_change_robustness </b> {num_trials=100}
+      {filename=size_change.dat} <br>
+      Tests the Dominant genotype for robustness to size change (insertions)
+      by inserting a block of "instruction_none" into the code.  Insertion
+      occurs at a random position, but not infront of a Nop as to not divide up
+      templates or change instruction modifying Nops.  Tries num_trials
+      insertions. <br>
+      Outputs:<br>
+      &nbsp;&nbsp;1: Update <br>
+      &nbsp;&nbsp;2: Fraction Viable <br>
+      &nbsp;&nbsp;3: Fraction Offspring Size == Parent Size + Insert Size <br>
+      &nbsp;&nbsp;4: Fraction Offspring Size == Parent Size <br>
+      If the dominant genotype is robust to size change, Fraction Viable
+      (Col 2) should be relatively high (but not necissarially 1 as some
+      insertions will break the creature).  Col 3 should ~= 1, and Col 4
+      should ~= 0.
+-->
+</ul>
+
+<b> Thread Output </b> : Only if defs.hh has <code>THREADS</code> defined
+<ul>
+  <li> <b> test_threads </b> <br>
+      Tests various information about the threading behaviour of the dominant
+      genotype by running it through a TestCPU. <br>
+      See cStats::TestThreads
+<!--  Events that are in develop but not classic:
+  <li> <b> print_threads </b> <br>
+      ???
+-->
+</ul>
+
+<b> Geneology Output </b> : Only if defs.hh has <code>GENEOLOGY</code> defined
+<ul>
+  <li> <b> print_geneology_tree </b>
+      {filename=geneology_tree_[update#].out} <br>
+      Outputs the full geneological tree.  Format ???
+  <li> <b> print_geneology_depth </b> <i><b> : Depricated </b></i> <br>
+      Prints the geneological depth histogram (in a peculiar format...
+      see code) to "depth_hist.out". <br>
+      Uses the Geneology module [see geneology.cc
+      cGeneology::PrintDepthHistogram()]. <br>
+      <i> Replaced by <b> print_depth_histogram </b> </i>
+</ul>
+
+<hr>
+<address></address>
+<!-- hhmts start -->
+Last modified: Jul 11, 2000  by <a href=mailto:n8gray@caltech.edu>Nathan Gray</a>
+<!-- hhmts end -->
+</body> </html>

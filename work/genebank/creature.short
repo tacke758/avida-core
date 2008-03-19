@@ -1,0 +1,14 @@
+#working on this... :-)
+
+search-f
+nop-A
+inc
+shift-l
+allocate
+nop-B
+dec
+copy
+if-n-equ
+jump-b
+nop-A
+divide
