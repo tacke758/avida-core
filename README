@@ -1,0 +1,44 @@
+
+To compile and install Avida, you have to do
+  ./configure; make; make install
+
+By default, you will get an optimized version of the code without
+viewer. The installation goes into a directory called 'work' that 
+is created in your working directory. See below how to change that.
+
+There is a number of options you can give to configure to change the
+default behavior:
+  --enable-debug: Compile with debugging symbols instead of optimized.
+  --enable-gnu-debug: Compile with special debugging symbols for the
+           gnu debugger. Doesn't work if you are not using gcc.
+  --enable-viewer: Compile with ncurses viewer. You need the ncurses
+           library installed.
+  --enable-profile: Compile with profiling information.
+  --enable-standard-prefix: By default, the configure script that
+           comes with Avida does not accept the options '--prefix', 
+           '--bindir' and '--datadir'. If you give the option
+           'enable-standard-prefix', however, you can use these
+	   options to customize your install.
+  --help: Gives you an overview over all existing options.
+
+Hence, in order to compile with viewer and gnu debugging symbols, you
+have to do
+  ./configure --enable-gnu-debug --enable-viewer; make
+
+In order to install the executable into /usr/local/bin and the
+supporting files into /usr/local/share/avida, do
+  ./configure --enable-standard-prefix --bindr=/usr/local/bin --datadir=/usr/loca/share/avida
+If you choose this installation, you will probably want to set the
+variable DEFAULT_DIR in 'defs.hh' to "/usr/local/share/avida". In that
+way, the supporting files are found automatically, wherever you run avida.
+
+If you want to install only the executable, but not the supporting
+files, do 
+  make install-exec
+instead of 'make install'.
+
+*Important*:
+If you have already build Avida without viewer, and you want to
+rebuild it with viewer, or vice versa, you have to issue a
+  make viewer-clean
+between the two builds. Otherwise, strange things might happen.
