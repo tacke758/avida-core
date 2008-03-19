@@ -1,0 +1,16 @@
+AUTOMAKE_OPTIONS = dejagnu
+TESTSUITES =
+EXTRA_DIST =
+
+EXTRA_DIST += default.md5sum default.tail
+if DEFAULT_TESTS
+TESTSUITES += default
+endif
+
+EXTRA_DIST +=tedious.tail
+if TEDIOUS_TESTS
+TESTSUITES += tedious
+endif
+
+DEJATOOL = $(TESTSUITES)
+AM_RUNTESTFLAGS = AVIDA_BLDDIR=`pwd`/..
