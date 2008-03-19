@@ -1,0 +1,17 @@
+# Note: the variables 'srcdir', 'subdir', and 'tool' (among others) are
+# preinitialized by dejagnu.
+
+# The default timeout period is 10 seconds but may be set as follows:
+  set timeout 10
+
+# Give this test a name.
+  set test "hello demo"
+
+# Set the commandline that performs this test.
+  set COMMAND "./hello there, how are you?"
+
+# Launch the test.  Complain if there was a problem launching.
+if { [executable_test "$tool" "$COMMAND"] != "" } {
+  perror "failed to spawn \"$COMMAND\"." 0
+}
+

@@ -1,0 +1,270 @@
+    case cPopulationEventFactory::EVENT_exit :
+      event = new cPopulationEventexit(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_exit_if_generation_greater_than :
+      event = new cPopulationEventexit_if_generation_greater_than(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_exit_if_update_greater_than :
+      event = new cPopulationEventexit_if_update_greater_than(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_exit_if_ave_lineage_label_smaller :
+      event = new cPopulationEventexit_if_ave_lineage_label_smaller(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_exit_if_ave_lineage_label_larger :
+      event = new cPopulationEventexit_if_ave_lineage_label_larger(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_echo :
+      event = new cPopulationEventecho(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_data :
+      event = new cPopulationEventprint_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_average_data :
+      event = new cPopulationEventprint_average_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_error_data :
+      event = new cPopulationEventprint_error_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_variance_data :
+      event = new cPopulationEventprint_variance_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_dominant_data :
+      event = new cPopulationEventprint_dominant_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_stats_data :
+      event = new cPopulationEventprint_stats_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_count_data :
+      event = new cPopulationEventprint_count_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_totals_data :
+      event = new cPopulationEventprint_totals_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_tasks_data :
+      event = new cPopulationEventprint_tasks_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_tasks_exe_data :
+      event = new cPopulationEventprint_tasks_exe_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_resource_data :
+      event = new cPopulationEventprint_resource_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_time_data :
+      event = new cPopulationEventprint_time_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_mutation_data :
+      event = new cPopulationEventprint_mutation_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_mutation_rate_data :
+      event = new cPopulationEventprint_mutation_rate_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_divide_mut_data :
+      event = new cPopulationEventprint_divide_mut_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_dom_parasite_data :
+      event = new cPopulationEventprint_dom_parasite_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_instruction_data :
+      event = new cPopulationEventprint_instruction_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_instruction_abundance_histogram :
+      event = new cPopulationEventprint_instruction_abundance_histogram(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_depth_histogram :
+      event = new cPopulationEventprint_depth_histogram(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_genotype_abundance_histogram :
+      event = new cPopulationEventprint_genotype_abundance_histogram(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_species_abundance_histogram :
+      event = new cPopulationEventprint_species_abundance_histogram(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_lineage_totals :
+      event = new cPopulationEventprint_lineage_totals(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_lineage_counts :
+      event = new cPopulationEventprint_lineage_counts(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_dom :
+      event = new cPopulationEventprint_dom(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_parasite_debug :
+      event = new cPopulationEventparasite_debug(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_dom_parasite :
+      event = new cPopulationEventprint_dom_parasite(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_genotype_map :
+      event = new cPopulationEventprint_genotype_map(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_number_phenotypes :
+      event = new cPopulationEventprint_number_phenotypes(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_save_population :
+      event = new cPopulationEventsave_population(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_load_population :
+      event = new cPopulationEventload_population(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_save_clone :
+      event = new cPopulationEventsave_clone(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_load_clone :
+      event = new cPopulationEventload_clone(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_load_dump_file :
+      event = new cPopulationEventload_dump_file(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_dump_pop :
+      event = new cPopulationEventdump_pop(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_detail_pop :
+      event = new cPopulationEventdetail_pop(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_detail_parasite_pop :
+      event = new cPopulationEventdetail_parasite_pop(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_dump_historic_pop :
+      event = new cPopulationEventdump_historic_pop(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_dump_memory :
+      event = new cPopulationEventdump_memory(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject :
+      event = new cPopulationEventinject(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_all :
+      event = new cPopulationEventinject_all(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_range :
+      event = new cPopulationEventinject_range(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_sequence :
+      event = new cPopulationEventinject_sequence(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_random :
+      event = new cPopulationEventinject_random(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_range_parasite :
+      event = new cPopulationEventinject_range_parasite(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_range_pair :
+      event = new cPopulationEventinject_range_pair(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_zero_muts :
+      event = new cPopulationEventzero_muts(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_mod_copy_mut :
+      event = new cPopulationEventmod_copy_mut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_mod_div_mut :
+      event = new cPopulationEventmod_div_mut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_set_copy_mut :
+      event = new cPopulationEventset_copy_mut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_mod_point_mut :
+      event = new cPopulationEventmod_point_mut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_set_point_mut :
+      event = new cPopulationEventset_point_mut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_calc_landscape :
+      event = new cPopulationEventcalc_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_predict_w_landscape :
+      event = new cPopulationEventpredict_w_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_predict_nu_landscape :
+      event = new cPopulationEventpredict_nu_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_sample_landscape :
+      event = new cPopulationEventsample_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_random_landscape :
+      event = new cPopulationEventrandom_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_analyze_landscape :
+      event = new cPopulationEventanalyze_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_pairtest_landscape :
+      event = new cPopulationEventpairtest_landscape(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_test_dom :
+      event = new cPopulationEventtest_dom(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_analyze_population :
+      event = new cPopulationEventanalyze_population(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_detailed_fitness_data :
+      event = new cPopulationEventprint_detailed_fitness_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_genetic_distance_data :
+      event = new cPopulationEventprint_genetic_distance_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_genetic_distance_pop_dump :
+      event = new cPopulationEventgenetic_distance_pop_dump(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_task_snapshot :
+      event = new cPopulationEventtask_snapshot(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_viable_tasks_data :
+      event = new cPopulationEventprint_viable_tasks_data(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_apocalypse :
+      event = new cPopulationEventapocalypse(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_kill_rectangle :
+      event = new cPopulationEventkill_rectangle(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_rate_kill :
+      event = new cPopulationEventrate_kill(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_serial_transfer :
+      event = new cPopulationEventserial_transfer(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_hillclimb :
+      event = new cPopulationEventhillclimb(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_hillclimb_neut :
+      event = new cPopulationEventhillclimb_neut(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_hillclimb_rand :
+      event = new cPopulationEventhillclimb_rand(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_calc_consensus :
+      event = new cPopulationEventcalc_consensus(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_test_size_change_robustness :
+      event = new cPopulationEventtest_size_change_robustness(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_test_threads :
+      event = new cPopulationEventtest_threads(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_threads :
+      event = new cPopulationEventprint_threads(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_dump_fitness_grid :
+      event = new cPopulationEventdump_fitness_grid(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_dump_genotype_grid :
+      event = new cPopulationEventdump_genotype_grid(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_print_tree_depths :
+      event = new cPopulationEventprint_tree_depths(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_sever_grid_col :
+      event = new cPopulationEventsever_grid_col(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_connect_cells :
+      event = new cPopulationEventconnect_cells(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_disconnect_cells :
+      event = new cPopulationEventdisconnect_cells(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_inject_resource :
+      event = new cPopulationEventinject_resource(arg_list);
+      break;
+    case cPopulationEventFactory::EVENT_set_resource :
+      event = new cPopulationEventset_resource(arg_list);
+      break;

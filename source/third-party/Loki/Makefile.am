@@ -1,0 +1,27 @@
+
+noinst_LIBRARIES = libLoki.a
+libLoki_a_SOURCES = \
+  AbstractFactory.h \
+  AssocVector.h \
+  EmptyType.h \
+  Factory.h \
+  Functor.h \
+  HierarchyGenerators.h \
+  MultiMethods.h \
+  NullType.h \
+  Singleton.h \
+  SmallObj.h \
+  SmartPtr.h \
+  static_check.h \
+  Threads.h \
+  Tuple.h \
+  TypeInfo.h \
+  Typelist.h \
+  TypeManip.h \
+  TypeTraits.h \
+  Visitor.h \
+  Singleton.cpp \
+  SmallObj.cpp
+
+EXTRA_DIST = Loki.pri
+
