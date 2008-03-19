@@ -1,0 +1,259 @@
+<html>
+<title>The Events File</title>
+<body
+ bgcolor="#FFFFFF"
+ text="#000000"
+ link="#0000AA"
+ alink="#0000FF"
+ vlink="#000044">
+
+<h2 align=center>The Events File</h2>
+
+<p>
+The events file controls events that need to occur throughout the course of
+a run.  This includes the output of data files as well as active events that
+effect the population (such as extinction events or changes to the mutation
+rate).  This is not a complete list, but should include all of the most
+used and useful events.
+
+<p>
+<h3>File Formats</h3>
+
+<p>
+This file consists of a list of events that will be triggered either singly
+or periodically.  The format for each line is:
+
+<p>
+&nbsp;&nbsp;&nbsp;type&nbsp;&nbsp;timing&nbsp;&nbsp;event&nbsp;&nbsp;arguments
+
+<p>
+The <b>type</b> determines what kind of timings the event will be based off
+of.  This can be immediate [<b>i</b>], based on update [<b>u</b>], or based
+on generation [<b>g</b>].
+
+<p>
+The <b>timing</b> should only be included for non-immediate events.  If a
+single number is given for timing, the event occurs at that update/generation.
+A second number can be included (seperated by a colon ':') to indicate how
+often the event should be repeated.  And if a third number is listed (again,
+colon seperated) this will be the last time the event can occur on.  For
+example, the type and timing "u 100:100:5000" would indicate that the
+event that follows first occurs at update 100, and repeats every 100 updates
+thereafter until update 5000.  A type timing of "g 10:10" would cause the
+event to be triggered every 10 generations for the entire run.
+
+<p>
+The <b>event</b> is simply the name of the event that we want to trigger,
+and the <b>arguments</b> detail exactly how it should work when it is
+triggered.  Each event has its own arguments.
+
+<p>
+Some examples:
+
+<p>
+<table cellpadding=5>
+<tr><td><font color="#0000AA"><b><tt>i pause</tt></b></font><br>
+Pause avida as soon as the run first starts.
+
+<p>
+<tr><td><font color="#0000AA"><b><tt>u 100:100 print_average_data</tt></b></font><br>
+Print out all average measurements collected every one hundred updates,
+starting at update 100.
+
+<p>
+<tr><td><font color="#0000AA"><b><tt>g 10000:10:20000 print_data dom_info.dat
+        update,dom_fitness,dom_depth,dom_sequence</tt></b></font><br>
+Between generations 10,000 and 20,000, append the specified information to
+the file "dom_info.dat" every ten generations.  Specifically, the first
+column in the file would be update number, second is the fitness of
+the dominant genotype, followed by the depth in the phylogentic
+tree of the dominant genotype, and finally its genome sequence.
+</table>
+
+<p>
+<h3>Output Events</h3>
+
+Output events are the primary way of saving data from an avida experiments.
+The main two types are <i>continuous output</i>, which append to a single file 
+every time the event is trigged, and <i>singular output</i>, which produce
+a single, complete file for each trigger.
+
+<p>
+<menu>
+<li><b>print_data</b> [<font color="#008800">filename</font>] [<font color="#008800">column list</font>]<br>
+    Append to the file specified (continuous output), the data given in the
+    column list.  The column list needs to be a comma-seperated list of
+    keywords representing the data types.  Many possible data types can be
+    output; click <a href="print_data.html">here</a> for the complete list.
+    See the last example above to see how this event can be put into use.
+    Note that this event will even create a detailed column legend at the top
+    of your file so you don't need to seperately keep track of what the
+    columns mean.
+<p>
+<li><b>print_average_data</b><br>
+    A print_data shortcut that will print all of the population averages to
+    the file "average.dat".
+<p>
+<li><b>print_error_data</b><br>
+    A print_data shortcut that will print all of the standard errors of the
+    population statistics to the file "error.dat".
+<p>
+<li><b>print_variance_data</b><br>
+    A print_data shortcut that will print all of the veriances of the
+    population statistics to the file "variance.dat".
+<p>
+<li><b>print_dominant_data</b><br>
+    A print_data shortcut that will print all of the statistics relating
+    to the dominant genotype to the file "dominant.dat".
+<p>
+<li><b>print_stats_data</b><br>
+    A print_data shortcut that will print all of the miscellanous population
+    statistics to the file "stats.dat".
+<p>
+<li><b>print_counts_data</b><br>
+    A print_data shortcut that will print all of the statistics the keep
+    track of counts (such as the number of organisms in the population or
+    the number of instructions executed) to the file "count.dat".
+<p>
+<li><b>print_totals_data</b><br>
+    A print_data shortcut that will print the same information as the
+    previous event, but the counts will be the totals for the entire
+    length of the run (for example, the total number of organisms ever) to
+    the file "totals.dat".
+<p>
+<li><b>print_time_data</b><br>
+    A print_data shortcut that will print all of the timing related
+    statistics to the file "time.dat".
+<p>
+<li><b>print_tasks_data</b><br>
+    Print the number of organisms that are able to perform each task to the
+    file "tasks.dat".  This uses the environment configuration to determine
+    what tasks are in use.
+<p>
+<li><b>print_resource_data</b><br>
+    Print the current counts of each resource available to the population
+    to the file "resource.dat".  This uses the environment configuration to
+    determine what resources are in use.  Also creates seperate files
+    "resource.dat.<i>resource_name</i>" for each spatial resource.
+
+<p>
+<li><b>print_dom</b> [<font color="#008800">filename</font>]<br>
+    Print the dominant organism's genome (and lots of information about it)
+    into the file specified.  If no filename is given, just use the genotypes
+    assigned name.
+
+<p>
+<li><b>save_clone</b> [<font color="#008800">filename</font>]<br>
+    Save a clone of this organism to the file specified; if no filename is
+    given, use the name clone.update#.  The update number allows regular
+    clones with distinct filenames to be saved with the same periodic event.
+    Running "avida -l filename" will start an avida population with the
+    saved clone.  Note that a clone only consists of the genomes in
+    the population, and their current state is lost, so the run may not
+    proceed identically as to if it had continued as it was going.
+
+<p>
+<li><b>detail_pop</b> [<font color="#008800">filename</font>]<br>
+    Save the genotypes and lots of statistics about the population to the
+    file specified; if not filename is given, use the name
+    detail_pop.update#.  As with clones, the update number allows a single
+    event to produce many detail files.  The details are used to collect
+    crossection data about the population.  Ideally we will have a flexible
+    version of this soon where the user will be able to specify the
+    information that they are interested in saving.<br>
+    Colums in the output are as follows: <br>
+	1) organism ID<br>
+	2) parent ID<br>
+	3) distance from parent<br>
+	4) current number of organisms<br>
+	5) total number of organisms<br>
+	6) lenght<br>
+	7) merit<br>
+	8) gestation time<br>
+	9) fitness<br>
+	10) update born<br>
+	11) update deactivated<br>
+	12) depth<br> 
+	13) genome (as a string)<br> 
+
+<p>
+<li><b>dump_historic_pop</b> [<font color="#008800">filename</font>]<br>
+    This event is used to output all of the ancestors of the currently
+    living population to the file specified, of "historic_dump.update#".
+    It uses the same format as the "detail_pop" event.
+</menu>
+
+<p>
+<h3>Analysis Events</h3>
+
+<p>
+Analysis events use data from the current state of avida, process it
+(sometimes quite heavily) and then output the results.  These are slowly
+migrating over to the analysis mode of avida (see the analysis documentation
+for more information).
+
+<p>
+<menu>
+<li><b>calc_landscape</b> [<font color="#008800">distance</font>]<br>
+    Do a landscape analysis of the dominant genotype in the population and
+    write the results to "landscape.dat".  This is a collection of 
+    statistics obtained from examining all possible mutations at the distance
+    specified.  The default distance is one.
+<p>
+<li><b>task_snapshot</b> [<font color="#008800">filename</font>]<br>
+    Run all organisms in the population through test cpus and print out the
+    number of tasks each can perform.  The default filename is
+    "tasks_update#.dat".
+</menu>
+
+<p>
+<h3>Population Events</h3>
+
+<p>
+Population events modify the state of the population, and will actually
+change the course of the run.  There are a wide variety of these.
+
+<p>
+<menu>
+<li><b>inject</b> [<font color="#008800">filename</font>] [<font color="#008800">cell_id</font>] [<font color="#008800">merit</font>] [<font color="#008800">lineage_id</font>]<br>
+    Inject a single organisms into the population.  Arguments must be
+    included from left to right; if all arguments are left out, the default
+    creature is the ancestral organism, and it will be injected into cell 0,
+    have an uninitialized merit, and be marked as liniage id 0.
+
+<p>
+<li><b>inject_all</b> [<font color="#008800">filename</font>] [<font color="#008800">merit</font>] [<font color="#008800">lineage_id</font>]<br>
+    Same as inject, but no cell_id is specified and the organism is placed
+    into <i>all</i> cells in the population.
+<p>
+<li><b>apocalypse</b> [<font color="#008800">kill_prob</font>]<br>
+    Using the specified probability, test each organism to see if it is killed
+    off.
+<p>
+<li><b>serieal_transfer</b> [<font color="#008800">num_organisms</font>]<br>
+    Similar to apocalypse, but we specify the exact number of organisms to
+    keep alive after the event.
+<p>
+<li><b>kill_rectanle</b> [<font color="#008800">X1</font>] [<font
+color="#008800">Y1</font>] [<font color="#008800">X2</font>] [<font 
+color="#008800">Y2</font>]<br>
+    Kill off all organisms in a rectangle defined by the points (X1, Y1) and 
+    (X2, Y2).
+</menu>
+
+<p>
+<h3>Misc. Events</h3>
+
+These are other events that didn't seem to fit better anywhere else...
+
+<p>
+<menu>
+<li><b>echo</b> [<font color="#008800">message</font>]<br>
+    Print the message included when the event is triggered.  This is mostly
+    used for debugging.
+
+<p>
+<li><b>exit</b><br>
+    Quit the current run.
+</menu>
+
