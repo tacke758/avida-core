@@ -57,6 +57,7 @@ public:
 	int numANDs() { 
 		int num = 0;
 		if (_exp_op == "&&") num = 1;
+
 		return (num + _exp_1->numANDs() + _exp_2->numANDs());
 	}
 	
@@ -64,49 +65,34 @@ public:
 	int numORs() { 
 		int num = 0;
 		if (_exp_op == "||") num = 1;
-		return (num + _exp_1->numANDs() + _exp_2->numANDs());
+		return (num + _exp_1->numORs() + _exp_2->numORs());
 	}
 
 	void interestingStrongANDExpressionEval() { 
-		// Currently, the interesting reward is evaluated based on: 
-		// - whether it includes one of the significant variables/operations
 		float temp =0;
-		
-		// Check to see if the expressions use suspend or restart operations
-//		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
-//		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
+		float no = numORs();
 		
 		// Increase interesting based on the number of ANDs
-		temp += _exp_1->numANDs() + _exp_2->numANDs();
+		temp += numANDs();
 		
 		// Decrease interesting based on the number of ORs
-		temp = temp - ((_exp_1->numORs())/2) - ((_exp_2->numORs())/2);
+		temp = temp - (no/2);
 		
 		_interesting = temp;
 		
 	}
 	
 	void interestingWeakANDExpressionEval() {
-			// Currently, the interesting reward is evaluated based on: 
-		// - whether it includes one of the significant variables/operations
 		float temp =0;
-		
-		// Check to see if the expressions use suspend or restart operations
-//		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
-//		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
+		float na = numANDs();
 		
 		// Increase interesting based on the number of ORs
-		temp += _exp_1->numORs() + _exp_2->numORs();
-		
+		temp += numORs(); 
 		// Decrease interesting based on the number of ANDs
-		temp = temp - ((_exp_1->numANDs())/2) - ((_exp_2->numANDs())/2);
-		
+		temp = temp - (na/2); 
 		_interesting = temp;
-
-	
 	}
 	
-	//std::set<std::string> getRelatedClasses() { return _related_classes; }
 	
 		
 protected:

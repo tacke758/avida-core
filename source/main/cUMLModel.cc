@@ -650,7 +650,7 @@ void cUMLModel::createExpressionsFromClasses()
 					// create both an equality and an inequality expression
 					temp2 = a.attribute_values[k];
 					gen->addSimpleAttValExpression(a1, temp2, "==", c.getAssociatedClasses());
-					gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
+//					gen->addSimpleAttValExpression(a1, temp2, "!=", c.getAssociatedClasses());
 					
 				}
 			}

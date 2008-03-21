@@ -225,6 +225,7 @@ float cMDEPropertyGenerator::addAbsenceProperty(cMDEExpression* expr)
 		// add in how interesting the expression is. Use the WEAK and form. 
 		expr->interestingWeakANDExpressionEval(); 
 		interesting += expr->getInterestingExpressionEval();
+
 		interesting += getExpressionRelevancy(expr);
 		
 		// determine if they are related
@@ -685,6 +686,7 @@ float cMDEPropertyGenerator::getExpressionRelevancy(cMDEExpression* e)
 
 	}
 	
+	return total;
 }
 
 
