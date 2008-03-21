@@ -9,7 +9,7 @@
 
 using namespace std;
 
-cMDEPropertyGenerator::cMDEPropertyGenerator(bool rcm) {
+cMDEPropertyGenerator::cMDEPropertyGenerator(int rcm) {
   //init property data
   expression_p = 0;
   expression_q = 0;
@@ -50,6 +50,45 @@ cMDEPropertyGenerator::~cMDEPropertyGenerator()
 	expressions.erase(expressions.begin(), expressions.end());
 }
 
+float cMDEPropertyGenerator::addKnownExistenceProperty(std::string s){
+	cMDEExistenceProperty* e = new cMDEExistenceProperty(s);
+	e->setInterestingProperty(0);
+	e->setUsesRelatedClasses(0);	
+	e->setSuppressed(true);
+	return 0;
+}
+
+float cMDEPropertyGenerator::addKnownAbsenceProperty(std::string s){
+	cMDEAbsenceProperty* e = new cMDEAbsenceProperty(s);
+	e->setInterestingProperty(0);
+	e->setUsesRelatedClasses(0);	
+	e->setSuppressed(true);
+	return 0;
+}
+
+float cMDEPropertyGenerator::addKnownUniversalProperty(std::string s){
+	cMDEUniversalProperty* e = new cMDEUniversalProperty(s);
+	e->setInterestingProperty(0);
+	e->setUsesRelatedClasses(0);	
+	e->setSuppressed(true);	
+	return 0;
+}
+
+float cMDEPropertyGenerator::addKnownPrecedenceProperty(std::string s1, std::string s2){
+	cMDEPrecedenceProperty* e = new cMDEPrecedenceProperty(s1, s2);
+	e->setInterestingProperty(0);
+	e->setUsesRelatedClasses(0);	
+	e->setSuppressed(true);
+	return 0;
+}
+
+float cMDEPropertyGenerator::addKnownResponseProperty(std::string s1, std::string s2){
+	cMDEResponseProperty* e = new cMDEResponseProperty(s1, s2);
+	e->setInterestingProperty(0);
+	e->setUsesRelatedClasses(0);	
+	e->setSuppressed(true);
+	return 0;
+}
 
 float cMDEPropertyGenerator::addExistenceProperty(cMDEExpression* expr)
 {

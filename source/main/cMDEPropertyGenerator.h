@@ -26,7 +26,7 @@
 
 class cMDEPropertyGenerator { 
 public:
-	cMDEPropertyGenerator(bool);
+	cMDEPropertyGenerator(int);
 	~cMDEPropertyGenerator();
 	
 	// Get info about the properties satisfied by the model.
@@ -59,6 +59,8 @@ public:
 	void addPropertyReward(float x) { m_property_reward += x; }
 	float getPropertyReward() { return m_property_reward; }
 	
+	void setRelatedClassMode(int rcm) { m_related_class_mode = rcm; } 
+	
 	bool addSimpleOperationExpression(std::string, std::string, std::set<std::string>); 
 	bool addSimpleAttAttExpression(cMDEExpressionAttribute*, cMDEExpressionAttribute*, std::string, std::set<std::string>);
 	bool addSimpleAttValExpression(cMDEExpressionAttribute*, std::string, std::string, std::set<std::string>); 
@@ -69,14 +71,19 @@ public:
 
 	// Properties
 //	float addExistenceProperty(std::string, float, bool);
+	float addKnownExistenceProperty(std::string);
 	float addExistenceProperty(cMDEExpression*);
 //	float addAbsenceProperty(std::string, float, bool);
+	float addKnownAbsenceProperty(std::string);
 	float addAbsenceProperty(cMDEExpression*);
 //	float addUniversalProperty(std::string, float, bool);
+	float addKnownUniversalProperty(std::string);
 	float addUniversalProperty(cMDEExpression*);
 //	float addResponseProperty(std::string, std::string, float, bool);
+	float addKnownResponseProperty(std::string, std::string);
 	float addResponseProperty(cMDEExpression*, cMDEExpression*);
 //	float addPrecedenceProperty(std::string, std::string, float, bool);
+	float addKnownPrecedenceProperty(std::string, std::string);
 	float addPrecedenceProperty(cMDEExpression*, cMDEExpression*);
 
 //	bool addExpression(std::string, std::set<std::string>);  

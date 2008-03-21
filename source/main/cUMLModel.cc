@@ -71,7 +71,8 @@ void seed_diagrams(const char* seed_model,
                    int& hydra_mode, 
 				   bool& witness_mode, 
 				   int& gen_mode, 
-				   int& related_class_mode) {
+				   int& related_class_mode, 
+				   cMDEPropertyGenerator& pg) {
   std::string data, line; 
 	int cur_class = -1;
 	int num_classes;
@@ -177,6 +178,51 @@ void seed_diagrams(const char* seed_model,
 				}
 				infile >> temp;
 			} 
+		} else if (line == "==KNOWN=EXISTENCE==") { 
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp2;
+				pg.addKnownExistenceProperty(temp2);
+				std::cout << "existence " << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==KNOWN=ABSENCE==") { 
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp2;
+				pg.addKnownAbsenceProperty(temp2);
+				std::cout << "absence " << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==KNOWN=UNIVERSAL==") { 
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp2;
+				pg.addKnownUniversalProperty(temp2);
+				std::cout << "universal " << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==KNOWN=PRECEDENCE==") { 
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp1 >> temp2;
+				pg.addKnownPrecedenceProperty(temp1, temp2);
+				std::cout << "precedence " << temp1 << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==KNOWN=RESPONSE==") { 
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp1 >> temp2;
+				pg.addKnownResponseProperty(temp1, temp2);
+				std::cout << "response " << temp1 << temp2 << std::endl;
+				infile >> temp;
+			}
 		}
 		
 	}
@@ -260,11 +306,12 @@ int cUMLModel::_cfg_hydra_mode;
 bool cUMLModel::_cfg_witness_mode;
 int cUMLModel::_cfg_gen_mode;
 int cUMLModel::_cfg_related_class_mode;
+cMDEPropertyGenerator cUMLModel::_cfg_gen(0);
 
 
 cUMLModel::cUMLModel(const char* seed_model) {
   if(!_cfgLoaded) {
-    seed_diagrams(seed_model, _cfg_classes, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode, _cfg_gen_mode, _cfg_related_class_mode);
+    seed_diagrams(seed_model, _cfg_classes, _cfg_state_diagrams, _cfg_scenarios, _cfg_hydra_mode, _cfg_witness_mode, _cfg_gen_mode, _cfg_related_class_mode, _cfg_gen);
     _cfgLoaded = true;
   }
   
@@ -275,9 +322,11 @@ cUMLModel::cUMLModel(const char* seed_model) {
   witnessMode = _cfg_witness_mode;
   genMode = _cfg_gen_mode;
   relatedClassMode = _cfg_related_class_mode;
+  gen = new cMDEPropertyGenerator(_cfg_gen);
+  gen->setRelatedClassMode(_cfg_related_class_mode);
   
   // Initialize the property generator.
-  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);
+//  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);
   createExpressionsFromClasses();
 }
 

@@ -142,6 +142,7 @@ protected:
   static int _cfg_gen_mode; //!< Generation mode, as read from seed-model.cfg.
   static int _cfg_related_class_mode; //!< Related class mode, as read from seed-model.cfg
 								  // where 0 = print, 1 = interest + print, 2 = forbid + print
+  static cMDEPropertyGenerator _cfg_gen; 
   
   cMDEPropertyGenerator* gen; 
 
