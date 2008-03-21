@@ -25,7 +25,8 @@ public:
 		_att_val = val;
 		_att_operator = op;
 		_compound = false;
-		_expr = getInPromela();
+		_expr = 
+			getInPromela();
 	}
  	~cMDESimpleAttValExpression() {}
 	

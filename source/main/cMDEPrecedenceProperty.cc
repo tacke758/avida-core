@@ -93,7 +93,8 @@ void cMDEPrecedenceProperty::printInEnglish() {
 	
 	
 	outfile << _interesting << ", "; 
-	if (_uses_related_classes) {
+	if (_uses_related_classes
+		) {
 		outfile << "true" << ", ";
 	} else { outfile << "false" << ", "; }
 	outfile << "Precedence, ";

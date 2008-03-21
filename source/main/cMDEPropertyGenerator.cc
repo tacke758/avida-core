@@ -135,6 +135,7 @@ float cMDEPropertyGenerator::addExistenceProperty(cMDEExpression* expr)
 		// add in how interesting the expression is. Use the STRONG and form. 
 		expr->interestingStrongANDExpressionEval(); 
 		interesting += expr->getInterestingExpressionEval();
+		interesting += getExpressionRelevancy(expr);
 			
 		// determine if they are related
 		related = expr->getUsesRelatedClasses();
@@ -224,6 +225,7 @@ float cMDEPropertyGenerator::addAbsenceProperty(cMDEExpression* expr)
 		// add in how interesting the expression is. Use the WEAK and form. 
 		expr->interestingWeakANDExpressionEval(); 
 		interesting += expr->getInterestingExpressionEval();
+		interesting += getExpressionRelevancy(expr);
 		
 		// determine if they are related
 		related = expr->getUsesRelatedClasses();
@@ -310,6 +312,7 @@ float cMDEPropertyGenerator::addUniversalProperty(cMDEExpression* expr)
 		expr->interestingStrongANDExpressionEval(); 
 		interesting += expr->getInterestingExpressionEval();
 		e.setInterestingProperty(interesting);
+		interesting += getExpressionRelevancy(expr);
 		
 		// determine if they are related
 		related = expr->getUsesRelatedClasses();
@@ -373,6 +376,8 @@ float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpress
 		e1->interestingStrongANDExpressionEval(); 
 		e2->interestingStrongANDExpressionEval(); 
 		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
+		interesting += getExpressionRelevancy(e1) + getExpressionRelevancy(e2);
+
 		bool related = areExpressionsRelated(e1, e2);
 
 		e.setSuppressed(false);
@@ -420,6 +425,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 		e1->interestingStrongANDExpressionEval(); 
 		e2->interestingStrongANDExpressionEval(); 
 		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
+		interesting += getExpressionRelevancy(e1) + getExpressionRelevancy(e2);
 		bool related = areExpressionsRelated(e1, e2);
 		
 		e.setInterestingProperty(interesting);
@@ -662,3 +668,24 @@ bool cMDEPropertyGenerator::areExpressionsAtsOpsDependent(cMDEExpression* e1, cM
 	
 	return true;
 }
+
+
+float cMDEPropertyGenerator::getExpressionRelevancy(cMDEExpression* e) 
+{
+	float total =0;
+	// check if the expression uses the relevant attributes or operations
+	for (int i=0; i<relevant_attributes.size(); i++) {
+		total += e->usesAttribute(relevant_attributes[i]);
+//		std::cout << "relevant at " << relevant_attributes[i] << " " << total << std::endl;
+	}
+	
+	for (int i=0; i<relevant_operations.size(); i++) {
+		total += e->usesOperation(relevant_operations[i]);
+//		std::cout << "relevant op " << relevant_operations[i] << " " << total << std::endl;
+
+	}
+	
+}
+
+
+

@@ -118,6 +118,12 @@ public:
 	
 	bool ANDExpressions();
 	bool ORExpressions();
+	
+	void addRelevantAttribute(std::string s) { relevant_attributes.push_back(s); }
+	void addRelevantOperation(std::string s) { relevant_operations.push_back(s); }
+	
+	float getExpressionRelevancy(cMDEExpression*); 
+
  
 	template <typename T>
 		bool absoluteMoveIndex (T x, int &y, int z)
@@ -177,6 +183,9 @@ protected:
 	int m_suppressed;
 	float m_property_reward;
 	int m_related_class_mode;
+	
+	std::vector<std::string> relevant_attributes;
+	std::vector<std::string> relevant_operations;
 	
 
 	// vector of expressions

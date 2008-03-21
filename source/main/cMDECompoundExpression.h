@@ -73,8 +73,8 @@ public:
 		float temp =0;
 		
 		// Check to see if the expressions use suspend or restart operations
-		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
-		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
+//		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
+//		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
 		
 		// Increase interesting based on the number of ANDs
 		temp += _exp_1->numANDs() + _exp_2->numANDs();
@@ -92,8 +92,8 @@ public:
 		float temp =0;
 		
 		// Check to see if the expressions use suspend or restart operations
-		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
-		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
+//		temp += _exp_1->usesOperation("suspend") + _exp_1->usesOperation("restart");
+//		temp += _exp_2->usesOperation("suspend") + _exp_2->usesOperation("restart");
 		
 		// Increase interesting based on the number of ORs
 		temp += _exp_1->numORs() + _exp_2->numORs();

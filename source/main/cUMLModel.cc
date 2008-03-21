@@ -184,7 +184,6 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp2;
 				pg.addKnownExistenceProperty(temp2);
-				std::cout << "existence " << temp2 << std::endl;
 				infile >> temp;
 			}
 		} else if (line == "==KNOWN=ABSENCE==") { 
@@ -193,7 +192,6 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp2;
 				pg.addKnownAbsenceProperty(temp2);
-				std::cout << "absence " << temp2 << std::endl;
 				infile >> temp;
 			}
 		} else if (line == "==KNOWN=UNIVERSAL==") { 
@@ -202,7 +200,6 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp2;
 				pg.addKnownUniversalProperty(temp2);
-				std::cout << "universal " << temp2 << std::endl;
 				infile >> temp;
 			}
 		} else if (line == "==KNOWN=PRECEDENCE==") { 
@@ -211,7 +208,6 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp1 >> temp2;
 				pg.addKnownPrecedenceProperty(temp1, temp2);
-				std::cout << "precedence " << temp1 << temp2 << std::endl;
 				infile >> temp;
 			}
 		} else if (line == "==KNOWN=RESPONSE==") { 
@@ -220,7 +216,24 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp1 >> temp2;
 				pg.addKnownResponseProperty(temp1, temp2);
-				std::cout << "response " << temp1 << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==RELEVANT=ATTRIBUTE==") {
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp2;
+				pg.addRelevantAttribute(temp2);
+				std::cout << "relevant at " << temp2 << std::endl;
+				infile >> temp;
+			}
+		} else if (line == "==RELEVANT=OPERATION==") {
+			line.erase(); 
+			infile >> temp;
+			while (temp!= "==END==") { 
+				infile >> temp2;
+				pg.addRelevantOperation(temp2);
+				std::cout << "relevant op " << temp2 << std::endl;
 				infile >> temp;
 			}
 		}
