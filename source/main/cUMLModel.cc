@@ -616,7 +616,7 @@ void cUMLModel::createExpressionsFromClasses()
 			a1 = new cMDEExpressionAttribute(a.attribute_name, at_type, class_name);
 			
 
-			if ((at_type == "int") || (at_type == "integer")) {
+			if ((at_type == "int") || (at_type == "integer") || (at_type == "short") ) {
 				
 				// For each attribute value
 				for (unsigned int k=0; k<a.attribute_values.size(); k++){

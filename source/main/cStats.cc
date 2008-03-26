@@ -1036,6 +1036,8 @@ void cStats::PrintPropertyData(const cString& filename)
 	df.WriteTimeStamp();
 	df.Write( GetUpdate(), "update" );
 	df.Write(sum_merit.Average(), "Merit");	
+	df.Write( m_new_propositions.Average(), "average number of propositions created per organism");
+	df.Write( m_properties.Average(), "average number of successful properties per organism");
 	df.Write( m_propertySuccess, "total number of properties that passed" );
 	df.Write( m_propertyFailure, "total number of properties that failed" );
 	df.Write( m_suppressed, "total number of suppressed properties" );

@@ -172,7 +172,11 @@ float cMDEPropertyGenerator::addExistenceProperty(cMDEExpression* expr)
 	}
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { 
+		val =0; 
+		e.setSuppressed(true); 
+		m_suppressed++;
+	}
 	
 	return val;
 }
@@ -264,7 +268,11 @@ float cMDEPropertyGenerator::addAbsenceProperty(cMDEExpression* expr)
 	
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { 
+		val =0; 
+		e.setSuppressed(true); 
+		m_suppressed++;
+	}
 	
 	return val;
 	
@@ -348,7 +356,11 @@ float cMDEPropertyGenerator::addUniversalProperty(cMDEExpression* expr)
 	}
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { 
+		val =0; 
+		e.setSuppressed(true); 
+		m_suppressed++;
+	}
 	
 	return val;
 	
@@ -397,7 +409,11 @@ float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpress
 	}
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val =0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { 
+		val =0; 
+		e.setSuppressed(true); 
+		m_suppressed++;
+	}
 
 	return val;
 }
@@ -446,7 +462,11 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 	}
 	
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
-	if ((m_related_class_mode == 3) && (related == 0)) { val = 0; }
+	if ((m_related_class_mode == 3) && (related == 0)) { 
+		val = 0; 
+		e.setSuppressed(true); 
+		m_suppressed++;
+	}
 
 	return val;	
 	
@@ -675,12 +695,12 @@ float cMDEPropertyGenerator::getExpressionRelevancy(cMDEExpression* e)
 {
 	float total =0;
 	// check if the expression uses the relevant attributes or operations
-	for (int i=0; i<relevant_attributes.size(); i++) {
+	for (unsigned int i=0; i<relevant_attributes.size(); i++) {
 		total += e->usesAttribute(relevant_attributes[i]);
 //		std::cout << "relevant at " << relevant_attributes[i] << " " << total << std::endl;
 	}
 	
-	for (int i=0; i<relevant_operations.size(); i++) {
+	for (unsigned int i=0; i<relevant_operations.size(); i++) {
 		total += e->usesOperation(relevant_operations[i]);
 //		std::cout << "relevant op " << relevant_operations[i] << " " << total << std::endl;
 

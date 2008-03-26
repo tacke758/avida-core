@@ -4574,292 +4574,6 @@ bool cHardwareCPU::Inst_Skip(cAvidaContext& ctx)
 }
 
 //// UML Element Construction ////
-/*
-bool cHardwareCPU::Inst_Next(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->relativeJumpStateDiagram(jump_amount);
-		break;		
-	}
-	return true;
-}
- 
-bool cHardwareCPU::Inst_Prev(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-	int jump_amount = -1;
-		
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->relativeJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->relativeJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->relativeJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->relativeJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->relativeJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->relativeJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->relativeJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_JumpIndex(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	const int reg_used = FindModifiedRegister(REG_AX);
-	const int reg_jump = FindModifiedRegister(REG_BX);
-	int jump_amount = GetRegister(reg_jump);
-
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->absoluteJumpAction(jump_amount);
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->absoluteJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// decement the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->absoluteJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_JumpDist(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	const int reg_used = FindModifiedRegister(REG_AX);
-	ReadLabel();
-	int jump_amount = GetLabel().AsInt(NUM_NOPS);
-	//const int reg_jump = FindModifiedRegister(REG_BX);
-	//int jump_amount = GetRegister(reg_jump);
-
-	
-	switch (reg_used){
-	case 0:
-		// jump the triggers vector index
-		organism->absoluteJumpTrigger(jump_amount);
-		break;
-	case 1:
-		// jump the guards vector index
-		organism->absoluteJumpGuard(jump_amount);
-		break;
-	case 2:
-		// jump the actions vector index
-		organism->absoluteJumpAction(jump_amount);
-		break;
-	case 3:
-		// jump the transition labels index
-		organism->absoluteJumpTransitionLabel(jump_amount);
-		break;	
-	case 4:
-		// jump the original state index
-		organism->absoluteJumpOriginState(jump_amount);
-		break;
-	case 5:
-		// jump the destination state index
-		organism->absoluteJumpDestinationState(jump_amount);
-		break;
-	case 6: 
-		// jump the state diagram index
-		organism->absoluteJumpStateDiagram(jump_amount);
-		break;	
-	}
-	return true;
-}
-*/
-
-/*
-
-bool cHardwareCPU::Inst_First(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-//	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->getStateDiagram()->firstTrigger();
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->getStateDiagram()->firstGuard();
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->getStateDiagram()->firstAction();
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->getStateDiagram()->firstTransitionLabel();
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->getStateDiagram()->firstOriginState();
-		break;
-	case 5:
-		// decement the destination state index
-		organism->getStateDiagram()->firstDestinationState();
-		break;
-	case 6: 
-		// decrement the state diagram index
-		organism->firstStateDiagram();
-		
-	}
-	return true;
-}
-
-bool cHardwareCPU::Inst_Last(cAvidaContext& ctx) 
-{
-	if(organism->GetCellID()==-1) return false;
-	
-	// by default, this instruction increments the triggers vector index
-	
-	int reg_used = FindModifiedRegister(REG_AX);
-	
-//	int jump_amount = 1;
-	
-	switch (reg_used){
-	case 0:
-		// decrement the triggers vector index
-		organism->getStateDiagram()->lastTrigger();
-		break;
-	case 1:
-		// decrement the guards vector index
-		organism->getStateDiagram()->lastGuard();
-		break;
-	case 2:
-		// decrement the actions vector index
-		organism->getStateDiagram()->lastAction();
-		break;
-	case 3:
-		// decrement the transition labels index
-		organism->getStateDiagram()->lastTransitionLabel();
-		break;	
-	case 4:
-		// decrement the original state index
-		organism->getStateDiagram()->lastOriginState();
-		break;
-	case 5:
-		// decement the destination state index
-		organism->getStateDiagram()->lastDestinationState();
-		break;
-	case 6: 
-		// decrement the state diagram index`
-		organism->lastStateDiagram(); 
-	}
-	return true;
-}
-
-
-bool cHardwareCPU::Inst_AddTransitionLabel(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addTransitionLabel();
-//	return true;
-}
-*/
-
-/*
-bool cHardwareCPU::Inst_AddState(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addState();
-}
-
-
-
-bool cHardwareCPU::Inst_AddTransition(cAvidaContext& ctx)
-{
-	if(organism->GetCellID()==-1) return false;
-
-	return organism->getStateDiagram()->addTransition();
-}
-*/
 
 bool cHardwareCPU::Inst_AddTransitionFromLabel(cAvidaContext& ctx)
 {
@@ -5120,6 +4834,8 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	
 	val = pop_pg->addAbsenceProperty(pg->getP());
 	pg->addPropertyReward(val);
+	
+	if (val) m_world->GetStats().newProperty();
 
 	return val;
 } 
@@ -5143,6 +4859,8 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 	
 	val = pop_pg->addUniversalProperty(pg->getP());
 	pg->addPropertyReward(val);
+	if (val) m_world->GetStats().newProperty();
+
 
 	return val;
 } 
@@ -5165,6 +4883,8 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	
 	val = pop_pg->addExistenceProperty(pg->getP());
 	pg->addPropertyReward(val);
+	if (val) m_world->GetStats().newProperty();
+
 		
 	return val;
 } 
@@ -5190,6 +4910,7 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 	
 	val = pop_pg->addPrecedenceProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
+	if (val) m_world->GetStats().newProperty();
 	
 	return val;
 } 
@@ -5214,6 +4935,7 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 	*/
 	val = pop_pg->addResponseProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
+	if (val) m_world->GetStats().newProperty();
 	
 	return val;
 } 
@@ -5292,12 +5014,16 @@ bool cHardwareCPU::Inst_AbsoluteMoveExpressionR(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_ANDExpressions(cAvidaContext& ctx)
 {	
-	return (organism->getUMLModel()->getPropertyGenerator()->ANDExpressions());
+	bool val = organism->getUMLModel()->getPropertyGenerator()->ANDExpressions();
+	if (val) m_world->GetStats().newProposition();	
+	return val;
 }
 
 bool cHardwareCPU::Inst_ORExpressions(cAvidaContext& ctx)
 {
-	return (organism->getUMLModel()->getPropertyGenerator()->ORExpressions());
+	bool val = organism->getUMLModel()->getPropertyGenerator()->ORExpressions();
+	if (val) m_world->GetStats().newProposition();	
+	return val;
 }
   
   

@@ -290,6 +290,8 @@ private:
   int m_respPropertyFailure; 
   int m_respPropertyTotal; 
   int m_suppressed;
+  cDoubleSum m_new_propositions; 
+  cDoubleSum m_properties;
     
 
   
@@ -687,6 +689,8 @@ public:
   void N1andN2Passed() { m_N1andN2Passed.Add(1); } 
   double getN2Passed() { return m_N2Passed.Count(); }
   double getN1Passed() { return m_N1Passed.Count(); }
+  void newProposition() { m_new_propositions.Add(1); }
+  void newProperty() { m_properties.Add(1); }
 
   
   void propSuccess(int x) {m_propertySuccess = x; }
