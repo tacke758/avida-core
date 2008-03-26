@@ -131,6 +131,7 @@ float cMDEPropertyGenerator::addExistenceProperty(cMDEExpression* expr)
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
+		m_suppressed++;
 	} else {
 		// add in how interesting the expression is. Use the STRONG and form. 
 		expr->interestingStrongANDExpressionEval(); 
@@ -224,6 +225,7 @@ float cMDEPropertyGenerator::addAbsenceProperty(cMDEExpression* expr)
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
+		m_suppressed++;
 	} else {
 	
 		// add in how interesting the expression is. Use the WEAK and form. 
@@ -315,6 +317,7 @@ float cMDEPropertyGenerator::addUniversalProperty(cMDEExpression* expr)
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
+		m_suppressed++;
 	} else {
 	
 		// add in how interesting the expression is. Use the STRONG and form. 
@@ -378,12 +381,17 @@ float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpress
 	cMDEResponseProperty e(e1->getExpr(), e2->getExpr());
 	bool dependent = areExpressionsAtsOpsDependent(e1, e2);
 	// exit if the expressions are dependent.
-	if (dependent) return val;
+	if (dependent) {
+		m_suppressed++;
+		return val;
+	}
 
 	std::set<cMDEProperty*, ltcMDEProperty>::iterator mdepropiter = mdeprops.find(&e);
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
+		m_suppressed++;
+
 	} else {
 	
 		e1->interestingStrongANDExpressionEval(); 
@@ -391,7 +399,7 @@ float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpress
 		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
 		interesting += getExpressionRelevancy(e1) + getExpressionRelevancy(e2);
 
-		bool related = areExpressionsRelated(e1, e2);
+		related = areExpressionsRelated(e1, e2);
 
 		e.setSuppressed(false);
 		e.setInterestingProperty(interesting);
@@ -428,7 +436,10 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 	
 	bool dependent = areExpressionsAtsOpsDependent(e1, e2);
 	// exit if the expressions are dependent.
-	if (dependent) return val;
+	if (dependent) {
+		m_suppressed++;
+		return val;
+	}
 
 	cMDEPrecedenceProperty e(e1->getExpr(), e2->getExpr());
 	
@@ -436,6 +447,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 	if (mdepropiter != mdeprops.end()) {
 		val = (*mdepropiter)->getEvaluationInformation();
 		val += (*mdepropiter)->getInteresting();
+		m_suppressed++;
 	} else {
 	
 		e.setSuppressed(false);
@@ -443,7 +455,7 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 		e2->interestingStrongANDExpressionEval(); 
 		interesting += e1->getInterestingExpressionEval() + e1->getInterestingExpressionEval();
 		interesting += getExpressionRelevancy(e1) + getExpressionRelevancy(e2);
-		bool related = areExpressionsRelated(e1, e2);
+		related = areExpressionsRelated(e1, e2);
 		
 		e.setInterestingProperty(interesting);
 		e.evaluate();
