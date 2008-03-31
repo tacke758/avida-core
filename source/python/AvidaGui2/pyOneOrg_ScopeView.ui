@@ -13,7 +13,7 @@ Python:from pyTimeline import pyTimeline
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>397</width>
+            <width>406</width>
             <height>452</height>
         </rect>
     </property>
@@ -26,21 +26,21 @@ Python:from pyTimeline import pyTimeline
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout6</cstring>
+                <cstring>layout3</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="pyOrganismDataCtrl">
+                <widget class="pyOrganismScopeCtrl">
                     <property name="name">
-                        <cstring>m_organism_data_ctrl</cstring>
+                        <cstring>m_organism_scope_ctrl</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>5</hsizetype>
-                            <vsizetype>5</vsizetype>
-                            <horstretch>0</horstretch>
+                            <vsizetype>3</vsizetype>
+                            <horstretch>1</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
@@ -51,15 +51,15 @@ Python:from pyTimeline import pyTimeline
                         </size>
                     </property>
                 </widget>
-                <widget class="pyOrganismScopeCtrl">
+                <widget class="pyOrganismDataCtrl">
                     <property name="name">
-                        <cstring>m_organism_scope_ctrl</cstring>
+                        <cstring>m_organism_data_ctrl</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>5</hsizetype>
-                            <vsizetype>3</vsizetype>
-                            <horstretch>1</horstretch>
+                            <vsizetype>5</vsizetype>
+                            <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
@@ -253,8 +253,8 @@ Python:from pyTimeline import pyTimeline
 </images>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>pyorganismdatactrl.h</includehint>
     <includehint>pyorganismscopectrl.h</includehint>
+    <includehint>pyorganismdatactrl.h</includehint>
     <includehint>pytimeline.h</includehint>
     <includehint>pyanalyzecontrolsctrl.h</includehint>
 </includehints>
