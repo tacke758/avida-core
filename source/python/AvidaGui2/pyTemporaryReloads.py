@@ -93,7 +93,6 @@ nontest_module_names = [
   "AvidaGui2.pyNewIconView",
   "AvidaGui2.pyOrganismConfigureView",
   "AvidaGui2.pyOrganismConfigureCtrl",
-  "AvidaGui2.pyOrganismDataView",
   "AvidaGui2.pyOrganismDataCtrl",
   "AvidaGui2.pyOrganismScopeView2",
   "AvidaGui2.pyOrganismScopeCtrl",

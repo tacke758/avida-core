@@ -23,7 +23,7 @@ for file in dir_listing:
       # created .py file
 
       # print "******** " + py_name + " *******"
-      # os.system("pyuic " + ui_name + " > pyuic.tmp")
+      # os.system("./app_pyuic " + ui_name + " > pyuic.tmp")
       # os.system("diff -w " + py_name + " pyuic.tmp > diff.tmp")
       # diff_file = open("diff.tmp")
       # lines = diff_file.readlines()
@@ -47,7 +47,7 @@ for file in dir_listing:
       if time_diff > 0:
         print ui_name + ' ' + time.ctime(ui_stat.st_mtime)
         print py_name + ' ' + time.ctime(py_stat.st_mtime)
-        command =  "pyuic " + ui_name + " > " + py_name
+        command =  "./app_pyuic " + ui_name + " > " + py_name
         if (force == False):
           response = raw_input(command + "? (y/n)  ")
           response = response.upper()
@@ -59,7 +59,7 @@ for file in dir_listing:
           os.system(command)
     else:
       print "No file " + py_name + " exists"
-      command =  "pyuic " + ui_name + " > " + py_name
+      command =  "./app_pyuic " + ui_name + " > " + py_name
       if (force == False):
         response = raw_input(command + "? (y/n)  ")
         response = response.upper()

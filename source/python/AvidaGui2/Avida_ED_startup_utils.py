@@ -89,11 +89,6 @@ def AvidaEd():
     s_splash.clear()
     s_splash.hide()
 
-    # BDB temporarily turn off prompting for new/existing workspace at
-    # the beginning of a new program.  Leave just in case we decide to
-    # go back to this system
-    #
-    # edu_main_controller.m_prompt_for_workspace_ctrl.showDialog()
     print """
     
     To disable debugging messages, type 'AvidaGui2.descr.DEBUG = False'.
@@ -136,11 +131,6 @@ def AvidaConsole():
     s_splash.clear()
     s_splash.hide()
 
-    # BDB temporarily turn off prompting for new/existing workspace at
-    # the beginning of a new program.  Leave just in case we decide to
-    # go back to this system
-    #
-    # edu_main_controller.m_prompt_for_workspace_ctrl.showDialog()
     print """
     
     To disable debugging messages, type 'AvidaGui2.descr.DEBUG = False'.
