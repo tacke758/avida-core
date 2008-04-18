@@ -419,8 +419,10 @@ float cMDEPropertyGenerator::addResponseProperty(cMDEExpression* e1, cMDEExpress
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
 	if ((m_related_class_mode == 3) && (related == 0)) { 
 		val =0; 
-		e.setSuppressed(true); 
-		m_suppressed++;
+		if (e.getSuppressed() == false) { 
+			e.setSuppressed(true); 
+			m_suppressed++;
+		}
 	}
 
 	return val;
@@ -476,8 +478,10 @@ float cMDEPropertyGenerator::addPrecedenceProperty(cMDEExpression* e1, cMDEExpre
 	if ((m_related_class_mode == 2) && (related == 1)) { val += .5; }
 	if ((m_related_class_mode == 3) && (related == 0)) { 
 		val = 0; 
-		e.setSuppressed(true); 
-		m_suppressed++;
+		if (e.getSuppressed() == false) { 
+			e.setSuppressed(true); 
+			m_suppressed++;
+		}
 	}
 
 	return val;	

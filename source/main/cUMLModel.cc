@@ -180,43 +180,54 @@ void seed_diagrams(const char* seed_model,
 			} 
 		} else if (line == "==KNOWN=EXISTENCE==") { 
 			line.erase(); 
-			infile >> temp;
+//			infile >> temp;
+			getline (infile, temp);
 			while (temp!= "==END==") { 
-				infile >> temp2;
-				pg.addKnownExistenceProperty(temp2);
-				infile >> temp;
+//				infile >> temp2;
+				pg.addKnownExistenceProperty(temp);
+				getline (infile, temp);
 			}
 		} else if (line == "==KNOWN=ABSENCE==") { 
 			line.erase(); 
-			infile >> temp;
+//			infile >> temp;
+			getline (infile, temp);
 			while (temp!= "==END==") { 
-				infile >> temp2;
-				pg.addKnownAbsenceProperty(temp2);
-				infile >> temp;
+//				infile >> temp2;
+				pg.addKnownAbsenceProperty(temp);
+//				infile >> temp;
+				getline (infile, temp);
 			}
 		} else if (line == "==KNOWN=UNIVERSAL==") { 
 			line.erase(); 
-			infile >> temp;
+//			infile >> temp;
+			getline (infile, temp);
 			while (temp!= "==END==") { 
-				infile >> temp2;
+//				infile >> temp2;
 				pg.addKnownUniversalProperty(temp2);
-				infile >> temp;
+//				infile >> temp;
+				getline (infile, temp);
 			}
 		} else if (line == "==KNOWN=PRECEDENCE==") { 
 			line.erase(); 
-			infile >> temp;
+//			infile >> temp;
+			getline (infile, temp);
 			while (temp!= "==END==") { 
-				infile >> temp1 >> temp2;
-				pg.addKnownPrecedenceProperty(temp1, temp2);
-				infile >> temp;
+//				infile >> temp1 >> temp2;
+				getline (infile, temp2);
+				pg.addKnownPrecedenceProperty(temp, temp2);
+//				infile >> temp;
+				getline (infile, temp);
 			}
 		} else if (line == "==KNOWN=RESPONSE==") { 
 			line.erase(); 
-			infile >> temp;
+//			infile >> temp;
+			getline (infile, temp);
 			while (temp!= "==END==") { 
-				infile >> temp1 >> temp2;
-				pg.addKnownResponseProperty(temp1, temp2);
-				infile >> temp;
+//				infile >> temp1 >> temp2;
+				getline (infile, temp2);
+				pg.addKnownResponseProperty(temp, temp2);
+//				infile >> temp;
+				getline (infile, temp);
 			}
 		} else if (line == "==RELEVANT=ATTRIBUTE==") {
 			line.erase(); 

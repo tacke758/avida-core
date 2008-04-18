@@ -42,6 +42,7 @@ public:
 	
 	// True means the property's value was determined without checking it.
 	void setSuppressed(bool s) { _suppressed = s; }
+	bool getSuppressed() { return _suppressed; }
 	
 	// These functions get and set whether the expressions used by the property
 	// involve classes that are (or are not) related to one another. 
