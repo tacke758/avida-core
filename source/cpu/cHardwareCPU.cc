@@ -376,7 +376,45 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	tInstLibEntry<tMethod>("addTransL", &cHardwareCPU::Inst_AddTransitionFromLabel, false, 
 							 "Add a transition without adding a label."),	  
 	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
-					"Add a transition without adding a label."),				
+					"Add a transition without adding a label."),	
+	  
+	  
+	tInstLibEntry<tMethod>("move-rel-tr", &cHardwareCPU::Inst_RelativeMoveTrigger, false, 
+							 "Relative move trigger"),		
+	tInstLibEntry<tMethod>("move-abs-tr", &cHardwareCPU::Inst_AbsoluteMoveTrigger, false, 
+							 "Absolute move trigger"),						
+	tInstLibEntry<tMethod>("next-tr", &cHardwareCPU::Inst_NextTrigger, false, 
+							 "Next trigger"),			  
+	tInstLibEntry<tMethod>("move-rel-gu", &cHardwareCPU::Inst_RelativeMoveGuard, false, 
+							 "Relative move guard"),		
+	tInstLibEntry<tMethod>("move-abs-gu", &cHardwareCPU::Inst_AbsoluteMoveGuard, false, 
+							 "Absolute move guard"),						
+	tInstLibEntry<tMethod>("next-gu", &cHardwareCPU::Inst_NextGuard, false, 
+							 "Next guard"),	  
+	tInstLibEntry<tMethod>("move-rel-act", &cHardwareCPU::Inst_RelativeMoveAction, false, 
+							 "Relative move action"),		
+	tInstLibEntry<tMethod>("move-abs-act", &cHardwareCPU::Inst_AbsoluteMoveAction, false, 
+							 "Absolute move action"),						
+	tInstLibEntry<tMethod>("next-act", &cHardwareCPU::Inst_NextAction, false, 
+							 "Next action"),	  
+	tInstLibEntry<tMethod>("move-rel-orig", &cHardwareCPU::Inst_RelativeMoveOrigin, false, 
+							 "Relative move origin state"),		
+	tInstLibEntry<tMethod>("move-abs-orig", &cHardwareCPU::Inst_AbsoluteMoveOrigin, false, 
+							 "Absolute move origin state"),						
+	tInstLibEntry<tMethod>("next-orig", &cHardwareCPU::Inst_NextOrigin, false, 
+							 "Next origin state"),	  
+	tInstLibEntry<tMethod>("move-rel-des", &cHardwareCPU::Inst_RelativeMoveDestination, false, 
+							 "Relative move destination state"),		
+	tInstLibEntry<tMethod>("move-abs-des", &cHardwareCPU::Inst_AbsoluteMoveDestination, false, 
+							 "Absolute move destination state"),						
+	tInstLibEntry<tMethod>("next-des", &cHardwareCPU::Inst_NextDestination, false, 
+							 "Next destination state"),	  
+	tInstLibEntry<tMethod>("move-rel-tl", &cHardwareCPU::Inst_RelativeMoveTransLabel, false, 
+							 "Relative move transition label"),		
+	tInstLibEntry<tMethod>("move-abs-tl", &cHardwareCPU::Inst_AbsoluteMoveTransLabel, false, 
+							 "Absolute move transition label"),						
+	tInstLibEntry<tMethod>("next-tl", &cHardwareCPU::Inst_NextTransLabel, false, 
+							 "Next transition label"),	  
 /*	tInstLibEntry<tMethod>("jump", &cHardwareCPU::Inst_JumpIndex, false, 
 					"Jump to a position in the list"),																	
 	tInstLibEntry<tMethod>("first", &cHardwareCPU::Inst_First, false, 
@@ -385,7 +423,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Go to the last position in the list"),						
 	tInstLibEntry<tMethod>("jump-d", &cHardwareCPU::Inst_JumpDist, false, 
 					"Jump to a position in the list using labels."),
-*/					
+*/	
+ 
 	tInstLibEntry<tMethod>("sd-0", &cHardwareCPU::Inst_StateDiag0, false, 
 					"Change to state diagram 0"),				
 	tInstLibEntry<tMethod>("sd-1", &cHardwareCPU::Inst_StateDiag1, false, 
@@ -394,7 +433,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "Change to state diagram 2"),
 	tInstLibEntry<tMethod>("sd-3", &cHardwareCPU::Inst_StateDiag3, false, 
 							 "Change to state diagram 3"),
-	tInstLibEntry<tMethod>("s-orig-0", &cHardwareCPU::Inst_OrigState0, false, 
+/*	tInstLibEntry<tMethod>("s-orig-0", &cHardwareCPU::Inst_OrigState0, false, 
 					"Change the origin to state 0"),
 	tInstLibEntry<tMethod>("s-orig-1", &cHardwareCPU::Inst_OrigState1, false, 
 					"Change the origin to state 1"),
@@ -535,6 +574,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change to action 12"),						
 	tInstLibEntry<tMethod>("action-13", &cHardwareCPU::Inst_Action13, false, 
 					"Change to action 13"),		
+*/
+	  
 	tInstLibEntry<tMethod>("prop-abs", &cHardwareCPU::Inst_AbsenceProperty, false, 
 							 "Add an absence property"),						
 	tInstLibEntry<tMethod>("prop-uni", &cHardwareCPU::Inst_UniversialityProperty, false, 
@@ -4607,6 +4648,7 @@ bool cHardwareCPU::Inst_StateDiag2(cAvidaContext& ctx)
 bool cHardwareCPU::Inst_StateDiag3(cAvidaContext& ctx)
 { return (organism->absoluteJumpStateDiagram(3)); }
 
+/*
 bool cHardwareCPU::Inst_OrigState0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpOriginState(0)); }
 
@@ -4814,7 +4856,122 @@ bool cHardwareCPU::Inst_Action12(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Action13(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(13)); }
+*/
 
+bool cHardwareCPU::Inst_RelativeMoveTrigger(cAvidaContext& ctx) 
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpTrigger(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveTrigger(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpTrigger(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextTrigger(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpTrigger(1));
+}
+
+bool cHardwareCPU::Inst_RelativeMoveGuard(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpGuard(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveGuard(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpGuard(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextGuard(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpGuard(1));
+}
+
+bool cHardwareCPU::Inst_RelativeMoveAction(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpAction(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveAction(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpAction(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextAction(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpAction(1));
+}
+
+bool cHardwareCPU::Inst_RelativeMoveOrigin(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpOriginState(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveOrigin(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpOriginState(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextOrigin(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpOriginState(1));
+}
+
+
+bool cHardwareCPU::Inst_RelativeMoveDestination(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpDestinationState(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveDestination(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpDestinationState(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextDestination(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpDestinationState(1));
+}
+
+bool cHardwareCPU::Inst_RelativeMoveTransLabel(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->relativeJumpTransitionLabel(jump_amount));
+}
+
+bool cHardwareCPU::Inst_AbsoluteMoveTransLabel(cAvidaContext& ctx)
+{
+	ReadLabel();
+	int jump_amount = GetLabel().AsInt(NUM_NOPS);
+	return (organism->getStateDiagram()->absoluteJumpTransitionLabel(jump_amount));
+}
+
+bool cHardwareCPU::Inst_NextTransLabel(cAvidaContext& ctx)
+{
+	return (organism->getStateDiagram()->relativeJumpTransitionLabel(1));
+}
 
 bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 { 
@@ -4823,14 +4980,6 @@ bool cHardwareCPU::Inst_AbsenceProperty(cAvidaContext& ctx)
 	// Currently it just uses p
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
-	
-	/*std::string s = pg->getPstring();
-	float intp = pg->getPInterest();
-	bool related = pg->getP()->getUsesRelatedClasses();
-	
-	if (s != "<null>" ) {
-		val = pop_pg->addAbsenceProperty(s, intp, related);
-	}*/
 	
 	val = pop_pg->addAbsenceProperty(pg->getP());
 	pg->addPropertyReward(val);
@@ -4848,14 +4997,6 @@ bool cHardwareCPU::Inst_UniversialityProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	/*std::string s = pg->getPstring();
-	float intp = pg->getPInterest();
-	bool related = pg->getP()->getUsesRelatedClasses();
-	
-	if (s != "<null>" ) {
-
-		val = pop_pg->addUniversalProperty(s, intp, related);
-	}*/
 	
 	val = pop_pg->addUniversalProperty(pg->getP());
 	pg->addPropertyReward(val);
@@ -4873,13 +5014,6 @@ bool cHardwareCPU::Inst_ExistenceProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	/*std::string s = pg->getPstring();
-	float intp = pg->getPInterest();
-	bool related = pg->getP()->getUsesRelatedClasses();
-	
-	if (s != "<null>" ) {
-		val = pop_pg->addExistenceProperty(s, intp, related);
-	}*/
 	
 	val = pop_pg->addExistenceProperty(pg->getP());
 	pg->addPropertyReward(val);
@@ -4895,18 +5029,6 @@ bool cHardwareCPU::Inst_PrecedenceProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-	/*std::string p = pg->getPstring();
-	std::string q = pg->getQstring();
-	float intp = pg->getPInterest();
-	float intq = pg->getQInterest();
-	float inttotal = intp + intq;
-	bool related = pg->areExpressionsRelated(pg->getP(), pg->getQ());
-	bool dependent = pg->areExpressionsAtsOpsDependent(pg->getP(), pg->getQ());
-	
-	// Check that the two expressions are not the same and that they are not dependent.
-	if ((p != q) && (!dependent)) {
-		val = pop_pg->addPrecedenceProperty(p, q, inttotal, related);
-	}*/
 	
 	val = pop_pg->addPrecedenceProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
@@ -4921,18 +5043,6 @@ bool cHardwareCPU::Inst_ResponseProperty(cAvidaContext& ctx)
 	cMDEPropertyGenerator* pg = organism->getUMLModel()->getPropertyGenerator();
 	cMDEPropertyGenerator* pop_pg = m_world->GetPopulation().getUMLModel()->getPropertyGenerator();
 	
-/*	std::string p = pg->getPstring();
-	std::string q = pg->getQstring();
-	float intp = pg->getPInterest();
-	float intq = pg->getQInterest();
-	float inttotal = intp + intq;
-	bool related = pg->areExpressionsRelated(pg->getP(), pg->getQ());
-	bool dependent = pg->areExpressionsAtsOpsDependent(pg->getP(), pg->getQ());
-	
-	if ((p != q) && (!dependent)) {
-		val = pop_pg->addResponseProperty(p, q, inttotal, related);
-	}
-	*/
 	val = pop_pg->addResponseProperty(pg->getP(), pg->getQ());
 	pg->addPropertyReward(val);
 	if (val) m_world->GetStats().newProperty();

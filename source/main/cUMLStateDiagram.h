@@ -92,6 +92,13 @@ public:
   bool absoluteJumpOriginState(int);
   bool absoluteJumpDestinationState(int);
   
+  bool relativeJumpGuard(int);
+  bool relativeJumpAction(int);
+  bool relativeJumpTrigger(int);
+  bool relativeJumpTransitionLabel(int);
+  bool relativeJumpOriginState(int);
+  bool relativeJumpDestinationState(int);
+  
   
 // Implement a scenario check.  
   int findPath(std::deque<std::string>, bool, int); 

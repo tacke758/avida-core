@@ -364,6 +364,60 @@ bool cUMLStateDiagram::absoluteJumpDestinationState(int jump_amount)
 }
 
 
+bool cUMLStateDiagram::relativeJumpTrigger(int jump_amount)
+{
+	return relativeMoveIndex(triggers, trigger_index, jump_amount);
+}
+
+bool cUMLStateDiagram::relativeJumpGuard(int jump_amount)
+{
+	return relativeMoveIndex(guards, guard_index, jump_amount);	
+}
+
+bool cUMLStateDiagram::relativeJumpAction(int jump_amount)
+{
+	return relativeMoveIndex(actions, action_index, jump_amount);
+}
+
+bool cUMLStateDiagram::relativeJumpTransitionLabel(int jump_amount)
+{
+	return relativeMoveIndex(transition_labels, trans_label_index, jump_amount);
+}
+
+bool cUMLStateDiagram::relativeJumpOriginState(int jump_amount) 
+{	
+	bool result = true;
+	int num_vert = (int) num_vertices(sd0);
+	
+	if (jump_amount > 0) { 
+		orig += (jump_amount % num_vert);
+		
+		// index is greater than vector
+		if (orig >= num_vert) { 
+			orig -= num_vert;
+		} 
+	}	
+	
+	
+	return result;
+}
+
+bool cUMLStateDiagram::relativeJumpDestinationState(int jump_amount) 
+{	
+	bool result = true;
+	int num_vert = (int) num_vertices(sd0);
+	
+	if (jump_amount > 0) { 
+		dest += (jump_amount % num_vert);
+		
+		// index is greater than vector
+		if (dest >= num_vert) { 
+			dest -= num_vert;
+		} 
+	}	
+	return result;
+}
+
 bool cUMLStateDiagram::addTrigger(std::string op_id, std::string lab) 
 {
 	trigger_info t;
@@ -448,8 +502,6 @@ bool cUMLStateDiagram::addTransitionTotal()
 	return true;
 
 }
-
-
 
 
 int cUMLStateDiagram::numStates()

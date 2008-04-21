@@ -570,6 +570,31 @@ private:
   bool Inst_StateDiag2(cAvidaContext& ctx);
   bool Inst_StateDiag3(cAvidaContext& ctx);
   
+  bool Inst_RelativeMoveTrigger(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveTrigger(cAvidaContext& ctx);  
+  bool Inst_NextTrigger(cAvidaContext& ctx);
+  
+  bool Inst_RelativeMoveGuard(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveGuard(cAvidaContext& ctx);  
+  bool Inst_NextGuard(cAvidaContext& ctx);
+  
+  bool Inst_RelativeMoveAction(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveAction(cAvidaContext& ctx);  
+  bool Inst_NextAction(cAvidaContext& ctx);
+  
+  bool Inst_RelativeMoveOrigin(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveOrigin(cAvidaContext& ctx);  
+  bool Inst_NextOrigin(cAvidaContext& ctx); 
+  
+  bool Inst_RelativeMoveDestination(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveDestination(cAvidaContext& ctx);  
+  bool Inst_NextDestination(cAvidaContext& ctx);
+  
+  bool Inst_RelativeMoveTransLabel(cAvidaContext& ctx);
+  bool Inst_AbsoluteMoveTransLabel(cAvidaContext& ctx);  
+  bool Inst_NextTransLabel(cAvidaContext& ctx);
+  
+/*
   bool Inst_OrigState0(cAvidaContext& ctx);
   bool Inst_OrigState1(cAvidaContext& ctx);
   bool Inst_OrigState2(cAvidaContext& ctx);
@@ -647,6 +672,7 @@ private:
   bool Inst_Action11(cAvidaContext& ctx);
   bool Inst_Action12(cAvidaContext& ctx);
   bool Inst_Action13(cAvidaContext& ctx);
+  */
   
   // UML instructions used to construct properties
   bool Inst_AbsenceProperty(cAvidaContext& ctx);
