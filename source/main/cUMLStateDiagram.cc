@@ -387,7 +387,7 @@ bool cUMLStateDiagram::relativeJumpTransitionLabel(int jump_amount)
 bool cUMLStateDiagram::relativeJumpOriginState(int jump_amount) 
 {	
 	bool result = true;
-	int num_vert = (int) num_vertices(sd0);
+	unsigned int num_vert = (int) num_vertices(sd0);
 	
 	if (jump_amount > 0) { 
 		orig += (jump_amount % num_vert);
@@ -405,7 +405,7 @@ bool cUMLStateDiagram::relativeJumpOriginState(int jump_amount)
 bool cUMLStateDiagram::relativeJumpDestinationState(int jump_amount) 
 {	
 	bool result = true;
-	int num_vert = (int) num_vertices(sd0);
+	unsigned int num_vert = (int) num_vertices(sd0);
 	
 	if (jump_amount > 0) { 
 		dest += (jump_amount % num_vert);
@@ -493,11 +493,11 @@ bool cUMLStateDiagram::addTransitionTotal()
 	add_edge(orig, dest, tp, sd0);
 		
 	// Reset all the indices
-	trigger_index = 0;
-	action_index = 0;
-	guard_index = 0;
-	orig = vertex(0, sd0);
-	dest = vertex(0, sd0);
+//	trigger_index = 0;
+//	action_index = 0;
+//	guard_index = 0;
+//	orig = vertex(0, sd0);
+//	dest = vertex(0, sd0);
 		
 	return true;
 
@@ -652,8 +652,6 @@ void cUMLStateDiagram::printStateDiagram()
 	boost::graph_traits<state_diagram>::edge_descriptor ed;
 
 	int s_count = 0;
-	int t_count = 0;
-
 	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
 	// edge or not.
 

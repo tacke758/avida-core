@@ -374,7 +374,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Add a transition"),		
 */							
 	tInstLibEntry<tMethod>("addTransL", &cHardwareCPU::Inst_AddTransitionFromLabel, false, 
-							 "Add a transition without adding a label."),	  
+							 "Add a transition using a label."),	  
 	tInstLibEntry<tMethod>("addTransT", &cHardwareCPU::Inst_AddTransitionTotal, false, 
 					"Add a transition without adding a label."),	
 	  
@@ -403,11 +403,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "Absolute move origin state"),						
 	tInstLibEntry<tMethod>("next-orig", &cHardwareCPU::Inst_NextOrigin, false, 
 							 "Next origin state"),	  
-	tInstLibEntry<tMethod>("move-rel-des", &cHardwareCPU::Inst_RelativeMoveDestination, false, 
+	tInstLibEntry<tMethod>("move-rel-dest", &cHardwareCPU::Inst_RelativeMoveDestination, false, 
 							 "Relative move destination state"),		
-	tInstLibEntry<tMethod>("move-abs-des", &cHardwareCPU::Inst_AbsoluteMoveDestination, false, 
+	tInstLibEntry<tMethod>("move-abs-dest", &cHardwareCPU::Inst_AbsoluteMoveDestination, false, 
 							 "Absolute move destination state"),						
-	tInstLibEntry<tMethod>("next-des", &cHardwareCPU::Inst_NextDestination, false, 
+	tInstLibEntry<tMethod>("next-dest", &cHardwareCPU::Inst_NextDestination, false, 
 							 "Next destination state"),	  
 	tInstLibEntry<tMethod>("move-rel-tl", &cHardwareCPU::Inst_RelativeMoveTransLabel, false, 
 							 "Relative move transition label"),		
