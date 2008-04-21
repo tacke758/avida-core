@@ -167,6 +167,28 @@ void seed_diagrams(const char* seed_model,
 				}
 				infile >> temp;
 			} 
+		}  else if (line == "==TRIGGERS==") { 
+			line.erase();
+			infile >> temp;
+			state_diagrams[cur_class].addTrigger("<null>", "<null>");
+			while (temp != "==END==") { 
+				infile >> temp1 >> temp2; 
+				if (temp=="1") { 
+					state_diagrams[cur_class].addTrigger(temp1, temp2);
+				}
+				infile >> temp;
+			} 
+		} else if (line == "==GUARDS==") { 
+			line.erase();
+			infile >> temp;
+			state_diagrams[cur_class].addGuard("<null>");
+			while (temp != "==END==") { 
+				infile >> temp2; 
+				if (temp=="1") { 
+					state_diagrams[cur_class].addGuard(temp2);
+				}
+				infile >> temp;
+			} 
 		} else if (line == "==ACTIONS==") { 
 			line.erase();
 			infile >> temp;
@@ -270,8 +292,8 @@ void seed_diagrams(const char* seed_model,
 		temp_size = c.numAttributes();
 		
 		// add nulls.
-		state_diagrams[i].addGuard("<null>");
-		state_diagrams[i].addTrigger("<null>", "<null>");
+//		state_diagrams[i].addGuard("<null>");
+//		state_diagrams[i].addTrigger("<null>", "<null>");
 //		state_diagrams[i].addAction("<null>");
 		
 		// For each attribute...

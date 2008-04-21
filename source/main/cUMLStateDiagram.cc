@@ -590,4 +590,56 @@ void cUMLStateDiagram::printXMI(std::string name)
 }
 
 
+void cUMLStateDiagram::printStateDiagram()
+{
+	std::string temp, temp1, temp2, temp3;
+	std::string trig_label, trig_op_name;
+	
 
+	boost::graph_traits<state_diagram>::edge_iterator edge_start, edge_end;
+	boost::graph_traits<state_diagram>::edge_descriptor ed;
+
+	int s_count = 0;
+	int t_count = 0;
+
+	// This state is the initial state; thus it should be printed regardless of whether it has an incoming
+	// edge or not.
+
+	std::cout << "States: \n\n";
+	for (; s_count < numStates(); ++s_count) {
+				temp =  "s" + StringifyAnInt(s_count);
+			std::cout << "State: ";
+			std::cout << temp << std::endl;
+	}
+		
+
+	std::vector<trigger_info>::iterator trig_it;
+	int count = 0;
+	for (trig_it = triggers.begin(); trig_it < triggers.end(); trig_it++) { 
+		std::cout << "trigger " << count << " " << (*trig_it).operation_id << std::endl;
+		count++;
+	}
+
+	std::vector<std::string>::iterator act_it;
+	count = 0;
+	for (act_it = guards.begin(); act_it < guards.end(); act_it++) { 
+		std::cout << "guard " << count << " " << (*act_it) << std::endl;
+		count++;
+	}
+		
+	count = 0;
+	for (act_it = actions.begin(); act_it < actions.end(); act_it++) { 
+		std::cout << "action " << count << " " << (*act_it) << std::endl;
+		count++;
+	}	
+	
+	count = 0; 
+	std::vector<transition_properties>::iterator tl_it;
+	for (tl_it = transition_labels.begin(); tl_it < transition_labels.end(); tl_it++) { 
+		std::cout << triggers[(*tl_it)._tr].operation_id << " " << guards[(*tl_it)._gu];
+		std::cout << " " << actions[(*tl_it)._act] << std::endl;
+	}
+					
+		
+	return;
+}

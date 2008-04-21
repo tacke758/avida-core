@@ -117,6 +117,9 @@ public:
   bool addGuard(std::string);
   bool addAction(std::string);
   bool addTransitionLabel(int, int, int);
+  
+  // print
+  void printStateDiagram(); 
 
   
 protected:
