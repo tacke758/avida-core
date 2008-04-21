@@ -306,6 +306,7 @@ private:  // Direct task related methods
   double Task_Nondeterminism(cTaskContext& ctx) const;
   double Task_ExportXMI(cTaskContext& ctx) const;
   double Task_Properties(cTaskContext& ctx) const;
+  double Task_Utility(cTaskContext& ctx) const;
 
 };
 

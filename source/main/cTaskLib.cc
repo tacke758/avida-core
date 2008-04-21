@@ -433,6 +433,9 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Export XMI", &cTaskLib::Task_ExportXMI);
   else if (name == "check-props") 
 	  NewTask(name, "Check Properties", &cTaskLib::Task_Properties);
+  else if (name == "utility") 
+	  NewTask(name, "Check Utility", &cTaskLib::Task_Utility);
+
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
 	  
@@ -3395,5 +3398,16 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 	return bonus;
 }
 
+
+double cTaskLib::Task_Utility(cTaskContext& ctx) const {
+	cOrganism* organism = ctx.getOrganism();
+	double bonus = 0.0;
+	
+	// calculate the utility of the model. 
+	// how do you figure mutually exclusive (e.g., if they use both bluetooth and wifi?)
+	
+	
+	return bonus;
+}
 
 
