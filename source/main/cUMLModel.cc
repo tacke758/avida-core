@@ -86,7 +86,8 @@ void seed_diagrams(const char* seed_model,
 	int trig_i, guard_i, act_i, orig_i, dest_i;
 	std::vector<std::string> att_vals;
 	scenario_info s;
-	std::string path_step;
+	std::string path_step, util_name;
+	float util_val;
 
 	
 	while (getline (infile, line))
@@ -141,6 +142,21 @@ void seed_diagrams(const char* seed_model,
 			s.stateDiagramID = cur_class;
 			infile >> s.shouldLoop >> s.startState;
 			infile >> temp;
+			
+			// loop for utility
+			if (temp == "-utility-") { 
+				infile >> temp;
+				std::cout << "utility " << temp << std::endl;
+				while (temp != "-end-utility-") { 
+					infile >> util_name >> util_val;
+					std::cout << "util_name " << util_name << " util_val " << util_val << std::endl;
+					s.utilityMap[util_name] = util_val;
+					infile >> temp;
+				}
+			}
+			infile >> temp;
+			std::cout << temp << std::endl;
+			
 			while (temp != "==END==") { 
 				infile >> path_step;
 				s.path.push_back(path_step);
@@ -485,6 +501,8 @@ double cUMLModel::checkForScenarios()
 {
 	double total_bonus = 0;
 	double temp_bonus = 0;
+	double max_bonus = 0; 
+	int max_sc = 0;
 	double complete_bonus;
 	scenario_info s;
 	
@@ -501,13 +519,46 @@ double cUMLModel::checkForScenarios()
 		
 		if (s.startState >= 0) complete_bonus++;
 		
+		// Keep track of the best alternative
+		if (max_bonus < temp_bonus) { 
+			max_bonus = temp_bonus; 
+			max_sc = i; 
+		}
 		
+		// hjg: commenting out the following on 4/22 to work with alternative scenarios. This code
+		// will need to change when I move from strict alternatives to different combos....
+		// I'm simplifying until then... 
 		// The next line is commented out to increase the reward for a given scenario. 
 		// total_bonus += (temp_bonus / complete_bonus);
-		total_bonus += temp_bonus;
+		// total_bonus += temp_bonus;
 		
 	scenario_completion[i] = temp_bonus / complete_bonus;
+	std::cout << "scenario " << i << " bonus " << temp_bonus << " max bonus " << max_bonus; 
+	std::cout << " complete_bonus " << complete_bonus << std::endl;
 	}
+	
+	// The total bonus (i.e., utility) should be computed by performing the following: 
+	// (1) Figure out which of the alternatives is the most complete (find the max completion)
+	// (2) For that scenario, 
+	//		total_bonus = %complete(util_sc_1 * util_u_1 + util_sc_2 + util_u_2...)
+	//		where util_u_1 indicates the importance the user places on the utility metric
+	//		and util_sc_1 indicates how well this scenario does on that utility
+	
+	// hard coding user values for right now...
+	complete_bonus = scenario_completion[max_sc]; 
+	s = scenarios[max_sc];
+
+	
+	std::cout << " Bonus : " << complete_bonus << std::endl;
+	std::cout << " i : " << max_sc << std::endl;
+	std::cout << " num sc : " << scenarios.size() << std::endl;
+
+
+	
+	
+	double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
+	total_util += s.utilityMap["Accuracy"]*.2;
+	total_bonus = complete_bonus * total_util;
 		
 	return total_bonus;
 }

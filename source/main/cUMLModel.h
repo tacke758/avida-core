@@ -21,6 +21,7 @@ struct scenario_info {
 	std::deque<std::string> path; 
 	bool shouldLoop;
 	int startState;
+	std::map<std::string, float> utilityMap;
 };
 
 struct xmi_info { 
