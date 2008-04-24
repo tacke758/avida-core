@@ -146,16 +146,16 @@ void seed_diagrams(const char* seed_model,
 			// loop for utility
 			if (temp == "-utility-") { 
 				infile >> temp;
-				std::cout << "utility " << temp << std::endl;
+//				std::cout << "utility " << temp << std::endl;
 				while (temp != "-end-utility-") { 
 					infile >> util_name >> util_val;
-					std::cout << "util_name " << util_name << " util_val " << util_val << std::endl;
+//					std::cout << "util_name " << util_name << " util_val " << util_val << std::endl;
 					s.utilityMap[util_name] = util_val;
 					infile >> temp;
 				}
 			}
 			infile >> temp;
-			std::cout << temp << std::endl;
+//			std::cout << temp << std::endl;
 			
 			while (temp != "==END==") { 
 				infile >> path_step;
@@ -273,7 +273,7 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp2;
 				pg.addRelevantAttribute(temp2);
-				std::cout << "relevant at " << temp2 << std::endl;
+//				std::cout << "relevant at " << temp2 << std::endl;
 				infile >> temp;
 			}
 		} else if (line == "==RELEVANT=OPERATION==") {
@@ -282,7 +282,7 @@ void seed_diagrams(const char* seed_model,
 			while (temp!= "==END==") { 
 				infile >> temp2;
 				pg.addRelevantOperation(temp2);
-				std::cout << "relevant op " << temp2 << std::endl;
+//				std::cout << "relevant op " << temp2 << std::endl;
 				infile >> temp;
 			}
 		}
@@ -533,8 +533,8 @@ double cUMLModel::checkForScenarios()
 		// total_bonus += temp_bonus;
 		
 	scenario_completion[i] = temp_bonus / complete_bonus;
-	std::cout << "scenario " << i << " bonus " << temp_bonus << " max bonus " << max_bonus; 
-	std::cout << " complete_bonus " << complete_bonus << std::endl;
+//	std::cout << "scenario " << i << " bonus " << temp_bonus << " max bonus " << max_bonus; 
+//	std::cout << " complete_bonus " << complete_bonus << std::endl;
 	}
 	
 	// The total bonus (i.e., utility) should be computed by performing the following: 
@@ -549,9 +549,9 @@ double cUMLModel::checkForScenarios()
 	s = scenarios[max_sc];
 
 	
-	std::cout << " Bonus : " << complete_bonus << std::endl;
-	std::cout << " i : " << max_sc << std::endl;
-	std::cout << " num sc : " << scenarios.size() << std::endl;
+//	std::cout << " Bonus : " << complete_bonus << std::endl;
+//	std::cout << " i : " << max_sc << std::endl;
+//	std::cout << " num sc : " << scenarios.size() << std::endl;
 
 
 	
