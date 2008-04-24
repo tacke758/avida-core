@@ -128,6 +128,12 @@ public:
   // print
   void printStateDiagram(); 
 
+
+  // loop functions
+  void startLooping () { looping = true; loop_state = orig; }
+  void endLooping(); 
+
+  
   
 protected:
     state_diagram sd0;
@@ -135,6 +141,9 @@ protected:
 	boost::graph_traits<state_diagram>::vertex_descriptor dest;
 	int actual_end_state;
 	std::string sd_name;
+	bool looping;
+	int loop_state; 
+	std::deque<int> loop_trans_labels;
 	
 
 };

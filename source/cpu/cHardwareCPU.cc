@@ -614,8 +614,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "AND expressions"),						
 	tInstLibEntry<tMethod>("or-exp", &cHardwareCPU::Inst_ORExpressions, false, 
 							 "OR expressions"),									 
-							
-													
+	tInstLibEntry<tMethod>("start-loop", &cHardwareCPU::Inst_StartLoop, false, 
+							 "start a loop"),						
+	tInstLibEntry<tMethod>("end-loop", &cHardwareCPU::Inst_EndLoop, false, 
+							 "end a loop"),														
 	  
 											
 	
@@ -5136,4 +5138,14 @@ bool cHardwareCPU::Inst_ORExpressions(cAvidaContext& ctx)
 	return val;
 }
   
-  
+bool cHardwareCPU::Inst_StartLoop(cAvidaContext& ctx)
+{
+	organism->getStateDiagram()->startLooping();
+	return true;
+}  
+
+bool cHardwareCPU::Inst_EndLoop(cAvidaContext& ctx)
+{
+	organism->getStateDiagram()->endLooping();
+	return true;
+} 

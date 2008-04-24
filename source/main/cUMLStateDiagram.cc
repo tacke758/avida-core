@@ -460,14 +460,24 @@ bool cUMLStateDiagram::addTransitionTotal(int o, int d, int t, int g, int a) {
 }
 
 bool cUMLStateDiagram::addTransitionFromLabel() {
-	// get the properties of the transition label. 
-	transition_properties tp = transition_labels[trans_label_index];
+
+	bool val = true; 
 	
-	absoluteJumpTrigger(tp._tr);
-	absoluteJumpGuard(tp._gu); 
-	absoluteJumpAction(tp._act);
+	if (looping) { 
+//		std::cout << "Adding loop element " << trans_label_index << std::endl; 
+		
+		loop_trans_labels.push_back(trans_label_index);
+	} else{
+		// get the properties of the transition label. 
+		transition_properties tp = transition_labels[trans_label_index];
 	
-	return addTransitionTotal();
+		absoluteJumpTrigger(tp._tr);
+		absoluteJumpGuard(tp._gu); 
+		absoluteJumpAction(tp._act);
+	
+		val = addTransitionTotal();
+	} 
+	return val;
 }
 
 bool cUMLStateDiagram::addTransitionTotal()
@@ -693,3 +703,34 @@ void cUMLStateDiagram::printStateDiagram()
 		
 	return;
 }
+
+void cUMLStateDiagram::endLooping() { 
+	looping = false; 
+	
+	// set up the origin
+	absoluteJumpOriginState(loop_state);
+	
+	
+	// for each element of the loop... 
+	while (loop_trans_labels.size()!=0){
+		// set up the destination
+		if(loop_trans_labels.size() == 1) { 
+			// last transition loop to start
+			absoluteJumpDestinationState(loop_state);
+		} else { 
+			relativeJumpDestinationState(1);
+		}
+		
+		// set up the label
+		absoluteJumpTransitionLabel(loop_trans_labels.front()); 
+		addTransitionFromLabel();
+//		std::cout << "deque front " << loop_trans_labels.front() << " " << orig << " " << dest << std::endl;
+		loop_trans_labels.pop_front();
+		relativeJumpOriginState(1);
+
+	}
+
+}
+
+
+

@@ -560,7 +560,7 @@ double cUMLModel::checkForScenarios()
 	total_util += s.utilityMap["Accuracy"]*.2;
 	total_bonus = complete_bonus * total_util;
 		
-	return total_bonus;
+	return (total_bonus *5);
 }
 
 bool cUMLModel::readyForHydra() 

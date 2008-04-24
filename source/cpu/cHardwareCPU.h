@@ -696,6 +696,8 @@ private:
   bool Inst_NextExpressionR(cAvidaContext& ctx);
   bool Inst_PrevExpressionR(cAvidaContext& ctx);
   bool Inst_AbsoluteMoveExpressionR(cAvidaContext& ctx);
+  bool Inst_StartLoop(cAvidaContext& ctx);
+  bool Inst_EndLoop(cAvidaContext& ctx);
 //  bool 
 };
 
