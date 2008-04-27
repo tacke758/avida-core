@@ -123,6 +123,42 @@ public:
 	}
 };
 
+/*! Exit Avida when the elapsed wallclock time has exceeded a threshold number
+of seconds, beginning from the construction of this object.
+*/
+class cActionExitElapsedTime : public cAction {
+public:
+	/*! Constructor; parse out the threshold time.
+	*/
+	cActionExitElapsedTime(cWorld* world, const cString& args) : cAction(world, args) {
+		cString largs(args);
+		if(largs.GetSize()) {
+			m_time = largs.PopWord().AsInt();
+		} else {
+			// error; no default value for elapsed time.
+			m_world->GetDriver().RaiseFatalException(-1, "ExitElapsedTime event requires elapsed time.");
+		}
+		
+		// When did we start?
+		m_then = time(0);
+	}
+	
+	static const cString GetDescription() { return "Arguments: <int elapsed time [seconds]>"; }
+	
+	/*! Check to see if we should exit Avida based on the elapsed time since construction
+	of this object.  This method is called based on the events file.
+	*/
+	void Process(cAvidaContext& ctx) {
+		if((time(0) - m_then) >= m_time) {
+			m_world->GetDriver().SetDone();
+		}
+	}
+	
+protected:
+	int m_time; //!< Number of seconds after which Avida should exit.
+	int m_then; //!< Time at which this object was constructed (the 'start' of Avida).
+};
+
 void RegisterDriverActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionExit>("Exit");
@@ -130,9 +166,13 @@ void RegisterDriverActions(cActionLibrary* action_lib)
   action_lib->Register<cActionExitAveLineageLabelLess>("ExitAveLineageLabelLess");
   action_lib->Register<cActionExitPropertyGeneratedGreater>("ExitPropGeneratedGreater");
   action_lib->Register<cActionExitModelsPassedPropertyGreater>("ExitModelsPassedPropertyGreater");
+  action_lib->Register<cActionExitElapsedTime>("ExitElapsedTime");
+  
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionExit>("exit");
   action_lib->Register<cActionExitAveLineageLabelGreater>("exit_if_ave_lineage_label_larger");
   action_lib->Register<cActionExitAveLineageLabelLess>("exit_if_ave_lineage_label_smaller");
 }
+
+
