@@ -594,7 +594,7 @@ private:
   bool Inst_AbsoluteMoveTransLabel(cAvidaContext& ctx);  
   bool Inst_NextTransLabel(cAvidaContext& ctx);
   
-/*
+
   bool Inst_OrigState0(cAvidaContext& ctx);
   bool Inst_OrigState1(cAvidaContext& ctx);
   bool Inst_OrigState2(cAvidaContext& ctx);
@@ -637,7 +637,12 @@ private:
   bool Inst_TransLab9(cAvidaContext& ctx);
   bool Inst_TransLab10(cAvidaContext& ctx);
   bool Inst_TransLab11(cAvidaContext& ctx);
-
+  bool Inst_TransLab12(cAvidaContext& ctx);
+  bool Inst_TransLab13(cAvidaContext& ctx);
+  bool Inst_TransLab14(cAvidaContext& ctx);
+  bool Inst_TransLab15(cAvidaContext& ctx);
+  bool Inst_TransLab16(cAvidaContext& ctx);  
+/*
   bool Inst_Trigger0(cAvidaContext& ctx);
   bool Inst_Trigger1(cAvidaContext& ctx);
   bool Inst_Trigger2(cAvidaContext& ctx);
