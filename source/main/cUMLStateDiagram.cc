@@ -15,6 +15,7 @@ cUMLStateDiagram::cUMLStateDiagram()
   trigger_index = 0;
   guard_index = 0;
   action_index = 0;
+  looping = 0;
 
   xmi = "";
     
