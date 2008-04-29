@@ -530,7 +530,7 @@ double cUMLModel::checkForScenarios()
 		// I'm simplifying until then... 
 		// The next line is commented out to increase the reward for a given scenario. 
 		// total_bonus += (temp_bonus / complete_bonus);
-		// total_bonus += temp_bonus;
+		 total_bonus += temp_bonus;
 		
 	scenario_completion[i] = temp_bonus / complete_bonus;
 //	std::cout << "scenario " << i << " bonus " << temp_bonus << " max bonus " << max_bonus; 
@@ -555,12 +555,14 @@ double cUMLModel::checkForScenarios()
 
 
 	
-	
-	double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
-	total_util += s.utilityMap["Accuracy"]*.2;
-	total_bonus = complete_bonus * total_util;
+	// commented out to try without utility.
+	//double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
+	//total_util += s.utilityMap["Accuracy"]*.2;
+	//total_bonus = complete_bonus * total_util;
 		
-	return (total_bonus *5);
+	//return (total_bonus *5);
+	
+	return total_bonus;
 }
 
 bool cUMLModel::readyForHydra() 
