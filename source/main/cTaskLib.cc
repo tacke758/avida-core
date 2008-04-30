@@ -3352,6 +3352,7 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double nd_penalty=0;
 	double max_bonus=0;
+	double bonus; 
 	
 	for(unsigned int i=0; i<organism->getUMLModel()->getStateDiagramSize(); ++i, ++max_bonus) {
 		cUMLStateDiagram* sd=organism->getUMLModel()->getStateDiagram(i);
@@ -3360,9 +3361,12 @@ double cTaskLib::Task_Nondeterminism(cTaskContext& ctx) const {
 		}
 	}
 	
-	organism->getUMLModel()->setBonusInfo("isDeterministic", max_bonus - nd_penalty);	
-
-	return max_bonus - nd_penalty;
+	bonus = max_bonus - nd_penalty;
+	
+	if (bonus < 0) bonus = 0;
+	
+	organism->getUMLModel()->setBonusInfo("isDeterministic", bonus);	
+	return bonus;
 }
 
 // This task will be used to see if an organism meets the criteria for 
