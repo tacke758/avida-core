@@ -168,7 +168,7 @@ void seed_diagrams(const char* seed_model,
 			infile >> temp; 
 			while (temp != "==END==") { 
 				infile >> orig_i >> dest_i >> trig_i >> guard_i >> act_i; 
-				if (temp == "1") { 
+				if (temp != "0") { 
 					state_diagrams[cur_class].addTransitionTotal(orig_i, dest_i, trig_i, guard_i, act_i);
 				}	
 				infile >> temp; 
@@ -178,7 +178,7 @@ void seed_diagrams(const char* seed_model,
 			infile >> temp;
 			while (temp != "==END==") { 
 				infile >> trig_i >> guard_i >> act_i; 
-				if (temp=="1") { 
+				if (temp!="0") { 
 					state_diagrams[cur_class].addTransitionLabel(trig_i, guard_i, act_i);
 				}
 				infile >> temp;
@@ -189,7 +189,7 @@ void seed_diagrams(const char* seed_model,
 			state_diagrams[cur_class].addTrigger("<null>", "<null>");
 			while (temp != "==END==") { 
 				infile >> temp1 >> temp2; 
-				if (temp=="1") { 
+				if (temp!="0") { 
 					state_diagrams[cur_class].addTrigger(temp1, temp2);
 				}
 				infile >> temp;
@@ -200,7 +200,7 @@ void seed_diagrams(const char* seed_model,
 			state_diagrams[cur_class].addGuard("<null>");
 			while (temp != "==END==") { 
 				infile >> temp2; 
-				if (temp=="1") { 
+				if (temp!="0") { 
 					state_diagrams[cur_class].addGuard(temp2);
 				}
 				infile >> temp;
@@ -211,7 +211,7 @@ void seed_diagrams(const char* seed_model,
 			state_diagrams[cur_class].addAction("<null>");
 			while (temp != "==END==") { 
 				infile >> temp2; 
-				if (temp=="1") { 
+				if (temp!="01") { 
 					state_diagrams[cur_class].addAction(temp2);
 				}
 				infile >> temp;
