@@ -426,6 +426,7 @@ void cUMLModel::printXMI()
 	xmi = "";	
 	xmi = xi.xmi_begin; 
 	
+	std::cout << xi.classes_info.size() << " " << state_diagrams.size() << std::endl;
 	assert (xi.classes_info.size() == state_diagrams.size());
 	
 	for (unsigned int i=0; i<xi.classes_info.size(); i++) { 
