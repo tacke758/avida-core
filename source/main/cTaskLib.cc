@@ -3173,7 +3173,7 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 		return bonus;
 	}*/
 	if (organism->getUMLModel()->getWitnessMode()) {
-		if (organism->getUMLModel()->getBonusInfo("spinw1") <= 1)	
+		if (organism->getUMLModel()->getBonusInfo("spinw1") <  1)	
 		{ 
 			organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
 			return bonus;
@@ -3239,7 +3239,7 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	double bonus = 0.0;
 	
 	if (organism->getUMLModel()->getWitnessMode()) {
-		if (organism->getUMLModel()->getBonusInfo("spinw2") <= 1)	
+		if (organism->getUMLModel()->getBonusInfo("spinw2") < 1)	
 		{ 
 			organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
 			return bonus;
@@ -3380,7 +3380,7 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 	
 	// call hydra when a // all scenario hits its max?
 	// all are non-zero?
-	if (organism->getUMLModel()->readyForHydra()) {
+//	if (organism->getUMLModel()->readyForHydra()) {
 		// print the file to output...
 //		file_name =  "file1" + m_world->GetStats().GetUpdate();
 //		file_name += "." + organism->GetID();
@@ -3391,7 +3391,7 @@ double cTaskLib::Task_ExportXMI(cTaskContext& ctx) const {
 //	if(system(strstrm.str().c_str())!=0) return 0.0;
 		organism->getUMLModel()->printUMLModelToFile(strstrm.str());
 		bonus = 1.0;
-	} 
+//	} 
 	
 	return bonus;
 }

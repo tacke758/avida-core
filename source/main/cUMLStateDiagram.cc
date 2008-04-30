@@ -146,6 +146,7 @@ int cUMLStateDiagram::checkForPathStep(std::deque<std::string> path,
 			ts = tt + "[" + tg + "]" + "/" + ta;
 //			std::cout << "transition named: " << ts << std::endl;
 			
+			std::string blah = path.front();
 			
 			if (ts == path.front()) { 
 
@@ -382,6 +383,7 @@ bool cUMLStateDiagram::relativeJumpAction(int jump_amount)
 
 bool cUMLStateDiagram::relativeJumpTransitionLabel(int jump_amount)
 {
+	int size = transition_labels.size();
 	return relativeMoveIndex(transition_labels, trans_label_index, jump_amount);
 }
 
@@ -705,6 +707,8 @@ void cUMLStateDiagram::printStateDiagram()
 	return;
 }
 
+
+// hjg: error in here. Last element not adding correctly?
 void cUMLStateDiagram::endLooping() { 
 	looping = false; 
 	
@@ -724,6 +728,7 @@ void cUMLStateDiagram::endLooping() {
 		
 		// set up the label
 		absoluteJumpTransitionLabel(loop_trans_labels.front()); 
+		int loop_int = loop_trans_labels.front();
 		addTransitionFromLabel();
 //		std::cout << "deque front " << loop_trans_labels.front() << " " << orig << " " << dest << std::endl;
 		loop_trans_labels.pop_front();
