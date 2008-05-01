@@ -504,7 +504,6 @@ double cUMLModel::checkForScenarios()
 {
 	double total_bonus = 0;
 	double temp_bonus = 0;
-//	double max_bonus = 0; 
 	double complete_bonus;
 	scenario_info s;
 	
@@ -532,15 +531,13 @@ double cUMLModel::checkForScenarios()
 		double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
 		total_util += s.utilityMap["Accuracy"]*.2;
 		total_util = total_util + temp_bonus;
-		s.utilityMap["Total"] = total_util;
-	
+		scenarios[i].utilityMap["Total"] = total_util;
+		std::cout << scenarios[i].utilityMap["Total"] << " " << total_util << std::endl;
 	}
 	
 
 	
 	// Compute the total bonus by adding together the max of each of the utils. 
-	// 
-	
 	// initialize 
 	std::string current_alt_set = scenarios[0].alt_set_name;
 	double current_alt_set_max_util = scenarios[0].utilityMap["Total"];
@@ -555,6 +552,7 @@ double cUMLModel::checkForScenarios()
 		if (s.alt_set_name != current_alt_set) { 
 			accrued_util += current_alt_set_max_util; 
 			current_alt_set_max_util = s.utilityMap["Total"];
+			std::cout << "TESTING " << s.utilityMap["Total"] <<  std::endl;
 			current_alt_set = s.alt_set_name;
 			percent_scenario_complete += current_alt_set_percent_complete;
 		} else { 
