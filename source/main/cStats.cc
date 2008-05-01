@@ -1116,17 +1116,17 @@ void cStats::PrintUMLData(const cString& filename)
 	av_number_of_state_diagrams.Clear();
 	av_number_of_trans_lab.Clear();
 
-  m_hydraAttempt.Clear();
-  m_hydraPassed.Clear();
-  m_N1Attempt.Clear();
-  m_N2Attempt.Clear();
-  m_W1Attempt.Clear();
-  m_W2Attempt.Clear();
-  m_N1Passed.Clear();
-  m_N2Passed.Clear();
-  m_W1Passed.Clear();
-  m_W2Passed.Clear();
-  m_N1andN2Passed.Clear();
+//  m_hydraAttempt.Clear();
+//  m_hydraPassed.Clear();
+//  m_N1Attempt.Clear();
+//  m_N2Attempt.Clear();
+//  m_W1Attempt.Clear();
+//  m_W2Attempt.Clear();
+//  m_N1Passed.Clear();
+//  m_N2Passed.Clear();
+//  m_W1Passed.Clear();
+//  m_W2Passed.Clear();
+//  m_N1andN2Passed.Clear();
  /* m_scenario5.Clear();
   m_scenario6.Clear();
   m_scenario7.Clear();
