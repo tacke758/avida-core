@@ -141,6 +141,7 @@ void seed_diagrams(const char* seed_model,
 			s.path.clear();
 			s.stateDiagramID = cur_class;
 			infile >> s.shouldLoop >> s.startState;
+			infile >> s.alt_set_name;
 			infile >> temp;
 			
 			// loop for utility
@@ -386,6 +387,7 @@ cUMLModel::cUMLModel(const char* seed_model) {
   relatedClassMode = _cfg_related_class_mode;
   gen = new cMDEPropertyGenerator(_cfg_gen);
   gen->setRelatedClassMode(_cfg_related_class_mode);
+  percent_scenario_complete = 0;
   
   // Initialize the property generator.
 //  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);
@@ -531,24 +533,60 @@ double cUMLModel::checkForScenarios()
 		// I'm simplifying until then... 
 		// The next line is commented out to increase the reward for a given scenario. 
 		// total_bonus += (temp_bonus / complete_bonus);
-		 total_bonus += temp_bonus;
+//		 total_bonus += temp_bonus;
 		
 	scenario_completion[i] = temp_bonus / complete_bonus;
+	
+	// hjg: this uses hard coded user preferences...
+	// The total bonus (i.e., utility) should be computed by performing the following: 
+	// For eac scenario, 
+	//		total_bonus = %complete(util_sc_1 * util_u_1 + util_sc_2 + util_u_2...)
+	//		where util_u_1 indicates the importance the user places on the utility metric
+	//		and util_sc_1 indicates how well this scenario does on that utility	
+	double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
+	total_util += s.utilityMap["Accuracy"]*.2;
+	total_util = complete_bonus * total_util;
+	s.utilityMap["Total"] = total_util;
+	
 //	std::cout << "scenario " << i << " bonus " << temp_bonus << " max bonus " << max_bonus; 
 //	std::cout << " complete_bonus " << complete_bonus << std::endl;
 	}
 	
-	// The total bonus (i.e., utility) should be computed by performing the following: 
-	// (1) Figure out which of the alternatives is the most complete (find the max completion)
-	// (2) For that scenario, 
-	//		total_bonus = %complete(util_sc_1 * util_u_1 + util_sc_2 + util_u_2...)
-	//		where util_u_1 indicates the importance the user places on the utility metric
-	//		and util_sc_1 indicates how well this scenario does on that utility
-	
-	// hard coding user values for right now...
-	complete_bonus = scenario_completion[max_sc]; 
-	s = scenarios[max_sc];
 
+	
+	// Compute the total bonus by adding together the max of each of the utils. 
+	// 
+	
+	// initialize 
+	std::string current_alt_set = scenarios[0].alt_set_name;
+	double current_alt_set_max_util = scenarios[0].utilityMap["Total"];
+	double accrued_util = 0.0;
+	double percent_scenario_complete = 0.0;
+	double current_alt_set_percent_complete = scenario_completion[0];
+
+	for (unsigned int i=0; i< scenarios.size(); i++) { 
+		s = scenarios[i];
+		
+		// if it is the start of a new set: 
+		if (s.alt_set_name != current_alt_set) { 
+			accrued_util += current_alt_set_max_util; 
+			current_alt_set_max_util = s.utilityMap["Total"];
+			current_alt_set = s.alt_set_name;
+			percent_scenario_complete += current_alt_set_percent_complete;
+		} else { 
+			if (current_alt_set_max_util < s.utilityMap["Total"]) {
+				current_alt_set_max_util = s.utilityMap["Total"];
+				current_alt_set_percent_complete = scenario_completion[i];
+				if (scenario_completion[i] > 1) { 
+					int x = 0;
+				}
+			}
+		}
+
+	}
+	percent_scenario_complete = percent_scenario_complete/scenarios.size();
+	
+	total_bonus = accrued_util;
 	
 //	std::cout << " Bonus : " << complete_bonus << std::endl;
 //	std::cout << " i : " << max_sc << std::endl;
@@ -557,9 +595,9 @@ double cUMLModel::checkForScenarios()
 
 	
 	// commented out to try without utility.
-	//double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
-	//total_util += s.utilityMap["Accuracy"]*.2;
-	//total_bonus = complete_bonus * total_util;
+	
+//	total_bonus = complete_bonus * total_util;
+	//what is total bonus equal to? 
 		
 	//return (total_bonus *5);
 	
@@ -580,8 +618,11 @@ bool cUMLModel::readyForHydra()
 	switch (hydraMode){
 	case 0:
 		ret_val = 1;
-		for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		/*for (unsigned int i=0; i< scenario_completion.size(); i++) { 
 				if (scenario_completion[i] != 1) ret_val &= 0;
+		}*/
+		if (percent_scenario_complete < 1.0) {
+			ret_val = 0;
 		}
 		break;
 	case 1:
