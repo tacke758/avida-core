@@ -3132,10 +3132,15 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 
 
 // Commented out to remove overhead...	
-	std::ostringstream strstrm;
+	std::ostringstream strstrm, strstrm2; 
 	strstrm << "cp tmp.xmi "  << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
 	strstrm << ".xml";	
 	if(system(strstrm.str().c_str())!=0) return 0.0;
+	
+	strstrm2 << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
+	// print the relevant information about the scenarios
+//	std::string temp_str = neverclaimFile + "." + m_world->GetStats().GetUpdate() + "."; // + ctx.getOrganism()->GetID();
+	ctx.getOrganism()->getUMLModel()->printScenarioUtility(strstrm.str().c_str());
 			
 	return 1.0;
 }

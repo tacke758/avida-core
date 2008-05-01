@@ -59,6 +59,7 @@ public:
 	float getBonusInfo (std::string);  
 	std::vector<double> getScenarioCompletion() { return scenario_completion; } 
 	void setScenarioCompletion(std::vector<double> s)  { scenario_completion = s; }
+	void printScenarioUtility(std::string);
 		
 	// Get the number of, well, everything
 	int numStates();

@@ -512,6 +512,13 @@ double cUMLModel::checkForScenarios()
 	// Accrue results.
 	// Save bonus info.
 	scenario_completion.resize(scenarios.size());
+	std::string current_alt_set = scenarios[0].alt_set_name;
+	double percent_scenario_complete = 0.0;
+	double current_alt_set_percent_complete = 0.0;
+	double current_alt_set_max_bonus = 0;
+	int max_alt_set_id = 0;
+//	double accrued_ = 0.0;
+
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
 		s = scenarios[i];
 		temp_bonus = getStateDiagram(s.stateDiagramID)->findPath(s.path, s.shouldLoop, s.startState);
@@ -521,54 +528,63 @@ double cUMLModel::checkForScenarios()
 		if (s.startState >= 0) complete_bonus++;
 		
 		scenario_completion[i] = temp_bonus / complete_bonus;
-	
-		// hjg: this uses hard coded user preferences...
-		// The total bonus (i.e., utility) should be computed by performing the following: 
-		// For eac scenario, 
-		//		total_bonus = %complete(util_sc_1 * util_u_1 + util_sc_2 + util_u_2...)
-		//		where util_u_1 indicates the importance the user places on the utility metric
-		//		and util_sc_1 indicates how well this scenario does on that utility	
-		double total_util = s.utilityMap["FaultTolerance"]*.2 + s.utilityMap["EnergyEfficiency"]*.6; 
-		total_util += s.utilityMap["Accuracy"]*.2;
-		total_util = total_util + temp_bonus;
-		scenarios[i].utilityMap["Total"] = total_util;
-		std::cout << scenarios[i].utilityMap["Total"] << " " << total_util << std::endl;
-	}
-	
+		scenarios[max_alt_set_id].utilityMap["Used"] = 0;
 
-	
-	// Compute the total bonus by adding together the max of each of the utils. 
-	// initialize 
-	std::string current_alt_set = scenarios[0].alt_set_name;
-	double current_alt_set_max_util = scenarios[0].utilityMap["Total"];
-	double accrued_util = 0.0;
-	double percent_scenario_complete = 0.0;
-	double current_alt_set_percent_complete = scenario_completion[0];
-
-	for (unsigned int i=0; i< scenarios.size(); i++) { 
-		s = scenarios[i];
-		
-		// if it is the start of a new set: 
+				
 		if (s.alt_set_name != current_alt_set) { 
-			accrued_util += current_alt_set_max_util; 
-			current_alt_set_max_util = s.utilityMap["Total"];
-			std::cout << "TESTING " << s.utilityMap["Total"] <<  std::endl;
-			current_alt_set = s.alt_set_name;
+			// these update the running totals.
 			percent_scenario_complete += current_alt_set_percent_complete;
+			total_bonus += current_alt_set_max_bonus;
+			scenarios[max_alt_set_id].utilityMap["Used"] = 1;
+			
+			// these prepare for the next set
+			max_alt_set_id = i;
+			current_alt_set_max_bonus = temp_bonus;
+			current_alt_set = s.alt_set_name;
+			current_alt_set_percent_complete = scenario_completion[i];
 		} else { 
-			if (current_alt_set_max_util < s.utilityMap["Total"]) {
-				current_alt_set_max_util = s.utilityMap["Total"];
+			if(current_alt_set_percent_complete < scenario_completion[i]) {
 				current_alt_set_percent_complete = scenario_completion[i];
+				current_alt_set_max_bonus = temp_bonus;
+				max_alt_set_id = i;
 			}
 		}
-
 	}
+	
+
+	
 	percent_scenario_complete = percent_scenario_complete/scenarios.size();
-	
-	total_bonus = accrued_util;
-	
+		
 	return total_bonus;
 }
+
+
+void cUMLModel::printScenarioUtility(std::string s)
+{
+	std::ofstream outfile;
+	outfile.open ("scenario-utility", std::ios_base::app);
+	assert(outfile.is_open());
+	
+	// compute utilities. 
+	double ft = 0.0;
+	double ee = 0.0;
+	double ac = 0.0;
+	
+	// loop through the scenarios. If the scenario is marked as used, then include
+	// its info in the utilities.
+	for (unsigned int i=0; i< scenarios.size(); i++) { 
+		if(scenarios[i].utilityMap["Used"] == 1) { 
+			ft += scenarios[i].utilityMap["FaultTolerance"];
+			ee += scenarios[i].utilityMap["EnergyEfficiency"];
+			ac += scenarios[i].utilityMap["Accuracy"];
+		}
+	}
+	
+	outfile << s << " " << ft << " " << ee << " " << ac << std::endl;
+	
+	
+}
+
 
 bool cUMLModel::readyForHydra() 
 {
