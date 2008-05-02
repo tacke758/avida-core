@@ -3140,7 +3140,7 @@ double cTaskLib::SpinCoprocess(cTaskContext& ctx, const std::string& neverclaimF
 	strstrm2 << neverclaimFile << "." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID();
 	// print the relevant information about the scenarios
 //	std::string temp_str = neverclaimFile + "." + m_world->GetStats().GetUpdate() + "."; // + ctx.getOrganism()->GetID();
-	ctx.getOrganism()->getUMLModel()->printScenarioUtility(strstrm.str().c_str());
+	ctx.getOrganism()->getUMLModel()->printScenarioUtility(strstrm2.str().c_str());
 			
 	return 1.0;
 }

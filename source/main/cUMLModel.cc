@@ -568,7 +568,7 @@ double cUMLModel::checkForScenarios()
 void cUMLModel::printScenarioUtility(std::string s)
 {
 	std::ofstream outfile;
-	outfile.open ("scenario-utility", std::ios_base::app);
+	outfile.open ("scenario-utility.csv", std::ios_base::app);
 	assert(outfile.is_open());
 	
 	// compute utilities. 
@@ -586,9 +586,13 @@ void cUMLModel::printScenarioUtility(std::string s)
 		}
 	}
 	
-	outfile << s << " " << ft << " " << ee << " " << ac << std::endl;
+	outfile << s << ", " << ft << ", " << ee << ", " << ac << ", ";
 	
-	
+	for (unsigned int i=0; i< scenario_completion.size(); i++) { 
+		outfile << scenario_completion[i] << ", ";
+	}	
+	outfile << std::endl;
+	outfile.close();
 }
 
 
