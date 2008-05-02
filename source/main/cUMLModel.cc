@@ -517,6 +517,7 @@ double cUMLModel::checkForScenarios()
 	double current_alt_set_percent_complete = 0.0;
 	double current_alt_set_max_bonus = 0;
 	int max_alt_set_id = 0;
+	int num_sets = 1;
 //	double accrued_ = 0.0;
 
 	for (unsigned int i=0; i< scenarios.size(); i++) { 
@@ -542,6 +543,7 @@ double cUMLModel::checkForScenarios()
 			current_alt_set_max_bonus = temp_bonus;
 			current_alt_set = s.alt_set_name;
 			current_alt_set_percent_complete = scenario_completion[i];
+			num_sets++;
 		} else { 
 			if(current_alt_set_percent_complete < scenario_completion[i]) {
 				current_alt_set_percent_complete = scenario_completion[i];
@@ -551,9 +553,13 @@ double cUMLModel::checkForScenarios()
 		}
 	}
 	
+	// finish out by storing the values of the last set: 
+	percent_scenario_complete += current_alt_set_percent_complete;
+	total_bonus += current_alt_set_max_bonus;
+	scenarios[max_alt_set_id].utilityMap["Used"] = 1;
 
 	
-	percent_scenario_complete = percent_scenario_complete/scenarios.size();
+	percent_scenario_complete = percent_scenario_complete/num_sets;
 		
 	return total_bonus;
 }
