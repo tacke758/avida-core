@@ -513,7 +513,7 @@ double cUMLModel::checkForScenarios()
 	// Save bonus info.
 	scenario_completion.resize(scenarios.size());
 	std::string current_alt_set = scenarios[0].alt_set_name;
-	double percent_scenario_complete = 0.0;
+	percent_scenario_complete = 0.0;
 	double current_alt_set_percent_complete = 0.0;
 	double current_alt_set_max_bonus = 0;
 	int max_alt_set_id = 0;

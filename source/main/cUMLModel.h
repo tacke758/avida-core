@@ -133,7 +133,7 @@ protected:
 	// Mode 1 = contribute to interest + print
 	// Mode 2 = forbid unrelated + print
 	int relatedClassMode;
-	int percent_scenario_complete;
+	double percent_scenario_complete;
 	
   // The following are set once per Avida experiment, when the first cUMLModel is constructed:
   static bool _cfgLoaded; //!< Whether or not we've already loaded seed-model.cfg.
