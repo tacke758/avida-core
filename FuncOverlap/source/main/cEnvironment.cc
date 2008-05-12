@@ -885,8 +885,12 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
     // Mark this task as performed...
     result.MarkTask(task_id, task_quality, taskctx.GetTaskValue());
 
+    double old_bonus = result.GetAddBonus() + result.GetMultBonus();
+    
     // And lets process it!
     DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, task_quality, task_cnt, i, result);
+    
+    result.AddTaskBonus(task_id, result.GetAddBonus() + result.GetMultBonus() - old_bonus);
     
     // Mark this reaction as occuring...
     result.MarkReaction(cur_reaction->GetID());

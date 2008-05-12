@@ -52,6 +52,9 @@
 #ifndef tDataManager_h
 #include "tDataManager.h"
 #endif
+#ifndef tMatrix_h
+#include "tMatrix.h"
+#endif
 #ifndef nGeometry_h
 #include "nGeometry.h"
 #endif
@@ -236,6 +239,11 @@ private:
   int num_resamplings;
   int num_failedResamplings;
   
+  // Functional Overlap @MRR
+  // Total number of organisms with functional overlap detected
+  tMatrix<int> org_func_overlap_tasks;  // num_tasks x [<=10%, (10,20%] ... 100%]
+  // Total number of genomes with functional overlap detected
+  tMatrix<int> gen_func_overlap_tasks; 
   
   // State variables
   int last_update;
@@ -418,6 +426,11 @@ public:
   void IncResamplings() { ++num_resamplings; }  // @AWC 06/29/06
   void IncFailedResamplings() { ++num_failedResamplings; }  // @AWC 06/29/06
 
+  void IncGenFuncOverlap(const tArray<double>& task_probs); // @MRR
+  void IncOrgFuncOverlap(const tArray<double>& task_probs); // @MRR
+  tMatrix<int>& GetGenFuncOverlap() {return gen_func_overlap_tasks;} // @MRR
+  tMatrix<int>& GetOrgFuncOverlap() {return org_func_overlap_tasks;} // @MRR
+  
   void CalcEnergy();
   void CalcFidelity();
 

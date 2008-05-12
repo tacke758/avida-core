@@ -78,6 +78,8 @@ class cPhenPlastGenotype
     double m_max_fit_freq;
     double m_min_fit_freq;
     double m_min_fitness;
+    tArray<int> m_phen_task;   // How many phenotypes are performing a task?
+    tArray<double> m_task_prob; // What is the probability of a phenotype performing a task?
     
     void Process(cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx);
 
@@ -97,6 +99,7 @@ class cPhenPlastGenotype
     double GetMaximumFrequency() const  { return m_max_freq; }
     double GetMaximumFitnessFrequency() const {return m_max_fit_freq;}
     double GetMinimumFitnessFrequency() const {return m_min_fit_freq;}
+    tArray<double> GetTaskProbs() const {return m_task_prob;}
     const cPlasticPhenotype* GetPlasticPhenotype(int num) const;
     const cPlasticPhenotype* GetMostLikelyPhenotype() const;
     const cPlasticPhenotype* GetHighestFitnessPhenotype() const;

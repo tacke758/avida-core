@@ -23,19 +23,29 @@
  */
 
 #include "cPhenPlastGenotype.h"
+#include "cEnvironment.h"
+
 #include <iostream>
 #include <cmath>
 
-cPhenPlastGenotype::cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cWorld* world, cAvidaContext& ctx)
-: m_genome(in_genome), m_num_trials(num_trials), m_world(world)
+cPhenPlastGenotype::cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cWorld* world, cAvidaContext& ctx): 
+m_genome(in_genome), 
+m_num_trials(num_trials),
+m_world(world), 
+m_phen_task(m_world->GetEnvironment().GetNumTasks()),
+m_task_prob(world->GetEnvironment().GetNumTasks())
 {
   cCPUTestInfo test_info;
   test_info.UseRandomInputs(true);
   Process(test_info, world, ctx);
 }
 
-cPhenPlastGenotype::cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cCPUTestInfo& test_info,  cWorld* world, cAvidaContext& ctx)
-: m_genome(in_genome), m_num_trials(num_trials), m_world(world)
+cPhenPlastGenotype::cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cCPUTestInfo& test_info,  cWorld* world, cAvidaContext& ctx): 
+m_genome(in_genome), 
+m_num_trials(num_trials),
+m_world(world),
+m_phen_task(m_world->GetEnvironment().GetNumTasks()),
+m_task_prob(world->GetEnvironment().GetNumTasks())
 {
   // Override input mode if more than one recalculation requested
   if (num_trials > 1)  
@@ -84,6 +94,9 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
   m_min_fit_freq    =   0.0;
   m_phenotypic_entropy = 0.0;
   m_min_fitness     = (*uit)->GetFitness();
+  m_phen_task.SetAll(0);
+  m_task_prob.SetAll(0.0);
+  
   while(uit != m_unique.end()){
     cPlasticPhenotype* this_phen = static_cast<cPlasticPhenotype*>(*uit);
     double fit = this_phen->GetFitness();
@@ -102,6 +115,13 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
     }
     m_avg_fitness += freq * fit;
     m_phenotypic_entropy -= freq * log(freq) / log(2.0);
+    
+    for (int k = 0; k < m_world->GetEnvironment().GetNumTasks(); k++){
+      if (this_phen->GetLastTaskCount()[k] > 0){
+        m_phen_task[k]++;
+        m_task_prob[k] += freq;
+      }
+    }
     ++uit;
   }
   

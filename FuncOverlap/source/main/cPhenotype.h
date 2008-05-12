@@ -112,6 +112,7 @@ private:
   int cur_num_errors;                         // Total instructions executed illeagally.
   int cur_num_donates;                        // Number of donations so far
   tArray<int> cur_task_count;                 // Total times each task was performed
+  tArray<double> cur_task_bonus;              // Bonuses received from each task
   tArray<int> eff_task_count;                 // Total times each task was performed (resetable during the life of the organism)
   tArray<double> cur_task_quality;            // Average (total?) quality with which each task was performed
   tArray<double> cur_task_value;              // Value with which this phenotype performs task
@@ -203,7 +204,8 @@ private:
   bool parent_true;      // Is this genome an exact copy of its parent's?
   bool parent_sex;       // Did the parent divide with sex?
   int  parent_cross_num; // How many corssovers did the parent do? 
-
+  tArray<int> parent_task_count;  //What tasks did the parent do?
+  
   // 6. Child information...
   bool copy_true;        // Can this genome produce an exact copy of itself?
   bool divide_sex;       // Was this child created with a sexual divide?
@@ -293,6 +295,7 @@ public:
   int GetCurNumErrors() const { assert(initialized == true); return cur_num_errors; }
   int GetCurNumDonates() const { assert(initialized == true); return cur_num_donates; }
   const tArray<int>& GetCurTaskCount() const { assert(initialized == true); return cur_task_count; }
+  const tArray<double>& GetCurTaskBonus() const { assert(initialized == true); return cur_task_bonus; }
   void ClearEffTaskCount() { assert(initialized == true); eff_task_count.SetAll(0); }
   const tArray<double> & GetCurTaskQuality() const { assert(initialized == true); return cur_task_quality; }
   const tArray<double> & GetCurTaskValue() const { assert(initialized == true); return cur_task_value; }
@@ -402,7 +405,9 @@ public:
   void SetCrossNum(int _cross_num) { cross_num = _cross_num; }
   void SetToDie() { to_die = true; }
   void SetToDelete() { to_delete = true; }
-
+  void SetCurTaskCount(int ndx, int value);
+  void SetCurTaskBonus(int ndx, double value);
+  
   void SetIsDonorCur() { is_donor_cur = true; } 
   void SetIsDonorRand() { SetIsDonorCur(); is_donor_rand = true; }
   void SetIsDonorKin() { SetIsDonorCur(); is_donor_kin = true; }

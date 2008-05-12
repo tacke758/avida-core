@@ -45,6 +45,7 @@
 #include "cLineage.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
+#include "cPhenPlastGenotype.h"
 #include "cPopulationCell.h"
 #include "cProbSchedule.h"
 #include "cResource.h"
@@ -277,6 +278,62 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   // This needs to be done before the parent goes into the birth chamber
   // or the merit doesn't get passed onto the child correctly
   cPhenotype& parent_phenotype = parent_organism.GetPhenotype();
+  
+  //@MRR To remove functional overlap benefits, we're going to need
+  //to test new phenotypes a number of times through the test CPU
+  //to make sure they are not dependent on environmental inputs
+  //Execute only if this option is enabled.
+  //func_overlap_mode  0=Disabled, 1=Detect Only, 2=Remove Bonuses
+  int func_overlap_mode = m_world->GetConfig().FUNC_OVERLAP_MODE.Get();
+  int func_overlap_trials = m_world->GetConfig().FUNC_OVERLAP_TRIALS.Get();
+  if ( func_overlap_mode > 0 && func_overlap_trials > 0){
+    tArray<int> parent_tasks = parent_phenotype.GetCurTaskCount();
+    tArray<int> grandparent_tasks = parent_phenotype.GetLastTaskCount();
+    tArray<int> task_delta(m_world->GetEnvironment().GetNumTasks());
+    task_delta.SetAll(0);
+    bool new_tasks;  //Do we have new tasks being performed?
+    for (int k = 0; k < parent_tasks.GetSize(); k++){
+      if (parent_tasks[k] && !grandparent_tasks[k]){
+        task_delta[k] = 1;
+        new_tasks = true;
+      }
+    }
+    if (new_tasks){
+      tArray<int> task_undos(m_world->GetEnvironment().GetNumTasks());
+      task_undos.SetAll(0);
+      bool undo_tasks = false;  //Do we need to remove task bonuses?
+      cPhenPlastGenotype ppg(parent_organism.GetGenome(), m_world->GetConfig().FUNC_OVERLAP_TRIALS.Get(), m_world, ctx);
+      tArray<double> task_probs = ppg.GetTaskProbs();
+      for (int k = 0; k < task_delta.GetSize(); k++){
+        if (task_delta[k] && task_probs[k] < 1.0){
+          task_undos[k] = 1;
+          undo_tasks = true;
+        }
+      }
+      
+      //If this organism is the first of its genotype to demonstrate new tasks, record it
+      if (parent_organism.GetGenotype()->GetFuncOverlap() == NULL){
+        parent_organism.GetGenotype()->GetFuncOverlap() = new tArray<double>(task_probs);  //cGenotype responsible for deleting
+        m_world->GetStats().IncGenFuncOverlap(task_probs);
+      }
+      m_world->GetStats().IncOrgFuncOverlap(task_probs);
+      
+      if (undo_tasks && func_overlap_mode > 1){  //If we are actually going to undo merit bonuses
+        double remove_bonus = 0.0;
+        tArray<double> task_bonuses = parent_phenotype.GetCurTaskBonus();
+        for (int k = 0; k < task_undos.GetSize(); k++)
+          if (task_undos[k]){
+            remove_bonus += task_bonuses[k];
+            parent_phenotype.SetCurTaskCount(k,0);
+            parent_phenotype.SetCurTaskBonus(k,0);
+          }
+        parent_phenotype.SetCurBonus( parent_phenotype.GetCurBonus() - remove_bonus);
+        
+        assert(parent_phenotype.GetCurBonus() >= 0.0);
+      }
+    }
+  }
+  
   parent_phenotype.DivideReset(parent_organism.GetGenome());
   
   birth_chamber.SubmitOffspring(ctx, child_genome, parent_organism, child_array, merit_array);

@@ -55,6 +55,7 @@ cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   , species(NULL)
   , next(NULL)
   , prev(NULL)
+  , m_func_overlap(NULL)
 {
 }
 
@@ -68,6 +69,9 @@ cGenotype::~cGenotype()
   num_organisms = -1;
   total_organisms = -1;
 
+  if (!m_func_overlap)
+    delete m_func_overlap;
+  
   next = NULL;
   prev = NULL;
 }

@@ -35,6 +35,7 @@ cReactionResult::cReactionResult(const int num_resources,
   , tasks_done(num_tasks)
   , tasks_quality(num_tasks)
   , tasks_value(num_tasks)
+  , task_reward_bonus(num_tasks)
   , reactions_triggered(num_reactions)
   , reaction_add_bonus(num_reactions)
   , energy_add(0.0)
@@ -58,6 +59,7 @@ void cReactionResult::ActivateReaction()
   tasks_done.SetAll(false);
   tasks_quality.SetAll(0.0);
   tasks_value.SetAll(0.0);
+  task_reward_bonus.SetAll(0.0);
   reactions_triggered.SetAll(false);
   reaction_add_bonus.SetAll(0.0);
 
@@ -181,3 +183,13 @@ double cReactionResult::TaskValue(int id)
 	return tasks_value[id];
 }
 
+double cReactionResult::GetTaskBonus(int id)
+{
+  if (GetActive() == false) return 0.0;
+  return task_reward_bonus[id];
+}
+
+void cReactionResult::AddTaskBonus(int id, double bonus)
+{
+    task_reward_bonus[id] += bonus;
+}

@@ -137,6 +137,13 @@ cStats::cStats(cWorld* world)
   task_last_max_quality.SetAll(0);
   task_exe_count.SetAll(0);
 
+  //@MRR Functional Overlap
+  org_func_overlap_tasks.Resize(num_tasks, 11);
+  org_func_overlap_tasks.SetAll(0);
+  gen_func_overlap_tasks.Resize(num_tasks, 11);
+  gen_func_overlap_tasks.SetAll(0);
+  
+  
 #if INSTRUCTION_COUNT
   sum_exe_inst_array.Resize(m_world->GetNumInstructions());
   ZeroInst();
@@ -1079,4 +1086,12 @@ void cStats::PrintPredicatedMessages(const cString& filename)
     out << " ";
   }
   df.Endl();  
+}
+
+void cStats::IncGenFuncOverlap(const tArray<double>& p)
+{
+}
+
+void cStats::IncOrgFuncOverlap(const tArray<double>& p)
+{
 }

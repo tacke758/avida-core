@@ -2598,6 +2598,48 @@ public:
 };
 
 
+class cActionPrintFuncOverlapData : public cAction
+{
+private:
+  cString m_file_prefix;
+  bool    m_obs_level_gen;  //True = genome
+  
+public:
+  cActionPrintFuncOverlapData(cWorld* world, const cString& args) : cAction(world, args)
+  {
+    cString largs(args);
+    m_file_prefix   = (largs.GetSize()) ? largs.PopWord() : "func_overlap";
+    m_obs_level_gen = (largs.GetSize() && largs.PopWord().ToUpper() == "GEN") ?  true : false;
+  }
+  
+  static const cString GetDescription() { return "Arguments: file-prefix[=func_overlap], gen/org=[gen]";}
+  
+  void Process(cAvidaContext& ctx)
+  {
+    if (ctx.GetAnalyzeMode()){ // We're in analyze mode
+      m_world->GetDriver().NotifyComment("cActionPrintFuncOverlapData: Not available in analyze mode.");
+      return;
+    }
+    else{ // We're in run mode
+      cString this_path = m_file_prefix + cString(m_world->GetStats().GetUpdate()) + cString(".dat");
+      ofstream& fot = m_world->GetDataFileOFStream(this_path);
+      tMatrix<int>& mtx = (m_obs_level_gen) ? m_world->GetStats().GetGenFuncOverlap() : m_world->GetStats().GetOrgFuncOverlap();
+      fot << "# Functional Overlap w/ Environmental Tasks (Cumulative, ObsLevel=";
+      if (m_obs_level_gen = true)
+        fot << "GENOTYPE";
+      else
+        fot << "ORGANISM";
+      fot << ")\n"
+          << "# Task.N  (0..10%), [10..20%), [20,30%) ... [90,100%), [100%]" << endl;
+      for (int r = 0; r < mtx.GetNumRows(); r++){
+        fot << r << " ";
+        for (int c = 0; c < mtx.GetNumCols(); c++)
+          fot << mtx.ElementAt(r,c) << " ";
+        fot << endl;
+      }
+    }
+  }
+};
 
 
 void RegisterPrintActions(cActionLibrary* action_lib)
@@ -2625,7 +2667,8 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintSenseData>("PrintSenseData");
   action_lib->Register<cActionPrintSenseExeData>("PrintSenseExeData");
   action_lib->Register<cActionPrintSleepData>("PrintSleepData");
-
+  action_lib->Register<cActionPrintFuncOverlapData>("PrintFuncOverlapData");
+  
   // Population Out Files
   action_lib->Register<cActionPrintPhenotypeData>("PrintPhenotypeData");
   action_lib->Register<cActionPrintPhenotypeStatus>("PrintPhenotypeStatus");

@@ -43,6 +43,7 @@ cPhenotype::cPhenotype(cWorld* world)
   : m_world(world)
   , initialized(false)
   , cur_task_count(m_world->GetEnvironment().GetNumTasks())
+  , cur_task_bonus(m_world->GetEnvironment().GetNumTasks())
   , eff_task_count(m_world->GetEnvironment().GetNumTasks())
   , cur_task_quality(m_world->GetEnvironment().GetNumTasks())  
   , cur_task_value(m_world->GetEnvironment().GetNumTasks())  
@@ -59,6 +60,7 @@ cPhenotype::cPhenotype(cWorld* world)
   , last_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())  
   , last_inst_count(world->GetHardwareManager().GetInstSet().GetSize())
   , last_sense_count(m_world->GetStats().GetSenseSize())
+ , parent_task_count(m_world->GetEnvironment().GetNumTasks())
 {
 }
 
@@ -100,7 +102,8 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
   div_type                 = in_phen.div_type;          
   
   // 2. These are "in progress" variables, updated as the organism operates
-  cur_bonus                = in_phen.cur_bonus;                           
+  cur_bonus                = in_phen.cur_bonus;        
+  cur_task_bonus           = in_phen.cur_task_bonus;
   cur_energy_bonus         = in_phen.cur_energy_bonus;                   
   cur_num_errors           = in_phen.cur_num_errors;                         
   cur_num_donates          = in_phen.cur_num_donates;                       
@@ -201,6 +204,7 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
   parent_true             = in_phen.parent_true;     
   parent_sex              = in_phen.parent_sex;      
   parent_cross_num        = in_phen.parent_cross_num; 
+  parent_task_count       = in_phen.parent_task_count;
 
   // 6. Child information...
   copy_true               = in_phen.copy_true;       
@@ -278,6 +282,7 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
 
   // Initialize current values, as neeeded.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_task_bonus.SetAll(0.0);
   cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
@@ -307,7 +312,7 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   last_num_donates          = parent_phenotype.last_num_donates;
   last_task_count           = parent_phenotype.last_task_count;
   last_task_quality         = parent_phenotype.last_task_quality;
-  last_task_value			= parent_phenotype.last_task_value;
+  last_task_value			      = parent_phenotype.last_task_value;
   last_reaction_count       = parent_phenotype.last_reaction_count;
   last_reaction_add_reward  = parent_phenotype.last_reaction_add_reward;
   last_inst_count           = parent_phenotype.last_inst_count;
@@ -372,6 +377,8 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   parent_true   = parent_phenotype.copy_true;
   parent_sex    = parent_phenotype.divide_sex;
   parent_cross_num    = parent_phenotype.cross_num;
+  parent_task_count   = parent_phenotype.last_task_count;
+  
   to_die = false;
   to_delete = false;
 
@@ -414,6 +421,7 @@ void cPhenotype::SetupInject(const cGenome & _genome)
 
   // Initialize current values, as neeeded.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_task_bonus.SetAll(0.0);
   cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
@@ -505,6 +513,7 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   parent_true   = true;
   parent_sex    = false;
   parent_cross_num    = 0;
+  parent_task_count.SetAll(0);
   to_die = false;
   to_delete = false;
 
@@ -568,6 +577,7 @@ void cPhenotype::SetupInject(const cGenome & _genome)
 
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_task_bonus.SetAll(0.0);
   cpu_cycles_used = 0;
   cur_energy_bonus = 0.0;
   cur_num_errors  = 0;
@@ -710,6 +720,7 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
 
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_task_bonus.SetAll(0.0);
   cpu_cycles_used = 0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
@@ -834,6 +845,7 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
 
   // Initialize current values, as neeeded.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
+  cur_task_bonus.SetAll(0.0);
   cpu_cycles_used = 0;
   cur_num_errors  = 0;
   cur_num_donates  = 0;
@@ -925,6 +937,7 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   parent_true   = clone_phenotype.copy_true;
   parent_sex    = clone_phenotype.divide_sex;
   parent_cross_num    = clone_phenotype.cross_num;
+  parent_task_count = clone_phenotype.parent_task_count;
   to_die = false;
   to_delete = false;
 
@@ -978,6 +991,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
     return false;  // Nothing happened.
   }
 
+  
   // Update the phenotype with the results...
   // Start with updating task and reaction counters
   for (int i = 0; i < num_tasks; i++) {
@@ -998,6 +1012,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
     if (result.TaskQuality(i) > 0) cur_task_quality[i]+= result.TaskQuality(i) * refract_factor;
     cur_task_value[i] = result.TaskValue(i);
     cur_task_time[i] = cur_update_time; // Find out time from context
+    cur_task_bonus[i] += result.GetTaskBonus(i);  // @MRR, the merit bonus received from performing this task
   }
 
   for (int i = 0; i < num_reactions; i++) {
@@ -1008,6 +1023,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   // Update the merit bonus
   cur_bonus *= result.GetMultBonus();
   cur_bonus += result.GetAddBonus();
+
   
   // Update the energy bonus
   cur_energy_bonus += result.GetAddEnergy();
@@ -1129,6 +1145,9 @@ bool cPhenotype::SaveState(ofstream& fp)
   fp << parent_true         << " ";
   fp << parent_sex          << " ";
   fp << parent_cross_num    << " ";
+  for (int i = 0; i < parent_task_count.GetSize(); i++) {
+    fp << parent_task_count[i] << " ";
+  }
 
   fp << copy_true           << " ";
   fp << divide_sex          << " ";
@@ -1237,7 +1256,10 @@ bool cPhenotype::LoadState(ifstream & fp)
   fp >> parent_true;
   fp >> parent_sex;
   fp >> parent_cross_num;
-
+  for (int i = 0; i < parent_task_count.GetSize(); i++) {
+    fp >> parent_task_count[i];
+  }
+  
   fp >> copy_true;
   fp >> divide_sex;
   fp >> mate_select_id;
@@ -1599,6 +1621,19 @@ void cPhenotype::TrialDivideReset(const cGenome & _genome)
 
   if (m_world->GetConfig().GENERATION_INC_METHOD.Get() == GENERATION_INC_BOTH) generation++;
 }
+
+
+void cPhenotype::SetCurTaskCount(int ndx, int value) 
+{ 
+  assert(ndx < m_world->GetEnvironment().GetNumTasks());
+  cur_task_count[ndx] = value; 
+}
+void cPhenotype::SetCurTaskBonus(int ndx, double value) 
+{ 
+  assert(ndx < m_world->GetEnvironment().GetNumTasks()); 
+  cur_task_bonus[ndx] = value; 
+};
+
 
 // C O M P A R I S O N    O P E R A T O R S
 

@@ -103,6 +103,8 @@ private:
   cDoubleSum tmp_sum_merit;
   cDoubleSum tmp_sum_fitness;
 
+  // @MRR Functional Overlap Tracking
+  tArray<double>* m_func_overlap;  // Task functional overlap
   
   void CalcTestStats(cAvidaContext& ctx) const;
   
@@ -233,6 +235,8 @@ public:
   int GetNumOrganisms()     { return num_organisms; }
   int GetTotalOrganisms()   { return total_organisms; }
   int GetTotalParasites()   { return total_parasites; }
+  
+  tArray<double>*& GetFuncOverlap() { return m_func_overlap; }  // @MRR
 };
 
 
