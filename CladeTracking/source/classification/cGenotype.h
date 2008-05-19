@@ -33,6 +33,9 @@
 #ifndef cGenome_h
 #include "cGenome.h"
 #endif
+#ifndef cGenotype_AnalysisData_h
+#include "cGenotype_AnalysisData.h"
+#endif
 #ifndef cGenotype_BirthData_h
 #include "cGenotype_BirthData.h"
 #endif
@@ -51,7 +54,8 @@ class cWorld;
 class cGenotype {
 private:
   friend class cClassificationManager;
-
+  friend class cGenotype_AnalysisData;  //Needed to make on-demand recalculations in cGenotype_AnalysisData
+  
   cWorld* m_world;
   cGenome genome;
   cString name;
@@ -65,7 +69,8 @@ private:
 
   mutable cGenotype_TestData test_data;
   cGenotype_BirthData birth_data;
-
+ // cGenotype_AnalysisData analysis_data;
+  
   // Statistical info
 
   int num_organisms;

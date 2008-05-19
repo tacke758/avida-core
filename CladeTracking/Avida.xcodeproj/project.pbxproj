@@ -202,6 +202,8 @@
 		70B651B70BEA9AEC002472ED /* unit-tests in CopyFiles */ = {isa = PBXBuildFile; fileRef = 70B6514C0BEA6FAD002472ED /* unit-tests */; };
 		70DCAC9C097AF7C0002F8733 /* primitive.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC9B097AF7C0002F8733 /* primitive.cc */; };
 		70EFD6600D975B6E00FAD32A /* cConstBurstSchedule.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70EFD65F0D975B5E00FAD32A /* cConstBurstSchedule.cc */; };
+		B41B97C50DE1FD370073450C /* cGenotype_AnalysisData.h in Headers */ = {isa = PBXBuildFile; fileRef = B41B97C30DE1FD370073450C /* cGenotype_AnalysisData.h */; };
+		B41B98000DE206720073450C /* cGenotype_AnalysisData.cc in Sources */ = {isa = PBXBuildFile; fileRef = B41B97C40DE1FD370073450C /* cGenotype_AnalysisData.cc */; };
 		B4FA258A0C5EB65E0086D4B5 /* cPlasticPhenotype.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4FA25810C5EB6510086D4B5 /* cPlasticPhenotype.cc */; };
 		B4FA25A90C5EB7880086D4B5 /* cPhenPlastGenotype.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4FA259E0C5EB7600086D4B5 /* cPhenPlastGenotype.cc */; };
 		B516AF840C91E2D400023D53 /* cDemeCellEvent.cc in Sources */ = {isa = PBXBuildFile; fileRef = B516AF790C91E24600023D53 /* cDemeCellEvent.cc */; };
@@ -839,6 +841,8 @@
 		70F7DE76092967A8009E311D /* cGenotypeBatch.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cGenotypeBatch.h; sourceTree = "<group>"; };
 		70F9FD990C4E89C40083B788 /* tAutoRelease.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tAutoRelease.h; sourceTree = "<group>"; };
 		70FB86A908BFAFEC00BDF589 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		B41B97C30DE1FD370073450C /* cGenotype_AnalysisData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cGenotype_AnalysisData.h; sourceTree = "<group>"; };
+		B41B97C40DE1FD370073450C /* cGenotype_AnalysisData.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cGenotype_AnalysisData.cc; sourceTree = "<group>"; };
 		B4FA25800C5EB6510086D4B5 /* cPhenPlastGenotype.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cPhenPlastGenotype.h; sourceTree = "<group>"; };
 		B4FA25810C5EB6510086D4B5 /* cPlasticPhenotype.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cPlasticPhenotype.cc; sourceTree = "<group>"; };
 		B4FA25820C5EB6510086D4B5 /* cPlasticPhenotype.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cPlasticPhenotype.h; sourceTree = "<group>"; };
@@ -1283,6 +1287,8 @@
 		70F7D8C8092546DC009E311D /* classification */ = {
 			isa = PBXGroup;
 			children = (
+				B41B97C30DE1FD370073450C /* cGenotype_AnalysisData.h */,
+				B41B97C40DE1FD370073450C /* cGenotype_AnalysisData.cc */,
 				705333E5092A4B7C006BD186 /* cLineage.cc */,
 				705333E6092A4B7C006BD186 /* cLineage.h */,
 				70533363092A3DF4006BD186 /* cInjectGenotype_BirthData.h */,
@@ -1669,6 +1675,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A57A4000D6B954D00FC54C7 /* cProbDemeProbSchedule.h in Headers */,
+				B41B97C50DE1FD370073450C /* cGenotype_AnalysisData.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1817,7 +1824,6 @@
 		DCC30C4D0762532C008F7A48 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 702442D70859E0B00059BD9B /* Build configuration list for PBXProject "Avida" */;
-			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 0;
 			mainGroup = DCC30C490762532C008F7A48;
 			productRefGroup = DCC3164E07626CF3008F7A48 /* Products */;
@@ -2020,6 +2026,7 @@
 				70A778390D69D5CA00735F1E /* cDemeProbSchedule.cc in Sources */,
 				2A57A3FF0D6B954D00FC54C7 /* cProbDemeProbSchedule.cc in Sources */,
 				70EFD6600D975B6E00FAD32A /* cConstBurstSchedule.cc in Sources */,
+				B41B98000DE206720073450C /* cGenotype_AnalysisData.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
