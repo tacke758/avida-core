@@ -274,8 +274,8 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
       parent->RemoveOffspringGenotype();
       
       // Test to see if we need to update the coalescent genotype.
-      const int new_coal = m_genotype_ctl->UpdateCoalescent();
-      m_world->GetStats().SetCoalescentGenotypeDepth(new_coal);
+      const cGenotype* new_coal = m_genotype_ctl->UpdateCoalescent();
+      m_world->GetStats().SetCoalescentGenotype(new_coal);
       
       if (parent->GetNumOrganisms() == 0) {
         // Regardless, run RemoveGenotype on the parent.
@@ -287,8 +287,8 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
       parent2->RemoveOffspringGenotype();
       
       // Test to see if we need to update the coalescent genotype.
-      const int new_coal = m_genotype_ctl->UpdateCoalescent();
-      m_world->GetStats().SetCoalescentGenotypeDepth(new_coal);
+      const cGenotype* new_coal = m_genotype_ctl->UpdateCoalescent();
+      m_world->GetStats().SetCoalescentGenotype(new_coal);
       
       if (parent2->GetNumOrganisms() == 0) {
         // Regardless, run RemoveGenotype on the parent.

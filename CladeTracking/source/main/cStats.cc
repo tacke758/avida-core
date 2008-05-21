@@ -84,7 +84,10 @@ cStats::cStats(cWorld* world)
   , dom_abundance(0)
   , dom_gene_depth(-1)
   , dom_sequence("")
+  , coal_genotype(NULL)
+  , coal_genotype_id(-1)
   , coal_depth(0)
+  , coal_time(-1)
   , num_births(0)
   , num_deaths(0)
   , num_breed_in(0)
@@ -231,6 +234,34 @@ cStats::cStats(cWorld* world)
   SetupPrintDatabase();
 }
 
+/*
+ * cStats:SetCoalescentGenotype
+ *
+ * Set the current coalescent genotype.  All updates handling
+ * information about this genotype in cStats should be set by this 
+ * method in order to maintain consistancy throughout the cStats object.
+ * If the genotype pointer is NULL, then set the genotype statistics
+ * to their default (invalid) values.  If the coalescent genotype is
+ * ID is identical to the current one, do nothing.
+ * @MRR May 2008
+ *
+*/
+void cStats::SetCoalescentGenotype(const cGenotype* gen)
+{
+  if (gen != NULL && gen->GetID() != coal_genotype_id){   
+    coal_genotype = gen;
+    coal_genotype_id = gen->GetID();
+    coal_depth = gen->GetDepth();
+    coal_time  = GetUpdate();
+  }
+  else{
+    coal_genotype = NULL;
+    coal_genotype_id = -1;
+    coal_depth       = -1;
+    coal_time        = -1;
+  }
+}
+
 void cStats::SetupPrintDatabase()
 {
   // Load in all the keywords, descriptions, and associated functions for
@@ -248,6 +279,8 @@ void cStats::SetupPrintDatabase()
   data_manager.Add("richness",        "Number of Different Genotypes (Richness)", &cStats::GetNumGenotypes);
   data_manager.Add("eveness",         "Equitability of Genotype Distribution (Evenness)", &cStats::GetEvenness);
   data_manager.Add("coal_depth",      "Depth of Coalescent Genotype", &cStats::GetCoalescentDepth);
+  data_manager.Add("coal_time",       "Time of Most Recent Coalescence", &cStats::GetCoalescentTime);
+  data_manager.Add("coal_gen_id",     "Genotype ID of Most Recent Common Ancestor", &cStats::GetCoalescentGenotypeID);
   data_manager.Add("num_resamplings",  "Total Number of resamplings this time step", &cStats::GetResamplings);
   data_manager.Add("num_failedResamplings",  "Total Number of divide commands that reached the resampling hard-cap this time step", &cStats::GetFailedResamplings);
 

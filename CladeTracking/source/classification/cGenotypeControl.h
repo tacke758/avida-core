@@ -65,7 +65,7 @@ public:
   void InsertHistoric(cGenotype & in_genotype);
   int GetHistoricCount() { return historic_count; }
 
-  int UpdateCoalescent();
+  const cGenotype* UpdateCoalescent();
 
   inline int GetSize() const { return size; }
   inline cGenotype * GetBest() const { return best; }

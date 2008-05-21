@@ -174,7 +174,10 @@ private:
   int dom_abundance;
   int dom_gene_depth;
   cString dom_sequence;
+  const cGenotype* coal_genotype;
+  int coal_genotype_id;
   int coal_depth;
+  int coal_time;
 
   // Dominant Parasite
   cInjectGenotype * dom_inj_genotype;
@@ -363,8 +366,12 @@ public:
   void SetDomInjSequence(const cString & in_inj_sequence) { dom_inj_sequence = in_inj_sequence; }
 
   void SetGenoMapElement(int i, int in_geno) { genotype_map[i] = in_geno; }
+  void SetCoalescentGenotypeID(int gid) {coal_genotype_id = gid;}
   void SetCoalescentGenotypeDepth(int in_depth) {coal_depth = in_depth;}
-
+  void SetCoalescentGenotypeTime(int in_time) {coal_time = in_time;}
+  void SetCoalescentGenotype(const cGenotype* in_genotype);
+  
+  
   inline void SetNumGenotypes(int new_genotypes);
   inline void SetNumCreatures(int new_creatures);
   inline void SetNumThreshSpecies(int new_thresh_species);
@@ -620,8 +627,10 @@ public:
   double GetSpeciesEntropy() const { return species_entropy; }
   double GetEnergy() const         { return energy; }
   double GetEvenness() const       { return entropy / Log(num_genotypes); }
-  int GetCoalescentDepth() const   { return coal_depth; }
-
+  int        GetCoalescentGenotypeID() const { return coal_genotype_id; }
+  int        GetCoalescentDepth()      const { return coal_depth;    }
+  int        GetCoalescentTime()       const { return coal_time;     } 
+  
   double GetAveThresholdAge() const { return sum_threshold_age.Average(); }
   double GetAveSpeciesAge() const { return sum_species_age.Average(); }
 

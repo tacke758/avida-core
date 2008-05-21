@@ -132,17 +132,17 @@ void cGenotypeControl::InsertHistoric(cGenotype & in_genotype)
 }
 
 
-int cGenotypeControl::UpdateCoalescent()
+const cGenotype* cGenotypeControl::UpdateCoalescent()
 {
   // Test to see if any updating needs to be done...
   // Don't update active coalescent genotype, or if there is more than
   // one offspring.
   if (coalescent != NULL && (coalescent->GetNumOrganisms() > 0 || coalescent->GetNumOffspringGenotypes() > 1)) {
-    return coalescent->GetDepth();
+    return coalescent;
   }
 
   // If there is no best, there is nothing to search through...
-  if (best == NULL) return -1;
+  if (best == NULL) return NULL;
 
   // Find the new point...
   cGenotype* test_gen = best;
@@ -162,7 +162,7 @@ int cGenotypeControl::UpdateCoalescent()
 
   coalescent = found_gen;
 
-  return coalescent->GetDepth();
+  return coalescent;
 }
 
 
