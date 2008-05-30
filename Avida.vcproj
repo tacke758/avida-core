@@ -1045,6 +1045,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cAnalyzeGenotypeTreeStats.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\analyze\cAnalyzeJobQueue.cc"
 				>
 			</File>
@@ -1146,6 +1150,10 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cDeme.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemeCellEvent.cc"
 				>
 			</File>
 			<File
@@ -1353,6 +1361,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cPhenPlastGenotype.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cPlasticPhenotype.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cPopulation.cc"
 				>
 			</File>
@@ -1485,7 +1501,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cThread.cc"
+				RelativePath=".\source\platform\cThread.cc"
 				>
 			</File>
 			<File
@@ -1522,6 +1538,10 @@
 			</File>
 			<File
 				RelativePath=".\source\actions\LandscapeActions.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\platform\PlatformExpert.cc"
 				>
 			</File>
 			<File
