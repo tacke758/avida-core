@@ -529,7 +529,7 @@ double cUMLModel::checkForScenarios()
 		if (s.startState >= 0) complete_bonus++;
 		
 		scenario_completion[i] = temp_bonus / complete_bonus;
-		scenarios[max_alt_set_id].utilityMap["Used"] = 0;
+		scenarios[i].utilityMap["Used"] = 0;
 
 				
 		if (s.alt_set_name != current_alt_set) { 
@@ -560,6 +560,8 @@ double cUMLModel::checkForScenarios()
 
 	
 	percent_scenario_complete = percent_scenario_complete/num_sets;
+	
+	//printScenarioUtility("test");
 		
 	return total_bonus;
 }
