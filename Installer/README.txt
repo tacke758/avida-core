@@ -1,6 +1,15 @@
-Avida 2.6
+Avida 2.8
 ----------------------------------------------------------------------
 Digital Evolution Laboratory at Michigan State University
+
+
+
+This is the text-based GUI version of avida.  All of Avida's in
+experiment functionality is available.  Note that Analyze mode within
+the viewer is currently under development and may not function as
+expected.  The command line package contains all experiment and
+analysis tools.
+
 
 
 
