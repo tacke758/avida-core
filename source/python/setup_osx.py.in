@@ -52,6 +52,7 @@ setup(
         '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/open.png',
         '${CMAKE_CURRENT_SOURCE_DIR}/AvidaGui2/closed.png',
         '${CMAKE_CURRENT_SOURCE_DIR}/default.workspace',
+        '${CMAKE_CURRENT_SOURCE_DIR}/documentation',
       ],
       # Strip symbols from libraries.
       #strip = True,

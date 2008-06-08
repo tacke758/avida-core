@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<head>
+<title>Recent change to Avida-ED</title>
+</head>
+<body>
+
+<h2>Recent changes to Avida-ED</h2>
+
+<p>
+Changes are listed by revision number.
+</p>
+
+
+<h4>Changes included in unreleased revision 2615M:</h4>
+<ul>
+  <li>
+  General: Added changelog and buglist. (Suggested by Robert Pennock.
+  Implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+      Implemented as "Help" menu items "Changes..." and "Known Bugs...".
+      Choosing either of these menu items will open a local web browser with a
+      corresponding page written in HTML. In Mac OS X, These pages are stored
+      in the folder "Avida-ED.app/Contents/Resources/documentation/".
+      </li>
+      <li>
+      To do (low priority): These pages are awfully bare; some navigation links
+      would be nice.  A keyboard shortcut to close the help window would be
+      nice. For editing and viewing docs, a keyboard shortcut to reload the
+      browser would be nice. Also, back and forward? History?
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+<h4>Changes included in unreleased revision 2597M:</h4>
+<ul>
+  <li>
+  Organism viewer: Demonstration of drag and drop from the organism viewer to the
+  freezer. (Suggested by Robert Pennock. Implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+      In the org view, drag and drop can start any time the pointer is within
+      the instruction circle of an organism of the right length. If the circle
+      turns green, you can click and drag. If the circle of a child organism
+      turns red, the organism is still too short.
+      </li>
+      <li>
+      Sometimes you can find points in the timeline at which a child organism
+      has the correct size but before the divide occurs. Drag and drop is
+      allowed here. This means that some pathological things can happen: the
+      child can be further altered, or the parent can alter itself; and the
+      version of the parent that you drag and drop will be the one you're
+      looking at right then. If you drag and drop later, you may get a
+      different version stored in the freezer.
+      </li>
+    </ul>
+  </li>
+  <li>
+  Organism viewer: Proof-of-concept tooltip help system for organism
+  instructions. (Implemented by Kaben Nanlohy.)
+  </li>
+    <ul>
+      <li>
+      A rollover "tooltip" mechanism is demonstrated when you place the mouse
+      pointer above an instruction and then wait. This mechanism is flaky, and
+      this flakiness might be a problem with Qt. We haven't found a way to fix
+      it. It might be better to just leave it out.
+      </li>
+    </ul>
+</ul>
+
+
+</body>
+</html>
