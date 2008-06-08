@@ -132,17 +132,41 @@ class pyGradientScaleView(QWidget):
     )
 
 # draw the number label for the midpoint
+    #p.drawText(
+    #  #w - self.s_right_margin - label_width,
+#   #   w/2 - self.s_right_margin - self.s_label_text_width,
+    #  w/2 - self.s_label_text_width/2,
+    #  self.s_top_margin,
+    #  self.s_label_text_width,
+    #  self.s_text_height,
+    #  #label_width,
+    #  #text_height,
+    #  Qt.AlignBottom | Qt.AlignCenter,
+    #  self.getLabelString((self.m_max_value-self.m_min_value)/2.0)
+    #)
+
+    drawable_width = w - self.s_left_margin - self.s_right_margin
+    leftish = self.s_left_margin + drawable_width/3 - self.s_label_text_width/2
+    rightish = self.s_left_margin + (2 * drawable_width/3) - self.s_label_text_width/2
+
     p.drawText(
-      #w - self.s_right_margin - label_width,
-#      w/2 - self.s_right_margin - self.s_label_text_width,
-      w/2 - self.s_label_text_width/2,
+      #w/2 - self.s_label_text_width/2,
+      leftish,
       self.s_top_margin,
       self.s_label_text_width,
       self.s_text_height,
-      #label_width,
-      #text_height,
       Qt.AlignBottom | Qt.AlignCenter,
-      self.getLabelString((self.m_max_value-self.m_min_value)/2.0)
+      self.getLabelString((self.m_max_value-self.m_min_value)/3.0)
+    )
+
+    p.drawText(
+      #w/2 - self.s_label_text_width/2,
+      rightish,
+      self.s_top_margin,
+      self.s_label_text_width,
+      self.s_text_height,
+      Qt.AlignBottom | Qt.AlignCenter,
+      self.getLabelString(2.0 * (self.m_max_value-self.m_min_value)/3.0)
     )
 
 
