@@ -227,8 +227,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="windowMinimize_WindowAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
-        <action name="helpContentsAction"/>
         <action name="helpIndexAction"/>
+        <action name="helpContentsAction"/>
+        <action name="helpChangesAction"/>
+        <action name="helpKnownBugsAction"/>
         <separator/>
         <action name="helpAboutAction"/>
     </item>
@@ -236,6 +238,25 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
 <toolbars>
 </toolbars>
 <customwidgets>
+    <customwidget>
+        <class>pyNewIconView</class>
+        <header location="global">1</header>
+        <sizehint>
+            <width>-1</width>
+            <height>0</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>0</hordata>
+            <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image1</pixmap>
+        <property type="0">3</property>
+        <property type="1">pyNewIconView</property>
+        <property type="3">-1</property>
+    </customwidget>
     <customwidget>
         <class>pyFreezerCtrl</class>
         <header location="global">1</header>
@@ -260,6 +281,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="4">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
@@ -399,27 +424,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="pyNavBarView"></property>
         <property type="-1">1</property>
-    </customwidget>
-    <customwidget>
-        <class>pyNewIconView</class>
-        <header location="global">1</header>
-        <sizehint>
-            <width>-1</width>
-            <height>0</height>
-        </sizehint>
-        <container>0</container>
-        <sizepolicy>
-            <hordata>0</hordata>
-            <verdata>0</verdata>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-        </sizepolicy>
-        <pixmap>image1</pixmap>
-        <property type="0">3</property>
-        <property type="1">pyNewIconView</property>
-        <property type="3">-1</property>
     </customwidget>
 </customwidgets>
 <actions>
@@ -657,7 +667,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <bool>true</bool>
         </property>
         <property name="text">
-            <string>Contents</string>
+            <string>&amp;Contents...</string>
         </property>
         <property name="menuText">
             <string>&amp;Contents...</string>
@@ -963,6 +973,28 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Open Highlighted Freezer Item</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>helpChangesAction</cstring>
+        </property>
+        <property name="text">
+            <string>Changes...</string>
+        </property>
+        <property name="menuText">
+            <string>Changes...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpKnownBugsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Known Bugs...</string>
+        </property>
+        <property name="menuText">
+            <string>Known Bugs...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -1070,12 +1102,6 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <slot>editCut()</slot>
     </connection>
     <connection>
-        <sender>editCopyAction</sender>
-        <signal>activated()</signal>
-        <receiver>pyEduWorkspaceView</receiver>
-        <slot>editCopy()</slot>
-    </connection>
-    <connection>
         <sender>editPasteAction</sender>
         <signal>activated()</signal>
         <receiver>pyEduWorkspaceView</receiver>
@@ -1135,10 +1161,19 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <receiver>pyEduWorkspaceView</receiver>
         <slot>fileOpenItemSlot()</slot>
     </connection>
+    <connection>
+        <sender>helpChangesAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>helpChanges()</slot>
+    </connection>
+    <connection>
+        <sender>helpKnownBugsAction</sender>
+        <signal>activated()</signal>
+        <receiver>pyEduWorkspaceView</receiver>
+        <slot>helpKnownBugs()</slot>
+    </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">pyEduWorkspaceView.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -1151,7 +1186,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>editUndo()</slot>
     <slot>editRedo()</slot>
     <slot>editCut()</slot>
-    <slot>editCopy()</slot>
+    <slot>helpChanges()</slot>
     <slot>editPaste()</slot>
     <slot>editFind()</slot>
     <slot>helpIndex()</slot>
@@ -1162,6 +1197,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     <slot>fileExportItemSlot()</slot>
     <slot>fileDeleteItemSlot()</slot>
     <slot>fileOpenItemSlot()</slot>
+    <slot>helpKnownBugs()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

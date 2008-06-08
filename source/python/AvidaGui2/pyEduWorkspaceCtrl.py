@@ -656,14 +656,27 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def helpIndex(self):
-    help_dialog = pyHelpScreenCtrl()
-    help_dialog.showDialog()
+    home = QDir("./documentation/index.html").absPath()
+    help_screen = pyHelpScreenCtrl(home, ".", None)
+    #help_dialog.showDialog()
+    help_screen.show()
+
+  def helpChanges(self):
+    home = QDir("./documentation/changes.html").absPath()
+    help_screen = pyHelpScreenCtrl(home, ".", None)
+    help_screen.show()
+
+  def helpKnownBugs(self):
+    home = QDir("./documentation/bugs.html").absPath()
+    help_screen = pyHelpScreenCtrl(home, ".", None)
+    help_screen.show()
 
   # public slot
 
   def helpContents(self):
-    help_dialog = pyHelpScreenCtrl()
-    help_dialog.showDialog()
+    pass
+    #help_dialog = pyHelpScreenCtrl()
+    #help_dialog.showDialog()
 
   # public slot
 
