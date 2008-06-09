@@ -88,20 +88,23 @@ class pyOrganismScopeCtrl(pyOrganismScopeView2):
       self.parseOrganismGenotypeSlot)
 
   def dragEnterEvent( self, e ):
-    e.acceptAction(True)
-
     freezer_item_list = QString()
     if ( QTextDrag.decode( e, freezer_item_list ) ) :
       freezer_item_list = str(e.encodedData("text/plain"))
-      freezer_item_names = freezer_item_list.split("\t")[1:]
-      if (len(freezer_item_names) > 1):
-         pass
+      if freezer_item_list.startswith('organism.'):
+        e.ignore()
       else:
-        freezer_item_name = freezer_item_names[0]
-        if freezer_item_name.endswith('.organism'):
-          e.accept()
+        freezer_item_names = freezer_item_list.split("\t")[1:]
+        if (len(freezer_item_names) > 1):
+          e.ignore()
         else:
-          pass
+          freezer_item_name = freezer_item_names[0]
+          if freezer_item_name.endswith('.organism'):
+            e.accept()
+          else:
+            e.ignore()
+    else:
+      e.ignore()
 
   def dropEvent( self, e ):
     freezer_item_list = QString()
