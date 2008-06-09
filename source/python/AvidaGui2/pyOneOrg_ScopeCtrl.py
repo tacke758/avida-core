@@ -3,7 +3,8 @@
 from pyOneOrg_ScopeView import pyOneOrg_ScopeView
 from pyTimeline import pyTimeline
 from descr import *
-import qt
+from qt import *
+#import qt
 import os
 
 class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
@@ -21,50 +22,50 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     # Use background color so timeline meter doesn't show up
     self.m_timeline.setFillColor(self.m_timeline.colorGroup().background())
 #    self.m_timeline.setScalePosition(pyTimeline.None)
-    self.m_timer = qt.QTimer()
-    self.m_next = qt.QTimer()
+    self.m_timer = QTimer()
+    self.m_next = QTimer()
     self.m_timer_interval = 100
 
     self.m_organism_scope_ctrl.m_timeline = self.m_timeline
 
     self.connect(
-      self.m_execution_step_slider, qt.SIGNAL("valueChanged(int)"),
+      self.m_execution_step_slider, SIGNAL("valueChanged(int)"),
       self.sliderValueChangedSlot)
     self.connect(
-      self.m_execution_step_slider, qt.SIGNAL("sliderMoved(int)"),
+      self.m_execution_step_slider, SIGNAL("sliderMoved(int)"),
       self.sliderMovedSlot)
 
     self.connect(
-      self.m_organism_scope_ctrl, qt.PYSIGNAL("gestationTimeChangedSig"),
+      self.m_organism_scope_ctrl, PYSIGNAL("gestationTimeChangedSig"),
       self.gestationTimeChangedSlot)
     self.connect(
-      self.m_organism_scope_ctrl, qt.PYSIGNAL("executionStepResetSig"),
+      self.m_organism_scope_ctrl, PYSIGNAL("executionStepResetSig"),
       self.executionStepResetSlot)
     self.connect(
-      self.m_organism_scope_ctrl, qt.PYSIGNAL("frameShownSig"),
+      self.m_organism_scope_ctrl, PYSIGNAL("frameShownSig"),
       self.m_organism_data_ctrl.frameShownSlot)
 
 
     self.connect(
-      self.m_analyze_controls_ctrl.m_rewind_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_rewind_btn, SIGNAL("clicked()"),
       self.rewindSlot)
     self.connect(
-      self.m_analyze_controls_ctrl.m_cue_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_cue_btn, SIGNAL("clicked()"),
       self.cueSlot)
     self.connect(
-      self.m_analyze_controls_ctrl.m_play_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_play_btn, SIGNAL("clicked()"),
       self.playSlot)
     self.connect(
-      self.m_analyze_controls_ctrl.m_pause_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_pause_btn, SIGNAL("clicked()"),
       self.pauseSlot)
     self.connect(
-      self.m_analyze_controls_ctrl.m_prev_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_prev_btn, SIGNAL("clicked()"),
       self.backSlot)
     self.connect(
-      self.m_analyze_controls_ctrl.m_next_btn, qt.SIGNAL("clicked()"),
+      self.m_analyze_controls_ctrl.m_next_btn, SIGNAL("clicked()"),
       self.advanceSlot)
 
-    self.connect(self.m_timer, qt.SIGNAL("timeout()"), self.advanceSlot)
+    self.connect(self.m_timer, SIGNAL("timeout()"), self.advanceSlot)
 
 
   def sliderValueChangedSlot(self, frame_number):
@@ -84,7 +85,7 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     self.m_execution_step_slider.setValue(execution_step)
     self.m_timeline.setValue(execution_step)
     # This may be redundant (I'm not sure). @kgn
-    self.m_execution_step_slider.emit(qt.SIGNAL("valueChanged(int)"),(execution_step,))
+    self.m_execution_step_slider.emit(SIGNAL("valueChanged(int)"),(execution_step,))
 
   def sliderMovedSlot(self, frame_number):
     descr("pyOneOrg_ScopeCtrl.sliderMovedSlot().")
@@ -129,3 +130,30 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     else:
       self.m_execution_step_slider.setValue(slider_value + 1)
       self.m_timeline.setValue(slider_value + 1)
+
+  def getOrganismPixmap(self):
+    "Return QPixmap of organism"
+    #height = self.m_organism_scope_ctrl.height()
+    # Hide the scrollbars so they aren't painted
+    #self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.hide()
+    #self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.hide()
+    pix = QPixmap.grabWidget(
+      self.m_organism_scope_ctrl,
+      0, 0,
+      self.m_organism_scope_ctrl.width(),
+      self.m_organism_scope_ctrl.height()
+    )
+    #self.m_petri_dish_ctrl.m_petri_dish_ctrl_h_scrollBar.show()
+    #self.m_petri_dish_ctrl.m_petri_dish_ctrl_v_scrollBar.show()
+    #scale_pix = QPixmap.grabWidget(self.m_gradient_scale_ctrl, 0, 0,
+    #                               self.m_gradient_scale_ctrl.width(),
+    #                               self.m_gradient_scale_ctrl.height())
+    #p = QPixmap(max(self.m_petri_dish_ctrl.m_canvas_view.width(),
+    #                self.m_gradient_scale_ctrl.width()),
+    #            dish_height + self.m_gradient_scale_ctrl.height())
+    #painter = QPainter(p)
+    #painter.drawPixmap(0, 0, dish_pix)
+    #painter.drawPixmap(0, dish_height, scale_pix)
+    #painter.end()
+    return pix
+
