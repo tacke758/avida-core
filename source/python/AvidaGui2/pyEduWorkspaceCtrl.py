@@ -546,7 +546,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def fileExportItemSlot(self):
     files2process = self.curr_sel_files.split("\t")
-    abs_dir = os.path.abspath(os.path.dirname(files2process[1]));
+    file_name = files2process[1]
+    abs_dir = os.path.abspath(os.path.dirname(file_name));
     if (os.path.exists(abs_dir) == False):
       initial_dir = os.path.expanduser("~")
       if os.path.exists(os.path.join(initial_dir,"Documents")):
@@ -555,7 +556,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         initial_dir = os.path.join(initial_dir,"My Documents")
     else:
       initial_dir = abs_dir
-    no_ext_name, ext = os.path.splitext(os.path.basename(files2process[1]))
+    no_ext_name, file_ext = os.path.splitext(os.path.basename(file_name))
     initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
   
     export_file_name = QFileDialog.getSaveFileName(
@@ -565,23 +566,23 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       "Export Item",
       "Export dish or organism")
     export_file = open(str(export_file_name), "w")
-    if (self.file_ext == '.full'):
-      files_in_full = os.listdir(self.file_name)
+    if (file_ext == '.full'):
+      files_in_full = os.listdir(file_name)
       for indiv_file_name in files_in_full:
       
         # Read each file, write the name and content of the file
         # into the export file
       
         if (not indiv_file_name.startswith('.')):
-          individual_file = open(os.path.join(self.file_name,indiv_file_name), "r")
-          export_file.write("*File: " + self.file_ext + ": " + indiv_file_name + "\n")
+          individual_file = open(os.path.join(file_name,indiv_file_name), "r")
+          export_file.write("*File: " + file_ext + ": " + indiv_file_name + "\n")
           lines = individual_file.readlines()
           for line in lines:
             export_file.write(line)
           individual_file.close()
     else:
-      individual_file = open(self.file_name, "r")
-      export_file.write("*File: " + self.file_ext + "\n")
+      individual_file = open(file_name, "r")
+      export_file.write("*File: " + file_ext + "\n")
       lines = individual_file.readlines()
       for line in lines:
         export_file.write(line)
