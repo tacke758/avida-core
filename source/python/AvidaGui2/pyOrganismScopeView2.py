@@ -70,6 +70,48 @@ class pyHead:
   def __init__(self):
     pass
 
+class pyItemDrag(QTextDrag):
+  def __init__(self, item_name, parent=None, name=None):
+      QStoredDrag.__init__(self, 'item name (QString)', parent, name)
+      self.setText(item_name)
+      descr(item_name)
+
+class pyCanvasInstructionCircle(QCanvasEllipse):
+  custom_rtti = 11*1
+  def __init__(self, canvas, index):
+    QCanvasEllipse.__init__(self, canvas)
+    self.index = index
+    self.setZ(4.)
+  def rtti(self):
+    return pyCanvasInstructionCircle.custom_rtti
+
+class pyCanvasGripCircle(QCanvasEllipse):
+  custom_rtti = 11*2
+  highlit_color = QColor(225, 252, 199)
+  nohighlight_color = QColor(252, 225, 199)
+  unhighlit_color = Qt.white
+  def __init__(self, canvas):
+    QCanvasEllipse.__init__(self, canvas)
+    self.setZ(0.)
+    self.setBrush(QBrush(pyCanvasGripCircle.unhighlit_color))
+  def rtti(self):
+    return pyCanvasGripCircle.custom_rtti
+
+class pyDynamicInstructionTip(QToolTip):
+  def __init__(self, canvas_view):
+    QToolTip.__init__(self, canvas_view.viewport())
+    self.canvas_view = canvas_view
+  def maybeTip(self, pos):
+    current_point = self.canvas_view.inverseWorldMatrix().map(pos)
+    items_beneath_point = self.canvas_view.canvas().collisions(current_point)
+    instruction_circles = [item for item in items_beneath_point if item.rtti() == pyCanvasInstructionCircle.custom_rtti]
+    if 0 < len(instruction_circles):
+      instruction_circle = instruction_circles[0]
+      s = QString( "This is pyCanvasInstructionCircle number %d" % instruction_circles[0].index )
+      world_pos = self.canvas_view.worldMatrix().map(QPoint(instruction_circle.x(), instruction_circle.y()))
+      r = QRect(world_pos.x(),world_pos.y(), instruction_circle.width(),instruction_circle.height())
+      self.tip(r, s)
+
 def checkDimensions(outer_diameter, n):
   print "checkDimensions(outer_diameter: %d, n: %d)" % (outer_diameter, n)
   sin_n = math.sin(math.pi/n)
@@ -85,6 +127,9 @@ class pyOrganismScopeView2(QCanvasView):
     print "pyOrganismScopeView2.__init__()..."
     QCanvasView.__init__(self,parent,name,fl)
     if not name: self.setName("pyOrganismScopeView2")
+
+    self.tip = pyDynamicInstructionTip(self)
+    self.viewport().setMouseTracking(True)
 
     self.setFrameShape(QScrollView.NoFrame)
     self.setFrameShadow(QScrollView.Plain)
@@ -105,7 +150,79 @@ class pyOrganismScopeView2(QCanvasView):
     self.m_parent_circle = pyCircle()
     self.m_child_circle = pyCircle()
 
+    self.m_parent_gripcircle_highlit = False
+    self.m_child_gripcircle_highlit = False
+
     self.reset()
+
+  def contentsMouseMoveEvent(self, e):
+    point = self.inverseWorldMatrix().map(e.pos())
+
+    if self.canvas() and (self.m_frames is not None):
+      can_highlight_child = (self.m_current_frame_number >= (self.m_frames.m_gestation_time - 1))
+      items = self.canvas().collisions(point)
+        
+      # highlighting of grip circles.
+      if (0 < len(items)) and self.m_parent_gripcircle is items[0]:
+        self.m_parent_gripcircle.setBrush(QBrush(pyCanvasGripCircle.highlit_color))
+        self.m_parent_gripcircle_highlit = True
+      elif self.m_parent_gripcircle_highlit:
+        self.m_parent_gripcircle.setBrush(QBrush(pyCanvasGripCircle.unhighlit_color))
+        self.m_parent_gripcircle_highlit = False
+
+      if (0 < len(items)) and self.m_child_gripcircle is items[0]:
+        displayed_genome_size = max(self.last_copied_instruction_cache[self.m_current_frame_number] + 1, self.m_parent_size)
+        child_genome_size = displayed_genome_size - self.m_parent_size
+
+        if child_genome_size == self.m_parent_size:
+          self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.highlit_color))
+        else:
+          self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.nohighlight_color))
+        self.m_child_gripcircle_highlit = True
+
+      elif self.m_child_gripcircle_highlit:
+        self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.unhighlit_color))
+        self.m_child_gripcircle_highlit = False
+        
+      self.m_canvas.update()
+
+  def contentsMousePressEvent(self,e): # QMouseEvent e
+    if e.button() != Qt.LeftButton: return
+    point = self.inverseWorldMatrix().map(e.pos())
+    if self.canvas() and (self.m_frames is not None):
+      items = self.canvas().collisions(point)
+        
+      genome = None
+
+      if (0 < len(items)) and self.m_parent_gripcircle is items[0]:
+        self.m_parent_gripcircle.setBrush(QBrush(pyCanvasGripCircle.highlit_color))
+        self.m_parent_gripcircle_highlit = True
+        genome = self.m_current_genome[0:self.m_parent_size]
+      elif self.m_parent_gripcircle_highlit:
+        self.m_parent_gripcircle.setBrush(QBrush(pyCanvasGripCircle.unhighlit_color))
+        self.m_parent_gripcircle_highlit = False
+
+      if (0 < len(items)) and self.m_child_gripcircle is items[0]:
+        displayed_genome_size = max(self.last_copied_instruction_cache[self.m_current_frame_number] + 1, self.m_parent_size)
+        child_genome_size = displayed_genome_size - self.m_parent_size
+
+        if child_genome_size == self.m_parent_size:
+          self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.highlit_color))
+          genome = self.m_current_genome[self.m_parent_size:displayed_genome_size]
+        else:
+          self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.nohighlight_color))
+        self.m_child_gripcircle_highlit = True
+
+      elif self.m_child_gripcircle_highlit:
+        self.m_child_gripcircle.setBrush(QBrush(pyCanvasGripCircle.unhighlit_color))
+        self.m_child_gripcircle_highlit = False
+        
+      self.m_canvas.update()
+
+      if genome:
+        print "genome:", genome
+        drag_holder = pyItemDrag('organism.' + genome, self)
+        drag_holder.dragCopy()
 
   def reset(self):
     print "pyOrganismScopeView2.reset()..."
@@ -125,6 +242,10 @@ class pyOrganismScopeView2(QCanvasView):
     if hasattr(self, "m_ihead_move_items_cache") and self.m_ihead_move_items_cache is not None:
       for item in self.m_ihead_move_items_cache:
         item.setCanvas(None)
+    if hasattr(self, "m_parent_gripcircle") and self.m_parent_gripcircle is not None:
+      self.m_parent_gripcircle.setCanvas(None)
+    if hasattr(self, "m_child_gripcircle") and self.m_child_gripcircle is not None:
+      self.m_child_gripcircle.setCanvas(None)
     if hasattr(self, "m_ihead_item") and self.m_ihead_item is not None:
       self.m_ihead_item.setCanvas(None)
       self.m_ihead_bg_item.setCanvas(None)
@@ -141,12 +262,19 @@ class pyOrganismScopeView2(QCanvasView):
       self.m_fhead_item.setCanvas(None)
       self.m_fhead_bg_item.setCanvas(None)
       self.m_fhead_text.setCanvas(None)
+    if hasattr(self, "m_parent_gripcircle") and self.m_parent_gripcircle is not None:
+      self.m_parent_gripcircle.setCanvas(None)
+    if hasattr(self, "m_child_gripcircle") and self.m_child_gripcircle is not None:
+      self.m_child_gripcircle.setCanvas(None)
 
     self.m_inst_pts = None
     self.m_inst_items = None
     self.m_inst_bg_items = None
     self.m_muts_items_cache = None
     self.m_ihead_move_items_cache = None
+
+    self.m_parent_gripcircle = None
+    self.m_child_gripcircle = None
 
     self.m_ihead_item = None
     self.m_ihead_bg_item = None
@@ -225,27 +353,30 @@ class pyOrganismScopeView2(QCanvasView):
 
       self.m_inst_pts = [pyInstructionPoint() for i in xrange(self.m_max_genome_size)]
       self.m_inst_items = [QCanvasText(self.m_canvas) for i in xrange(self.m_max_genome_size)]
-      self.m_inst_bg_items = [QCanvasEllipse(self.m_canvas) for i in xrange(self.m_max_genome_size)]
+      self.m_inst_bg_items = [pyCanvasInstructionCircle(self.m_canvas, i) for i in xrange(self.m_max_genome_size)]
       for item in self.m_inst_items:
         item.setFont(font)
         item.setColor(Qt.black)
         item.setTextFlags(Qt.AlignCenter)
-        item.setZ(4.)
+        item.setZ(5.)
       for item in self.m_inst_bg_items:
         item.setSize(text_height, text_height)
-        item.setZ(3.)
+        item.setZ(4.)
 
       self.m_muts_items_cache = []
+
+      self.m_parent_gripcircle = pyCanvasGripCircle(self.m_canvas)
+      self.m_child_gripcircle = pyCanvasGripCircle(self.m_canvas)
 
       if self.m_frames.m_ihead_info is not None:
         self.m_ihead_item = QCanvasEllipse(self.m_canvas)
         self.m_ihead_item.setSize(text_height + 6, text_height + 6)
-        self.m_ihead_item.setZ(1.)
+        self.m_ihead_item.setZ(2.)
         self.m_ihead_item.setBrush(QBrush(Qt.black))
 
         self.m_ihead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_ihead_bg_item.setSize(text_height + 6, text_height + 6)
-        self.m_ihead_bg_item.setZ(1.)
+        self.m_ihead_bg_item.setZ(2.)
         self.m_ihead_bg_item.setBrush(QBrush(Qt.white))
 
         self.m_ihead_text = QCanvasText(self.m_canvas)
@@ -253,17 +384,17 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_ihead_text.setColor(Qt.black)
         self.m_ihead_text.setTextFlags(Qt.AlignCenter)
         self.m_ihead_text.setText("i")
-        self.m_ihead_text.setZ(2.)
+        self.m_ihead_text.setZ(3.)
 
       if self.m_frames.m_rhead_info is not None:
         self.m_rhead_item = QCanvasEllipse(self.m_canvas)
         self.m_rhead_item.setSize(text_height + 2, text_height + 2)
-        self.m_rhead_item.setZ(1.)
+        self.m_rhead_item.setZ(2.)
         self.m_rhead_item.setBrush(QBrush(Qt.blue))
 
         self.m_rhead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_rhead_bg_item.setSize(text_height + 2, text_height + 2)
-        self.m_rhead_bg_item.setZ(1.)
+        self.m_rhead_bg_item.setZ(2.)
         self.m_rhead_bg_item.setBrush(QBrush(Qt.white))
 
         self.m_rhead_text = QCanvasText(self.m_canvas)
@@ -271,17 +402,17 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_rhead_text.setColor(Qt.blue)
         self.m_rhead_text.setTextFlags(Qt.AlignCenter)
         self.m_rhead_text.setText("r")
-        self.m_rhead_text.setZ(2.)
+        self.m_rhead_text.setZ(3.)
 
       if self.m_frames.m_whead_info is not None:
         self.m_whead_item = QCanvasEllipse(self.m_canvas)
         self.m_whead_item.setSize(text_height + 2, text_height + 2)
-        self.m_whead_item.setZ(1.)
+        self.m_whead_item.setZ(2.)
         self.m_whead_item.setBrush(QBrush(Qt.red))
 
         self.m_whead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_whead_bg_item.setSize(text_height + 2, text_height + 2)
-        self.m_whead_bg_item.setZ(1.)
+        self.m_whead_bg_item.setZ(2.)
         self.m_whead_bg_item.setBrush(QBrush(Qt.white))
 
         self.m_whead_text = QCanvasText(self.m_canvas)
@@ -289,17 +420,17 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_whead_text.setColor(Qt.red)
         self.m_whead_text.setTextFlags(Qt.AlignCenter)
         self.m_whead_text.setText("w")
-        self.m_whead_text.setZ(2.)
+        self.m_whead_text.setZ(3.)
 
       if self.m_frames.m_fhead_info is not None:
         self.m_fhead_item = QCanvasEllipse(self.m_canvas)
         self.m_fhead_item.setSize(text_height + 2, text_height + 2)
-        self.m_fhead_item.setZ(1.)
+        self.m_fhead_item.setZ(2.)
         self.m_fhead_item.setBrush(QBrush(Qt.darkGreen))
 
         self.m_fhead_bg_item = QCanvasEllipse(self.m_canvas)
         self.m_fhead_bg_item.setSize(text_height + 2, text_height + 2)
-        self.m_fhead_bg_item.setZ(1.)
+        self.m_fhead_bg_item.setZ(2.)
         self.m_fhead_bg_item.setBrush(QBrush(Qt.white))
 
         self.m_fhead_text = QCanvasText(self.m_canvas)
@@ -307,7 +438,7 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_fhead_text.setColor(Qt.darkGreen)
         self.m_fhead_text.setTextFlags(Qt.AlignCenter)
         self.m_fhead_text.setText("f")
-        self.m_fhead_text.setZ(2.)
+        self.m_fhead_text.setZ(3.)
 
       # XXX
       #if self.m_frames.m_ihead_moves is not None:
@@ -496,6 +627,18 @@ class pyOrganismScopeView2(QCanvasView):
         self.m_child_circle.setCenterX(self.m_child_circle.centerX() + 2 * self.m_instruction_spot_radius)
         self.m_child_circle.setOTheta(self.m_child_circle.oTheta() + math.pi)
 
+      # Update parent gripcircle position and size
+      self.m_parent_gripcircle.setX(self.m_parent_circle.centerX())
+      self.m_parent_gripcircle.setY(self.m_parent_circle.centerY())
+      self.m_parent_gripcircle.setSize(2*self.m_parent_circle.radius(), 2*self.m_parent_circle.radius())
+      self.m_parent_gripcircle.show()
+
+      # Update child gripcircle position and size
+      self.m_child_gripcircle.setX(self.m_child_circle.centerX())
+      self.m_child_gripcircle.setY(self.m_child_circle.centerY())
+      self.m_child_gripcircle.setSize(2*self.m_child_circle.radius(), 2*self.m_child_circle.radius())
+      self.m_child_gripcircle.show()
+
       ###
       muts_item_idx = 0
       for i in xrange(self.m_max_genome_size):
@@ -533,7 +676,7 @@ class pyOrganismScopeView2(QCanvasView):
               # Color it.
               #self.m_muts_items_cache[-1].setBrush(QBrush(Qt.green))
               # Place it low on the Z plane (behind other stuff)
-              self.m_muts_items_cache[-1].setZ(0.)
+              self.m_muts_items_cache[-1].setZ(1.)
 
             mut_item = self.m_muts_items_cache[muts_item_idx]
             mut_item.setX(x)
@@ -656,7 +799,10 @@ class pyOrganismScopeView2(QCanvasView):
           for i in range(bezier_pa.size() - 1):
             if len(self.m_ihead_move_items_cache) <= move_item_idx:
               self.m_ihead_move_items_cache.append(QCanvasLine(self.m_canvas))
-            line = self.m_ihead_move_items_cache[move_item_idx]
+              line = self.m_ihead_move_items_cache[move_item_idx]
+              line.setZ(0.5)
+            else:
+              line = self.m_ihead_move_items_cache[move_item_idx]
             line.setPoints(
               bezier_pa.point(i)[0], 
               bezier_pa.point(i)[1], 
