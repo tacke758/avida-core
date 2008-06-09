@@ -244,6 +244,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def __init__(self, parent = None, name = None, fl = 0):
     pyEduWorkspaceView.__init__(self,parent,name,fl)
+    self.help_screen = None
     # print "pyEduWorkspaceCtrl.__init__(): Not implemented yet"
 
   # public slot
@@ -657,26 +658,36 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def helpIndex(self):
     home = QDir("./documentation/index.html").absPath()
-    help_screen = pyHelpScreenCtrl(home, ".", None)
+    if self.help_screen is not None:
+      self.help_screen.setSource(home)
+    else:
+      self.help_screen = pyHelpScreenCtrl(home, ".", None)
     #help_dialog.showDialog()
-    help_screen.show()
+    self.help_screen.show()
 
   def helpChanges(self):
     home = QDir("./documentation/changes.html").absPath()
-    help_screen = pyHelpScreenCtrl(home, ".", None)
-    help_screen.show()
+    if self.help_screen is not None:
+      self.help_screen.setSource(home)
+    else:
+      self.help_screen = pyHelpScreenCtrl(home, ".", None)
+    self.help_screen.show()
 
   def helpKnownBugs(self):
     home = QDir("./documentation/bugs.html").absPath()
-    help_screen = pyHelpScreenCtrl(home, ".", None)
-    help_screen.show()
+    if self.help_screen is not None:
+      descr("calling setSource")
+      self.help_screen.setSource(home)
+    else:
+      self.help_screen = pyHelpScreenCtrl(home, ".", None)
+    self.help_screen.show()
 
   # public slot
 
   def helpContents(self):
     pass
-    #help_dialog = pyHelpScreenCtrl()
-    #help_dialog.showDialog()
+    #self.help_dialog = pyHelpScreenCtrl()
+    #self.help_dialog.showDialog()
 
   # public slot
 

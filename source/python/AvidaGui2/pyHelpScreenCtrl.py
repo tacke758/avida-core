@@ -16,7 +16,7 @@ class pyHelpScreenCtrl(QMainWindow):
     QMainWindow.__init__(self,parent,name,fl)
 
     self.browser = QTextBrowser(self)
-    descr("path:", path)
+    #descr("path:", path)
     #self.browser.mimeSourceFactory().setFilePath(QString(path))
     #self.connect(self.browser, PYSIGNAL("sourceChanged"), self.sourceChangedSlot)
     self.setCentralWidget(self.browser)
@@ -24,34 +24,42 @@ class pyHelpScreenCtrl(QMainWindow):
     if not home == "":
       self.browser.setSource(home)
 
+    self.resize(800, 600)
 
-    #toolbar = QToolBar(self)
-    #self.addDockWindow(toolbar, "Toolbar")
+    file = QPopupMenu(self)
+    file.insertItem("&Close", self.hide, QKeySequence("Ctrl+W"))
 
-    #back_button = QToolButton(Qt.LeftArrow, toolbar)
-    #self.connect(back_button, SIGNAL("clicked()"), self.browser.backward)
 
-    #forward_button = QToolButton(Qt.RightArrow, toolbar)
-    #self.connect(forward_button, SIGNAL("clicked()"), self.browser.forward)
+    self.menuBar().insertItem("&File", file)
 
-    #home_button = QToolButton(toolbar)
-    #home_button.setTextLabel("Home")
-    #home_button.setUsesTextLabel(True)
-    #self.connect(home_button, SIGNAL("clicked()"), self.browser.home)
+    toolbar = QToolBar(self)
+    self.addDockWindow(toolbar, "Toolbar")
+
+    back_button = QToolButton(Qt.LeftArrow, toolbar)
+    self.connect(back_button, SIGNAL("clicked()"), self.browser.backward)
+
+    forward_button = QToolButton(Qt.RightArrow, toolbar)
+    self.connect(forward_button, SIGNAL("clicked()"), self.browser.forward)
+
+    home_button = QToolButton(toolbar)
+    home_button.setTextLabel("Reload")
+    home_button.setUsesTextLabel(True)
+    self.connect(home_button, SIGNAL("clicked()"), self.browser.reload)
 
     #toolbar.addSeparator()
 
     #self.path_combo = QComboBox(True, toolbar)
     #toolbar.setStretchableWidget(path_combo)
-    #self.setRightJustification(True)
-    #self.setDockEnabled(Qt.DockLeft, False)
+    self.setRightJustification(True)
+    self.setDockEnabled(Qt.DockLeft, False)
     #self.setDockEnabled(Qt.DockRight, False)
     #
 
     #self.path_combo.insertItem(home)
     self.browser.setFocus()
 
-    self.setGeometry(50, 50, 800, 600)
+  def setSource(self, source):
+    self.browser.setSource(source)
 
   def __del__(self):
     descr("deleting...")
