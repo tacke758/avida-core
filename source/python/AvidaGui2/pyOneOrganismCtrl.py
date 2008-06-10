@@ -127,7 +127,7 @@ class pyOneOrganismCtrl(pyOneOrganismView):
   def saveImagesSlot(self):
     "Save organism viewer to image file"
     dlg = pyButtonListDialog(
-      "Save Image",
+      "Export Graphics",
       "Choose objects to save",
       ["Organism", "Statistics", "Timeline"],
       True
@@ -157,7 +157,7 @@ class pyOneOrganismCtrl(pyOneOrganismView):
   def printOrgSlot(self):
     """Print image of organism viewer"""
     dlg = pyButtonListDialog(
-      "Save Image",
+      "Export Graphics",
       "Choose objects to save",
       ["Organism", "Statistics", "Timeline"],
       True

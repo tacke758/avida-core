@@ -136,7 +136,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
   def saveImagesSlot(self):
     "Save petri dish or graph to image file"
-    dlg = pyButtonListDialog("Save Image", "Choose object to save",
+    dlg = pyButtonListDialog("Export Graphics", "Choose object to save",
                              ["Petri Dish", "Graph"])
     res = dlg.showDialog()
     if len(res) == 0:

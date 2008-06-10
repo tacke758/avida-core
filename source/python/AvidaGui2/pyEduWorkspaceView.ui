@@ -507,10 +507,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>fileExportAction</cstring>
         </property>
         <property name="text">
-            <string>Export Analysis</string>
+            <string>Export Data...</string>
         </property>
         <property name="menuText">
-            <string>&amp;Export Analysis</string>
+            <string>&amp;Export Data...</string>
         </property>
         <property name="accel">
             <string>Ctrl+E</string>
@@ -521,13 +521,13 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>fileSaveImagesAction</cstring>
         </property>
         <property name="text">
-            <string>Save Images</string>
+            <string>Export Graphics...</string>
         </property>
         <property name="menuText">
-            <string>Save &amp;Images</string>
+            <string>Export &amp;Graphics...</string>
         </property>
         <property name="accel">
-            <string>Ctrl+I</string>
+            <string>Ctrl+G</string>
         </property>
     </action>
     <action>
@@ -906,7 +906,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Import Item</string>
         </property>
         <property name="menuText">
-            <string>Import Item</string>
+            <string>Import &amp;Item</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+I</string>
         </property>
         <property name="toolTip">
             <string>Import Freezer Items</string>

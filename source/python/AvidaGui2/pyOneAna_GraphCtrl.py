@@ -356,7 +356,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
     "Export analysis data to a file"
     if len(self.m_combo_boxes) > 0:
       # Choose populations to export
-      dialog_caption = "Export Analysis"
+      dialog_caption = "Export Data"
       dialog = pyButtonListDialog(dialog_caption,
                                   "Choose populations to export",
                                   self.m_combo_boxes.keys(), True)

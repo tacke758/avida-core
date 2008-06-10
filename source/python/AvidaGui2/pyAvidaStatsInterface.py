@@ -69,7 +69,7 @@ class pyAvidaStatsInterface:
   def export(self, paths):
     """Export stats to a file.  Can export multiple populations now.
     paths is a array of tuples containing short name and full path. """
-    dialog_caption = "Export Analysis"
+    dialog_caption = "Export Data"
     fd = QFileDialog.getSaveFileName("", "Text -- Excel compatible (*.txt);;CSV  -- Excel compatible (*.csv)", None,
                                      "export as", dialog_caption)
     filename = str(fd)
