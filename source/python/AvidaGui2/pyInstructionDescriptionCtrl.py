@@ -5,11 +5,11 @@ from qt import *
 from AvidaCore import *
 
 descriptions_dict = {
-  'a':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
-  
-  'b':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
-  
-  'c':"""The instructions nop-A (a), nop-B (b), and nop-C (c) are no-operation instructions, and will not do anything when executed. They will, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+  'a':"""nop-A is a no-operation instruction, and will not do anything when executed. It can, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+
+  'b':"""nop-B is a no-operation instruction, and will not do anything when executed. It can, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
+
+  'c':"""nop-C is a no-operation instruction, and will not do anything when executed. It can, however, modify the behavior of the instruction preceding it (by changing the CPU component that it affects; see also nop-register notation and nop-head notation) or act as part of a template to denote positions in the genome.""",
   
   'd':"""This instruction compares the BX register to its complement. If they are not equal, the next instruction (after a modifying no-operation instruction, if one is present) is executed. If they are equal, that next instruction is skipped.""",
   
@@ -25,15 +25,15 @@ descriptions_dict = {
   
   'j':"""This instruction reads in the contents of the BX register, and shifts all of the bits in that register to the right by one. In effect, it divides the value stored in the register by two, rounding down.""",
   
-  'k':"""This instruction reads in the contents of the BX register, and shifts all of the bits in that register to the left by one, placing a zero as the new rightmost bit, and trunkating any bits beyond the 32 maximum. For values that require fewer than 32 bits, it effectively multiplies that value by two.""",
+  'k':"""This instruction reads in the contents of the BX register, and shifts all of the bits in that register to the left by one, placing a zero as the new rightmost bit, and truncating any bits beyond the 32 maximum. For values that require fewer than 32 bits, it effectively multiplies that value by two.""",
   
-  'l':"""The inc (l) and dec (m) instructions read in the contents of the BX register and increment or decrement it by one.""",
+  'l':"""This instruction reads in the content of the BX register and increments it by one.""",
   
-  'm':"""The inc (l) and dec (m) instructions read in the contents of the BX register and increment or decrement it by one.""",
+  'm':"""This instruction reads in the content of the BX register and decrements it by one.""",
   
-  'n':"""The add (n) and sub (o) instructions read in the contents of the BX and CX registers and either sums them together or subtracts CX from BX (respectively). The result of this operation is then placed in the BX register.""",
+  'n':"""This instruction reads in the contents of the BX and CX registers and sums them together. The result of this operation is then placed in the BX register.""",
   
-  'o':"""The add (n) and sub (o) instructions read in the contents of the BX and CX registers and either sums them together or subtracts CX from BX (respectively). The result of this operation is then placed in the BX register.""",
+  'o':"""This instruction reads in the contents of the BX and CX registers and subtracts CX from BX (respectively). The result of this operation is then placed in the BX register.""",
   
   'p':"""This instruction reads in the contents of the BX and CX registers (each of which are 32-bit numbers) and performs a bitwise nand operation on them. The result of this operation is placed in the BX register. Note that this is the only logic operation provided in the basic avida instruction set.""",
   
@@ -41,7 +41,7 @@ descriptions_dict = {
   
   'r':"""This instruction allocates additional memory for the organism up to the maximum it is allowed to use for its offspring.""",
   
-  's':"""This instruction is used for an organism to divide off an finished offspring. The original organism keeps the state of its memory up until the read-head. The offspring's memory is initialized to everything between the read-head and the write-head. All memory past the write-head is removed entirely.""",
+  's':"""This instruction is used for an organism to divide off a finished offspring. The original organism keeps the state of its memory up until the read-head. The offspring's memory is initialized to everything between the read-head and the write-head. All memory past the write-head is removed entirely.""",
   
   't':"""This instruction reads the contents of the organism's memory at the position of the read-head, and copy that to the position of the write-head. If a non-zero copy mutation rate is set, a test will be made based on this probability to determine if a mutation occurs. If so, a random instruction (chosen from the full set with equal probability) will be placed at the write-head instead.""",
   

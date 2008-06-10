@@ -2,6 +2,22 @@ Click on freezer name same on clicking on expand/contract
 
 ************Brian******************
 
+Problems/Sugguestions from Rob 27-May-2008:
+
+Folders with character 166 (function character) can not have workspaces 
+creeated in them or read from them.
+
+Label for popluation map (i.e. "Fitness", etc.) legend should be larger.
+
+Four tick marks (instaed of current three) for pop map legend.
+
+Default grid size changed to 60x60
+
+Some times Org report on population view shows org can do task that it can't
+do in the organism viewer.
+
+When freezing use the "aaaxx" name as the default name.
+
 Work to do before June 2007:
 
 Add import capability.
