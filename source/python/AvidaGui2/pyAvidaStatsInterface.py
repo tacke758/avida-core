@@ -69,12 +69,6 @@ class pyAvidaStatsInterface:
   def export(self, paths):
     """Export stats to a file.  Can export multiple populations now.
     paths is a array of tuples containing short name and full path. """
-    dialog_caption = "Export Data"
-    fd = QFileDialog.getSaveFileName("", "Text -- Excel compatible (*.txt);;CSV  -- Excel compatible (*.csv)", None,
-                                     "export as", dialog_caption)
-    filename = str(fd)
-    if (filename[-4:].lower() != ".txt"):
-      filename += ".txt"
 
     checks = []
     # dictionary indexed by stat name so we can lookup stats to export
@@ -87,6 +81,8 @@ class pyAvidaStatsInterface:
         checks.append(stat.name)
       stat_cnt += 1
 
+    dialog_caption = "Export Data"
+
     dialog = pyButtonListDialog(dialog_caption, "Choose stats to export",
                                 checks, True)
     # enable checkboxes
@@ -96,6 +92,12 @@ class pyAvidaStatsInterface:
     res = dialog.showDialog()
     if res == []:
       return
+
+    fd = QFileDialog.getSaveFileName("", "Text -- Excel compatible (*.txt);;CSV  -- Excel compatible (*.csv)", None,
+                                     "export as", dialog_caption)
+    filename = str(fd)
+    if (filename[-4:].lower() != ".txt"):
+      filename += ".txt"
 
     data = {}
 

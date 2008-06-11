@@ -5,13 +5,14 @@ Click on freezer name same on clicking on expand/contract
 Problems/Sugguestions from Rob 27-May-2008:
 
 Folders with character 166 (function character) can not have workspaces 
-creeated in them or read from them.
+creeated in them or read from them. -- Did not fix.
 
-Label for popluation map (i.e. "Fitness", etc.) legend should be larger.
+Label for popluation map (i.e. "Fitness", etc.) legend should be larger. --
+Did not fix.
 
-Four tick marks (instaed of current three) for pop map legend.
+Four tick marks (instaed of current three) for pop map legend. -- Kaben fixed.
 
-Default grid size changed to 60x60
+Default grid size changed to 60x60 -- Fixed.
 
 Some times Org report on population view shows org can do task that it can't
 do in the organism viewer.
