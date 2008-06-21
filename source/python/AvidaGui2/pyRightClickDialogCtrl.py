@@ -4,6 +4,7 @@ from descr import *
 
 from qt import *
 from pyRightClickDialogView import pyRightClickDialogView
+from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
 import shutil, os, os.path
 
 # class to pop up a dialog box when the user quits
@@ -11,8 +12,9 @@ import shutil, os, os.path
 # return the name of a file to save information to be frozen
 
 class pyRightClickDialogCtrl (pyRightClickDialogView):
-  def __init__(self, item_name, file_name):
+  def __init__(self, item_name, file_name, session_mdl):
     pyRightClickDialogView.__init__(self)
+    self.session_mdl = session_mdl
     self.file_name = str(file_name)
     self.item_name = str(item_name)
     self.NewNameLineEdit.setText(self.item_name)
@@ -72,14 +74,27 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
     # if the user chose to delete file or directory
 
     if dialog_result == self.DeleteFlag:
-      self.change = True
-      if (self.file_ext == '.full'):
-        tmp_file_list = os.listdir(self.file_name)
-        for file in tmp_file_list:
-          os.remove(os.path.join(self.file_name,file))
-        os.removedirs(self.file_name)
+      delete_item = False
+      # Request yet another confirmation of delete:
+      tmp_prompt = pyWarnAboutTrashCtrl(new_name_core)
+      prompt_result = tmp_prompt.showDialog()
+      if prompt_result == tmp_prompt.DeleteAllCode:
+        self.session_mdl.m_warn_about_trash = False
+      if (prompt_result == tmp_prompt.DeleteAllCode) or (prompt_result == tmp_prompt.DeleteCode):
+        delete_item = True
       else:
-        os.remove(self.file_name)
+        delete_item = True
+      # If user says 'yes, really delete' then go ahead and do it.
+      if delete_item:
+        self.change = True
+        if (self.file_ext == '.full'):
+          tmp_file_list = os.listdir(self.file_name)
+          for file in tmp_file_list:
+            os.remove(os.path.join(self.file_name,file))
+          os.removedirs(self.file_name)
+        else:
+          os.remove(self.file_name)
+
 
     # if the user chose to rename the file/directory and they gave an actual
     # check if that file already exists if it does not rename the file

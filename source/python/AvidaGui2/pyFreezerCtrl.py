@@ -406,7 +406,7 @@ class pyFreezerCtrl(QWidget):
         file_name = str(item.text(0)) + ".organism"
       file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
 
-      m_right_click_menu = pyRightClickDialogCtrl(item.text(0), file_name)
+      m_right_click_menu = pyRightClickDialogCtrl(item.text(0), file_name, self.m_session_mdl)
       (file_list_change, open_obj)  = m_right_click_menu.showDialog()
       if file_list_change == True:
         self.m_session_mdl.m_session_mdtr.emit(

@@ -47,6 +47,8 @@ nontest_module_names = [
 
   "AvidaGui2.pyQuitDialogView",
   "AvidaGui2.pyQuitDialogCtrl",
+  "AvidaGui2.pyWarnAboutTrashView",
+  "AvidaGui2.pyWarnAboutTrashCtrl",
   "AvidaGui2.pyRightClickDialogView",
   "AvidaGui2.pyRightClickDialogCtrl",
   "AvidaGui2.pyStdTaskDescriptionCtrl",
@@ -108,8 +110,6 @@ nontest_module_names = [
   "AvidaGui2.pyTimeline",
   "AvidaGui2.pyTimelineView",
   "AvidaGui2.pyTimelineCtrl",
-  "AvidaGui2.pyWarnAboutTrashView",
-  "AvidaGui2.pyWarnAboutTrashCtrl",
   "AvidaGui2.pyWriteGenesisEvent",
   "AvidaGui2.pyWriteToFreezer",
   
