@@ -58,6 +58,23 @@
                 </property>
                 <widget class="QRadioButton">
                     <property name="name">
+                        <cstring>OpenRadioButton</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Arial</family>
+                            <pointsize>16</pointsize>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Open</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>&lt;p&gt;Open freezer item&lt;/P&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
                         <cstring>RenameRadioButton</cstring>
                     </property>
                     <property name="font">
@@ -77,29 +94,6 @@
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>&lt;p&gt;Rename the freezer item&lt;/p&gt;</string>
-                    </property>
-                </widget>
-                <widget class="QRadioButton">
-                    <property name="name">
-                        <cstring>DeleteRadioButton</cstring>
-                    </property>
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Arial</family>
-                            <pointsize>16</pointsize>
-                        </font>
-                    </property>
-                    <property name="focusPolicy">
-                        <enum>NoFocus</enum>
-                    </property>
-                    <property name="text">
-                        <string>Delete</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>&lt;p&gt;Delete the freezer item&lt;/P&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton">
@@ -127,7 +121,10 @@
                 </widget>
                 <widget class="QRadioButton">
                     <property name="name">
-                        <cstring>OpenRadioButton</cstring>
+                        <cstring>DeleteRadioButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
                     </property>
                     <property name="font">
                         <font>
@@ -135,11 +132,14 @@
                             <pointsize>16</pointsize>
                         </font>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>NoFocus</enum>
+                    </property>
                     <property name="text">
-                        <string>Open</string>
+                        <string>Delete</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>&lt;p&gt;Open freezer item&lt;/P&gt;</string>
+                        <string>&lt;p&gt;Delete the freezer item&lt;/P&gt;</string>
                     </property>
                 </widget>
             </hbox>

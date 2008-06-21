@@ -195,10 +195,11 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="fileSaveImagesAction"/>
         <action name="fileImportItemAction"/>
         <separator/>
+        <action name="fileOpenItemAction"/>
         <action name="fileRenameItemAction"/>
         <action name="fileExportItemAction"/>
+        <separator/>
         <action name="fileDeleteItemAction"/>
-        <action name="fileOpenItemAction"/>
         <separator/>
         <action name="m_print_action"/>
     </item>
@@ -347,6 +348,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -374,6 +377,8 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -918,11 +923,11 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property name="menuText">
             <string>Import &amp;Item</string>
         </property>
-        <property name="accel">
-            <string>Ctrl+I</string>
-        </property>
         <property name="toolTip">
             <string>Import Freezer Items</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+I</string>
         </property>
     </action>
     <action>
