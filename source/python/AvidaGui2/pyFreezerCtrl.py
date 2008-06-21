@@ -5,6 +5,7 @@ from descr import *
 import os
 from qt import *
 import pyNewIconView
+from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 from pyFreezerView import *
 from pyReadFreezer import pyReadFreezer
 from pyWriteToFreezer import pyWriteToFreezer
@@ -376,6 +377,17 @@ class pyFreezerCtrl(QWidget):
   # if item is right clicked pull up services menu
 
   def right_clicked_itemSlot(self, item):
+
+    # If the user has not already chosen an active workspace for this session
+    # make them do so now. If they chose not to pick a workspace, don't let
+    # them rename, delete, or open the file. For simplicity and code re-use,
+    # this is going to also prevent exporting until after they've chose a workspace.
+
+    if (self.m_session_mdl.directory_chosen == False):
+      m_prompt_dir = pyBeforeStartingCtrl()
+      m_prompt_dir.construct(self.m_session_mdl)
+      if (m_prompt_dir.showDialog("manipulate") == 0):
+        return ''
 
     # check that the item is not at the top level
 

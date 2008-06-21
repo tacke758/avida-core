@@ -23,7 +23,7 @@ class pyBeforeStartingCtrl (pyBeforeStartingView):
 
     # Change the propt depending if the user is trying to import or freeze
 
-    # self.BeforeStartTextLabel.setText(self.__tr("<p align=\"center\">Before you can " + verb + " a petri dish or organism<br> you must choose a workspace to work with</p>"))
+    self.BeforeStartTextLabel.setText("<p align=\"center\">Before you can " + verb + " a petri dish or organism<br> you must choose a workspace to work with.</p>")
 
     dialog_result = 1
     while (dialog_result > 0):

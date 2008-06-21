@@ -537,6 +537,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # public slot
 
   def fileRenameItem(self):
+    if (self.m_session_mdl.directory_chosen == False):
+      m_prompt_dir = pyBeforeStartingCtrl()
+      m_prompt_dir.construct(self.m_session_mdl)
+      if (m_prompt_dir.showDialog("rename") == 0):
+        return ''
+
     files2process = self.curr_sel_files.split("\t")
     rename_dialog = pyRenameDialogCtrl()
     dialog_result = rename_dialog.showDialog(files2process[1:])
@@ -592,6 +598,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   # allow user to delete one or more freezer items
 
   def fileDeleteItemSlot(self):
+      if (self.m_session_mdl.directory_chosen == False):
+        m_prompt_dir = pyBeforeStartingCtrl()
+        m_prompt_dir.construct(self.m_session_mdl)
+        if (m_prompt_dir.showDialog("delete") == 0):
+          return ''
+
       for freezer_item_name in self.curr_sel_files.split("\t")[1:]:
         delete_item = False
         if self.m_session_mdl.m_warn_about_trash:
