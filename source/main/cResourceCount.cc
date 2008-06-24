@@ -374,7 +374,6 @@ void cResourceCount::ModifyCell(const tArray<double> & res_change, int cell_id)
          the organism demand to work immediately on the state of the resource */ 
     
       spatial_resource_count[i].State(cell_id);
-      // cout << "BDB in cResourceCount::ModifyCell id = " << i << " cell = " << cell_id << " amount[41] = " << spatial_resource_count[i].GetAmount(41) << endl;
     }
   }
 }
@@ -449,7 +448,6 @@ void cResourceCount::DoUpdates() const
         }
         spatial_resource_count[i].FlowAll();
         spatial_resource_count[i].StateAll();
-        // BDB: resource_count[i] = spatial_resource_count[i].SumAll();
       }
     }
   }
