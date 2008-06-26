@@ -620,6 +620,7 @@ void cStats::PrintFlowRateTuples(const cString& filename) {
     string flow_rate_pop_size_str(flow_rate_str+" deme pop size");
     string flow_rate_events_killed_str(flow_rate_str+" events killed");
     string flow_rate_events_attempted_to_kill_str(flow_rate_str+" events attempted to kill");
+    string flow_rate_average_event_lifetime_str(flow_rate_str+" average lifetime of event");
     string flow_rate_exe_ratio_str(flow_rate_str+" exe ratio");
     string flow_rate_total_births_str(flow_rate_str+" total births");
     string flow_rate_total_sleeping_str(flow_rate_str+" total sleeping");
@@ -628,6 +629,7 @@ void cStats::PrintFlowRateTuples(const cString& filename) {
     df.Write((*iter).second.orgCount.Average(), flow_rate_pop_size_str.c_str());
     df.Write((*iter).second.eventsKilled.Average(), flow_rate_events_killed_str.c_str());
     df.Write((*iter).second.attemptsToKillEvents.Average(), flow_rate_events_attempted_to_kill_str.c_str());
+    df.Write((*iter).second.AvgEventLifeTime.Average(), flow_rate_average_event_lifetime_str.c_str());
     df.Write((*iter).second.AvgEnergyUsageRatio.Average(), flow_rate_exe_ratio_str.c_str());
     df.Write((*iter).second.totalBirths.Average(), flow_rate_total_births_str.c_str());
     df.Write((*iter).second.currentSleeping.Average(), flow_rate_total_sleeping_str.c_str());

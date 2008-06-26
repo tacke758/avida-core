@@ -81,6 +81,7 @@ struct flow_rate_tuple {
   cIntSum orgCount;
   cIntSum eventsKilled;
   cIntSum attemptsToKillEvents;
+  cDoubleSum AvgEventLifeTime;
   cDoubleSum AvgEnergyUsageRatio;
   cIntSum totalBirths;
   cIntSum currentSleeping;

@@ -1144,7 +1144,7 @@ void cPopulation::CompeteDemes(const std::vector<double>& fitness) {
   }
   
   // re-inject demes with count of 1
-  for(int i =0; i < deme_counts.size(); i++) {
+  for(int i =0; i < (int) deme_counts.size(); i++) {
     if(deme_counts[i] == 1)
       ReplaceDeme(deme_array[i], deme_array[i]);
   }

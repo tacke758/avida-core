@@ -310,6 +310,7 @@ public:
   void AddEndSleep(int cellID, int end_time);
  
   tVector<pair<int,int> > getCellSleepLog(int i) { return sleep_log[i]; }
+  void clearSleepLog() { delete sleep_log; sleep_log = new tVector<pair<int,int> >[world_x*world_y]; }
 
   // Trials and genetic algorithm @JEB
   void NewTrial();

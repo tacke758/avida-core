@@ -2390,6 +2390,36 @@ public:
   }
 };
 
+class cActionPrintAndClearSleepLog : public cAction
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionPrintAndClearSleepLog(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();  
+  }
+  static const cString GetDescription() { return "Arguments: [string fname='']"; }
+  void Process(cAvidaContext& ctx)
+  {
+    cString filename(m_filename);
+    if (filename == "") filename.Set("sleep.%d.dat", m_world->GetStats().GetUpdate());
+    ofstream& fp = m_world->GetDataFileOFStream(filename);
+    
+    cPopulation& pop = m_world->GetPopulation();
+    
+    for(int currentCell = 0; currentCell < pop.GetSize(); currentCell++) {
+      tVector<pair<int, int> > sleep_log = pop.getCellSleepLog(currentCell);
+      for(int i = 0; i < sleep_log.Size(); i++) {
+        fp << currentCell << " " << sleep_log[i].first << " " << sleep_log[i].second <<endl;
+      }
+    }
+    m_world->GetDataFileManager().Remove(filename);
+  }
+};
+
 class cActionDumpTaskGrid : public cAction
 {
 private:
@@ -2675,6 +2705,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintSenseData>("PrintSenseData");
   action_lib->Register<cActionPrintSenseExeData>("PrintSenseExeData");
   action_lib->Register<cActionPrintSleepData>("PrintSleepData");
+  action_lib->Register<cActionPrintAndClearSleepLog>("PrintAndClearSleepLog");
   action_lib->Register<cActionPrintCompetitionData>("PrintCompetitionData");
   
   // @WRE: Added printing of visit data

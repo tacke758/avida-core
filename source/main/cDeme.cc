@@ -202,12 +202,14 @@ void cDeme::ProcessUpdate() {
       flowRateTuples[(*iter).second].orgCount.Add(GetOrgCount());
       flowRateTuples[(*iter).second].eventsKilled.Add(GetEventsKilledThisSlot());
       flowRateTuples[(*iter).second].attemptsToKillEvents.Add(GetEventKillAttemptsThisSlot());
+      flowRateTuples[(*iter).second].AvgEventLifeTime.Add(averageEventLifetime.Average());
       flowRateTuples[(*iter).second].AvgEnergyUsageRatio.Add(energyUsage.Average());
       flowRateTuples[(*iter).second].totalBirths.Add(birth_count_perslot);
       flowRateTuples[(*iter).second].currentSleeping.Add(sleeping_count);
       birth_count_perslot = 0;
       eventsKilledThisSlot = 0;
       eventKillAttemptsThisSlot = 0;
+      averageEventLifetime.Clear();
       break;
     }
   }
@@ -530,6 +532,7 @@ void cDeme::SetCellEventSlots(int x1, int y1, int x2, int y2, int delay, int dur
     flowRateTuples[i].orgCount.Clear();
     flowRateTuples[i].eventsKilled.Clear();
     flowRateTuples[i].attemptsToKillEvents.Clear();
+    flowRateTuples[i].AvgEventLifeTime.Clear();
     flowRateTuples[i].AvgEnergyUsageRatio.Clear();
     flowRateTuples[i].totalBirths.Clear();
     flowRateTuples[i].currentSleeping.Clear();
@@ -560,6 +563,7 @@ bool cDeme::KillCellEvent(const int eventID) {
       eventsKilled++;
       eventsKilledThisSlot++;
       eventKillAttempts++;
+      averageEventLifetime.Add(GetAge() - event.GetDelay());
       return true;
     }
   }

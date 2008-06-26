@@ -10,9 +10,10 @@ cDemeCellEvent::cDemeCellEvent(int x1, int y1, int x2, int y2, int delay, int du
   , m_deme_height(deme_height)
   , m_event_width(x2-x1)
   , m_event_height(y2-y1)
+  , m_use_gradient(false)  // what is this?
   , m_active(false)
-  , m_dead(false)
   , m_static_pos(static_pos)
+  , m_dead(false)
   , m_deme(deme)
   , m_world(world)
 {

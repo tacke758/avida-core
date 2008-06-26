@@ -24,8 +24,11 @@
 #ifndef cDeme_h
 #define cDeme_h
 
-#include <vector>
+#ifndef cIntSum_h
+#include "cIntSum.h"
+#endif
 
+#include <vector>
 #include "cDemeCellEvent.h"
 #include "cGermline.h"
 #include "cPhenotype.h"
@@ -76,6 +79,7 @@ private:
   unsigned int eventsKilledThisSlot;
   unsigned int eventKillAttempts;
   unsigned int eventKillAttemptsThisSlot;
+  cIntSum averageEventLifetime;
   unsigned int consecutiveSuccessfulEventPeriods;
   int sleeping_count; //!< Number of organisms currently sleeping
   cDoubleSum energyUsage;
