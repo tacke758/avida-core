@@ -185,6 +185,7 @@ void cDeme::ProcessUpdate() {
         eventCell = event.GetNextEventCellID();
       }
       event.DeactivateEvent();  //event over
+      averageEventLifetime.Add(event.GetDuration());
     }
   }
   
@@ -507,6 +508,8 @@ void cDeme::SetCellEventSlots(int x1, int y1, int x2, int y2, int delay, int dur
                               int m_total_events_per_slot_min, int m_tolal_event_flow_levels) {
   assert(cell_events.Size() == 0); // not designed to be used with other cell events
   assert(m_world->GetConfig().DEMES_MAX_AGE.Get() >= m_total_slots);
+  
+  maxEventLifetime = m_total_events_per_slot_max;
   
   int flow_level_increment = (m_total_events_per_slot_max - m_total_events_per_slot_min) / (m_tolal_event_flow_levels-1);
   int slot_length = m_world->GetConfig().DEMES_MAX_AGE.Get() / m_total_slots;
