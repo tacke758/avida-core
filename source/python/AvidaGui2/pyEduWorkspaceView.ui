@@ -214,9 +214,15 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <action name="editSelect_AllAction_2"/>
     </item>
     <item text="&amp;Control" name="Control">
-        <action name="controlStartAction"/>
-        <action name="controlNext_UpdateAction"/>
-        <action name="controlRestart_ExpAction"/>
+        <action name="popview_controlStartAction"/>
+        <action name="popview_controlNext_UpdateAction"/>
+        <action name="popview_controlRestart_ExpAction"/>
+        <action name="orgview_controlStartAction"/>
+        <action name="orgview_controlNext_InstructionAction"/>
+        <action name="orgview_controlPrevious_InstructionAction"/>
+        <action name="orgview_controlGo_To_StartAction"/>
+        <action name="orgview_controlGo_To_EndAction"/>
+        <action name="anaview_controlNo_controls_available_in_Analysis_ViewAction"/>
     </item>
     <item text="&amp;View" name="View">
         <action name="viewPopulationAction"/>
@@ -350,6 +356,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -377,6 +389,12 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -803,7 +821,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     </action>
     <action>
         <property name="name">
-            <cstring>controlStartAction</cstring>
+            <cstring>popview_controlStartAction</cstring>
         </property>
         <property name="text">
             <string>Start</string>
@@ -814,7 +832,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     </action>
     <action>
         <property name="name">
-            <cstring>controlNext_UpdateAction</cstring>
+            <cstring>popview_controlNext_UpdateAction</cstring>
         </property>
         <property name="text">
             <string>Next Update</string>
@@ -853,7 +871,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
     </action>
     <action>
         <property name="name">
-            <cstring>controlRestart_ExpAction</cstring>
+            <cstring>popview_controlRestart_ExpAction</cstring>
         </property>
         <property name="text">
             <string>Start New Experiment</string>
@@ -1015,6 +1033,97 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="menuText">
             <string>Known Bugs...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orgview_controlStartAction</cstring>
+        </property>
+        <property name="text">
+            <string>Start</string>
+        </property>
+        <property name="menuText">
+            <string>Start</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orgview_controlNext_InstructionAction</cstring>
+        </property>
+        <property name="text">
+            <string>Next Instruction</string>
+        </property>
+        <property name="menuText">
+            <string>Next Instruction</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orgview_controlPrevious_InstructionAction</cstring>
+        </property>
+        <property name="text">
+            <string>Previous Instruction</string>
+        </property>
+        <property name="menuText">
+            <string>Previous Instruction</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>controlAction</cstring>
+        </property>
+        <property name="text">
+            <string>Go To Start</string>
+        </property>
+        <property name="menuText">
+            <string>Go To Start</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orgview_controlGo_To_StartAction</cstring>
+        </property>
+        <property name="text">
+            <string>Go To Start</string>
+        </property>
+        <property name="menuText">
+            <string>Go To Start</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>orgview_controlGo_To_EndAction</cstring>
+        </property>
+        <property name="text">
+            <string>Go To End</string>
+        </property>
+        <property name="menuText">
+            <string>Go To End</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>controlnew_itemAction</cstring>
+        </property>
+        <property name="text">
+            <string>new item</string>
+        </property>
+        <property name="menuText">
+            <string>new item</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>anaview_controlNo_controls_available_in_Analysis_ViewAction</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>No controls available in Analysis View</string>
+        </property>
+        <property name="menuText">
+            <string>No controls available in Analysis View</string>
         </property>
     </action>
 </actions>

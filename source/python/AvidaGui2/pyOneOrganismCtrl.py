@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from descr import descr, info
+from descr import *
 
 from qt import *
 from pyOneOrganismView import pyOneOrganismView
 from pyButtonListDialog import pyButtonListDialog
 from pyImageFileDialog import pyImageFileDialog
+from pyMdtr import *
 
 import os.path
 
@@ -14,8 +15,10 @@ class pyOneOrganismCtrl(pyOneOrganismView):
   def __init__(self,parent = None,name = None,fl = 0):
     pyOneOrganismView.__init__(self,parent,name,fl)
 
-  def construct(self, session_mdl):
+  def construct(self, session_mdl, workspace_ctrl):
+    self.workspace_ctrl = workspace_ctrl
     self.m_session_mdl = session_mdl
+    self.startStatus = False
     self.m_one_org_scope_ctrl.construct(self.m_session_mdl)
     self.m_organism_configure_ctrl.construct(self.m_session_mdl)
 
@@ -24,34 +27,55 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     self.connect(self.m_organism_scope_toggle, SIGNAL("clicked()"),
       self.ToggleScopeSlot)
 
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("orgScopeStartedSig"), self.orgScopeStartedSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("orgScopePausedSig"), self.orgScopePausedSlot)
+
+    self.connect(self.workspace_ctrl.orgview_controlStartAction,SIGNAL("activated()"),self.startActionSlot)
+    self.connect(self.workspace_ctrl.orgview_controlNext_InstructionAction,SIGNAL("activated()"),self.m_one_org_scope_ctrl.advanceSlot)
+    self.connect(self.workspace_ctrl.orgview_controlPrevious_InstructionAction,SIGNAL("activated()"),self.m_one_org_scope_ctrl.backSlot)
+    self.connect(self.workspace_ctrl.orgview_controlGo_To_StartAction,SIGNAL("activated()"),self.m_one_org_scope_ctrl.rewindSlot)
+    self.connect(self.workspace_ctrl.orgview_controlGo_To_EndAction,SIGNAL("activated()"),self.m_one_org_scope_ctrl.cueSlot)
+
     self.m_organism_configure_ctrl.SetRandomGeneratedRadioButton(True);
     self.m_organism_configure_ctrl.ChangeMutationSliderSlot();
     self.m_organism_configure_ctrl.setAnalysisNeeded(False)
 
-  def aboutToBeLowered(self):
+  def startActionSlot(self):
+    if self.startStatus:
+      self.m_one_org_scope_ctrl.playSlot()
+    else:
+      self.m_one_org_scope_ctrl.pauseSlot()
+  def orgScopeStartedSlot(self):
+    self.workspace_ctrl.orgview_controlStartAction.setText("Pause")
+    self.workspace_ctrl.orgview_controlStartAction.setMenuText("Pause")
+    self.startStatus = False
+  def orgScopePausedSlot(self):
+    self.workspace_ctrl.orgview_controlStartAction.setText("Start")
+    self.workspace_ctrl.orgview_controlStartAction.setMenuText("Start")
+    self.startStatus = True
+
+  def aboutToBeLowered(self, workspace_ctrl):
     """Disconnects menu items from organism viewer controller."""
-    descr()
-    self.disconnect(
-      self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("saveImagesSig"),
-      self.saveImagesSlot)
-    self.disconnect(
-      self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printSig"),
-      self.printOrgSlot)
+    self.disconnect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("saveImagesSig"), self.saveImagesSlot)
+    self.disconnect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("printSig"), self.printOrgSlot)
 
-  def aboutToBeRaised(self):
+    self.workspace_ctrl.orgview_controlStartAction.setVisible(False)
+    self.workspace_ctrl.orgview_controlNext_InstructionAction.setVisible(False)
+    self.workspace_ctrl.orgview_controlPrevious_InstructionAction.setVisible(False)
+    self.workspace_ctrl.orgview_controlGo_To_StartAction.setVisible(False)
+    self.workspace_ctrl.orgview_controlGo_To_EndAction.setVisible(False)
+
+  def aboutToBeRaised(self, workspace_ctrl):
     """Connects menu items from organism viewer controller."""
-    descr()
-    self.connect(
-      self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("saveImagesSig"),
-      self.saveImagesSlot)
-    self.connect(
-      self.m_session_mdl.m_session_mdtr,
-      PYSIGNAL("printSig"),
-      self.printOrgSlot)
+    self.workspace_ctrl = workspace_ctrl
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("saveImagesSig"), self.saveImagesSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("printSig"), self.printOrgSlot)
 
+    self.workspace_ctrl.orgview_controlStartAction.setVisible(True)
+    self.workspace_ctrl.orgview_controlNext_InstructionAction.setVisible(True)
+    self.workspace_ctrl.orgview_controlPrevious_InstructionAction.setVisible(True)
+    self.workspace_ctrl.orgview_controlGo_To_StartAction.setVisible(True)
+    self.workspace_ctrl.orgview_controlGo_To_EndAction.setVisible(True)
 
   def generatePixmaps(self, objects):
     pixmap = QPixmap()

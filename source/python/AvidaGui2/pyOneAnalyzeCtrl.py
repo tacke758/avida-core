@@ -37,7 +37,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
   def testMe(self):
     descr("99999999999999999999999999999999999999999999999999999999999")
 
-  def aboutToBeLowered(self):
+  def aboutToBeLowered(self, workspace_ctrl):
     """Disconnects menu items from One-Analyze Graph controller."""
     descr()
     self.disconnect(
@@ -53,7 +53,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_ana_graph_ctrl.exportSlot)
-  def aboutToBeRaised(self):
+
+    workspace_ctrl.anaview_controlNo_controls_available_in_Analysis_ViewAction.setVisible(False)
+
+  def aboutToBeRaised(self, workspace_ctrl):
     """Connects items to One-Analyze Graph controller."""
     descr()
     self.connect(
@@ -68,6 +71,9 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_ana_graph_ctrl.exportSlot)
+
+    workspace_ctrl.anaview_controlNo_controls_available_in_Analysis_ViewAction.setVisible(True)
+
 
   def dragEnterEvent( self, e ):
     freezer_item_list = QString()

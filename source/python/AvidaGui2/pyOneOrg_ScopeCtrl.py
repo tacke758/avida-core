@@ -107,11 +107,13 @@ class pyOneOrg_ScopeCtrl(pyOneOrg_ScopeView):
     descr("pyOneOrg_ScopeCtrl.pauseSlot().")
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_play_page)
     self.m_timer.stop()
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("orgScopePausedSig"), ())
 
   def playSlot(self):
     descr("pyOneOrg_ScopeCtrl.playSlot().")
     self.m_analyze_controls_ctrl.m_widget_stack.raiseWidget(self.m_analyze_controls_ctrl.m_pause_page)
     self.m_timer.start(self.m_timer_interval, False)
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("orgScopeStartedSig"), ())
 
   def backSlot(self):
     #print "pyOneOrg_ScopeCtrl.backSlot()."

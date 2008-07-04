@@ -72,7 +72,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     #for ctrl in self.m_ctrl_to_cli_dict.keys():
     #  ctrl.construct(self.m_session_mdl)
     self.m_one_population_ctrl.construct(self.m_session_mdl)
-    self.m_one_organism_ctrl.construct(self.m_session_mdl)
+    self.m_one_organism_ctrl.construct(self.m_session_mdl, self)
     self.m_one_analyze_ctrl.construct(self.m_session_mdl)
         
     self.connect(
@@ -89,11 +89,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     # self.connect(
     #   self.fileOpenFreezerAction,SIGNAL("activated()"),self.freezerOpenSlot)
-    self.connect(
-      self.controlNext_UpdateAction,SIGNAL("activated()"),
-      self.next_UpdateActionSlot)
-    self.connect(
-      self.controlStartAction,SIGNAL("activated()"),self.startActionSlot)
+    self.connect(self.popview_controlNext_UpdateAction,SIGNAL("activated()"), self.next_UpdateActionSlot)
+    self.connect(self.popview_controlStartAction,SIGNAL("activated()"),self.startActionSlot)
 
     # Next three connects  are for where a user selects a veiwer from 
     # the View menu
@@ -128,7 +125,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     #   PYSIGNAL("doNextUpdateSig"),
     #   self.updatePBClickedSlot)
 
-    self.connect(self.controlRestart_ExpAction,SIGNAL("activated()"),
+    self.connect(self.popview_controlRestart_ExpAction,SIGNAL("activated()"),
       self.Restart_ExpActionSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("addStatusBarWidgetSig"), self.addStatusBarWidgetSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("removeStatusBarWidgetSig"), self.removeStatusBarWidgetSlot)
@@ -179,8 +176,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         controller = self.m_cli_to_ctrl_dict[item]
         old_controller = self.m_widget_stack.visibleWidget()
         if old_controller is not None:
-          old_controller.aboutToBeLowered()
-        controller.aboutToBeRaised()
+          old_controller.aboutToBeLowered(self)
+        controller.aboutToBeRaised(self)
         self.m_widget_stack.raiseWidget(controller)
 
   # @kgn : desperate hacks to get drag & drop working.
@@ -245,7 +242,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   def __init__(self, parent = None, name = None, fl = 0):
     pyEduWorkspaceView.__init__(self,parent,name,fl)
     self.help_screen = None
-    # print "pyEduWorkspaceCtrl.__init__(): Not implemented yet"
+
+    self.popview_controlStartAction.setVisible(False)
+    self.popview_controlNext_UpdateAction.setVisible(False)
+    self.popview_controlRestart_ExpAction.setVisible(False)
+
+    self.orgview_controlStartAction.setVisible(False)
+    self.orgview_controlNext_InstructionAction.setVisible(False)
+    self.orgview_controlPrevious_InstructionAction.setVisible(False)
+    self.orgview_controlGo_To_StartAction.setVisible(False)
+    self.orgview_controlGo_To_EndAction.setVisible(False)
+
+    self.anaview_controlNo_controls_available_in_Analysis_ViewAction.setVisible(False)
 
   # public slot
 
@@ -743,13 +751,13 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     pass
     
   def doPauseAvidaSlot(self):
-    self.controlStartAction.setText("Start")
-    self.controlStartAction.setMenuText("Start")
+    self.popview_controlStartAction.setText("Start")
+    self.popview_controlStartAction.setMenuText("Start")
     self.startStatus = True
     
   def doStartAvidaSlot(self):
-    self.controlStartAction.setText("Pause")
-    self.controlStartAction.setMenuText("Pause")
+    self.popview_controlStartAction.setText("Pause")
+    self.popview_controlStartAction.setMenuText("Pause")
     self.startStatus = False
     
   def startQuitProcessSlot(self):

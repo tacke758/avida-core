@@ -36,7 +36,7 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     self.connect(self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("restartPopulationSig"), self.restartPopulationSlot)
 
-  def aboutToBeLowered(self):
+  def aboutToBeLowered(self, workspace_ctrl):
     """Disconnects menu items from One-Pop Graph controller."""
     descr()
     self.disconnect(
@@ -60,7 +60,11 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_pop_graph_ctrl.exportSlot)
 
-  def aboutToBeRaised(self):
+    workspace_ctrl.popview_controlStartAction.setVisible(False)
+    workspace_ctrl.popview_controlNext_UpdateAction.setVisible(False)
+    workspace_ctrl.popview_controlRestart_ExpAction.setVisible(False)
+
+  def aboutToBeRaised(self, workspace_ctrl):
     """Connects menu items to One-Pop Graph controller."""
     descr()
     self.connect(
@@ -83,6 +87,10 @@ class pyOnePopulationCtrl(pyOnePopulationView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("exportAnalyzeSig"),
       self.m_one_pop_graph_ctrl.exportSlot)
+
+    workspace_ctrl.popview_controlStartAction.setVisible(True)
+    workspace_ctrl.popview_controlNext_UpdateAction.setVisible(True)
+    workspace_ctrl.popview_controlRestart_ExpAction.setVisible(True)
 
   def dragEnterEvent( self, e ):
 
