@@ -13,6 +13,87 @@ Changes are listed by revision number.
 </p>
 
 
+<h4>Changes in unreleased revision 2712M:</h4>
+<ul>
+  <li>
+  File names: now using "avida_cfg" naming convention.
+  (Suggested by Robert Pennock; implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+        This maintains compatibility with previously saved workspaces: if files with new naming convention can't be found, old convention will be tried.
+      </li>
+      <li>
+        I have not yet had the chance to rename c++ classes to use a similar naming convention.
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+<h4>Changes in unreleased revision 2709M:</h4>
+<ul>
+  <li>
+  File Dialogs: Bugfix: Switch the default export location from inside of the application bundle or workspace directory to the desktop.
+  (Identified by Robert Pennock; fixed by Kaben Nanlohy.)
+    <ul>
+      <li>
+        Application will try, in order, the last directory chosen if there is
+        one, then the Desktop if it exists, then the Documents directory if it
+        exists, then "My Documents" if it exists, and finally default to the
+        original behavior.
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+<h4>Changes in unreleased revision 2706M:</h4>
+<ul>
+  <li>
+  Control Menu: renamed menu items and changed keyboard shortcuts for
+  population and organism viewers.
+  (Suggested by Robert Pennock; implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+      Renamed "Start" to "Run".
+      </li>
+      <li>
+      Removed the keyboard shortcut "Command-R" for "Start New Experiment".
+      </li>
+      <li>
+      Added keyboard shortcut "Command-R" for "Run", and "Space" for "Pause".
+      Note: the keyboard shortcut "Space" doesn't appear in the menu item. I
+      can't think of a way to fix this, because Qt seems to want to use a
+      literal space, which is invisible.
+      </li>
+      <li>
+      Added the keyboard shortcut "Command-T" (for "time") for the "Next Update / Next Instruction".
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+<h4>Changes in unreleased revision 2705M:</h4>
+<ul>
+  <li>
+  Control Menu: Fixed bug where the Control menu controlled the Petri Dish View
+  no matter what view you're in.
+  (Identified by Robert Pennock; fixed by Kaben Nanlohy.)
+    <ul>
+      <li>
+      Gave each of the population, organism, and analysis views their own
+      version of the Control Menu. The analysis view Control Menu contains a
+      single disabled menu item reading "No controls available in Analysis
+      View". The organism view Control Menu contains menu items "Start/Pause",
+      "Next Instruction", "Previous Instruction", "Go To Start", and "Go To
+      End".
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
 <h4>Changes in unreleased revision 2704M:</h4>
 <ul>
   <li>
