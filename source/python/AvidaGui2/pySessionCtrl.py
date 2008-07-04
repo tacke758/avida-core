@@ -58,6 +58,7 @@ class pySessionCtrl(qt.QObject):
     # flag to see if user has chosen a workspace for this session
 
     self.m_session_mdl.directory_chosen = False
+    self.m_session_mdl.export_directory = None
 
     # flag to see if the program should check that there are ancestors
 

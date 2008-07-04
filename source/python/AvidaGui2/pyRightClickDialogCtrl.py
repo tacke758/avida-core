@@ -109,17 +109,21 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
 
       # If the directory has not been chosen self.file_dir is not
       # correct (at least on the Mac).  It is a relative path where
-      # QFileDialog.getSaveFileName seems to require an absolut path
+      # QFileDialog.getSaveFileName seems to require an absolute path
 
       abs_dir = os.path.abspath(self.file_dir);
-      if (os.path.exists(abs_dir) == False):
-        initial_dir = os.path.expanduser("~")
-        if os.path.exists(os.path.join(initial_dir,"Documents")):
-          initial_dir = os.path.join(initial_dir,"Documents")
-        elif os.path.exists(os.path.join(initial_dir,"My Documents")):
-          initial_dir = os.path.join(initial_dir,"My Documents")
+      user_dir = os.path.expanduser("~")
+      if self.session_mdl.export_directory is not None and os.path.exists(self.session_mdl.export_directory):
+        initial_dir = self.session_mdl.export_directory
       else:
-        initial_dir = abs_dir
+        if os.path.exists(os.path.join(user_dir,"Desktop")):
+          initial_dir = os.path.join(user_dir,"Desktop")
+        elif os.path.exists(os.path.join(user_dir,"Documents")):
+          initial_dir = os.path.join(user_dir,"Documents")
+        elif os.path.exists(os.path.join(user_dir,"My Documents")):
+          initial_dir = os.path.join(user_dir,"My Documents")
+        else:
+          initial_dir = abs_dir
       no_ext_name, ext = os.path.splitext(self.file_core_name)
       initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
 
@@ -129,6 +133,9 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
         None,
         "Export Item",
         "Export dish or organism")
+
+      self.session_mdl.export_directory = os.path.dirname(str(export_file_name))
+      #descr("self.session_mdl.export_directory:", self.session_mdl.export_directory)
       export_file = open(str(export_file_name), "w")
       if (self.file_ext == '.full'):
         files_in_full = os.listdir(self.file_name)
