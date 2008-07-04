@@ -3,6 +3,7 @@
 from descr import *
 
 from qt import *
+from DefaultExportDir import DefaultExportDir
 from pyOneOrganismView import pyOneOrganismView
 from pyButtonListDialog import pyButtonListDialog
 from pyImageFileDialog import pyImageFileDialog
@@ -78,6 +79,8 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     self.workspace_ctrl.orgview_controlPrevious_InstructionAction.setVisible(True)
     self.workspace_ctrl.orgview_controlGo_To_StartAction.setVisible(True)
     self.workspace_ctrl.orgview_controlGo_To_EndAction.setVisible(True)
+
+    self.workspace_ctrl.fileExportAction.setVisible(False)
 
   def generatePixmaps(self, objects):
     pixmap = QPixmap()
@@ -169,15 +172,17 @@ class pyOneOrganismCtrl(pyOneOrganismView):
     img_dlg = pyImageFileDialog()
     name = str(self.m_one_org_scope_ctrl.m_organism_scope_ctrl.m_organism_name)
     execution_step = self.m_one_org_scope_ctrl.m_execution_step_slider.value()
+    full_name = name + "-organism-step-" + str(execution_step)
+    initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, full_name)
+    initial_file_name = os.path.join(initial_dir, full_name)
     filename, type = img_dlg.saveImageDialog(
-      name +
-      "-organism-step-" +
-      str(execution_step)
+      initial_file_name
     )
 
     # Save pixmap to image file.
     if filename:
       pixmap.save(filename, type, 100)
+      self.m_session_mdl.export_directory = os.path.dirname(str(filename))
 
 
   def printOrgSlot(self):

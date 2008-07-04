@@ -563,7 +563,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     files2process = self.curr_sel_files.split("\t")
     file_name = files2process[1]
 
-    initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, os.path.dirname(file_name))
+    initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, file_name)
     no_ext_name, file_ext = os.path.splitext(os.path.basename(file_name))
     initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
   

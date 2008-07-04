@@ -113,7 +113,7 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       # QFileDialog.getSaveFileName seems to require an absolute path
 
       user_dir = os.path.expanduser("~")
-      initial_dir = DefaultExportDir(self.session_mdl.export_directory, os.path.dirname)
+      initial_dir = DefaultExportDir(self.session_mdl.export_directory, self.file_dir)
       no_ext_name, ext = os.path.splitext(self.file_core_name)
       initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
 

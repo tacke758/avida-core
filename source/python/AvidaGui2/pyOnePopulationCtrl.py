@@ -4,6 +4,7 @@ from descr import descr, warning
 
 from pyAvida import pyAvida
 from qt import *
+from DefaultExportDir import DefaultExportDir
 from pyOnePopulationView import pyOnePopulationView
 from pyButtonListDialog import pyButtonListDialog
 from pyGraphCtrl import PrintFilter
@@ -92,6 +93,8 @@ class pyOnePopulationCtrl(pyOnePopulationView):
     workspace_ctrl.popview_controlNext_UpdateAction.setVisible(True)
     workspace_ctrl.popview_controlRestart_ExpAction.setVisible(True)
 
+    workspace_ctrl.fileExportAction.setVisible(True)
+
   def dragEnterEvent( self, e ):
 
     freezer_item_list = QString()
@@ -163,16 +166,22 @@ class pyOnePopulationCtrl(pyOnePopulationView):
 
     # Save the image
     if res[0] == "Petri Dish":
-      filename, type = img_dlg.saveImageDialog(
-        name + "-" + "petridish-update" + str(update))
+      full_name = name + "-" + "petridish-update" + str(update)
+      initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, full_name)
+      initial_file_name = os.path.join(initial_dir, full_name)
+      filename, type = img_dlg.saveImageDialog(initial_file_name)
       p = self.m_one_pop_petri_dish_ctrl.getPetriDishPixmap()
       if filename:
         p.save(filename, type, 100)
+        self.m_session_mdl.export_directory = os.path.dirname(str(filename))
     else:
-      filename, type = img_dlg.saveImageDialog(
-        name + "-" + "graph-update" + str(update))
+      full_name = name + "-" + "graph-update" + str(update)
+      initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, full_name)
+      initial_file_name = os.path.join(initial_dir, full_name)
+      filename, type = img_dlg.saveImageDialog(initial_file_name)
       if filename:
         self.m_one_pop_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
+        self.m_session_mdl.export_directory = os.path.dirname(str(filename))
 
   def printSlot(self):
     "Let user choose what object to print and send signal to appropriate slot"

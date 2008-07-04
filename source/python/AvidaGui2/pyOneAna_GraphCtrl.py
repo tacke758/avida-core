@@ -365,7 +365,7 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       if res == []:
         return
       paths = [(short_name, str(self.m_combo_boxes[short_name].m_petri_dish_dir_path)) for short_name in res]
-      self.m_avida_stats_interface.export(paths)
+      self.m_avida_stats_interface.export(paths, self.m_session_mdl)
 
 
   def petriDropped(self, freezer_item_name): 

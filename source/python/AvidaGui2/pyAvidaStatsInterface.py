@@ -2,6 +2,7 @@
 from AvidaCore import cInitFile, cString
 from AvidaCore import cPopulation, cStats
 from Numeric import *
+from DefaultExportDir import DefaultExportDir
 from pyButtonListDialog import pyButtonListDialog
 from qt import QFileDialog
 import os.path
@@ -66,7 +67,7 @@ class pyAvidaStatsInterface:
       y_array[line_id] = line.GetWord(coly - 1).AsDouble()
     return x_array, y_array
 
-  def export(self, paths):
+  def export(self, paths, session_mdl):
     """Export stats to a file.  Can export multiple populations now.
     paths is a array of tuples containing short name and full path. """
 
@@ -93,9 +94,17 @@ class pyAvidaStatsInterface:
     if res == []:
       return
 
+    initial_dir = DefaultExportDir(session_mdl.export_directory, "unititled")
+    initial_file_name = os.path.join(initial_dir, "unititled")
+
     fd = QFileDialog.getSaveFileName("", "Text -- Excel compatible (*.txt);;CSV  -- Excel compatible (*.csv)", None,
                                      "export as", dialog_caption)
+    if not fd:
+      return
+
     filename = str(fd)
+    session_mdl.export_directory = os.path.dirname(str(filename))
+
     if (filename[-4:].lower() != ".txt"):
       filename += ".txt"
 

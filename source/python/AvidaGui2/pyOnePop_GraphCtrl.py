@@ -138,4 +138,5 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
     "Export stats to a file"
     if self.m_combo_box.currentItem():
       self.m_avida_stats_interface.export(
-        [("", self.m_session_mdl.m_tempdir_out)])
+        [("", self.m_session_mdl.m_tempdir_out)],
+        self.m_session_mdl)

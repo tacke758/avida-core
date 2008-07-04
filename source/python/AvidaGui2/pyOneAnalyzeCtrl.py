@@ -3,6 +3,7 @@
 from descr import *
 
 from qt import *
+from DefaultExportDir import DefaultExportDir
 from pyOneAnalyzeView import pyOneAnalyzeView
 from pyImageFileDialog import pyImageFileDialog
 import os.path
@@ -74,6 +75,7 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
 
     workspace_ctrl.anaview_controlNo_controls_available_in_Analysis_ViewAction.setVisible(True)
 
+    workspace_ctrl.fileExportAction.setVisible(True)
 
   def dragEnterEvent( self, e ):
     freezer_item_list = QString()
@@ -125,7 +127,10 @@ class pyOneAnalyzeCtrl(pyOneAnalyzeView):
 
   def saveImagesSlot(self):
     "Save image of graph"
+    initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, "unititled")
+    initial_file_name = os.path.join(initial_dir, "unititled")
     dlg = pyImageFileDialog()
-    filename, type = dlg.saveImageDialog()
+    filename, type = dlg.saveImageDialog(initial_file_name)
     if filename:
       self.m_one_ana_graph_ctrl.m_graph_ctrl.saveImage(filename, type)
+      self.m_session_mdl.export_directory = os.path.dirname(str(filename))
