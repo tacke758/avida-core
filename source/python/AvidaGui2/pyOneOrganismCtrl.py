@@ -48,10 +48,12 @@ class pyOneOrganismCtrl(pyOneOrganismView):
   def orgScopeStartedSlot(self):
     self.workspace_ctrl.orgview_controlStartAction.setText("Pause")
     self.workspace_ctrl.orgview_controlStartAction.setMenuText("Pause")
+    self.workspace_ctrl.orgview_controlStartAction.setAccel(QKeySequence("Space"))
     self.startStatus = False
   def orgScopePausedSlot(self):
-    self.workspace_ctrl.orgview_controlStartAction.setText("Start")
-    self.workspace_ctrl.orgview_controlStartAction.setMenuText("Start")
+    self.workspace_ctrl.orgview_controlStartAction.setText("Run")
+    self.workspace_ctrl.orgview_controlStartAction.setMenuText("Run")
+    self.workspace_ctrl.orgview_controlStartAction.setAccel(QKeySequence("Ctrl+R"))
     self.startStatus = True
 
   def aboutToBeLowered(self, workspace_ctrl):

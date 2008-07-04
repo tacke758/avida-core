@@ -362,6 +362,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="0">-1</property>
         <property type="1">pyFreezerView</property>
         <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
+        <property type="1">pyFreezerView</property>
+        <property type="0">-1</property>
         <property type="pyFreezerView"></property>
         <property type="-1">1</property>
     </customwidget>
@@ -389,6 +393,10 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         <property type="4">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="4">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
+        <property type="1">pyNavBarView</property>
+        <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
         <property type="0">-1</property>
         <property type="1">pyNavBarView</property>
@@ -824,10 +832,13 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>popview_controlStartAction</cstring>
         </property>
         <property name="text">
-            <string>Start</string>
+            <string>Run</string>
         </property>
         <property name="menuText">
-            <string>Start</string>
+            <string>Run</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+R</string>
         </property>
     </action>
     <action>
@@ -839,6 +850,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="menuText">
             <string>Next Update</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+T</string>
         </property>
     </action>
     <action>
@@ -886,7 +900,7 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <string>Start new experiment with empty petri dish</string>
         </property>
         <property name="accel">
-            <string>Ctrl+R</string>
+            <string></string>
         </property>
     </action>
     <action>
@@ -1040,10 +1054,13 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
             <cstring>orgview_controlStartAction</cstring>
         </property>
         <property name="text">
-            <string>Start</string>
+            <string>Run</string>
         </property>
         <property name="menuText">
-            <string>Start</string>
+            <string>Run</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+R</string>
         </property>
     </action>
     <action>
@@ -1055,6 +1072,9 @@ Python:from pyTwoPopulationCtrl import pyTwoPopulationCtrl
         </property>
         <property name="menuText">
             <string>Next Instruction</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+T</string>
         </property>
     </action>
     <action>

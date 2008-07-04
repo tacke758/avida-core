@@ -751,13 +751,15 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     pass
     
   def doPauseAvidaSlot(self):
-    self.popview_controlStartAction.setText("Start")
-    self.popview_controlStartAction.setMenuText("Start")
+    self.popview_controlStartAction.setText("Run")
+    self.popview_controlStartAction.setMenuText("Run")
+    self.popview_controlStartAction.setAccel(QKeySequence("Ctrl+R"))
     self.startStatus = True
     
   def doStartAvidaSlot(self):
     self.popview_controlStartAction.setText("Pause")
     self.popview_controlStartAction.setMenuText("Pause")
+    self.popview_controlStartAction.setAccel(QKeySequence("Space"))
     self.startStatus = False
     
   def startQuitProcessSlot(self):
