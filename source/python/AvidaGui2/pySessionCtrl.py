@@ -290,7 +290,7 @@ class pyUnitTestSuite_pySessionCtrl(pyUnitTestSuite):
       def test(self):
         class pyMdl: pass
         mdl = pyMdl()
-        session_ctrl_factory = lambda : pySessionCtrl().construct(mdl, cString("genesis.avida"))
+        session_ctrl_factory = lambda : pySessionCtrl().construct(mdl, cString("avida_cfg.avida"))
 
         these_will_live_on = [
           # this is the mdl object created above.

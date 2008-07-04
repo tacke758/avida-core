@@ -168,17 +168,17 @@ class pyEduMainMenuBarHdlr(qt.QObject):
   def doOpenWorkspaceSlot(self):
     print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot()..."
     qt.QMessageBox.warning(
-      None, "Watch out...", "We aren't yet checking genesis files for errors, so beware.", qt.QMessageBox.Ok, 0)
-    genesis_filename = qt.QFileDialog.getOpenFileName(
-      ".", "Avida Config FIles (*.avida)", None, "Temporary open file dialog", "Choose a Genesis File" )
-    if genesis_filename.isEmpty():
-      print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot() genesis_filename was empty."
+      None, "Watch out...", "We aren't yet checking avida_cfg files for errors, so beware.", qt.QMessageBox.Ok, 0)
+    avida_cfg_filename = qt.QFileDialog.getOpenFileName(
+      ".", "Avida Config FIles (*.avida)", None, "Temporary open file dialog", "Choose an Avida Configuration File" )
+    if avida_cfg_filename.isEmpty():
+      print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot() avida_cfg_filename was empty."
     else:
-      print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot() genesis_filename: '" + str(genesis_filename) + "'"
+      print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot() avida_cfg_filename: '" + str(avida_cfg_filename) + "'"
       self.m_main_mdl.m_main_mdtr.m_main_controller_factory_mdtr.emit(
-        qt.PYSIGNAL("newMainControllerSig"), ("pySessionCtrl", cString(str(genesis_filename)), ))
+        qt.PYSIGNAL("newMainControllerSig"), ("pySessionCtrl", cString(str(avida_cfg_filename)), ))
       #session_ctrl = pySessionCtrl(self.main_mdl)
-      #session_ctrl.m_session_mdl.m_genesis_filename = cString(str(genesis_filename))
+      #session_ctrl.m_session_mdl.m_avida_cfg_filename = cString(str(avida_cfg_filename))
       #session_ctrl.construct()
       #self.m_main_mdl.m_main_controllers_list.append(session_ctrl)
     print "pyEduMainMenuBarHdlr.doOpenWorkspaceSlot() done."

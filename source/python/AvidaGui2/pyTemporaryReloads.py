@@ -110,7 +110,7 @@ nontest_module_names = [
   "AvidaGui2.pyTimeline",
   "AvidaGui2.pyTimelineView",
   "AvidaGui2.pyTimelineCtrl",
-  "AvidaGui2.pyWriteGenesisEvent",
+  "AvidaGui2.pyWriteAvidaCfgEvent",
   "AvidaGui2.pyWriteToFreezer",
   
   "AvidaGui2.pyOneAna_GraphView",

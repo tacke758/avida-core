@@ -6,10 +6,10 @@ from AvidaCore import *
 
 from descr import *
 
-# Class to write the working genesis, event and environment files based on 
+# Class to write the working avida_cfg, event and environment files based on 
 # the contents of settings dictionary
 
-class pyWriteGenesisEvent:
+class pyWriteAvidaCfgEvent:
 
   def __init__(self, in_dict = None, session_mdl = None, workspace_dir = None, 
     freeze_dir = None, tmp_in_dir = None, tmp_out_dir = None):
@@ -107,18 +107,18 @@ class pyWriteGenesisEvent:
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")
     self.writeEnvironmentFile(workspace_dir, settings_dict)
     settings_dict["INST_SET"] = os.path.join(tmp_in_dir, "inst_set.default")
-    genesis_file_name = self.writeGenesisFile(workspace_dir, tmp_in_dir, \
+    avida_cfg_file_name = self.writeAvidaCfgFile(workspace_dir, tmp_in_dir, \
                                               settings_dict)
     
     # There's a loop around organisms_dict
     #   organism number is key, sequence is value.
     #   I need to make a merits_dict with organism number as key, and
     #   merit as value.
-    genesis = cGenesis()
+    avida_cfg = cGenesis()
 
-    cConfig.Setup(genesis)
+    cConfig.Setup(avida_cfg)
 
-    genesis.Open(cString(genesis_file_name))
+    avida_cfg.Open(cString(avida_cfg_file_name))
     environment = cEnvironment()
     environment.Load(cString(settings_dict["ENVIRONMENT_FILE"]))
     environment.GetInstSet().SetInstLib(cHardwareCPU.GetInstLib())
@@ -151,15 +151,18 @@ class pyWriteGenesisEvent:
     self.modifyEventFile(cells_dict, organisms_dict, ancestor_link_dict,
       merits_dict, os.path.join(tmp_in_dir, "events.cfg"), tmp_out_dir)
     
-  # Read the default genesis file, if there is a equivilent line in the 
+  # Read the default avida_cfg file, if there is a equivilent line in the 
   # dictionary replace it the new values, otherwise just copy the line
 
-  def writeGenesisFile(self, workspace_dir, tmp_in_dir, settings_dict):
+  def writeAvidaCfgFile(self, workspace_dir, tmp_in_dir, settings_dict):
   
-    orig_genesis_file = open(os.path.join(workspace_dir, "genesis.default"))
-    lines = orig_genesis_file.readlines()
-    orig_genesis_file.close()
-    out_genesis_file = open(os.path.join(tmp_in_dir, "genesis.avida"), "w")
+    orig_avida_cfg_filename = os.path.join(workspace_dir, "avida_cfg.default")
+    if not os.path.exists(orig_avida_cfg_filename):
+      orig_avida_cfg_filename = os.path.join(workspace_dir, "genesis.default")
+    orig_avida_cfg_file = open(orig_avida_cfg_filename)
+    lines = orig_avida_cfg_file.readlines()
+    orig_avida_cfg_file.close()
+    out_avida_cfg_file = open(os.path.join(tmp_in_dir, "avida_cfg.avida"), "w")
     for line in lines:
       comment_start = line.find("#")
       if comment_start > -1:
@@ -178,14 +181,14 @@ class pyWriteGenesisEvent:
 
         if (settings_dict.has_key(var_name) == True) and \
            (var_name != "MAX_UPDATES"):
-          out_genesis_file.write(var_name + " " + str(settings_dict[var_name]) + "\n")
+          out_avida_cfg_file.write(var_name + " " + str(settings_dict[var_name]) + "\n")
         else:
-          out_genesis_file.write(line)
+          out_avida_cfg_file.write(line)
       else:
-         out_genesis_file.write(line)
-    out_genesis_file.close()
+         out_avida_cfg_file.write(line)
+    out_avida_cfg_file.close()
     
-    return out_genesis_file.name
+    return out_avida_cfg_file.name
    
   # Read the default environment file, if there is a reward in the
   # dictionary for a given resource print out that line in working env. file

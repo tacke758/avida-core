@@ -5,7 +5,7 @@ from descr import *
 from pyAvida import pyAvida
 from pyFreezeDialogCtrl import pyFreezeDialogCtrl
 from pyPetriConfigureView import pyPetriConfigureView
-from pyWriteGenesisEvent import pyWriteGenesisEvent
+from pyWriteAvidaCfgEvent import pyWriteAvidaCfgEvent
 from pyWriteToFreezer import pyWriteToFreezer
 from pyReadFreezer import pyReadFreezer
 from pyNewIconView import pyNewIconViewItem
@@ -452,14 +452,14 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # (ie saved)
 
     self.full_petri_dict["SETTINGS"] = self.Form2Dictionary()
-    write_object = pyWriteGenesisEvent(self.full_petri_dict,
+    write_object = pyWriteAvidaCfgEvent(self.full_petri_dict,
       self.m_session_mdl, 
       self.m_session_mdl.m_current_workspace,
       self.m_session_mdl.m_current_freezer, self.m_session_mdl.m_tempdir,
       self.m_session_mdl.m_tempdir_out)
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("doInitializeAvidaPhaseIISig"), 
-      (os.path.join(self.m_session_mdl.m_tempdir, "genesis.avida"),))
+      (os.path.join(self.m_session_mdl.m_tempdir, "avida_cfg.avida"),))
       
   def Form2Dictionary(self):
     settings_dict = {}
@@ -594,17 +594,17 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
   # Routine to load data from Avida-ED into Avida Core
 
-  def doLoadPetriDishConfigFileSlot(self, genesisFileName = None):
-    genesis = cGenesis()
-    genesis.Open(cString(genesisFileName))
-    if 0 == genesis.IsOpen():
-      warningNoMethodName("Unable to find file " +  genesisFileName)
+  def doLoadPetriDishConfigFileSlot(self, avida_cfgFileName = None):
+    avida_cfg = cGenesis()
+    avida_cfg.Open(cString(avida_cfgFileName))
+    if 0 == avida_cfg.IsOpen():
+      warningNoMethodName("Unable to find file " +  avida_cfgFileName)
       return
     descr("self.setAvidaSlot(None) ...")
     self.setAvidaSlot(None)
     descr("self.setAvidaSlot(None) done.")
     avida = pyAvida()
-    avida.construct(genesis)
+    avida.construct(avida_cfg)
     descr("self.setAvidaSlot(avida) ...")
     self.setAvidaSlot(avida)
     descr("self.setAvidaSlot(avida) done.")

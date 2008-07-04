@@ -88,7 +88,7 @@ class pyUnitTestSuite_pyEduMainCtrl(pyUnitTestSuite):
           edu_main_ctrl.construct()
           edu_main_ctrl.m_main_mdl.m_main_mdtr.m_main_controller_factory_mdtr.emit(
             qt.PYSIGNAL("newMainControllerSig"),
-            ("pySessionCtrl", cString("genesis.avida"), ))
+            ("pySessionCtrl", cString("avida_cfg.avida"), ))
           return edu_main_ctrl
 
         print """

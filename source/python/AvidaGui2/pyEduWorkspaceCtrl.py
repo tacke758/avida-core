@@ -297,7 +297,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             os.mkdir(os.path.join(new_dir,"freezer"))
             os.mkdir(os.path.join(new_dir,"freezer","@example.full"))
             filesToCopy = ["environment.default", "inst_set.default", 
-                           "events.default", "genesis.default", 
+                           "events.default", "avida_cfg.default", 
                            os.path.join("freezer", "@example.empty"), 
                            os.path.join("freezer", "@ancestor.organism"),
                      os.path.join("freezer", "@example.full", "average.dat"),

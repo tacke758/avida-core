@@ -45,7 +45,13 @@ def UTs():
 # Instantiate (or reinstantiate) the Avida-ED gui. Return controller for
 # new gui instance.
 #
+#def AvidaEd_Disabled():
 def AvidaEd():
+  ## Enable the following two lines to redirect standard output and standard
+  ## error to the file "Avida-ED.log".
+  #sys.stdout = open("Avida-ED.log", 'w', 0)
+  #sys.stderr = sys.stdout
+
   sys.exc_clear()
   sys.exc_traceback = sys.last_traceback = None
   s_splash.message("Loading Avida-ED user-interface ...")
@@ -109,7 +115,7 @@ def AvidaConsole():
 
   avida = None
 
-  genesis_file_name = "./genesis.default"
+  avida_cfg_file_name = "./avida_cfg.default"
 
   try:
     Reload()
@@ -119,13 +125,13 @@ def AvidaConsole():
 
     os.chdir(os.path.join(res_dir, "console_work"))
     print "os.getcwd()", os.getcwd()
-    genesis = AvidaCore.cGenesis()
-    genesis.Open(AvidaCore.cString(genesis_file_name))
-    if 0 == genesis.IsOpen():
-      print "Unable to find file " + genesis_file_name
+    avida_cfg = AvidaCore.cGenesis()
+    avida_cfg.Open(AvidaCore.cString(avida_cfg_file_name))
+    if 0 == avida_cfg.IsOpen():
+      print "Unable to find file " + avida_cfg_file_name
       return None
     avida = pyAvida()
-    avida.construct(genesis)
+    avida.construct(avida_cfg)
 
   finally:
     s_splash.clear()
@@ -147,10 +153,9 @@ def LoopTest():
       avida.m_avida_threaded_driver.ProcessUpdate()
     os.rename('average.dat', 'average.dat.%d' % i)
 
-# Instantiate (or reinstantiate) the Avida-ED gui. Return controller for
-# new gui instance.
-#
-def AvidaEdDriverRefactor():
+# Instantiate (or reinstantiate) the Avida-ED gui.
+def AvidaEd_ExampleRunner():
+#def AvidaEd():
   sys.exc_clear()
   sys.exc_traceback = sys.last_traceback = None
   s_splash.message("Loading Avida-ED user-interface ...")
@@ -165,5 +170,6 @@ def AvidaEdDriverRefactor():
     s_splash.clear()
     s_splash.hide()
 
-  return
+  import examples
 
+  return

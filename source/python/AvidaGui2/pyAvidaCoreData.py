@@ -3,20 +3,20 @@ from AvidaCore import *
 
 
 class pyAvidaCoreData:
-  def construct(self, genesis_filename):
-    self.m_genesis_filename = genesis_filename
+  def construct(self, avida_cfg_filename):
+    self.m_avida_cfg_filename = avida_cfg_filename
 
-    # Try to load a genesis file by name. Create the file if needed.
-    self.m_genesis = cGenesis()
-    self.m_genesis.Open(self.m_genesis_filename)
-    if 0 == self.m_genesis.IsOpen():
-      print("Warning: Unable to find file '", self.m_genesis_filename(), "'. Creating.")
-      cConfig.PrintGenesis(self.m_genesis_filename)
-      self.m_genesis.Open(self.m_genesis_filename)
+    # Try to load avida_cfg file by name. Create the file if needed.
+    self.m_avida_cfg = cGenesis()
+    self.m_avida_cfg.Open(self.m_avida_cfg_filename)
+    if 0 == self.m_avida_cfg.IsOpen():
+      print("Warning: Unable to find file '", self.m_avida_cfg_filename(), "'. Creating.")
+      cConfig.PrintGenesis(self.m_avida_cfg_filename)
+      self.m_avida_cfg.Open(self.m_avida_cfg_filename)
 
-    cConfig.Setup(self.m_genesis)
+    cConfig.Setup(self.m_avida_cfg)
     
-    # Try to load the environment file specified in the genesis file.
+    # Try to load the environment file specified in the avida_cfg file.
     self.m_environment = cEnvironment()
     if 0 == self.m_environment.Load(cConfig.GetEnvironmentFilename()):
       print("Unable to load environment... aborting!")
@@ -59,7 +59,7 @@ class pyUnitTestSuite_pyAvidaCoreData(pyUnitTestSuite):
 
     class deleteChecks(pyTestCase):
       def test(self):
-        avida_core_data_factory = lambda : pyAvidaCoreData().construct(cString("genesis"))
+        avida_core_data_factory = lambda : pyAvidaCoreData().construct(cString("avida_cfg"))
         endotests = recursiveDeleteChecks(avida_core_data_factory, [])
         for (endotest, attr_name) in endotests:
           try:

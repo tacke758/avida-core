@@ -21,10 +21,10 @@ class pyAvida(qt.QObject):
   def __init__(self):
     qt.QObject.__init__(self, None, self.__class__.__name__)
 
-  def construct(self, genesis):
-    self.m_name = genesis.GetFilename()
+  def construct(self, avida_cfg):
+    self.m_name = avida_cfg.GetFilename()
     self.m_environment = cEnvironment()
-    cConfig.Setup(genesis)
+    cConfig.Setup(avida_cfg)
     if 0 == self.m_environment.Load(cConfig.GetEnvironmentFilename()):
       print "Unable to load environment... aborting."
       self.m_population = None
@@ -62,7 +62,7 @@ class pyAvida(qt.QObject):
     self.m_population = self.m_avida_threaded_driver.GetPopulation()
     descr("self.m_avida_threaded_driver.GetPopulation() done.")
 
-    self.m_name = genesis.GetFilename()
+    self.m_name = avida_cfg.GetFilename()
     self.m_avida_thread_mdtr = pyMdtr()
     self.m_should_update = False
 
