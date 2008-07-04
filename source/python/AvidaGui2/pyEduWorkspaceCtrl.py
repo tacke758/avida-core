@@ -3,6 +3,7 @@
 from descr import *
 
 # from Get_Avida_ED_version import avida_ed_version_string
+from DefaultExportDir import DefaultExportDir
 from pyEduWorkspaceView import pyEduWorkspaceView
 from pyMdtr import pyMdtr
 from pyOneAnalyzeCtrl import pyOneAnalyzeCtrl
@@ -561,19 +562,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   def fileExportItemSlot(self):
     files2process = self.curr_sel_files.split("\t")
     file_name = files2process[1]
-    user_dir = os.path.expanduser("~")
-    abs_dir = os.path.abspath(os.path.dirname(file_name));
-    if self.m_session_mdl.export_directory is not None and os.path.exists(self.m_session_mdl.export_directory):
-      initial_dir = self.m_session_mdl.export_directory
-    else:
-      if os.path.exists(os.path.join(user_dir,"Desktop")):
-        initial_dir = os.path.join(user_dir,"Desktop")
-      elif os.path.exists(os.path.join(user_dir,"Documents")):
-        initial_dir = os.path.join(user_dir,"Documents")
-      elif os.path.exists(os.path.join(user_dir,"My Documents")):
-        initial_dir = os.path.join(user_dir,"My Documents")
-      else:
-        initial_dir = abs_dir
+
+    initial_dir = DefaultExportDir(self.m_session_mdl.export_directory, os.path.dirname(file_name))
     no_ext_name, file_ext = os.path.splitext(os.path.basename(file_name))
     initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
   
@@ -585,7 +575,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       "Export dish or organism")
 
     self.m_session_mdl.export_directory = os.path.dirname(str(export_file_name))
-    #descr("self.m_session_mdl.export_directory:", self.m_session_mdl.export_directory)
     export_file = open(str(export_file_name), "w")
     if (file_ext == '.full'):
       files_in_full = os.listdir(file_name)

@@ -3,6 +3,7 @@
 from descr import *
 
 from qt import *
+from DefaultExportDir import DefaultExportDir
 from pyRightClickDialogView import pyRightClickDialogView
 from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
 import shutil, os, os.path
@@ -111,19 +112,8 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
       # correct (at least on the Mac).  It is a relative path where
       # QFileDialog.getSaveFileName seems to require an absolute path
 
-      abs_dir = os.path.abspath(self.file_dir);
       user_dir = os.path.expanduser("~")
-      if self.session_mdl.export_directory is not None and os.path.exists(self.session_mdl.export_directory):
-        initial_dir = self.session_mdl.export_directory
-      else:
-        if os.path.exists(os.path.join(user_dir,"Desktop")):
-          initial_dir = os.path.join(user_dir,"Desktop")
-        elif os.path.exists(os.path.join(user_dir,"Documents")):
-          initial_dir = os.path.join(user_dir,"Documents")
-        elif os.path.exists(os.path.join(user_dir,"My Documents")):
-          initial_dir = os.path.join(user_dir,"My Documents")
-        else:
-          initial_dir = abs_dir
+      initial_dir = DefaultExportDir(self.session_mdl.export_directory, os.path.dirname)
       no_ext_name, ext = os.path.splitext(self.file_core_name)
       initial_file_name = os.path.join(initial_dir,no_ext_name + ".aex")
 
@@ -135,7 +125,6 @@ class pyRightClickDialogCtrl (pyRightClickDialogView):
         "Export dish or organism")
 
       self.session_mdl.export_directory = os.path.dirname(str(export_file_name))
-      #descr("self.session_mdl.export_directory:", self.session_mdl.export_directory)
       export_file = open(str(export_file_name), "w")
       if (self.file_ext == '.full'):
         files_in_full = os.listdir(self.file_name)
