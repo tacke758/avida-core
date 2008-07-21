@@ -298,6 +298,7 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             os.mkdir(os.path.join(new_dir,"freezer","@example.full"))
             filesToCopy = ["environment.default", "inst_set.default", 
                            "events.default", "avida_cfg.default", 
+                           os.path.join("freezer", "@default.empty"), 
                            os.path.join("freezer", "@example.empty"), 
                            os.path.join("freezer", "@ancestor.organism"),
                      os.path.join("freezer", "@example.full", "average.dat"),
@@ -788,16 +789,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     # click the default empty petri dish from the freezer
 
     file_name = os.path.join(self.m_session_mdl.m_current_freezer, 
-      "@example.empty")
+      "@default.empty")
     if not(os.path.exists(file_name)):
-      warningNoMethodName(file_name + 
-       " does not exist -- please start experiment by dragging dish")
-      return
+      short_file_name = os.path.join("freezer", "@default.empty")
+      pyDefaultFiles(short_file_name, file_name)
+      #warningNoMethodName(file_name + 
+      # " does not exist -- please start experiment by dragging dish")
+      #return
     thawed_item = pyReadFreezer(file_name)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
       ())
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
-      ("@example", thawed_item,))
+      ("@default", thawed_item,))
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("freezerItemDoubleClicked"), (file_name, ))
 

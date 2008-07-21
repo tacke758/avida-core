@@ -246,10 +246,13 @@ class pyFreezerCtrl(QWidget):
     last_org = None
     for file in freezer_dir:
       if file.endswith(".empty"):
-        dish_name = file[:-6]
-        tmp_item = QListViewItem(self.m_empty_item, last_empty)
-        tmp_item.setText(0,dish_name)
-        last_empty = tmp_item
+        if file.endswith("@default.empty"):
+          pass
+        else:
+          dish_name = file[:-6]
+          tmp_item = QListViewItem(self.m_empty_item, last_empty)
+          tmp_item.setText(0,dish_name)
+          last_empty = tmp_item
       if file.endswith(".full"):
         dish_name = file[:-5]
         tmp_item = QListViewItem(self.m_full_item, last_full)
