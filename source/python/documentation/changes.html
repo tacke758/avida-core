@@ -13,6 +13,66 @@ Changes are listed by revision number.
 </p>
 
 
+<h4>Changes in unreleased revision 2724M:</h4>
+<ul>
+  <li>
+  Control Menu: changed keyboard shortcuts for population and organism viewers.
+  (Suggested by Robert Pennock; implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+      Switched to keyboard shortcut "Command-R" for "Run", and "Command-." for
+      "Pause".
+      </li>
+      <li>
+      Added the keyboard shortcut "Command-Shift-T" (for "time") for the "Previous Instruction".
+      </li>
+      <li>
+      Not yet able to also use spacebar for both "Run" and "Pause".
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+<h4>Changes in unreleased revision 2722M:</h4>
+<ul>
+  <li>
+  Freezer: Changed the @example in the Configured Dishes shelf in the Freezer
+  back to a world size of 30x30, and added a hidden @default configured dish
+  with a world size of 60x60.
+  (Suggested by Robert Pennock; implemented by Kaben Nanlohy.)
+    <ul>
+      <li>
+        To make a new workspace, Avida-ED tries to copy certain default items
+        from the current workspace, including @default.empty. If these items
+        don't exist in the current workspace, they will be generated, including
+        @default.empty.
+      </li>
+      <li>
+        @default.empty is hidden from the Freezer, even when it's in the
+        workspace. This means that it can't be deleted from the Avida-ED GUI,
+        and since we can't save over an existing file, it can't be modified
+        from the GUI.
+      </li>
+      <li>
+        The file can still be edited, and after it's been edited in the current
+        workspace, it will be inherited into new workspaces.
+      </li>
+      <li>
+        If the current workspace was created from an older version of Avida-ED
+        and doesn't contain @default.empty then @default.empty will be
+        generated.
+      </li>
+      <li>
+        The previous version would create an error message saying
+        "freezer/@default.empty does not exist -- please start experiment by
+        dragging dish". Do we want to keep this behavior?
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
 <h4>Changes in unreleased revision 2712M:</h4>
 <ul>
   <li>
