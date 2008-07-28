@@ -1143,12 +1143,12 @@ void cPopulation::CompeteDemes(const std::vector<double>& fitness) {
     }
   }
   
-  // re-inject demes with count of 1
-  for(int i =0; i < (int) deme_counts.size(); i++) {
+  //re-inject demes with count of 1 back into self
+  for(int i = 0; i < (int)deme_counts.size(); i++) {
     if(deme_counts[i] == 1)
       ReplaceDeme(deme_array[i], deme_array[i]);
   }
-  
+
   // Now, while we can find both a source deme (one with a count greater than 1)
   // and a target deme (one with a count of 0), replace the target with the source.
   while(true) {
@@ -1335,6 +1335,19 @@ void cPopulation::ReplicateDeme(cDeme & source_deme)
       target_id = m_world->GetRandom().GetUInt(num_demes);
     }
   }
+
+  // Write some logging information if LOG_DEMES_REPLICATE is set.
+  if( (m_world->GetConfig().LOG_DEMES_REPLICATE.Get() == 1) &&
+      (m_world->GetStats().GetUpdate() >= m_world->GetConfig().DEMES_REPLICATE_LOG_START.Get()) ) {
+    cString tmpfilename = cStringUtil::Stringf("deme_replication.dat");
+    cDataFile& df = m_world->GetDataFile(tmpfilename);
+
+    cString UpdateStr = cStringUtil::Stringf("%d,%d,%d",
+                                             m_world->GetStats().GetUpdate(),
+                                             source_deme.GetDemeID(), target_id);
+    df.WriteRaw(UpdateStr);
+  }
+
   ReplaceDeme(source_deme, deme_array[target_id]);
 }
 

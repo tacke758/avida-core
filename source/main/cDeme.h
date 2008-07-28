@@ -24,11 +24,8 @@
 #ifndef cDeme_h
 #define cDeme_h
 
-#ifndef cIntSum_h
-#include "cIntSum.h"
-#endif
-
 #include <vector>
+
 #include "cDemeCellEvent.h"
 #include "cGermline.h"
 #include "cPhenotype.h"
@@ -79,8 +76,6 @@ private:
   unsigned int eventsKilledThisSlot;
   unsigned int eventKillAttempts;
   unsigned int eventKillAttemptsThisSlot;
-  cIntSum averageEventLifetime;
-  int maxEventLifetime;
   unsigned int consecutiveSuccessfulEventPeriods;
   int sleeping_count; //!< Number of organisms currently sleeping
   cDoubleSum energyUsage;
@@ -127,7 +122,7 @@ public:
   cDeme() : _id(0), width(0), cur_birth_count(0), last_birth_count(0), cur_org_count(0), last_org_count(0), injected_count(0), birth_count_perslot(0),
             _age(0), generation(0), total_org_energy(0.0),
             time_used(0), gestation_time(0), cur_normalized_time_used(0.0), last_normalized_time_used(0.0), total_energy_testament(0.0),
-            eventsTotal(0), eventsKilled(0), eventsKilledThisSlot(0), eventKillAttempts(0), eventKillAttemptsThisSlot(0), maxEventLifetime(0),
+            eventsTotal(0), eventsKilled(0), eventsKilledThisSlot(0), eventKillAttempts(0), eventKillAttemptsThisSlot(0),
             consecutiveSuccessfulEventPeriods(0), sleeping_count(0),
             avg_founder_generation(0.0), generations_per_lifetime(0.0),
             deme_resource_count(0), m_germline_genotype_id(0) { ; }
@@ -142,7 +137,8 @@ public:
   int GetDemeID() const { return _id; }
   //! Returns an (x,y) pair for the position of the passed-in cell ID.
   std::pair<int, int> GetCellPosition(int cellid) const;
-  cPopulationCell& GetCell(int pos);
+  cPopulationCell& GetCell(int pos) const;
+  cOrganism* GetOrganism(int pos) const;
 
   int GetWidth() const { return width; }
   int GetHeight() const { return cell_ids.GetSize() / width; }
@@ -184,8 +180,6 @@ public:
   int GetEventKillAttempts() const { return eventKillAttempts; }
   int GetEventKillAttemptsThisSlot() const { return eventKillAttemptsThisSlot; }
   int GetConsecutiveSuccessfulEventPeriods() const { return consecutiveSuccessfulEventPeriods;}
-  double GetAverageEventLifeTime() const { return averageEventLifetime.Average(); }
-  int GetMaxEventLifetime() const { return maxEventLifetime; }
   
   // -= Germline =-
   //! Returns this deme's germline.
