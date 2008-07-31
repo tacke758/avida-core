@@ -346,7 +346,7 @@ void cHardwareGX::Reset()
     // These specify the range of instructions that will be used to create a new
     // programid.  The range of instructions used to create a programid is:
     // [begin, end), that is, the instruction pointed to by end is *not* copied.
-    cInstruction* begin=&genome[0];
+    cInstruction* begin=&genome.GetInstruction(0);
     cInstruction* end=&begin[genome.GetSize()];
     cInstruction* i=0;
     // Find the first instance of a PROGRAMID instruction.
@@ -755,17 +755,17 @@ int cHardwareGX::FindLabel_Forward(const cCodeLabel & search_label,
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
     
-    if (m_inst_set->IsNop(search_genome[pos])) {
+    if (m_inst_set->IsNop(search_genome.GetInstruction(pos))) {
       // Find the start and end of the label we're in the middle of.
       
       int start_pos = pos;
       int end_pos = pos + 1;
       while (start_pos > search_start &&
-             m_inst_set->IsNop( search_genome[start_pos - 1] )) {
+             m_inst_set->IsNop( search_genome.GetInstruction(start_pos - 1) )) {
         start_pos--;
       }
       while (end_pos < search_genome.GetSize() &&
-             m_inst_set->IsNop( search_genome[end_pos] )) {
+             m_inst_set->IsNop( search_genome.GetInstruction(end_pos) )) {
         end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -779,7 +779,7 @@ int cHardwareGX::FindLabel_Forward(const cCodeLabel & search_label,
         int matches;
         for (matches = 0; matches < label_size; matches++) {
           if (search_label[matches] !=
-              m_inst_set->GetNopMod( search_genome[offset + matches] )) {
+              m_inst_set->GetNopMod( search_genome.GetInstruction(offset + matches) )) {
             break;
           }
         }
@@ -836,16 +836,16 @@ int cHardwareGX::FindLabel_Backward(const cCodeLabel & search_label,
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
     
-    if (m_inst_set->IsNop( search_genome[pos] )) {
+    if (m_inst_set->IsNop( search_genome.GetInstruction(pos) )) {
       // Find the start and end of the label we're in the middle of.
       
       int start_pos = pos;
       int end_pos = pos + 1;
-      while (start_pos > 0 && m_inst_set->IsNop(search_genome[start_pos - 1])) {
+      while (start_pos > 0 && m_inst_set->IsNop(search_genome.GetInstruction(start_pos - 1))) {
         start_pos--;
       }
       while (end_pos < search_start &&
-             m_inst_set->IsNop(search_genome[end_pos])) {
+             m_inst_set->IsNop(search_genome.GetInstruction(end_pos))) {
         end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -858,7 +858,7 @@ int cHardwareGX::FindLabel_Backward(const cCodeLabel & search_label,
         int matches;
         for (matches = 0; matches < label_size; matches++) {
           if (search_label[matches] !=
-              m_inst_set->GetNopMod(search_genome[offset + matches])) {
+              m_inst_set->GetNopMod(search_genome.GetInstruction(offset + matches))) {
             break;
           }
         }
@@ -1129,7 +1129,7 @@ bool cHardwareGX::Allocate_Random(cAvidaContext& ctx, const int old_size, const 
   GetMemory().Resize(new_size);
   
   for (int i = old_size; i < new_size; i++) {
-    GetMemory()[i] = m_inst_set->GetRandomInst(ctx);
+    GetMemory().SetInstruction(i, m_inst_set->GetRandomInst(ctx));
   }
   return true;
 }
@@ -2706,7 +2706,7 @@ bool cHardwareGX::Inst_DonateGreenBeardGene(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
             // ...see if it is donate-gbg
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -2780,7 +2780,7 @@ bool cHardwareGX::Inst_DonateTrueGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
             // ...see if it is donate-tgb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -2857,7 +2857,7 @@ bool cHardwareGX::Inst_DonateThreshGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
 	         // ...see if it is donate-threshgb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -2954,7 +2954,7 @@ bool cHardwareGX::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
 	         // ...see if it is donate-quantagb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -4320,21 +4320,21 @@ cHardwareGX::cProgramid::cProgramid(const cGenome& genome, cHardwareGX* hardware
   {
     // Check what flags should be set on this programid.
     for(int i=0; i<m_memory.GetSize();) {
-      if(m_memory[i]==GetInst("PROGRAMID")) { 
+      if(m_memory.GetInstruction(i)==GetInst("PROGRAMID")) { 
         m_memory.Remove(i);
         continue;
       }
-      if(m_memory[i]==GetInst("EXECUTABLE")) { 
+      if(m_memory.GetInstruction(i)==GetInst("EXECUTABLE")) { 
         m_memory.Remove(i); 
         m_executable=true;
         continue;
       }
-      if(m_memory[i]==GetInst("BINDABLE")) { 
+      if(m_memory.GetInstruction(i)==GetInst("BINDABLE")) { 
         m_memory.Remove(i);
         m_bindable=true;
         continue;
       }
-      if(m_memory[i]==GetInst("READABLE")) { 
+      if(m_memory.GetInstruction(i)==GetInst("READABLE")) { 
         m_memory.Remove(i);
         m_readable=true;
         continue;

@@ -37,14 +37,14 @@
 class cCPUMemory : public cGenome
 {
 private:
-	static const unsigned char MASK_COPIED   = 0x01;
-	static const unsigned char MASK_MUTATED  = 0x02;
-	static const unsigned char MASK_EXECUTED = 0x04;
-	static const unsigned char MASK_BREAK    = 0x08;
-	static const unsigned char MASK_POINTMUT = 0x10;
-	static const unsigned char MASK_COPYMUT  = 0x20;
-	static const unsigned char MASK_INJECTED = 0x40;
-	static const unsigned char MASK_UNUSED   = 0x80; // unused bit
+	static const unsigned char MASK_COPIED    = 0x01;
+	static const unsigned char MASK_MUTATED   = 0x02;
+	static const unsigned char MASK_EXECUTED  = 0x04;
+	static const unsigned char MASK_BREAK     = 0x08;
+	static const unsigned char MASK_POINTMUT  = 0x10;
+	static const unsigned char MASK_COPYMUT   = 0x20;
+	static const unsigned char MASK_INJECTED  = 0x40;
+	static const unsigned char MASK_PROTECTED = 0x80; // instruction cannot be mutated
   
   tArray<unsigned char> flag_array;
   
@@ -57,16 +57,26 @@ private:
 public:
   explicit cCPUMemory(int _size=1)  : cGenome(_size), flag_array(_size) { ClearFlags(); }
   cCPUMemory(const cCPUMemory& in_memory);
-  cCPUMemory(const cGenome& in_genome) : cGenome(in_genome), flag_array(in_genome.GetSize()) { ; }
-  cCPUMemory(const cString& in_string) : cGenome(in_string), flag_array(in_string.GetSize()) { ; }
+  cCPUMemory(const cGenome& in_genome) : cGenome(in_genome), flag_array(in_genome.GetSize()) { ClearFlags(); }
+  cCPUMemory(const cString& in_string) : cGenome(in_string), flag_array(in_string.GetSize()) { ClearFlags(); }
   //! Construct a cCPUMemory object from a cInstruction range.
   cCPUMemory(cInstruction* begin, cInstruction* end) : cGenome(begin, end), flag_array(GetSize()) { ClearFlags(); }
   ~cCPUMemory() { ; }
 
   void operator=(const cCPUMemory& other_memory);
   void operator=(const cGenome& other_genome);
+
+	/***********************/
+	// DO NOT overload the [] operator.  Doing so will break instruction protection.
+	// Use the get and set functions below.
+	/***********************/
+	
   void Copy(int to, int from);
 
+	void SetOpt(int pos, int opt) { if(!FlagProtected(pos)) genome[pos].SetOp(opt); } //otherwise its protected
+	void SetInstruction(int pos, const cInstruction& new_inst);
+	
+	
   void Clear()
 	{
 		for (int i = 0; i < active_size; i++) {
@@ -79,30 +89,34 @@ public:
   void Resize(int new_size);    // Reset size, save contents, init to default
   void ResizeOld(int new_size); // Reset size, save contents, init to previous
 
-  bool FlagCopied(int pos) const     { return MASK_COPIED   & flag_array[pos]; }
-  bool FlagMutated(int pos) const    { return MASK_MUTATED  & flag_array[pos]; }
-  bool FlagExecuted(int pos) const   { return MASK_EXECUTED & flag_array[pos]; }
-  bool FlagBreakpoint(int pos) const { return MASK_BREAK    & flag_array[pos]; }
-  bool FlagPointMut(int pos) const   { return MASK_POINTMUT & flag_array[pos]; }
-  bool FlagCopyMut(int pos) const    { return MASK_COPYMUT  & flag_array[pos]; }
-  bool FlagInjected(int pos) const   { return MASK_INJECTED & flag_array[pos]; }
+  bool FlagCopied(int pos) const     { return MASK_COPIED    & flag_array[pos]; }
+  bool FlagMutated(int pos) const    { return MASK_MUTATED   & flag_array[pos]; }
+  bool FlagExecuted(int pos) const   { return MASK_EXECUTED  & flag_array[pos]; }
+  bool FlagBreakpoint(int pos) const { return MASK_BREAK     & flag_array[pos]; }
+  bool FlagPointMut(int pos) const   { return MASK_POINTMUT  & flag_array[pos]; }
+  bool FlagCopyMut(int pos) const    { return MASK_COPYMUT   & flag_array[pos]; }
+  bool FlagInjected(int pos) const   { return MASK_INJECTED  & flag_array[pos]; }
+  bool FlagProtected(int pos) const  { return MASK_PROTECTED & flag_array[pos]; }
   
-  void SetFlagCopied(int pos)     { flag_array[pos] |= MASK_COPIED;   }
-  void SetFlagMutated(int pos)    { flag_array[pos] |= MASK_MUTATED;  }
-  void SetFlagExecuted(int pos)   { flag_array[pos] |= MASK_EXECUTED; }
-  void SetFlagBreakpoint(int pos) { flag_array[pos] |= MASK_BREAK;    }
-  void SetFlagPointMut(int pos)   { flag_array[pos] |= MASK_POINTMUT; }
-  void SetFlagCopyMut(int pos)    { flag_array[pos] |= MASK_COPYMUT;  }
-  void SetFlagInjected(int pos)   { flag_array[pos] |= MASK_INJECTED; }
+  void SetFlagCopied(int pos)     { flag_array[pos] |= MASK_COPIED;    }
+  void SetFlagMutated(int pos)    { flag_array[pos] |= MASK_MUTATED;   }
+  void SetFlagExecuted(int pos)   { flag_array[pos] |= MASK_EXECUTED;  }
+  void SetFlagBreakpoint(int pos) { flag_array[pos] |= MASK_BREAK;     }
+  void SetFlagPointMut(int pos)   { flag_array[pos] |= MASK_POINTMUT;  }
+  void SetFlagCopyMut(int pos)    { flag_array[pos] |= MASK_COPYMUT;   }
+  void SetFlagInjected(int pos)   { flag_array[pos] |= MASK_INJECTED;  }
+  void SetFlagProtected(int pos)  { flag_array[pos] |= MASK_PROTECTED; }
+
+	void ClearFlagCopied(int pos)     { flag_array[pos] &= ~MASK_COPIED;    }
+	void ClearFlagMutated(int pos)    { flag_array[pos] &= ~MASK_MUTATED;   }
+	void ClearFlagExecuted(int pos)   { flag_array[pos] &= ~MASK_EXECUTED;  }
+	void ClearFlagBreakpoint(int pos) { flag_array[pos] &= ~MASK_BREAK;     }
+	void ClearFlagPointMut(int pos)   { flag_array[pos] &= ~MASK_POINTMUT;  }
+	void ClearFlagCopyMut(int pos)    { flag_array[pos] &= ~MASK_COPYMUT;   }
+  void ClearFlagInjected(int pos)   { flag_array[pos] &= ~MASK_INJECTED;  }
+  void ClearFlagProtected(int pos)  { flag_array[pos] &= ~MASK_PROTECTED; }
+
 	
-	void ClearFlagCopied(int pos)     { flag_array[pos] &= ~MASK_COPIED;   }
-	void ClearFlagMutated(int pos)    { flag_array[pos] &= ~MASK_MUTATED;  }
-	void ClearFlagExecuted(int pos)   { flag_array[pos] &= ~MASK_EXECUTED; }
-	void ClearFlagBreakpoint(int pos) { flag_array[pos] &= ~MASK_BREAK;    }
-	void ClearFlagPointMut(int pos)   { flag_array[pos] &= ~MASK_POINTMUT; }
-	void ClearFlagCopyMut(int pos)    { flag_array[pos] &= ~MASK_COPYMUT;  }
-  void ClearFlagInjected(int pos)   { flag_array[pos] &= ~MASK_INJECTED; }
-    
   void Append(const cInstruction& in_inst) { Insert(GetSize(), in_inst); }
   void Append(const cGenome& in_genome) { Insert(GetSize(), in_genome); }
   void Insert(int pos, const cInstruction& in_inst);

@@ -489,7 +489,7 @@ cHardwareCPU::cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_m
   m_promoters_enabled = m_world->GetConfig().PROMOTERS_ENABLED.Get();
   m_constituative_regulation = m_world->GetConfig().CONSTITUTIVE_REGULATION.Get();
   
-  m_memory = in_organism->GetGenome();  // Initialize memory...
+  m_memory = static_cast<cCPUMemory>(in_organism->GetGenome());  // Initialize memory...
   Reset();                            // Setup the rest of the hardware...
 }
 
@@ -557,7 +557,7 @@ void cHardwareCPU::Reset()
     m_promoters.Resize(0);
     for (int i=0; i< m_memory.GetSize(); i++)
     {
-      if (m_memory[i] == promoter_inst)
+      if (m_memory.GetInstruction(i) == promoter_inst)
       {
         int code = Numberate(i-1, -1, m_world->GetConfig().PROMOTER_CODE_SIZE.Get());
         m_promoters.Push( cPromoter(i,code) );
@@ -908,17 +908,17 @@ int cHardwareCPU::FindLabel_Forward(const cCodeLabel & search_label,
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
     
-    if (m_inst_set->IsNop(search_genome[pos])) {
+    if (m_inst_set->IsNop(search_genome.GetInstruction(pos))) {
       // Find the start and end of the label we're in the middle of.
       
       int start_pos = pos;
       int end_pos = pos + 1;
       while (start_pos > search_start &&
-             m_inst_set->IsNop( search_genome[start_pos - 1] )) {
+             m_inst_set->IsNop( search_genome.GetInstruction(start_pos - 1) )) {
         start_pos--;
       }
       while (end_pos < search_genome.GetSize() &&
-             m_inst_set->IsNop( search_genome[end_pos] )) {
+             m_inst_set->IsNop( search_genome.GetInstruction(end_pos) )) {
         end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -932,7 +932,7 @@ int cHardwareCPU::FindLabel_Forward(const cCodeLabel & search_label,
         int matches;
         for (matches = 0; matches < label_size; matches++) {
           if (search_label[matches] !=
-              m_inst_set->GetNopMod( search_genome[offset + matches] )) {
+              m_inst_set->GetNopMod( search_genome.GetInstruction(offset + matches) )) {
             break;
           }
         }
@@ -989,16 +989,16 @@ int cHardwareCPU::FindLabel_Backward(const cCodeLabel & search_label,
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
     
-    if (m_inst_set->IsNop( search_genome[pos] )) {
+    if (m_inst_set->IsNop( search_genome.GetInstruction(pos) )) {
       // Find the start and end of the label we're in the middle of.
       
       int start_pos = pos;
       int end_pos = pos + 1;
-      while (start_pos > 0 && m_inst_set->IsNop(search_genome[start_pos - 1])) {
+      while (start_pos > 0 && m_inst_set->IsNop(search_genome.GetInstruction(start_pos - 1))) {
         start_pos--;
       }
       while (end_pos < search_start &&
-             m_inst_set->IsNop(search_genome[end_pos])) {
+             m_inst_set->IsNop(search_genome.GetInstruction(end_pos))) {
         end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -1011,7 +1011,7 @@ int cHardwareCPU::FindLabel_Backward(const cCodeLabel & search_label,
         int matches;
         for (matches = 0; matches < label_size; matches++) {
           if (search_label[matches] !=
-              m_inst_set->GetNopMod(search_genome[offset + matches])) {
+              m_inst_set->GetNopMod(search_genome.GetInstruction(offset + matches))) {
             break;
           }
         }
@@ -1294,7 +1294,7 @@ bool cHardwareCPU::Allocate_Random(cAvidaContext& ctx, const int old_size, const
   m_memory.Resize(new_size);
 
   for (int i = old_size; i < new_size; i++) {
-    m_memory[i] = m_inst_set->GetRandomInst(ctx);
+    m_memory.SetInstruction(i, m_inst_set->GetRandomInst(ctx));
   }
   return true;
 }
@@ -1387,8 +1387,8 @@ bool cHardwareCPU::Divide_Main(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = organism->ChildGenome();
-  child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+//  cCPUMemory & child_genome = organism->ChildGenome();
+  organism->ChildGenome() = static_cast<cCPUMemory>(cGenomeUtil::Crop(m_memory, div_point, div_point+child_size));
   
   // Cut off everything in this memory past the divide point.
   m_memory.Resize(div_point);
@@ -2627,7 +2627,7 @@ void cHardwareCPU::Divide_DoTransposons(cAvidaContext& ctx)
   int tr_count = 0;
   for (int i=0; i < child_genome.GetSize(); i++) 
   {
-    if (child_genome.FlagExecuted(i) && (child_genome[i] == transposon_inst)) tr_count++;
+    if (child_genome.FlagExecuted(i) && (child_genome.GetInstruction(i) == transposon_inst)) tr_count++;
   }
   
   for (int i=0; i < tr_count; i++) 
@@ -2685,7 +2685,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   if (organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
       if (organism->TestCopyMut(ctx)) {
-        child_genome[i] = m_inst_set->GetRandomInst(ctx);
+        child_genome.SetInstruction(i, m_inst_set->GetRandomInst(ctx));
         //organism->GetPhenotype().IsMutated() = true;
       }
     }
@@ -3576,7 +3576,7 @@ bool cHardwareCPU::Inst_DonateGreenBeardGene(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
             // ...see if it is donate-gbg
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -3650,7 +3650,7 @@ bool cHardwareCPU::Inst_DonateTrueGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
             // ...see if it is donate-tgb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -3727,7 +3727,7 @@ bool cHardwareCPU::Inst_DonateThreshGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
 	         // ...see if it is donate-threshgb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -3824,7 +3824,7 @@ bool cHardwareCPU::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
           for(int i=0;i<neighbor_genome.GetSize();i++){
 
 	         // ...see if it is donate-quantagb, if so, we found a target
-            if (neighbor_genome[i] == IP().GetInst()) {
+            if (neighbor_genome.GetInstruction(i) == IP().GetInst()) {
               found = true;
               break;
             }
@@ -4964,7 +4964,7 @@ int cHardwareCPU::Numberate(int _pos, int _dir, int _num_bits)
   assert(j < m_memory.GetSize());
   while (code_size < _num_bits)
   {
-    unsigned int inst_code = (unsigned int) GetInstSet().GetInstructionCode(m_memory[j]);
+    unsigned int inst_code = (unsigned int) GetInstSet().GetInstructionCode(m_memory.GetInstruction(j));
     // shift bits in, one by one ... excuse the counter variable pun
     for (int code_on = 0; (code_size < _num_bits) && (code_on < m_world->GetConfig().INST_CODE_LENGTH.Get()); code_on++)
     {

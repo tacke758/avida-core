@@ -274,7 +274,7 @@ void cHardwareExperimental::Reset()
     m_promoters.Resize(0);
 
     for (int i=0; i < m_memory.GetSize(); i++) {
-      if (m_inst_set->IsPromoter(m_memory[i])) {
+      if (m_inst_set->IsPromoter(m_memory.GetInstruction(i))) {
         int code = Numberate(i - 1, -1, m_world->GetConfig().PROMOTER_CODE_SIZE.Get());
         m_promoters.Push(cPromoter(i, code));
       }
@@ -566,7 +566,7 @@ cHeadCPU cHardwareExperimental::FindLabelStart(bool mark_executed)
   int pos = 0;
   
   while (pos < memory.GetSize()) {
-    if (m_inst_set->IsLabel(memory[pos])) { // starting label found
+    if (m_inst_set->IsLabel(memory.GetInstruction(pos))) { // starting label found
       pos++;
       
       // Check for direct matched label pattern, can be substring of 'label'ed target
@@ -574,7 +574,7 @@ cHeadCPU cHardwareExperimental::FindLabelStart(bool mark_executed)
       // - extra NOPs in 'label'ed target are ignored
       int size_matched = 0;
       while (size_matched < search_label.GetSize() && pos < memory.GetSize()) {
-        if (!m_inst_set->IsNop(memory[pos]) || search_label[size_matched] != m_inst_set->GetNopMod(memory[pos])) break;
+        if (!m_inst_set->IsNop(memory.GetInstruction(pos)) || search_label[size_matched] != m_inst_set->GetNopMod(memory.GetInstruction(pos))) break;
         size_matched++;
         pos++;
       }
@@ -866,7 +866,7 @@ bool cHardwareExperimental::Allocate_Random(cAvidaContext& ctx, const int old_si
   m_memory.Resize(new_size);
   
   for (int i = old_size; i < new_size; i++) {
-    m_memory[i] = m_inst_set->GetRandomInst(ctx);
+    m_memory.SetInstruction(i, m_inst_set->GetRandomInst(ctx));
   }
   return true;
 }
@@ -1714,7 +1714,7 @@ int cHardwareExperimental::Numberate(int _pos, int _dir, int _num_bits)
   assert(j < m_memory.GetSize());
   while (code_size < _num_bits)
   {
-    unsigned int inst_code = (unsigned int) GetInstSet().GetInstructionCode(m_memory[j]);
+    unsigned int inst_code = (unsigned int) GetInstSet().GetInstructionCode(m_memory.GetInstruction(j));
     // shift bits in, one by one ... excuse the counter variable pun
     for (int code_on = 0; (code_size < _num_bits) && (code_on < m_world->GetConfig().INST_CODE_LENGTH.Get()); code_on++)
     {
@@ -1808,7 +1808,7 @@ bool cHardwareExperimental::Inst_Repro(cAvidaContext& ctx)
   // Perform Copy Mutations...
   if (organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
-      if (organism->TestCopyMut(ctx)) child_genome[i] = m_inst_set->GetRandomInst(ctx);
+      if (organism->TestCopyMut(ctx)) child_genome.SetInstruction(i, m_inst_set->GetRandomInst(ctx));
     }
   }
   

@@ -185,7 +185,7 @@ public:
         // access this CPU's code block
         cCPUMemory& cpu_mem = cell.GetOrganism()->GetHardware().GetMemory();
         const int mem_size = cpu_mem.GetSize();
-        for (int y = 0; y < mem_size; y++) inst_counts[cpu_mem[y].GetOp()]++;     
+        for (int y = 0; y < mem_size; y++) inst_counts[cpu_mem.GetOp(y)]++;     
       }
     }
     
@@ -2005,8 +2005,8 @@ public:
       
       // Place this genotype into the histograms.
       for (int j = 0; j < length; j++) {
-        assert(genome[j].GetOp() < num_inst);
-        inst_hist[j].Insert(genome[j].GetOp(), num_organisms);
+        assert(genome.GetOp(j) < num_inst);
+        inst_hist[j].Insert(genome.GetOp(j), num_organisms);
       }
       
       // Mark all instructions beyond the length as -1 in histogram...
@@ -2045,7 +2045,7 @@ public:
       if (mode == -1 && count == total) break;
       
       if ( i < con_length )
-        con_genome[i].SetOp(mode);
+        con_genome.SetOp(i, mode);
       
       // Print all needed files.
       if (i < m_lines_saved) {

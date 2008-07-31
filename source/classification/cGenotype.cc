@@ -78,7 +78,7 @@ bool cGenotype::SaveClone(ofstream& fp)
   fp << genome.GetSize() << " ";
 
   for (int i = 0; i < genome.GetSize(); i++) {
-    fp << ((int) genome[i].GetOp()) << " ";
+    fp << ((int) genome.GetOp(i)) << " ";
   }
 
   return true;
@@ -99,7 +99,7 @@ cGenotype* cGenotype::LoadClone(cWorld* world, ifstream& fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    ret->genome[i] = temp_inst;
+    ret->genome.SetInstruction(i, temp_inst);
     // @CAO add something here to load arguments for instructions.
   }
   

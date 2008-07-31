@@ -142,7 +142,7 @@ cHardwareSMT::cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_m
 	
   m_mem_array[0] = in_organism->GetGenome();  // Initialize memory...
   m_mem_array[0].Resize(m_mem_array[0].GetSize() + 1);
-  m_mem_array[0][m_mem_array[0].GetSize() - 1] = cInstruction();
+  m_mem_array[0].SetInstruction(m_mem_array[0].GetSize() - 1, cInstruction());
   Reset();                            // Setup the rest of the hardware...
 }
 
@@ -435,17 +435,17 @@ int cHardwareSMT::FindLabel_Forward(const cCodeLabel& search_label, const cGenom
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
 		
-    if (m_inst_set->IsNop(search_genome[pos])) {
+    if (m_inst_set->IsNop(search_genome.GetInstruction(pos))) {
       // Find the start and end of the label we're in the middle of.
 			
       int start_pos = pos;
       int end_pos = pos + 1;
       while (start_pos > search_start &&
-						 m_inst_set->IsNop( search_genome[start_pos - 1] )) {
+						 m_inst_set->IsNop( search_genome.GetInstruction(start_pos - 1) )) {
 				start_pos--;
       }
       while (end_pos < search_genome.GetSize() &&
-						 m_inst_set->IsNop( search_genome[end_pos] )) {
+						 m_inst_set->IsNop( search_genome.GetInstruction(end_pos) )) {
 				end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -459,7 +459,7 @@ int cHardwareSMT::FindLabel_Forward(const cCodeLabel& search_label, const cGenom
 				int matches;
 				for (matches = 0; matches < label_size; matches++) {
 					if (search_label[matches] !=
-							m_inst_set->GetNopMod( search_genome[offset + matches] )) {
+							m_inst_set->GetNopMod( search_genome.GetInstruction(offset + matches) )) {
 						break;
 					}
 				}
@@ -514,16 +514,16 @@ int cHardwareSMT::FindLabel_Backward(const cCodeLabel& search_label, const cGeno
     // If we are within a label, rewind to the beginning of it and see if
     // it has the proper sub-label that we're looking for.
 		
-    if (m_inst_set->IsNop( search_genome[pos] )) {
+    if (m_inst_set->IsNop( search_genome.GetInstruction(pos) )) {
       // Find the start and end of the label we're in the middle of.
 			
       int start_pos = pos;
       int end_pos = pos + 1;
-      while (start_pos > 0 && m_inst_set->IsNop(search_genome[start_pos - 1])) {
+      while (start_pos > 0 && m_inst_set->IsNop(search_genome.GetInstruction(start_pos - 1))) {
 				start_pos--;
       }
       while (end_pos < search_start &&
-						 m_inst_set->IsNop(search_genome[end_pos])) {
+						 m_inst_set->IsNop(search_genome.GetInstruction(end_pos))) {
 				end_pos++;
       }
       int test_size = end_pos - start_pos;
@@ -536,7 +536,7 @@ int cHardwareSMT::FindLabel_Backward(const cCodeLabel& search_label, const cGeno
 				int matches;
 				for (matches = 0; matches < label_size; matches++) {
 					if (search_label[matches] !=
-							m_inst_set->GetNopMod(search_genome[offset + matches])) {
+							m_inst_set->GetNopMod(search_genome.GetInstruction(offset + matches))) {
 						break;
 					}
 				}
@@ -848,7 +848,7 @@ void cHardwareSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     if( num_mut > 0 ){
       for (int i = 0; i < num_mut; i++) {
 				int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
-				injected_code[site] = m_inst_set->GetRandomInst(ctx);
+				injected_code.SetInstruction(site, m_inst_set->GetRandomInst(ctx));
       }
     }
   }
@@ -899,7 +899,7 @@ void cHardwareSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier,
   if (organism->GetParentMutProb() > 0) {
     for (int i = 0; i < m_mem_array[0].GetSize(); i++) {
       if (organism->TestParentMut(ctx)) {
-				m_mem_array[0][i] = m_inst_set->GetRandomInst(ctx);
+				m_mem_array[0].SetInstruction(i, m_inst_set->GetRandomInst(ctx));
       }
     }
   }

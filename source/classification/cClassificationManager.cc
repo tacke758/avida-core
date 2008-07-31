@@ -1288,7 +1288,7 @@ unsigned int cClassificationManager::FindCRC(const cGenome & in_genome) const
   unsigned int total = 0;
   
   for (int i = 0; i < in_genome.GetSize(); i++) {
-    total += (in_genome[i].GetOp() + 3) * i;
+    total += (in_genome.GetOp(i) + 3) * i;
   }
   
   return total % nGenotype::HASH_SIZE;
@@ -1301,7 +1301,7 @@ unsigned int cClassificationManager::FindInjectCRC(const cGenome & in_genome) co
   int i;
   
   for (i = 0; i < in_genome.GetSize(); i++) {
-    total *= in_genome[i].GetOp() + 10 + i << 6;
+    total *= in_genome.GetOp(i) + 10 + i << 6;
     total += 3;
   }
   

@@ -81,9 +81,9 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSe
     
   // Make sure that the sequences jive with the inst_set
   for (int i = 0; i < genome.GetSize(); i++) {
-    if (genome[i].GetOp() >= inst_set.GetSize()) {
+    if (genome.GetOp(i) >= inst_set.GetSize()) {
       cString msg("Trying to load instruction ");
-      msg += genome[i].GetOp();
+      msg += genome.GetOp(i);
       msg += ".  Max in set is";
       msg += (inst_set.GetSize() - 1);
       m_world->GetDriver().RaiseException(msg);
@@ -242,8 +242,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
   tArray<int> ko_effect(length);
   for (int line_num = 0; line_num < length; line_num++) {
     // Save a copy of the current instruction and replace it with "NULL"
-    int cur_inst = mod_genome[line_num].GetOp();
-    mod_genome[line_num] = null_inst;
+    int cur_inst = mod_genome.GetOp(line_num);
+    mod_genome.SetInstruction(line_num, null_inst);
     cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
     ko_genotype.Recalculate(ctx);
     if (check_chart == true) {
@@ -269,7 +269,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
     }
     
     // Reset the mod_genome back to the original sequence.
-    mod_genome[line_num].SetOp(cur_inst);
+    mod_genome.SetOp(line_num, cur_inst);
   }
   
   // Only continue from here if we are looking at all pairs of knockouts
@@ -300,10 +300,10 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
       // Calculate the fitness for this pair of knockouts to determine if its
       // something other than what we expected.
       
-      int cur_inst1 = mod_genome[line1].GetOp();
-      int cur_inst2 = mod_genome[line2].GetOp();
-      mod_genome[line1] = null_inst;
-      mod_genome[line2] = null_inst;
+      int cur_inst1 = mod_genome.GetOp(line1);
+      int cur_inst2 = mod_genome.GetOp(line2);
+      mod_genome.SetInstruction(line1, null_inst);
+      mod_genome.SetInstruction(line2, null_inst);
       cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
       ko_genotype.Recalculate(ctx);
       
@@ -328,8 +328,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
       }	
       
       // Reset the mod_genome back to the original sequence.
-      mod_genome[line1].SetOp(cur_inst1);
-      mod_genome[line2].SetOp(cur_inst2);
+      mod_genome.SetOp(line1, cur_inst1);
+      mod_genome.SetOp(line2, cur_inst2);
     }
   }
   
