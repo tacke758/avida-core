@@ -104,7 +104,7 @@ protected:
 	int cclade_id;				                  // @MRR Coalescence clade information (set in cPopulation)
  
 	// Other stats
-	cCPUMemory m_child_genome; // Child genome, while under construction.
+  cCPUMemory m_child_genome; // Child genome, while under construction.
 //  sCPUStats m_cpu_stats;     // Info for statistics
 
   // Input and Output with the environment

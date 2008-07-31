@@ -31,7 +31,6 @@
 #include "cInstSet.h"
 #include "functions.h"
 
-#include "cCPUMemory.h"
 
 using namespace std;
 
@@ -42,7 +41,7 @@ int cGenomeUtil::FindInst(const cGenome & gen, const cInstruction & inst,
   assert(start_index < gen.GetSize());  // Starting search after genome end.
 
   for(int i = start_index; i < gen.GetSize(); i++) {
-    if (gen.GetInstruction(i) == inst) return i;
+    if (gen[i] == inst) return i;
   }
 
   // Search failed
@@ -75,7 +74,7 @@ int cGenomeUtil::FindHammingDistance(const cGenome &gen1, const cGenome &gen2,
 
   // Cycle through the overlap adding all differences to the distance.
   for (int i = 0; i < overlap; i++) {
-    if (gen1.GetInstruction(start1 + i) != gen2.GetInstruction(start2 + i))  hamming_distance++;
+    if (gen1[start1 + i] != gen2[start2 + i])  hamming_distance++;
   }
 
   return hamming_distance;
@@ -139,13 +138,13 @@ int cGenomeUtil::FindEditDistance(const cGenome & gen1, const cGenome & gen2)
   // Loop through each subsequent character in the test code
   for (int i = 0; i < size2; i++) {
     // Initialize the first entry in cur_row.
-    if (gen1.GetInstruction(0) == gen2.GetInstruction(i)) cur_row[0] = i;
+    if (gen1[0] == gen2[i]) cur_row[0] = i;
     else cur_row[0] = (i < prev_row[0]) ? (i+1) : (prev_row[0] + 1);
 
     // Move down the cur_row and fill it out.
     for (int j = 1; j < size1; j++) {
       // If the values are equal, keep the value in the upper left.
-      if (gen1.GetInstruction(j) == gen2.GetInstruction(i)) {
+      if (gen1[j] == gen2[i]) {
 	cur_row[j] = prev_row[j-1];
       }
 
@@ -188,7 +187,7 @@ cGenome cGenomeUtil::Crop(const cGenome & in_genome, int start, int end)
   const int out_length = end - start;
   cGenome out_genome(out_length);
   for (int i = 0; i < out_length; i++) {
-    out_genome.SetInstruction(i, in_genome.GetInstruction(i+start));
+    out_genome[i] = in_genome[i+start];
   }
 
   return out_genome;
@@ -208,10 +207,10 @@ cGenome cGenomeUtil::Cut(const cGenome & in_genome, int start, int end)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < start; i++) {
-    out_genome.SetInstruction(i, in_genome.GetInstruction(i));
+    out_genome[i] = in_genome[i];
   }
   for (int i = start; i < out_length; i++) {
-    out_genome.SetInstruction(i, in_genome.GetInstruction(i+cut_length));
+    out_genome[i] = in_genome[i+cut_length];
   }
 
   return out_genome;
@@ -226,10 +225,10 @@ cGenome cGenomeUtil::Join(const cGenome & genome1, const cGenome & genome2)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < length1; i++) {
-    out_genome.SetInstruction(i, genome1.GetInstruction(i));
+    out_genome[i] = genome1[i];
   }
   for (int i = 0; i < length2; i++) {
-    out_genome.SetInstruction(i+length1, genome2.GetInstruction(i));
+    out_genome[i+length1] = genome2[i];
   }
 
   return out_genome;
@@ -253,33 +252,24 @@ bool cGenomeUtil::LoadGenome(const cString& filename, const cInstSet& inst_set, 
   if (!input_file.WasOpened()) return false;
   
   // Setup the code array...
-  cCPUMemory new_genome(input_file.GetNumLines());
+  cGenome new_genome(input_file.GetNumLines());
   
   for (int line_num = 0; line_num < new_genome.GetSize(); line_num++) {
     cString cur_line = input_file.GetLine(line_num);
-		
-		cString current_inst = cur_line.GetWord();
-		cString current_inst_protection = cur_line.GetWordAt(current_inst.GetSize());
-		
-    new_genome.SetInstruction(line_num, inst_set.GetInst(current_inst));
-		if(current_inst_protection == "protected")
-			new_genome.SetFlagProtected(line_num);
-		else
-			new_genome.ClearFlagProtected(line_num);
+    new_genome[line_num] = inst_set.GetInst(cur_line);
     
-    if (new_genome.GetInstruction(line_num) == inst_set.GetInstError()) {
+    if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
       if (success) {
         cerr << "Error: Cannot load organism '" << filename << "'" << endl;
         success = false;
       }
-      cerr << "       Unknown line: " << current_inst << " (best match is '" << inst_set.FindBestMatch(current_inst) << "')" << endl;
+      cerr << "       Unknown line: " << cur_line << " (best match is '" << inst_set.FindBestMatch(cur_line) << "')" << endl;
     }
   }
   
   if (new_genome.GetSize() == 0) cerr << "Warning: Genome size is 0!" << endl;
-  if (success)
-		out_genome = new_genome;
+  if (success) out_genome = new_genome;
   return success;
 }
 
@@ -298,9 +288,9 @@ cGenome cGenomeUtil::LoadInternalGenome(istream& fp, const cInstSet& inst_set)
   
   for (int line_num = 0; line_num < new_genome.GetSize(); line_num++) {
     fp >> cur_line;
-    new_genome.SetInstruction(line_num, inst_set.GetInst(cur_line));
+    new_genome[line_num] = inst_set.GetInst(cur_line);
     
-    if (new_genome.GetInstruction(line_num) == inst_set.GetInstError()) {
+    if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
       cerr << "Cannot load creature from stream:" << endl
       << "       Unknown line: " << cur_line << endl;
@@ -313,7 +303,7 @@ void cGenomeUtil::SaveGenome(ostream& fp, const cInstSet& inst_set,
                            const cGenome & gen)
 {
   for (int i = 0; i < gen.GetSize(); i++) {
-    fp << inst_set.GetName(gen.GetInstruction(i)) << endl;
+    fp << inst_set.GetName(gen[i]) << endl;
   }
 }
 
@@ -329,7 +319,7 @@ cGenome cGenomeUtil::RandomGenome(cAvidaContext& ctx, int length, const cInstSet
 {
   cGenome genome(length);
   for (int i = 0; i < length; i++) {
-    genome.SetInstruction(i, inst_set.GetRandomInst(ctx));
+    genome[i] = inst_set.GetRandomInst(ctx);
   }
   return genome;
 }
@@ -341,9 +331,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(cAvidaContext& c
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome.SetInstruction(i, inst);
+    genome[i] = inst;
   }
-  genome.SetInstruction(length, inst_set.GetInst("repro"));
+  genome[length] = inst_set.GetInst("repro");
   return genome;
 }
 
@@ -354,9 +344,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusReproSex(cAvidaContext
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome.SetInstruction(i, inst);
+    genome[i] = inst;
   }
-  genome.SetInstruction(length, inst_set.GetInst("repro-sex"));
+  genome[length] = inst_set.GetInst("repro-sex");
   return genome;
 }
 

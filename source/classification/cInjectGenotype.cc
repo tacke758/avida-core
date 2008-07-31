@@ -68,7 +68,7 @@ bool cInjectGenotype::SaveClone(ofstream& fp)
   fp << genome.GetSize() << " ";
 
   for (int i = 0; i < genome.GetSize(); i++) {
-    fp << ((int) genome.GetOp(i)) << " ";
+    fp << ((int) genome[i].GetOp()) << " ";
   }
 
   return true;
@@ -87,7 +87,7 @@ bool cInjectGenotype::LoadClone(ifstream & fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    genome.SetInstruction(i, temp_inst);
+    genome[i] = temp_inst;
     // @CAO add something here to load arguments for instructions.
   }
 

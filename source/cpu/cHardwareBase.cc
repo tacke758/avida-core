@@ -172,15 +172,15 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
         switch (m_world->GetConfig().SLIP_FILL_MODE.Get())
         {
           case 0:
-          child_genome.SetInstruction(from+i, child_copy.GetInstruction(to+i));
+          child_genome[from+i] = child_copy[to+i];
           break;
           
           case 1:        
-          child_genome.SetInstruction(from+i, m_inst_set->GetInst("nop-X"));
+          child_genome[from+i] = m_inst_set->GetInst("nop-X");
           break;
           
           case 2:        
-          child_genome.SetInstruction(from+i, m_inst_set->GetRandomInst(ctx));
+          child_genome[from+i] = m_inst_set->GetRandomInst(ctx);
           break;
           
           //Randomized order of instructions
@@ -201,7 +201,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
               }
               test++;
             }
-            child_genome.SetInstruction(from+i, child_genome.GetInstruction(to+copy_index));
+            child_genome[from+i] = child_genome[to+copy_index];
             copied_so_far[copy_index] = true;
           }
           break;
@@ -217,7 +217,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
     if (insertion_length < 0) insertion_length = 0;
     for (int i=insertion_length; i < child_copy.GetSize() - to; i++) 
     {
-        child_genome.SetInstruction(from+i, child_copy.GetInstruction(to+i));
+        child_genome[from+i] = child_copy[to+i];
 
     }
 
@@ -233,7 +233,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
   // Divide Mutations
   if (organism->TestDivideMut(ctx) && totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(child_genome.GetSize());
-    child_genome.SetInstruction(mut_line, m_inst_set->GetRandomInst(ctx));
+    child_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
 //    ++cpu_stats.mut_stats.divide_mut_count;
     totalMutations++;
     //cerr << "Mutating HERE!!!! BAD!!!!!" << endl;
@@ -263,7 +263,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
     if (num_mut > 0 && totalMutations < maxmut) {
       for (int i = 0; i < num_mut && totalMutations < maxmut; i++) {
         int site = ctx.GetRandom().GetUInt(child_genome.GetSize());
-        child_genome.SetInstruction(site, m_inst_set->GetRandomInst(ctx));
+        child_genome[site] = m_inst_set->GetRandomInst(ctx);
 //        ++cpu_stats.mut_stats.div_mut_count;
         totalMutations++;
       }
@@ -336,7 +336,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
         
         if (mut < m_inst_set->GetSize()) { // point
           int site = ctx.GetRandom().GetUInt(child_genome.GetSize());
-          child_genome.SetInstruction(site, cInstruction(mut));
+          child_genome[site] = cInstruction(mut);
         } else if (mut == m_inst_set->GetSize()) { // delete
           if (child_genome.GetSize() == MIN_CREATURE_SIZE) continue;
           int site = ctx.GetRandom().GetUInt(child_genome.GetSize());
@@ -359,7 +359,7 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
   if (organism->GetParentMutProb() > 0 && totalMutations < maxmut) {
     for (int i = 0; i < GetMemory().GetSize(); i++) {
       if (organism->TestParentMut(ctx)) {
-        GetMemory().SetInstruction(i, m_inst_set->GetRandomInst(ctx));
+        GetMemory()[i] = m_inst_set->GetRandomInst(ctx);
 //        cpu_stats.mut_stats.parent_mut_line_count++;
         totalMutations++; //Unlike the others we can't be sure this was done only on divide -- AWC 06/29/06
         
@@ -399,7 +399,7 @@ unsigned cHardwareBase::Divide_DoExactMutations(cAvidaContext& ctx, double mut_m
   // Divide Mutations
   if (totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(child_genome.GetSize());
-    child_genome.SetInstruction(mut_line, m_inst_set->GetRandomInst(ctx));
+    child_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
 //    ++cpu_stats.mut_stats.divide_mut_count;
     totalMutations++;
     //cerr << "Mutating HERE!!!! BAD!!!!!" << endl;
@@ -414,7 +414,7 @@ unsigned cHardwareBase::Divide_DoExactMutations(cAvidaContext& ctx, double mut_m
     if (num_mut > 0 && totalMutations < maxmut) {
       for (int i = 0; i < num_mut && totalMutations < maxmut; i++) {
         int site = ctx.GetRandom().GetUInt(child_genome.GetSize());
-        child_genome.SetInstruction(site, m_inst_set->GetRandomInst(ctx));
+        child_genome[site] = m_inst_set->GetRandomInst(ctx);
 //        ++cpu_stats.mut_stats.div_mut_count;
         totalMutations++;
         cerr << "Resampling here " << totalMutations << endl;
@@ -572,7 +572,7 @@ int cHardwareBase::PointMutate(cAvidaContext& ctx, const double mut_rate)
   
   for (int i = 0; i < num_muts; i++) {
     const int pos = ctx.GetRandom().GetUInt(memory.GetSize());
-    memory.SetInstruction(pos, m_inst_set->GetRandomInst(ctx));
+    memory[pos] = m_inst_set->GetRandomInst(ctx);
     memory.SetFlagMutated(pos);
     memory.SetFlagPointMut(pos);
 //    organism->CPUStats().mut_stats.point_mut_count++;
@@ -587,7 +587,7 @@ void cHardwareBase::TriggerMutations_Body(cAvidaContext& ctx, int type, cCPUMemo
 	
   switch (type) {
 		case nMutation::TYPE_POINT:
-			target_memory.SetInstruction(pos, m_inst_set->GetRandomInst(ctx));
+			target_memory[pos] = m_inst_set->GetRandomInst(ctx);
 			target_memory.SetFlagMutated(pos);
 			break;
 		case nMutation::TYPE_INSERT:

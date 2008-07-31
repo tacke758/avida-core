@@ -104,7 +104,7 @@ cMxCodeArray::cMxCodeArray(cWorld* world, const cGenome &in_code, int in_max_siz
   data = new cInstruction[max_size];
 
   for (int i = 0; i < size; i++) {
-    data[i] = in_code.GetInstruction(i);
+    data[i] = in_code[i];
   }
 }
 
@@ -276,7 +276,7 @@ void cMxCodeArray::CopyDataTo(cGenome & other_code) const
   other_code = cGenome(size);
 
   for (int i = 0; i < size; i++) {
-    other_code.SetInstruction(i, data[i]);
+    other_code[i] = data[i];
   }
 }
 

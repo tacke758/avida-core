@@ -102,7 +102,7 @@ void cCPUMemory::operator=(const cGenome & other_genome)
 
   // Fill in the new information...
   for (int i = 0; i < active_size; i++) {
-    genome[i] = other_genome.GetInstruction(i);
+    genome[i] = other_genome[i];
     flag_array[i] = 0;
   }
 }
@@ -175,7 +175,7 @@ void cCPUMemory::Insert(int pos, const cGenome & in_genome)
 
   SloppyInsert(pos, in_genome.GetSize());
   for (int i = 0; i < in_genome.GetSize(); i++) {
-    genome[i+pos] = in_genome.GetInstruction(i);
+    genome[i+pos] = in_genome[i];
     flag_array[i+pos] = 0;
   }
 }
@@ -186,19 +186,14 @@ void cCPUMemory::Remove(int pos, int num_insts)
   assert(pos >= 0);                       // Removal must be in genome.
   assert(pos + num_insts <= active_size); // Cannot extend past end of genome.
 
-	int new_size = active_size - num_insts;
+  const int new_size = active_size - num_insts;
   for (int i = pos; i < new_size; i++) {
-		if(FlagProtected(i)) { // instruction cannot be removed
-			new_size++;
-		} else {
-			genome[i] = genome[i + num_insts];
-			flag_array[i] = flag_array[i + num_insts];
-		}
+    genome[i] = genome[i + num_insts];
+    flag_array[i] = flag_array[i + num_insts];
   }
   SloppyResize(new_size);
 }
 
-// Not really sure what this function does
 void cCPUMemory::Replace(int pos, int num_insts, const cGenome & in_genome)
 {
   assert(pos >= 0);                       // Replace must be in genome.
@@ -213,18 +208,7 @@ void cCPUMemory::Replace(int pos, int num_insts, const cGenome & in_genome)
 
   // Now just copy everything over!
   for (int i = 0; i < in_genome.GetSize(); i++) {
-    genome[i + pos] = in_genome.GetInstruction(i);
+    genome[i + pos] = in_genome[i];
     flag_array[i + pos] = 0;
   }
-}
-
-
-void cCPUMemory::SetInstruction(int pos, const cInstruction& new_inst)
-{
-	if(!FlagProtected(pos)) {
-		genome[pos] = new_inst;
-//		ClearFlagProtected(pos);
-	} else {
-		std::cerr << "HERE\n";
-	}
 }

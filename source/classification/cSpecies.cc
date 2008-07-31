@@ -128,10 +128,10 @@ int cSpecies::Compare(const cGenome & test_genome, int max_fail_count)
 
   for (int i = 0; i < overlap; i++) {
     // If this position has changed, check if crossovers here are viable.
-    if (test_genome.GetInstruction(i) != genome.GetInstruction(i)) {
+    if (test_genome[i] != genome[i]) {
       // Continue crossing over on each side...
-      cross_genome1.GetInstruction(i) = test_genome.GetInstruction(i);
-      cross_genome2.GetInstruction(i) = genome.GetInstruction(i);
+      cross_genome1[i] = test_genome[i];
+      cross_genome2[i] = genome[i];
    
       // Run each side, and determine viability...
       testcpu->TestGenome(ctx, test_info, cross_genome1);

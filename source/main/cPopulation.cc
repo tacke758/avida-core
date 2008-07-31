@@ -254,7 +254,7 @@ void cPopulation::InitiatePop() {
   
   // Load a clone if one is provided, otherwise setup start organism.
   if (m_world->GetConfig().CLONE_FILE.Get() == "-" || m_world->GetConfig().CLONE_FILE.Get() == "") {
-    cCPUMemory start_org(0);
+    cGenome start_org(0);
     const cString& filename = m_world->GetConfig().START_CREATURE.Get();
     
     if (filename != "-" && filename != "") {
@@ -551,7 +551,7 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   }
   else{
     for(int i = 1; i <= genome_length; i++){
-      if(in_organism->GetGenome().GetOp(i-1) == rewarded_instruction){
+      if(in_organism->GetGenome()[i-1].GetOp() == rewarded_instruction){
         num_rewarded_instructions++;
       }  
     } 
@@ -1386,7 +1386,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<next_germ.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          next_germ.SetInstruction(i, instset.GetRandomInst(ctx));
+          next_germ[i] = instset.GetRandomInst(ctx);
         }
       }
     }
@@ -1431,7 +1431,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<new_genome.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          new_genome.SetInstruction(i, instset.GetRandomInst(ctx));
+          new_genome[i] = instset.GetRandomInst(ctx);
         }
       }
     }
@@ -4306,7 +4306,7 @@ void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
   }
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
-	
+  
   cOrganism* new_organism = new cOrganism(m_world, ctx, new_genotype->GetGenome());
   
   //Coalescense Clade Setup

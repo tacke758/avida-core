@@ -87,11 +87,11 @@ public:
   inline void Advance() { m_position++; Adjust(); }
   inline void Retreat() { m_position--; Adjust(); }
 
-  inline const cInstruction GetInst() const { return GetMemory().GetInstruction(m_position); }
-  inline const cInstruction GetInst(int offset) const { return GetMemory().GetInstruction(m_position + offset); }
+  inline const cInstruction& GetInst() const { return GetMemory()[m_position]; }
+  inline const cInstruction& GetInst(int offset) const { return GetMemory()[m_position + offset]; }
   inline cInstruction GetNextInst() const;
 
-  inline void SetInst(const cInstruction& value) { GetMemory().SetInstruction(m_position, value); }
+  inline void SetInst(const cInstruction& value) { GetMemory()[m_position] = value; }
   inline void InsertInst(const cInstruction& inst) { GetMemory().Insert(m_position, inst); }
   inline void RemoveInst() { GetMemory().Remove(m_position); }
 
@@ -162,7 +162,7 @@ inline bool cHeadCPU::operator==(const cHeadCPU& in_cpu_head) const
 
 inline cInstruction cHeadCPU::GetNextInst() const
 {
-  return (AtEnd()) ? m_hardware->GetInstSet().GetInstError() : GetMemory().GetInstruction(m_position + 1);
+  return (AtEnd()) ? m_hardware->GetInstSet().GetInstError() : GetMemory()[m_position + 1];
 }
 
 

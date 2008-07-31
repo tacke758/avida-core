@@ -65,22 +65,11 @@ public:
   virtual bool operator!=(const cGenome& other_genome) const { return !(this->operator==(other_genome)); }
   virtual bool operator<(const cGenome& other_genome) const { return AsString() < other_genome.AsString(); }
 
-	/***********************/
-	// DO NOT overload the [] operator.  Doing so will break instruction protection, which is a part of the subclass cCPUMemory.
-	// Use the get and set functions below.
-	// 
-	//	cInstruction& operator[](int index);// { assert(index >= 0 && index < active_size);  return genome[index]; }
-	//  const cInstruction& operator[](int index) const;// { assert(index >= 0 && index < active_size);  return genome[index]; }
-	/**********************/
+  cInstruction& operator[](int index) { assert(index >= 0 && index < active_size);  return genome[index]; }
+  const cInstruction& operator[](int index) const { assert(index >= 0 && index < active_size);  return genome[index]; }
 
-	int GetSymbol(int pos) const { return genome[pos].GetSymbol(); }
-	int GetOp(int pos) const { return genome[pos].GetOp(); }
-	virtual void SetOp(int pos, int opt) { return genome[pos].SetOp(opt); }
-	cInstruction GetInstruction(int pos) const { return genome[pos]; }
-	virtual void SetInstruction(int pos, const cInstruction& new_inst) { genome[pos] = new_inst; }
+  virtual void Copy(int to, int from);
 
-	virtual void Copy(int to, int from);
-	
   bool OK() const;
    
   int GetSize() const { return active_size; }

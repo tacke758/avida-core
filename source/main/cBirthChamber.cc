@@ -518,8 +518,11 @@ void cBirthChamber::SetupGenotypeInfo(cOrganism* organism, cGenotype* parent0, c
   child_genotype->IncDeferAdjust();
 }
 
-bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx, const cGenome& child_genome, cOrganism& parent,
-                                    tArray<cOrganism*>& child_array, tArray<cMerit>& merit_array)
+bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
+				    const cGenome& child_genome,
+				    cOrganism& parent,
+                                    tArray<cOrganism*>& child_array,
+				    tArray<cMerit>& merit_array)
 {
   cPhenotype& parent_phenotype = parent.GetPhenotype();
 

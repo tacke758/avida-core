@@ -37,7 +37,7 @@ cGenome::cGenome(int _size)
 cGenome::cGenome(const cGenome & in_genome)
   : genome(in_genome.GetSize()), active_size(in_genome.GetSize())
 {
-  for (int i = 0; i < active_size; i++)  genome[i] = in_genome.GetInstruction(i);
+  for (int i = 0; i < active_size; i++)  genome[i] = in_genome[i];
 }
 
 cGenome::cGenome(const cString & in_string)
@@ -82,9 +82,10 @@ void cGenome::operator=(const cGenome & other_genome)
   // Now that both code arrays are the same size, copy the other one over.
 
   for (int i = 0; i < active_size; i++) {
-    genome[i] = other_genome.GetInstruction(i);
+    genome[i] = other_genome[i];
   }
 }
+
 
 bool cGenome::operator==(const cGenome & other_genome) const
 {
@@ -93,10 +94,11 @@ bool cGenome::operator==(const cGenome & other_genome) const
 
   // Then go through line by line.
   for (int i = 0; i < active_size; i++)
-    if (genome[i] != other_genome.GetInstruction(i)) return false;
+    if (genome[i] != other_genome[i]) return false;
 
   return true;
 }
+
 
 void cGenome::Copy(int to, int from)
 {
