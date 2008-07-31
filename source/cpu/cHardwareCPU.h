@@ -642,7 +642,7 @@ private:
   bool Inst_TransLab14(cAvidaContext& ctx);
   bool Inst_TransLab15(cAvidaContext& ctx);
   bool Inst_TransLab16(cAvidaContext& ctx);  
-/*
+
   bool Inst_Trigger0(cAvidaContext& ctx);
   bool Inst_Trigger1(cAvidaContext& ctx);
   bool Inst_Trigger2(cAvidaContext& ctx);
@@ -677,7 +677,7 @@ private:
   bool Inst_Action11(cAvidaContext& ctx);
   bool Inst_Action12(cAvidaContext& ctx);
   bool Inst_Action13(cAvidaContext& ctx);
-  */
+  
   
   // UML instructions used to construct properties
   bool Inst_AbsenceProperty(cAvidaContext& ctx);

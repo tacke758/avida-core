@@ -519,7 +519,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 							 "Change to transition label 15"),		
 	tInstLibEntry<tMethod>("trans-16", &cHardwareCPU::Inst_TransLab16, false, 
 							 "Change to transition label 16"),		  
-/*					
+					
 	tInstLibEntry<tMethod>("trig-0", &cHardwareCPU::Inst_Trigger0, false, 
 					"Change to trigger 0"),	
 	tInstLibEntry<tMethod>("trig-1", &cHardwareCPU::Inst_Trigger1, false, 
@@ -584,7 +584,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 					"Change to action 12"),						
 	tInstLibEntry<tMethod>("action-13", &cHardwareCPU::Inst_Action13, false, 
 					"Change to action 13"),		
-*/
+
 	  
 	tInstLibEntry<tMethod>("prop-abs", &cHardwareCPU::Inst_AbsenceProperty, false, 
 							 "Add an absence property"),						
@@ -4793,7 +4793,7 @@ bool cHardwareCPU::Inst_TransLab16(cAvidaContext& ctx)
 
 
 
-/*
+
 bool cHardwareCPU::Inst_Trigger0(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpTrigger(0)); }
 
@@ -4886,7 +4886,7 @@ bool cHardwareCPU::Inst_Action12(cAvidaContext& ctx)
 
 bool cHardwareCPU::Inst_Action13(cAvidaContext& ctx)
 { return (organism->getStateDiagram()->absoluteJumpAction(13)); }
-*/
+
 
 bool cHardwareCPU::Inst_RelativeMoveTrigger(cAvidaContext& ctx) 
 {
