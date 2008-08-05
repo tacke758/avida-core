@@ -30,14 +30,17 @@ using namespace std;
 
 
 cGenome::cGenome(int _size)
-  : genome(_size), active_size(_size)
+  : genome(_size), protected_sites(_size), active_size(_size)
 {
 }
 
 cGenome::cGenome(const cGenome & in_genome)
-  : genome(in_genome.GetSize()), active_size(in_genome.GetSize())
+  : genome(in_genome.GetSize()), protected_sites(in_genome.GetSize()), active_size(in_genome.GetSize())
 {
-  for (int i = 0; i < active_size; i++)  genome[i] = in_genome[i];
+  for (int i = 0; i < active_size; i++) {
+		genome[i] = in_genome[i];
+		protected_sites[i] = in_genome.IsProtected(i);
+	}
 }
 
 cGenome::cGenome(const cString & in_string)
@@ -47,6 +50,9 @@ cGenome::cGenome(const cString & in_string)
 
   active_size = tmp_string.GetSize();
   genome.ResizeClear(active_size);
+  protected_sites.ResizeClear(active_size);
+	//protected_sites.SetAll(false);
+
   for (int i = 0; i < active_size; i++) {
     genome[i].SetSymbol(tmp_string[i]);
   }
@@ -64,6 +70,7 @@ cGenome::cGenome(cInstruction* begin, cInstruction* end)
 {
   for(cInstruction* i=begin; i!=end; ++i,++active_size) {
     genome.Push(*i);
+		protected_sites.Push(false);
   }
 }
 
@@ -78,11 +85,13 @@ void cGenome::operator=(const cGenome & other_genome)
   // If we need to resize, do so...
   active_size = other_genome.GetSize();
   genome.ResizeClear(active_size);
+	protected_sites.ResizeClear(active_size);
 
   // Now that both code arrays are the same size, copy the other one over.
 
   for (int i = 0; i < active_size; i++) {
     genome[i] = other_genome[i];
+		protected_sites[i] = other_genome.IsProtected(i);
   }
 }
 
@@ -99,6 +108,18 @@ bool cGenome::operator==(const cGenome & other_genome) const
   return true;
 }
 
+void cGenome::SetInst(int index, const cInstruction& inst, bool protect_site) {
+	if(!protected_sites[index]) {
+		genome[index] = inst;
+		protected_sites[index] = protect_site;
+	}
+}
+
+void cGenome::SetOp(int index, const int op) {
+	if(!protected_sites[index]) {
+		genome[index].SetOp(op);
+	}	
+}
 
 void cGenome::Copy(int to, int from)
 {

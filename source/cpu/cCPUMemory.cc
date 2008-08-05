@@ -55,6 +55,7 @@ void cCPUMemory::SloppyResize(int new_size)
     const int new_array_min = new_size + MEMORY_INCREASE_MINIMUM;
 		if (new_array_min > new_array_size) new_array_size = new_array_min;
     genome.Resize(new_array_size);
+		protected_sites.Resize(new_array_size);
     flag_array.Resize(new_array_size);
   }
   
@@ -91,6 +92,7 @@ void cCPUMemory::operator=(const cCPUMemory & other_memory)
   // Fill in the new information...
   for (int i = 0; i < active_size; i++) {
     genome[i] = other_memory.genome[i];
+		protected_sites[i] = other_memory.IsProtected(i);
     flag_array[i] = other_memory.flag_array[i];
   }
 }
@@ -103,6 +105,7 @@ void cCPUMemory::operator=(const cGenome & other_genome)
   // Fill in the new information...
   for (int i = 0; i < active_size; i++) {
     genome[i] = other_genome[i];
+		protected_sites[i] = other_genome.IsProtected(i);
     flag_array[i] = 0;
   }
 }

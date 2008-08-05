@@ -186,7 +186,7 @@ void cLandscape::Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cu
     for (int inst_num = 0; inst_num < inst_size; inst_num++) {
       if (cur_inst == inst_num) continue;
       
-      mod_genome[line_num].SetOp(inst_num);
+      mod_genome.SetOp(line_num, inst_num);
       if (cur_distance <= 1) {
         ProcessGenome(ctx, testcpu, mod_genome);
         if (test_info.GetColonyFitness() >= neut_min) site_count[line_num]++;
@@ -195,7 +195,7 @@ void cLandscape::Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cu
       }
     }
     
-    mod_genome[line_num].SetOp(cur_inst);
+    mod_genome.SetOp(line_num, cur_inst);
   }
   
 }
@@ -227,14 +227,14 @@ void cLandscape::ProcessDump(cAvidaContext& ctx, cDataFile& df)
       if (cur_inst == inst_num) {
         fitness = base_fitness;
       } else {
-        mod_genome[line_num].SetOp(inst_num);
+        mod_genome.SetOp(line_num, inst_num);
         fitness = ProcessGenome(ctx, testcpu, mod_genome);
       }
       df.Write(fitness, "Mutation Fitness (instruction = column_number - 2)");
     }
 
     df.Endl();
-    mod_genome[line_num].SetOp(cur_inst);
+    mod_genome.SetOp(line_num, cur_inst);
   }
   
   delete testcpu;
@@ -646,12 +646,12 @@ void cLandscape::BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu)
         continue;
       }
       
-      mod_genome[line_num].SetOp(inst_num);
+      mod_genome.SetOp(line_num, inst_num);
       ProcessGenome(ctx, testcpu, mod_genome);
       fitness_chart(line_num, inst_num) = test_info.GetColonyFitness();
     }
     
-    mod_genome[line_num].SetOp(cur_inst);
+    mod_genome.SetOp(line_num, cur_inst);
   }
 }
 

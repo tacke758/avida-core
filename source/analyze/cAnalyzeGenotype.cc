@@ -269,7 +269,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
     }
     
     // Reset the mod_genome back to the original sequence.
-    mod_genome[line_num].SetOp(cur_inst);
+    mod_genome.SetOp(line_num, cur_inst);
   }
   
   // Only continue from here if we are looking at all pairs of knockouts
@@ -328,8 +328,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
       }	
       
       // Reset the mod_genome back to the original sequence.
-      mod_genome[line1].SetOp(cur_inst1);
-      mod_genome[line2].SetOp(cur_inst2);
+      mod_genome.SetOp(line1, cur_inst1);
+      mod_genome.SetOp(line2, cur_inst2);
     }
   }
   

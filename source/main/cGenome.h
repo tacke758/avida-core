@@ -47,6 +47,7 @@ class cGenome
 {
 protected:
   tArray<cInstruction> genome;
+	tArray<bool> protected_sites;
   int active_size;
 
 public:
@@ -68,6 +69,11 @@ public:
   cInstruction& operator[](int index) { assert(index >= 0 && index < active_size);  return genome[index]; }
   const cInstruction& operator[](int index) const { assert(index >= 0 && index < active_size);  return genome[index]; }
 
+	bool IsProtected(int index) const { assert(index >= 0 && index < active_size); return protected_sites[index]; }
+	
+	void SetInst(int index, const cInstruction& inst, bool protect_site);
+	void SetOp(int index, const int op);
+	
   virtual void Copy(int to, int from);
 
   bool OK() const;

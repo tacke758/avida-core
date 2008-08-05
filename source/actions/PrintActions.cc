@@ -2045,7 +2045,7 @@ public:
       if (mode == -1 && count == total) break;
       
       if ( i < con_length )
-        con_genome[i].SetOp(mode);
+        con_genome.SetOp(i, mode);
       
       // Print all needed files.
       if (i < m_lines_saved) {
