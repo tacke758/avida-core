@@ -243,7 +243,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
   for (int line_num = 0; line_num < length; line_num++) {
     // Save a copy of the current instruction and replace it with "NULL"
     int cur_inst = mod_genome[line_num].GetOp();
-    mod_genome[line_num] = null_inst;
+    mod_genome.SetInst(line_num, null_inst, false);
     cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
     ko_genotype.Recalculate(ctx);
     if (check_chart == true) {
@@ -302,8 +302,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
       
       int cur_inst1 = mod_genome[line1].GetOp();
       int cur_inst2 = mod_genome[line2].GetOp();
-      mod_genome[line1] = null_inst;
-      mod_genome[line2] = null_inst;
+      mod_genome.SetInst(line1, null_inst, false);
+      mod_genome.SetInst(line2, null_inst, false);
       cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
       ko_genotype.Recalculate(ctx);
       

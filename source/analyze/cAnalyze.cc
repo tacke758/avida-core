@@ -4215,7 +4215,7 @@ void cAnalyze::AnalyzeComplexityDelta(cString cur_string)
       if (copy_mut_prob > 0.0) {
         for (int i = 0; i < mod_genome.GetSize(); i++) {
           if (m_world->GetRandom().P(copy_mut_prob)) {
-            mod_genome[i] = inst_set.GetRandomInst(m_ctx);
+            mod_genome.SetInst(i, inst_set.GetRandomInst(m_ctx), false);
             num_mutations++;
           }
         }
@@ -4446,7 +4446,7 @@ void cAnalyze::AnalyzeKnockouts(cString cur_string)
     for (int line_num = 0; line_num < max_line; line_num++) {
       // Save a copy of the current instruction and replace it with "NULL"
       int cur_inst = base_genome[line_num].GetOp();
-      mod_genome[line_num] = null_inst;
+      mod_genome.SetInst(line_num, null_inst, false);
       cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
       ko_genotype.Recalculate(m_ctx);
       
@@ -4477,8 +4477,8 @@ void cAnalyze::AnalyzeKnockouts(cString cur_string)
       	for (int line2 = line1+1; line2 < max_line; line2++) {
           int cur_inst1 = base_genome[line1].GetOp();
           int cur_inst2 = base_genome[line2].GetOp();
-          mod_genome[line1] = null_inst;
-          mod_genome[line2] = null_inst;
+          mod_genome.SetInst(line1, null_inst, false);
+          mod_genome.SetInst(line2, null_inst, false);
           cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
           ko_genotype.Recalculate(m_ctx);
           
@@ -4816,7 +4816,7 @@ void cAnalyze::CommandMapTasks(cString cur_string)
       int cur_inst = base_genome[line_num].GetOp();
       char cur_symbol = base_genome[line_num].GetSymbol();
       
-      mod_genome[line_num] = null_inst;
+      mod_genome.SetInst(line_num, null_inst, false);
       cAnalyzeGenotype test_genotype(m_world, mod_genome, map_inst_set);
       test_genotype.Recalculate(m_ctx, &test_info);
       
@@ -5065,7 +5065,7 @@ void cAnalyze::CommandAverageModularity(cString cur_string)
       for (int line_num = 0; line_num < max_line; line_num++) {
         int cur_inst = base_genome[line_num].GetOp();
         
-        mod_genome[line_num] = null_inst;
+        mod_genome.SetInst(line_num, null_inst, false);
         cAnalyzeGenotype test_genotype(m_world, mod_genome, map_inst_set);
         test_genotype.Recalculate(m_ctx);
         
@@ -5290,7 +5290,7 @@ void cAnalyze::CommandAnalyzeModularity(cString cur_string)
       int cur_inst = base_genome[line_num].GetOp();
       
       // Determine what happens to this genotype when this line is knocked out
-      mod_genome[line_num] = null_inst;
+      mod_genome.SetInst(line_num, null_inst, false);
       cAnalyzeGenotype test_genotype(m_world, mod_genome, map_inst_set);
       test_genotype.Recalculate(m_ctx);
       
@@ -5574,7 +5574,7 @@ void cAnalyze::CommandMapMutations(cString cur_string)
       }
       
       // Column: Knockout
-      mod_genome[line_num] = null_inst;
+      mod_genome.SetInst(line_num, null_inst, false);
       cAnalyzeGenotype test_genotype(m_world, mod_genome, map_inst_set);
       test_genotype.Recalculate(m_ctx);
       const double test_fitness = test_genotype.GetFitness() / base_fitness;
@@ -6899,7 +6899,7 @@ void cAnalyze::AnalyzeMutationTraceback(cString cur_string)
         if (cur_fitness > base_fitness) num_detrimental++;
         else if (cur_fitness < base_fitness) num_beneficial++;
         else num_neutral++;
-        test_genome[i] = genotype->GetGenome()[i];
+        test_genome.SetInst(i, genotype->GetGenome()[i],  genotype->GetGenome().IsProtected(i));
       }      
     }
     
@@ -8522,7 +8522,7 @@ void cAnalyze::BatchCompete(cString cur_string)
     if (copy_mut_prob > 0.0) {
       for (int n = 0; n < child_genome.GetSize(); n++) {
         if (m_world->GetRandom().P(copy_mut_prob)) {
-          child_genome[n] = inst_set.GetRandomInst(m_ctx);
+          child_genome.SetInst(n, inst_set.GetRandomInst(m_ctx), false);
         }
       }
     }
