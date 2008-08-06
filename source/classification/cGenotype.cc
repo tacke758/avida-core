@@ -99,7 +99,7 @@ cGenotype* cGenotype::LoadClone(cWorld* world, ifstream& fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    ret->genome[i] = temp_inst;
+    ret->genome.SetInst(i, temp_inst, false);
     // @CAO add something here to load arguments for instructions.
   }
   

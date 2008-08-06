@@ -32,6 +32,7 @@ using namespace std;
 cGenome::cGenome(int _size)
   : genome(_size), protected_sites(_size), active_size(_size)
 {
+	protected_sites.SetAll(false);	
 }
 
 cGenome::cGenome(const cGenome & in_genome)
@@ -51,7 +52,7 @@ cGenome::cGenome(const cString & in_string)
   active_size = tmp_string.GetSize();
   genome.ResizeClear(active_size);
   protected_sites.ResizeClear(active_size);
-	//protected_sites.SetAll(false);
+	protected_sites.SetAll(false);
 
   for (int i = 0; i < active_size; i++) {
     genome[i].SetSymbol(tmp_string[i]);
