@@ -866,7 +866,7 @@ bool cHardwareExperimental::Allocate_Random(cAvidaContext& ctx, const int old_si
   m_memory.Resize(new_size);
   
   for (int i = old_size; i < new_size; i++) {
-    m_memory[i] = m_inst_set->GetRandomInst(ctx);
+    m_memory.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
   }
   return true;
 }
@@ -1808,7 +1808,7 @@ bool cHardwareExperimental::Inst_Repro(cAvidaContext& ctx)
   // Perform Copy Mutations...
   if (organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
-      if (organism->TestCopyMut(ctx)) child_genome[i] = m_inst_set->GetRandomInst(ctx);
+      if (organism->TestCopyMut(ctx)) child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
     }
   }
   

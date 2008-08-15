@@ -565,11 +565,11 @@ void cLandscape::SampleProcess(cAvidaContext& ctx)
       if (cur_inst == new_inst) { i--; continue; }
       
       // Make the change, and test it!
-      mod_genome[line_num] = new_inst;
+      mod_genome.SetInst(line_num, new_inst, false);
       ProcessGenome(ctx, testcpu, mod_genome);
     }
     
-    mod_genome[line_num] = cur_inst;
+    mod_genome.SetInst(line_num, cur_inst, false);
   }
   
   delete testcpu;
@@ -605,7 +605,7 @@ void cLandscape::RandomProcess(cAvidaContext& ctx)
         continue;
       }
       
-      mod_genome[ mut_lines[mut_num] ] = new_inst;
+      mod_genome.SetInst(mut_lines[mut_num], new_inst, false);
     }
     
     // And test it!
@@ -615,7 +615,7 @@ void cLandscape::RandomProcess(cAvidaContext& ctx)
     
     // And reset the genome.
     for (mut_num = 0; mut_num < distance; mut_num++) {
-      mod_genome[ mut_lines[mut_num] ] = base_genome[ mut_lines[mut_num] ];
+      mod_genome.SetInst(mut_lines[mut_num], base_genome[ mut_lines[mut_num] ], base_genome.IsProtected(mut_lines[mut_num]));
     }
   }
   
@@ -803,13 +803,13 @@ void cLandscape::HillClimb(cAvidaContext& ctx, cDataFile& df)
 double cLandscape::TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& mod_genome, int line1, int line2,
                                const cInstruction& mut1, const cInstruction& mut2)
 {
-  mod_genome[line1] = mut1;
-  mod_genome[line2] = mut2;
+  mod_genome.SetInst(line1, mut1, false);
+  mod_genome.SetInst(line2, mut2, false);
   testcpu->TestGenome(ctx, test_info, mod_genome);
   double combo_fitness = test_info.GetColonyFitness() / base_fitness;
   
-  mod_genome[line1] = base_genome[line1];
-  mod_genome[line2] = base_genome[line2];
+  mod_genome.SetInst(line1, base_genome[line1], base_genome.IsProtected(line1));
+  mod_genome.SetInst(line2, base_genome[line2], base_genome.IsProtected(line2));
   
   double mut1_fitness = fitness_chart(line1, mut1.GetOp()) / base_fitness;
   double mut2_fitness = fitness_chart(line2, mut2.GetOp()) / base_fitness;

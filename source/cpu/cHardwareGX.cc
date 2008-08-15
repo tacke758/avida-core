@@ -1129,7 +1129,7 @@ bool cHardwareGX::Allocate_Random(cAvidaContext& ctx, const int old_size, const 
   GetMemory().Resize(new_size);
   
   for (int i = old_size; i < new_size; i++) {
-    GetMemory()[i] = m_inst_set->GetRandomInst(ctx);
+    GetMemory().SetInst(i, m_inst_set->GetRandomInst(ctx), false);
   }
   return true;
 }

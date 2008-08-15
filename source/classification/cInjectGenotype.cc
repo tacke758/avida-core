@@ -87,7 +87,7 @@ bool cInjectGenotype::LoadClone(ifstream & fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    genome[i] = temp_inst;
+    genome.SetInst(i, temp_inst, false);
     // @CAO add something here to load arguments for instructions.
   }
 

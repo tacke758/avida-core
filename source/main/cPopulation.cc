@@ -1386,7 +1386,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<next_germ.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          next_germ[i] = instset.GetRandomInst(ctx);
+          next_germ.SetInst(i, instset.GetRandomInst(ctx), false);
         }
       }
     }
@@ -1431,7 +1431,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<new_genome.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          new_genome[i] = instset.GetRandomInst(ctx);
+          new_genome.SetInst(i, instset.GetRandomInst(ctx), false);
         }
       }
     }

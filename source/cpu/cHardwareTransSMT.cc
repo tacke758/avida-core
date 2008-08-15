@@ -141,7 +141,7 @@ cHardwareTransSMT::cHardwareTransSMT(cWorld* world, cOrganism* in_organism, cIns
 	
   m_mem_array[0] = in_organism->GetGenome();  // Initialize memory...
   m_mem_array[0].Resize(m_mem_array[0].GetSize() + 1);
-  m_mem_array[0][m_mem_array[0].GetSize() - 1] = cInstruction();
+  m_mem_array[0].SetInst(m_mem_array[0].GetSize() - 1, cInstruction(), false);
   Reset();                            // Setup the rest of the hardware...
 }
 
@@ -851,7 +851,7 @@ void cHardwareTransSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multip
     if( num_mut > 0 ){
       for (int i = 0; i < num_mut; i++) {
 				int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
-				injected_code[site] = m_inst_set->GetRandomInst(ctx);
+				injected_code.SetInst(site, m_inst_set->GetRandomInst(ctx), false);
       }
     }
   }
@@ -902,7 +902,7 @@ void cHardwareTransSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multip
   if (organism->GetParentMutProb() > 0) {
     for (int i = 0; i < m_mem_array[0].GetSize(); i++) {
       if (organism->TestParentMut(ctx)) {
-				m_mem_array[0][i] = m_inst_set->GetRandomInst(ctx);
+				m_mem_array[0].SetInst(i, m_inst_set->GetRandomInst(ctx), false);
       }
     }
   }
