@@ -55,7 +55,7 @@ void cCPUMemory::SloppyResize(int new_size)
     const int new_array_min = new_size + MEMORY_INCREASE_MINIMUM;
 		if (new_array_min > new_array_size) new_array_size = new_array_min;
     genome.Resize(new_array_size);
-		protected_sites.Resize(new_array_size);
+		protected_sites.Resize(new_array_size, false);
     flag_array.Resize(new_array_size);
   }
   
@@ -77,6 +77,7 @@ void cCPUMemory::SloppyInsert(int pos, int num_lines)
   // Shift any lines needed...
   for (int i = old_size - 1; i >= pos; i--) {
     genome[i+num_lines] = genome[i];
+		protected_sites[i+num_lines] = protected_sites[i];
     flag_array[i+num_lines] = flag_array[i];
   }
 }
@@ -89,6 +90,7 @@ void cCPUMemory::operator=(const cCPUMemory & other_memory)
 {
   SloppyResize(other_memory.active_size);
 
+	protected_sites.SetAll(false);
   // Fill in the new information...
   for (int i = 0; i < active_size; i++) {
     genome[i] = other_memory.genome[i];
@@ -102,6 +104,7 @@ void cCPUMemory::operator=(const cGenome & other_genome)
 {
   SloppyResize(other_genome.GetSize());
 
+	protected_sites.SetAll(false);
   // Fill in the new information...
   for (int i = 0; i < active_size; i++) {
     genome[i] = other_genome[i];
@@ -118,6 +121,7 @@ void cCPUMemory::Copy(int to, int from)
   assert(from < genome.GetSize());
 
   genome[to] = genome[from];
+	protected_sites[to] = protected_sites[from];
   flag_array[to] = flag_array[from];
 }
 
@@ -141,6 +145,7 @@ void cCPUMemory::Resize(int new_size)
   // Clean up all of the old memory that might need it...
   for (int i = old_size; i < new_size; i++) {
     genome[i].SetOp(0);
+		protected_sites[i] = false;
     flag_array[i] = 0;
   }
 }
@@ -168,6 +173,7 @@ void cCPUMemory::Insert(int pos, const cInstruction & in_inst)
 
   SloppyInsert(pos, 1);
   genome[pos] = in_inst;
+	protected_sites[pos] = false;
   flag_array[pos] = 0;
 }
 
@@ -179,6 +185,7 @@ void cCPUMemory::Insert(int pos, const cGenome & in_genome)
   SloppyInsert(pos, in_genome.GetSize());
   for (int i = 0; i < in_genome.GetSize(); i++) {
     genome[i+pos] = in_genome[i];
+		protected_sites[i+pos] = protected_sites[i];
     flag_array[i+pos] = 0;
   }
 }
@@ -189,10 +196,15 @@ void cCPUMemory::Remove(int pos, int num_insts)
   assert(pos >= 0);                       // Removal must be in genome.
   assert(pos + num_insts <= active_size); // Cannot extend past end of genome.
 
-  const int new_size = active_size - num_insts;
+	int new_size = active_size - num_insts;
   for (int i = pos; i < new_size; i++) {
-    genome[i] = genome[i + num_insts];
-    flag_array[i] = flag_array[i + num_insts];
+		if(protected_sites[i]) {
+			new_size++;
+		} else {
+			genome[i] = genome[i + num_insts];
+			protected_sites[i] = protected_sites[i + num_insts];
+			flag_array[i] = flag_array[i + num_insts];
+		}
   }
   SloppyResize(new_size);
 }
@@ -207,7 +219,7 @@ void cCPUMemory::Replace(int pos, int num_insts, const cGenome & in_genome)
 
   // First, get the size right.
   if (size_change > 0) SloppyInsert(pos, size_change);
-  else if (size_change < 0) Remove(pos, -size_change);
+  else if (size_change < 0) Remove(pos, -size_change);  // BEB TODO: what should happen on an attempt to replace a protected site 
 
   // Now just copy everything over!
   for (int i = 0; i < in_genome.GetSize(); i++) {

@@ -69,10 +69,14 @@ It expects STL semantics for an iterator range.  We're avoiding templating this
 cGenome::cGenome(cInstruction* begin, cInstruction* end)
 : active_size(0)
 {
+	genome.ResizeClear(0);
+  protected_sites.ResizeClear(0);
   for(cInstruction* i=begin; i!=end; ++i,++active_size) {
     genome.Push(*i);
 		protected_sites.Push(false);
   }
+	// active_size be incremented, right?
+	active_size++;
 }
 
 
@@ -87,6 +91,7 @@ void cGenome::operator=(const cGenome & other_genome)
   active_size = other_genome.GetSize();
   genome.ResizeClear(active_size);
 	protected_sites.ResizeClear(active_size);
+	protected_sites.SetAll(false);	
 
   // Now that both code arrays are the same size, copy the other one over.
 

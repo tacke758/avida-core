@@ -187,7 +187,7 @@ cGenome cGenomeUtil::Crop(const cGenome & in_genome, int start, int end)
   const int out_length = end - start;
   cGenome out_genome(out_length);
   for (int i = 0; i < out_length; i++) {
-    out_genome[i] = in_genome[i+start];
+    out_genome.SetInst(i, in_genome[i+start], in_genome.IsProtected(i+start));//false); //BEB TODO: change false
   }
 
   return out_genome;
@@ -207,10 +207,10 @@ cGenome cGenomeUtil::Cut(const cGenome & in_genome, int start, int end)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < start; i++) {
-    out_genome[i] = in_genome[i];
+    out_genome.SetInst(i, in_genome[i], in_genome.IsProtected(i));
   }
   for (int i = start; i < out_length; i++) {
-    out_genome[i] = in_genome[i+cut_length];
+    out_genome.SetInst(i, in_genome[i+cut_length], in_genome.IsProtected(i+cut_length));
   }
 
   return out_genome;
@@ -225,10 +225,10 @@ cGenome cGenomeUtil::Join(const cGenome & genome1, const cGenome & genome2)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < length1; i++) {
-    out_genome[i] = genome1[i];
+    out_genome.SetInst(i, genome1[i], genome1.IsProtected(i));
   }
   for (int i = 0; i < length2; i++) {
-    out_genome[i+length1] = genome2[i];
+    out_genome.SetInst(i+length1, genome2[i], genome2.IsProtected(i));
   }
 
   return out_genome;
@@ -319,7 +319,7 @@ cGenome cGenomeUtil::RandomGenome(cAvidaContext& ctx, int length, const cInstSet
 {
   cGenome genome(length);
   for (int i = 0; i < length; i++) {
-    genome[i] = inst_set.GetRandomInst(ctx);
+    genome.SetInst(i, inst_set.GetRandomInst(ctx), false);
   }
   return genome;
 }
@@ -331,9 +331,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(cAvidaContext& c
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome[i] = inst;
+    genome.SetInst(i, inst, false);
   }
-  genome[length] = inst_set.GetInst("repro");
+  genome.SetInst(length, inst_set.GetInst("repro"), false);
   return genome;
 }
 
@@ -344,9 +344,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusReproSex(cAvidaContext
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome[i] = inst;
+    genome.SetInst(i, inst, false);
   }
-  genome[length] = inst_set.GetInst("repro-sex");
+  genome.SetInst(length, inst_set.GetInst("repro-sex"), false);
   return genome;
 }
 
