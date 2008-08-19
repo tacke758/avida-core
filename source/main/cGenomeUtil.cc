@@ -256,7 +256,14 @@ bool cGenomeUtil::LoadGenome(const cString& filename, const cInstSet& inst_set, 
   
   for (int line_num = 0; line_num < new_genome.GetSize(); line_num++) {
     cString cur_line = input_file.GetLine(line_num);
-    new_genome[line_num] = inst_set.GetInst(cur_line);
+		
+		bool site_protected = false;
+		if(cur_line.GetWord(1) == "protected")
+			site_protected = true;
+		
+		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
+		
+    new_genome.SetInst(line_num, inst_set.GetInst(cur_line.GetWord(0)), site_protected);
     
     if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
@@ -288,8 +295,15 @@ cGenome cGenomeUtil::LoadInternalGenome(istream& fp, const cInstSet& inst_set)
   
   for (int line_num = 0; line_num < new_genome.GetSize(); line_num++) {
     fp >> cur_line;
-    new_genome[line_num] = inst_set.GetInst(cur_line);
-    
+		
+		
+		bool site_protected = false;
+		if(cur_line.GetWord(1) == "protected")
+			site_protected = true;
+		
+		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
+    new_genome.SetInst(line_num, inst_set.GetInst(cur_line.GetWord(0)), site_protected);
+		 
     if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
       cerr << "Cannot load creature from stream:" << endl

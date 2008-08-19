@@ -66,7 +66,10 @@ public:
   virtual bool operator!=(const cGenome& other_genome) const { return !(this->operator==(other_genome)); }
   virtual bool operator<(const cGenome& other_genome) const { return AsString() < other_genome.AsString(); }
 
-  cInstruction& operator[](int index) { assert(index >= 0 && index < active_size);  return genome[index]; }
+	// this operator has been removed to protect the instructions in cGenome
+	//  cInstruction& operator[](int index)
+	// Do not overload the operator above.  Doing so will break instruction level protection
+	
   const cInstruction& operator[](int index) const { assert(index >= 0 && index < active_size);  return genome[index]; }
 
 	bool IsProtected(int index) const { assert(index >= 0 && index < active_size); return protected_sites[index]; }

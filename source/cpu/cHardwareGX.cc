@@ -346,7 +346,9 @@ void cHardwareGX::Reset()
     // These specify the range of instructions that will be used to create a new
     // programid.  The range of instructions used to create a programid is:
     // [begin, end), that is, the instruction pointed to by end is *not* copied.
-    cInstruction* begin=&genome[0];
+		
+		assert(false);  //commented out because of non-constaint reference into a cGenome instance, brakes instruction protection
+/*    cInstruction* begin=&genome[0];
     cInstruction* end=&begin[genome.GetSize()];
     cInstruction* i=0;
     // Find the first instance of a PROGRAMID instruction.
@@ -357,7 +359,7 @@ void cHardwareGX::Reset()
       AddProgramid(new cProgramid(cGenome(begin, i), this));
       begin = i;
     }
-    
+  */  
     assert(m_programids.size()>0);  
     
     // Sanity, oh, where is my sanity?
