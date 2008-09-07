@@ -1,0 +1,83 @@
+# This file includes all the run-time defines...
+VERSION_ID 1.0		# Do not change this value!
+
+### Architecture Variables ###
+MODE 2			# 1 = Tierra, 2 = Avida
+MAX_UPDATES 50000       # Maximum updates to run simulation.
+WORLD_SIZE 3600		# Number of creatures in Tierra mode.
+WORLD-X 60		# Width of the world in Avida mode.
+WORLD-Y 60		# Height of the world in Avida mode.
+RANDOM_SEED 0           # Random number seed. (0 for based on time)
+
+### Configuration Files ###
+DEFAULT_DIR ../work/    # Directory in which config files can be found.
+INST_SET inst_set.24.base # File containing instruction set.
+TASK_SET task_set       # File containing task set.
+EVENT_FILE event_list   # File containing list of events during run.
+START_CREATURE genebank/creature.base # Creature to seed the soup.
+
+### Viewer ###
+VIEW_MODE 1		# 0=BLANK, 1=MAP, 2=STATS, 3=HIST, 4=OPTIONS, 5=ZOOM
+
+### Reproduction ###
+BIRTH_METHOD 1		# 0 = Choose Random Creature (poor for evolution!)
+			# 1 = Choose Oldest Creature
+			# 2 = Choose largest Age/Merit
+			# 3 = Choose only empty cells.
+DEATH_METHOD 0          # 0 = Never kill creatures.
+			# 1 = Kill when inst executed = AGE_LIMIT
+			# 2 = Kill when inst executed = length * AGE_LIMIT
+AGE_LIMIT 16            # Modifies DEATH_METHOD
+
+### Mutations ###
+POINT_MUT_RATE   0      # Mutation rate (per-location per update) (x10^-6)
+COPY_MUT_RATE    50     # Mutation rate (per copy).    (x10^-4)
+DIVIDE_MUT_RATE  0      # Mutation rate (per divide).  (x10^-2)
+DIVIDE_INS_RATE  5      # Insertion rate (per divide). (x10^-2)
+DIVIDE_DEL_RATE  5      # Deletion rate (per divide).  (x10^-2)
+
+### Time Slicing ###
+AVE_TIME_SLICE 30
+SLICING_METHOD 3	# 0 = CONSTANT: all creatures get default...
+			# 1 = BLOCK: Block slice scaled to merit.
+			# 2 = PROBABILISTIC: Run _prob_ proportional to merit.
+			# 3 = INTEGRATED: Perfectly integrated deterministic.
+SIZE_MERIT_METHOD 4	# 0 = off (merit is independent of size)
+			# 1 = Merit proportional to copied size
+			# 2 = Merit prop. to executed size.
+			# 3 = Merit prop. to full size.
+			# 4 = Merit prop. to min of executed or copied size.
+TASK_MERIT_METHOD 1	# 0/1  off or on.  (off removes bonuses for tasks).
+
+### Genotype Info ###
+THRESHOLD 3		# Number of creatures in a genotype needed for it
+			#   to be considered viable.
+GENOTYPE_PRINT 0	# 0/1 (off/on) Print out all threshold genotypes?
+SPECIES_PRINT 0		# 0/1 (off/on) Print out all species?
+GENOTYPE_PRINT_DOM 0	# Print out a genotype if it stays dominant for
+                        #   this many updates. (0 = off)
+SPECIES_RECORDING 2	# 1 = full, 2 = limited search (parent only)
+SPECIES_THRESHOLD 2     # max number of failures creatures to be same species
+
+### Data and Log Files ###
+SAVE_AVERAGE_DATA   10    # Print these files every x updates.  Enter 0 for
+SAVE_DOMINANT_DATA  10    # those which should never be printed
+SAVE_COUNT_DATA     10
+SAVE_TOTALS_DATA     0
+SAVE_TASKS_DATA     50
+SAVE_STATS_DATA     10
+
+SAVE_GENOTYPE_STATUS  0 # Print these files every x updates.  Enter 0 for
+SAVE_DIVERSITY_STATUS 0 # those which should never be printed
+
+LOG_CREATURES 0		# 0/1 (off/on) toggle to print file.
+LOG_GENOTYPES 0		# 0 = off, 1 = print ALL, 2 = print threshold ONLY.
+LOG_THRESHOLD 0		# 0/1 (off/on) toggle to print file.
+LOG_SPECIES 0		# 0/1 (off/on) toggle to print file.
+LOG_BREED_COUNT 0	# 0/1 (off/on) toggle to print file.
+LOG_PHYLOGENY 0		# 0/1 (off/on) toggle to print file.
+
+### Debug ###
+DEBUG_LEVEL 2		# 0 = ERRORS ONLY, 1 = WARNINGS, 2 = COMMENTS
+
+### END ###

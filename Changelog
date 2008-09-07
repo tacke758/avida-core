@@ -1,0 +1,8 @@
+Wed May  6 18:43:03 PDT 1998 <travc@azathoth.caltech.edu> (Travis Collier)
+
+	source/tools/random.cc
+	- Fixed random seed 0 behaviour so it is actually random
+
+	work/genesis
+	- "RANDOM_SEED 0" is now the default so that runs will be different 
+	  each time as the out-of-box behaviour.

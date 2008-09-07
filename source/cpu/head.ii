@@ -1,0 +1,86 @@
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 1996 California Institute of Technology             //
+//                                                                          // 
+// Read the LICENSE and README files, or contact 'charles@krl.caltech.edu', //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+// This file defines the inline functions for the various cpu objects.
+
+#ifndef CPU_HEAD_II
+#define CPU_HEAD_II
+
+#include "head.hh"
+#include "cpu.hh"
+#include "cpu.ii"
+
+/////////////
+// cCPUHead
+/////////////
+
+inline const cCodeArray & cCPUHead::GetMemory() const {
+  return cur_cpu->GetMemory();
+}
+
+inline int cCPUHead::GetCurID() const {
+  return cur_cpu->GetEnvironment()->GetID();
+}
+
+inline UCHAR cCPUHead::GetInst() {
+  return GetMemory().Get(position);
+}
+
+inline UCHAR cCPUHead::GetInst(int offset) {
+  if (position + offset < GetMemory().GetSize())
+    return GetMemory().Get(position + offset);
+  else return 255;
+}
+
+inline void cCPUHead::SetInst(UCHAR value) {
+  cur_cpu->SetMemory(position, value);
+}
+
+inline UCHAR cCPUHead::GetNextInst() {
+  return GetMemory().Get(position + 1);
+}
+
+inline void cCPUHead::SetFlag(int flag) {
+  cur_cpu->SetMemFlag(position, flag);
+}
+
+inline void cCPUHead::Reset(cBaseCPU * new_cpu) {
+  if (new_cpu) main_cpu = new_cpu;
+  cur_cpu  = main_cpu;
+  position = 0;
+}
+
+inline void cCPUHead::Adjust() {
+  if (GetMemory().GetSize() == 0) {
+    cur_cpu = main_cpu;
+    position = 0;
+  }
+  else if (position <= 0) { position = 0; }
+  else if (position >= GetMemory().GetSize()) {
+    position -= GetMemory().GetSize();
+    while (position >= GetMemory().GetSize()) {
+      // position back at the begining of the creature.
+      position %= GetMemory().GetSize();
+      
+      // Always loop into the begining of the owner CPU.
+      cur_cpu = main_cpu;
+    }
+  }
+}
+inline cCPUHead & cCPUHead::operator=(const cCPUHead & in_cpu_head) {
+  main_cpu = in_cpu_head.main_cpu;
+  cur_cpu  = in_cpu_head.cur_cpu;
+  position = in_cpu_head.position;
+  return *this;
+}
+
+inline int cCPUHead::TestParasite() const {
+  // If CPU has a head in another creature, mark it as a parasite.
+  return (cur_cpu != main_cpu);
+}
+
+#endif

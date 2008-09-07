@@ -1,0 +1,128 @@
+# Filename......: "112-unnamed"
+# Update born...: 40266
+# Merit.........: 2.88e+06
+# Gestation Time: 558
+# Fitness.......: 5.17e+03
+# Errors........: 1
+# Copied Size...: 107
+# Executed Size.: 82
+
+# GETS: 18   PUTS: 23   ECHOS:  3
+# NOTS:  3   NANDS:  3
+# AND:  0    ORN:  3
+# ANDN:  3   OR:  3
+# NOR:  3    XOR:  0   EQU:  0
+
+nop-C
+divide
+inc
+search-f
+nop-A
+nop-A
+if-n-equ
+nop-B
+add
+inc
+add
+nop-B
+if-n-equ
+shift-l
+allocate
+sub
+dec
+pop
+nop-A
+nop-A
+sub
+nop-C
+inc
+put
+shift-r
+copy
+add
+nop-A
+copy
+inc
+if-n-equ
+jump-b
+nop-C
+sub
+put
+call
+if-n-equ
+nop-C
+call
+search-f
+get
+nand
+nop-B
+get
+nand
+nop-C
+nand
+put
+nand
+nand
+put
+jump-f
+push
+nop-C
+jump-b
+nop-B
+nop-B
+pop
+put
+nop-B
+nop-B
+shift-r
+nand
+nop-B
+get
+nop-B
+get
+nand
+put
+put
+nop-C
+get
+dec
+nand
+get
+nand
+nop-C
+nand
+nop-C
+put
+dec
+nand
+put
+return
+copy
+sub
+if-n-equ
+search-b
+add
+search-f
+call
+inc
+call
+nop-B
+put
+put
+get
+get
+search-b
+push
+add
+nop-A
+nand
+jump-b
+get
+if-n-equ
+get
+shift-l
+allocate
+sub
+dec
+pop
+

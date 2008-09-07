@@ -1,0 +1,12 @@
+# creature.parasite
+# Size = 9   Executed = 8   Copied = 9
+
+put         # Clear the BX register (no real reason...)
+search-f    # Search for end template
+nop-B
+inc         # Account for extra line before search.
+inc         # Account for extra line at end.
+rotate-r    # Rotate (randomly...)
+jump-p      # Jump into neighbor if its a host...
+nop-C
+nop-C

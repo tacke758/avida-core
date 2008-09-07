@@ -1,0 +1,34 @@
+##############################################################################
+# This file configures the events to occur during an avida run.  the current #
+# format is:                                                                 #
+#                                                                            #
+#            <update> <event-name> [<args>...]                               #
+#                                                                            #
+# For example, to inject the creature 'creature.happy' on update number 7,   #
+# into CPU 0, you would type:                                                #
+#                                                                            #
+#            7 inject genebank/creature.happy 0                              #
+#                                                                            #
+# The events which are currently enabled are:                                #
+#                                                                            #
+# * inject <file> <cpu_num>                                                  #
+#   Put the creature located in <filname> into cpu number <cpu_num>          #
+#                                                                            #
+# * set_copy_mut <new_mut_rate>                                              #
+#   Reset the copy mutation rates in all the CPUs to <new_mut_rate>          #
+#                                                                            #
+# * pause                                                                    #
+#   Halt execution until an un-pause command is sent from the viewer.        #
+#                                                                            #
+# * cycle <cycle length> <command ...>                                       #
+#   Repeat <command> every <cycle length> updates.                           #
+#                                                                            #
+#                                                                            #
+# As a final example of how these can be used, if you wanted to pause a      #
+# soup every 10 updates starting from 200, you would add to this file:       #
+#                                                                            #
+#     200 cycle 10 pause                                                     #
+#                                                                            #
+##############################################################################
+
+# 50 inject genebank/creature.parasite 0

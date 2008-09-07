@@ -1,0 +1,283 @@
+//////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 1993 - 1996 California Institute of Technology             //
+//                                                                          //
+// Read the LICENSE and README files, or contact 'charles@krl.caltech.edu', //
+// before continuing.  SOME RESTRICTIONS MAY APPLY TO USE OF THIS FILE.     //
+//////////////////////////////////////////////////////////////////////////////
+
+// This file defines the inline functions for the various cpu objects.
+
+#ifndef CPU_II
+#define CPU_II
+
+#include "cpu.hh"
+#include "../main/population.hh"
+#include "environment.hh"
+
+#include "head.ii"
+
+///////////////
+//  cBaseCPU
+///////////////
+
+
+inline cCPUHead cBaseCPU::FindFullLabel(const cCodeLabel & in_label, int direction)
+{
+  return hardware.FindFullLabel(in_label, direction);
+}
+
+inline void cBaseCPU::InjectCode(cCodeArray * inject_code, int line_num)
+{
+  flags.SetFlag(CPU_FLAG_INJECT_HOST);
+  hardware.InjectCode(inject_code, line_num);
+}
+
+inline int cBaseCPU::Divide_CheckViable(int child_size, int parent_size)
+{
+  // Make sure that neither parent nor child will be below the minimum size.
+
+  if (child_size < MIN_CREATURE_SIZE || parent_size < MIN_CREATURE_SIZE ||
+      child_size > 2 * parent_size   || parent_size > 2 * child_size) {
+    info.num_errors++;
+    return FALSE; // (divide fails)
+  }
+  
+  // Count the number of lines executed in the parent.
+
+  repro_data.executed_size = 0;
+  int i;
+  for (i = 0; i < parent_size; i++) {
+    if (hardware.GetMemFlag(i, INST_FLAG_EXECUTED)) {
+      repro_data.executed_size++;
+    }
+  }
+
+  // If less than 70% the lines in the parent were executed, divide fails...
+  // @CAO, make % copied adjustable!
+
+  if (repro_data.executed_size < parent_size * 0.7) {
+    info.num_errors++;
+    return FALSE; // (divide fails)
+  }
+	
+  // Count the number of lines which were copied into the child.
+
+  repro_data.copied_size = 0;
+  for (i = 0; i < child_size; i++) {
+    if (hardware.GetMemFlag(parent_size + i, INST_FLAG_COPIED)) {
+      repro_data.copied_size++;
+    }
+  }
+
+  // If less than 70% the lines were copied into the child, divide fails...
+  // @CAO, make % copied adjustable!
+
+  if (repro_data.copied_size < child_size * 0.7) {
+    info.num_errors++;
+    return FALSE; // (divide fails)
+  }
+	
+  return TRUE;
+}
+
+inline void cBaseCPU::Divide_RecordInfo()
+{
+  flags.UnsetFlag(CPU_FLAG_MAL_ACTIVE);
+  info.num_divides++;
+
+  // Record the gestation time and merit.
+  // (don't take stats for injected creatures.)
+
+  info.gestation_time =
+    info.total_time_used - info.gestation_start;
+  info.gestation_start = info.total_time_used;
+}
+
+inline void cBaseCPU::Divide_SetupChild(int parent_size)
+{
+  repro_data.child_memory.Reset(hardware.GetMemory(), parent_size);
+  repro_data.parent_phenotype = &phenotype;
+  repro_data.parent_cpu = this;
+  repro_data.parent_genotype = info.active_genotype;
+  repro_data.gestation_time = info.gestation_time;
+}
+
+inline void cBaseCPU::Divide_DoMutations()
+{
+  // Divide Mutations
+  if (environment->TestDivideMut()) {
+    UINT mut_line = g_random.GetUInt(repro_data.child_memory.GetSize());
+    UINT new_command = g_random.GetUInt(inst_lib->GetSize());
+    repro_data.child_memory[mut_line] = new_command;
+  }
+
+  // Divide Insertions
+  if (environment->TestDivideIns() &&
+      repro_data.child_memory.GetSize() < MAX_CREATURE_SIZE) {
+    UINT mut_line = g_random.GetUInt(repro_data.child_memory.GetSize() + 1);
+    UINT new_command = g_random.GetUInt(inst_lib->GetSize());
+    repro_data.child_memory.Insert(mut_line, new_command);
+  }
+
+  // Divide Deletions
+  if (environment->TestDivideDel() &&
+      repro_data.child_memory.GetSize() > MIN_CREATURE_SIZE) {
+    UINT mut_line = g_random.GetUInt(repro_data.child_memory.GetSize());
+    if (repro_data.child_memory.GetFlag(mut_line, INST_FLAG_COPIED)) {
+      repro_data.copied_size--;
+    }
+    repro_data.child_memory.Remove(mut_line);
+  }
+}
+
+inline void cBaseCPU::Divide_CheckCopyTrue()
+{
+  repro_data.copy_true =
+    *(info.active_genotype->GetCode()) == repro_data.child_memory;
+
+  // Add some data to the statistics.
+
+  info.fitness =
+    phenotype.GetCurMerit().CalcFitness(info.gestation_time);
+  info.executed_size = repro_data.executed_size;
+  info.copied_size = repro_data.copied_size;
+  repro_data.fitness = info.fitness;
+
+  // Don't let an injected creature affect the stats of its genotype.
+  // @CAO Is this still needed?
+  if (!flags.GetFlag(CPU_FLAG_INJECTED)) {
+    environment->GStats_SetGestationTime(info.gestation_time);
+    environment->GStats_SetFitness(info.fitness);
+    environment->GStats_SetMerit(phenotype.GetCurMerit());
+    environment->GStats_SetExecutedSize(info.executed_size);
+    environment->GStats_SetCopiedSize(info.copied_size);
+  }
+}
+
+
+// This function processes the very next command in the genome, and is made
+// to be as 
+
+inline void cBaseCPU::SingleProcess()
+{
+  info.total_time_used++;
+  hardware.AdjustIP();
+
+#ifdef DEBUG
+  // @CAO Some test code...
+  stats.IncSubUpdate();
+  if ((stats.GetUpdate() == -1 || stats.GetUpdate() == -1) &&
+      stats.GetSubUpdate() >= 31514 && stats.GetSubUpdate() <= 31516) {
+    PrintStatus();
+  }
+#endif
+  
+  // Find the number of the instruction to be executed...
+  UCHAR inst_id = hardware.GetCurInst();
+
+  // Get a pointer to the corrisponding method...
+  tCPUMethod inst_ptr = inst_lib->function[inst_id];
+
+  // Mark the instruction as executed
+  hardware.SetIPFlag(INST_FLAG_EXECUTED);
+  
+  // And execute it.
+  (this->*inst_ptr)();
+    
+  if (info.total_time_used) hardware.AdvanceIP();
+
+  // Kill creatures who have reached their max num of instructions executed.
+  if (!info.cpu_test && info.total_time_used == info.max_executed) {
+    Kill();
+    ChangeGenotype(NULL);
+    environment->AdjustTimeSlice();
+  }
+}
+
+inline char cBaseCPU::GetBasicSymbol()
+{
+  return (info.active_genotype) ? info.active_genotype->GetSymbol() : ' ';
+}
+
+inline char cBaseCPU::GetSpeciesSymbol()
+{
+  return (info.active_genotype) ?
+    info.active_genotype->GetSpeciesSymbol() : ' ';
+}
+
+inline char cBaseCPU::GetInjectSymbol()
+{
+  char inj_symbol;
+  if (flags[CPU_FLAG_INST_INJECT]) {
+    if (flags[CPU_FLAG_INJECT_HOST]) inj_symbol = 'I';
+    else inj_symbol = 'i';
+  }
+  else if (flags[CPU_FLAG_INJECT_HOST]) inj_symbol = 'h';
+  else if (info.active_genotype) inj_symbol = '-';
+  else inj_symbol = ' ';
+
+  return inj_symbol;
+}
+
+inline char cBaseCPU::GetResourceSymbol(int resource_num)
+{
+  int num_res = environment->GetResource(resource_num);
+  char res_symbol;
+  
+  if (num_res < 0) res_symbol = '-';
+  else if (!num_res) res_symbol = ' ';
+  else if (num_res < 10) res_symbol = (char) ('0' + num_res);
+  else if (num_res < 20) res_symbol = 'X';
+  else if (num_res < 80) res_symbol = 'L';
+  else if (num_res < 200)res_symbol = 'C';
+  else res_symbol = '+';
+
+  return res_symbol;
+}
+
+inline char cBaseCPU::GetAgeSymbol()
+{
+  char age_symbol;
+
+  if (!info.active_genotype) age_symbol = ' ';
+  else if (info.age < 0) age_symbol = '-';
+  else if (info.age < 10) age_symbol = (char) ('0' + info.age);
+  else if (info.age < 20) age_symbol = 'X';
+  else if (info.age < 80) age_symbol = 'L';
+  else if (info.age < 200) age_symbol = 'C';
+  else age_symbol = '+';  
+
+  return age_symbol;
+}
+
+inline char cBaseCPU::GetBreedSymbol()
+{
+  char breed_symbol;
+  if (!info.active_genotype) breed_symbol = ' ';
+  else if (flags[CPU_FLAG_PARENT_TRUE]) breed_symbol = '*';
+  else breed_symbol = '-';
+
+  return breed_symbol;
+}
+
+inline char cBaseCPU::GetParasiteSymbol()
+{
+  char p_symbol;
+  if (!info.active_genotype) p_symbol = ' ';
+  else if (flags[CPU_FLAG_PARASITE]) p_symbol = '*';
+  else p_symbol = '-';
+
+  return p_symbol;
+}
+
+inline char cBaseCPU::GetPointMutSymbol()
+{
+  char p_symbol;
+  if (!info.active_genotype) p_symbol = ' ';
+  else if (flags[CPU_FLAG_POINT_MUT]) p_symbol = '*';
+  else p_symbol = '-';
+
+  return p_symbol;
+}
+
+#endif

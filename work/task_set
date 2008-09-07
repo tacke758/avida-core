@@ -1,0 +1,15 @@
+#Task     bonus(0=off)	  Meaning	Difficulty
+
+get		1
+put		1
+ggp		1
+echo		1	 #
+not		2	 # ~A		- 1 nand
+nand		2	 # ~(A and B)	- 1 nand
+or_n		3	 #  A or ~B	- 2 nands
+and		3	 #  A and B	- 2 nands
+or		4	 #  A or B	- 3 nands
+and_n		4	 #  A and ~B	- 3 nands
+nor		5	 # ~(A or B)	- 4 nands
+xor		6	 #  A xor B	- 5 nands
+equ		6	 # ~(A xor B)	- 5 nands

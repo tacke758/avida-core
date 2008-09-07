@@ -1,0 +1,341 @@
+tools/string.o: tools/string.hh  
+tools/debug.o:  tools/debug.hh 
+tools/debug.o:  tools/include.hh 
+tools/debug.o: defs.hh
+tools/file.o:  tools/tools.hh tools/functions.hh
+tools/file.o:  defs.hh tools/debug.hh 
+tools/file.o:   tools/include.hh
+tools/file.o:  tools/memory.hh main/classes.hh tools/int.hh
+tools/file.o: tools/struct.hh tools/string.hh 
+tools/file.o:  tools/file.hh 
+tools/file.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+tools/memory.o: tools/memory.hh main/classes.hh defs.hh 
+tools/struct.o: tools/struct.hh tools/include.hh 
+tools/struct.o:   defs.hh
+tools/struct.o: tools/functions.hh 
+tools/block_struct.o: tools/block_struct.hh tools/int.hh 
+tools/block_struct.o: tools/struct.hh tools/include.hh 
+tools/block_struct.o:   defs.hh
+tools/block_struct.o: tools/functions.hh 
+tools/b_struct2.o: tools/b_struct2.hh tools/block_struct.hh tools/int.hh
+tools/b_struct2.o:  tools/struct.hh tools/include.hh
+tools/b_struct2.o:  defs.hh tools/functions.hh
+tools/tools.o: tools/tools.hh tools/functions.hh  defs.hh
+tools/tools.o: tools/debug.hh  
+tools/tools.o:  tools/include.hh 
+tools/tools.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+tools/tools.o: tools/string.hh  
+tools/tools.o:   tools/file.hh
+tools/tools.o:  tools/block_struct.hh tools/b_struct2.hh
+tools/tools.o: tools/random.hh  
+tools/random.o: tools/random.hh  
+
+cpu/cpu.o: cpu/cpu.hh defs.hh cpu/cpu_defs.hh main/code_array.hh tools/tools.hh
+cpu/cpu.o: tools/functions.hh  
+cpu/cpu.o: tools/debug.hh  
+cpu/cpu.o:  tools/include.hh 
+cpu/cpu.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+cpu/cpu.o: tools/string.hh  
+cpu/cpu.o:  tools/file.hh 
+cpu/cpu.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+cpu/cpu.o:  main/stats.hh main/merit.hh
+cpu/cpu.o: main/genotype.hh main/code_array.hh main/phenotype.hh cpu/label.hh
+cpu/cpu.o: cpu/head.hh cpu/creature.hh cpu/hardware.hh main/inst_lib.hh
+cpu/cpu.o: cpu/cpu.hh main/population.hh tools/int.hh tools/file.hh
+cpu/cpu.o: main/genebank.hh main/genotype.hh cpu/environment.hh cpu/head.ii
+cpu/cpu.o: cpu/cpu.ii
+cpu/head.o: cpu/cpu.hh defs.hh cpu/cpu_defs.hh main/code_array.hh tools/tools.hh
+cpu/head.o: tools/functions.hh  
+cpu/head.o: tools/debug.hh  
+cpu/head.o:  tools/include.hh 
+cpu/head.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+cpu/head.o: tools/string.hh  
+cpu/head.o:  tools/file.hh 
+cpu/head.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+cpu/head.o:  main/stats.hh main/merit.hh
+cpu/head.o: main/genotype.hh main/code_array.hh main/phenotype.hh cpu/label.hh
+cpu/head.o: cpu/head.hh cpu/creature.hh cpu/hardware.hh main/inst_lib.hh
+cpu/head.o: cpu/cpu.hh cpu/head.ii cpu/cpu.ii main/population.hh tools/int.hh
+cpu/head.o: tools/file.hh cpu/environment.hh main/genebank.hh main/genotype.hh
+cpu/label.o: cpu/label.hh defs.hh cpu/cpu_defs.hh main/classes.hh tools/tools.hh
+cpu/label.o: tools/functions.hh  
+cpu/label.o: tools/debug.hh  
+cpu/label.o:  tools/include.hh 
+cpu/label.o: tools/memory.hh tools/int.hh tools/struct.hh tools/string.hh
+cpu/label.o:  tools/file.hh 
+cpu/label.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+cpu/label.o:  main/stats.hh main/merit.hh
+cpu/interface.o: defs.hh cpu/interface.hh
+cpu/environment.o: defs.hh cpu/environment.hh cpu/cpu_defs.hh cpu/cpu.hh
+cpu/environment.o: main/code_array.hh tools/tools.hh tools/functions.hh
+cpu/environment.o:   tools/debug.hh
+cpu/environment.o:  tools/include.hh 
+cpu/environment.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+cpu/environment.o: tools/string.hh 
+cpu/environment.o:   tools/file.hh
+cpu/environment.o:  tools/block_struct.hh
+cpu/environment.o: tools/b_struct2.hh tools/random.hh 
+cpu/environment.o: main/stats.hh main/merit.hh main/genotype.hh
+cpu/environment.o: main/code_array.hh main/phenotype.hh cpu/label.hh cpu/head.hh
+cpu/environment.o: cpu/creature.hh cpu/hardware.hh main/inst_lib.hh cpu/cpu.hh
+cpu/environment.o: main/population.hh tools/int.hh tools/file.hh main/genebank.hh
+cpu/environment.o: main/genotype.hh
+cpu/hardware.o: cpu/hardware.hh defs.hh cpu/cpu_defs.hh main/code_array.hh
+cpu/hardware.o: tools/tools.hh tools/functions.hh 
+cpu/hardware.o:  tools/debug.hh 
+cpu/hardware.o:   tools/include.hh
+cpu/hardware.o:  tools/memory.hh main/classes.hh
+cpu/hardware.o: tools/int.hh tools/struct.hh tools/string.hh
+cpu/hardware.o:  tools/file.hh 
+cpu/hardware.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+cpu/hardware.o:  main/stats.hh main/merit.hh
+cpu/hardware.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/head.ii cpu/cpu.hh
+cpu/hardware.o: main/genotype.hh main/code_array.hh cpu/creature.hh
+cpu/hardware.o: main/inst_lib.hh cpu/cpu.hh cpu/cpu.ii main/population.hh
+cpu/hardware.o: tools/int.hh tools/file.hh cpu/environment.hh main/genebank.hh
+cpu/hardware.o: main/genotype.hh
+
+main/merit.o: main/merit.hh defs.hh tools/tools.hh tools/functions.hh
+main/merit.o:   tools/debug.hh
+main/merit.o: tools/include.hh  tools/memory.hh
+main/merit.o: main/classes.hh tools/int.hh tools/struct.hh tools/string.hh
+main/merit.o:  tools/file.hh 
+main/merit.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/stats.o: main/stats.hh  
+main/stats.o:   tools/tools.hh
+main/stats.o: tools/functions.hh  
+main/stats.o: defs.hh tools/debug.hh  
+main/stats.o:  tools/include.hh tools/memory.hh
+main/stats.o: main/classes.hh tools/int.hh tools/struct.hh tools/string.hh
+main/stats.o:  tools/file.hh tools/block_struct.hh
+main/stats.o: tools/b_struct2.hh tools/random.hh 
+main/stats.o:   main/merit.hh
+main/stats.o: main/genotype.hh main/code_array.hh
+main/inst_lib.o: main/inst_lib.hh main/stats.hh 
+main/inst_lib.o:  tools/tools.hh tools/functions.hh
+main/inst_lib.o:   defs.hh
+main/inst_lib.o: tools/debug.hh  
+main/inst_lib.o:  tools/include.hh tools/memory.hh
+main/inst_lib.o: main/classes.hh tools/int.hh tools/struct.hh tools/string.hh
+main/inst_lib.o:  tools/file.hh tools/block_struct.hh
+main/inst_lib.o: tools/b_struct2.hh tools/random.hh 
+main/inst_lib.o:   main/merit.hh
+main/inst_lib.o: cpu/cpu.hh cpu/cpu_defs.hh main/code_array.hh main/genotype.hh
+main/inst_lib.o: main/code_array.hh main/phenotype.hh cpu/label.hh cpu/head.hh
+main/inst_lib.o: cpu/creature.hh cpu/hardware.hh main/inst_lib.hh cpu/head.ii
+main/inst_lib.o: cpu/cpu.hh cpu/cpu.ii main/population.hh tools/int.hh
+main/inst_lib.o: tools/file.hh cpu/environment.hh main/genebank.hh
+main/inst_lib.o: main/genotype.hh cpu/head.ii
+main/phenotype.o: main/phenotype.hh main/stats.hh 
+main/phenotype.o:  tools/tools.hh tools/functions.hh
+main/phenotype.o:   defs.hh
+main/phenotype.o: tools/debug.hh  
+main/phenotype.o:  tools/include.hh tools/memory.hh
+main/phenotype.o: main/classes.hh tools/int.hh tools/struct.hh tools/string.hh
+main/phenotype.o:  tools/file.hh tools/block_struct.hh
+main/phenotype.o: tools/b_struct2.hh tools/random.hh 
+main/phenotype.o: main/merit.hh cpu/cpu.hh cpu/cpu_defs.hh main/code_array.hh
+main/phenotype.o: main/genotype.hh main/code_array.hh main/phenotype.hh
+main/phenotype.o: cpu/label.hh cpu/head.hh cpu/creature.hh cpu/hardware.hh
+main/phenotype.o: main/inst_lib.hh cpu/head.ii cpu/cpu.hh cpu/cpu.ii
+main/phenotype.o: main/population.hh tools/int.hh tools/file.hh cpu/environment.hh
+main/phenotype.o: main/genebank.hh main/genotype.hh cpu/head.ii
+main/code_array.o: main/code_array.hh defs.hh tools/tools.hh tools/functions.hh
+main/code_array.o:   tools/debug.hh
+main/code_array.o:  tools/include.hh 
+main/code_array.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+main/code_array.o: tools/string.hh 
+main/code_array.o:   tools/file.hh
+main/code_array.o:  tools/block_struct.hh
+main/code_array.o: tools/b_struct2.hh tools/random.hh 
+main/code_array.o: main/stats.hh main/merit.hh main/classes.hh
+main/genotype.o: main/genotype.hh main/code_array.hh defs.hh tools/tools.hh
+main/genotype.o: tools/functions.hh  
+main/genotype.o: tools/debug.hh  
+main/genotype.o:  tools/include.hh 
+main/genotype.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+main/genotype.o: tools/string.hh  
+main/genotype.o:  tools/file.hh 
+main/genotype.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/genotype.o:  main/stats.hh main/merit.hh
+main/genotype.o: main/species.hh
+main/species.o: main/species.hh main/code_array.hh defs.hh tools/tools.hh
+main/species.o: tools/functions.hh  
+main/species.o: tools/debug.hh  
+main/species.o:  tools/include.hh 
+main/species.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+main/species.o: tools/string.hh  
+main/species.o:  tools/file.hh 
+main/species.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/species.o:  main/stats.hh main/merit.hh cpu/cpu.hh
+main/species.o: cpu/cpu_defs.hh main/code_array.hh main/genotype.hh
+main/species.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+main/species.o: cpu/hardware.hh main/inst_lib.hh cpu/head.ii cpu/cpu.hh cpu/cpu.ii
+main/species.o: main/population.hh tools/int.hh tools/file.hh cpu/environment.hh
+main/species.o: main/genebank.hh main/genotype.hh cpu/head.ii
+main/genebank.o: main/genebank.hh defs.hh main/genotype.hh main/code_array.hh
+main/genebank.o: tools/tools.hh tools/functions.hh 
+main/genebank.o:  tools/debug.hh 
+main/genebank.o:   tools/include.hh
+main/genebank.o:  tools/memory.hh main/classes.hh
+main/genebank.o: tools/int.hh tools/struct.hh tools/string.hh
+main/genebank.o:  tools/file.hh 
+main/genebank.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/genebank.o:  main/stats.hh main/merit.hh
+main/genebank.o: cpu/cpu.hh cpu/cpu_defs.hh main/code_array.hh main/genotype.hh
+main/genebank.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+main/genebank.o: cpu/hardware.hh main/inst_lib.hh main/species.hh
+main/genebank.o: main/population.hh tools/int.hh tools/file.hh cpu/cpu.ii
+main/genebank.o: cpu/cpu.hh main/population.hh cpu/environment.hh main/genebank.hh
+main/genebank.o: cpu/head.ii
+main/slice.o: main/slice.hh main/population.hh tools/int.hh tools/file.hh
+main/slice.o: cpu/cpu.hh defs.hh cpu/cpu_defs.hh main/code_array.hh tools/tools.hh
+main/slice.o: tools/functions.hh  
+main/slice.o: tools/debug.hh  
+main/slice.o:  tools/include.hh 
+main/slice.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+main/slice.o: tools/string.hh  
+main/slice.o:  tools/file.hh 
+main/slice.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/slice.o:  main/stats.hh main/merit.hh
+main/slice.o: main/genotype.hh main/code_array.hh main/phenotype.hh cpu/label.hh
+main/slice.o: cpu/head.hh cpu/creature.hh cpu/hardware.hh main/inst_lib.hh
+main/slice.o: cpu/cpu.ii cpu/cpu.hh main/population.hh cpu/environment.hh
+main/slice.o: main/genebank.hh main/genotype.hh cpu/head.ii
+main/population.o: main/population.hh tools/int.hh tools/file.hh cpu/cpu.hh
+main/population.o: defs.hh cpu/cpu_defs.hh main/code_array.hh tools/tools.hh
+main/population.o: tools/functions.hh 
+main/population.o:  tools/debug.hh 
+main/population.o:   tools/include.hh
+main/population.o:  tools/memory.hh main/classes.hh
+main/population.o: tools/int.hh tools/struct.hh tools/string.hh
+main/population.o:  tools/file.hh 
+main/population.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/population.o:  main/stats.hh main/merit.hh
+main/population.o: main/genotype.hh main/code_array.hh main/phenotype.hh
+main/population.o: cpu/label.hh cpu/head.hh cpu/creature.hh cpu/hardware.hh
+main/population.o: main/inst_lib.hh main/inst_lib.hh main/genebank.hh
+main/population.o: main/genotype.hh main/slice.hh main/species.hh
+main/population.o: cpu/environment.hh cpu/cpu.hh main/population.hh
+main/population.o: main/genebank.hh cpu/head.ii cpu/cpu.ii cpu/environment.hh
+main/population.o: cpu/head.ii
+main/playback.o: main/playback.hh main/population.hh tools/int.hh tools/file.hh
+main/playback.o: cpu/cpu.hh defs.hh cpu/cpu_defs.hh main/code_array.hh
+main/playback.o: tools/tools.hh tools/functions.hh 
+main/playback.o:  tools/debug.hh 
+main/playback.o:   tools/include.hh
+main/playback.o:  tools/memory.hh main/classes.hh
+main/playback.o: tools/int.hh tools/struct.hh tools/string.hh
+main/playback.o:  tools/file.hh 
+main/playback.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/playback.o:  main/stats.hh main/merit.hh
+main/playback.o: main/genotype.hh main/code_array.hh main/phenotype.hh
+main/playback.o: cpu/label.hh cpu/head.hh cpu/creature.hh cpu/hardware.hh
+main/playback.o: main/inst_lib.hh cpu/head.ii cpu/cpu.hh cpu/cpu.ii
+main/playback.o: main/population.hh cpu/environment.hh main/genebank.hh
+main/playback.o: main/genotype.hh cpu/head.ii cpu/cpu.ii
+main/avida.o: main/avida.hh main/population.hh tools/int.hh tools/file.hh
+main/avida.o: cpu/cpu.hh defs.hh cpu/cpu_defs.hh main/code_array.hh tools/tools.hh
+main/avida.o: tools/functions.hh  
+main/avida.o: tools/debug.hh  
+main/avida.o:  tools/include.hh 
+main/avida.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+main/avida.o: tools/string.hh  
+main/avida.o:  tools/file.hh 
+main/avida.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+main/avida.o:  main/stats.hh main/merit.hh
+main/avida.o: main/genotype.hh main/code_array.hh main/phenotype.hh cpu/label.hh
+main/avida.o: cpu/head.hh cpu/creature.hh cpu/hardware.hh main/inst_lib.hh
+main/avida.o: main/playback.hh main/genotype.hh main/genebank.hh main/species.hh
+main/avida.o: viewers/view.hh main/species.hh main/genebank.hh main/slice.hh
+main/avida.o: main/population.hh main/playback.hh cpu/head.ii cpu/cpu.hh
+main/avida.o: cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii main/stats.hh
+main/avida.o: viewers/text.hh viewers/curses.hh 
+main/avida.o: viewers/ncurses.hh viewers/ansi.hh
+
+viewers/curses.o: viewers/view.hh main/code_array.hh defs.hh tools/tools.hh
+viewers/curses.o: tools/functions.hh  
+viewers/curses.o: tools/debug.hh  
+viewers/curses.o:  tools/include.hh 
+viewers/curses.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+viewers/curses.o: tools/string.hh  
+viewers/curses.o:  tools/file.hh 
+viewers/curses.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+viewers/curses.o:  main/stats.hh main/merit.hh
+viewers/curses.o: main/genotype.hh main/code_array.hh cpu/cpu.hh cpu/cpu_defs.hh
+viewers/curses.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+viewers/curses.o: cpu/hardware.hh main/inst_lib.hh main/species.hh main/genebank.hh
+viewers/curses.o: main/genotype.hh main/slice.hh main/population.hh tools/int.hh
+viewers/curses.o: tools/file.hh main/population.hh main/playback.hh cpu/head.ii
+viewers/curses.o: cpu/cpu.hh cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii
+viewers/curses.o: main/stats.hh viewers/text.hh viewers/curses.hh
+viewers/curses.o:  viewers/ncurses.hh viewers/ansi.hh
+viewers/ncurses.o: viewers/view.hh main/code_array.hh defs.hh tools/tools.hh
+viewers/ncurses.o: tools/functions.hh  
+viewers/ncurses.o: tools/debug.hh  
+viewers/ncurses.o:  tools/include.hh 
+viewers/ncurses.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+viewers/ncurses.o: tools/string.hh  
+viewers/ncurses.o:  tools/file.hh 
+viewers/ncurses.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+viewers/ncurses.o:  main/stats.hh main/merit.hh
+viewers/ncurses.o: main/genotype.hh main/code_array.hh cpu/cpu.hh cpu/cpu_defs.hh
+viewers/ncurses.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+viewers/ncurses.o: cpu/hardware.hh main/inst_lib.hh main/species.hh main/genebank.hh
+viewers/ncurses.o: main/genotype.hh main/slice.hh main/population.hh tools/int.hh
+viewers/ncurses.o: tools/file.hh main/population.hh main/playback.hh cpu/head.ii
+viewers/ncurses.o: cpu/cpu.hh cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii
+viewers/ncurses.o: main/stats.hh viewers/text.hh viewers/curses.hh
+viewers/ncurses.o:  viewers/ncurses.hh viewers/ansi.hh
+viewers/ansi.o: viewers/view.hh main/code_array.hh defs.hh tools/tools.hh
+viewers/ansi.o: tools/functions.hh  
+viewers/ansi.o: tools/debug.hh  
+viewers/ansi.o:  tools/include.hh 
+viewers/ansi.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+viewers/ansi.o: tools/string.hh  
+viewers/ansi.o:  tools/file.hh 
+viewers/ansi.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+viewers/ansi.o:  
+viewers/ansi.o:  main/stats.hh main/merit.hh
+viewers/ansi.o: main/genotype.hh main/code_array.hh cpu/cpu.hh cpu/cpu_defs.hh
+viewers/ansi.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+viewers/ansi.o: cpu/hardware.hh main/inst_lib.hh main/species.hh main/genebank.hh
+viewers/ansi.o: main/genotype.hh main/slice.hh main/population.hh tools/int.hh
+viewers/ansi.o: tools/file.hh main/population.hh main/playback.hh cpu/head.ii
+viewers/ansi.o: cpu/cpu.hh cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii
+viewers/ansi.o: main/stats.hh viewers/text.hh viewers/curses.hh 
+viewers/ansi.o: viewers/ncurses.hh viewers/ansi.hh
+viewers/text.o: viewers/view.hh main/code_array.hh defs.hh tools/tools.hh
+viewers/text.o: tools/functions.hh  
+viewers/text.o: tools/debug.hh  
+viewers/text.o:  tools/include.hh 
+viewers/text.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+viewers/text.o: tools/string.hh  
+viewers/text.o:  tools/file.hh 
+viewers/text.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+viewers/text.o:  main/stats.hh main/merit.hh
+viewers/text.o: main/genotype.hh main/code_array.hh cpu/cpu.hh cpu/cpu_defs.hh
+viewers/text.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+viewers/text.o: cpu/hardware.hh main/inst_lib.hh main/species.hh main/genebank.hh
+viewers/text.o: main/genotype.hh main/slice.hh main/population.hh tools/int.hh
+viewers/text.o: tools/file.hh main/population.hh main/playback.hh cpu/head.ii
+viewers/text.o: cpu/cpu.hh cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii
+viewers/text.o: main/stats.hh viewers/text.hh viewers/curses.hh 
+viewers/text.o: viewers/ncurses.hh viewers/ansi.hh
+viewers/view.o: viewers/view.hh main/code_array.hh defs.hh tools/tools.hh
+viewers/view.o: tools/functions.hh  
+viewers/view.o: tools/debug.hh  
+viewers/view.o:  tools/include.hh 
+viewers/view.o: tools/memory.hh main/classes.hh tools/int.hh tools/struct.hh
+viewers/view.o: tools/string.hh  
+viewers/view.o:  tools/file.hh 
+viewers/view.o: tools/block_struct.hh tools/b_struct2.hh tools/random.hh
+viewers/view.o:  main/stats.hh main/merit.hh
+viewers/view.o: main/genotype.hh main/code_array.hh cpu/cpu.hh cpu/cpu_defs.hh
+viewers/view.o: main/phenotype.hh cpu/label.hh cpu/head.hh cpu/creature.hh
+viewers/view.o: cpu/hardware.hh main/inst_lib.hh main/species.hh main/genebank.hh
+viewers/view.o: main/genotype.hh main/slice.hh main/population.hh tools/int.hh
+viewers/view.o: tools/file.hh main/population.hh main/playback.hh cpu/head.ii
+viewers/view.o: cpu/cpu.hh cpu/cpu.ii cpu/environment.hh cpu/head.ii cpu/cpu.ii
+viewers/view.o: main/stats.hh viewers/text.hh viewers/curses.hh 
+viewers/view.o: viewers/ncurses.hh viewers/ansi.hh

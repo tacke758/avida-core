@@ -1,0 +1,57 @@
+# Calculate the creature's size...
+
+search-f
+nop-A
+nop-A
+nop-A
+nop-A
+add 
+inc
+inc
+
+# Allocate the proper memory.
+allocate 
+
+# Move size into CX and clear BX
+push
+nop-B
+put
+pop
+nop-C
+
+# Do the Injection
+copy
+inc
+shift-l
+nop-A
+nop-A
+rotate-l
+nop-C
+
+inject
+nop-C
+
+shift-r
+nop-A
+nop-A
+
+# Copy Loop
+nop-A
+nop-B
+nop-A
+nop-B
+copy
+inc
+if-n-equ
+jump-b
+nop-C
+nop-A
+nop-C
+nop-A
+
+# And divide...
+divide 
+nop-B
+nop-B 
+nop-B
+nop-B

@@ -1,0 +1,43 @@
+# Calculate the creature's size...
+
+search-f
+nop-A
+nop-A
+nop-A
+nop-A
+add 
+inc 
+
+# Allocate the proper memory.
+allocate 
+
+# Move size into CX and clear BX
+push
+nop-B
+pop
+nop-C
+sub
+nop-B
+
+# Copy Loop
+nop-A
+nop-B
+nop-A
+nop-B
+copy
+if-n-cpy
+copy
+inc
+if-n-equ
+jump-b
+nop-C
+nop-A
+nop-C
+nop-A
+
+# And divide...
+divide 
+nop-B
+nop-B 
+nop-B
+nop-B

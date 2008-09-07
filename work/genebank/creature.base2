@@ -1,0 +1,31 @@
+# Calculate size
+
+search-f 
+nop-B 
+nop-A 
+add 
+inc 
+
+# Allocate memory...
+
+allocate 
+
+# Copy loop
+
+nop-A 
+nop-B 
+dec 
+copy
+if-not-0 
+jump-b 
+nop-C 
+nop-A 
+
+# Divide and End-Marker.
+
+divide 
+nop-C 
+nop-B 
+                              
+
+

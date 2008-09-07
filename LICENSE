@@ -1,0 +1,40 @@
+This is the license file for the avida system and associated programs.
+Any questions about use or distribution should be directed to the Avida
+Group at the e-mail address 'avida@krl.caltech.edu' or at the following
+U.S. postal address:
+
+	Charles Ofria
+	Beckman Institute 139-74
+	California Institute of Technology
+	Pasadena, California 91125
+
+---------------------------------------------------------------------
+
+All materials contained in this directory and subdirectories are
+
+	Copyright (C) 1994-97 California Institute of Technology.
+
+Permission to distribute unaltered copies of this source code is
+freely granted.  No fee may be charged for distribution of this
+software or of data resulting from use of this program, except at the
+cost of distribution or by explicit written consent of the California
+Institute of Technology.
+
+This material was originally written and compiled by Charles Ofria
+from 1993-1997 primarily at the California Institute of Technology.
+The work was partially funded by both the Computation and Neural Systems
+department and Kellogg Radiation Lab at Caltech, and in development use
+was made of computers at Kellogg Lab.
+
+The core avida system was designed by Chris Adami, C. Titus Brown, and
+Charles Ofria in 1992-1997.  Portions of the design were supported by NSF
+grant #PHY91-15574, a Caltech divisional fellowship, the 1993 Caltech SURF
+program, and the 1993 SUNY Stony Brook URECA program.
+
+----------
+DISCLAIMER
+----------
+
+This software is provided "as is" and without any expressed or implied
+warranties, including, without limitation, the implied warranties of
+merchantibility and fitness for any particular purpose.

@@ -1,0 +1,200 @@
+### Compile and Link Command & Options #######################################
+
+CXX	= @CXX@		# Compiler to use (CC, g++, ...)
+FLAGS	= @CFLAGS@	# Compile flags (-O, -g, ...) [See specific compiler]
+VIEW	= @VIEW@	# Viewer to use (primitive, curses, or ncurses)
+
+# Libries to link (primitive viewer => no viewlib)
+LDLIBS	= @LIBS@
+
+# Include directories [May need to adjust.  See your system administrator]
+INCDIR	= 
+
+
+### Shouldn't need to change below ###########################################
+
+# Compile flags
+CXXFLAGS= $(FLAGS) -DVIEW_$(VIEW)
+
+# Flags durring linking
+LDFLAGS	= $(CXXFLAGS)
+
+
+### Different Builds #########################################################
+
+# executable make
+TARGET		= avida
+
+default:  $(TARGET)
+
+
+CC_ncurses: clean
+	### BUILDING "ncurses" VERSION WITH "CC" ###
+	$(MAKE) -e \
+	"CXX    = CC" \
+	"FLAGS  = -O" \
+	"VIEW   = ncurses" \
+	"LDLIBS = -lm -lncurses -lterminfo" \
+	$(TARGET)
+
+CC_curses: clean
+	### BUILDING "curses" VERSION WITH "CC" ###
+	$(MAKE) -e \
+	"CXX    = CC" \
+	"FLAGS  = -O" \
+	"VIEW   = curses" \
+	"LDLIBS = -lm -lcurses -ltermcap" \
+	$(TARGET)
+
+CC_primitive: clean
+	### BUILDING "primitive" VERSION WITH "CC" ###
+	$(MAKE) -e \
+	"CXX    = CC" \
+	"FLAGS  = -O" \
+	"VIEW   = primitive" \
+	"LDLIBS = -lm" \
+	$(TARGET)
+
+g++_ncurses: clean
+	### BUILDING "ncurses" VERSION WITH "g++" ###
+	$(MAKE) -e \
+	"CXX    = g++" \
+	"FLAGS  = -ffast-math -O3" \
+	"VIEW   = ncurses" \
+	"LDLIBS = -lm -lncurses -lterminfo" \
+	$(TARGET)
+
+g++_curses: clean
+	### BUILDING "curses" VERSION WITH "g++" ###
+	$(MAKE) -e \
+	"CXX    = g++" \
+	"FLAGS  = -ffast-math -O3" \
+	"VIEW   = curses" \
+	"LDLIBS = -lm -lcurses -ltermcap" \
+	$(TARGET)
+
+g++_primitive: clean
+	### BUILDING "primitive" VERSION WITH "g++" ###
+	$(MAKE) -e \
+	"CXX    = g++" \
+	"FLAGS  = -ffast-math -O3" \
+	"VIEW   = primitive" \
+	"LDLIBS = -lm" \
+	$(TARGET)
+
+
+### List Source Files in the Project #########################################
+
+TOOL_DIR	= tools
+CPU_DIR		= cpu
+MAIN_DIR        = main
+VIEW_DIR	= viewers
+
+CPU_SRC		= $(CPU_DIR)/cpu.cc         $(CPU_DIR)/head.cc          \
+                  $(CPU_DIR)/label.cc       $(CPU_DIR)/interface.cc     \
+		  $(CPU_DIR)/environment.cc $(CPU_DIR)/hardware.cc
+
+TOOL_SRC	= $(TOOL_DIR)/string.cc     $(TOOL_DIR)/debug.cc        \
+		  $(TOOL_DIR)/file.cc       $(TOOL_DIR)/memory.cc       \
+		  $(TOOL_DIR)/struct.cc     $(TOOL_DIR)/block_struct.cc \
+		  $(TOOL_DIR)/b_struct2.cc  $(TOOL_DIR)/tools.cc        \
+		  $(TOOL_DIR)/random.cc
+
+VIEW_SRC	= $(VIEW_DIR)/curses.cc     $(VIEW_DIR)/ncurses.cc      \
+		  $(VIEW_DIR)/ansi.cc       $(VIEW_DIR)/text.cc         \
+		  $(VIEW_DIR)/view.cc
+
+MAIN_SRC	= $(MAIN_DIR)/merit.cc      $(MAIN_DIR)/stats.cc        \
+                  $(MAIN_DIR)/inst_lib.cc   $(MAIN_DIR)/phenotype.cc    \
+                  $(MAIN_DIR)/code_array.cc $(MAIN_DIR)/genotype.cc     \
+                  $(MAIN_DIR)/species.cc    $(MAIN_DIR)/genebank.cc     \
+                  $(MAIN_DIR)/slice.cc      $(MAIN_DIR)/population.cc   \
+                  $(MAIN_DIR)/playback.cc   $(MAIN_DIR)/avida.cc
+
+SRC		= $(CPU_SRC) $(TOOL_SRC) $(MAIN_SRC) $(VIEW_SRC)
+
+### List Object Files (for each source file there is a object file) ###########
+OBJ	 	= $(SRC:.cc=.o)
+
+
+### General Make Commands #####################################################
+
+CCC		= $(CXX)		# Compatibility
+
+$(TARGET):	$(OBJ)
+		### LINKING ###
+		$(CXX) $(LDFLAGS) $(INCDIR) $(OBJ) $(LDLIBS) -o $(TARGET)
+		### FINISHED MAKING "$(TARGET)" ###
+
+.cc.o:
+	$(CXX) $(CXXFLAGS) $(INCDIR) -c $< -o $*.o
+
+clean:
+		### REMOVING OBJECT FILES AND EXECUTEABLE ###
+		rm -f core $(TARGET) $(OBJ)
+
+new:		clean $(TARGET)
+
+install:
+	configure
+	$(MAKE) new
+
+
+### General Loaders for Centerline ObjectCenter and TestCenter ################
+
+# Load source files into object center
+OC:	$(SRC)
+	#setopt program_name $(TARGET)
+	#setopt load_flags -I/usr/include/CC -L/usr/lib/X11R5 -L/lib -L/usr/lib
+	#load -a archive $(LDLIBS)
+	#load $(CXXFLAGS) $(SRC)
+
+# Load object files into object center
+OO:	$(OBJ)
+	#setopt program_name $(TARGET)
+	#setopt load_flags -I/usr/include/CC -L/usr/lib/X11R5 -L/lib -L/usr/lib
+	#load -a archive $(LDLIBS)
+	#load $(CXXFLAGS) $(OBJ)
+
+# compile for test center
+TC:	$(OBJ)
+	proof $(CXX) $(LDFLAGS) $(OBJ) $(LDLIBS) -o $(TARGET)
+
+
+### RCS Helpers (gnumake only) ################################################
+
+rcs_get:	
+		co -q RCS/*
+		cd $(TOOL_DIR) ; co -q RCS/* ; cd ..
+		cd $(MAIN_DIR) ; co -q RCS/* ; cd ..
+		cd $(CPU_DIR)  ; co -q RCS/* ; cd ..
+		cd $(VIEW_DIR) ; co -q RCS/* ; cd ..
+
+rcs_clean:	
+		rm -f `find * -perm 444`
+
+rcs_new:	rcs_clean rcs_get
+
+
+### Dependency Generation #####################################################
+
+depend:	
+	### BUILDING DEPENDENCY LISTS ###
+	rm -f depend depend.tmp
+	touch depend.tmp depend
+	makedepend -- $(CXXFLAGS) -- $(INCDIR) -fdepend.tmp $(TOOL_SRC) 
+	sed 's/^\(.*\.o:\)/$(TOOL_DIR)\/\1/' depend.tmp >> depend
+	makedepend -- $(CXXFLAGS) -- $(INCDIR) -fdepend.tmp $(CPU_SRC) 
+	sed 's/^\(.*\.o:\)/$(CPU_DIR)\/\1/'  depend.tmp >> depend
+	makedepend -- $(CXXFLAGS) -- $(INCDIR) -fdepend.tmp $(MAIN_SRC) 
+	sed 's/^\(.*\.o:\)/$(MAIN_DIR)\/\1/' depend.tmp >> depend
+	makedepend -- $(CXXFLAGS) -- $(INCDIR) -fdepend.tmp $(VIEW_SRC) 
+	sed 's/^\(.*\.o:\)/$(VIEW_DIR)\/\1/' depend.tmp >> depend
+	rm -f depend.tmp depend.tmp.bak
+	### DONE BUILDING DEPENDENCY LISTS ###
+
+include depend
+
+
+### Release Packageing ########################################################
+
