@@ -49,6 +49,11 @@
 # define log2(x) (log(x)/log(2.0))
 #endif
 
+// Various workarounds for FreeBSD
+#if AVIDA_PLATFORM(FREEBSD)
+# define log2(x) (log(x)/log(2.0))
+#endif
+
 static const double dCastPrecision = 100000.0;
 
 
@@ -2893,7 +2898,7 @@ double cTaskLib::Task_MoveNotUpGradient(cTaskContext& ctx) const {
   return 1.0;
 }
 
-double cTaskLib::Task_MoveToRightSide(cTaskContext& ctx) const {
+double cTaskLib::Task_MoveToRightSide(cTaskContext& ctx) const {	
   cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
   std::pair<int, int> location = deme.GetCellPosition(ctx.GetOrgInterface()->GetCellID());
   
@@ -2926,6 +2931,11 @@ double cTaskLib::Task_MoveToTarget(cTaskContext& ctx) const
 //Note - a generic version of this is now at - Task_MoveToMovementEvent
 {
   cOrgInterface* iface = ctx.GetOrgInterface();
+	
+  if(ctx.GetOrganism()->GetCellID() == -1) {
+    return 0.0;		
+  }
+	
   cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
   int celldata = m_world->GetPopulation().GetCell(iface->GetCellID()).GetCellData();
 
@@ -2953,6 +2963,11 @@ double cTaskLib::Task_MoveToTarget(cTaskContext& ctx) const
 } //End cTaskLib::TaskMoveToTarget()
 
 double cTaskLib::Task_MoveToMovementEvent(cTaskContext& ctx) const {
+	
+  if(ctx.GetOrganism()->GetCellID() == -1) {
+    return 0.0;		
+  }	
+	
   cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
   int cell_data = m_world->GetPopulation().GetCell(ctx.GetOrgInterface()->GetCellID()).GetCellData();
   cOrgInterface* iface = ctx.GetOrgInterface();
@@ -2972,6 +2987,11 @@ double cTaskLib::Task_MoveToMovementEvent(cTaskContext& ctx) const {
 
 
 double cTaskLib::Task_MoveBetweenMovementEvent(cTaskContext& ctx) const {
+	
+  if(ctx.GetOrganism()->GetCellID() == -1) {
+    return 0.0;		
+  }	
+	
   cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
   int cell_data = m_world->GetPopulation().GetCell(ctx.GetOrgInterface()->GetCellID()).GetCellData();
   cOrgInterface* iface = ctx.GetOrgInterface();
@@ -3014,6 +3034,11 @@ double cTaskLib::Task_MoveBetweenMovementEvent(cTaskContext& ctx) const {
 }
 
 double cTaskLib::Task_MoveToEvent(cTaskContext& ctx) const {
+	
+  if(ctx.GetOrganism()->GetCellID() == -1) {
+    return 0.0;		
+  }	
+	
   cDeme* deme = ctx.GetOrganism()->GetOrgInterface().GetDeme();
   int cell_data = ctx.GetOrganism()->GetOrgInterface().GetCellData();
   if(cell_data <= 0)
