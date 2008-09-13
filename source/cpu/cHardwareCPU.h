@@ -44,6 +44,9 @@
 #ifndef cHardwareBase_h
 #include "cHardwareBase.h"
 #endif
+#ifndef cOrganismThread_h
+#include "cOrganismThread.h"
+#endif
 #ifndef cString_h
 #include "cString.h"
 #endif
@@ -64,6 +67,7 @@
 #include "nHardware.h"
 #endif
 
+
 /**
  * Each organism may have a cHardwareCPU structure which keeps track of the
  * current status of all the components of the simulated hardware.
@@ -76,6 +80,66 @@ class cInstLib;
 class cInstSet;
 class cMutation;
 class cOrganism;
+class cHardwareCPU;
+
+// --------  Data Structures  --------
+class cLocalThread : public cOrganismThread
+{
+private:
+	cWorld* m_world;
+	int m_promoter_inst_executed;
+public:
+	static const int NUM_REGISTERS = 3;
+  static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
+	
+	int reg[NUM_REGISTERS];
+	cHeadCPU heads[NUM_HEADS];
+	cCPUStack stack;
+	unsigned char cur_stack;              // 0 = local stack, 1 = global stack.
+	unsigned char cur_head;
+	
+	cCodeLabel read_label;
+	cCodeLabel next_label;
+	
+	struct savedState {
+		int reg[NUM_REGISTERS];
+		cHeadCPU heads[NUM_HEADS];
+		cCPUStack stack;
+		unsigned char cur_stack;              // 0 = local stack, 1 = global stack.
+		unsigned char cur_head;
+		
+		cCodeLabel read_label;
+		cCodeLabel next_label;
+	};
+	
+	savedState pushedState;  //<! state of thread before interrupt
+	bool interrupted;        //<! is thread interrupted
+	cHardwareCPU* hardware;  //<! hardware that this thread is running on
+	
+	cLocalThread(cWorld* world = NULL, cHardwareCPU* in_hardware = NULL, int in_id = -1) : m_world(world), hardware(in_hardware) { Reset(world, in_hardware, in_id); }
+	~cLocalThread() { ; }
+	
+	void operator=(const cLocalThread& in_thread);
+	
+	void Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id);
+	int GetPromoterInstExecuted() { return m_promoter_inst_executed; }
+	void IncPromoterInstExecuted() { m_promoter_inst_executed++; }
+	void ResetPromoterInstExecuted() { m_promoter_inst_executed = 0; }
+	
+	// save registers
+	// save heads
+	// save thread stack		
+	void saveState();
+	
+	// restore registers
+	// restore heads
+	// save thread stack		
+	void restoreState();
+	void setInterruptState();
+	void interruptContextSwitch();  //!< performs context switch between normal thread execution and interrupt handler
+	void moveInstructionHeadToMSGHandler();
+	void moveInstructionHeadToInterruptEnd();
+};
 
 
 class cHardwareCPU : public cHardwareBase
@@ -89,43 +153,10 @@ protected:
   static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
   enum tRegisters { REG_AX = 0, REG_BX, REG_CX, REG_DX, REG_EX, REG_FX };
   static const int NUM_NOPS = 3;
-  
-  // --------  Data Structures  --------
-  struct cLocalThread
-  {
-  private:
-    int m_id;
-    int m_promoter_inst_executed;
-  public:
-    int reg[NUM_REGISTERS];
-    cHeadCPU heads[NUM_HEADS];
-    cCPUStack stack;
-    unsigned char cur_stack;              // 0 = local stack, 1 = global stack.
-    unsigned char cur_head;
-    
-    cCodeLabel read_label;
-    cCodeLabel next_label;
-    
-    
-    cLocalThread(cHardwareBase* in_hardware = NULL, int in_id = -1) { Reset(in_hardware, in_id); }
-    ~cLocalThread() { ; }
-    
-    void operator=(const cLocalThread& in_thread);
-    
-    void Reset(cHardwareBase* in_hardware, int in_id);
-    int GetID() const { return m_id; }
-    void SetID(int in_id) { m_id = in_id; }
-    int GetPromoterInstExecuted() { return m_promoter_inst_executed; }
-    void IncPromoterInstExecuted() { m_promoter_inst_executed++; }
-    void ResetPromoterInstExecuted() { m_promoter_inst_executed = 0; }
-    
-  };
-
     
   // --------  Static Variables  --------
   static tInstLib<tMethod>* s_inst_slib;
   static tInstLib<tMethod>* initInstLib(void);
-
 
   // --------  Member Variables  --------
   const tMethod* m_functions;
@@ -612,8 +643,10 @@ private:
   
   //// Messaging ////
   bool Inst_SendMessage(cAvidaContext& ctx);
+public:
   bool Inst_RetrieveMessage(cAvidaContext& ctx);
-  
+private:
+	
   //// Alarm ////
   bool Inst_Alarm_MSG_local(cAvidaContext& ctx);
   bool Inst_Alarm_MSG_multihop(cAvidaContext& ctx);
@@ -622,7 +655,12 @@ private:
   bool Inst_Alarm_Label(cAvidaContext& ctx);
   bool Jump_To_Alarm_Label(int jump_label);
 
-  
+  // interrupt		
+	bool Inst_MSG_received_handler_START(cAvidaContext& ctx);
+	bool Inst_Moved_handler_START(cAvidaContext& ctx);
+	bool Inst_interrupt_handler_END(cAvidaContext& ctx);
+	bool moveInstructionHeadToInterruptEnd();
+	
   //// Placebo ////
   bool Inst_Skip(cAvidaContext& ctx);
 

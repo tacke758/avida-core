@@ -416,7 +416,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("alarm-label-high", &cHardwareCPU::Inst_Alarm_Label),
     tInstLibEntry<tMethod>("alarm-label-low", &cHardwareCPU::Inst_Alarm_Label),
 
-
+		// Interrupt
+    tInstLibEntry<tMethod>("MSG_received_handler_START", &cHardwareCPU::Inst_MSG_received_handler_START),
+    tInstLibEntry<tMethod>("Moved_handler_START", &cHardwareCPU::Inst_Moved_handler_START),
+    tInstLibEntry<tMethod>("interrupt_handler_END", &cHardwareCPU::Inst_interrupt_handler_END),
+		
     // Placebo instructions
     tInstLibEntry<tMethod>("skip", &cHardwareCPU::Inst_Skip),
 
@@ -528,7 +532,7 @@ void cHardwareCPU::Reset()
   m_threads.Resize(1);
   
   // Reset that single thread.
-  m_threads[0].Reset(this, 0);
+  m_threads[0].Reset(m_world, this, 0);
   m_thread_id_chart = 1; // Mark only the first thread as taken...
   m_cur_thread = 0;
   
@@ -566,7 +570,7 @@ void cHardwareCPU::Reset()
   }
 }
 
-void cHardwareCPU::cLocalThread::operator=(const cLocalThread& in_thread)
+void cLocalThread::operator=(const cLocalThread& in_thread)
 {
   m_id = in_thread.m_id;
   for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = in_thread.reg[i];
@@ -574,8 +578,9 @@ void cHardwareCPU::cLocalThread::operator=(const cLocalThread& in_thread)
   stack = in_thread.stack;
 }
 
-void cHardwareCPU::cLocalThread::Reset(cHardwareBase* in_hardware, int in_id)
+void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
 {
+	m_world = world;
   m_id = in_id;
   
   for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = 0;
@@ -587,6 +592,8 @@ void cHardwareCPU::cLocalThread::Reset(cHardwareBase* in_hardware, int in_id)
   read_label.Clear();
   next_label.Clear();
   
+	interrupted = false;
+	
   // Promoter model
   m_promoter_inst_executed = 0;
 }
@@ -4763,7 +4770,7 @@ bool cHardwareCPU::Inst_Terminate(cAvidaContext& ctx)
   {
     //const int write_head_pos = GetHead(nHardware::HEAD_WRITE).GetPosition();
     //const int read_head_pos = GetHead(nHardware::HEAD_READ).GetPosition();
-    m_threads[m_cur_thread].Reset(this, m_threads[m_cur_thread].GetID());
+    m_threads[m_cur_thread].Reset(m_world, this, m_threads[m_cur_thread].GetID());
     //GetHead(nHardware::HEAD_WRITE).Set(write_head_pos);
     //GetHead(nHardware::HEAD_READ).Set(read_head_pos);
     
@@ -5152,6 +5159,162 @@ bool cHardwareCPU::Jump_To_Alarm_Label(int jump_label) {
     search_head++;
   }
   return false;
+}
+
+
+
+// Interrupt Handler code
+
+/* interrupt handling - MSG arrives, add to waiting pool, and process interrupts until all have been processed
+   
+ ***an interrupts cannot be preempted***
+ 
+ 
+Processing interrupt
+ Save current state
+ Push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX
+ Jump 1 instruction passed MSG_received_handler_START
+ Process instructions until MSG_received_handler_END
+ On MSG_received_handler_END, process next interrupt or restore previous state
+ */
+
+void cLocalThread::saveState() {
+	assert(!interrupted);
+	// save registers
+	// save heads
+	// save thread stack
+	
+	for(int i = 0; i < NUM_REGISTERS; i++) {
+		pushedState.reg[i] = reg[i];
+	}
+	
+	for(int i = 0; i < NUM_HEADS; i++) {
+		pushedState.heads[i] = heads[i];
+	}
+	
+	pushedState.stack = stack;
+	pushedState.cur_stack = cur_stack;
+	pushedState.cur_head = cur_head;
+	pushedState.read_label = read_label;
+	pushedState.next_label = next_label;
+}
+
+void cLocalThread::restoreState() {
+	assert(interrupted);
+	// restore registers
+	// restore heads
+	// save thread stack
+
+	for(int i = 0; i < NUM_REGISTERS; i++) {
+		reg[i] = pushedState.reg[i];
+	}
+	
+	for(int i = 0; i < NUM_HEADS; i++) {
+		heads[i] = pushedState.heads[i];
+	}
+	
+	stack = pushedState.stack;
+	cur_stack = pushedState.cur_stack;
+	cur_head = pushedState.cur_head;
+	read_label = pushedState.read_label;
+	next_label = pushedState.next_label;
+}
+
+// push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
+void cLocalThread::setInterruptState() {
+  for (int i = 0; i < NUM_REGISTERS; i++) hardware->GetRegister(i) = 0;
+  for (int i = 0; i < NUM_HEADS; i++) hardware->GetHead(i).Reset(hardware);///  TODO:????  // what do we do with the heads?
+  
+  stack.Clear();
+  cur_stack = 0;
+  cur_head = nHardware::HEAD_IP;
+  read_label.Clear();
+  next_label.Clear();
+}
+
+void cLocalThread::moveInstructionHeadToMSGHandler() {
+	//Jump 1 instruction passed MSG_received_handler_START
+	cInstruction label_inst = hardware->GetInstSet().GetInst("MSG_received_handler_START");  //cStringUtil::Stringf("MSG_received_handler_END"));
+	
+	cHeadCPU search_head(hardware->IP());
+	int start_pos = search_head.GetPosition();
+	search_head++;
+	
+	while (start_pos != search_head.GetPosition()) {
+		if (search_head.GetInst() == label_inst) {
+			// move IP to here
+			search_head++;
+			hardware->IP().Set(search_head.GetPosition());
+		}
+		search_head++;
+	}	
+}
+
+void cLocalThread::interruptContextSwitch() {
+	if(!interrupted) { //normal -> interrupt
+		interrupted = true;
+		//Save current state
+		saveState();
+		
+		setInterruptState();
+		hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());  // if movement interrupt then registers remain zero
+
+		moveInstructionHeadToMSGHandler();
+		
+	} else { // currently interrupted
+		setInterruptState();  // this line only affect else clause
+		// note: movement interrupts cannot be blocked (just message interrupts), so following if statement is OK
+		if(hardware->Inst_RetrieveMessage(m_world->GetDefaultContext())) {  // interrupt -> normal
+			interrupted = false;
+			//restore state
+			restoreState();
+		} else {  // more messages interrupts to process
+			// thread state is set
+			// move IP to MSG_received_handler_START
+			moveInstructionHeadToMSGHandler();
+		}
+	}
+	
+}
+
+bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
+	//Jump 1 instruction passed MSG_received_handler_START
+	cInstruction label_inst = GetInstSet().GetInst("interrupt_handler_END");  //cStringUtil::Stringf("MSG_received_handler_END"));
+	
+	cHeadCPU search_head(IP());
+	int start_pos = search_head.GetPosition();
+	search_head++;
+	
+	while (start_pos != search_head.GetPosition()) {
+		if (search_head.GetInst() == label_inst) {
+			// move IP to here
+			search_head++;
+			IP().Set(search_head.GetPosition());
+			return true;
+		}
+		search_head++;
+	}
+	return false;
+}
+
+// jumps one instruction passed MSG_received_handler_END
+bool cHardwareCPU::Inst_MSG_received_handler_START(cAvidaContext& ctx) {
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_Moved_handler_START(cAvidaContext& ctx) {
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_interrupt_handler_END(cAvidaContext& ctx) {
+
+	/*
+	 Process instructions in interrupt handler until MSG_received_handler_END instruction
+	 On MSG_received_handler_END, process next interrupt or restore previous state
+	 */
+	const int threadID = GetCurThread();
+	m_threads[threadID].interruptContextSwitch();
+	return true;
 }
 
 
