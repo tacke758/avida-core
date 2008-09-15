@@ -489,6 +489,9 @@ public:
   CONFIG_ADD_VAR(INHERIT_EXE_RATE, int, 0, "Inherit energy rate from parent? 0=no  1=yes");
   CONFIG_ADD_VAR(ATTACK_DECAY_RATE, double, 0.0, "Percent of cell's energy decayed by attack");
 
+	CONFIG_ADD_GROUP(INTERRUPT_GROUP, "Interrupt Settings");
+  CONFIG_ADD_VAR(INTERRUPT_ENABLED, bool, 0, "Enable Interrupt Model. 0/1 (off/on)");
+	
   CONFIG_ADD_GROUP(SECOND_PASS_GROUP, "Tracking metrics known after the running experiment previously");
   CONFIG_ADD_VAR(TRACK_CCLADES, int, 0, "Enable tracking of coalescence clades");
   CONFIG_ADD_VAR(TRACK_CCLADES_IDS, cString, "coalescence.ids", "File storing coalescence IDs");

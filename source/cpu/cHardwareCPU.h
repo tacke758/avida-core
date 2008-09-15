@@ -82,13 +82,19 @@ class cMutation;
 class cOrganism;
 class cHardwareCPU;
 
-// --------  Data Structures  --------
+
+// TODO: remove threads from hardware put in organism.
+// Imp. ideas:
+// Use organism as process which has threads that execute on top of hardware.
+// Visiter pattern for executing threads to allow an organism to have different thread types executing on single hardware type.  
+//   The same genome cannot be executed on different hardware types without major restrictions... one genome per process (multi-process organism, could be very interesting)
+
 class cLocalThread : public cOrganismThread
 {
 private:
 	cWorld* m_world;
 	int m_promoter_inst_executed;
-public:
+public:	
 	static const int NUM_REGISTERS = 3;
   static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
 	
@@ -100,6 +106,8 @@ public:
 	
 	cCodeLabel read_label;
 	cCodeLabel next_label;
+	
+	enum interruptTypes {INTERRUPT_COMPLETE = 0, MSG_INTERRUPT, MOVE_INTERRUPT};
 	
 	struct savedState {
 		int reg[NUM_REGISTERS];
@@ -113,7 +121,6 @@ public:
 	};
 	
 	savedState pushedState;  //<! state of thread before interrupt
-	bool interrupted;        //<! is thread interrupted
 	cHardwareCPU* hardware;  //<! hardware that this thread is running on
 	
 	cLocalThread(cWorld* world = NULL, cHardwareCPU* in_hardware = NULL, int in_id = -1) : m_world(world), hardware(in_hardware) { Reset(world, in_hardware, in_id); }
@@ -126,19 +133,13 @@ public:
 	void IncPromoterInstExecuted() { m_promoter_inst_executed++; }
 	void ResetPromoterInstExecuted() { m_promoter_inst_executed = 0; }
 	
-	// save registers
-	// save heads
-	// save thread stack		
-	void saveState();
 	
-	// restore registers
-	// restore heads
-	// save thread stack		
-	void restoreState();
-	void setInterruptState();
-	void interruptContextSwitch();  //!< performs context switch between normal thread execution and interrupt handler
-	void moveInstructionHeadToMSGHandler();
-	void moveInstructionHeadToInterruptEnd();
+	void saveState();  //!< saves registers, heads, and thread stack
+	void restoreState();  //!< restores thread state to preinterrupt state;  restores registers, heads, and thread stack
+	void initializeInterruptState(const cString&);  //!< sets thread state to default interrupted state
+	
+	//! Performs context switch between normal thread execution and interrupt handler.  Interrupts are handled by the currently executing thread.
+	void interruptContextSwitch(int interruptType);
 };
 
 

@@ -60,6 +60,162 @@
 using namespace std;
 
 
+// Interrupt Handler code
+
+/* interrupt handling - MSG arrives, add to waiting pool, and process interrupts until all have been processed
+ 
+ ***an interrupts cannot be preempted***
+ 
+ 
+ Processing interrupt
+ Save current state
+ Push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX
+ Jump 1 instruction passed MSG_received_handler_START
+ Process instructions until MSG_received_handler_END
+ On MSG_received_handler_END, process next interrupt or restore previous state
+ */
+
+void cLocalThread::saveState() {
+	assert(!interrupted);
+	// save registers
+	// save heads
+	// save thread stack
+	
+	for(int i = 0; i < NUM_REGISTERS; i++) {
+		pushedState.reg[i] = reg[i];
+	}
+	
+	for(int i = 0; i < NUM_HEADS; i++) {
+		pushedState.heads[i] = heads[i];
+	}
+	
+	pushedState.stack = stack;
+	pushedState.cur_stack = cur_stack;
+	pushedState.cur_head = cur_head;
+	pushedState.read_label = read_label;
+	pushedState.next_label = next_label;
+}
+
+void cLocalThread::restoreState() {
+	assert(!interrupted);
+	// restore registers
+	// restore heads
+	// save thread stack
+	
+	for(int i = 0; i < NUM_REGISTERS; i++) {
+		reg[i] = pushedState.reg[i];
+	}
+	
+	for(int i = 0; i < NUM_HEADS; i++) {
+		heads[i] = pushedState.heads[i];
+	}
+	
+	stack = pushedState.stack;
+	cur_stack = pushedState.cur_stack;
+	cur_head = pushedState.cur_head;
+	read_label = pushedState.read_label;
+	next_label = pushedState.next_label;
+}
+
+// push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
+void cLocalThread::initializeInterruptState(const cString& handlerHeadInstructionString) {
+  for (int i = 0; i < NUM_REGISTERS; i++)
+		hardware->GetRegister(i) = 0;
+  
+  stack.Clear();
+  cur_stack = 0;
+  cur_head = nHardware::HEAD_IP;
+  read_label.Clear();
+  next_label.Clear();
+
+	
+	//Jump all heads 1 instruction passed MSG_received_handler_START
+	cInstruction label_inst = hardware->GetInstSet().GetInst(handlerHeadInstructionString);  //cStringUtil::Stringf("MSG_received_handler_END"));
+	
+	cHeadCPU search_head(hardware->IP());
+	int start_pos = search_head.GetPosition();
+	search_head++;
+	
+	while (start_pos != search_head.GetPosition()) {
+		if (search_head.GetInst() == label_inst) {
+			search_head++;  // one instruction past instruction
+			break;
+		}
+		search_head++;
+	}
+	
+	// set all other heads to same spot
+	for(int i = 0; i < NUM_HEADS; i++) {
+		hardware->GetHead(i,m_id).Set(search_head.GetPosition());
+	}
+}
+
+void cLocalThread::interruptContextSwitch(int interruptType) {
+	// note: movement interrupts cannot be blocked, just message interrupts
+	// note: movements within an interrupt handler do not cause another interrupt
+	// note: interrupt handlers can be jumped into and out of
+  // TODO: config arg to disallow jumping into and out of interrupt handler
+	
+	if(!interrupted && interruptType != cLocalThread::INTERRUPT_COMPLETE) { //normal -> interrupt
+		//Save current state
+		saveState();
+		interrupted = true;
+		
+		switch (interruptType) {
+			case cLocalThread::MSG_INTERRUPT:
+				initializeInterruptState("MSG_received_handler_START");
+				hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
+				break;
+			case cLocalThread::MOVE_INTERRUPT:
+				initializeInterruptState("Moved_handler_START");
+				break;
+			default:
+				cerr <<  "Unknown intrerrupt type " << interruptType << "  Exitting.\n\n";
+				exit(-1);
+				break;
+		}
+	}
+	else if(interrupted && interruptType == cLocalThread::INTERRUPT_COMPLETE) { // currently interrupted	
+		if(hardware->GetOrganism()->GetReceivedBufferSize() > 0) { // more messages to process
+			initializeInterruptState("MSG_received_handler_START");  // this line only affect else clause
+			hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
+		} else { // interrupt -> normal
+			interrupted = false;
+			restoreState();
+		}
+	}
+}
+
+void cLocalThread::operator=(const cLocalThread& in_thread)
+{
+  m_id = in_thread.m_id;
+  for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = in_thread.reg[i];
+  for (int i = 0; i < NUM_HEADS; i++) heads[i] = in_thread.heads[i];
+  stack = in_thread.stack;
+}
+
+void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
+{
+	m_world = world;
+	hardware = in_hardware;
+  m_id = in_id;
+  
+  for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = 0;
+  for (int i = 0; i < NUM_HEADS; i++) heads[i].Reset(in_hardware);
+  
+  stack.Clear();
+  cur_stack = 0;
+  cur_head = nHardware::HEAD_IP;
+  read_label.Clear();
+  next_label.Clear();
+  
+	interrupted = false;
+	
+  // Promoter model
+  m_promoter_inst_executed = 0;
+}
+
+
 tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::s_inst_slib = cHardwareCPU::initInstLib();
 
 tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
@@ -570,34 +726,6 @@ void cHardwareCPU::Reset()
   }
 }
 
-void cLocalThread::operator=(const cLocalThread& in_thread)
-{
-  m_id = in_thread.m_id;
-  for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = in_thread.reg[i];
-  for (int i = 0; i < NUM_HEADS; i++) heads[i] = in_thread.heads[i];
-  stack = in_thread.stack;
-}
-
-void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
-{
-	m_world = world;
-  m_id = in_id;
-  
-  for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = 0;
-  for (int i = 0; i < NUM_HEADS; i++) heads[i].Reset(in_hardware);
-  
-  stack.Clear();
-  cur_stack = 0;
-  cur_head = nHardware::HEAD_IP;
-  read_label.Clear();
-  next_label.Clear();
-  
-	interrupted = false;
-	
-  // Promoter model
-  m_promoter_inst_executed = 0;
-}
-
 // This function processes the very next command in the genome, and is made
 // to be as optimized as possible.  This is the heart of avida.
 
@@ -687,7 +815,7 @@ bool cHardwareCPU::SingleProcess(cAvidaContext& ctx, bool speculative)
       if (m_promoters_enabled) m_threads[m_cur_thread].IncPromoterInstExecuted();
 
       if (exec == true) SingleProcess_ExecuteInst(ctx, cur_inst);
-      
+			      
       // Some instruction (such as jump) may turn m_advance_ip off.  Usually
       // we now want to move to the next instruction in the memory.
       if (m_advance_ip == true) ip.Advance();
@@ -704,7 +832,15 @@ bool cHardwareCPU::SingleProcess(cAvidaContext& ctx, bool speculative)
       }
 
     } // if exec
-        
+      
+		if(m_world->GetConfig().INTERRUPT_ENABLED.Get()) {
+		static const cInstruction moveInst = GetInstSet().GetInst("move");
+			if(cur_inst == moveInst) {
+				// fire move interrupt
+				m_threads[m_cur_thread].interruptContextSwitch(cLocalThread::MOVE_INTERRUPT);
+				m_advance_ip = false;
+			}
+		}
   } // Previous was executed once for each thread...
 
   // Kill creatures who have reached their max num of instructions executed
@@ -5162,121 +5298,6 @@ bool cHardwareCPU::Jump_To_Alarm_Label(int jump_label) {
 }
 
 
-
-// Interrupt Handler code
-
-/* interrupt handling - MSG arrives, add to waiting pool, and process interrupts until all have been processed
-   
- ***an interrupts cannot be preempted***
- 
- 
-Processing interrupt
- Save current state
- Push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX
- Jump 1 instruction passed MSG_received_handler_START
- Process instructions until MSG_received_handler_END
- On MSG_received_handler_END, process next interrupt or restore previous state
- */
-
-void cLocalThread::saveState() {
-	assert(!interrupted);
-	// save registers
-	// save heads
-	// save thread stack
-	
-	for(int i = 0; i < NUM_REGISTERS; i++) {
-		pushedState.reg[i] = reg[i];
-	}
-	
-	for(int i = 0; i < NUM_HEADS; i++) {
-		pushedState.heads[i] = heads[i];
-	}
-	
-	pushedState.stack = stack;
-	pushedState.cur_stack = cur_stack;
-	pushedState.cur_head = cur_head;
-	pushedState.read_label = read_label;
-	pushedState.next_label = next_label;
-}
-
-void cLocalThread::restoreState() {
-	assert(interrupted);
-	// restore registers
-	// restore heads
-	// save thread stack
-
-	for(int i = 0; i < NUM_REGISTERS; i++) {
-		reg[i] = pushedState.reg[i];
-	}
-	
-	for(int i = 0; i < NUM_HEADS; i++) {
-		heads[i] = pushedState.heads[i];
-	}
-	
-	stack = pushedState.stack;
-	cur_stack = pushedState.cur_stack;
-	cur_head = pushedState.cur_head;
-	read_label = pushedState.read_label;
-	next_label = pushedState.next_label;
-}
-
-// push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
-void cLocalThread::setInterruptState() {
-  for (int i = 0; i < NUM_REGISTERS; i++) hardware->GetRegister(i) = 0;
-  for (int i = 0; i < NUM_HEADS; i++) hardware->GetHead(i).Reset(hardware);///  TODO:????  // what do we do with the heads?
-  
-  stack.Clear();
-  cur_stack = 0;
-  cur_head = nHardware::HEAD_IP;
-  read_label.Clear();
-  next_label.Clear();
-}
-
-void cLocalThread::moveInstructionHeadToMSGHandler() {
-	//Jump 1 instruction passed MSG_received_handler_START
-	cInstruction label_inst = hardware->GetInstSet().GetInst("MSG_received_handler_START");  //cStringUtil::Stringf("MSG_received_handler_END"));
-	
-	cHeadCPU search_head(hardware->IP());
-	int start_pos = search_head.GetPosition();
-	search_head++;
-	
-	while (start_pos != search_head.GetPosition()) {
-		if (search_head.GetInst() == label_inst) {
-			// move IP to here
-			search_head++;
-			hardware->IP().Set(search_head.GetPosition());
-		}
-		search_head++;
-	}	
-}
-
-void cLocalThread::interruptContextSwitch() {
-	if(!interrupted) { //normal -> interrupt
-		interrupted = true;
-		//Save current state
-		saveState();
-		
-		setInterruptState();
-		hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());  // if movement interrupt then registers remain zero
-
-		moveInstructionHeadToMSGHandler();
-		
-	} else { // currently interrupted
-		setInterruptState();  // this line only affect else clause
-		// note: movement interrupts cannot be blocked (just message interrupts), so following if statement is OK
-		if(hardware->Inst_RetrieveMessage(m_world->GetDefaultContext())) {  // interrupt -> normal
-			interrupted = false;
-			//restore state
-			restoreState();
-		} else {  // more messages interrupts to process
-			// thread state is set
-			// move IP to MSG_received_handler_START
-			moveInstructionHeadToMSGHandler();
-		}
-	}
-	
-}
-
 bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
 	//Jump 1 instruction passed MSG_received_handler_START
 	cInstruction label_inst = GetInstSet().GetInst("interrupt_handler_END");  //cStringUtil::Stringf("MSG_received_handler_END"));
@@ -5299,10 +5320,12 @@ bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
 
 // jumps one instruction passed MSG_received_handler_END
 bool cHardwareCPU::Inst_MSG_received_handler_START(cAvidaContext& ctx) {
+	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
 
 bool cHardwareCPU::Inst_Moved_handler_START(cAvidaContext& ctx) {
+	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
 
@@ -5313,7 +5336,7 @@ bool cHardwareCPU::Inst_interrupt_handler_END(cAvidaContext& ctx) {
 	 On MSG_received_handler_END, process next interrupt or restore previous state
 	 */
 	const int threadID = GetCurThread();
-	m_threads[threadID].interruptContextSwitch();
+	m_threads[threadID].interruptContextSwitch(cLocalThread::INTERRUPT_COMPLETE);
 	return true;
 }
 

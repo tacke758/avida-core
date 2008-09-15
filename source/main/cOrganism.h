@@ -353,6 +353,7 @@ public:
   //! Returns the list of all messages sent by this organism.
   const message_list_type& GetSentMessages() { InitMessaging(); return m_msg->sent; }
   
+	int GetReceivedBufferSize() const { if(!m_msg) return 0; return m_msg->received.size(); }
 protected:
   /*! Contains all the different data structures needed to support messaging within
   cOrganism.  Inspired by cNetSupport (above), the idea is to minimize impact on
