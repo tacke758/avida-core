@@ -6996,8 +6996,113 @@ return;
 }
 
 
+/* ====================================================================================== 
+ * @MRR
+ * Ocotober 2008
+ * This function will go through a lineage, align the genotypes, and
+ * perform 1-NN lanscaping around each genotype, keeping the last mutation
+ * to occur fixed.  Output will be one file per genotype that lists 
+ * the fitnesses of each genotype.
+ * Arguments
+ *    suffix = "1.NN"  The prefix of each file
+ *    num_trials [= 1] default number of trials for plasticity
+ * ===================================================================================*/
+void cAnalyze::LandscapeBackground(cString cur_string)
+{
+  cString file_suffix;
+  int     num_trials;
+  
+  file_suffix  = (cur_string.GetSize() == 0) ? "-1.NN" : cur_string.PopWord();
+  num_trials   = (cur_string.GetSize() == 0) ? 1      : cur_string.PopWord().AsInt();
+  
+  //Right now, only perform this on actual lineages
+  if (!batch[cur_batch].IsLineage())
+    m_world->GetDriver().RaiseFatalException(2, "LandscapeBackground: Current batch must be a lineage.");
+  
+  //Align the batch.
+  if (!batch[cur_batch].IsAligned())
+    CommandAlign("");
+  
+  const tListPlus<cAnalyzeGenotype>& lineage = batch[cur_batch].List();
+  int   batch_size = lineage.GetSize();
+  
+  const cAnalyzeGenotype* genotype_0  = NULL;       //Initial Genotype
+  const cAnalyzeGenotype* genotype_A  = NULL;       //Mutant A
+  
+  // For each parent/child pair in the line of descent
+  for (int A = 1; A < batch_size; A++){
+    genotype_0 = lineage.GetPos(A-1);
+    genotype_A = lineage.GetPos(A);
 
-/* MRR
+    cerr << genotype_0->GetID() << " " << genotype_A->GetID() << " " << genotype_A->GetDepth() << endl;
+    
+    // Gather our genotype strings 
+    // str_0 is the parent
+    // str_A is the child
+    cString str_0  = genotype_0->GetAlignedSequence();
+    cString str_A  = genotype_A->GetAlignedSequence();
+    
+    // Go through the parent and child alignment
+    // Find the mutations in the child that are not present in the parent.
+    // Store them into a list named mut
+    tArray<int> mut(genotype_A->GetGenome().AsString().GetSize());
+    int num_muts = 0;
+    for (int k = 0; k < str_A.GetSize(); k++){
+        char c0 = str_0[k];
+        char cA = str_A[k];
+        if (c0 != cA && c0 != '_' && cA != '_')
+          mut[num_muts++];
+    }
+    
+    //For each "child" genotype
+    //Create a filename
+    cString filename = cStringUtil::Stringf("%d", genotype_A->GetID()) + file_suffix + ".dat";
+    
+    //Request a file
+    cDataFile& df = m_world->GetDataFile(filename);
+    if (!df.Good())
+      m_world->GetDriver().RaiseFatalException(2, "LandscapeBackground: Unable to open requested file for output.");
+    
+    //Write our initial fitness to the top line
+    df.WriteAnonymous(genotype_A->GetFitness());
+    df.Endl();
+    
+    
+    cString old_genotype = genotype_A->GetGenome().AsString();
+    cString new_genotype = genotype_A->GetGenome().AsString();
+    int cur_mut = 0;  //Start at the front of the mutation-site list.
+    
+    //For each site in the child genotype
+    for (int k = 0; k < new_genotype.GetSize(); k++){
+      
+      //If this site contains the last mutation, skip it
+      if (cur_mut < num_muts && mut[cur_mut] == k){
+        cur_mut++;  //Increment our mutation list
+        continue;    //Go to the next mutation
+      }
+      
+      //Assuming this site isn't a recent mutant, mutate it to everything it can be
+      for (int c = 0; c < inst_set.GetSize(); c++){
+        //If the "change" is the same as the original, skip it.
+        if (cInstruction(c).GetSymbol() == old_genotype[k])
+          continue;
+        new_genotype = old_genotype;
+        new_genotype[k] = cInstruction(c).GetSymbol();
+        cPhenPlastGenotype pp(new_genotype, num_trials, m_world, m_ctx);
+        df.WriteAnonymous(pp.GetAverageFitness());
+        df.Endl();
+      }//End genotype mutation loop
+    } //End child landscape loop
+    
+    //Clean up
+    m_world->GetDataFileManager().Remove(filename); 
+  }//End parent/child pairing loop
+  
+} //End cAnalyze::LandcapeBackground
+
+
+/* ====================================================================================== 
+ * @MRR
  * January 2008
  * This function will go through the lineage, align the genotypes, and
  * perform pairwise reversions for all pairs of genotypes in the current
@@ -7009,7 +7114,7 @@ return;
  *      num_trails [= DEFAULT_NUM_PP_TRIALS] default if plasticity has not been set
  *                 (value defined in cAnalyzeGenotype.h)
  *      adjacent_only [=false]  Revert only adjacent pairs
-*/
+ *  ====================================================================================*/
 void cAnalyze::MutationRevert(cString cur_string)
 {
   
@@ -8626,7 +8731,8 @@ void cAnalyze::SetupCommandDefLibrary()
   // Lineage analysis commands...
   AddLibraryDef("ALIGN", &cAnalyze::CommandAlign);
   AddLibraryDef("ANALYZE_NEWINFO", &cAnalyze::AnalyzeNewInfo);
-  AddLibraryDef("MUTATION_REVERT", &cAnalyze::MutationRevert);
+  AddLibraryDef("LANDSCAPE_BACKGROUND", &cAnalyze::LandscapeBackground);  //@MRR
+  AddLibraryDef("MUTATION_REVERT", &cAnalyze::MutationRevert);            //@MRR
   
   // Build input files for avida...
   AddLibraryDef("WRITE_CLONE", &cAnalyze::WriteClone);

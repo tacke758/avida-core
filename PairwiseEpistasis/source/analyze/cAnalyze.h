@@ -278,6 +278,7 @@ private:
   // Lineage Analysis Commands...
   void CommandAlign(cString cur_string);
   void AnalyzeNewInfo(cString cur_string);  
+  void LandscapeBackground(cString cur_string);
   void MutationRevert(cString cur_string);
   
   // Build Input Files for Avida
