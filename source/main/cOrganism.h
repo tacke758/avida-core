@@ -200,6 +200,7 @@ public:
 
   // --------  cOrgInterface Methods  --------
   cHardwareBase& GetHardware() { return *m_hardware; }
+	cHardwareBase* GetHardware(bool) { return m_hardware; }
   cOrganism* GetNeighbor() { return m_interface->GetNeighbor(); }
   bool IsNeighborCellOccupied() { return m_interface->IsNeighborCellOccupied(); }
   int GetNeighborhoodSize() { return m_interface->GetNumNeighbors(); }

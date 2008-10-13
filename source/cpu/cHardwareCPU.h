@@ -98,6 +98,7 @@ public:
 	static const int NUM_REGISTERS = 3;
   static const int NUM_HEADS = nHardware::NUM_HEADS >= NUM_REGISTERS ? nHardware::NUM_HEADS : NUM_REGISTERS;
 	
+	// TODO: chanage savedState struct to State and replace 7 decloration below with new State Variable
 	int reg[NUM_REGISTERS];
 	cHeadCPU heads[NUM_HEADS];
 	cCPUStack stack;
@@ -125,6 +126,8 @@ public:
 	
 	cLocalThread(cWorld* world = NULL, cHardwareCPU* in_hardware = NULL, int in_id = -1) : m_world(world), hardware(in_hardware) { Reset(world, in_hardware, in_id); }
 	~cLocalThread() { ; }
+	
+	// TODO: add method to modify State of thread
 	
 	void operator=(const cLocalThread& in_thread);
 	

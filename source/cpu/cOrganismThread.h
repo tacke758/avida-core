@@ -25,6 +25,7 @@ public:
 	
 	int GetID() const { return m_id; }
 	void SetID(int in_id) { m_id = in_id; }
+	bool isInterrupted() { return interrupted; }
 	
 	virtual void saveState() = 0;  //!< saves thread's current state
 	virtual void restoreState() = 0;  //!< restores thread's saved state
