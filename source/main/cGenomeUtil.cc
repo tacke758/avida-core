@@ -261,7 +261,7 @@ bool cGenomeUtil::LoadGenome(const cString& filename, const cInstSet& inst_set, 
 		if(cur_line.GetWord(1) == "protected")
 			site_protected = true;
 		
-		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
+//		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
 		
     new_genome.SetInst(line_num, inst_set.GetInst(cur_line.GetWord(0)), site_protected);
     

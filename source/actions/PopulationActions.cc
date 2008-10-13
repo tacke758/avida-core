@@ -1281,6 +1281,21 @@ class cAbstractCompeteDemes_AttackKillAndEnergyConserve : public cAbstractCompet
     }
 };
 
+class cAbstractCompeteDemes_EnergyConserve : public cAbstractCompeteDemes {
+	
+public:
+	cAbstractCompeteDemes_EnergyConserve(cWorld* world, const cString& args) : cAbstractCompeteDemes(world, args) { }
+	
+	static const cString GetDescription() { return "No Arguments"; }
+  
+	double Fitness(const cDeme& deme) {    
+		double energyRemaining = deme.CalculateTotalEnergy();
+		double initialEnergy = m_world->GetConfig().ENERGY_GIVEN_ON_INJECT.Get();
+		double fitnessOfDeme = energyRemaining / initialEnergy;
+		return fitnessOfDeme;
+	}
+};
+
 /* This Action will check if any demes have met the critera to be replicated
    and do so.  There are several bases this can be checked on:
 
@@ -1972,6 +1987,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 
 /****AbstractCompeteDemes sub-classes****/
   action_lib->Register<cAbstractCompeteDemes_AttackKillAndEnergyConserve>("CompeteDemes_AttackKillAndEnergyConserve");
+	action_lib->Register<cAbstractCompeteDemes_EnergyConserve>("CompeteDemes_EnergyConserve");
   
   action_lib->Register<cActionNewTrial>("NewTrial");
   action_lib->Register<cActionCompeteOrganisms>("CompeteOrganisms");

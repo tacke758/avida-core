@@ -316,13 +316,14 @@ struct cOrgMessagePred_EventReceivedLeftSide : public cOrgMessagePredicate {
 /*quorum sensing - no births once deme is full*/
 /*struct cOrgMessagePred_MinBirths : public cOrgMessagePredicate 
 {
-  virtual ~cOrgMessagePredicate() { }
-  virtual bool operator()(const cOrgMessage& msg) = 0;
-  virtual void Print(std::ostream& out) { }
-  virtual void Reset() { }
-  virtual bool PreviouslySatisfied() = 0;
-  virtual cString GetName() = 0;
-  virtual void UpdateStats(cStats& stats) {}
-  virtual cDemeCellEvent* GetEvent() { return NULL; }
+	~cOrgMessagePredicate() { }
+	bool operator()(const cOrgMessage& msg);
+	void Print(std::ostream& out) { }
+	void Reset() { }
+	bool PreviouslySatisfied();
+	cString GetName();
+	void UpdateStats(cStats& stats) {}
+	cDemeCellEvent* GetEvent() { return NULL; }
 };*/
+
 #endif

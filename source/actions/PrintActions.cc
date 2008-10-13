@@ -2527,6 +2527,18 @@ public:
   }
 };
 
+class cActionPrintDemesTotalAvgEnergy : public cAction {
+public:
+	cActionPrintDemesTotalAvgEnergy(cWorld* world, const cString& args) : cAction(world, args) { ; }
+		
+	static const cString GetDescription() { return "No Arguments"; }
+		
+	void Process(cAvidaContext& ctx) {
+		m_world->GetPopulation().PrintDemesTotalAvgEnergy();
+	}
+};
+
+
 class cActionPrintDemeDonorStats : public cAction
 {
 public:
@@ -2691,6 +2703,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   // deme output files
   action_lib->Register<cActionPrintDemeAllStats>("PrintDemeAllStats");
   action_lib->Register<cActionPrintDemeAllStats>("PrintDemeStats"); //duplicate of previous
+	action_lib->Register<cActionPrintDemesTotalAvgEnergy>("PrintDemesTotalAvgEnergy");
   action_lib->Register<cActionPrintDemeDonorStats>("PrintDemeDonorStats");
   action_lib->Register<cActionPrintDemeSpacialEnergy>("PrintDemeSpacialEnergyStats");
   action_lib->Register<cActionPrintDemeSpacialSleep>("PrintDemeSpacialSleepStats");

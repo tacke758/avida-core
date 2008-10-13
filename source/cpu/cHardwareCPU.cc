@@ -833,8 +833,8 @@ bool cHardwareCPU::SingleProcess(cAvidaContext& ctx, bool speculative)
 
     } // if exec
       
-		if(m_world->GetConfig().INTERRUPT_ENABLED.Get()) {
-		static const cInstruction moveInst = GetInstSet().GetInst("move");
+		if(m_world->GetConfig().INTERRUPT_ENABLED.Get() && GetInstSet().InstInSet("move")) {
+			static const cInstruction moveInst = GetInstSet().GetInst("move");
 			if(cur_inst == moveInst) {
 				// fire move interrupt
 				m_threads[m_cur_thread].interruptContextSwitch(cLocalThread::MOVE_INTERRUPT);
