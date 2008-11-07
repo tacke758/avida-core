@@ -7003,12 +7003,15 @@ return;
  * perform 1-NN lanscaping around each genotype, keeping the last mutation
  * to occur fixed.  Output will be one file per genotype that lists 
  * the fitnesses of each genotype.
- * Updated 7 November 2008:  Adding nan place-holders for comparison of neighborhoods
- *                           between parent and child genotypes.
+ * Updated 7 November 2008
+ *          Adding nan place-holders for comparison of neighborhoods
+ *              between parent and child genotypes.
+ *          Adding instruction-set redundancy field                 
  * Arguments
  *    suffix = "1.NN"  The prefix of each file
  *    num_trials [= 1] default number of trials for plasticity
- * ===================================================================================*/
+ *     
+* ===================================================================================*/
 void cAnalyze::LandscapeBackground(cString cur_string)
 {
   cString file_suffix;
@@ -7016,8 +7019,9 @@ void cAnalyze::LandscapeBackground(cString cur_string)
   double  zero = 0.0;
   double  xnan = 0.0/zero;  //Generate a nan
   
-  file_suffix  = (cur_string.GetSize() == 0) ? "-1.NN" : cur_string.PopWord();
-  num_trials   = (cur_string.GetSize() == 0) ? 1      : cur_string.PopWord().AsInt();
+  file_suffix  = (cur_string.GetSize()  == 0) ? "-1.NN" : cur_string.PopWord();
+  num_trials   = (cur_string.GetSize()  == 0) ? 1       : cur_string.PopWord().AsInt();
+  
   
   //Right now, only perform this on actual lineages
   if (!batch[cur_batch].IsLineage())
@@ -7067,8 +7071,18 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     if (!df.Good())
       m_world->GetDriver().RaiseFatalException(2, "LandscapeBackground: Unable to open requested file for output.");
     
+    //Write our header
+    df.WriteAnonymous("# Nearest Neighbor\n");
+    df.WriteAnonymous("# Site\n");
+    df.WriteAnonymous("# Character\n");
+    df.WriteAnonymous("# Average Fitness\n");
+    df.WriteAnonymous("# Phenotypic Entorpy\n");
+    
     //Write our initial fitness to the top line
-    df.WriteAnonymous(genotype_A->GetFitness());
+    cPhenPlastGenotype pA(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
+    cString Line;
+    Line.Set("# %d %c %g %g\n", -1, '-', pA.GetAverageFitness(), pA.GetPhenotypicEntropy());
+    df.WriteAnonymous(Line);
     df.Endl();
     
     
@@ -7088,15 +7102,18 @@ void cAnalyze::LandscapeBackground(cString cur_string)
         // then supply a nan.
         if (mut_site || cInstruction(c).GetSymbol() == old_genotype[k])
         {
-          df.WriteAnonymous(xnan);
+          Line.Set("%d %c %g %g", k, cInstruction(c).GetSymbol(), xnan, xnan);
+          df.WriteAnonymous(Line);
           df.Endl();
           continue;
         }
         new_genotype = old_genotype;
         new_genotype[k] = cInstruction(c).GetSymbol();
         cPhenPlastGenotype pp(new_genotype, num_trials, m_world, m_ctx);
-        df.WriteAnonymous(pp.GetAverageFitness());
+        Line.Set("%d %c %g %g", k, cInstruction(c).GetSymbol(), pp.GetAverageFitness(), pp.GetPhenotypicEntropy());
+        df.WriteAnonymous(Line);
         df.Endl();
+        
       }//End genotype mutation loop
     } //End child landscape loop
     
