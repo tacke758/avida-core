@@ -7003,6 +7003,8 @@ return;
  * perform 1-NN lanscaping around each genotype, keeping the last mutation
  * to occur fixed.  Output will be one file per genotype that lists 
  * the fitnesses of each genotype.
+ * Updated 7 November 2008:  Adding nan place-holders for comparison of neighborhoods
+ *                           between parent and child genotypes.
  * Arguments
  *    suffix = "1.NN"  The prefix of each file
  *    num_trials [= 1] default number of trials for plasticity
@@ -7011,6 +7013,8 @@ void cAnalyze::LandscapeBackground(cString cur_string)
 {
   cString file_suffix;
   int     num_trials;
+  double  zero = 0.0;
+  double  xnan = 0.0/zero;  //Generate a nan
   
   file_suffix  = (cur_string.GetSize() == 0) ? "-1.NN" : cur_string.PopWord();
   num_trials   = (cur_string.GetSize() == 0) ? 1      : cur_string.PopWord().AsInt();
@@ -7075,17 +7079,19 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     //For each site in the child genotype
     for (int k = 0; k < new_genotype.GetSize(); k++){
       
-      //If this site contains the last mutation, skip it
-      if (cur_mut < num_muts && mut[cur_mut] == k){
-        cur_mut++;  //Increment our mutation list
-        continue;    //Go to the next mutation
-      }
+      //If this site contains the one of the last mutations, flag it
+      bool mut_site = (cur_mut < num_muts && mut[cur_mut++] == k) ? true : false;
       
       //Assuming this site isn't a recent mutant, mutate it to everything it can be
       for (int c = 0; c < inst_set.GetSize(); c++){
-        //If the "change" is the same as the original, skip it.
-        if (cInstruction(c).GetSymbol() == old_genotype[k])
+        // If the "change" is the same as the original or is our current mutation
+        // then supply a nan.
+        if (mut_site || cInstruction(c).GetSymbol() == old_genotype[k])
+        {
+          df.WriteAnonymous(xnan);
+          df.Endl();
           continue;
+        }
         new_genotype = old_genotype;
         new_genotype[k] = cInstruction(c).GetSymbol();
         cPhenPlastGenotype pp(new_genotype, num_trials, m_world, m_ctx);
