@@ -7077,11 +7077,21 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     df.WriteAnonymous("# Character\n");
     df.WriteAnonymous("# Average Fitness\n");
     df.WriteAnonymous("# Phenotypic Entorpy\n");
+    df.WriteAnonymous("# Minimum Fitness\n");
+    df.WriteAnonymous("# Minimum Fitness Freq\n");
+    df.WriteAnonymous("# Maximum Fitness\n");
+    df.WriteAnonymous("# Maximum Fitness Freq\n");
+    df.WriteAnonymous("# Likely Fitness\n");
+    df.WriteAnonymous("# Likely Fitness Freq\n");
     
     //Write our initial fitness to the top line
     cPhenPlastGenotype pA(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
     cString Line;
-    Line.Set("# %d %c %g %g\n", -1, '-', pA.GetAverageFitness(), pA.GetPhenotypicEntropy());
+    Line.Set("# %d %c %g %g %g %g %g \n", 
+               -1, '-', pA.GetAverageFitness(), pA.GetPhenotypicEntropy(), 
+               pA.GetMinimumFitness(), pA.GetMinimumFitnessFrequency(),
+               pA.GetMaximumFitness(), pA.GetMaximumFitnessFrequency(),
+               pA.GetLikelyFitness(), pA.GetMaximumFrequency());
     df.WriteAnonymous(Line);
     df.Endl();
     
