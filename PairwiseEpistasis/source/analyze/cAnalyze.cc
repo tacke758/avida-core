@@ -7087,7 +7087,7 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     //Write our initial fitness to the top line
     cPhenPlastGenotype pA(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
     cString Line;
-    Line.Set("# %d %c %g %g %g %g %g \n", 
+    Line.Set("# %d %c %g %g %g %g %g %g %g %g\n", 
                -1, '-', pA.GetAverageFitness(), pA.GetPhenotypicEntropy(), 
                pA.GetMinimumFitness(), pA.GetMinimumFitnessFrequency(),
                pA.GetMaximumFitness(), pA.GetMaximumFitnessFrequency(),
@@ -7112,7 +7112,8 @@ void cAnalyze::LandscapeBackground(cString cur_string)
         // then supply a nan.
         if (mut_site || cInstruction(c).GetSymbol() == old_genotype[k])
         {
-          Line.Set("%d %c %g %g", k, cInstruction(c).GetSymbol(), xnan, xnan);
+          Line.Set("%d %c %g %g %g %g %g %g %g %g", k, cInstruction(c).GetSymbol(), 
+                xnan, xnan, xnan, xnan, xnan, xnan, xnan, xnan);
           df.WriteAnonymous(Line);
           df.Endl();
           continue;
@@ -7120,7 +7121,12 @@ void cAnalyze::LandscapeBackground(cString cur_string)
         new_genotype = old_genotype;
         new_genotype[k] = cInstruction(c).GetSymbol();
         cPhenPlastGenotype pp(new_genotype, num_trials, m_world, m_ctx);
-        Line.Set("%d %c %g %g", k, cInstruction(c).GetSymbol(), pp.GetAverageFitness(), pp.GetPhenotypicEntropy());
+        Line.Set("%d %c %g %g %g %g %g %g %g", k, cInstruction(c).GetSymbol(), 
+              pp.GetAverageFitness(), pp.GetPhenotypicEntropy(),
+              pp.GetMinimumFitness(), pp.GetMinimumFitnessFrequency(),
+              pp.GetMaximumFitness(), pp.GetMaximumFitnessFrequency(),
+              pp.GetLikelyFitness(),  pp.GetMaximumFrequency());
+        
         df.WriteAnonymous(Line);
         df.Endl();
         
