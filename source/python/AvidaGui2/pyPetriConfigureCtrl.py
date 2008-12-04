@@ -14,7 +14,7 @@ from AvidaCore import cGenesis, cString
 
 from qt import *
 
-import os, os.path, shutil
+import os, os.path, shutil, traceback
 import math
 
 class pyPetriConfigureCtrl(pyPetriConfigureView):
@@ -104,7 +104,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.m_session_petri_view = None
     self.m_avida = None
     self.full_petri_dict = {}
-    self.DishDisabled = False
+    # @@kgn; was:
+    # self.DishDisabled = False
+    self.DishDisabled = True
     self.disconnect(self.MutationSlider, SIGNAL("valueChanged(int)"), 
       self.ChangeMutationTextSlot)
     self.disconnect(self.WorldSizeSlider, SIGNAL("valueChanged(int)"), 
@@ -243,13 +245,16 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
     i = 0
     while(settings_dict.has_key("START_CREATURE" + str(i))):
-      start_creature = settings_dict["START_CREATURE" + str(i)]
+      try:
+        start_creature = settings_dict["START_CREATURE" + str(i)]
 
-      # Read the genome from the petri dish file
+        # Read the genome from the petri dish file
 
-      org_string = settings_dict["START_GENOME" + str(i)]
-      tmp_name=self.AncestorIconView.addGenomeToDict(start_creature, org_string)
-      tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name )
+        org_string = settings_dict["START_GENOME" + str(i)]
+        tmp_name=self.AncestorIconView.addGenomeToDict(start_creature, org_string)
+        tmp_item = pyNewIconViewItem(self.AncestorIconView, tmp_name )
+      except Exception, details:
+        traceback.print_exc()
       i = i + 1
     if settings_dict.has_key("MAX_UPDATES") == True:
       max_updates = int(settings_dict["MAX_UPDATES"])
@@ -621,6 +626,9 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
       self.setAvidaSlot)
 
+    # @@kgn
+    self.DishDisabled = False
+
   def dragEnterEvent( self, e ):
     freezer_item_list = QString()
  
@@ -668,6 +676,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
           if (not self.DishDisabled) :
             info("Organisms should be placed in the Ancestor Box")
           else :
+            try:
+              raise Exception
+            except Exception, details:
+              traceback.print_exc()
             info("Organisms can't be dragged into a running population")
           return
         elif freezer_item_name[-4:] == 'full':
@@ -690,6 +702,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     # Try to decode to the data you understand...
     freezer_item_list = QString()
     if (QTextDrag.decode( e, freezer_item_list ) and self.DishDisabled) :
+      try:
+        raise Exception
+      except Exception, details:
+        traceback.print_exc()
       info("Organisms can't be dragged into a running population")
     elif ( QTextDrag.decode( e, freezer_item_list ) and not self.DishDisabled) :
       freezer_item_list = str(e.encodedData("text/plain"))
