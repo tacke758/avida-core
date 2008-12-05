@@ -1288,11 +1288,13 @@ public:
 	
 	static const cString GetDescription() { return "No Arguments"; }
   
-	double Fitness(const cDeme& deme) {    
+	double Fitness(const cDeme& deme) {
+		if(m_world->GetConfig().DEMES_PREVENT_STERILE.Get() && deme.GetBirthCount() == 0)
+			return 1.0;
 		double energyRemaining = deme.CalculateTotalEnergy();
 		double initialEnergy = m_world->GetConfig().ENERGY_GIVEN_ON_INJECT.Get();
 		double fitnessOfDeme = energyRemaining / initialEnergy;
-		return fitnessOfDeme;
+		return fitnessOfDeme + 1.0;
 	}
 };
 
