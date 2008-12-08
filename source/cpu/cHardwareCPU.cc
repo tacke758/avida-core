@@ -119,6 +119,7 @@ void cLocalThread::restoreState() {
 
 // push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
 void cLocalThread::initializeInterruptState(const cString& handlerHeadInstructionString) {
+
   for (int i = 0; i < NUM_REGISTERS; i++)
 		hardware->GetRegister(i) = 0;
   
@@ -130,7 +131,7 @@ void cLocalThread::initializeInterruptState(const cString& handlerHeadInstructio
 
 	
 	//Jump all heads 1 instruction passed MSG_received_handler_START
-	cInstruction label_inst = hardware->GetInstSet().GetInst(handlerHeadInstructionString);  //cStringUtil::Stringf("MSG_received_handler_END"));
+	cInstruction label_inst = hardware->GetInstSet().GetInst(handlerHeadInstructionString);
 	
 	cHeadCPU search_head(hardware->IP());
 	int start_pos = search_head.GetPosition();
@@ -177,7 +178,7 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 	}
 	else if(interrupted && interruptType == cLocalThread::INTERRUPT_COMPLETE) { // currently interrupted	
 		if(hardware->GetOrganism()->GetReceivedBufferSize() > 0) { // more messages to process
-			initializeInterruptState("MSG_received_handler_START");  // this line only affect else clause
+			initializeInterruptState("MSG_received_handler_START");
 			hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 		} else { // interrupt -> normal
 			interrupted = false;
@@ -1850,7 +1851,7 @@ bool cHardwareCPU::Divide_Main2RS(cAvidaContext& ctx, const int div_point,
 void cHardwareCPU::InheritState(cHardwareBase& in_hardware)
 { 
   m_epigenetic_state = true;
-  cHardwareCPU& in_h = (cHardwareCPU&)in_hardware; 
+  const cHardwareCPU& in_h = (cHardwareCPU&)in_hardware; 
   const cLocalThread& thread = in_h.GetThread(in_h.GetCurThread());
   for (int i=0; i<NUM_REGISTERS; i++) {
     m_epigenetic_saved_reg[i] = thread.reg[i];
@@ -5208,6 +5209,8 @@ bool cHardwareCPU::Inst_IfLessConsensus24(cAvidaContext& ctx)
 where the label field of sent message is from register ?BX?, and the data field
 is from register ~?BX?.
 */
+// If INTERRUPT_ENABLED then with function will cause the MSG receiver to jump inside its interrupt handler, 
+//     and call Inst_RetrieveMessage which eats a NOP if one exists
 bool cHardwareCPU::Inst_SendMessage(cAvidaContext& ctx)
 {
   const int label_reg = FindModifiedRegister(REG_BX);

@@ -697,9 +697,9 @@ void cOrganism::ReceiveMessage(cOrgMessage& msg)
   m_msg->received.push_back(msg);
 	
 	
-	cLocalThread currentThread = static_cast<cHardwareCPU*>(GetHardware(false))->GetThread(GetHardware(true)->GetCurThread());
-	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() && currentThread.isInterrupted() == false) {
-		currentThread.interruptContextSwitch(cLocalThread::MSG_INTERRUPT);
+	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(GetHardware(true)->GetCurThread());
+	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() && currentThread->isInterrupted() == false) {
+		currentThread->interruptContextSwitch(cLocalThread::MSG_INTERRUPT);
 	}
 	// else msg gets added to msg queue and will cause interrupt after current interrupt is processed
 }

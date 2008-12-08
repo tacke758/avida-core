@@ -2534,7 +2534,7 @@ public:
 	static const cString GetDescription() { return "No Arguments"; }
 		
 	void Process(cAvidaContext& ctx) {
-		m_world->GetPopulation().PrintDemesTotalAvgEnergy();
+		m_world->GetPopulation().PrintDemeTotalAvgEnergy();
 	}
 };
 

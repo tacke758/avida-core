@@ -2586,7 +2586,7 @@ void cPopulation::PrintDemeFitness() {
 }
 
 
-void cPopulation::PrintDemesTotalAvgEnergy() {
+void cPopulation::PrintDemeTotalAvgEnergy() {
   cStats& stats = m_world->GetStats();
   const int num_demes = deme_array.GetSize();
   cDataFile & df_fit = m_world->GetDataFile("deme_totalAvgEnergy.dat");
