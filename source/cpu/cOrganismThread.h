@@ -29,7 +29,7 @@ public:
 	
 	virtual void saveState() = 0;  //!< saves thread's current state
 	virtual void restoreState() = 0;  //!< restores thread's saved state
-	virtual void initializeInterruptState(const cString&) = 0;  //!< sets thread state to default interrupted state
+	virtual bool initializeInterruptState(const cString&) = 0;  //!< sets thread state to default interrupted state if interrupt header exists
 	virtual void interruptContextSwitch(int) = 0;  //!< performs context switch between normal thread execution and interrupt handler
 };
 

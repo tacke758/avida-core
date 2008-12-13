@@ -139,7 +139,7 @@ public:
 	
 	void saveState();  //!< saves registers, heads, and thread stack
 	void restoreState();  //!< restores thread state to preinterrupt state;  restores registers, heads, and thread stack
-	void initializeInterruptState(const cString&);  //!< sets thread state to default interrupted state
+	bool initializeInterruptState(const cString&);  //!< sets thread state to default interrupted state if interrupt header exists
 	
 	//! Performs context switch between normal thread execution and interrupt handler.  Interrupts are handled by the currently executing thread.
 	void interruptContextSwitch(int interruptType);
