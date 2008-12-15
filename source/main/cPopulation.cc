@@ -3411,7 +3411,11 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
   
   cell.GetHardware()->SingleProcess(ctx);    
   
-  if (cur_org->GetPhenotype().GetToDelete() == true) delete cur_org;
+	double merit = cur_org->GetPhenotype().GetMerit().GetDouble();
+  if (cur_org->GetPhenotype().GetToDelete() == true) {
+		delete cur_org;
+		cur_org = NULL;
+	}
   
   m_world->GetStats().IncExecuted();
   resource_count.Update(step_size);
@@ -3422,7 +3426,7 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
     for(int i = 0; i < GetNumDemes(); i++) GetDeme(i).Update(step_size);
     
     cDeme & deme = GetDeme(GetCell(cell_id).GetDemeID());
-    deme.IncTimeUsed(cur_org->GetPhenotype().GetMerit().GetDouble());
+    deme.IncTimeUsed(merit);
     CheckImplicitDemeRepro(deme);
   }
 }

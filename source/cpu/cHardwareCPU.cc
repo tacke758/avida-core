@@ -195,6 +195,7 @@ void cLocalThread::operator=(const cLocalThread& in_thread)
   for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = in_thread.reg[i];
   for (int i = 0; i < NUM_HEADS; i++) heads[i] = in_thread.heads[i];
   stack = in_thread.stack;
+	// what about other stuff?
 }
 
 void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
