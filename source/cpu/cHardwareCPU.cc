@@ -203,14 +203,24 @@ void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
 	hardware = in_hardware;
   m_id = in_id;
   
-  for (int i = 0; i < NUM_REGISTERS; i++) reg[i] = 0;
-  for (int i = 0; i < NUM_HEADS; i++) heads[i].Reset(in_hardware);
-  
+  for (int i = 0; i < NUM_REGISTERS; i++) {
+		reg[i] = 0;
+		pushedState.reg[i] = 0;
+	}
+  for (int i = 0; i < NUM_HEADS; i++) {
+		heads[i].Reset(in_hardware);
+		pushedState.heads[i].Reset(in_hardware);
+  }
   stack.Clear();
+	pushedState.stack.Clear();
   cur_stack = 0;
+	pushedState.cur_stack = 0;
   cur_head = nHardware::HEAD_IP;
+	pushedState.cur_head = nHardware::HEAD_IP;
   read_label.Clear();
+	pushedState.read_label.Clear();
   next_label.Clear();
+	pushedState.next_label.Clear();
   
 	interrupted = false;
 	

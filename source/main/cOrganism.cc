@@ -697,7 +697,7 @@ void cOrganism::ReceiveMessage(cOrgMessage& msg)
   m_msg->received.push_back(msg);
 	
 	
-	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(GetHardware(true)->GetCurThread());
+	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
 	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() && currentThread->isInterrupted() == false) {
 		currentThread->interruptContextSwitch(cLocalThread::MSG_INTERRUPT);
 	}
