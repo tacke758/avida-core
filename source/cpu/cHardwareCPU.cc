@@ -404,7 +404,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("rotate-right-one", &cHardwareCPU::Inst_RotateRightOne, nInstFlag::STALL),
     tInstLibEntry<tMethod>("rotate-label", &cHardwareCPU::Inst_RotateLabel, nInstFlag::STALL),
     tInstLibEntry<tMethod>("rotate-to-unoccupied-cell", &cHardwareCPU::Inst_RotateUnoccupiedCell, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("rotate-to-next-unoccupied-cell", &cHardwareCPU::Inst_RotateNextUnoccupiedCell, nInstFlag::STALL),
     tInstLibEntry<tMethod>("rotate-to-occupied-cell", &cHardwareCPU::Inst_RotateOccupiedCell, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("rotate-to-next-occupied-cell", &cHardwareCPU::Inst_RotateNextOccupiedCell, nInstFlag::STALL),
     tInstLibEntry<tMethod>("rotate-to-event-cell", &cHardwareCPU::Inst_RotateEventCell, nInstFlag::STALL),
     
     
@@ -4196,6 +4198,16 @@ bool cHardwareCPU::Inst_RotateOccupiedCell(cAvidaContext& ctx) {
   }  
   GetRegister(reg_used) = 0;
   return true;
+}
+
+bool cHardwareCPU::Inst_RotateNextOccupiedCell(cAvidaContext& ctx) {
+	organism->Rotate(1);
+	return Inst_RotateOccupiedCell(ctx);
+}
+
+bool cHardwareCPU::Inst_RotateNextUnoccupiedCell(cAvidaContext& ctx) {
+	organism->Rotate(1);
+	return Inst_RotateUnoccupiedCell(ctx);
 }
 
 
