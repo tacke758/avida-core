@@ -620,9 +620,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("alarm-label-low", &cHardwareCPU::Inst_Alarm_Label),
 		
 		// Interrupt
-    tInstLibEntry<tMethod>("MSG_received_handler_START", &cHardwareCPU::Inst_MSG_received_handler_START),
-    tInstLibEntry<tMethod>("Moved_handler_START", &cHardwareCPU::Inst_Moved_handler_START),
-    tInstLibEntry<tMethod>("interrupt_handler_END", &cHardwareCPU::Inst_interrupt_handler_END),
+    tInstLibEntry<tMethod>("MSG_received_handler_START", &cHardwareCPU::Inst_MSG_received_handler_START),  // soon to be removed
+    tInstLibEntry<tMethod>("msg_handler",                &cHardwareCPU::Inst_MSG_received_handler_START),
+    tInstLibEntry<tMethod>("moved_handler", &cHardwareCPU::Inst_Moved_handler_START),
+    tInstLibEntry<tMethod>("interrupt_handler_END", &cHardwareCPU::Inst_interrupt_handler_END),  // soon to be removed
+		tInstLibEntry<tMethod>("end_handler",           &cHardwareCPU::Inst_interrupt_handler_END),
 		
     // Placebo instructions
     tInstLibEntry<tMethod>("skip", &cHardwareCPU::Inst_Skip),
@@ -5978,8 +5980,8 @@ bool cHardwareCPU::Inst_RetrieveMessage(cAvidaContext& ctx)
   const int label_reg = FindModifiedRegister(REG_BX);
   const int data_reg = FindNextRegister(label_reg);
   
-  GetRegister(label_reg) = 999;//msg->GetLabel();
-  GetRegister(data_reg) = 999;//msg->GetData();
+  GetRegister(label_reg) = msg->GetLabel();
+  GetRegister(data_reg) = msg->GetData();
   return true;
 }
 
