@@ -621,10 +621,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		
 		// Interrupt
     tInstLibEntry<tMethod>("MSG_received_handler_START", &cHardwareCPU::Inst_MSG_received_handler_START),  // soon to be removed
-    tInstLibEntry<tMethod>("msg_handler",                &cHardwareCPU::Inst_MSG_received_handler_START),
-    tInstLibEntry<tMethod>("moved_handler", &cHardwareCPU::Inst_Moved_handler_START),
+    tInstLibEntry<tMethod>("msg_handler", &cHardwareCPU::Inst_MSG_received_handler_START), // don't use yet
+    tInstLibEntry<tMethod>("moved_handler", &cHardwareCPU::Inst_Moved_handler_START), // don't use yet
     tInstLibEntry<tMethod>("interrupt_handler_END", &cHardwareCPU::Inst_interrupt_handler_END),  // soon to be removed
-		tInstLibEntry<tMethod>("end_handler",           &cHardwareCPU::Inst_interrupt_handler_END),
+		tInstLibEntry<tMethod>("end_handler", &cHardwareCPU::Inst_interrupt_handler_END),
 		
     // Placebo instructions
     tInstLibEntry<tMethod>("skip", &cHardwareCPU::Inst_Skip),
