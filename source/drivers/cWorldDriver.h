@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/10/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,24 +25,19 @@
 #ifndef cWorldDriver_h
 #define cWorldDriver_h
 
-// This class is an abstract base class that is used by actions within
-// a cWorld to notify its driver of various states and conditions.
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
+#include "cDMObject.h"
 
 #include <iostream>
 
 class cString;
 
-class cWorldDriver
+
+// This class is an abstract base class that is used by actions within
+// a cWorld to notify its driver of various states and conditions.
+
+
+class cWorldDriver : public virtual cDMObject
 {
-#if USE_tMemTrack
-  tMemTrack<cWorldDriver> mt;
-#endif
 private:
   cWorldDriver(const cWorldDriver&); // @not_implemented
   cWorldDriver& operator=(const cWorldDriver&); // @not_implemented

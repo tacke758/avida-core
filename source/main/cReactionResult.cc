@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_result.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -46,6 +46,7 @@ cReactionResult::cReactionResult(const int num_resources,
   , lethal(false)
   , sterilize(false)
   , active_reaction(false)
+  , used_env_resource(true)
   , deme_add_bonus(0.0)
   , deme_mult_bonus(1.0)
   , active_deme_reaction(false)
@@ -72,10 +73,11 @@ void cReactionResult::ActivateReaction()
 }
 
 
-void cReactionResult::Consume(int id, double num)
+void cReactionResult::Consume(int id, double num, bool is_env_resource)
 {
   ActivateReaction();
-  resources_consumed[id] += num;
+  if(is_env_resource) { resources_consumed[id] += num; }
+  else { used_env_resource = false; }
 }
 
 

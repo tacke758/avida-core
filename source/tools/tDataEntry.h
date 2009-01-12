@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tDataEntry.hh" prior to 12/7/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -31,61 +31,129 @@
 #ifndef cFlexVar_h
 #include "cFlexVar.h"
 #endif
-
 #ifndef cString_h
 #include "cString.h"
 #endif
-
+#ifndef cStringList_h
+#include "cStringList.h"
+#endif
 #ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
 
-#ifndef tDataEntryBase_h
-#include "tDataEntryBase.h"
-#endif
 
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
-
-template <class T, class OUT> class tDataEntry : public tDataEntryBase<T> {
-#if USE_tMemTrack
-  tMemTrack<tDataEntry<T, OUT> > mt;
-#endif
-protected:
-  OUT  (T::*DataGet)() const;
-  void (T::*DataSet)(OUT);
-  int  (T::*DataCompare)(T*) const;
-
-//  int CmpNULL(T *) const { return 0; }
+template <class TargetType> class tDataEntry
+{
+private:
+  cString m_name;            // Short Name
+  cString m_desc;            // Descriptive Name
+  int m_compare_type;        // ID to indicate how values should be compared.
+  cString m_null_value;      // Value when "off", such as "0", "Inf.", or "N/A"
+  cString m_html_table_flags; // String to include in <td> entry in html mode.
+  cStringList m_default_args;
+  
 public:
-  tDataEntry(const cString & _name, const cString & _desc,
-	     OUT (T::*_funR)() const,
-	     void (T::*_funS)(OUT _val) = NULL,
-	     int _compare_type=0,
-	     const cString & _null="0",
-	     const cString & _html_cell="align=center")
-    : tDataEntryBase<T>(_name, _desc, _compare_type, _null, _html_cell), DataGet(_funR),
-      DataSet(_funS) {;}
+  tDataEntry(const cString& name, const cString& desc, int compare_type = 0,
+             const cString& null = "0", const cString& html_cell = "align=center")
+  : m_name(name), m_desc(desc), m_compare_type(compare_type), m_null_value(null), m_html_table_flags(html_cell) { ; }
+  virtual ~tDataEntry() { ; }
+  
+  const cString& GetName() const { return m_name; }
+  virtual cString GetDesc(const TargetType* target, const cFlexVar& idx) const { return m_desc; }
+  int GetCompareType() const { return m_compare_type; }
+  const cString& GetNull() const { return m_null_value; }
+  const cString& GetHtmlCellFlags() const { return m_html_table_flags; }
+  
+  virtual bool Set(TargetType* target, const cFlexVar&, const cStringList&, const cString&) const { return false; }
+  virtual cFlexVar Get(const TargetType* target, const cFlexVar& idx, const cStringList& args) const = 0;
+  virtual cFlexVar Get(const TargetType* target) const { return Get(target, 0, m_default_args); }
+};
 
-  bool Set(const cString & value) {
-    OUT new_value(0);
+template <class TargetType, class EntryType> class tDataEntryOfType;
+
+template <class TargetType, class EntryType>
+  class tDataEntryOfType<TargetType, EntryType ()> : public tDataEntry<TargetType>
+{
+protected:
+  EntryType  (TargetType::*DataGet)() const;
+  void (TargetType::*DataSet)(EntryType);
+
+public:
+  tDataEntryOfType(const cString& name, const cString& desc,
+                   EntryType (TargetType::*_funR)() const, void (TargetType::*_funS)(EntryType _val) = NULL,
+                   int compare_type = 0, const cString& null = "0", const cString& html_cell = "align=center")
+  : tDataEntry<TargetType>(name, desc, compare_type, null, html_cell), DataGet(_funR), DataSet(_funS) { ; }
+
+  bool Set(TargetType* target, const cFlexVar&, const cStringList&, const cString& value) const
+  {
+    assert(target != NULL);
+    EntryType new_value(0);
     if (DataSet == 0) return false;
-    (this->target->*DataSet)( cStringUtil::Convert(value, new_value) );
+    (target->*DataSet)(cStringUtil::Convert(value, new_value));
     return true;
   }
 
-  cFlexVar Get() const {
-    assert(this->target != NULL);
-    return cFlexVar( (this->target->*DataGet)() );
-  }
-
-  cFlexVar Get(const T * tmp_target) const {
-    assert(tmp_target != NULL);
-    return cFlexVar( (tmp_target->*DataGet)() );
+  cFlexVar Get(const TargetType* target, const cFlexVar&, const cStringList&) const
+  {
+    assert(target != NULL);
+    return cFlexVar((target->*DataGet)());
   }
 };
+
+
+template <class TargetType, class EntryType, class IdxType>
+  class tDataEntryOfType<TargetType, EntryType (IdxType)> : public tDataEntry<TargetType>
+{
+protected:
+  EntryType (TargetType::*DataRetrieval)(IdxType) const;
+  cString (TargetType::*DescFunction)(IdxType) const;
+  
+public:
+  tDataEntryOfType(const cString& name,
+                   cString (TargetType::*_funD)(IdxType) const,
+                   EntryType (TargetType::*_funR)(IdxType) const,
+                   int compare_type = 0, const cString& null = "0", const cString& html_cell = "align=center")
+  : tDataEntry<TargetType>(name, name, compare_type, null, html_cell), DataRetrieval(_funR), DescFunction(_funD) { ; }
+  
+  cString GetDesc(const TargetType* target, const cFlexVar& idx) const
+  {
+    return (target->*DescFunction)(idx.As<IdxType>());
+  }
+  
+  
+  cFlexVar Get(const TargetType* target, const cFlexVar& idx, const cStringList&) const
+  {
+    assert(target != NULL);
+    return cFlexVar((target->*DataRetrieval)(idx.As<IdxType>()));
+  }
+};
+
+
+template <class TargetType, class EntryType, class IdxType>
+  class tDataEntryOfType<TargetType, EntryType (IdxType, const cStringList&)> : public tDataEntry<TargetType>
+{
+protected:
+  EntryType (TargetType::*DataRetrieval)(IdxType, const cStringList&) const;
+  cString (TargetType::*DescFunction)(IdxType) const;
+  
+public:
+  tDataEntryOfType(const cString& name,
+                   cString (TargetType::*_funD)(IdxType) const,
+                   EntryType (TargetType::*_funR)(IdxType, const cStringList&) const,
+                   int compare_type = 0, const cString& null = "0", const cString& html_cell = "align=center")
+  : tDataEntry<TargetType>(name, name, compare_type, null, html_cell), DataRetrieval(_funR), DescFunction(_funD) { ; }
+  
+  cString GetDesc(const TargetType* target, const cFlexVar& idx) const
+  {
+    return (target->*DescFunction)(idx.As<IdxType>());
+  }
+
+  cFlexVar Get(const TargetType* target, const cFlexVar& idx, const cStringList& args) const
+  {
+    assert(target != NULL);
+    return cFlexVar((target->*DataRetrieval)(idx.As<IdxType>(), args));
+  }
+};
+
 
 #endif

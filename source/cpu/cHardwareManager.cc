@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,19 +24,22 @@
 
 #include "cHardwareManager.h"
 
+#include "cDriverManager.h"
+#include "cDriverStatusConduit.h"
 #include "cHardwareCPU.h"
 #include "cHardwareExperimental.h"
 #include "cHardwareSMT.h"
 #include "cHardwareTransSMT.h"
 #include "cHardwareGX.h"
+#include "cHardwareStatusPrinter.h"
 #include "cInitFile.h"
 #include "cInstSet.h"
+#include "cStringUtil.h"
 #include "cWorld.h"
-#include "cWorldDriver.h"
 #include "tDictionary.h"
 
 cHardwareManager::cHardwareManager(cWorld* world)
-: m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()) /*, m_testres(world) */
+: m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()), m_cpu_count(0)
 {
   cString filename = world->GetConfig().INST_SET.Get();
 
@@ -65,42 +68,56 @@ cHardwareManager::cHardwareManager(cWorld* world)
 			default_filename = cHardwareGX::GetDefaultInstFilename();
 			break;      
 		default:
-      m_world->GetDriver().RaiseFatalException(1, "Unknown/Unsupported HARDWARE_TYPE specified");
+      cDriverManager::Status().SignalError("Unknown/Unsupported HARDWARE_TYPE specified", -1);
   }
-  
+
   if (filename == "" || filename == "-") {
     filename = default_filename;
-    m_world->GetDriver().NotifyComment(cString("Using default instruction set: ") + filename);
+    cDriverManager::Status().NotifyComment(cString("Using default instruction set: ") + filename);
   }
-  
   
   if (m_world->GetConfig().INST_SET_FORMAT.Get()) {
     m_inst_set->LoadFromConfig();
   } else {
     m_inst_set->LoadFromLegacyFile(filename);
   }
-  
 }
 
-cHardwareBase* cHardwareManager::Create(cOrganism* in_org, cInstSet* inst_set)
+cHardwareBase* cHardwareManager::Create(cAvidaContext& ctx, cOrganism* in_org, cInstSet* inst_set)
 {
   assert(in_org != NULL);
-  
-  switch (m_type)
-  {
+	
+  cHardwareBase* hw = 0;
+	
+  switch (m_type) {
     case HARDWARE_TYPE_CPU_ORIGINAL:
-      return new cHardwareCPU(m_world, in_org, inst_set);
+      hw = new cHardwareCPU(ctx, m_world, in_org, m_inst_set);
+      break;
     case HARDWARE_TYPE_CPU_SMT:
-      return new cHardwareSMT(m_world, in_org, inst_set);
+      hw = new cHardwareSMT(ctx, m_world, in_org, m_inst_set);
+      break;
     case HARDWARE_TYPE_CPU_TRANSSMT:
-      return new cHardwareTransSMT(m_world, in_org, inst_set);
+      hw = new cHardwareTransSMT(ctx, m_world, in_org, m_inst_set);
+      break;
     case HARDWARE_TYPE_CPU_EXPERIMENTAL:
-      return new cHardwareExperimental(m_world, in_org, inst_set);
+      hw = new cHardwareExperimental(ctx, m_world, in_org, m_inst_set);
+      break;
     case HARDWARE_TYPE_CPU_GX:
-      return new cHardwareGX(m_world, in_org, inst_set);
+      hw = new cHardwareGX(ctx, m_world, in_org, m_inst_set);
+      break;
     default:
-      return NULL;
+      cDriverManager::Status().SignalError("Unknown/Unsupported HARDWARE_TYPE specified", -1);
+      break;
   }
+  
+  // Are we tracing the execution of this cpu?
+  if (m_world->GetConfig().TRACE_EXECUTION.Get()) {
+    cString filename =  cStringUtil::Stringf("trace-%d.trace", m_cpu_count++);
+    hw->SetTrace(new cHardwareStatusPrinter(m_world->GetDataFileOFStream(filename)));
+  }
+  
+  assert(hw != 0);
+  return hw;
 }
 
 bool cHardwareManager::SupportsSpeculative()

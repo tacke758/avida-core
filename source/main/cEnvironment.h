@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "environment.hh" prior to 12/2/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -68,6 +68,7 @@ class cReactionRequisite;
 template <class T> class tArray;
 class cReactionProcess;
 class cReactionResult;
+class cStateGrid;
 template <class T> class tBuffer;
 class cTaskContext;
 class cWorld;
@@ -95,6 +96,9 @@ private:
   
   unsigned int m_mask;
   
+  tArray<cStateGrid*> m_state_grids;
+  
+  
   static bool ParseSetting(cString entry, cString& var_name, cString& var_value, const cString& var_type);
   static bool AssertInputInt(const cString& input, const cString& name, const cString& type);
   static bool AssertInputDouble(const cString& input, const cString& name, const cString& type);
@@ -107,12 +111,16 @@ private:
   bool LoadCell(cString desc);
   bool LoadReaction(cString desc);
   bool LoadMutation(cString desc);
+  bool LoadStateGrid(cString desc);
 
   bool LoadSetActive(cString desc);
 
-  bool TestRequisites(const tList<cReactionRequisite>& req_list, int task_count, const tArray<int>& reaction_count, const bool on_divide = false) const;
-  void DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>& process_list, const tArray<double>& resource_count,
-                   const double task_quality, const int task_count, const int reaction_id, cReactionResult& result) const;
+  bool TestRequisites(const tList<cReactionRequisite>& req_list, int task_count, 
+                      const tArray<int>& reaction_count, const bool on_divide = false) const;
+  void DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>& process_list, 
+                   const tArray<double>& resource_count, tArray<double>& rbin_count,
+                   const double task_quality, const int task_count, const int reaction_id, 
+                   cReactionResult& result) const;
 
   cEnvironment(); // @not_implemented
   cEnvironment(const cEnvironment&); // @not_implemented
@@ -120,7 +128,7 @@ private:
 
 public:
   inline cEnvironment(cWorld* world);
-  inline ~cEnvironment() { ; }
+  ~cEnvironment();
 
   bool Load(const cString& filename);  // Reads the environment from disk.
   bool LoadLine(cString line);  // Reads in a single environment configuration line
@@ -137,7 +145,7 @@ public:
 
   bool TestOutput(cAvidaContext& ctx, cReactionResult& result, cTaskContext& taskctx,
                   const tArray<int>& task_count, const tArray<int>& reaction_count,
-                  const tArray<double>& resource_count) const;
+                  const tArray<double>& resource_count, tArray<double>& rbins_count) const;
 
   // Accessors
   int GetNumTasks() const { return m_tasklib.GetSize(); }
@@ -145,6 +153,8 @@ public:
   bool UseNeighborInput() const { return m_tasklib.UseNeighborInput(); }
   bool UseNeighborOutput() const { return m_tasklib.UseNeighborOutput(); }
 
+  
+  int GetNumReactions() const { return reaction_lib.GetSize(); }
   const cResourceLib& GetResourceLib() const { return resource_lib; }
   const cReactionLib& GetReactionLib() const { return reaction_lib; }
   const cMutationLib& GetMutationLib() const { return mutation_lib; }
@@ -154,10 +164,14 @@ public:
   cReactionLib& GetReactionLib() { return reaction_lib; }
   cMutationRates& GetMutRates() { return mut_rates; }
   
+  int GetNumStateGrids() const { return m_state_grids.GetSize(); }
+  const cStateGrid& GetStateGrid(int sg) const { return *m_state_grids[sg]; }  
+
   int GetInputSize()  const { return m_input_size; };
   int GetOutputSize() const { return m_output_size; };
 
-  double GetReactionValue(int& reaction_id);
+  const cString& GetReactionName(int reaction_id) const;
+  double GetReactionValue(int reaction_id);
   bool SetReactionValue(cAvidaContext& ctx, const cString& name, double value);
   bool SetReactionValueMult(const cString& name, double value_mult);
   bool SetReactionInst(const cString& name, cString inst_name);

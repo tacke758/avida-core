@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "spatial_count_elem.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -54,6 +54,8 @@ public:
                          int, int, double);
   void SetInitial(double init) { initial = init; }
   double GetInitial() { return initial; }
+  
+  inline void ResetResourceCount(double res_initial) { amount = res_initial + initial; }
 };
 
 

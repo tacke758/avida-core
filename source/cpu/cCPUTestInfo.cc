@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "cpu_test_info.hh" prior to 11/29/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -38,6 +38,7 @@ cCPUTestInfo::cCPUTestInfo(int max_tests)
   , use_manual_inputs(false)
   , m_tracer(NULL)
   , m_inst_set(NULL)
+  , m_cur_sg(0)
   , org_array(max_tests)
   , m_res_method(RES_INITIAL)
   , m_res(NULL)

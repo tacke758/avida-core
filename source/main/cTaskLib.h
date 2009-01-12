@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "task_lib.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -88,12 +88,13 @@ public:
   bool UseNeighborOutput() const { return use_neighbor_output; }
   
   
-private:  // Direct task related methods
-  void NewTask(const cString& name, const cString& desc, tTaskTest task_fun, int reqs = 0,
-               cArgContainer* args = NULL);
+private:
+  
+  void NewTask(const cString& name, const cString& desc, tTaskTest task_fun, int reqs = 0, cArgContainer* args = NULL);
 
   inline double FractionalReward(unsigned int supplied, unsigned int correct);  
 
+  
   double Task_Echo(cTaskContext& ctx) const;
   double Task_Add(cTaskContext& ctx) const;
   double Task_Add3(cTaskContext& ctx) const;
@@ -244,15 +245,13 @@ private:  // Direct task related methods
   void Load_MatchNumber(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_MatchNumber(cTaskContext& ctx) const;
 
+  // Sequence Tasks
   void Load_SortInputs(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_SortInputs(cTaskContext& ctx) const;
   void Load_FibonacciSequence(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_FibonacciSequence(cTaskContext& ctx) const;
-  
-   // Optimization Tasks
-  void Load_Optimize(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
-  double Task_Optimize(cTaskContext& ctx) const;
 
+  // Math Tasks
   void Load_Mult(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Mult(cTaskContext& ctx) const;
   void Load_Div(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
@@ -270,7 +269,11 @@ private:  // Direct task related methods
   void Load_Cosine(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Cosine(cTaskContext& ctx) const;
 
-
+  // Optimization Tasks
+  void Load_Optimize(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
+  double Task_Optimize(cTaskContext& ctx) const;
+  
+  
   // Communication Tasks
   double Task_CommEcho(cTaskContext& ctx) const;
   double Task_CommNot(cTaskContext& ctx) const;
@@ -296,6 +299,10 @@ private:  // Direct task related methods
   // movement
   double Task_MoveToEvent(cTaskContext& ctx) const;
   double Task_EventKilled(cTaskContext& ctx) const;
+
+  // State Grid Tasks
+  void Load_SGPathTraversal(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
+  double Task_SGPathTraversal(cTaskContext& ctx) const;  
 };
 
 

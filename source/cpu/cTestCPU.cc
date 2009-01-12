@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "test_cpu.cc" prior to 11/30/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -25,10 +25,11 @@
 
 #include "cTestCPU.h"
 
+#include "functions.h"
+
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
 #include "cEnvironment.h"
-#include "functions.h"
 #include "cGenomeUtil.h"
 #include "cGenotype.h"
 #include "cHardwareBase.h"
@@ -38,11 +39,12 @@
 #include "cInstSet.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
-#include "cTestCPUInterface.h"
-#include "cResourceCount.h"
-#include "cResourceLib.h"
 #include "cResource.h"
+#include "cResourceCount.h"
+#include "cResourceHistory.h"
+#include "cResourceLib.h"
 #include "cStringUtil.h"
+#include "cTestCPUInterface.h"
 #include "cWorld.h"
 #include "tMatrix.h"
 
@@ -50,7 +52,6 @@
 
 using namespace std;
 
-std::vector<std::pair<int, std::vector<double> > > * cTestCPU::s_resources = NULL;
 
 cTestCPU::cTestCPU(cWorld* world)
 {
@@ -60,16 +61,14 @@ cTestCPU::cTestCPU(cWorld* world)
 }  
 
  
-void cTestCPU::InitResources(int res_method, std::vector<std::pair<int, std::vector<double> > > * res, int update, int cpu_cycle_offset)
+void cTestCPU::InitResources(int res_method, cResourceHistory* res, int update, int cpu_cycle_offset)
 {  
   //FOR DEMES
   m_deme_resource_count.SetSize(0);
 
   m_res_method = (eTestCPUResourceMethod)res_method;
   // Make sure it's valid
-  if(res_method < 0 ||  res_method >= RES_LAST) {
-    m_res_method = RES_INITIAL;
-  }
+  if (res_method < 0 || res_method >= RES_LAST) m_res_method = RES_INITIAL;
   
   // Setup the resources...
   m_res = res;
@@ -92,24 +91,7 @@ void cTestCPU::InitResources(int res_method, std::vector<std::pair<int, std::vec
     // be changed if LOAD_RESOURCES analyze command is called.  If there are
     // no resources in the environment or there is no environment, the list
     // is empty then the all resources will default to 0.0
-    if (!s_resources)
-    {
-      s_resources = new std::vector<std::pair<int, std::vector<double> > >;
-      const cResourceLib &resource_lib = m_world->GetEnvironment().GetResourceLib();
-      if(resource_lib.GetSize() > 0) 
-      {
-        vector<double> r;
-        for(int i=0; i<resource_lib.GetSize(); i++) 
-        {
-          cResource *resource = resource_lib.GetResource(i);
-          assert(resource);
-          r.push_back(resource->GetInitial());
-        }
-        s_resources->push_back(make_pair(0, r));
-      }
-    }
-    m_res = s_resources;
-    assert(m_res != NULL);
+    m_res = &m_world->GetEnvironment().GetResourceLib().GetInitialResourceLevels();
   }
   
   const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
@@ -117,86 +99,27 @@ void cTestCPU::InitResources(int res_method, std::vector<std::pair<int, std::vec
   
   // Set the resource count to zero by default
   m_resource_count.SetSize(resource_lib.GetSize());
-  for(int i=0; i<resource_lib.GetSize(); i++) 
-  {     
-     m_resource_count.Set(i, 0.0);
-  }
+  for (int i = 0; i < resource_lib.GetSize(); i++) m_resource_count.Set(i, 0.0);
     
-  SetResourceUpdate(m_res_update, true);
+  SetResourceUpdate(m_res_update, false);
   // Round down to the closest update to choose how to initialize resources
 }
 
 void cTestCPU::UpdateResources(int cpu_cycles_used)
 {
-    int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
-    if ((m_res_method >= RES_UPDATED_DEPLETABLE) && (cpu_cycles_used % ave_time_slice == 0))
-    {
-      SetResourceUpdate(m_res_update+1);
-    }
+  int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
+  if ((m_res_method >= RES_UPDATED_DEPLETABLE) && (cpu_cycles_used % ave_time_slice == 0))
+    SetResourceUpdate(m_res_update + 1, true);
 }
 
-void cTestCPU::SetResourceUpdate(int update, bool round_to_closest)
+inline void cTestCPU::SetResourceUpdate(int update, bool round_to_closest)
 {
   // No resources defined? -- you can't do this!
   if (!m_res) return;
 
   m_res_update = update;
-
-  int which = -1;
-  if (round_to_closest)
-  {
-    // Assuming resource vector is sorted by update, front to back
-    
-    /*
-    if(update <= (*m_res)[0].first) {
-      which = 0;
-    } else if(update >= (*m_res).back().first) {
-      which = m_res->size() - 1;
-    } else {
-      // Find the update that is closest to the born update
-      for(unsigned int i=0; i<(*m_res).size()-1; i++) {
-        if(update >= (*m_res)[i+1].first) { continue; }
-        if(update - (*m_res)[i].first <=
-           (*m_res)[i+1].first - update) {
-          which = i;
-        } else {
-          which = i + 1;
-        }
-        break;
-      */
-      // Find the update that is closest to the born update, round down instead @JEB
-      which = 0;
-      while ( which < (int)m_res->size() )
-      {
-        if ( (*m_res)[which].first > update ) break;
-        which++;
-      }
-      if (which > 0) which--;
- // }
-    assert(which >= 0);
-  }
-  else // Only find exact update matches
-  {
-    for(unsigned int i=0; i<m_res->size(); i++)
-    {
-      if (update == (*m_res)[i].first)
-      {
-        which = i;
-        break;
-      }
-    }
-    if (which < 0) return; // Not found (do nothing)
-  }
   
-  const cResourceLib& resource_lib = m_world->GetEnvironment().GetResourceLib();
-  for(int i=0; i<resource_lib.GetSize(); i++) 
-  {
-    if( (which >= (int)m_res->size()) || (i >= (int)(*m_res)[which].second.size()) ) {
-      m_resource_count.Set(i, 0.0);
-    } else {
-      m_resource_count.Set(i, (*m_res)[which].second[i]);
-    }
-  }
+  m_res->GetResourceCountForUpdate(update, m_resource_count, !round_to_closest);
 }
 
 void cTestCPU::ModifyResources(const tArray<double>& res_change)
@@ -363,8 +286,12 @@ bool cTestCPU::TestGenome_Body(cAvidaContext& ctx, cCPUTestInfo& test_info,
   
   if (test_info.GetInstSet()) organism = new cOrganism(m_world, ctx, genome, test_info.GetInstSet());
   else organism = new cOrganism(m_world, ctx, genome);
+  
+  // Copy the test mutation rates
+  organism->MutationRates().Copy(test_info.MutationRates());
+  
   test_info.org_array[cur_depth] = organism;
-  organism->SetOrgInterface(new cTestCPUInterface(this));
+  organism->SetOrgInterface(ctx, new cTestCPUInterface(this, test_info));
   organism->GetPhenotype().SetupInject(genome);
 
   // Run the current organism.
@@ -487,6 +414,29 @@ void cTestCPU::PrintGenome(cAvidaContext& ctx, const cGenome& genome, cString fi
   for (int i = 0; i < task_count.GetSize(); i++) {
     df.WriteComment(c.Set("%s %d (%f)", static_cast<const char*>(env.GetTask(i).GetName()),
                           task_count[i], task_qual[i]));
+  }
+  
+  // if resource bins are being used, print relevant information
+  if(m_world->GetConfig().USE_RESOURCE_BINS.Get())  {
+  	df.WriteComment("Tasks Performed Using Internal Resources:");
+  	
+  	const tArray<int>& internal_task_count = test_info.GetTestPhenotype().GetLastInternalTaskCount();
+  	const tArray<double>& internal_task_qual = test_info.GetTestPhenotype().GetLastInternalTaskQuality();
+  	
+  	for (int i = 0; i < task_count.GetSize(); i++) {
+  		df.WriteComment(c.Set("%s %d (%f)", static_cast<const char*>(env.GetTask(i).GetName()),
+  		                      internal_task_count[i], internal_task_qual[i]));
+  	}
+  	
+  	const tArray<double>& rbins_total = test_info.GetTestPhenotype().GetLastRBinsTotal();
+  	const tArray<double>& rbins_avail = test_info.GetTestPhenotype().GetLastRBinsAvail();
+  	
+  	df.WriteComment(        "Resources Collected: Name\t\tTotal\t\tAvailable");
+  	for (int i = 0; i < rbins_total.GetSize(); i++) {
+  		df.WriteComment(c.Set("                %d : %s\t\t%f\t\t%f\t\t", i,
+  		                      static_cast<const char*>(env.GetResourceLib().GetResource(i)->GetName()),
+  		                      rbins_total[i], rbins_avail[i]));
+  	}
   }
 
   df.Endl();

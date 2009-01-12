@@ -2,7 +2,7 @@
  *  avida.cc
  *  Avida
  *
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -26,6 +26,7 @@
 
 #include "defs.h"
 #include "cActionLibrary.h"
+#include "cAnalyzeGenotype.h"
 #include "cAvidaConfig.h"
 #include "cDriverManager.h"
 #include "cString.h"
@@ -41,9 +42,19 @@
 #include <csignal>
 #include <cstdio>
 
+
 using namespace std;
 
+
 namespace Avida {
+  
+void Initialize()
+{
+  cActionLibrary::Initialize();
+  cAnalyzeGenotype::Initialize();
+}
+  
+  
 
 cString GetVersion()
 {
@@ -76,9 +87,6 @@ cString GetVersion()
 #if INSTRUCTION_COUNT
   version += " inst_cnt";
 #endif
-#if SMT_FULLY_ASSOCIATIVE
-  version += " smt_fa";
-#endif
 #ifdef ENABLE_UNIT_TESTS
   version += " ut";
 #endif
@@ -94,7 +102,7 @@ void PrintVersionBanner()
   // output copyright message
 
   cout << GetVersion() << endl << endl;
-  cout << "----------------------------------------------------------------------" << endl;
+  cout << "--------------------------------------------------------------------------------" << endl;
   cout << "by Charles Ofria" << endl << endl;
 
   cout << "Lead Developers: David M. Bryson (Avida) and Kaben Nanlohy (Avida-ED)" << endl << endl;
@@ -109,15 +117,15 @@ void PrintVersionBanner()
 
   cout << endl;
 
-  cout << "Copyright (C) 1999-2008 Michigan State University." << endl;
+  cout << "Copyright (C) 1999-2009 Michigan State University." << endl;
   cout << "Copyright (C) 1993-2003 California Institute of Technology." << endl << endl;
   
   cout << "Avida comes with ABSOLUTELY NO WARRANTY." << endl;
   cout << "This is free software, and you are welcome to redistribute it" << endl;
   cout << "under certain conditions. See file COPYING for details." << endl << endl;
 
-  cout << "For more information, see: http://devolab.cse.msu.edu/software/avida/" << endl;
-  cout << "----------------------------------------------------------------------" << endl << endl;
+  cout << "For more information, see: http://avida.devosoft.org/" << endl;
+  cout << "--------------------------------------------------------------------------------" << endl << endl;
 }
 
 void ProcessArgs(cStringList &argv, cAvidaConfig* cfg)
@@ -155,7 +163,7 @@ void ProcessArgs(cStringList &argv, cAvidaConfig* cfg)
     // Print out a list of all possibel actions (was events).
     if (cur_arg == "-e" || cur_arg == "-events" || cur_arg == "-actions") {
       cout << endl << "Supported Actions:" << endl;
-      cout << cDriverManager::GetActionLibrary()->DescribeAll() << endl;
+      cout << cActionLibrary::GetInstance().DescribeAll() << endl;
       exit(0);
     }
     

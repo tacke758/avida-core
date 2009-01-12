@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype.hh" prior to 11/30/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -143,6 +143,10 @@ public:
   void IncDeferAdjust() { defer_adjust++; }
   void DecDeferAdjust() { defer_adjust--; assert(defer_adjust >= 0); }
   void SetLineageLabel(int in_label) { birth_data.lineage_label = in_label; }
+  void SetExecTimeBorn(int in_exec_born) { birth_data.exec_born = in_exec_born;}  //@MRR
+  void SetGenerationBorn(int in_gen_born) {birth_data.generation_born = in_gen_born;} //@MRR
+  void SetOrganismIDAtBirth(int org_id)  {birth_data.birth_org_id = org_id;} //@MRR
+  void SetOrganismIDAtDeath(int org_id)  {birth_data.death_org_id = org_id;} //@MRR
 
   // Setting New Stats
   void AddCopiedSize(int in) { sum_copied_size.Add(in); }
@@ -204,7 +208,7 @@ public:
   bool GetActive() const { return is_active; }
   bool GetDeferAdjust() const { return defer_adjust > 0; }
   int GetUpdateDeactivated() { return birth_data.update_deactivated; }
-  void Deactivate(int update);
+  void Deactivate(int update, int org_id = -1);
 
   int GetUpdateBorn() const     { return birth_data.update_born; }
   int GetParentID() const       { return birth_data.ancestor_ids[0]; }
@@ -220,7 +224,11 @@ public:
   bool GetThreshold() const     { return flag_threshold; }
   int GetID() const             { return id_num; }
   char GetSymbol() const        { return symbol; }
-  int GetMapColor() const          { return map_color_id; }
+  int GetMapColor() const       { return map_color_id; }
+  int GetExecTimeBorn() const   { return birth_data.exec_born; }  //@MRR
+  int GetGenerationBorn() const { return birth_data.generation_born; } //@MRR
+  int GetOrgIDAtBirth() const   { return birth_data.birth_org_id; } //@MRR
+  int GetOrgIDAtDeath() const   { return birth_data.death_org_id; } //@MRR
 
   // Calculate a crude phylogentic distance based off of tracking parents
   // and grand-parents, including sexual tracking.
@@ -325,10 +333,11 @@ inline int cGenotype::GetTestGenerations(cAvidaContext& ctx) const {
   return test_data.generations;
 }
 
-inline void cGenotype::Deactivate(int update)
+inline void cGenotype::Deactivate(int update, int org_id)
 {
   is_active = false;
   birth_data.update_deactivated = update;
+  birth_data.death_org_id = org_id;
 }
 
 

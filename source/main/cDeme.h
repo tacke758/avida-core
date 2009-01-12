@@ -2,7 +2,7 @@
  *  cDeme.h
  *  Avida
  *
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -56,6 +56,8 @@ private:
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
 
+	bool replicateDeme;
+	
 // The following should be moved to cDemePhenotype / cPopulationPhenotype
   int cur_birth_count; //!< Number of organisms that have been born into this deme since reset.
   int last_birth_count;
@@ -65,11 +67,17 @@ private:
   int birth_count_perslot;
   int _age; //!< Age of this deme, in updates.
   int generation; //!< Generation of this deme
-  double total_org_energy; //! total amount of energy in organisms in this deme
+  double total_org_energy; //! amount of energy in organisms in this deme
   int time_used; //!< number of cpu cycles this deme has used
   int gestation_time; // Time used during last generation
   double cur_normalized_time_used; // normalized by merit and number of orgs
   double last_normalized_time_used; 
+	unsigned int MSG_sendFailed;
+	unsigned int MSG_dropped;
+	unsigned int MSG_SuccessfullySent;
+	unsigned int MSG_sent;
+	double energyInjectedIntoOrganisms; //! total amount of energy injected into seed organisms
+	double energyRemainingInDemeAtReplication; //! total amount of energy remaining in deme when deme was last replicated.
   double total_energy_testament; //! total amount of energy from suicide organisms for offspring deme
   int eventsTotal;
   unsigned int eventsKilled;
@@ -79,6 +87,8 @@ private:
   unsigned int consecutiveSuccessfulEventPeriods;
   int sleeping_count; //!< Number of organisms currently sleeping
   cDoubleSum energyUsage;
+  unsigned int energy_requests_made;
+  unsigned int energy_donations_made;
   
   tArray<int> cur_task_exe_count;
   tArray<int> cur_reaction_count;
@@ -117,15 +127,23 @@ private:
 
   tVector<cOrgMessagePredicate*> message_pred_list; // Message Predicates
   tVector<cOrgMovementPredicate*> movement_pred_list;  // Movement Predicates
+	
+	// For the points infrastructure
+	double points; 
+	unsigned int migrations_out; 
+	unsigned int migrations_in;
+	unsigned int suicides;
+	
   
 public:
-  cDeme() : _id(0), width(0), cur_birth_count(0), last_birth_count(0), cur_org_count(0), last_org_count(0), injected_count(0), birth_count_perslot(0),
+  cDeme() : _id(0), width(0), replicateDeme(false), cur_birth_count(0), last_birth_count(0), cur_org_count(0), last_org_count(0), injected_count(0), birth_count_perslot(0),
             _age(0), generation(0), total_org_energy(0.0),
-            time_used(0), gestation_time(0), cur_normalized_time_used(0.0), last_normalized_time_used(0.0), total_energy_testament(0.0),
+            time_used(0), gestation_time(0), cur_normalized_time_used(0.0), last_normalized_time_used(0.0), 
+						MSG_sendFailed(0), MSG_dropped(0), MSG_SuccessfullySent(0), MSG_sent(0), energyInjectedIntoOrganisms(0.0), energyRemainingInDemeAtReplication(0.0), total_energy_testament(0.0),
             eventsTotal(0), eventsKilled(0), eventsKilledThisSlot(0), eventKillAttempts(0), eventKillAttemptsThisSlot(0),
             consecutiveSuccessfulEventPeriods(0), sleeping_count(0),
             avg_founder_generation(0.0), generations_per_lifetime(0.0),
-            deme_resource_count(0), m_germline_genotype_id(0) { ; }
+            deme_resource_count(0), m_germline_genotype_id(0), points(0), migrations_out(0), migrations_in(0), suicides(0){ ; }
   ~cDeme() { ; }
 
   void Setup(int id, const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);
@@ -172,6 +190,9 @@ public:
 
   bool IsEmpty() const { return cur_org_count == 0; }
   bool IsFull() const { return cur_org_count == cell_ids.GetSize(); }
+	
+	bool TestReplication() const { return replicateDeme; }
+	void ReplicateDeme() { replicateDeme = true; }
 
   int GetSlotFlowRate() const;
   int GetEventsTotal() const { return eventsTotal; }
@@ -227,13 +248,15 @@ public:
   void SetDemeResourceCount(const cResourceCount in_res) { deme_resource_count = in_res; }
   void ResizeSpatialGrids(const int in_x, const int in_y) { deme_resource_count.ResizeSpatialGrids(in_x, in_y); }
   void ModifyDemeResCount(const tArray<double> & res_change, const int absolute_cell_id);
+  double GetCellEnergy(int absolute_cell_id) const;
   double GetAndClearCellEnergy(int absolute_cell_id);
   void GiveBackCellEnergy(int absolute_cell_id, double value);
   void SetupDemeRes(int id, cResource * res, int verbosity);
   void UpdateDemeRes() { deme_resource_count.GetResources(); }
   void Update(double time_step) { deme_resource_count.Update(time_step); }
-  int GetRelativeCellID(int absolute_cell_id) { return absolute_cell_id % GetSize(); } //!< assumes all demes are the same size
-
+  int GetRelativeCellID(int absolute_cell_id) const { return absolute_cell_id % GetSize(); } //!< assumes all demes are the same size
+  int GetAbsoluteCellID(int relative_cell_id) const { return relative_cell_id + (_id * GetSize()); } //!< assumes all demes are the same size
+	
   void SetCellEventGradient(int x1, int y1, int x2, int y2, int delay, int duration, bool static_pos, int time_to_live);
   int GetNumEvents();
   void SetCellEvent(int x1, int y1, int x2, int y2, int delay, int duration, bool static_position, int total_events);
@@ -246,6 +269,10 @@ public:
   
   double CalculateTotalEnergy() const;
   double CalculateTotalInitialEnergyResources() const;
+	double GetEnergyInjectedIntoOrganisms() const { return energyInjectedIntoOrganisms; }
+	void SetEnergyInjectedIntoOrganisms(double energy) { energyInjectedIntoOrganisms = energy; }
+	double GetEnergyRemainingInDemeAtReplication() const { return energyRemainingInDemeAtReplication; }
+	void SetEnergyRemainingInDemeAtReplication(double energy) { energyRemainingInDemeAtReplication = energy; }
   double GetTotalEnergyTestament() { return total_energy_testament; }
   void IncreaseTotalEnergyTestament(double increment) { total_energy_testament += increment; }
   
@@ -283,9 +310,40 @@ public:
   void AddEventMoveBetweenTargetsPred(int times);
   void AddEventMigrateToTargetsPred(int times);
   void AddEventEventNUniqueIndividualsMovedIntoTargetPred(int times);
+	
+	// --- Messaging stats --- //
+	void IncMessageSent() { ++MSG_sent; }
+	void MessageSuccessfullySent() { ++MSG_SuccessfullySent; }
+	void messageDropped() { ++MSG_dropped; }
+	void messageSendFailed() { ++MSG_sendFailed; }
+	unsigned int GetMessagesSent() { return MSG_sent; }
+	unsigned int GetMessageSuccessfullySent() { return MSG_SuccessfullySent; }
+	unsigned int GetMessageDropped() { return MSG_dropped; }
+	unsigned int GetMessageSendFailed() { return MSG_sendFailed; }
+  
+  // --- Energy sharing stats --- //
+  void IncEnergyRequestsMade() { energy_requests_made++; }
+  void IncEnergyDonationsMade() { energy_donations_made++; }
 
   // --- Pheromones --- //
   void AddPheromone(int absolute_cell_id, double value);
+	
+	// --- Points --- //
+	double GetNumberOfPoints() { return points; }
+	void AddNumberOfPoints(double num_points) { points += num_points; }
+	void SubtractNumberOfPoints(double num_points) { if (num_points > points) points = 0; }
+	int GetMigrationsOut()  { return migrations_out; }
+	int GetMigrationsIn()  { return migrations_in; }
+	int GetSuicides()  { return suicides; }
+	void AddMigrationOut() { migrations_out++; }
+	void AddMigrationIn() { migrations_in++; }
+	void AddSuicide() { suicides++; }
+	void ClearMigrationOut() { migrations_out = 0; }
+	void ClearMigrationIn() { migrations_in = 0; }
+	void ClearSuicides() { suicides = 0; }
+
+	
+  void GetSurroundingCellIds(tVector<int> &cells, const int absolute_cell_id, const int radius);
 };
 
 #endif

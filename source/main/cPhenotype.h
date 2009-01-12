@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "phenotype.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -110,12 +110,20 @@ private:
   double cur_energy_bonus;                    // Current energy bonus
   double energy_tobe_applied;                 // Energy that has not yet been added to energy store.
   double energy_testament;
+  double energy_received_buffer;              // Energy received through donation, but not yet applied to energy store
+  double total_energy_donated;                // Tota amount of energy that has been donated
+  double total_energy_received;               // Total amount of energy received through donations
+  double total_energy_applied;                // Total amount of received energy applied to energy store
   int cur_num_errors;                         // Total instructions executed illeagally.
   int cur_num_donates;                        // Number of donations so far
   tArray<int> cur_task_count;                 // Total times each task was performed
+  tArray<int> cur_internal_task_count;        // Total times each task was performed using internal resources
   tArray<int> eff_task_count;                 // Total times each task was performed (resetable during the life of the organism)
   tArray<double> cur_task_quality;            // Average (total?) quality with which each task was performed
   tArray<double> cur_task_value;              // Value with which this phenotype performs task
+  tArray<double> cur_internal_task_quality;   // Average (total?) quaility with which each task using internal resources was performed
+  tArray<double> cur_rbins_total;              // Total amount of resources collected
+  tArray<double> cur_rbins_avail;              // Total amount of internal resources available
   tArray<int> cur_reaction_count;             // Total times each reaction was triggered.  
   tArray<double> cur_reaction_add_reward;     // Bonus change from triggering each reaction.
   tArray<int> cur_inst_count;                 // Instruction exection counter
@@ -137,8 +145,12 @@ private:
   int last_num_errors;
   int last_num_donates;
   tArray<int> last_task_count;
+  tArray<int> last_internal_task_count;
   tArray<double> last_task_quality;
   tArray<double> last_task_value;
+  tArray<double> last_internal_task_quality;
+  tArray<double> last_rbins_total;
+  tArray<double> last_rbins_avail;
   tArray<int> last_reaction_count;
   tArray<double> last_reaction_add_reward; 
   tArray<int> last_inst_count;	  // Instruction exection counter
@@ -147,7 +159,7 @@ private:
   int last_cpu_cycles_used;
   double cur_child_germline_propensity;   // chance of child being a germline cell; @JEB
 
-  // 4. Records from this organisms life...
+  // 4. Records from this organism's life...
   int num_divides;       // Total successful divides organism has produced.
   int generation;        // Number of birth events to original ancestor.
   int cpu_cycles_used;   // Total CPU cycles consumed. @JEB
@@ -157,7 +169,10 @@ private:
   double neutral_metric; // Undergoes drift (gausian 0,1) per generation
   double life_fitness; 	 // Organism fitness during its lifetime, 
 		         // calculated based on merit just before the divide
-
+  int exec_time_born;    // @MRR number of instructions since seed ancestor start
+  double gmu_exec_time_born; //@MRR mutation-rate and gestation time scaled time of birth
+  int birth_update;      // @MRR update *organism* born
+  
   // 5. Status Flags...  (updated at each divide)
   bool to_die;		 // Has organism has triggered something fatal?
   bool to_delete;        // Should this organism be deleted when finished?
@@ -180,6 +195,11 @@ private:
   bool is_donor_threshgb_last;// Did this org's parent threshgbg_donate? 
   bool is_donor_quanta_threshgb;  // Has this organism quanta_threshgb_donated (true green beard)? 
   bool is_donor_quanta_threshgb_last;// Did this org's parent quanta_threshgbg_donate? 
+  bool is_energy_requestor; // Has this organism requested energy?
+  bool is_energy_donor; // Has this organism donated energy?
+  bool is_energy_receiver;  // Has this organism received an energy donation?
+  bool has_used_donated_energy; // Has the organism actively used an energy donation?
+  bool has_open_energy_request; // Does the organism have an energy request that hasn't been answered?
   int num_thresh_gb_donations;  // Num times this organism threshgb_donated (thresh green beard)? 
   int num_thresh_gb_donations_last; // Num times this org's parent thresh_donated? 
   int num_quanta_thresh_gb_donations;  // Num times this organism threshgb_donated (thresh green beard)? 
@@ -233,7 +253,8 @@ public:
   cPhenotype& operator=(const cPhenotype&); 
   ~cPhenotype();
   
-
+  enum energy_levels {ENERGY_LEVEL_LOW = 0, ENERGY_LEVEL_MEDIUM, ENERGY_LEVEL_HIGH};
+	
   bool OK();
 
   // Run when being setup *as* and offspring.
@@ -255,7 +276,7 @@ public:
   // Input and Output Reaction Tests
   bool TestInput(tBuffer<int>& inputs, tBuffer<int>& outputs);
   bool TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
-                  const tArray<double>& res_in, tArray<double>& res_change,
+                  const tArray<double>& res_in, tArray<double>& rbins_in, tArray<double>& res_change,
                   tArray<int>& insts_triggered);
 
   // State saving and loading, and printing...
@@ -295,16 +316,30 @@ public:
   double GetCurMeritBase() const { assert(initialized == true); return CalcSizeMerit(); }
   double GetStoredEnergy() const { return energy_store; }
   double GetEnergyBonus() const { assert(initialized == true); return cur_energy_bonus; }
+  int GetDiscreteEnergyLevel() const;
+  double GetEnergyInBufferAmount() const { return energy_received_buffer; }
+  
+  //@MRR Organism-specific birth tracking
+  double GetGMuExecTimeBorn() const {return gmu_exec_time_born;}
+  int GetExecTimeBorn() const {return exec_time_born;}
+  int GetUpdateBorn() const {return birth_update;}
+  
+  
   
   bool GetToDie() const { assert(initialized == true); return to_die; }
   bool GetToDelete() const { assert(initialized == true); return to_delete; }
   int GetCurNumErrors() const { assert(initialized == true); return cur_num_errors; }
   int GetCurNumDonates() const { assert(initialized == true); return cur_num_donates; }
   const tArray<int>& GetCurTaskCount() const { assert(initialized == true); return cur_task_count; }
+  const tArray<int>& GetCurInternalTaskCount() const { assert(initialized == true); return cur_internal_task_count; }
   void ClearEffTaskCount() { assert(initialized == true); eff_task_count.SetAll(0); }
   const tArray<double> & GetCurTaskQuality() const { assert(initialized == true); return cur_task_quality; }
   const tArray<double> & GetCurTaskValue() const { assert(initialized == true); return cur_task_value; }
+  const tArray<double> & GetCurInternalTaskQuality() const { assert(initialized == true); return cur_internal_task_quality; }
+  const tArray<double>& GetCurRBinsTotal() const { assert(initialized == true); return cur_rbins_total; }
+  const tArray<double>& GetCurRBinsAvail() const { assert(initialized == true); return cur_rbins_avail; }
   const tArray<int>& GetCurReactionCount() const { assert(initialized == true); return cur_reaction_count;}
+  const tArray<double>& GetCurReactionAddReward() const { assert(initialized == true); return cur_reaction_add_reward;}
   const tArray<int>& GetCurInstCount() const { assert(initialized == true); return cur_inst_count; }
   const tArray<int>& GetCurSenseCount() const { assert(initialized == true); return cur_sense_count; }
   double GetSensedResource(int _in) { assert(initialized == true); return sensed_resources[_in]; }
@@ -322,8 +357,12 @@ public:
   int GetLastNumErrors() const { assert(initialized == true); return last_num_errors; }
   int GetLastNumDonates() const { assert(initialized == true); return last_num_donates; }
   const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
+  const tArray<int>& GetLastInternalTaskCount() const { assert(initialized == true); return last_internal_task_count; }
   const tArray<double>& GetLastTaskQuality() const { assert(initialized == true); return last_task_quality; }
   const tArray<double>& GetLastTaskValue() const { assert(initialized == true); return last_task_value; }
+  const tArray<double>& GetLastInternalTaskQuality() const { assert(initialized == true); return last_internal_task_quality; }
+  const tArray<double>& GetLastRBinsTotal() const { assert(initialized == true); return last_rbins_total; }
+  const tArray<double>& GetLastRBinsAvail() const { assert(initialized == true); return last_rbins_avail; }
   const tArray<int>& GetLastReactionCount() const { assert(initialized == true); return last_reaction_count; }
   const tArray<double>& GetLastReactionAddReward() const { assert(initialized == true); return last_reaction_add_reward; }
   const tArray<int>& GetLastInstCount() const { assert(initialized == true); return last_inst_count; }
@@ -363,6 +402,11 @@ public:
   bool IsDonorThreshGbLast() const { assert(initialized == true); return is_donor_threshgb_last; }
   bool IsDonorQuantaThreshGb() const { assert(initialized == true); return is_donor_quanta_threshgb; }
   bool IsDonorQuantaThreshGbLast() const { assert(initialized == true); return is_donor_quanta_threshgb_last; }
+  bool IsEnergyRequestor() const { assert(initialized == true); return is_energy_requestor; }
+  bool IsEnergyDonor() const { assert(initialized == true); return is_energy_donor; }
+  bool IsEnergyReceiver() const { assert(initialized == true); return is_energy_receiver; }
+  bool HasUsedEnergyDonation() const { assert(initialized == true); return has_used_donated_energy; }
+  bool HasOpenEnergyRequest() const { assert(initialized == true); return has_open_energy_request; }
   bool IsReceiver() const { assert(initialized == true); return is_receiver; }
   bool IsReceiverLast() const { assert(initialized == true); return is_receiver_last; }
   bool IsReceiverRand() const { assert(initialized == true); return is_receiver_rand; }
@@ -415,6 +459,19 @@ public:
   void SetCrossNum(int _cross_num) { cross_num = _cross_num; }
   void SetToDie() { to_die = true; }
   void SetToDelete() { to_delete = true; }
+  void IncreaseEnergyDonated(double amount) { assert(amount >=0); total_energy_donated += amount; }
+  void IncreaseEnergyReceived(double amount) { assert(amount >=0); total_energy_received += amount; }
+  void IncreaseEnergyApplied(double amount) { assert(amount >=0); total_energy_applied += amount; }
+  double GetAmountEnergyDonated() { return total_energy_donated; }
+  double GetAmountEnergyReceived() { return total_energy_received; }
+  double GetAmountEnergyApplied() { return total_energy_applied; }
+  
+  void SetCurRBinsAvail(const tArray<double>& in_avail) { cur_rbins_avail = in_avail; }
+  void SetCurRbinsTotal(const tArray<double>& in_total) { cur_rbins_total = in_total; }
+  void SetCurRBinAvail(int index, double val) { cur_rbins_avail[index] = val; }
+  void SetCurRBinTotal(int index, double val) { cur_rbins_total[index] = val; }
+  void AddToCurRBinAvail(int index, double val) { cur_rbins_avail[index] += val; }
+  void AddToCurRBinTotal(int index, double val) { cur_rbins_total[index] += val; }
 
   void SetIsDonorCur() { is_donor_cur = true; } 
   void SetIsDonorRand() { SetIsDonorCur(); is_donor_rand = true; }
@@ -433,6 +490,12 @@ public:
   void SetIsReceiverTrueGb() { SetIsReceiver(); is_receiver_truegb = true; } 
   void SetIsReceiverThreshGb() { SetIsReceiver(); is_receiver_threshgb = true; } 
   void SetIsReceiverQuantaThreshGb() { SetIsReceiver(); is_receiver_quanta_threshgb = true; } 
+  void SetIsEnergyRequestor() { is_energy_requestor = true; }
+  void SetIsEnergyDonor() { is_energy_donor = true; }
+  void SetIsEnergyReceiver() { is_energy_receiver = true; }
+  void SetHasUsedDonatedEnergy() {has_used_donated_energy = true; }
+  void SetHasOpenEnergyRequest() { has_open_energy_request = true; }
+  void ClearHasOpenEnergyRequest() { has_open_energy_request = false; }
   
   void SetCurBonus(double _bonus) { cur_bonus = _bonus; }
   void SetCurBonusInstCount(int _num_bonus_inst) {bonus_instruction_count = _num_bonus_inst;}
@@ -473,6 +536,8 @@ public:
   void RefreshEnergy();
   void ApplyToEnergyStore();
   void EnergyTestament(const double value); //! external energy given to organism
+  void ApplyDonatedEnergy();
+  void ReceiveDonatedEnergy(const double value);
   double ExtractParentEnergy();
   
   bool operator<(const cPhenotype& rhs) const;

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 6/4/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -179,7 +179,11 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(const int allocated_size);
 
-	int GetCopiedSize(const int parent_size, const int child_size);
+
+  void internalReset();
+  
+  
+	int calcCopiedSize(const int parent_size, const int child_size);
   
   bool Divide_Main(cAvidaContext& ctx, double mut_multiplier = 1.0);
   void Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier, cCPUMemory& injected_code);
@@ -196,12 +200,11 @@ protected:
   cHardwareSMT& operator=(const cHardwareSMT&); // @not_implemented
   
 public:
-  cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareSMT() { ; }
   static cInstLib* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-smt.cfg"; }
 	
-  void Reset();
   bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 	

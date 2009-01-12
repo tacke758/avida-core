@@ -1,5 +1,12 @@
 PROJECT(AVIDA)
 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+
+
+IF(COMMAND cmake_policy)
+  CMAKE_POLICY(SET CMP0003 NEW)
+ENDIF(COMMAND cmake_policy)
+
 # The following three variables must be after the PROJECT statement, otherwise
 # newer versions of cmake will (correctly) use an empty value of
 # PROJECT_BINARY_DIR, since the project didn't exist yet.
@@ -125,6 +132,8 @@ SET(ANALYZE_SOURCES
   ${ANALYZE_DIR}/cAnalyzeTreeStats_Gamma.cc
   ${ANALYZE_DIR}/cAnalyzeJobQueue.cc
   ${ANALYZE_DIR}/cAnalyzeJobWorker.cc
+  ${ANALYZE_DIR}/cGenotypeBatch.cc
+  ${ANALYZE_DIR}/cGenotypeData.cc
   ${ANALYZE_DIR}/cMutationalNeighborhood.cc
 )
 SOURCE_GROUP(analyze FILES ${ANALYZE_SOURCES})
@@ -205,6 +214,7 @@ SET(DRIVERS_SOURCES
   ${DRIVERS_DIR}/cDefaultAnalyzeDriver.cc
   ${DRIVERS_DIR}/cDefaultRunDriver.cc
   ${DRIVERS_DIR}/cDriverManager.cc
+  ${DRIVERS_DIR}/cDriverStatusConduit.cc
   ${DRIVERS_DIR}/cFallbackWorldDriver.cc
 )
 SOURCE_GROUP(drivers FILES ${DRIVERS_SOURCES})
@@ -232,6 +242,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cMutationRates.cc
   ${MAIN_DIR}/cMxCodeArray.cc
   ${MAIN_DIR}/cOrganism.cc
+  ${MAIN_DIR}/cOrgMessage.cc
   ${MAIN_DIR}/cPhenotype.cc
   ${MAIN_DIR}/cPhenPlastGenotype.cc
   ${MAIN_DIR}/cPlasticPhenotype.cc
@@ -243,6 +254,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cReactionResult.cc
   ${MAIN_DIR}/cResource.cc
   ${MAIN_DIR}/cResourceCount.cc
+  ${MAIN_DIR}/cResourceHistory.cc
   ${MAIN_DIR}/cResourceLib.cc
   ${MAIN_DIR}/cSpatialCountElem.cc
   ${MAIN_DIR}/cSpatialResCount.cc
@@ -274,7 +286,6 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cChangeList.cc
   ${TOOLS_DIR}/cConstBurstSchedule.cc
   ${TOOLS_DIR}/cConstSchedule.cc
-  ${TOOLS_DIR}/cDataEntry.cc
   ${TOOLS_DIR}/cDataFile.cc
   ${TOOLS_DIR}/cDataFileManager.cc
   ${TOOLS_DIR}/cDataManager_Base.cc
@@ -294,6 +305,7 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cProbDemeProbSchedule.cc
   ${TOOLS_DIR}/cProbSchedule.cc
   ${TOOLS_DIR}/cRandom.cc
+  ${TOOLS_DIR}/cRCObject.cc
   ${TOOLS_DIR}/cRunningAverage.cc
   ${TOOLS_DIR}/cSchedule.cc
   ${TOOLS_DIR}/cString.cc

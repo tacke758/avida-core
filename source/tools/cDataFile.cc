@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file.cc" prior to 12/2/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -65,6 +65,15 @@ void cDataFile::Write(long i, const char* descr)
 {
   if (!m_descr_written) {
     m_data += cStringUtil::Stringf("%i ", i);
+    WriteColumnDesc(descr);
+  } else
+    m_fp << i << " ";
+}
+
+void cDataFile::Write(unsigned int i, const char* descr)
+{
+  if (!m_descr_written) {
+    m_data += cStringUtil::Stringf("%u ", i);
     WriteColumnDesc(descr);
   } else
     m_fp << i << " ";

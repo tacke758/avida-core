@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "resource.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -84,6 +84,7 @@ private:
   bool deme_resource;
   bool energy_resource;  // only implemented for spacial resource
   tArray<cCellResource> cell_list;
+  tArray<int> cell_id_list;  
  
   
   cResource(); // @not_implemented
@@ -113,6 +114,7 @@ public:
   bool GetDemeResource() const { return deme_resource; }
   bool GetEnergyResource() const { return energy_resource; }
   tArray<cCellResource> *GetCellListPtr() { return &cell_list; }
+  tArray<int> *GetCellIdListPtr() { return &cell_id_list; }
 
 
   void SetInitial(double _initial) { initial = _initial; }
@@ -137,6 +139,7 @@ public:
   cCellResource *GetCellResourcePtr(int _id);
   void UpdateCellResource(cCellResource *_CellResoucePtr, double _initial, 
                           double _inflow, double _outflow);
+  void SetCellIdList(tArray<int>& id_list); //SLG partial resources
 };
 
 

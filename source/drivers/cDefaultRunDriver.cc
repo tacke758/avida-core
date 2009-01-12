@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ using namespace std;
 cDefaultRunDriver::cDefaultRunDriver(cWorld* world) : m_world(world), m_done(false), 
       m_fastforward(false),m_last_generation(0),  m_generation_same_update_count(0) 
 {
-  cDriverManager::Register(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Register(this);
   world->SetDriver(this);
   
   // Save this config variable
@@ -58,7 +58,7 @@ cDefaultRunDriver::cDefaultRunDriver(cWorld* world) : m_world(world), m_done(fal
 
 cDefaultRunDriver::~cDefaultRunDriver()
 {
-  cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Unregister(this);
   delete m_world;
 }
 
@@ -74,7 +74,7 @@ void cDefaultRunDriver::Run()
   
   void (cPopulation::*ActiveProcessStep)(cAvidaContext& ctx, double step_size, int cell_id) = &cPopulation::ProcessStep;
   if (m_world->GetHardwareManager().SupportsSpeculative() && m_world->GetConfig().SPECULATIVE.Get() &&
-      m_world->GetConfig().THREAD_SLICING_METHOD.Get() != 1) {
+      m_world->GetConfig().THREAD_SLICING_METHOD.Get() != 1 && !m_world->GetConfig().IMPLICIT_REPRO_END.Get()) {
     ActiveProcessStep = &cPopulation::ProcessStepSpeculative;
   }
   

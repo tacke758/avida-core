@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "defs.hh" prior to 12/7/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -39,9 +39,6 @@
 #endif
 #ifndef INSTRUCTION_COUNT
 #define INSTRUCTION_COUNT 1
-#endif
-#ifndef SMT_FULLY_ASSOCIATIVE
-#define SMT_FULLY_ASSOCIATIVE 1
 #endif
 #ifndef FATAL_ERRORS
 #define FATAL_ERRORS 0

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/8/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -52,9 +52,17 @@ private:
   
   tObjectFactoryNoCase<cAction* (cWorld*, const cString&)> m_factory;
   tDictionary<ClassDescFunction> m_desc_funcs;
+  
+  static cActionLibrary* buildDefaultActionLibrary();
 
-public:
   cActionLibrary() { ; }
+
+  
+public:
+  ~cActionLibrary() { ; }
+  
+  static void Initialize();
+  static cActionLibrary& GetInstance();
   
   template<typename ClassType> bool Register(const cString& key)
   {
@@ -79,8 +87,6 @@ public:
     return "(Not Available)";
   }  
   const cString DescribeAll() const;
-  
-  static cActionLibrary* ConstructDefaultActionLibrary();
 };
 
 

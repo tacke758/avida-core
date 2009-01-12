@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype_control.cc" prior to 11/30/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -80,6 +80,12 @@ void cGenotypeControl::Insert(cGenotype & in_genotype, cGenotype * prev_genotype
     in_genotype.GetNext()->SetPrev(&in_genotype);
   }
 
+  /*if (!CheckPos(in_genotype))
+    cerr << "Genotype insertion fail! @MRR -- \n"
+      << "Best Genotype:    " << best << " " << best->GetNumOrganisms() << " prev: " << best->GetPrev() << "  next: " << best->GetNext() << endl
+      << "In Genotype:      " << &in_genotype << " " << in_genotype.GetNumOrganisms() << " prev: " << in_genotype.GetPrev() << "  next: " << in_genotype.GetNext() << endl
+      << "Prev Genotype:    " << prev_genotype << " " << prev_genotype->GetNumOrganisms() << " prev: " << prev_genotype->GetPrev() << "  next: " << prev_genotype->GetNext() << endl;
+    */
   size++;
 }
 

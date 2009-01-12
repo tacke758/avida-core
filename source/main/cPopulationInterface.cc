@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_interface.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,6 +25,7 @@
 
 #include "cPopulationInterface.h"
 
+#include "cEnvironment.h"
 #include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cOrganism.h"
@@ -135,6 +136,11 @@ const tArray<double> & cPopulationInterface::GetResources()
 const tArray<double> & cPopulationInterface::GetDemeResources(int deme_id)
 {
   return m_world->GetPopulation().GetDemeCellResources(deme_id, m_cell_id);
+}
+
+const tArray< tArray<int> >& cPopulationInterface::GetCellIdLists()
+{
+	return m_world->GetPopulation().GetCellIdLists();
 }
 
 void cPopulationInterface::UpdateResources(const tArray<double> & res_change)
@@ -261,6 +267,12 @@ bool cPopulationInterface::TestOnDivide()
 /*! Send a message to the faced organism, failing if this cell does not have 
 neighbors or if the cell currently faced is not occupied. */
 bool cPopulationInterface::SendMessage(cOrgMessage& msg) {
+	static const double drop_prob = m_world->GetConfig().NET_DROP_PROB.Get();
+  if (drop_prob > 0.0 && m_world->GetRandom().P(drop_prob)) {
+		GetDeme()->messageDropped();
+		return false; // message dropped
+	}
+	
   cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id);
   assert(cell.IsOccupied()); // This organism; sanity.
   cPopulationCell* rcell = cell.ConnectionList().GetFirst();
@@ -274,6 +286,41 @@ bool cPopulationInterface::SendMessage(cOrgMessage& msg) {
   recvr->ReceiveMessage(msg);
   return true;
 }
+
+/* Send a message to the given organism */
+bool cPopulationInterface::SendMessage(cOrganism* recvr, cOrgMessage& msg) {
+  assert(recvr != NULL);
+  recvr->ReceiveMessage(msg);
+  return true;
+} //End SendMessage()
+
+
+// Broadcast the message to all living organisms within range
+bool cPopulationInterface::BroadcastMessage(cOrgMessage& msg) {
+  bool all_sent = true;
+  const int bcast_range = m_world->GetConfig().MESSAGE_BCAST_RADIUS.Get();
+  assert(bcast_range >= 0);
+  tVector<int> neighbors;
+  neighbors.Clear();
+  
+  cDeme& deme = m_world->GetPopulation().GetDeme(GetDemeID());
+  deme.GetSurroundingCellIds(neighbors, GetCellID(), bcast_range);
+  
+  for(int i = 0; i < neighbors.Size(); i++) {
+    cPopulationCell& rcell = m_world->GetPopulation().GetCell(neighbors[i]);
+    if(rcell.IsOccupied()) {
+      cOrganism* neighbor = rcell.GetOrganism();
+      assert(neighbor != NULL);
+      
+      if(!SendMessage(neighbor, msg)) {
+        all_sent = false; 
+      }
+    }
+  }
+  
+  return all_sent;
+  
+} //End BroadcastMessage
 
 
 bool cPopulationInterface::BcastAlarm(int jump_label, int bcast_range) {
@@ -334,4 +381,23 @@ void cPopulationInterface::DivideOrgTestamentAmongDeme(double value){
       org->GetPhenotype().EnergyTestament(value/deme->GetOrgCount());
     }
   }
+}
+
+/*! Send a flash to all neighboring organisms. */
+void cPopulationInterface::SendFlash() {
+  cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id);
+  assert(cell.IsOccupied());
+	
+  for(int i=0; i<cell.ConnectionList().GetSize(); ++i) {
+    cPopulationCell* neighbor = cell.ConnectionList().GetFirst();
+    if(neighbor->IsOccupied()) {
+      neighbor->GetOrganism()->ReceiveFlash();
+    }
+    cell.ConnectionList().CircNext();
+  }
+}
+
+int cPopulationInterface::GetStateGridID(cAvidaContext& ctx)
+{
+  return ctx.GetRandom().GetUInt(m_world->GetEnvironment().GetNumStateGrids());
 }

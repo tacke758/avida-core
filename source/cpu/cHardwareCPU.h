@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "hardware_cpu.hh" prior to 11/17/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -183,7 +183,9 @@ protected:
     bool m_no_cpu_cycle_time:1;
     
     bool m_promoters_enabled:1;
-    bool m_constituative_regulation:1;
+    bool m_constitutive_regulation:1;
+    
+    bool m_slip_read_head:1;
   };
 
   // <-- Promoter model
@@ -241,7 +243,6 @@ protected:
   bool ForkThread(); // Adds a new thread based off of m_cur_thread.
   bool KillThread(); // Kill the current thread!
   
-  
   // ---------- Instruction Helpers -----------
   int FindModifiedRegister(int default_register);
   int FindModifiedNextRegister(int default_register);
@@ -254,7 +255,11 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(cAvidaContext& ctx, const int allocated_size);
   
-  int GetCopiedSize(const int parent_size, const int child_size);
+
+  void internalReset();
+  
+  
+  int calcCopiedSize(const int parent_size, const int child_size);
   
   bool Divide_Main(cAvidaContext& ctx, const int divide_point, const int extra_lines=0, double mut_multiplier=1);
   bool Divide_MainRS(cAvidaContext& ctx, const int divide_point, const int extra_lines=0, double mut_multiplier=1); //AWC 06/29/06
@@ -275,13 +280,11 @@ protected:
   cHardwareCPU& operator=(const cHardwareCPU&); // @not_implemented
 
 public:
-  cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
-  explicit cHardwareCPU(const cHardwareCPU&);
+  cHardwareCPU(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareCPU() { ; }
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-classic.cfg"; }
 
-  void Reset();
   bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 
@@ -414,6 +417,7 @@ private:
   bool Inst_CopyRegCA(cAvidaContext& ctx);
   bool Inst_CopyRegCB(cAvidaContext& ctx);
   bool Inst_Reset(cAvidaContext& ctx);
+  //bool Inst_LoadVal(cAvidaContext& ctx);
 
   // Single-Argument Math
   bool Inst_ShiftR(cAvidaContext& ctx);
@@ -467,6 +471,7 @@ private:
   bool Inst_InjectRand(cAvidaContext& ctx);
   bool Inst_InjectThread(cAvidaContext& ctx);
   bool Inst_Transposon(cAvidaContext& ctx);
+	bool Inst_ReproDeme(cAvidaContext& ctx);
   bool Inst_Repro(cAvidaContext& ctx);
   bool Inst_ReproSex(cAvidaContext& ctx);
   bool Inst_TaskPutRepro(cAvidaContext& ctx);
@@ -477,6 +482,7 @@ private:
   bool Inst_Kazi(cAvidaContext& ctx);
   bool Inst_Kazi5(cAvidaContext& ctx);
   bool Inst_Die(cAvidaContext& ctx);
+	bool Inst_Suicide(cAvidaContext& ctx);
   bool Inst_RelinquishEnergyToFutureDeme(cAvidaContext& ctx);
   bool Inst_RelinquishEnergyToNeighborOrganisms(cAvidaContext& ctx);
   bool Inst_RelinquishEnergyToOrganismsInDeme(cAvidaContext& ctx);
@@ -501,15 +507,16 @@ private:
   bool Inst_SenseUnit(cAvidaContext& ctx);
   bool Inst_SenseMult100(cAvidaContext& ctx);
   bool DoSense(cAvidaContext& ctx, int conversion_method, double base);
-  //! Execute the following instruction if all resources are above their min level.
+  bool FindModifiedResource(int& start_index, int& end_index);
+  bool DoCollect(cAvidaContext& ctx, bool env_remove, bool internal_add);
+  bool Inst_Collect(cAvidaContext& ctx);
+  bool Inst_CollectNoEnvRemove(cAvidaContext& ctx);
+  bool Inst_CollectNoInternalAdd(cAvidaContext& ctx);  //! Execute the following instruction if all resources are above their min level.
   bool Inst_IfResources(cAvidaContext& ctx);
-  bool Inst_CollectCellData(cAvidaContext& ctx);
-  bool Inst_KillCellEvent(cAvidaContext& ctx);
-  bool Inst_KillFacedCellEvent(cAvidaContext& ctx);
-  bool Inst_CollectCellDataAndKillEvent(cAvidaContext& ctx);
 
   void DoDonate(cOrganism * to_org);
   void DoEnergyDonate(cOrganism* to_org);
+  void DoEnergyDonatePercent(cOrganism* to_org, const double frac_energy_given);
   bool Inst_DonateRandom(cAvidaContext& ctx);
   bool Inst_DonateKin(cAvidaContext& ctx);
   bool Inst_DonateEditDist(cAvidaContext& ctx);
@@ -519,7 +526,17 @@ private:
   bool Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx);
   bool Inst_DonateNULL(cAvidaContext& ctx);
   bool Inst_DonateFacing(cAvidaContext& ctx);
-
+  bool Inst_ReceiveDonatedEnergy(cAvidaContext& ctx);
+  bool Inst_DonateEnergy(cAvidaContext& ctx);
+  bool Inst_UpdateMetabolicRate(cAvidaContext& ctx);
+  bool Inst_DonateEnergyFaced(cAvidaContext& ctx);
+  bool Inst_RotateToMostNeedy(cAvidaContext& ctx);
+  bool Inst_RequestEnergy(cAvidaContext& ctx);
+  bool Inst_RequestEnergyFlagOn(cAvidaContext& ctx);
+  bool Inst_RequestEnergyFlagOff(cAvidaContext& ctx);
+  bool Inst_IncreaseEnergyDonation(cAvidaContext& ctx);
+  bool Inst_DecreaseEnergyDonation(cAvidaContext& ctx);
+  
   bool Inst_SearchF(cAvidaContext& ctx);
   bool Inst_SearchB(cAvidaContext& ctx);
   bool Inst_MemSize(cAvidaContext& ctx);
@@ -535,18 +552,22 @@ private:
   bool Inst_RotateRightOne(cAvidaContext& ctx);
   bool Inst_RotateLabel(cAvidaContext& ctx);
   bool Inst_RotateOccupiedCell(cAvidaContext& ctx);
-	bool Inst_RotateNextOccupiedCell(cAvidaContext& ctx);
+  bool Inst_RotateNextOccupiedCell(cAvidaContext& ctx);
   bool Inst_RotateUnoccupiedCell(cAvidaContext& ctx);
-	bool Inst_RotateNextUnoccupiedCell(cAvidaContext& ctx);
+  bool Inst_RotateNextUnoccupiedCell(cAvidaContext& ctx);
   bool Inst_RotateEventCell(cAvidaContext& ctx);
   bool Inst_SetCopyMut(cAvidaContext& ctx);
   bool Inst_ModCopyMut(cAvidaContext& ctx);
   bool Inst_GetCellPosition(cAvidaContext& ctx);
   bool Inst_GetCellPositionX(cAvidaContext& ctx);
   bool Inst_GetCellPositionY(cAvidaContext& ctx);
+  
+  bool Inst_SGMove(cAvidaContext& ctx);
+  bool Inst_SGRotateL(cAvidaContext& ctx);
+  bool Inst_SGRotateR(cAvidaContext& ctx);
+  bool Inst_SGSense(cAvidaContext& ctx);
 
   bool Inst_GetDistanceFromDiagonal(cAvidaContext& ctx);
-  // @WRE additions for movement
   bool Inst_Tumble(cAvidaContext& ctx);
   bool Inst_Move(cAvidaContext& ctx);
   bool Inst_MoveToEvent(cAvidaContext& ctx);
@@ -622,6 +643,19 @@ private:
   bool Inst_HeadDivide0_01(cAvidaContext& ctx);
   bool Inst_HeadDivide0_001(cAvidaContext& ctx);
 
+  bool Inst_IfEnergyLow(cAvidaContext& ctx);
+  bool Inst_IfEnergyNotLow(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyLow(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyNotLow(cAvidaContext& ctx);
+  bool Inst_IfEnergyHigh(cAvidaContext& ctx);
+  bool Inst_IfEnergyNotHigh(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyHigh(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyNotHigh(cAvidaContext& ctx);
+  bool Inst_IfEnergyMed(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyMed(cAvidaContext& ctx);
+  bool Inst_IfEnergyInBuffer(cAvidaContext& ctx);
+  bool Inst_IfEnergyNotInBuffer(cAvidaContext& ctx);
+	
   bool Inst_Sleep(cAvidaContext& ctx);
   bool Inst_GetUpdate(cAvidaContext& ctx);
 
@@ -700,6 +734,7 @@ private:
   bool Inst_DropPheromone(cAvidaContext& ctx);
 
   // -------- Opinion support --------
+public:
   /* These instructions interact with the "opinion" support in cOrganism.h.  The
    idea is that we're enabling organisms to express an opinion about *something*,
    where that something is defined by the particular tasks and/or (deme) fitness function
@@ -711,6 +746,45 @@ private:
   bool Inst_SetOpinion(cAvidaContext& ctx);
   //! Retrieve this organism's current opinion.
   bool Inst_GetOpinion(cAvidaContext& ctx);
+
+	// -------- Cell Data Support --------
+public:
+	//! Collect this cell's data, and place it in a register.
+  bool Inst_CollectCellData(cAvidaContext& ctx);
+	//! Detect if this cell's data has changed since the last collection.
+	bool Inst_IfCellDataChanged(cAvidaContext& ctx);
+	bool Inst_KillCellEvent(cAvidaContext& ctx);
+  bool Inst_KillFacedCellEvent(cAvidaContext& ctx);
+  bool Inst_CollectCellDataAndKillEvent(cAvidaContext& ctx);
+	
+private:
+	std::pair<bool, int> m_last_cell_data; //<! If cell data has been previously collected, and it's value.
+	
+	// -------- Synchronization primitives --------
+public:
+  //! Called when the owning organism receives a flash from a neighbor.
+  virtual void ReceiveFlash();
+  //! Sends a "flash" to all neighboring organisms.
+  bool Inst_Flash(cAvidaContext& ctx);
+  //! Test if this organism has ever received a flash.
+  bool Inst_IfRecvdFlash(cAvidaContext& ctx);
+  //! Get if & when this organism last received a flash.
+  bool Inst_FlashInfo(cAvidaContext& ctx);
+  //! Get if (but not when) this organism last received a flash.
+  bool Inst_FlashInfoB(cAvidaContext& ctx);  
+  //! Reset the information this organism has regarding receiving a flash.
+  bool Inst_ResetFlashInfo(cAvidaContext& ctx);  
+  //! Reset the entire CPU.
+  bool Inst_HardReset(cAvidaContext& ctx);
+  //! Current "time": the number of cycles this CPU has been "alive."
+  bool Inst_GetCycles(cAvidaContext& ctx);
+	
+private:
+  /*! Used to track the last flash received; first=whether we've received a flash, 
+	 second= #cycles since we've received a flash, or 0 if we haven't. */
+  std::pair<unsigned int, unsigned int> m_flash_info;
+  //! Cycle timer; counts the number of cycles this virtual CPU has executed.
+  unsigned int m_cycle_counter;	
 };
 
 

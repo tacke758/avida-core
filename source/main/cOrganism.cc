@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "organism.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -33,12 +33,14 @@
 #include "cGenomeUtil.h"
 #include "cGenotype.h"
 #include "cHardwareBase.h"
+#include "cHardwareCPU.h"
 #include "cHardwareManager.h"
 #include "cInjectGenotype.h"
 #include "cInstSet.h"
 #include "cOrgSinkMessage.h"
 #include "cPopulationCell.h"
 #include "cPopulation.h"
+#include "cStateGrid.h"
 #include "cStringUtil.h"
 #include "cTaskContext.h"
 #include "cTools.h"
@@ -60,14 +62,17 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
+  , m_rbins(0)
   , m_input_pointer(0)
   , m_input_buf(world->GetEnvironment().GetInputSize())
   , m_output_buf(world->GetEnvironment().GetOutputSize())
   , m_received_messages(RECEIVED_MESSAGES_SIZE)
+  , m_cur_sg(0)
   , m_sent_value(0)
   , m_sent_active(false)
   , m_test_receive_pos(0)
   , m_pher_drop(false)
+  , frac_energy_donating(m_world->GetConfig().ENERGY_SHARING_PCT.Get())
   , m_max_executed(-1)
   , m_is_running(false)
   , m_is_sleeping(false)
@@ -77,7 +82,8 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
   , m_opinion(0)
 {
-  m_hardware = m_world->GetHardwareManager().Create(this);
+  m_hardware = m_world->GetHardwareManager().Create(ctx, this);
+
 
   initialize(ctx);
 }
@@ -91,14 +97,17 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
+  , m_rbins(0)
   , m_input_pointer(0)
   , m_input_buf(world->GetEnvironment().GetInputSize())
   , m_output_buf(world->GetEnvironment().GetOutputSize())
   , m_received_messages(RECEIVED_MESSAGES_SIZE)
+  , m_cur_sg(0)
   , m_sent_value(0)
   , m_sent_active(false)
   , m_test_receive_pos(0)
   , m_pher_drop(false)
+  , frac_energy_donating(m_world->GetConfig().ENERGY_SHARING_PCT.Get())
   , m_max_executed(-1)
   , m_is_running(false)
   , m_is_sleeping(false)
@@ -108,7 +117,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
   , m_opinion(0)
 {
-  m_hardware = m_world->GetHardwareManager().Create(this, inst_set);
+  m_hardware = m_world->GetHardwareManager().Create(ctx, this, inst_set);
   
   initialize(ctx);
 }
@@ -136,6 +145,7 @@ void cOrganism::initialize(cAvidaContext& ctx)
 }
 
 
+
 cOrganism::~cOrganism()
 {
   assert(m_is_running == false);
@@ -152,12 +162,51 @@ cOrganism::cNetSupport::~cNetSupport()
   for (int i = 0; i < received.GetSize(); i++) delete received[i];
 }
 
-void cOrganism::SetOrgInterface(cOrgInterface* interface)
+void cOrganism::SetOrgInterface(cAvidaContext& ctx, cOrgInterface* interface)
 {
   delete m_interface;
   m_interface = interface;
+  
+  HardwareReset(ctx);
+  
+  // initialize m_rbins as soon as the interface is available
+  m_rbins = m_interface->GetResources();
+  m_rbins.SetAll(0.0);
 }
 
+const cStateGrid& cOrganism::GetStateGrid() const { return m_world->GetEnvironment().GetStateGrid(m_cur_sg); }
+
+double cOrganism::GetRBinsTotal()
+{
+	double total = 0;
+	for(int i = 0; i < m_rbins.GetSize(); i++)
+	{total += m_rbins[i];}
+	
+	return total;
+}
+
+void cOrganism::SetRBins(const tArray<double>& rbins_in) 
+{ 
+	m_rbins = rbins_in;
+	m_phenotype.SetCurRBinsAvail(rbins_in);
+	//@blw does not change cur_rbins_total
+}
+
+void cOrganism::SetRBin(const int index, const double value) 
+{ 
+	m_rbins[index] = value; 
+	m_phenotype.SetCurRBinAvail(index, value);
+	//@blw does not change cur_rbins_total
+}
+
+void cOrganism::AddToRBin(const int index, const double value) 
+{ 
+	m_rbins[index] += value;
+	m_phenotype.AddToCurRBinAvail(index, value);
+	
+	if(value > 0)
+	{ m_phenotype.AddToCurRBinTotal(index, value); }
+}  
 
 double cOrganism::GetTestFitness(cAvidaContext& ctx)
 {
@@ -215,33 +264,36 @@ void cOrganism::DoInput(tBuffer<int>& input_buffer, tBuffer<int>& output_buffer,
 
 void cOrganism::DoOutput(cAvidaContext& ctx, const bool on_divide)
 {
-  DoOutput(ctx, m_input_buf, m_output_buf, on_divide, false);
+  if (m_net) m_net->valid = false;
+  doOutput(ctx, m_input_buf, m_output_buf, on_divide);
 }
 
 
 void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
 {
   m_output_buf.Add(value);
-  DoOutput(ctx, m_input_buf, m_output_buf, false, NetValidate(ctx, value));
+  NetValidate(ctx, value);
+  doOutput(ctx, m_input_buf, m_output_buf, false);
 }
 
 
 void cOrganism::DoOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const int value)
 {
   output_buffer.Add(value);
-  DoOutput(ctx, input_buffer, output_buffer, false, NetValidate(ctx, value));
+  NetValidate(ctx, value);
+  doOutput(ctx, input_buffer, output_buffer, false);
 }
 
 
-void cOrganism::DoOutput(cAvidaContext& ctx, 
+void cOrganism::doOutput(cAvidaContext& ctx, 
                          tBuffer<int>& input_buffer, 
                          tBuffer<int>& output_buffer,
-                         const bool on_divide,
-                         const bool net_valid)
+                         const bool on_divide)
 {
   const int deme_id = m_interface->GetDemeID();
   const tArray<double> & global_resource_count = m_interface->GetResources();
   const tArray<double> & deme_resource_count = m_interface->GetDemeResources(deme_id);
+  const tArray< tArray<int> > & cell_id_lists = m_interface->GetCellIdLists();
   
   tList<tBuffer<int> > other_input_list;
   tList<tBuffer<int> > other_output_list;
@@ -281,14 +333,35 @@ void cOrganism::DoOutput(cAvidaContext& ctx,
   tBuffer<int>* received_messages_point = &m_received_messages;
   if (!m_world->GetConfig().SAVE_RECEIVED.Get()) received_messages_point = NULL;
   
-  cTaskContext taskctx(m_interface, input_buffer, output_buffer, other_input_list, 
-                       other_output_list, net_valid, 0, on_divide, received_messages_point, this);
+  cTaskContext taskctx(this, input_buffer, output_buffer, other_input_list, other_output_list,
+                       m_hardware->GetExtendedMemory(), on_divide, received_messages_point);
                        
   //combine global and deme resource counts
-  const tArray<double> globalAndDeme_resource_count = global_resource_count + deme_resource_count;
+  tArray<double> globalAndDeme_resource_count = global_resource_count + deme_resource_count;
   tArray<double> globalAndDeme_res_change = global_res_change + deme_res_change;
   
-  bool task_completed = m_phenotype.TestOutput(ctx, taskctx, globalAndDeme_resource_count, globalAndDeme_res_change, insts_triggered);
+  // set any resource amount to 0 if a cell cannot access this resource
+  int cell_id=GetCellID();
+  if (cell_id_lists.GetSize())
+  {
+	  for (int i=0; i<cell_id_lists.GetSize(); i++)
+	  {
+		  // if cell_id_lists have been set then we have to check if this cell is in the list
+		  if (cell_id_lists[i].GetSize()) {
+			  int j;
+			  for (j=0; j<cell_id_lists[i].GetSize(); j++)
+			  {
+				  if (cell_id==cell_id_lists[i][j])
+					  break;
+			  }
+			  if (j==cell_id_lists[i].GetSize())
+				  globalAndDeme_resource_count[i]=0;
+		  }
+	  }
+  }
+
+  bool task_completed = m_phenotype.TestOutput(ctx, taskctx, globalAndDeme_resource_count, m_rbins, globalAndDeme_res_change,
+                                               insts_triggered);
   
   //disassemble global and deme resource counts
   global_res_change = globalAndDeme_res_change.Subset(0, global_res_change.GetSize());
@@ -390,24 +463,23 @@ bool cOrganism::NetReceive(int& value)
   return true;
 }
 
-bool cOrganism::NetValidate(cAvidaContext& ctx, int value)
+void cOrganism::NetValidate(cAvidaContext& ctx, int value)
 {
-  if(!m_net) return false;
+  if (!m_net) return;
 
-  assert(m_net);
+  m_net->valid = false;
   
-  if (0xFFFF0000 & value) return false;
+  if (0xFFFF0000 & value) return;
   
   for (int i = 0; i < m_net->received.GetSize(); i++) {
     cOrgSinkMessage* msg = m_net->received[i];
     if (!msg->GetValidated() && (msg->GetOriginalValue() & 0xFFFF) == value) {
       msg->SetValidated();
       assert(m_interface);
-      return m_interface->NetRemoteValidate(ctx, msg);
+      m_net->valid = m_interface->NetRemoteValidate(ctx, msg);
+      break;
     }
   }
-    
-  return false;
 }
 
 bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
@@ -425,7 +497,9 @@ bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
   }
   if (!found) return false;
 
-  int completed = 0;
+  m_net->valid = false;
+  int& completed = m_net->completed;
+  completed = 0;
   while (m_net->last_seq < m_net->seq.GetSize() && m_net->seq[m_net->last_seq].GetReceived()) {
     completed++;
     m_net->last_seq++;
@@ -467,8 +541,9 @@ bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
     tArray<double> res_change(resource_count.GetSize());
     tArray<int> insts_triggered;
 
-    cTaskContext taskctx(m_interface, m_input_buf, m_output_buf, other_input_list, other_output_list, false, completed);
-    m_phenotype.TestOutput(ctx, taskctx, resource_count, res_change, insts_triggered);
+    cTaskContext taskctx(this, m_input_buf, m_output_buf, other_input_list, other_output_list,
+                         m_hardware->GetExtendedMemory());
+    m_phenotype.TestOutput(ctx, taskctx, resource_count, m_rbins, res_change, insts_triggered);
     m_interface->UpdateResources(res_change);
     
     for (int i = 0; i < insts_triggered.GetSize(); i++) {
@@ -480,8 +555,22 @@ bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
   return true;
 }
 
-void cOrganism::NetReset()
+void cOrganism::HardwareReset(cAvidaContext& ctx)
 {
+  if (m_world->GetEnvironment().GetNumStateGrids() > 0 && m_interface) {
+    // Select random state grid in the environment
+    m_cur_sg = m_interface->GetStateGridID(ctx);
+    
+    const cStateGrid& sg = GetStateGrid();
+    
+    tArray<int> sg_state(3 + sg.GetNumStates(), 0);
+    sg_state[0] = sg.GetInitialX();
+    sg_state[1] = sg.GetInitialY();
+    sg_state[2] = sg.GetInitialFacing();
+    
+    m_hardware->SetupExtendedMemory(sg_state);
+  }
+
   if (m_net) {
     while (m_net->pending.GetSize()) delete m_net->pending.Pop();
     for (int i = 0; i < m_net->received.GetSize(); i++) delete m_net->received[i];
@@ -537,6 +626,7 @@ double cOrganism::GetNeutralMax() const { return m_world->GetConfig().NEUTRAL_MA
 void cOrganism::PrintStatus(ostream& fp, const cString& next_name)
 {
   fp << "---------------------------" << endl;
+	fp << "U:" << m_world->GetStats().GetUpdate() << endl;
   m_hardware->PrintStatus(fp);
   m_phenotype.PrintStatus(fp);
   fp << endl;
@@ -669,32 +759,98 @@ bool cOrganism::SendMessage(cAvidaContext& ctx, cOrgMessage& msg)
 {
   assert(m_interface);
   InitMessaging();
-
+	cDeme* deme = m_interface->GetDeme();
+	if(deme == NULL)
+		return true; // in test cpu
+	deme->IncMessageSent();
   // If we're able to succesfully send the message...
   if(m_interface->SendMessage(msg)) {
-    // save it...
-    m_msg->sent.push_back(msg);
+    // If we're remembering messages
+    if (m_world->GetConfig().ORGANISMS_REMEMBER_MESSAGES.Get()) {
+      // save it...
+      m_msg->sent.push_back(msg);
+      // and set the receiver-pointer of this message to NULL.  We don't want to
+      // walk this list later thinking that the receivers are still around.
+      m_msg->sent.back().SetReceiver(0);
+    }
     // stat-tracking...
     m_world->GetStats().SentMessage(msg);
+		m_interface->GetDeme()->MessageSuccessfullySent();
     // check to see if we've performed any tasks...
     DoOutput(ctx);
-    // and set the receiver-pointer of this message to NULL.  We don't want to
-    // walk this list later thinking that the receivers are still around.
-    m_msg->sent.back().SetReceiver(0);
     return true;
   }
-  
+	m_interface->GetDeme()->messageSendFailed();
   return false;
 }
 
 
-#include "cHardwareCPU.h"
+// Broadcast a message - slightly modified version of SendMessage
+bool cOrganism::BroadcastMessage(cAvidaContext& ctx, cOrgMessage& msg)
+{
+  assert(m_interface);
+  InitMessaging();
+ 
+  // If we're able to succesfully send the message...
+  if(m_interface->BroadcastMessage(msg)) {
+    // If we're remembering messages
+    if (m_world->GetConfig().ORGANISMS_REMEMBER_MESSAGES.Get()) {
+      // save it...
+      m_msg->sent.push_back(msg);
+      // and set the receiver-pointer of this message to NULL.  We don't want to
+      // walk this list later thinking that the receivers are still around.
+      m_msg->sent.back().SetReceiver(0);
+    }
+    // stat-tracking...  NOTE: this has receiver not specified, so may be a problem for predicates
+    m_world->GetStats().SentMessage(msg);
+    // check to see if we've performed any tasks...NOTE: this has receiver not specified, so may be a problem for tasks that care
+    DoOutput(ctx);
+    return true;
+  }
+  
+  return false;
+} //End BroadcastMessage()
+
 
 void cOrganism::ReceiveMessage(cOrgMessage& msg)
 {
   InitMessaging();
-  msg.SetReceiver(this);    
-  m_msg->received.push_back(msg);
+  msg.SetReceiver(this);
+  int msg_queue_size = m_world->GetConfig().MESSAGE_QUEUE_SIZE.Get();
+  // are message queues unbounded?
+  if (msg_queue_size >= 0) {
+    // if the message queue size is zero, the incoming message is always dropped
+    if (msg_queue_size == 0) {
+      return;
+    }
+
+    // how many messages in the queue?
+    int num_unretrieved_msgs = m_msg->received.size()-m_msg->retrieve_index;
+    if (num_unretrieved_msgs == msg_queue_size) {
+      // look up message queue behavior
+      int bhvr = m_world->GetConfig().MESSAGE_QUEUE_BEHAVIOR_WHEN_FULL.Get();
+      if (bhvr == 0) {
+        // drop incoming message
+        return;
+      } else if (bhvr == 1 ) {
+        // drop the oldest unretrieved message
+        m_msg->received.erase(m_msg->received.begin()+m_msg->retrieve_index);
+      } else {
+        assert(false);
+        cerr << "ERROR: MESSAGE_QUEUE_BEHAVIOR_WHEN_FULL was set to " << bhvr << "," << endl;
+        cerr << "legal values are:" << endl;
+        cerr << "\t0: drop incoming message if message queue is full (default)" << endl;
+        cerr << "\t1: drop oldest unretrieved message if message queue is full" << endl;
+
+        // TODO: is there a more gracefull way to fail?
+        exit(1);
+      }
+    } // end if message queue is full
+    m_msg->received.push_back(msg);
+  } else {
+    // unbounded message queues
+    m_msg->received.push_back(msg);
+  }
 	
 	
 	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
@@ -709,14 +865,26 @@ const cOrgMessage* cOrganism::RetrieveMessage()
 {
   InitMessaging();
 
-  if(m_msg->retrieve_index < m_msg->received.size()) {
+  assert(m_msg->retrieve_index <= m_msg->received.size());
+
+  // Return null if no new messages have been received
+  if (m_msg->retrieve_index == m_msg->received.size())
+    return 0;
+
+  if (m_world->GetConfig().ORGANISMS_REMEMBER_MESSAGES.Get()) {
+    // Return the next unretrieved message and incrememt retrieve_index
     return &m_msg->received.at(m_msg->retrieve_index++);
+  } else {
+    // Not remembering messages, return the front of the message queue.
+    // Notice that retrieve_index will always equal 0 if
+    // ORGANISMS_REMEMBER_MESSAGES is false.
+    const cOrgMessage* msg = &m_msg->received.front();
+    m_msg->received.pop_front();
+    return msg;
   }
-  
-  return 0;
 }
 
-// Brian Movement
+
 void cOrganism::Move(cAvidaContext& ctx)
 {
   assert(m_interface);
@@ -748,4 +916,27 @@ void cOrganism::SetOpinion(const Opinion& opinion)
 {
   InitOpinions();
   m_opinion->opinion_list.push_back(std::make_pair(opinion, m_world->GetStats().GetUpdate()));
+}
+
+
+/*! Called when an organism receives a flash from a neighbor. */
+void cOrganism::ReceiveFlash() {
+  m_hardware->ReceiveFlash();
+}
+
+
+/*! Called by the "flash" instruction. */
+void cOrganism::SendFlash(cAvidaContext& ctx) {
+  assert(m_interface);
+  
+  // Check to see if we should lose the flash:
+  if((m_world->GetConfig().SYNC_FLASH_LOSSRATE.Get() > 0.0) &&
+     (m_world->GetRandom().P(m_world->GetConfig().SYNC_FLASH_LOSSRATE.Get()))) {
+    return;
+  }
+  
+  // Flash not lost; continue.
+  m_interface->SendFlash();
+  m_world->GetStats().SentFlash(*this);
+  DoOutput(ctx);
 }

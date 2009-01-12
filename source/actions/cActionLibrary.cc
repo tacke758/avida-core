@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 5/20/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -31,8 +31,10 @@
 #include "PrintActions.h"
 #include "SaveLoadActions.h"
 
+#include "tDMSingleton.h"
 
-cActionLibrary* cActionLibrary::ConstructDefaultActionLibrary()
+
+cActionLibrary* cActionLibrary::buildDefaultActionLibrary()
 {
   cActionLibrary* actlib = new cActionLibrary();
 
@@ -45,6 +47,18 @@ cActionLibrary* cActionLibrary::ConstructDefaultActionLibrary()
   
   return actlib;
 }
+
+
+void cActionLibrary::Initialize()
+{
+  tDMSingleton<cActionLibrary>::Initialize(&cActionLibrary::buildDefaultActionLibrary);
+}
+
+cActionLibrary& cActionLibrary::GetInstance()
+{
+  return tDMSingleton<cActionLibrary>::GetInstance();
+}
+
 
 const cString cActionLibrary::DescribeAll() const
 {

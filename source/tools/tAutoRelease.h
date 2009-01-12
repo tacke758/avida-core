@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 7/18/07.
- *  Copyright 2007-2008 Michigan State University. All rights reserved.
+ *  Copyright 2007-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -46,7 +46,8 @@ public:
   inline bool IsNull() const { return !(m_value); }
   
   //! Access the contents
-  inline T& operator*() { return *m_value; }
+  inline T* operator->() const { return m_value; }
+  inline T& operator*() const { return *m_value; }
   
   //! Take control of the contents
   inline T* Release() { T* value = m_value; m_value = NULL; return value; }

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tDataEntryCommand.hh" prior to 12/7/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -29,41 +29,41 @@
 #include <iostream>
 
 #ifndef cFlexVar_h
-#define "cFlexVar.h"
+#include "cFlexVar.h"
 #endif
 
 #ifndef cStringList_h
 #include "cStringList.h"
 #endif
 
-#ifndef tDataEntryBase_h
-#include "tDataEntryBase.h"
+#ifndef tDataEntry_h
+#include "tDataEntry.h"
 #endif
 
 class cString;
 
 
-template <class T> class tDataEntryCommand {
+template <class T> class tDataEntryCommand
+{
 private:
-  tDataEntryBase<T> * data_entry;
-  cStringList args;
+  tDataEntry<T>* m_data_entry;
+  cFlexVar m_idx;
+  cStringList m_args;
+  
 public:
-  tDataEntryCommand(tDataEntryBase<T> * _entry, const cString & _args="")
-    : data_entry(_entry), args(_args, ':') { ; }
+  tDataEntryCommand(tDataEntry<T>* entry, const cString& idx = "", const cString& args = "")
+    : m_data_entry(entry), m_idx(idx), m_args(args, ':') { ; }
   
-  const cStringList & GetArgs() const { return args; }
-  bool HasArg(const cString & test_arg) { return args.HasString(test_arg); }
-
-  const cString & GetName() const { return data_entry->GetName(); }
-  const cString & GetDesc() const { return data_entry->GetDesc(); }
-  int GetCompareType() const { return data_entry->GetCompareType(); }
-  const cString & GetNull() const { return data_entry->GetNull(); }
-  const cString & GetHtmlCellFlags() const { return data_entry->GetHtmlCellFlags(); }
-  cFlexVar GetValue() const { assert(data_entry != NULL); return data_entry->Get(); }
-  cFlexVar GetValue(const T * temp_target) const { return data_entry->Get(temp_target); }
+  bool HasArg(const cString& test_arg) const { return m_args.HasString(test_arg); }
   
-  void SetTarget(T * _target) { data_entry->SetTarget(_target); }
-  bool SetValue(const cString & value) { return data_entry->Set(value); }
+  const cString& GetName() const { return m_data_entry->GetName(); }
+  cString GetDesc(const T* target) const { return m_data_entry->GetDesc(target, m_idx); }
+  int GetCompareType() const { return m_data_entry->GetCompareType(); }
+  const cString& GetNull() const { return m_data_entry->GetNull(); }
+  const cString& GetHtmlCellFlags() const { return m_data_entry->GetHtmlCellFlags(); }
+  
+  bool SetValue(T* target, const cString& value) const { return m_data_entry->Set(target, m_idx, m_args, value); }
+  cFlexVar GetValue(const T* target) const { return m_data_entry->Get(target, m_idx, m_args); }
 };
 
 #endif

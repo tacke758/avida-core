@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 1/13/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@
 #include "PlatformExpert.h"
 
 #include "ASCoreLib.h"
+#include "ASAvidaLib.h"
+#include "ASAnalyzeLib.h"
 
 #include "cASLibrary.h"
 #include "cDirectInterpretASTVisitor.h"
@@ -42,8 +44,12 @@ int main (int argc, char * const argv[])
 {
   PlatformExpert::Initialize();
 
+  Avida::PrintVersionBanner();
+
   cASLibrary* lib = new cASLibrary;  
   RegisterASCoreLib(lib);
+  RegisterASAvidaLib(lib);
+  RegisterASAnalyzeLib(lib);
   
   cParser* parser = new cParser;
   

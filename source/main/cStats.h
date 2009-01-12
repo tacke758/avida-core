@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "stats.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2002 California Institute of Technology.
  *
  *
@@ -237,9 +237,21 @@ private:
   tArray<double> task_cur_max_quality;
   tArray<double> task_last_max_quality;
   tArray<int> task_exe_count;
+  
+  // Stats for internal resource bins and use of internal resources
+  tArray<int> task_internal_cur_count;
+  tArray<int> task_internal_last_count;
+  tArray<double> task_internal_cur_quality;
+  tArray<double> task_internal_last_quality;
+  tArray<double> task_internal_cur_max_quality;
+  tArray<double> task_internal_last_max_quality;
 
-  tArray<double> reaction_count;
-  tArray<double> reaction_add_reward;
+  tArray<int> m_reaction_cur_count;
+  tArray<int> m_reaction_last_count;
+  tArray<double> m_reaction_cur_add_reward;
+  tArray<double> m_reaction_last_add_reward;
+  tArray<int> m_reaction_exe_count;
+  
   tArray<double> resource_count;
   tArray<int> resource_geometry;
   tArray< tArray<double> > spatial_res_count;
@@ -530,20 +542,15 @@ public:
   void RecordBirth(int cell_id, int genotype_id, bool breed_true);
   void RecordDeath() { num_deaths++; }
   void AddGenotype() { tot_genotypes++; }
-  void RemoveGenotype(int id_num, int parent_id,
-			     int parent_distance, int depth, int max_abundance,
-			     int parasite_abundance, int age, int length);
-  void AddThreshold(int id_num, const char * name,
-				  int species_num=-1);
+  void RemoveGenotype(int id_num, int parent_id, int parent_distance, int depth, int max_abundance,
+                      int parasite_abundance, int age, int length);
+  void AddThreshold(int id_num, const char * name, int species_num=-1);
   void RemoveThreshold() { num_threshold--; }
   void AddSpecies() { tot_species++; num_species++; }
-  void RemoveSpecies(int id_num, int parent_id,
-			 int max_gen_abundance, int max_abundance, int age);
+  void RemoveSpecies(int id_num, int parent_id, int max_gen_abundance, int max_abundance, int age);
   void AddLineage() { tot_lineages++; num_lineages++; }
-  void RemoveLineage(int id_num, int parent_id, int update_born,
-		     double generation_born, int total_CPUs,
-		     int total_genotypes, double fitness, 
-		     double lineage_stat1, double lineage_stat2 );
+  void RemoveLineage(int id_num, int parent_id, int update_born, double generation_born, int total_CPUs,
+                     int total_genotypes, double fitness, double lineage_stat1, double lineage_stat2 );
 				
   void IncExecuted() { num_executed++; }
 
@@ -551,27 +558,40 @@ public:
   void AddCurTaskQuality(int task_num, double quality) 
   {  
 	  task_cur_quality[task_num] += quality;
-	  if (quality > task_cur_max_quality[task_num])
-		  task_cur_max_quality[task_num] = quality;
+	  if (quality > task_cur_max_quality[task_num]) task_cur_max_quality[task_num] = quality;
   }
   void AddLastTask(int task_num) { task_last_count[task_num]++; }
   void AddLastTaskQuality(int task_num, double quality) 
   { 
 	  task_last_quality[task_num] += quality; 
-	  if (quality > task_last_max_quality[task_num])
-		  task_last_max_quality[task_num] = quality;
+	  if (quality > task_last_max_quality[task_num]) task_last_max_quality[task_num] = quality;
   }
-  void IncTaskExeCount(int task_num, int task_count) 
-    { task_exe_count[task_num] += task_count; }
+  void IncTaskExeCount(int task_num, int task_count) { task_exe_count[task_num] += task_count; }
   void ZeroTasks();
   
   void AddLastSense(int res_comb_index) { sense_last_count[res_comb_index]++; }
-  void IncLastSenseExeCount(int res_comb_index, int count) 
-    { sense_last_exe_count[res_comb_index]+= count; }
+  void IncLastSenseExeCount(int res_comb_index, int count) { sense_last_exe_count[res_comb_index]+= count; }
     
-  void SetReactions(const tArray<double> &_in) { reaction_count = _in; }
-  void AddLastReactionAddReward(int _id, double _reward) { reaction_add_reward[_id] += _reward; }
-  void ZeroRewards();
+  // internal resource bins and use of internal resources
+  void AddCurInternalTask(int task_num) { task_internal_cur_count[task_num]++; }
+  void AddCurInternalTaskQuality(int task_num, double quality)
+  {
+  	task_internal_cur_quality[task_num] += quality;
+  	if(quality > task_internal_cur_max_quality[task_num])	task_internal_cur_max_quality[task_num] = quality;
+  }
+  void AddLastInternalTask(int task_num) { task_internal_last_count[task_num]++; }
+  void AddLastInternalTaskQuality(int task_num, double quality)
+  {
+  	task_internal_last_quality[task_num] += quality;
+  	if(quality > task_internal_last_max_quality[task_num]) task_internal_last_max_quality[task_num] = quality;
+  }
+  
+  void AddCurReaction(int reaction) { m_reaction_cur_count[reaction]++; }
+  void AddLastReaction(int reaction) { m_reaction_last_count[reaction]++; }
+  void AddCurReactionAddReward(int reaction, double reward) { m_reaction_cur_add_reward[reaction] += reward; }
+  void AddLastReactionAddReward(int reaction, double reward) { m_reaction_last_add_reward[reaction] += reward; }
+  void IncReactionExeCount(int reaction, int count) { m_reaction_exe_count[reaction] += count; }
+  void ZeroReactions();
   
   void SetResources(const tArray<double> &_in) { resource_count = _in; }
   void SetResourcesGeometry(const tArray<int> &_in) { resource_geometry = _in;}
@@ -579,10 +599,7 @@ public:
     spatial_res_count = _in;
   }
 
-  void SetInstName(int id, const cString & name) {
-    assert(id < inst_names.GetSize());
-    inst_names[id] = name;
-  }
+  void SetInstName(int id, const cString & name) { assert(id < inst_names.GetSize()); inst_names[id] = name; }
   void SetReactionName(int id, const cString & name) { reaction_names[id] = name; }
   void SetResourceName(int id, const cString & name) { resource_names[id] = name; }
 
@@ -636,8 +653,16 @@ public:
   double GetTaskMaxCurQuality(int task_num) const { return task_cur_max_quality[task_num];}
   double GetTaskMaxLastQuality(int task_num) const { return task_last_max_quality[task_num];}
   int GetTaskExeCount(int task_num) const { return task_exe_count[task_num]; }
+  
+  // internal resource bins and use of internal resources
+  int GetInternalTaskCurCount(int task_num) const { return task_internal_cur_count[task_num]; }
+  double GetInternalTaskCurQuality(int task_num) const { return task_internal_cur_quality[task_num]/(double)task_internal_cur_count[task_num]; }
+  double GetInternalTaskMaxCurQuality(int task_num) const { return task_internal_cur_max_quality[task_num]; }
+  int GetInternalTaskLastCount(int task_num) const { return task_internal_last_count[task_num]; }
+  double GetInternalTaskLastQuality(int task_num) const { return task_internal_last_quality[task_num]/(double)task_internal_last_count[task_num]; }
+  double GetInternalTaskMaxLastQuality(int task_num) const { return task_internal_last_max_quality[task_num]; }
 
-  const tArray<double> & GetReactions() const { return reaction_count; }
+  const tArray<int>& GetReactions() const { return m_reaction_last_count; }
   const tArray<double> & GetResources() const { return resource_count; }
 
   // market info
@@ -693,10 +718,6 @@ public:
 
   int GetNumSenseSlots();
 
-/*  int getNumAsleep(int demeID) { return numAsleep[demeID]; }
-  void incNumAsleep(int demeID) { numAsleep[demeID]++; }
-  void decNumAsleep(int demeID) { numAsleep[demeID]--; }
-*/
   double GetAveSpeculative() const { return (m_spec_num) ? ((double)m_spec_total / (double)m_spec_num) : 0.0; }
   int GetSpeculativeWaste() const { return m_spec_waste; }
 
@@ -719,13 +740,17 @@ public:
   void PrintParasiteData(const cString& filename);
   void PrintStatsData(const cString& filename);
   void PrintCountData(const cString& filename);
+	void PrintMessageData(const cString& filename);
   void PrintTotalsData(const cString& filename);
   void PrintTasksData(const cString& filename);
   void PrintTasksExeData(const cString& filename);
   void PrintTasksQualData(const cString& filename);
+  void PrintDynamicMaxMinData(const cString& filename);
   void PrintReactionData(const cString& filename);
+  void PrintReactionExeData(const cString& filename);
   void PrintCurrentReactionData(const cString& filename);
   void PrintReactionRewardData(const cString& filename);
+  void PrintCurrentReactionRewardData(const cString& filename);
   void PrintResourceData(const cString& filename);
   void PrintSpatialResData(const cString& filename, int i);
   void PrintTimeData(const cString& filename);
@@ -736,11 +761,13 @@ public:
   void PrintMarketData(const cString& filename);
   void PrintSenseData(const cString& filename);
   void PrintSenseExeData(const cString& filename);
+  void PrintInternalTasksData(const cString& filename);
+  void PrintInternalTasksQualData(const cString& filename);
   void PrintSleepData(const cString& filename);
   void PrintCompetitionData(const cString& filename);
-  // @WRE: Added event for printing visit counts
   void PrintCellVisitsData(const cString& filename);
-
+  void PrintExtendedTimeData(const cString& filename);
+  
   // deme predicate stats
   void IncEventCount(int x, int y);
   void IncPredSat(int cell_id);
@@ -811,7 +838,13 @@ public:
   void PrintDemeOrgTasksData(const cString& filename);
   void PrintDemeOrgTasksExeData(const cString& filename);
   void PrintDemeOrgReactionData(const cString& filename);
+  void PrintDemeCurrentTaskExeData(const cString& filename);
+  void PrintCurrentTaskCounts(const cString& filename);
   void PrintPerDemeGenPerFounderData(const cString& filename);
+	void PrintDemeMigrationSuicidePoints(const cString& filename);
+
+	
+
 
   void IncNumOccupiedDemes() { m_num_occupied_demes++; }
   void ClearNumOccupiedDemes() { m_num_occupied_demes = 0; }
@@ -836,6 +869,33 @@ public:
   
 private:
   std::vector<double> m_deme_fitness; //!< Fitness of each deme during last deme competition.
+	
+	// -------- Cell data support --------
+public:
+	//! Prints the cell data from every cell in the population.
+	void PrintCellData(const cString& filename);
+	
+	// -------- Opinion support --------
+public:
+	//! Prints the current opinions of all organisms in the population.
+	void PrintCurrentOpinions(const cString& filename);
+	
+	// -------- Synchronization support --------
+public:
+	typedef std::vector<int> CellFlashes; //!< Typedef for a list of cell IDs.
+	typedef std::map<int, CellFlashes> DemeFlashes; //!< Typedef for cell IDs (in this deme) -> list of cell IDs.
+	typedef std::map<int, DemeFlashes> PopulationFlashes; //!< Typedef for deme IDs -> flashes in that deme.
+  //! Called immediately after an organism has issued a "flash" to its neighbors.
+  void SentFlash(cOrganism& organism);
+	//! Retrieve the cell ID -> flash time map.
+	const PopulationFlashes& GetFlashTimes() { return m_flash_times; }
+  //! Print statistics about synchronization flashes.
+  void PrintSynchronizationData(const cString& filename);
+  //! Print detailed information regarding synchronization flashes.
+  void PrintDetailedSynchronizationData(const cString& filename);
+protected:
+  int m_flash_count; //!< Number of flashes that have occured since last PrintSynchronizationData.
+	PopulationFlashes m_flash_times; //!< For tracking flashes that have occurred throughout this population.
 };
 
 

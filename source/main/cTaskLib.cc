@@ -4,7 +4,7 @@
  *  Avida
  *
  *  Called "task_lib.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -29,12 +29,14 @@
 #include "cArgSchema.h"
 #include "cDeme.h"
 #include "cEnvReqs.h"
-#include "tHashTable.h"
 #include "cTaskState.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cOrgMessagePredicate.h"
 #include "cOrgMovementPredicate.h"
+#include "cStateGrid.h"
+#include "tArrayUtils.h"
+#include "tHashTable.h"
 
 #include "platform.h"
 
@@ -355,15 +357,13 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
   else if (name == "match_number")
     Load_MatchNumber(name, info, envreqs, errors);
   
+  // Sequence Tasks
   if (name == "sort_inputs")
     Load_SortInputs(name, info, envreqs, errors);
   else if (name == "fibonacci_seq")
     Load_FibonacciSequence(name, info, envreqs, errors);
   
-  // Optimization Tasks
-  if (name == "optimize")
-    Load_Optimize(name, info, envreqs, errors);
-  
+  // Math Tasks
   if (name == "mult")
     Load_Mult(name, info, envreqs, errors);
   else if (name == "div")
@@ -381,6 +381,10 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
   else if (name == "cosine")
     Load_Cosine(name, info, envreqs, errors);
   
+  
+  // Optimization Tasks
+  if (name == "optimize")
+    Load_Optimize(name, info, envreqs, errors);
   
   // Communication Tasks
   if (name == "comm_echo")
@@ -422,6 +426,11 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
     NewTask(name, "Moved into cell containing event", &cTaskLib::Task_MoveToEvent);
   else if(name == "event_killed")
     NewTask(name, "Killed event", &cTaskLib::Task_EventKilled);
+  
+  // Optimization Tasks
+  if (name == "sg_path_traversal")
+    Load_SGPathTraversal(name, info, envreqs, errors);  
+  
   
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -1899,7 +1908,11 @@ void cTaskLib::Load_MatchStr(const cString& name, const cString& argstr, cEnvReq
 {
   cArgSchema schema;
   schema.AddEntry("string", 0, cArgSchema::SCHEMA_STRING);
+  schema.AddEntry("partial",0, 0);
+  schema.AddEntry("binary",1,1);
+  schema.AddEntry("pow",0,2.0);
   cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
+  envreqs.SetMinOutputs(args->GetString(0).GetSize());
   if (args) NewTask(name, "MatchStr", &cTaskLib::Task_MatchStr, 0, args);
 }
 
@@ -1911,23 +1924,40 @@ double cTaskLib::Task_MatchStr(cTaskContext& ctx) const
   //  temp_buf.Pop(); // pop the signal value off of the buffer
   
   const cString& string_to_match = ctx.GetTaskEntry()->GetArguments().GetString(0);
+  int partial = ctx.GetTaskEntry()->GetArguments().GetInt(0);
+  int binary = ctx.GetTaskEntry()->GetArguments().GetInt(1);
+//  double mypow = ctx.GetTaskEntry()->GetArguments().GetDouble(0);
   int string_index;
   int num_matched = 0;
   int test_output;
   int max_num_matched = 0;
-  
-  if (temp_buf.GetNumStored() > 0) {
-    test_output = temp_buf[0];
-    
-    for (int j = 0; j < string_to_match.GetSize(); j++) {  
-      string_index = string_to_match.GetSize() - j - 1; // start with last char in string
-      int k = 1 << j;
-      if ((string_to_match[string_index] == '0' && !(test_output & k)) ||
-          (string_to_match[string_index] == '1' && (test_output & k))) num_matched++;
+  int num_real=0;
+
+  if (!binary) {
+    if (temp_buf.GetNumStored() > 0) {
+      test_output = temp_buf[0];
+      
+      for (int j = 0; j < string_to_match.GetSize(); j++) {  
+	string_index = string_to_match.GetSize() - j - 1; // start with last char in string
+	int k = 1 << j;
+	if ((string_to_match[string_index] == '0' && !(test_output & k)) ||
+	    (string_to_match[string_index] == '1' && (test_output & k))) num_matched++;
+      }
+      max_num_matched = num_matched;
     }
-    max_num_matched = num_matched;
   }
-  
+  else {
+    for (int j = 0; j < string_to_match.GetSize(); j++)
+      {
+        if (string_to_match[j]!='9')
+          num_real++;
+        if (string_to_match[j]=='0' && temp_buf[j]==0 ||
+            string_to_match[j]=='1' && temp_buf[j]==1)
+          num_matched++;
+      }
+    max_num_matched = num_matched;
+
+  }
   bool used_received = false;
   if (ctx.GetReceivedMessages()) {
     tBuffer<int> received(*(ctx.GetReceivedMessages()));
@@ -1952,7 +1982,12 @@ double cTaskLib::Task_MatchStr(cTaskContext& ctx) const
   double bonus = 0.0;
   // return value between 0 & 1 representing the percentage of string that was matched
   double base_bonus = static_cast<double>(max_num_matched) * 2.0 / static_cast<double>(string_to_match.GetSize()) - 1;
-  
+
+  if (partial)
+    {
+      base_bonus=double(max_num_matched)*2/double(num_real) -1;
+    }
+
   if (base_bonus > 0.0) {
     bonus = pow(base_bonus, 2);
     if (used_received)
@@ -1962,6 +1997,7 @@ double cTaskLib::Task_MatchStr(cTaskContext& ctx) const
   }
   return bonus;
 }
+
 
 
 void cTaskLib::Load_MatchNumber(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
@@ -2031,7 +2067,7 @@ double cTaskLib::Task_SortInputs(cTaskContext& ctx) const
   int maxscore = 0;
   
   // add all valid inputs into the value map
-  for (int i = 0; i < size; i++) valmap.Add(ctx.GetInputAt(i), -1);
+  for (int i = 0; i < size; i++) valmap.Add(ctx.GetOrganism()->GetInputAt(i), -1);
   
   int span_start = -1;
   int span_end = stored;
@@ -2103,7 +2139,7 @@ double cTaskLib::Task_SortInputs(cTaskContext& ctx) const
     for (int i = 0; i < size; i++) {
       int idx;
       // if input was not observed
-      if (valmap.Find(ctx.GetInputAt(i), idx) && idx == -1) {
+      if (valmap.Find(ctx.GetOrganism()->GetInputAt(i), idx) && idx == -1) {
         maxscore += count; // add to the maximum move count
         score += count; // missing values, scored as maximally out of order
         count++; // increment observed count
@@ -2240,7 +2276,71 @@ double cTaskLib::Task_Optimize(cTaskContext& ctx) const
   double Fx = 0.0;
   
   // some of the problems don't need double variables but use the bit string as a bit string
-  if (function==18)
+  // string match, Fx=length - num_matched (0 best, length worst)
+  if (function==20)
+    {
+      const cString& string_to_match = args.GetString(0);
+      int matched=0;
+      for (int i=0; i<args.GetInt(2); i++)
+        {
+          if ((string_to_match[i] == '0' && ctx.GetOutputBuffer()[i]==0)  ||
+              (string_to_match[i] == '1' && ctx.GetOutputBuffer()[i]==1))
+            matched++;
+        }
+      Fx=args.GetInt(2) - matched;
+    }
+  // string with all 1's at beginning until pattern 0101, reward for # 1's
+  else if (function==21)
+    {
+      int numOnes=0;
+      int patFound=0;
+      for (int i=0; i<args.GetInt(2)-3; i++)
+        {
+          if (ctx.GetOutputBuffer()[i]==1)
+            numOnes++;
+          else
+            {
+              if (ctx.GetOutputBuffer()[i+1]==1
+                  && ctx.GetOutputBuffer()[i+2]==0 && ctx.GetOutputBuffer()[i+3]==1)
+                patFound=1;
+              break;
+            }
+        }
+      if (patFound)
+        Fx=args.GetInt(2)-4-numOnes;
+      else
+        Fx=args.GetInt(2);
+    }
+  // simply rewared for number of 1's at beginning of string, maxFx=length of string
+  else if (function==22)
+    {
+      int numOnes=0;
+      for (int i=0; i<args.GetInt(2); i++)
+        {
+          if (ctx.GetOutputBuffer()[i]==1)
+            numOnes++;
+          else
+            break;
+        }
+      Fx=args.GetInt(2)-numOnes;
+    }
+
+  // simply reward for number 0's in string
+  else if (function==23)
+    {
+      int numZeros=0;
+      for (int i=0; i<args.GetInt(2); i++)
+        {
+          if (ctx.GetOutputBuffer()[i]==0)
+            numZeros++;
+          else
+            break;
+        }
+      Fx=args.GetInt(2)-numZeros;
+    }
+
+
+  else if (function==18)
   {
     int tot=0;
     for (int i=0; i<30; i++)
@@ -2862,13 +2962,13 @@ double cTaskLib::Task_CommNot(cTaskContext& ctx) const
 
 double cTaskLib::Task_NetSend(cTaskContext& ctx) const
 {
-  return 1.0 * ctx.GetNetCompleted();
+  return 1.0 * ctx.GetOrganism()->NetCompleted();
 }
 
 
 double cTaskLib::Task_NetReceive(cTaskContext& ctx) const
 {
-  if (ctx.NetIsValid()) return 1.0;
+  if (ctx.GetOrganism()->NetIsValid()) return 1.0;
   return 0.0;
 }
 
@@ -2899,20 +2999,18 @@ double cTaskLib::Task_MoveNotUpGradient(cTaskContext& ctx) const {
 }
 
 double cTaskLib::Task_MoveToRightSide(cTaskContext& ctx) const {	
-  cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
-  std::pair<int, int> location = deme.GetCellPosition(ctx.GetOrgInterface()->GetCellID());
+  cDeme* deme = ctx.GetOrganism()->GetDeme();
+  std::pair<int, int> location = deme->GetCellPosition(ctx.GetOrganism()->GetCellID());
   
-  if(location.first == m_world->GetConfig().WORLD_X.Get()-1)
-    return 1.0;
+  if (location.first == m_world->GetConfig().WORLD_X.Get() - 1) return 1.0;
   return 0.0;
 }
 
 double cTaskLib::Task_MoveToLeftSide(cTaskContext& ctx) const {
-  cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
-  std::pair<int, int> location = deme.GetCellPosition(ctx.GetOrgInterface()->GetCellID());
+  cDeme* deme = ctx.GetOrganism()->GetDeme();
+  std::pair<int, int> location = deme->GetCellPosition(ctx.GetOrganism()->GetCellID());
   
-  if(location.first == 0)
-    return 1.0;
+  if (location.first == 0) return 1.0;
   return 0.0;
 }
 
@@ -2930,30 +3028,31 @@ double cTaskLib::Task_Move(cTaskContext& ctx) const
 double cTaskLib::Task_MoveToTarget(cTaskContext& ctx) const
 //Note - a generic version of this is now at - Task_MoveToMovementEvent
 {
-  cOrgInterface* iface = ctx.GetOrgInterface();
+  cOrganism* org = ctx.GetOrganism();
+  
+  if (org->GetCellID() == -1) return 0.0;		
 	
-  if(ctx.GetOrganism()->GetCellID() == -1) {
-    return 0.0;		
-  }
-	
-  cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
-  int celldata = m_world->GetPopulation().GetCell(iface->GetCellID()).GetCellData();
-
-  int current_cell = deme.GetRelativeCellID(iface->GetCellID());
-  int prev_target = deme.GetRelativeCellID(iface->GetPrevTaskCellID());
+  cDeme* deme = org->GetDeme();
+  assert(deme);
+  
+  int cell_data = org->GetCellData();
+  if (cell_data <= 0) return 0.0;
+  
+  int current_cell = deme->GetRelativeCellID(org->GetCellID());
+  int prev_target = deme->GetRelativeCellID(org->GetPrevTaskCellID());
   
   // If the organism is currently on a target cell, see which target cell it previously
   // visited.  Since we want them to move back and forth, only reward if we are on
   // a different target cell.
 
-  if(celldata > 1) 
+  if (cell_data > 1) 
   {
     if (current_cell == prev_target) {
       // At some point, we may want to return a fraction
       return 0;
     } else {
-      iface->AddReachedTaskCell();
-      iface->SetPrevTaskCellID(current_cell);
+      org->AddReachedTaskCell();
+      org->SetPrevTaskCellID(current_cell);
       return 1.0;
     }
   }
@@ -2962,97 +3061,151 @@ double cTaskLib::Task_MoveToTarget(cTaskContext& ctx) const
 
 } //End cTaskLib::TaskMoveToTarget()
 
-double cTaskLib::Task_MoveToMovementEvent(cTaskContext& ctx) const {
+double cTaskLib::Task_MoveToMovementEvent(cTaskContext& ctx) const
+{
+  cOrganism* org = ctx.GetOrganism();
+  
+  if (org->GetCellID() == -1) return 0.0;		
 	
-  if(ctx.GetOrganism()->GetCellID() == -1) {
-    return 0.0;		
-  }	
-	
-  cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
-  int cell_data = m_world->GetPopulation().GetCell(ctx.GetOrgInterface()->GetCellID()).GetCellData();
-  cOrgInterface* iface = ctx.GetOrgInterface();
-
-  if(cell_data <= 0)
-    return 0.0;
+  cDeme* deme = org->GetDeme();
+  assert(deme);
+  
+  int cell_data = org->GetCellData();
+  if (cell_data <= 0) return 0.0;
     
-  for(int i = 0; i < deme.GetNumMovementPredicates(); i++) {
-      if(deme.GetMovPredicate(i)->GetEvent(0)->GetEventID() == cell_data) {
-        iface->AddReachedTaskCell();
-        iface->SetPrevTaskCellID(cell_data);
-        return 1.0;
-      }
+  for (int i = 0; i < deme->GetNumMovementPredicates(); i++) {
+    if (deme->GetMovPredicate(i)->GetEvent(0)->GetEventID() == cell_data) {
+      org->AddReachedTaskCell();
+      org->SetPrevTaskCellID(cell_data);
+      return 1.0;
+    }
   }
   return 0.0;
 }
 
 
-double cTaskLib::Task_MoveBetweenMovementEvent(cTaskContext& ctx) const {
-	
-  if(ctx.GetOrganism()->GetCellID() == -1) {
-    return 0.0;		
-  }	
-	
-  cDeme& deme = m_world->GetPopulation().GetDeme(ctx.GetOrgInterface()->GetDemeID());
-  int cell_data = m_world->GetPopulation().GetCell(ctx.GetOrgInterface()->GetCellID()).GetCellData();
-  cOrgInterface* iface = ctx.GetOrgInterface();
-  int prev_target = deme.GetRelativeCellID(iface->GetPrevTaskCellID());
+double cTaskLib::Task_MoveBetweenMovementEvent(cTaskContext& ctx) const
+{	
+  cOrganism* org = ctx.GetOrganism();
 
-//  int cellid = ctx.GetOrgInterface()->GetCellID();
+  if (org->GetCellID() == -1) return 0.0;
+	
+  cDeme* deme = org->GetDeme();
+  assert(deme);
+
+  int cell_data = org->GetCellData();
+  
+  int prev_target = deme->GetRelativeCellID(org->GetPrevTaskCellID());
 
   // NOTE: as of now, orgs aren't rewarded if they touch a target more than
   //   once in a row.  Could be useful in the future to have fractional reward
   //   or something.
-  if( (cell_data <= 0) || (cell_data == prev_target) )
-    return 0.0;
+  if ( (cell_data <= 0) || (cell_data == prev_target) ) return 0.0;
     
-  for(int i = 0; i < deme.GetNumMovementPredicates(); i++) {
-      // NOTE: having problems with calling the GetNumEvents function for some reason.  FIXME
-      //int num_events = deme.GetMovPredicate(i)->GetNumEvents;
-      int num_events = 2;
+  for (int i = 0; i < deme->GetNumMovementPredicates(); i++) {
+    // NOTE: having problems with calling the GetNumEvents function for some reason.  FIXME
+    //int num_events = deme.GetMovPredicate(i)->GetNumEvents;
+    int num_events = 2;
 
-      if(num_events == 1) {
-        if( (deme.GetMovPredicate(i)->GetEvent(0)->IsActive()) &&
-            (deme.GetMovPredicate(i)->GetEvent(0)->GetEventID() == cell_data) ) {
-          iface->AddReachedTaskCell();
-          iface->SetPrevTaskCellID(cell_data);
+    if (num_events == 1) {
+      if ( (deme->GetMovPredicate(i)->GetEvent(0)->IsActive()) &&
+          (deme->GetMovPredicate(i)->GetEvent(0)->GetEventID() == cell_data) ) {
+        org->AddReachedTaskCell();
+        org->SetPrevTaskCellID(cell_data);
+        return 1.0;
+      }
+    } else {
+      for (int j = 0; j < num_events; j++) {
+        cDemeCellEvent* event = deme->GetMovPredicate(i)->GetEvent(j);
+        if( (event != NULL) && (event->IsActive()) && (event->GetEventID() == cell_data) ) {
+          org->AddReachedTaskCell();
+          org->SetPrevTaskCellID(cell_data);
           return 1.0;
         }
-      } else {
-        for(int j = 0; j < num_events; j++) {
-          cDemeCellEvent *event = deme.GetMovPredicate(i)->GetEvent(j);
-          if( (event != NULL) && (event->IsActive()) &&
-              (event->GetEventID() == cell_data) ) {
-            iface->AddReachedTaskCell();
-            iface->SetPrevTaskCellID(cell_data);
-            return 1.0;
-          }
-        }
       }
-
+    }
   }
   return 0.0;
 }
 
-double cTaskLib::Task_MoveToEvent(cTaskContext& ctx) const {
+double cTaskLib::Task_MoveToEvent(cTaskContext& ctx) const
+{
+  cOrganism* org = ctx.GetOrganism();
+  
+  if (org->GetCellID() == -1) return 0.0;
 	
-  if(ctx.GetOrganism()->GetCellID() == -1) {
-    return 0.0;		
-  }	
-	
-  cDeme* deme = ctx.GetOrganism()->GetOrgInterface().GetDeme();
-  int cell_data = ctx.GetOrganism()->GetOrgInterface().GetCellData();
-  if(cell_data <= 0)
-    return 0.0;
+  cDeme* deme = org->GetDeme();
+  assert(deme);
+  
+  int cell_data = org->GetCellData();
+  if (cell_data <= 0) return 0.0;
     
-  for(int i = 0; i < deme->GetNumEvents(); i++) {
-    if(deme->GetCellEvent(i)->GetEventID() == cell_data)
-      return 1.0;
+  for (int i = 0; i < deme->GetNumEvents(); i++) {
+    if (deme->GetCellEvent(i)->GetEventID() == cell_data) return 1.0;
   }
   return 0.0;
 }
 
-double cTaskLib::Task_EventKilled(cTaskContext& ctx) const {
-  if(ctx.GetOrganism()->GetEventKilled())
-    return 1.0;
+double cTaskLib::Task_EventKilled(cTaskContext& ctx) const
+{
+  if (ctx.GetOrganism()->GetEventKilled()) return 1.0;
   return 0.0;
 }
+
+
+
+void cTaskLib::Load_SGPathTraversal(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
+{
+  cArgSchema schema;
+
+  // Integer Arguments
+  schema.AddEntry("pathlen", 0, cArgSchema::SCHEMA_INT);
+  
+  // String Arguments
+  schema.AddEntry("sgname", 0, cArgSchema::SCHEMA_STRING);
+  schema.AddEntry("poison", 1, cArgSchema::SCHEMA_STRING);
+  
+  // Double Arguments
+  schema.AddEntry("halflife", 0, cArgSchema::SCHEMA_DOUBLE);
+  
+  cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
+  if (args) NewTask(name, "State Grid Path Traversal", &cTaskLib::Task_SGPathTraversal, 0, args);
+}
+
+double cTaskLib::Task_SGPathTraversal(cTaskContext& ctx) const
+{
+  const cArgContainer& args = ctx.GetTaskEntry()->GetArguments();
+  const cStateGrid& sg = ctx.GetOrganism()->GetStateGrid();
+
+  if (sg.GetName() != args.GetString(0)) return 0.0;
+
+  int state = sg.GetStateID(args.GetString(1));
+  if (state < 0) return 0.0;
+  
+  const tSmartArray<int>& ext_mem = ctx.GetExtendedMemory();
+  
+  // Build and sort history
+  const int history_offset = 3 + sg.GetNumStates();
+  tArray<int> history(ext_mem.GetSize() - history_offset);
+  for (int i = 0; i < history.GetSize(); i++) history[i] = ext_mem[i + history_offset];
+  tArrayUtils::QSort(history);
+  
+  // Calculate how many unique non-poison cells have been touched
+  int traversed = 0;
+  int last = -1;
+  for (int i = 0; i < history.GetSize(); i++) {
+    if (history[i] == last) continue;
+    last = history[i];
+    if (sg.GetStateAt(last) != state) traversed++;
+  }
+  
+  traversed -= ext_mem[3 + state];
+
+  
+  double quality = 0.0;
+  
+  double halflife = -1.0 * fabs(args.GetDouble(0));
+  quality = pow(2.0, (double)(args.GetInt(0) - ((traversed >= 0) ? traversed : 0)) / halflife);
+  
+  return quality;
+}  

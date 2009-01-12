@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 5/11/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -75,15 +75,19 @@ STATS_OUT_FILE(PrintVarianceData,           variance.dat        );
 STATS_OUT_FILE(PrintDominantData,           dominant.dat        );
 STATS_OUT_FILE(PrintStatsData,              stats.dat           );
 STATS_OUT_FILE(PrintCountData,              count.dat           );
+STATS_OUT_FILE(PrintMessageData,            message.dat         );
 STATS_OUT_FILE(PrintTotalsData,             totals.dat          );
 STATS_OUT_FILE(PrintTasksData,              tasks.dat           );
 STATS_OUT_FILE(PrintTasksExeData,           tasks_exe.dat       );
 STATS_OUT_FILE(PrintTasksQualData,          tasks_quality.dat   );
 STATS_OUT_FILE(PrintResourceData,           resource.dat        );
 STATS_OUT_FILE(PrintReactionData,           reactions.dat       );
+STATS_OUT_FILE(PrintReactionExeData,        reactions_exe.dat   );
 STATS_OUT_FILE(PrintCurrentReactionData,    cur_reactions.dat   );
 STATS_OUT_FILE(PrintReactionRewardData,     reaction_reward.dat );
+STATS_OUT_FILE(PrintCurrentReactionRewardData,     cur_reaction_reward.dat );
 STATS_OUT_FILE(PrintTimeData,               time.dat            );
+STATS_OUT_FILE(PrintExtendedTimeData,       xtime.dat           );
 STATS_OUT_FILE(PrintMutationRateData,       mutation_rates.dat  );
 STATS_OUT_FILE(PrintDivideMutData,          divide_mut.dat      );
 STATS_OUT_FILE(PrintParasiteData,           parasite.dat        );
@@ -92,6 +96,8 @@ STATS_OUT_FILE(PrintGenotypeMap,            genotype_map.m      );
 STATS_OUT_FILE(PrintMarketData,             market.dat          );
 STATS_OUT_FILE(PrintSenseData,              sense.dat           );
 STATS_OUT_FILE(PrintSenseExeData,           sense_exe.dat       );
+STATS_OUT_FILE(PrintInternalTasksData,      in_tasks.dat        );
+STATS_OUT_FILE(PrintInternalTasksQualData,  in_tasks_quality.dat);
 STATS_OUT_FILE(PrintSleepData,              sleep.dat           );
 STATS_OUT_FILE(PrintCompetitionData,        competition.dat     );
 STATS_OUT_FILE(PrintDemeReplicationData,    deme_repl.dat       );
@@ -106,11 +112,22 @@ STATS_OUT_FILE(PrintDemeReactionData,       deme_reactions.dat  );
 STATS_OUT_FILE(PrintDemeOrgTasksData,       deme_org_tasks.dat      );
 STATS_OUT_FILE(PrintDemeOrgTasksExeData,    deme_org_tasks_exe.dat  );
 STATS_OUT_FILE(PrintDemeOrgReactionData,    deme_org_reactions.dat  );
+STATS_OUT_FILE(PrintDemeCurrentTaskExeData,	deme_cur_task_exe.dat	);
+STATS_OUT_FILE(PrintDemeMigrationSuicidePoints,	deme_mig_suicide_points.dat	);
+
+
+STATS_OUT_FILE(PrintCurrentTaskCounts,      curr_task_counts.dat);
 STATS_OUT_FILE(PrintGermlineData,           germline.dat        );
+STATS_OUT_FILE(PrintPredicatedMessages,     messages.dat        );
+STATS_OUT_FILE(PrintCellData,               cell_data.dat       );
+STATS_OUT_FILE(PrintCurrentOpinions,        opinions.dat        );
 STATS_OUT_FILE(PrintPerDemeGenPerFounderData,   deme_gen_between_founders.dat );
+STATS_OUT_FILE(PrintSynchronizationData,    sync.dat            );
+STATS_OUT_FILE(PrintDetailedSynchronizationData, sync-detail.dat);
 // @WRE: Added output event for collected visit counts
 STATS_OUT_FILE(PrintCellVisitsData,         visits.dat			);
 STATS_OUT_FILE(PrintFlowRateTuples,         flow_rate_tuples.dat);
+STATS_OUT_FILE(PrintDynamicMaxMinData,		maxmin.dat			);
 
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
@@ -2530,14 +2547,26 @@ public:
 class cActionPrintDemesTotalAvgEnergy : public cAction {
 public:
 	cActionPrintDemesTotalAvgEnergy(cWorld* world, const cString& args) : cAction(world, args) { ; }
-		
+	
 	static const cString GetDescription() { return "No Arguments"; }
-		
+	
 	void Process(cAvidaContext& ctx) {
 		m_world->GetPopulation().PrintDemeTotalAvgEnergy();
 	}
 };
 
+class cActionPrintDemeEnergySharingStats : public cAction
+  {
+  public:
+    cActionPrintDemeEnergySharingStats(cWorld* world, const cString& args) : cAction(world, args) { ; }
+    
+    static const cString GetDescription() { return "No Arguments"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      m_world->GetPopulation().PrintDemeEnergySharingStats();
+    }
+  };
 
 class cActionPrintDemeDonorStats : public cAction
 {
@@ -2671,15 +2700,19 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDominantData>("PrintDominantData");
   action_lib->Register<cActionPrintStatsData>("PrintStatsData");
   action_lib->Register<cActionPrintCountData>("PrintCountData");
+  action_lib->Register<cActionPrintMessageData>("PrintMessageData");
   action_lib->Register<cActionPrintTotalsData>("PrintTotalsData");
   action_lib->Register<cActionPrintTasksData>("PrintTasksData");
   action_lib->Register<cActionPrintTasksExeData>("PrintTasksExeData");
   action_lib->Register<cActionPrintTasksQualData>("PrintTasksQualData");
   action_lib->Register<cActionPrintResourceData>("PrintResourceData");
   action_lib->Register<cActionPrintReactionData>("PrintReactionData");
+  action_lib->Register<cActionPrintReactionExeData>("PrintReactionExeData");
   action_lib->Register<cActionPrintCurrentReactionData>("PrintCurrentReactionData");  
   action_lib->Register<cActionPrintReactionRewardData>("PrintReactionRewardData");
+  action_lib->Register<cActionPrintCurrentReactionRewardData>("PrintCurrentReactionRewardData");
   action_lib->Register<cActionPrintTimeData>("PrintTimeData");
+	action_lib->Register<cActionPrintExtendedTimeData>("PrintExtendedTimeData");
   action_lib->Register<cActionPrintMutationRateData>("PrintMutationRateData");
   action_lib->Register<cActionPrintDivideMutData>("PrintDivideMutData");
   action_lib->Register<cActionPrintParasiteData>("PrintParasiteData");
@@ -2688,8 +2721,11 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintMarketData>("PrintMarketData");
   action_lib->Register<cActionPrintSenseData>("PrintSenseData");
   action_lib->Register<cActionPrintSenseExeData>("PrintSenseExeData");
+  action_lib->Register<cActionPrintInternalTasksData>("PrintInternalTasksData");
+  action_lib->Register<cActionPrintInternalTasksQualData>("PrintInternalTasksQualData");
   action_lib->Register<cActionPrintSleepData>("PrintSleepData");
   action_lib->Register<cActionPrintCompetitionData>("PrintCompetitionData");
+  action_lib->Register<cActionPrintDynamicMaxMinData>("PrintDynamicMaxMinData");
   
   // @WRE: Added printing of visit data
   action_lib->Register<cActionPrintCellVisitsData>("PrintCellVisitsData");
@@ -2700,10 +2736,17 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   
   action_lib->Register<cActionPrintDemeTestamentStats>("PrintDemeTestamentStats");
   
+	action_lib->Register<cActionPrintPredicatedMessages>("PrintPredicatedMessages");
+	action_lib->Register<cActionPrintCellData>("PrintCellData");
+	action_lib->Register<cActionPrintCurrentOpinions>("PrintCurrentOpinions");
+	action_lib->Register<cActionPrintSynchronizationData>("PrintSynchronizationData");
+  action_lib->Register<cActionPrintDetailedSynchronizationData>("PrintDetailedSynchronizationData");
+	
   // deme output files
   action_lib->Register<cActionPrintDemeAllStats>("PrintDemeAllStats");
   action_lib->Register<cActionPrintDemeAllStats>("PrintDemeStats"); //duplicate of previous
-	action_lib->Register<cActionPrintDemesTotalAvgEnergy>("PrintDemesTotalAvgEnergy");
+  action_lib->Register<cActionPrintDemesTotalAvgEnergy>("PrintDemesTotalAvgEnergy");
+  action_lib->Register<cActionPrintDemeEnergySharingStats>("PrintDemeEnergySharingStats");
   action_lib->Register<cActionPrintDemeDonorStats>("PrintDemeDonorStats");
   action_lib->Register<cActionPrintDemeSpacialEnergy>("PrintDemeSpacialEnergyStats");
   action_lib->Register<cActionPrintDemeSpacialSleep>("PrintDemeSpacialSleepStats");
@@ -2722,7 +2765,12 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDemeOrgTasksData>("PrintDemeOrgTasksData");
   action_lib->Register<cActionPrintDemeOrgTasksExeData>("PrintDemeOrgTasksExeData");
   action_lib->Register<cActionPrintDemeOrgReactionData>("PrintDemeOrgReactionData");
+  action_lib->Register<cActionPrintDemeCurrentTaskExeData>("PrintDemeCurrentTaskExeData");
+  action_lib->Register<cActionPrintCurrentTaskCounts>("PrintCurrentTaskCounts");
   action_lib->Register<cActionPrintPerDemeGenPerFounderData>("PrintPerDemeGenPerFounderData");
+  action_lib->Register<cActionPrintDemeMigrationSuicidePoints>("PrintDemeMigrationSuicidePoints");
+
+	
 
   //Coalescence Clade Actions
   action_lib->Register<cActionPrintCCladeCounts>("PrintCCladeCounts");

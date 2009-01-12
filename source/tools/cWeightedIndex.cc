@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "weighted_index.cc" prior to 12/7/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -103,6 +103,9 @@ void cWeightedIndex::SetWeight(int id, double in_weight)
 
 int cWeightedIndex::FindPosition(double position, int root_id)
 {
+  //if (position >= subtree_weight[root_id]) {
+  //  cout << "BDB: position " << position << "subtree_weight[" << root_id << "] = " << subtree_weight[root_id] << endl;
+  //}
   assert(position < subtree_weight[root_id]);
 
   // First, see if we should just return this node.

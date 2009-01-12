@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "inst_set.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -378,8 +378,9 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
 
     if ((*m_inst_lib)[fun_id].IsNop()) {
       // Assert nops are at the _beginning_ of an inst_set.
-      assert(m_lib_name_map.GetSize() == (m_lib_nopmod_map.GetSize() + 1));
-      
+      if (m_lib_name_map.GetSize() != (m_lib_nopmod_map.GetSize() + 1)) {
+        m_world->GetDriver().RaiseFatalException(1, "No operation instructions (nop-A, nop-B, ...) must be the first instructions in an instruction set file.");
+      }
       m_lib_nopmod_map.Resize(inst_id + 1);
       m_lib_nopmod_map[inst_id] = fun_id;
     }

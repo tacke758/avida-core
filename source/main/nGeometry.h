@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/6/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -33,7 +33,9 @@ namespace nGeometry {
     GRID,
     TORUS,
     CLIQUE,
-    HEX
+    HEX,
+	PARTIAL,
+	LATTICE
   };
 }
 

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype_birth_data.hh" prior to 11/30/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -51,7 +51,11 @@ public:
   int parent_distance;  // Genetic distance from parent genotype
   int gene_depth;       // depth in the phylogenetic tree from ancestor
   int lineage_label;    // Unique label for the lineage of this genotype.
-
+  int exec_born;        // @MRR Number of instruction executions from start
+  int generation_born;  // @MRR Generation genotype created
+  int birth_org_id;     // @MRR Organism ID at birth
+  int death_org_id;     // @MRR Highest organism ID at time of death
+  
   int update_deactivated;       // If not, when did it get deactivated?
   cGenotype* parent_genotype;  // Pointer to parent genotype...
   cGenotype* parent2_genotype; // Pointer to secondary parent genotype...

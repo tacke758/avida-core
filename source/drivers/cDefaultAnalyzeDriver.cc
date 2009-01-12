@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -37,13 +37,13 @@ using namespace std;
 cDefaultAnalyzeDriver::cDefaultAnalyzeDriver(cWorld* world, bool inter)
   : m_world(world), m_interactive(inter)
 {
-  cDriverManager::Register(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Register(this);
   world->SetDriver(this);
 }
 
 cDefaultAnalyzeDriver::~cDefaultAnalyzeDriver()
 {
-  cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Unregister(this);
   delete m_world;
 }
 

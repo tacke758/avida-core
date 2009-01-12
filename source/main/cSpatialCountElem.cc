@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "spatial_count_elem.cc" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -37,6 +37,7 @@ cSpatialCountElem::cSpatialCountElem(double initamount)
 {
   amount = initamount;
   delta = 0.0;
+  initial = initamount;
   elempt.Resize(MAXFLOWPTS);
   xdist.Resize(MAXFLOWPTS);
   ydist.Resize(MAXFLOWPTS);
@@ -49,6 +50,7 @@ cSpatialCountElem::cSpatialCountElem()
 {
   amount = 0.0;
   delta = 0.0;
+  initial = 0.0;
   elempt.Resize(MAXFLOWPTS);
   xdist.Resize(MAXFLOWPTS);
   ydist.Resize(MAXFLOWPTS);

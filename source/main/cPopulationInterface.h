@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_interface.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -90,6 +90,7 @@ public:
   int Debug();
   const tArray<double>& GetResources();
   const tArray<double>& GetDemeResources(int deme_id);
+  const tArray< tArray<int> >& GetCellIdLists();
   void UpdateResources(const tArray<double>& res_change);
   void UpdateDemeResources(const tArray<double>& res_change);
   void Die();
@@ -105,9 +106,14 @@ public:
   bool TestOnDivide();
   //! Send a message to the faced organism.
   bool SendMessage(cOrgMessage& msg);
-  bool BcastAlarm(int jump_label, int bcast_range);
-  
+  bool SendMessage(cOrganism* recvr, cOrgMessage& msg);
+  bool BroadcastMessage(cOrgMessage& msg);
+  bool BcastAlarm(int jump_label, int bcast_range);  
   void DivideOrgTestamentAmongDeme(double value);
+	//! Send a flash to all neighboring organisms.
+  void SendFlash();
+
+  int GetStateGridID(cAvidaContext& ctx);
 };
 
 

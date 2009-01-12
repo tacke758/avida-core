@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "inst_set.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -138,6 +138,9 @@ public:
 
   // Insertion of new instructions...
   cInstruction ActivateNullInst();
+  
+  // Modification of instructions during run.
+  void SetProbFail(const cInstruction& inst, double _prob_fail) { m_lib_name_map[inst.GetOp()].prob_fail = _prob_fail; }
 
   // accessors for instruction library
   cInstLib* GetInstLib() { return m_inst_lib; }

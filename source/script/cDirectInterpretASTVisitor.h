@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/08.
- *  Copyright 2008 Michigan State University. All rights reserved.
+ *  Copyright 2008-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #ifndef cDirectInterpretASTVisitor_h
 #define cDirectInterpretASTVisitor_h
 
+#include "cASNativeObject.h"
 #include "cASTVisitor.h"
 
 #include "tHashTable.h"
@@ -53,6 +54,7 @@ private:
     cLocalDict* as_dict;
     cLocalMatrix* as_matrix;
     cObjectRef* as_ref;
+    cASNativeObject* as_nobj;
     void* as_void;
   } uAnyType;
   
@@ -132,6 +134,7 @@ private:
   int asInt(const sASTypeInfo& type, uAnyType value, cASTNode& node);
   double asFloat(const sASTypeInfo& type, uAnyType value, cASTNode& node);
   cLocalMatrix* asMatrix(const sASTypeInfo& type, uAnyType value, cASTNode& node);
+  cASNativeObject* asNativeObject(const cString& info, const sASTypeInfo& type, uAnyType value, cASTNode& node);
   cString* asString(const sASTypeInfo& type, uAnyType value, cASTNode& node);
   
   ASType_t getRuntimeType(ASType_t ltype, ASType_t rtype, bool allow_str = false);
@@ -301,6 +304,22 @@ private:
     bool IsWritable() { return true; }
     
     bool Get(sAggregateValue& val) { val.value = m_var; val.type = AS_TYPE_MATRIX; return true; }
+    bool Get(const sAggregateValue& idx, sAggregateValue& val);
+    bool Set(sAggregateValue& val) { return false; }
+    bool Set(sAggregateValue& idx, sAggregateValue& val);
+  };
+  
+  class cNativeObjectVarRef : public cObjectRef
+  {
+  private:
+    uAnyType& m_var;
+    
+  public:
+    cNativeObjectVarRef(uAnyType& var) : m_var(var) { ; }
+    ~cNativeObjectVarRef() { ; }
+    
+    bool IsWritable() { return false; } 
+    bool Get(sAggregateValue& val) { val.value = m_var; val.type = AS_TYPE_OBJECT_REF; return false; }
     bool Get(const sAggregateValue& idx, sAggregateValue& val);
     bool Set(sAggregateValue& val) { return false; }
     bool Set(sAggregateValue& idx, sAggregateValue& val);

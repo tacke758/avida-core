@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 7/13/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -69,7 +69,6 @@ protected:
   static const int NUM_GLOBAL_STACKS = 1;
   static const int NUM_STACKS = NUM_LOCAL_STACKS + NUM_GLOBAL_STACKS;
   static const int NUM_NOPS = 4;
-  static const int NOPX = 4;
   static const int MAX_MEMSPACE_LABEL = 3;
   static const int MAX_THREAD_LABEL = 3;
 
@@ -178,7 +177,11 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(const int allocated_size);
 
-	int GetCopiedSize(const int parent_size, const int child_size);
+
+  void internalReset();
+  
+  
+  int calcCopiedSize(const int parent_size, const int child_size);
   
   bool Divide_Main(cAvidaContext& ctx, double mut_multiplier = 1.0);
   void Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier, cCPUMemory& injected_code);
@@ -195,12 +198,11 @@ protected:
   cHardwareTransSMT& operator=(const cHardwareTransSMT&); // @not_implemented
   
 public:
-  cHardwareTransSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareTransSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareTransSMT() { ; }
   static cInstLib* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-transsmt.cfg"; }
 	
-  void Reset();
   bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 	

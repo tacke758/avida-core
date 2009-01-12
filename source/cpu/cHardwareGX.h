@@ -2,7 +2,7 @@
  *  cHardwareGX.h
  *  Avida
  *
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -294,8 +294,12 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(cAvidaContext& ctx, const int allocated_size);
   
-  int GetExecutedSize(const int parent_size);
-  int GetCopiedSize(const int parent_size, const int child_size);
+
+  void internalReset();
+  
+    
+  int calcExecutedSize(const int parent_size);
+  int calcCopiedSize(const int parent_size, const int child_size);
   bool Divide_Main(cAvidaContext& ctx);
   void InjectCode(const cGenome& injection, const int line_num);
   bool HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction);
@@ -303,13 +307,12 @@ protected:
 
 public:
   //! Main constructor for cHardwareGX; called from cHardwareManager for every organism.
-  cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   virtual ~cHardwareGX(); //!< Destructor; removes all cProgramids.
     
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-gx.cfg"; }
 
-  void Reset();
   bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 

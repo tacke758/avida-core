@@ -4,7 +4,7 @@
  *
  *  Created by David on 10/16/05.
  *  Designed by Charles.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -275,16 +275,20 @@ public:
   CONFIG_ADD_VAR(VIEW_MODE, int, 1, "Initial viewer screen");
   CONFIG_ADD_VAR(CLONE_FILE, cString, "-", "Clone file to load");
   CONFIG_ADD_VAR(VERBOSITY, int, 1, "0 = No output at all\n1 = Normal output\n2 = Verbose output, detailing progress\n3 = High level of details, as available\n4 = Print Debug Information, as applicable");
+  //CONFIG_ADD_VAR(INST_LOAD_VALUE, int, 42, "Value used by load_val instruction");
   
   CONFIG_ADD_GROUP(ARCH_GROUP, "Architecture Variables");
   CONFIG_ADD_VAR(WORLD_X, int, 60, "Width of the Avida world");
   CONFIG_ADD_VAR(WORLD_Y, int, 60, "Height of the Avida world");
-  CONFIG_ADD_VAR(WORLD_GEOMETRY, int, 2, "1 = Bounded Grid\n2 = Torus\n3 = Clique");
+	CONFIG_ADD_VAR(WORLD_Z, int, 1, "Depth of the Avida world");
+  CONFIG_ADD_VAR(WORLD_GEOMETRY, int, 2, "1 = Bounded Grid\n2 = Torus\n3 = Clique\n4 = Hexagonal grid\n5 = Lattice");
   CONFIG_ADD_VAR(RANDOM_SEED, int, 0, "Random number seed (0 for based on time)");
   CONFIG_ADD_VAR(HARDWARE_TYPE, int, 0, "0 = Original CPUs\n1 = New SMT CPUs\n2 = Transitional SMT\n3 = Experimental CPU\n4 = Gene Expression CPU");
   CONFIG_ADD_VAR(SPECULATIVE, bool, 1, "Enable speculative execution");
+	CONFIG_ADD_VAR(TRACE_EXECUTION, bool, 0, "Trace the execution of all organisms in the population (default=off,SLOW!)");
   CONFIG_ADD_VAR(BCAST_HOPS, int, 1, "Number of hops to broadcast an alarm");
   CONFIG_ADD_VAR(ALARM_SELF, bool, 0, "Does sending an alarm move sender IP to alarm label?\n0=no\n1=yes");
+  CONFIG_ADD_VAR(IO_EXPIRE, bool, 1, "Is the expiration functionality of '-expire' I/O instructions enabled?");
   
   CONFIG_ADD_GROUP(CONFIG_FILE_GROUP, "Configuration Files");
   CONFIG_ADD_VAR(DATA_DIR, cString, "data", "Directory in which config files are found");
@@ -320,13 +324,17 @@ public:
   CONFIG_ADD_VAR(DEMES_REPLICATE_ORGS, int, 0, "Replicate a deme immediately once it reaches a\ncertain number of organisms (0 = OFF).");
   CONFIG_ADD_VAR(DEMES_REPLICATION_ONLY_RESETS, int, 0, "Kin selection mode. Deme replication really:\n1=resets deme resources\n2=rests deme resources and re-injects organisms");
   CONFIG_ADD_VAR(DEMES_MIGRATION_RATE, double, 0.0, "Probability of an offspring being born in a different deme.");
-  CONFIG_ADD_VAR(DEMES_MIGRATION_METHOD, int, 0, "How do we choose what demes an org may land in when it migrates?\n0=all other demes\n1=eight adjacent neighbors\n2=two adjacent demes in list");
+  CONFIG_ADD_VAR(DEMES_MIGRATION_METHOD, int, 0, "How do we choose what demes an org may land in when it migrates?\n0=all other demes\n1=eight adjacent neighbors\n2=two adjacent demes in list\n3=proportional based on the number of points");
   CONFIG_ADD_VAR(DEMES_NUM_X, int, 0, "Simulated number of demes in X dimension. Only used for migration. ");
   CONFIG_ADD_VAR(DEMES_SEED_METHOD, int, 0, "Deme seeding method.\n0=maintain old consistency\n1=new method using genotypes");
   CONFIG_ADD_VAR(DEMES_DIVIDE_METHOD, int, 0, "Deme divide method. Only works with DEMES_SEED_METHOD 1\n0=replace and target demes\n1= replace target deme, reset source deme to founders\n2=replace target deme, leave source deme unchanged");
   CONFIG_ADD_VAR(DEMES_DEFAULT_GERMLINE_PROPENSITY, double, 0.0, "Default germline propensity of organisms in deme.\nFor use with DEMES_DIVIDE_METHOD 2.");
   CONFIG_ADD_VAR(DEMES_FOUNDER_GERMLINE_PROPENSITY, double, -1.0, "Default germline propensity of founder organisms in deme.\nFor use with DEMES_DIVIDE_METHOD 2.\n <0 = OFF");
   CONFIG_ADD_VAR(DEMES_PREFER_EMPTY, int, 0, "Give empty demes preference as targets of deme replication?");
+  CONFIG_ADD_VAR(DEMES_PROTECTION_POINTS, int, 0, "The number of points a deme receives for each suicide.");
+	CONFIG_ADD_VAR(POINT_DECAY_PERCENT, int, 0, "The percentage of points decayed each time cActionDecayPoints is called.");
+
+	
 
   CONFIG_ADD_GROUP(REPRODUCTION_GROUP, "Birth and Death");
   CONFIG_ADD_VAR(BIRTH_METHOD, int, 0, "Which organism should be replaced on birth?\n0 = Random organism in neighborhood\n1 = Oldest in neighborhood\n2 = Largest Age/Merit in neighborhood\n3 = None (use only empty cells in neighborhood)\n4 = Random from population (Mass Action)\n5 = Oldest in entire population\n6 = Random within deme\n7 = Organism faced by parent\n8 = Next grid cell (id+1)\n9 = Largest energy used in entire population\n10 = Largest energy used in neighborhood");
@@ -356,6 +364,8 @@ public:
   CONFIG_ADD_VAR(CHILD_SIZE_RANGE, double, 2.0, "Maximal differential between child and parent sizes.");
   CONFIG_ADD_VAR(MIN_COPIED_LINES, double, 0.5, "Code fraction which must be copied before divide.");
   CONFIG_ADD_VAR(MIN_EXE_LINES, double, 0.5, "Code fraction which must be executed before divide.");
+  CONFIG_ADD_VAR(MIN_GENOME_SIZE, int, 0, "Minimum number of instructions allowed in a genome. 0 = OFF");
+  CONFIG_ADD_VAR(MAX_GENOME_SIZE, int, 0, "Maximum number of instructions allowed in a genome. 0 = OFF");
   CONFIG_ADD_VAR(REQUIRE_ALLOCATE, int, 1, "(Original CPU Only) Require allocate before divide?");
   CONFIG_ADD_VAR(REQUIRED_TASK, int, -1, "Task ID required for successful divide.");
   CONFIG_ADD_VAR(IMMUNITY_TASK, int, -1, "Task providing immunity from the required task.");
@@ -367,24 +377,36 @@ public:
   CONFIG_ADD_VAR(IMPLICIT_REPRO_END, int, 0, "Call Inst_Repro after executing the last instruction in the genome.");  
   CONFIG_ADD_VAR(IMPLICIT_REPRO_ENERGY, double, 0.0, "Call Inst_Repro if organism accumulates this amount of energy.");    
 
+  
   CONFIG_ADD_GROUP(MUTATION_GROUP, "Mutations");
   CONFIG_ADD_VAR(POINT_MUT_PROB, double, 0.0, "Mutation rate (per-location per update)");
+
   CONFIG_ADD_VAR(COPY_MUT_PROB, double, 0.0075, "Mutation rate (per copy)");
+  CONFIG_ADD_VAR(COPY_INS_PROB, double, 0.0, "Insertion rate (per copy)");
+  CONFIG_ADD_VAR(COPY_DEL_PROB, double, 0.0, "Deletion rate (per copy)");
+  CONFIG_ADD_VAR(COPY_UNIFORM_PROB, double, 0.0, "Uniform mutation probability (per copy)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
   CONFIG_ADD_VAR(COPY_SLIP_PROB, double, 0.0, "Slip rate (per copy)");
-  CONFIG_ADD_VAR(INS_MUT_PROB, double, 0.0, "Insertion rate (per site, applied on divide)");
-  CONFIG_ADD_VAR(DEL_MUT_PROB, double, 0.0, "Deletion rate (per site, applied on divide)");
+
   CONFIG_ADD_VAR(DIV_MUT_PROB, double, 0.0, "Mutation rate (per site, applied on divide)");
-  CONFIG_ADD_VAR(UNIFORM_MUT_PROB, double, 0.0, "Uniform mutation probability (per site, applied on divide)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
+  CONFIG_ADD_VAR(DIV_INS_PROB, double, 0.0, "Insertion rate (per site, applied on divide)");
+  CONFIG_ADD_VAR(DIV_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on divide)");
+  CONFIG_ADD_VAR(DIV_UNIFORM_PROB, double, 0.0, "Uniform mutation probability (per site, applied on divide)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
+  CONFIG_ADD_VAR(DIV_SLIP_PROB, double, 0.0, "Slip rate");
+  
   CONFIG_ADD_VAR(DIVIDE_MUT_PROB, double, 0.0, "Mutation rate (per divide)");
   CONFIG_ADD_VAR(DIVIDE_INS_PROB, double, 0.05, "Insertion rate (per divide)");
   CONFIG_ADD_VAR(DIVIDE_DEL_PROB, double, 0.05, "Deletion rate (per divide)");
+  CONFIG_ADD_VAR(DIVIDE_UNIFORM_PROB, double, 0.0, "Uniform mutation probability (per divide)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
   CONFIG_ADD_VAR(DIVIDE_SLIP_PROB, double, 0.0, "Slip rate (per divide) - creates large deletions/duplications");
-  CONFIG_ADD_VAR(SLIP_FILL_MODE, int, 0, "Fill insertions from slip mutations with 0=duplication, 1=nop-X, 2=random, 3=scrambled");
-  CONFIG_ADD_VAR(PARENT_MUT_PROB, double, 0.0, "Per-site, in parent, on divide");
-  CONFIG_ADD_VAR(SPECIAL_MUT_LINE, int, -1, "If this is >= 0, ONLY this line is mutated");
+  
   CONFIG_ADD_VAR(INJECT_INS_PROB, double, 0.0, "Insertion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_MUT_PROB, double, 0.0, "Mutation rate (per site, applied on inject)");
+  
+  CONFIG_ADD_VAR(SLIP_FILL_MODE, int, 0, "Fill insertions from slip mutations with 0=duplication, 1=nop-X, 2=random, 3=scrambled");
+  CONFIG_ADD_VAR(SLIP_COPY_MODE, int, 0, "How to handle 'on-copy' slip mutations:\n0 = actual read head slip\n1 = instant large mutation (obeys slip mode)");
+  CONFIG_ADD_VAR(PARENT_MUT_PROB, double, 0.0, "Per-site, in parent, on divide");
+  CONFIG_ADD_VAR(SPECIAL_MUT_LINE, int, -1, "If this is >= 0, ONLY this line is mutated");
   CONFIG_ADD_VAR(META_COPY_MUT, double, 0.0, "Prob. of copy mutation rate changing (per gen)");
   CONFIG_ADD_VAR(META_STD_DEV, double, 0.0, "Standard deviation of meta mutation size.");
   CONFIG_ADD_VAR(MUT_RATE_SOURCE, int, 1, "1 = Mutation rates determined by environment.\n2 = Mutation rates inherited from parent.");
@@ -460,11 +482,27 @@ public:
   CONFIG_ADD_VAR(NET_MUT_PROB, double, 0.0, "Message corruption probability");
   CONFIG_ADD_VAR(NET_MUT_TYPE, int, 0, "Type of message corruption.  0 = Random Single Bit, 1 = Always Flip Last");
   CONFIG_ADD_VAR(NET_STYLE, int, 0, "Communication Style.  0 = Random Next, 1 = Receiver Facing");
+	
+  CONFIG_ADD_GROUP(ORGANISM_MESSAGING_GROUP, "Organism Message-Based Communication");
+  CONFIG_ADD_VAR(MESSAGE_TYPE, int, 0, "Messaging Style. 0=Receiver Facing, 1=Broadcast");
+  CONFIG_ADD_VAR(MESSAGE_BCAST_RADIUS, int, 1, "Broadcast message radius (cells)");
+  CONFIG_ADD_VAR(ORGANISMS_REMEMBER_MESSAGES, bool, 1, "Does an organism remember all messages it has sent or received? 0=false, 1=true (default)");
+  CONFIG_ADD_VAR(MESSAGE_QUEUE_SIZE, int, -1, "Maximum number of unretrieved messages an organism can store (-1 for no limit is the default)");
+  CONFIG_ADD_VAR(MESSAGE_QUEUE_BEHAVIOR_WHEN_FULL, int, 0, "0 = Drop incoming message (default), 1 = Drop oldest unretrieved message");
 
   CONFIG_ADD_GROUP(BUY_SELL_GROUP, "Buying and Selling Parameters");
   CONFIG_ADD_VAR(SAVE_RECEIVED, bool, 0, "Enable storage of all inputs bought from other orgs");
   CONFIG_ADD_VAR(BUY_PRICE, int, 0, "price offered by organisms attempting to buy");
   CONFIG_ADD_VAR(SELL_PRICE, int, 0, "price offered by organisms attempting to sell");
+  
+  CONFIG_ADD_GROUP(HOARD_RESOURCE_GROUP, "Resource Hoarding Parameters");
+  CONFIG_ADD_VAR(USE_RESOURCE_BINS, bool, 0, "Enable resource bin use.  This serves as a guard on most resource hoarding code.");
+  CONFIG_ADD_VAR(ABSORB_RESOURCE_FRACTION, double, .0025, "Fraction of available environmental resource an organism absorbs.");
+  CONFIG_ADD_VAR(MULTI_ABSORB_TYPE, int, 0, "What to do if a collect instruction is called on a range of resources.\n 0 = absorb a random resource in the range\n 1 = absorb the first resource in the range\n 2 = absorb the last resource in the range\n 3 = absorb ABSORB_RESOURCE_FRACTION / (# of resources in range) of each resource in the range");
+  CONFIG_ADD_VAR(MAX_TOTAL_STORED, double, -1, "Maximum total amount of all resources an organism can store.\n <0 = no maximum");
+  CONFIG_ADD_VAR(USE_STORED_FRACTION, double, 1.0, "The fraction of stored resource to use.");
+  CONFIG_ADD_VAR(ENV_FRACTION_THRESHOLD, double, 1.0, "The fraction of available environmental resource to compare available stored resource to when deciding whether to use stored resource.");
+  CONFIG_ADD_VAR(RETURN_STORED_ON_DEATH, bool, 1, "Return an organism's stored resources to the world when it dies?");
   
   CONFIG_ADD_GROUP(ANALYZE_GROUP, "Analysis Settings");
   CONFIG_ADD_VAR(MAX_CONCURRENCY, int, -1, "Maximum number of analyze threads, -1 == use all available.");
@@ -473,14 +511,14 @@ public:
   
   CONFIG_ADD_GROUP(ENERGY_GROUP, "Energy Settings");
   CONFIG_ADD_VAR(ENERGY_ENABLED, bool, 0, "Enable Energy Model. 0/1 (off/on)");
-  CONFIG_ADD_VAR(ENERGY_GIVEN_ON_INJECT, int, 0, "Energy given to organism upon injection.");
-  CONFIG_ADD_VAR(ENERGY_GIVEN_AT_BIRTH, int, 0, "Energy given to offspring upon birth.");
-  CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_TO_ORG_AT_BIRTH, double, 0.5, "Fraction of perent's energy given to offspring organism.");
-  CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_TO_DEME_AT_BIRTH, double, 0.5, "Fraction of perent's energy given to offspring deme.");
+  CONFIG_ADD_VAR(ENERGY_GIVEN_ON_INJECT, double, 0.0, "Energy given to organism upon injection.");
+  CONFIG_ADD_VAR(ENERGY_GIVEN_AT_BIRTH, double, 0.0, "Energy given to offspring upon birth.");
+  CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_TO_ORG_AT_BIRTH, double, 0.5, "Fraction of parent's energy given to offspring organism.");
+  CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_TO_DEME_AT_BIRTH, double, 0.5, "Fraction of parent's energy given to offspring deme.");
   CONFIG_ADD_VAR(FRAC_ENERGY_DECAY_AT_ORG_BIRTH, double, 0.0, "Fraction of energy lost due to decay during organism reproduction.");
   CONFIG_ADD_VAR(FRAC_ENERGY_DECAY_AT_DEME_BIRTH, double, 0.0, "Fraction of energy lost due to decay during deme reproduction.");
   CONFIG_ADD_VAR(NUM_INST_EXC_BEFORE_0_ENERGY, int, 0, "Number of instructions executed before energy is exhausted.");
-  CONFIG_ADD_VAR(ENERGY_CAP, int, -1, "Maximum amount of energy that can be stored in an organism.  -1 means the cap is set to Max Int");  // TODO - is this done?
+  CONFIG_ADD_VAR(ENERGY_CAP, double, -1.0, "Maximum amount of energy that can be stored in an organism.  -1 means the cap is set to Max Double");  // TODO - is this done?
   CONFIG_ADD_VAR(APPLY_ENERGY_METHOD, int, 0, "When should rewarded energy be applied to current energy?\n0 = on divide\n1 = on completion of task\n2 = on sleep");  
   CONFIG_ADD_VAR(FRAC_ENERGY_TRANSFER, double, 0.0, "Fraction of replaced organism's energy take by new resident");
   CONFIG_ADD_VAR(LOG_SLEEP_TIMES, bool, 0, "Log sleep start and end times. 0/1 (off/on)\nWARNING: may use lots of memory.");
@@ -488,7 +526,15 @@ public:
   CONFIG_ADD_VAR(ENERGY_PASSED_ON_DEME_REPLICATION_METHOD, int, 0, "Who get energy passed from a parent deme\n0 = Energy divided among organisms injected to offspring deme\n1 = Energy divided among cells in offspring deme");
   CONFIG_ADD_VAR(INHERIT_EXE_RATE, int, 0, "Inherit energy rate from parent? 0=no  1=yes");
   CONFIG_ADD_VAR(ATTACK_DECAY_RATE, double, 0.0, "Percent of cell's energy decayed by attack");
-
+  CONFIG_ADD_VAR(ENERGY_THRESH_LOW, double, .33, "Threshold percent below which energy level is considered low.  Requires ENERGY_CAP.");
+  CONFIG_ADD_VAR(ENERGY_THRESH_HIGH, double, .75, "Threshold percent above which energy level is considered high.  Requires ENERGY_CAP.");
+  
+  CONFIG_ADD_GROUP(ENERGY_SHARING_GROUP, "Energy Sharing Settings");
+  CONFIG_ADD_VAR(ENERGY_SHARING_METHOD, int, 0, "Method for sharing energy.  0=receiver must actively receive/request, 1=energy pushed on receiver");
+  CONFIG_ADD_VAR(ENERGY_SHARING_PCT, double, 0.0, "Percent of energy to share");
+  CONFIG_ADD_VAR(ENERGY_SHARING_INCREMENT, double, 0.01, "Amount to change percent energy shared");
+  CONFIG_ADD_VAR(ENERGY_SHARING_LOSS, double, 0.0, "Percent of shared energy lost in transfer");
+  
 	CONFIG_ADD_GROUP(INTERRUPT_GROUP, "Interrupt Settings");
   CONFIG_ADD_VAR(INTERRUPT_ENABLED, bool, 0, "Enable Interrupt Model. 0/1 (off/on)");
 	
@@ -556,19 +602,29 @@ public:
   CONFIG_ADD_VAR(LOG_INJECT, bool, 0, "Log injection of organisms.  0/1 (off/on)");
   CONFIG_ADD_VAR(INJECT_LOG_START, int, 0, "Update at which to start logging injection of\norganisms");
   
+	// -------- Synchronization config options --------
+  CONFIG_ADD_GROUP(SYNCHRONIZATION_GROUP, "Synchronization settings");
+  CONFIG_ADD_VAR(SYNC_FITNESS_WINDOW, int, 100, "Number of updates over which to calculate fitness (default=100).");
+  CONFIG_ADD_VAR(SYNC_FLASH_LOSSRATE, double, 0.0, "P() to lose a flash send (0.0==off).");
+  CONFIG_ADD_VAR(SYNC_TEST_FLASH_ARRIVAL, int, -1, "CPU cycle at which an organism will receive a flash (off=-1, default=-1, analyze mode only.)");	
+	
   CONFIG_ADD_CUSTOM_FORMAT(INST_SET_NEW, "Instruction Set Definition");
   CONFIG_ADD_FORMAT_VAR(INST, "Instruction entry in the instruction set");
   
 #endif
   
-  void Load(const cString& filename, const bool& crash_if_not_found);
-  void Load(const cString& filename, const tDictionary<cString>& mappings, const bool& crash_if_not_found);
+  inline void Load(const cString& filename) { Load(filename, false); }
+  void Load(const cString& filename, bool crash_if_not_found);
+  void Load(const cString& filename, const tDictionary<cString>& mappings, bool crash_if_not_found = false);
   void Print(const cString& filename);
   void Status();
   void PrintReview();
   
   
   bool Get(const cString& entry, cString& ret) const;
+  cString GetAsString(const cString& entry) const;
+  bool HasEntry(const cString& entry) const { cString rtn; return Get(entry, rtn); }
+  
   bool Set(const cString& entry, const cString& val);
   void Set(tDictionary<cString>& sets);
   

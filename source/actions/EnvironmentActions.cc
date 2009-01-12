@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 8/9/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,12 +28,13 @@
 #include "cAction.h"
 #include "cActionLibrary.h"
 #include "cEnvironment.h"
+#include "cOrganism.h"
+#include "cPhenotype.h"
 #include "cPopulation.h"
+#include "cPopulationCell.h"
 #include "cResource.h"
 #include "cStats.h"
 #include "cWorld.h"
-#include "cPhenotype.h"
-#include "cPopulationCell.h"
 
 class cActionInjectResource : public cAction
 {
@@ -554,7 +555,7 @@ public:
 	void Process(cAvidaContext& ctx)
 	{
 		int time = m_world->GetStats().GetUpdate();
-		double m_res_count = -1*(0.4*tanh((time-182500)/50000)+0.5)*(0.5*sin(time/58.091)+0.5)+1;
+		double m_res_count = -1*(0.4*tanh(((double)time-182500.0)/50000.0)+0.5)*(0.5*sin((double)time/58.091)+0.5)+1;
 		cResource* res = m_world->GetEnvironment().GetResourceLib().GetResource(m_res_name);
 		if (res != NULL)
 			m_world->GetPopulation().SetResource(res->GetID(), m_res_count);
@@ -582,12 +583,12 @@ public:
 	void Process(cAvidaContext& ctx)
 	{
 		int time = m_world->GetStats().GetUpdate();
-		double m_res_count = -1*(tanh((time-182500)/50000)+1)*(0.5*sin(time/58.091)+0.5)+1;
+		double m_res_count = -m_scale*(tanh(((double)time-182500.0)/50000.0)+1.0)*(0.5*sin((double)time/58.091)+0.5)+1.0;
 		if(m_res_count < 0.0)
 			m_res_count = 0.0;
 		cResource* res = m_world->GetEnvironment().GetResourceLib().GetResource(m_res_name);
 		if (res != NULL)
-			m_world->GetPopulation().SetResource(res->GetID(), m_res_count * m_scale);			
+			m_world->GetPopulation().SetResource(res->GetID(), m_res_count);			
 	}
 };
 
@@ -614,12 +615,12 @@ public:
 	void Process(cAvidaContext& ctx)
 	{
 		int time = m_world->GetStats().GetUpdate();
-		double m_res_count = -1*(tanh((time-1825000)/500000)+1)*(0.5*sin(time/58.091)+0.5)+1;
+		double m_res_count = -m_scale*(tanh(((double)time-1825000.0)/500000.0)+1.0)*(0.5*sin((double)time/58.091)+0.5)+1.0;
 		if(m_res_count < 0.0)
 			m_res_count = 0.0;
 		cResource* res = m_world->GetEnvironment().GetResourceLib().GetResource(m_res_name);
 		if (res != NULL)
-			m_world->GetPopulation().SetResource(res->GetID(), m_res_count* m_scale);			
+			m_world->GetPopulation().SetResource(res->GetID(), m_res_count);			
 	}
 };
 
@@ -785,35 +786,41 @@ public:
 };
 
 class cActionSetOptimizeMinMax : public cAction
-{
-
-public:
-  cActionSetOptimizeMinMax(cWorld* world, const cString& args) : cAction(world, args) { ; }
-
-  static const cString GetDescription() { return "No Arguments"; }
-
-  void Process(cAvidaContext& ctx)
   {
-	cEnvironment& env = m_world->GetEnvironment();
-    for (int j=0; j<env.GetNumTasks(); j++)
-	{
-		double maxFx=0, minFx=10000;
-		for (int i = 0; i < m_world->GetPopulation().GetSize(); i++) 
-		{
-			 cPopulationCell& cell = m_world->GetPopulation().GetCell(i);
-			if (cell.IsOccupied() == false) continue;
-			const cPhenotype& phen = cell.GetOrganism()->GetPhenotype();
-			double val = phen.GetLastTaskValue()[j];
-			if (val < minFx)
-				minFx = val;
-			if (val > maxFx)
-				maxFx = val;
-		}
-		env.GetTask(j).GetArguments().SetDouble(1,maxFx);
-		env.GetTask(j).GetArguments().SetDouble(2,minFx);
-	}
-  }
-};
+    
+  public:
+    cActionSetOptimizeMinMax(cWorld* world, const cString& args) : cAction(world, args) { ; }
+    
+    static const cString GetDescription() { return "No Arguments"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEnvironment& env = m_world->GetEnvironment();
+      for (int j = 0; j < env.GetNumTasks(); j++)
+      {
+        double maxFx = 0.0;
+        double minFx = 0.0;
+        bool first = true;
+        
+        for (int i = 0; i < m_world->GetPopulation().GetSize(); i++) {
+          cPopulationCell& cell = m_world->GetPopulation().GetCell(i);
+          if (cell.IsOccupied() == false) continue;
+          const cPhenotype& phen = cell.GetOrganism()->GetPhenotype();
+          double val = phen.GetLastTaskValue()[j];
+          if (first) {
+            minFx = val;
+            maxFx = val;
+            first = false;
+            continue;
+          }
+          if (val < minFx) minFx = val;
+          if (val > maxFx) maxFx = val;
+        }
+        env.GetTask(j).GetArguments().SetDouble(1, maxFx);
+        env.GetTask(j).GetArguments().SetDouble(2, minFx);
+      }
+    }
+  };
 
 
 class cActionDelayedDemeEvent : public cAction
@@ -914,6 +921,34 @@ public:
   }
 };
 
+
+class cActionSetConfig : public cAction
+{
+private:
+  cString m_cvar;
+  cString m_value;
+  
+public:
+  cActionSetConfig(cWorld* world, const cString& args) : cAction(world, args)
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_cvar = largs.PopWord();
+    if (largs.GetSize()) m_value = largs.PopWord();
+    
+    if (!m_world->GetConfig().HasEntry(m_cvar))
+      m_world->GetDriver().RaiseFatalException(-2, "Config variable specified in SetConfig action exist");
+  }
+  
+  static const cString GetDescription() { return "Arguments: <string config_var> <string value>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    m_world->GetConfig().Set(m_cvar, m_value);
+  }
+};
+
+
+
 void RegisterEnvironmentActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionDelayedDemeEvent>("DelayedDemeEvent");
@@ -949,6 +984,8 @@ void RegisterEnvironmentActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSetTaskArgDouble>("SetTaskArgDouble");
   action_lib->Register<cActionSetTaskArgString>("SetTaskArgString");
   action_lib->Register<cActionSetOptimizeMinMax>("SetOptimizeMinMax");
+  
+  action_lib->Register<cActionSetConfig>("SetConfig");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInjectResource>("inject_resource");

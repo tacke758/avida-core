@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "cOrgInterface.h"
 #endif
 
+class cCPUTestInfo;
 class cTestCPU;
 
 #ifndef NULL
@@ -39,9 +40,10 @@ class cTestCPUInterface : public cOrgInterface
 {
 private:
   cTestCPU* m_testcpu;
+  cCPUTestInfo& m_test_info;
 
 public:
-  cTestCPUInterface(cTestCPU* testcpu) : m_testcpu(testcpu) { ; }
+  cTestCPUInterface(cTestCPU* testcpu, cCPUTestInfo& test_info) : m_testcpu(testcpu), m_test_info(test_info) { ; }
   virtual ~cTestCPUInterface() { ; }
 
   int GetCellID() { return -1; }
@@ -73,6 +75,7 @@ public:
   int Debug();
   const tArray<double>& GetResources();
   const tArray<double>& GetDemeResources(int deme_id);
+  const tArray< tArray<int> >& GetCellIdLists();  
   void UpdateResources(const tArray<double>& res_change);
   void UpdateDemeResources(const tArray<double>& res_change) {;}
   void Die();
@@ -88,10 +91,13 @@ public:
   bool TestOnDivide() { return false; }
   int GetFacing() { return 0; }
   bool SendMessage(cOrgMessage& msg) { return false; }
-  
-  bool BcastAlarm(int jump_label, int bcast_range) { return false; }
-  
+  bool SendMessage(cOrganism* recvr, cOrgMessage& msg) { return false; }
+  bool BroadcastMessage(cOrgMessage& msg) { return false; }
+	bool BcastAlarm(int jump_label, int bcast_range) { return false; }
   void DivideOrgTestamentAmongDeme(double value) {;}
+	void SendFlash() { }
+  
+  int GetStateGridID(cAvidaContext& ctx);
 };
 
 

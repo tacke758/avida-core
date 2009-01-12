@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -83,6 +83,11 @@ const tArray<double>& cTestCPUInterface::GetDemeResources(int deme_id) {
   return m_testcpu->GetDemeResources(deme_id);
 }
 
+const tArray< tArray<int> >& cTestCPUInterface::GetCellIdLists()
+{
+	return m_testcpu->GetCellIdLists();
+}
+
 void cTestCPUInterface::UpdateResources(const tArray<double>& res_change)
 {
    m_testcpu->ModifyResources(res_change);
@@ -128,3 +133,7 @@ bool cTestCPUInterface::UpdateMerit(double new_merit)
   return false;
 }
 
+int cTestCPUInterface::GetStateGridID(cAvidaContext& ctx)
+{
+  return m_test_info.GetStateGridID();
+}

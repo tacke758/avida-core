@@ -3,7 +3,7 @@
  *  avida_test_language
  *
  *  Created by David on 1/14/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -164,6 +164,8 @@ typedef enum eASDirectInterpretErrors {
   AS_DIRECT_INTERPRET_ERR_KEY_NOT_FOUND,
   AS_DIRECT_INTERPRET_ERR_MATRIX_OP_TYPE_MISMATCH,
   AS_DIRECT_INTERPRET_ERR_MATRIX_SIZE_MISMATCH,
+  AS_DIRECT_INTERPRET_ERR_NOBJ_METHOD_LOOKUP_FAILED,
+  AS_DIRECT_INTERPRET_ERR_NOBJ_TYPE_MISMATCH,
   AS_DIRECT_INTERPRET_ERR_OBJECT_ASSIGN_FAIL,
   AS_DIRECT_INTERPRET_ERR_TYPE_CAST,
   AS_DIRECT_INTERPRET_ERR_UNDEFINED_TYPE_OP,
@@ -237,11 +239,18 @@ struct sASTypeInfo {
   
   sASTypeInfo() : type(AS_TYPE_INVALID) { ; }
   sASTypeInfo(ASType_t in_type) : type(in_type) { ; }
+  sASTypeInfo(ASType_t in_type, const cString& in_info) : type(in_type), info(in_info) { ; }
   
   bool operator==(const sASTypeInfo& ot) const { return (type == ot.type && info == ot.info); }
   bool operator!=(const sASTypeInfo& ot) const { return (type != ot.type || info != ot.info); }
 };
 
+enum eASMethodReturnValues {
+  AS_NOT_FOUND = -1
+};
+
+
+class cASNativeObject;
 
 namespace AvidaScript {
   const char* mapBuiltIn(ASBuiltIn_t builtin);  
@@ -254,7 +263,9 @@ namespace AvidaScript {
   template<> inline sASTypeInfo TypeOf<int>() { return sASTypeInfo(AS_TYPE_INT); }
   template<> inline sASTypeInfo TypeOf<double>() { return sASTypeInfo(AS_TYPE_FLOAT); }
   template<> inline sASTypeInfo TypeOf<const cString&>() { return sASTypeInfo(AS_TYPE_STRING); }
+  template<> inline sASTypeInfo TypeOf<cString>() { return sASTypeInfo(AS_TYPE_STRING); }
   template<> inline sASTypeInfo TypeOf<void>() { return sASTypeInfo(AS_TYPE_VOID); }
+  template<> inline sASTypeInfo TypeOf<cASNativeObject>() { return sASTypeInfo(AS_TYPE_OBJECT_REF); }
 };
 
 #endif

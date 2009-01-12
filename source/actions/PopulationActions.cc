@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 6/25/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -30,12 +30,18 @@
 #include "cGenome.h"
 #include "cGenomeUtil.h"
 #include "cHardwareManager.h"
+#include "cOrgMessagePredicate.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cStats.h"
 #include "cWorld.h"
 #include "cOrganism.h"
+#include "cEnvironment.h"
 
+#include <map>
+#include <set>
+#include <numeric>
+#include <algorithm>
 
 /*
  Injects a single organism into the population.
@@ -990,7 +996,15 @@ public:
 class cActionSetMutProb : public cAction
 {
 private:
-  enum { POINT, COPY, INS, DEL, DIV, DIVIDE, D_INS, D_DEL, PARENT, INJECT, I_INS, I_DEL } m_mut_type;
+  enum {
+    POINT,
+    C_MUT, C_INS, C_DEL, C_UNIFORM, C_SLIP,
+    DS_MUT, DS_INS, DS_DEL, DS_UNIFORM, DS_SLIP,
+    D1_MUT, D1_INS, D1_DEL, D1_UNIFORM, D1_SLIP,
+    PARENT,
+    I_MUT, I_INS, I_DEL
+  } m_mut_type;
+  
   double m_prob;
   int m_start;
   int m_end;
@@ -999,7 +1013,7 @@ private:
 public:
   cActionSetMutProb(cWorld* world, const cString& args) : cAction(world, args), m_prob(0.0), m_start(-1), m_end(-1), m_setconf(false)
   {
-    cString mutstr("COPY");
+    cString mutstr("COPY_MUT");
 
     cString largs(args);
     if (largs.GetSize()) mutstr = largs.PopWord().ToUpper();
@@ -1007,19 +1021,33 @@ public:
     if (largs.GetSize()) m_start = largs.PopWord().AsInt();
     if (largs.GetSize()) m_end = largs.PopWord().AsInt();
     
+    
     if (mutstr == "POINT") m_mut_type = POINT;
-    else if (mutstr == "COPY") m_mut_type = COPY;
-    else if (mutstr == "INS" || mutstr == "INSERT") m_mut_type = INS;
-    else if (mutstr == "DEL" || mutstr == "DELETE") m_mut_type = DEL;
-    else if (mutstr == "DIV") m_mut_type = DIV;
-    else if (mutstr == "DIVIDE") m_mut_type = DIVIDE;
-    else if (mutstr == "DIVIDE_INS") m_mut_type = D_INS;
-    else if (mutstr == "DIVIDE_DEL") m_mut_type = D_DEL;
+    
+    else if (mutstr == "COPY_MUT") m_mut_type = C_MUT;
+    else if (mutstr == "COPY_INS") m_mut_type = C_INS;
+    else if (mutstr == "COPY_DEL") m_mut_type = C_DEL;
+    else if (mutstr == "COPY_UNIFORM") m_mut_type = C_UNIFORM;
+    else if (mutstr == "COPY_SLIP") m_mut_type = C_SLIP;
+    
+    else if (mutstr == "DIV_MUT") m_mut_type = DS_MUT;
+    else if (mutstr == "DIV_INS") m_mut_type = DS_INS;
+    else if (mutstr == "DIV_DEL") m_mut_type = DS_DEL;
+    else if (mutstr == "DIV_UNIFORM") m_mut_type = DS_UNIFORM;
+    else if (mutstr == "DIV_SLIP") m_mut_type = DS_SLIP;
+    
+    else if (mutstr == "DIVIDE_MUT") m_mut_type = D1_MUT;
+    else if (mutstr == "DIVIDE_INS") m_mut_type = D1_INS;
+    else if (mutstr == "DIVIDE_DEL") m_mut_type = D1_DEL;
+    else if (mutstr == "DIVIDE_UNIFORM") m_mut_type = D1_UNIFORM;
+    else if (mutstr == "DIVIDE_SLIP") m_mut_type = D1_SLIP;
+    
     else if (mutstr == "PARENT") m_mut_type = PARENT;
-    else if (mutstr == "INJECT") m_mut_type = INJECT;
+    else if (mutstr == "INJECT_MUT") m_mut_type = I_MUT;
     else if (mutstr == "INJECT_INS") m_mut_type = I_INS;
     else if (mutstr == "INJECT_DEL") m_mut_type = I_DEL;
 
+    
     if (m_start < 0) { // start == -1  -->  all
       m_setconf = true;
       m_start = 0;
@@ -1041,15 +1069,27 @@ public:
     if (m_setconf) {
       switch (m_mut_type) {
         case POINT: m_world->GetConfig().POINT_MUT_PROB.Set(m_prob); break;
-        case COPY: m_world->GetConfig().COPY_MUT_PROB.Set(m_prob); break;
-        case INS: m_world->GetConfig().INS_MUT_PROB.Set(m_prob); break;
-        case DEL: m_world->GetConfig().DEL_MUT_PROB.Set(m_prob); break;
-        case DIV: m_world->GetConfig().DIV_MUT_PROB.Set(m_prob); break;
-        case DIVIDE: m_world->GetConfig().DIVIDE_MUT_PROB.Set(m_prob); break;
-        case D_INS: m_world->GetConfig().DIVIDE_INS_PROB.Set(m_prob); break;
-        case D_DEL: m_world->GetConfig().DIVIDE_DEL_PROB.Set(m_prob); break;
+        
+        case C_MUT: m_world->GetConfig().COPY_MUT_PROB.Set(m_prob); break;
+        case C_INS: m_world->GetConfig().COPY_INS_PROB.Set(m_prob); break;
+        case C_DEL: m_world->GetConfig().COPY_DEL_PROB.Set(m_prob); break;
+        case C_UNIFORM: m_world->GetConfig().COPY_UNIFORM_PROB.Set(m_prob); break;
+        case C_SLIP: m_world->GetConfig().COPY_SLIP_PROB.Set(m_prob); break;
+          
+        case DS_MUT: m_world->GetConfig().DIV_MUT_PROB.Set(m_prob); break;
+        case DS_INS: m_world->GetConfig().DIV_INS_PROB.Set(m_prob); break;
+        case DS_DEL: m_world->GetConfig().DIV_DEL_PROB.Set(m_prob); break;
+        case DS_UNIFORM: m_world->GetConfig().DIV_UNIFORM_PROB.Set(m_prob); break;
+        case DS_SLIP: m_world->GetConfig().DIV_SLIP_PROB.Set(m_prob); break;
+          
+        case D1_MUT: m_world->GetConfig().DIVIDE_MUT_PROB.Set(m_prob); break;
+        case D1_INS: m_world->GetConfig().DIVIDE_INS_PROB.Set(m_prob); break;
+        case D1_DEL: m_world->GetConfig().DIVIDE_DEL_PROB.Set(m_prob); break;
+        case D1_UNIFORM: m_world->GetConfig().DIVIDE_UNIFORM_PROB.Set(m_prob); break;
+        case D1_SLIP: m_world->GetConfig().DIVIDE_SLIP_PROB.Set(m_prob); break;
+
         case PARENT: m_world->GetConfig().PARENT_MUT_PROB.Set(m_prob); break;
-        case INJECT: m_world->GetConfig().INJECT_MUT_PROB.Set(m_prob); break;
+        case I_MUT: m_world->GetConfig().INJECT_MUT_PROB.Set(m_prob); break;
         case I_INS: m_world->GetConfig().INJECT_INS_PROB.Set(m_prob); break;
         case I_DEL: m_world->GetConfig().INJECT_DEL_PROB.Set(m_prob); break;
         default:
@@ -1058,15 +1098,27 @@ public:
     }
 
     switch (m_mut_type) {
-      case COPY: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyMutProb(m_prob); break;
-      case INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInsMutProb(m_prob); break;
-      case DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDelMutProb(m_prob); break;
-      case DIV: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivMutProb(m_prob); break;
-      case DIVIDE: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideMutProb(m_prob); break;
-      case D_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideInsProb(m_prob); break;
-      case D_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideDelProb(m_prob); break;
+      
+      case C_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyMutProb(m_prob); break;
+      case C_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyInsProb(m_prob); break;
+      case C_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyDelProb(m_prob); break;
+      case C_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyUniformProb(m_prob); break;
+      case C_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopySlipProb(m_prob); break;
+        
+      case DS_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivMutProb(m_prob); break;
+      case DS_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivInsProb(m_prob); break;
+      case DS_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivDelProb(m_prob); break;
+      case DS_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivUniformProb(m_prob); break;
+      case DS_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivSlipProb(m_prob); break;
+        
+      case D1_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideMutProb(m_prob); break;
+      case D1_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideInsProb(m_prob); break;
+      case D1_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideDelProb(m_prob); break;
+      case D1_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideUniformProb(m_prob); break;
+      case D1_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideSlipProb(m_prob); break;
+        
       case PARENT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetParentMutProb(m_prob); break;
-      case INJECT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectMutProb(m_prob); break;
+      case I_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectMutProb(m_prob); break;
       case I_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectInsProb(m_prob); break;
       case I_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectDelProb(m_prob); break;
       default:
@@ -1078,7 +1130,15 @@ public:
 class cActionModMutProb : public cAction
 {
 private:
-  enum { POINT, COPY, INS, DEL, DIV, DIVIDE, D_INS, D_DEL, PARENT, INJECT, I_INS, I_DEL } m_mut_type;
+  enum {
+    POINT,
+    C_MUT, C_INS, C_DEL, C_UNIFORM, C_SLIP,
+    DS_MUT, DS_INS, DS_DEL, DS_UNIFORM, DS_SLIP,
+    D1_MUT, D1_INS, D1_DEL, D1_UNIFORM, D1_SLIP,
+    PARENT,
+    I_MUT, I_INS, I_DEL
+  } m_mut_type;
+  
   double m_prob;
   int m_start;
   int m_end;
@@ -1087,7 +1147,7 @@ private:
 public:
   cActionModMutProb(cWorld* world, const cString& args) : cAction(world, args), m_prob(0.0), m_start(-1), m_end(-1), m_setconf(false)
   {
-      cString mutstr("COPY");
+      cString mutstr("COPY_MUT");
       
       cString largs(args);
       if (largs.GetSize()) mutstr = largs.PopWord().ToUpper();
@@ -1096,15 +1156,27 @@ public:
       if (largs.GetSize()) m_end = largs.PopWord().AsInt();
       
       if (mutstr == "POINT") m_mut_type = POINT;
-      else if (mutstr == "COPY") m_mut_type = COPY;
-      else if (mutstr == "INS" || mutstr == "INSERT") m_mut_type = INS;
-      else if (mutstr == "DEL" || mutstr == "DELETE") m_mut_type = DEL;
-      else if (mutstr == "DIV") m_mut_type = DIV;
-      else if (mutstr == "DIVIDE") m_mut_type = DIVIDE;
-      else if (mutstr == "DIVIDE_INS") m_mut_type = D_INS;
-      else if (mutstr == "DIVIDE_DEL") m_mut_type = D_DEL;
+
+      else if (mutstr == "COPY_MUT") m_mut_type = C_MUT;
+      else if (mutstr == "COPY_INS") m_mut_type = C_INS;
+      else if (mutstr == "COPY_DEL") m_mut_type = C_DEL;
+      else if (mutstr == "COPY_UNIFORM") m_mut_type = C_UNIFORM;
+      else if (mutstr == "COPY_SLIP") m_mut_type = C_SLIP;
+    
+      else if (mutstr == "DIV_MUT") m_mut_type = DS_MUT;
+      else if (mutstr == "DIV_INS") m_mut_type = DS_INS;
+      else if (mutstr == "DIV_DEL") m_mut_type = DS_DEL;
+      else if (mutstr == "DIV_UNIFORM") m_mut_type = DS_UNIFORM;
+      else if (mutstr == "DIV_SLIP") m_mut_type = DS_SLIP;
+    
+      else if (mutstr == "DIVIDE_MUT") m_mut_type = D1_MUT;
+      else if (mutstr == "DIVIDE_INS") m_mut_type = D1_INS;
+      else if (mutstr == "DIVIDE_DEL") m_mut_type = D1_DEL;
+      else if (mutstr == "DIVIDE_UNIFORM") m_mut_type = D1_UNIFORM;
+      else if (mutstr == "DIVIDE_SLIP") m_mut_type = D1_SLIP;
+        
       else if (mutstr == "PARENT") m_mut_type = PARENT;
-      else if (mutstr == "INJECT") m_mut_type = INJECT;
+      else if (mutstr == "INJECT_MUT") m_mut_type = I_MUT;
       else if (mutstr == "INJECT_INS") m_mut_type = I_INS;
       else if (mutstr == "INJECT_DEL") m_mut_type = I_DEL;
       
@@ -1130,15 +1202,27 @@ public:
 
     switch (m_mut_type) {
       case POINT: prob += m_world->GetConfig().POINT_MUT_PROB.Get(); break;
-      case COPY: prob += m_world->GetConfig().COPY_MUT_PROB.Get(); break;
-      case INS: prob += m_world->GetConfig().INS_MUT_PROB.Get(); break;
-      case DEL: prob += m_world->GetConfig().DEL_MUT_PROB.Get(); break;
-      case DIV: prob += m_world->GetConfig().DIV_MUT_PROB.Get(); break;
-      case DIVIDE: prob += m_world->GetConfig().DIVIDE_MUT_PROB.Get(); break;
-      case D_INS: prob += m_world->GetConfig().DIVIDE_INS_PROB.Get(); break;
-      case D_DEL: prob += m_world->GetConfig().DIVIDE_DEL_PROB.Get(); break;
+
+      case C_MUT: prob += m_world->GetConfig().COPY_MUT_PROB.Get(); break;
+      case C_INS: prob += m_world->GetConfig().COPY_INS_PROB.Get(); break;
+      case C_DEL: prob += m_world->GetConfig().COPY_DEL_PROB.Get(); break;
+      case C_UNIFORM: prob += m_world->GetConfig().COPY_MUT_PROB.Get(); break;
+      case C_SLIP: prob += m_world->GetConfig().COPY_MUT_PROB.Get(); break;
+        
+      case DS_MUT: prob += m_world->GetConfig().DIV_MUT_PROB.Get(); break;
+      case DS_INS: prob += m_world->GetConfig().DIV_INS_PROB.Get(); break;
+      case DS_DEL: prob += m_world->GetConfig().DIV_DEL_PROB.Get(); break;
+      case DS_UNIFORM: prob += m_world->GetConfig().DIV_MUT_PROB.Get(); break;
+      case DS_SLIP: prob += m_world->GetConfig().DIV_MUT_PROB.Get(); break;
+        
+      case D1_MUT: prob += m_world->GetConfig().DIVIDE_MUT_PROB.Get(); break;
+      case D1_INS: prob += m_world->GetConfig().DIVIDE_INS_PROB.Get(); break;
+      case D1_DEL: prob += m_world->GetConfig().DIVIDE_DEL_PROB.Get(); break;
+      case D1_UNIFORM: prob += m_world->GetConfig().DIVIDE_MUT_PROB.Get(); break;
+      case D1_SLIP: prob += m_world->GetConfig().DIVIDE_MUT_PROB.Get(); break;
+      
       case PARENT: prob += m_world->GetConfig().PARENT_MUT_PROB.Get(); break;
-      case INJECT: prob += m_world->GetConfig().INJECT_MUT_PROB.Get(); break;
+      case I_MUT: prob += m_world->GetConfig().INJECT_MUT_PROB.Get(); break;
       case I_INS: prob += m_world->GetConfig().INJECT_INS_PROB.Get(); break;
       case I_DEL: prob += m_world->GetConfig().INJECT_DEL_PROB.Get(); break;
       default:
@@ -1148,15 +1232,27 @@ public:
     if (m_setconf) {
       switch (m_mut_type) {
         case POINT: m_world->GetConfig().POINT_MUT_PROB.Set(prob); break;
-        case COPY: m_world->GetConfig().COPY_MUT_PROB.Set(prob); break;
-        case INS: m_world->GetConfig().INS_MUT_PROB.Set(prob); break;
-        case DEL: m_world->GetConfig().DEL_MUT_PROB.Set(prob); break;
-        case DIV: m_world->GetConfig().DIV_MUT_PROB.Set(prob); break;
-        case DIVIDE: m_world->GetConfig().DIVIDE_MUT_PROB.Set(prob); break;
-        case D_INS: m_world->GetConfig().DIVIDE_INS_PROB.Set(prob); break;
-        case D_DEL: m_world->GetConfig().DIVIDE_DEL_PROB.Set(prob); break;
+
+        case C_MUT: m_world->GetConfig().COPY_MUT_PROB.Set(prob); break;
+        case C_INS: m_world->GetConfig().COPY_INS_PROB.Set(prob); break;
+        case C_DEL: m_world->GetConfig().COPY_DEL_PROB.Set(prob); break;
+        case C_UNIFORM: m_world->GetConfig().COPY_UNIFORM_PROB.Set(prob); break;
+        case C_SLIP: m_world->GetConfig().COPY_SLIP_PROB.Set(prob); break;
+          
+        case DS_MUT: m_world->GetConfig().DIV_MUT_PROB.Set(prob); break;
+        case DS_INS: m_world->GetConfig().DIV_INS_PROB.Set(prob); break;
+        case DS_DEL: m_world->GetConfig().DIV_DEL_PROB.Set(prob); break;
+        case DS_UNIFORM: m_world->GetConfig().DIV_UNIFORM_PROB.Set(prob); break;
+        case DS_SLIP: m_world->GetConfig().DIV_SLIP_PROB.Set(prob); break;
+          
+        case D1_MUT: m_world->GetConfig().DIVIDE_MUT_PROB.Set(prob); break;
+        case D1_INS: m_world->GetConfig().DIVIDE_INS_PROB.Set(prob); break;
+        case D1_DEL: m_world->GetConfig().DIVIDE_DEL_PROB.Set(prob); break;
+        case D1_UNIFORM: m_world->GetConfig().DIVIDE_UNIFORM_PROB.Set(prob); break;
+        case D1_SLIP: m_world->GetConfig().DIVIDE_SLIP_PROB.Set(prob); break;
+        
         case PARENT: m_world->GetConfig().PARENT_MUT_PROB.Set(prob); break;
-        case INJECT: m_world->GetConfig().INJECT_MUT_PROB.Set(prob); break;
+        case I_MUT: m_world->GetConfig().INJECT_MUT_PROB.Set(prob); break;
         case I_INS: m_world->GetConfig().INJECT_INS_PROB.Set(prob); break;
         case I_DEL: m_world->GetConfig().INJECT_DEL_PROB.Set(prob); break;
         default:
@@ -1165,15 +1261,27 @@ public:
     }
     
     switch (m_mut_type) {
-      case COPY: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyMutProb(prob); break;
-      case INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInsMutProb(prob); break;
-      case DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDelMutProb(prob); break;
-      case DIV: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivMutProb(prob); break;
-      case DIVIDE: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideMutProb(prob); break;
-      case D_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideInsProb(prob); break;
-      case D_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideDelProb(prob); break;
+      case C_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyMutProb(prob); break;
+      case C_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyInsProb(prob); break;
+      case C_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyDelProb(prob); break;
+      case C_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopyUniformProb(prob); break;
+      case C_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetCopySlipProb(prob); break;
+        
+      case DS_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivMutProb(prob); break;
+      case DS_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivInsProb(prob); break;
+      case DS_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivDelProb(prob); break;
+      case DS_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivUniformProb(prob); break;
+      case DS_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivSlipProb(prob); break;
+        
+      case D1_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideMutProb(prob); break;
+      case D1_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideInsProb(prob); break;
+      case D1_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideDelProb(prob); break;
+      case D1_UNIFORM: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideUniformProb(prob); break;
+      case D1_SLIP: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetDivideSlipProb(prob); break;
+        
+        
       case PARENT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetParentMutProb(prob); break;
-      case INJECT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectMutProb(prob); break;
+      case I_MUT: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectMutProb(prob); break;
       case I_INS: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectInsProb(prob); break;
       case I_DEL: for (int i = m_start; i < m_end; i++) m_world->GetPopulation().GetCell(i).MutationRates().SetInjectDelProb(prob); break;
       default:
@@ -1195,6 +1303,25 @@ public:
     }
   }
 };
+
+
+/*! This action enables the tracking of all messages that are sent in each deme. */
+class cActionTrackAllMessages : public cAction {
+public:
+  cActionTrackAllMessages(cWorld* world, const cString& args) : cAction(world, args) { }
+
+  static const cString GetDescription() { return "No Arguments"; }
+	
+  void Process(cAvidaContext& ctx) {
+		s_pred = new cOrgMessagePred_AllData(m_world);
+		m_world->GetStats().AddMessagePredicate(s_pred);
+  }
+	
+private:
+	static cOrgMessagePred_AllData* s_pred;
+};
+
+cOrgMessagePred_AllData* cActionTrackAllMessages::s_pred=0;
 
 
 /*
@@ -1230,8 +1357,70 @@ public:
 };
 
 
+/*! Assign a random identifier to the data for each cell and save those IDs for later
+ use, respecting deme boundaries.
+ 
+ This is a little hackish; feel free to modify.
+ */
+class cAssignRandomCellData : public cAction { 
+public:
+  typedef std::map<int, std::set<int> > DataMap;
+	
+  cAssignRandomCellData(cWorld* world, const cString& args) : cAction(world, args) { }
+	
+	virtual ~cAssignRandomCellData() { }
+  
+  static const cString GetDescription() { return "No Arguments"; }
+  
+  virtual void Process(cAvidaContext& ctx) {
+		deme_to_id.clear();
+    for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+      cDeme& deme = m_world->GetPopulation().GetDeme(i);
+      for(int j=0; j<deme.GetSize(); ++j) {
+				// Assign random data to each cell:
+        int d = m_world->GetRandom().GetInt(INT_MAX);
+        deme.GetCell(j).SetCellData(d);
+				// Save that data by deme in the map:
+        deme_to_id[deme.GetID()].insert(d);
+      }
+    }
+  }
+  
+  static bool IsCellDataInDeme(int data, const cDeme& deme) { 
+    DataMap::iterator i = deme_to_id.find(deme.GetID());
+    return i->second.find(data) != i->second.end();
+  }
+	
+	static void ReplaceCellData(int old_data, int new_data, const cDeme& deme) {
+		// Find all cells in the deme that hold the old data, and replace it with the new.
+		for(int i=0; i<deme.GetSize(); ++i) {
+			if(deme.GetCell(i).GetCellData() == old_data) {
+				deme.GetCell(i).SetCellData(new_data);
+			}
+		}
+		// Update the data map.
+		DataMap::iterator i = deme_to_id.find(deme.GetID());
+		i->second.erase(old_data);
+		i->second.insert(new_data);
+	}
+	
+	static const std::set<int>& GetDataInDeme(const cDeme& deme) {
+		return deme_to_id[deme.GetID()];
+	}
+  
+protected:
+  static std::map<int, std::set<int> > deme_to_id; //!< Map of deme ID -> set of all cell data in that deme.
+};
+
+//! Definition for static data.
+cAssignRandomCellData::DataMap cAssignRandomCellData::deme_to_id;
+
 
 /*! An abstract base class to ease the development of new deme competition fitness functions.
+ 
+ This base class does the bookkeeping associated with deme competitions, including calling a virtual
+ function to calculate the fitness of each deme at the right time, collecting those fitness values in
+ a vector, and finally invoking the deme competition.
  */
 class cAbstractCompeteDemes : public cAction {
 public:
@@ -1263,6 +1452,411 @@ public:
    */
   virtual double Fitness(const cDeme& deme) = 0;
 };
+
+
+/*! An abstract base class to ease the development of new deme competition fitness functions 
+ that require a per-update monitoring of each deme.
+ 
+ The idea here is that in addition to normal deme competition, we also have periodic housekeeping to do.
+ This housekeeping may or may not influence the final fitness value (once deme competition is triggered).
+ 
+ In the events file, when using any deme competition strategy that uses cAbstractMonitoringCompeteDemes,
+ the execution of the event corresponds to when the Update(...) method will be called, while the integer parameter
+ to the event is the period (in updates) of deme competition.  So this:
+ 
+ u 1:1:end SomeFormOfCompeteDemes 400
+ 
+ will call Update(...) every update, but only calls Fitness(...) every 400 updates.
+ 
+ WARNING: The compete_period argument MUST be an even multiple of the update period!
+ If it isn't, competition won't ever be triggered.  We're not preventing this, 'cause
+ there might be good reasons you'd want that...
+ */
+class cAbstractMonitoringCompeteDemes : public cAbstractCompeteDemes {
+public:
+	//! Constructor.
+	cAbstractMonitoringCompeteDemes(cWorld* world, const cString& args) : cAbstractCompeteDemes(world, args), _compete_period(100) {
+		if(args.GetSize()) {
+			cString largs(args);
+			_compete_period = largs.PopWord().AsInt();
+		}
+  }
+  
+	//! Destructor.
+	virtual ~cAbstractMonitoringCompeteDemes() { }
+	
+	/*! Update each deme, and possibly compete them.
+
+	 Calls Update(...) on every execution, but only calls Fitness(...) when the current
+	 update is an even multiple of the competition period.
+	 */	
+	virtual void Process(cAvidaContext& ctx) {
+		_update_fitness.resize(m_world->GetPopulation().GetNumDemes());													 
+    for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+			_update_fitness[i] += Update(m_world->GetPopulation().GetDeme(i));
+		}
+		
+		if((m_world->GetStats().GetUpdate() % _compete_period) == 0) {
+			std::vector<double> fitness;
+			for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+				fitness.push_back(pow(_update_fitness[i] + Fitness(m_world->GetPopulation().GetDeme(i)), 2.0));
+				assert(fitness.back() >= 0.0);
+			}			
+			m_world->GetPopulation().CompeteDemes(fitness);
+			_update_fitness.clear();
+		}
+	}
+	
+	//! Called on each action invocation, *including* immediately prior to fitness calculation.
+	virtual double Update(cDeme& deme) = 0;
+	
+protected:
+	int _compete_period; //!< Period at which demes compete.
+	std::vector<double> _update_fitness; //!< Running sum of returns from Update(cDeme).
+};
+
+
+/*! This class contains methods that are useful for consensus-related problems.
+ */
+class ConsensusSupport {
+public:
+	ConsensusSupport() { }
+	virtual ~ConsensusSupport() { }
+	
+	/*! Returns a pair (support, opinion), where support is equal to the maximum 
+	 number of organisms within the deme that have set their opinion to the same value,
+	 and opinion is the value that they have set their (shared) opinion to.
+	 */	 
+	virtual std::pair<unsigned int, cOrganism::Opinion> max_support(const cDeme& deme) {
+		typedef std::vector<cOrganism::Opinion> OpinionList;
+		OpinionList opinions;
+		// For each organism in the deme:
+		for(int i=0; i<deme.GetSize(); ++i) {
+			cOrganism* org = deme.GetOrganism(i);
+			if((org != 0) && org->HasOpinion()) {
+				// Get its current opinion (we don't care about the date here):
+				opinions.push_back(org->GetOpinion().first);
+			}
+		}
+		
+		// Go through the list of opinions, count & filter:
+		typedef std::map<cOrganism::Opinion, unsigned int> OpinionMap;
+		unsigned int support=0;
+		cOrganism::Opinion opinion=0;
+		OpinionMap opinion_counts;
+		for(OpinionList::iterator i=opinions.begin(); i!=opinions.end(); ++i) {
+			// filter:
+			if(cAssignRandomCellData::IsCellDataInDeme(*i, deme)) {
+				// count:
+				++opinion_counts[*i];
+				// find support:
+				if(opinion_counts[*i] > support) {
+					support = opinion_counts[*i];
+					opinion = *i;
+				}
+			}
+		}		
+		return std::make_pair(support, opinion);
+	}	
+};
+
+
+/*! This class rewards for solving the Iterated Consensus Dilemma, where organisms
+ are to repeatedly reach consensus on one of a set of values.
+ 
+ Each organism is initialized with access to a single value, so the first part of
+ the ICD is to distribute knowledge of all possible values.  The second part of 
+ the ICD is to determine which of the possible values should be selected by the
+ group.  The third, and final, part of the ICD is for the group to iterate this
+ problem, so that consensus on as many values as possible is reached in the shortest
+ amount of time.
+ */
+class cActionIteratedConsensus : public cAbstractMonitoringCompeteDemes, ConsensusSupport {
+public:
+	cActionIteratedConsensus(cWorld* world, const cString& args) : cAbstractMonitoringCompeteDemes(world, args), _replace(0) {
+		if(args.GetSize()) {
+			cString largs(args);
+			_replace = largs.PopWord().AsInt();
+		}
+	}
+	
+	//! Destructor.
+	virtual ~cActionIteratedConsensus() { }
+	
+	static const cString GetDescription() { return "Arguments: [int compete_period=100 [int replace_number=0]]"; }
+	
+	//! Calculate the current fitness of this deme.
+  virtual double Fitness(const cDeme& deme) {
+		return max_support(deme).first + 1;
+	}
+	
+	/*! Determine if the organisms in this deme have reached consensus, and if so,
+	 record that fact and reset so that they can "iterate" (try to reach consensus
+	 again).  This version includes protection against resetting to an "easy" value,
+	 removing the ability for organisms to continually filter in one direction to
+	 solve ICD.
+	 
+	 Resets always reset the cell data of the agreed-upon value, and if _replace is
+	 greater than zero, we also reset the cell data of other cells, which are
+	 selected at random with replacement.
+	 
+	 Called during every update (depending on configuration).  Return values are
+	 summed and included in final fitness calculation. */
+	virtual double Update(cDeme& deme) {
+		std::pair<unsigned int, cOrganism::Opinion> support = max_support(deme);
+		
+		// Have all organisms in this deme reached consensus?
+		if(support.first == static_cast<unsigned int>(deme.GetSize())) {
+			// Yes; change the cell data for the value that was agreed upon:
+			int min_data = *cAssignRandomCellData::GetDataInDeme(deme).begin();
+			int max_data = *cAssignRandomCellData::GetDataInDeme(deme).rbegin();
+			cAssignRandomCellData::ReplaceCellData(support.second, m_world->GetRandom().GetInt(min_data+1, max_data-1), deme);
+			
+			// Now reset the others:
+			for(int i=0; i<_replace; ++i) {
+				int cell_id = m_world->GetRandom().GetInt(deme.GetSize());
+				int cell_data = deme.GetCell(cell_id).GetCellData();
+				cAssignRandomCellData::ReplaceCellData(cell_data, m_world->GetRandom().GetInt(min_data+1, max_data-1), deme);
+			}
+			
+			return deme.GetSize();
+		}
+		return 0.0;
+	}
+	
+private:
+	int _replace; //!< Number of cell datas that will be replaced on successful consensus.
+};
+
+/*!	This class competes demes based on the total number of times that a
+ *	given task has been completed by an organism in the deme since the
+ *  deme was initialized. This action takes one integer parameter representing
+ *	the number of the task that is to be used for competition. If no parameter 
+ *	is supplied, the class uses the first task defined in the environment file
+ *	to compete the demes.
+ */
+class cActionCompeteDemesByTaskCount : public cAbstractCompeteDemes {
+private:
+	int _task_num;	// the task num to use when calculating fitness,
+						// defaults to 0 (the first task)
+public:
+	cActionCompeteDemesByTaskCount(cWorld* world, const cString& args) 
+			: cAbstractCompeteDemes(world, args) {
+		if (args.GetSize() > 0) {
+			cString largs(args);
+			_task_num = largs.PopWord().AsInt();
+			assert(_task_num >= 0);
+			assert(_task_num < m_world->GetEnvironment().GetNumTasks());
+		} else {
+			_task_num = 0;
+		}
+	}
+	~cActionCompeteDemesByTaskCount() {}
+
+	static const cString GetDescription() { 
+		return "Competes demes according to the number of times a given task has been completed within that deme"; 
+	}
+
+	virtual double Fitness(const cDeme& deme) {
+		double fitness = deme.GetCurTaskExeCount()[_task_num]^2;///deme.GetInjectedCount());
+    if (fitness == 0.0) fitness = 0.1;
+    return fitness;
+	}
+};
+
+class cActionCompeteDemesByTaskCountAndEfficiency : public cAbstractCompeteDemes {
+private:
+  double _initial_deme_energy;
+	int _task_num;	// the task num to use when calculating fitness,
+						// defaults to 0 (the first task)
+public:
+	cActionCompeteDemesByTaskCountAndEfficiency(cWorld* world, const cString& args) 
+			: cAbstractCompeteDemes(world, args) {
+  	cString largs(args);
+    if (largs.GetSize() == 0) {
+      cerr << "CompeteDemesByTaskCountAndEfficiency must be given an initial deme energy amount" << endl;
+      exit(1);
+    }
+
+    _initial_deme_energy = largs.PopWord().AsDouble();
+//    cout << "initial deme energy = " << _initial_deme_energy << endl;
+    assert(_initial_deme_energy > 0);
+
+		if (largs.GetSize() > 1) {
+			_task_num = largs.PopWord().AsInt();
+			assert(_task_num >= 0);
+			assert(_task_num < m_world->GetEnvironment().GetNumTasks());
+		} else {
+			_task_num = 0;
+		}
+	}
+	~cActionCompeteDemesByTaskCountAndEfficiency() {}
+
+	static const cString GetDescription() { 
+		return "Competes demes according to the number of times a given task has been completed within that deme and the efficiency with which it was done"; 
+	}
+
+	virtual double Fitness(const cDeme& deme) {
+    double energy_used = _initial_deme_energy - deme.CalculateTotalEnergy();
+		double fitness = 
+      pow(deme.GetCurTaskExeCount()[_task_num] * (_initial_deme_energy/energy_used),2);
+    if (fitness == 0.0) fitness = 0.1;
+//    cout  << "Deme " << deme.GetID() << ": used " << energy_used << " energy" 
+//          << " fitness=" << fitness << endl;
+    return fitness;
+	}
+};
+
+
+/*! Send an artificial flash to a single organism in each deme in the population
+ at a specified period.
+ 
+ This action sends a single flash to the organism in the center of each deme.  It
+ is meant to be sort of a "pacecar" flash, and is useful for analysis.  This action
+ is also capable of having a per-deme flash period, which should assist in evolving
+ organisms that can adapt their flash period.
+ */
+class cActionFlash : public cAction {
+public:
+	cActionFlash(cWorld* world, const cString& args): cAction(world, args) { }
+	
+	//! Destructor.
+	virtual ~cActionFlash() { }
+	
+	static const cString GetDescription() { return "No arguments"; }
+	
+	//! Process this event, sending a flash to each deme.
+	virtual void Process(cAvidaContext& ctx) {
+		for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+			SendFlash(m_world->GetPopulation().GetDeme(i));
+		}
+	}
+								
+	//! Send a flash to a single organism in the given deme.							
+	void SendFlash(cDeme& deme) {
+		cOrganism* org = deme.GetOrganism(deme.GetSize()/2);
+		if(org != 0) {
+			org->ReceiveFlash();
+		}
+	}
+};
+
+
+/*! Compete demes based on the ability of their constituent organisms
+ to synchronize their flashes to a common phase and period.
+ */
+class cActionSynchronization : public cAbstractCompeteDemes {
+public:
+  //! Constructor.
+  cActionSynchronization(cWorld* world, const cString& args) : cAbstractCompeteDemes(world, args) { }
+  
+	//! Destructor.
+	virtual ~cActionSynchronization() { }
+	
+  //! Description of this event.
+  static const cString GetDescription() { return "No Arguments"; }
+	
+  /*! Calculate the fitness based on how well the organisms in this deme have
+	 synchronized their flashes.
+   */
+  virtual double Fitness(const cDeme& deme) {
+		cStats::PopulationFlashes::const_iterator deme_flashes = m_world->GetStats().GetFlashTimes().find(deme.GetID());
+		if(deme_flashes == m_world->GetStats().GetFlashTimes().end()) {
+			// Hm, nothing to see here.  We're done.
+			return 1.0;
+		}
+		
+		// Now, chop off all flashes that are outside of the SYNC_FITNESS_WINDOW:
+		cStats::DemeFlashes window_flashes;
+		copy_flashes(window_flashes, deme_flashes->second, m_world->GetConfig().SYNC_FITNESS_WINDOW.Get());
+		
+		// Make sure that everyone's flashed:
+		if(window_flashes.size() < (unsigned int)deme.GetSize()) {
+			return 1.0 + window_flashes.size();
+		}
+    
+    // Since everyone has flashed, fitness is the difference between max and average
+    // number of flashes that occurred during the same update squared, added to
+		// the size of the deme.
+		std::vector<unsigned int> flash_counts;
+		count_flashes(window_flashes, flash_counts);
+		
+		double max = *std::max_element(flash_counts.begin(), flash_counts.end());
+		double mean = std::accumulate(flash_counts.begin(), flash_counts.end(), 0.0) / flash_counts.size();
+		
+		return 1.0 + deme.GetSize() + max - mean;
+  }
+	
+protected:
+	//! Copy flashes that occured in the last window updates from source to target.
+	void copy_flashes(cStats::DemeFlashes& target, const cStats::DemeFlashes& source, int window) {
+		for(cStats::DemeFlashes::const_iterator i=source.begin(); i!=source.end(); ++i) {
+			for(cStats::CellFlashes::const_iterator j=i->second.begin(); j!=i->second.end(); ++j) {
+				if(*j > (m_world->GetStats().GetUpdate() - window)) {
+					target[i->first].push_back(*j);
+				}
+			}
+		}
+	}
+	
+	//! Calculate the number of flashes that have occurred during each update.
+	void count_flashes(const cStats::DemeFlashes& flashes, std::vector<unsigned int>& flash_count) {
+		flash_count.clear();
+		flash_count.resize((unsigned int)m_world->GetConfig().SYNC_FITNESS_WINDOW.Get(), 0);
+		for(cStats::DemeFlashes::const_iterator i=flashes.begin(); i!=flashes.end(); ++i) {
+			for(cStats::CellFlashes::const_iterator j=i->second.begin(); j!=i->second.end(); ++j) {
+				++flash_count[m_world->GetStats().GetUpdate()-*j];
+			}
+		}		
+	}
+};
+
+
+
+/*! Compete demes based on the ability of their constituent organisms
+ to synchronize their flashes to a common period, and yet distribute themselves
+ throughout phase-space (phase desynchronization).
+  */
+class cActionDesynchronization : public cActionSynchronization {
+public:
+  //! Constructor.
+  cActionDesynchronization(cWorld* world, const cString& args) : cActionSynchronization(world, args) {
+  }
+  
+	//! Destructor.
+	virtual ~cActionDesynchronization() { }
+	
+  //! Description of this event.
+  static const cString GetDescription() { return "No Arguments"; }
+  
+	//! Calculate fitness based on how well organisms have spread throughout phase-space.
+	virtual double Fitness(const cDeme& deme) {
+		cStats::PopulationFlashes::const_iterator deme_flashes = m_world->GetStats().GetFlashTimes().find(deme.GetID());
+		if(deme_flashes == m_world->GetStats().GetFlashTimes().end()) {
+			// Hm, nothing to see here.  We're done.
+			return 1.0;
+		}
+		
+		// Now, chop off all flashes that are outside of the SYNC_FITNESS_WINDOW:
+		cStats::DemeFlashes window_flashes;
+		copy_flashes(window_flashes, deme_flashes->second, m_world->GetConfig().SYNC_FITNESS_WINDOW.Get());
+		
+		// Make sure that everyone's flashed:
+		if(window_flashes.size() < (unsigned int)deme.GetSize()) {
+			return 1.0 + window_flashes.size();
+		}
+		
+		// Since everyone has flashed, fitness is the size of the deme minus the max
+		// number of organisms that have flashed during the same update.
+		std::vector<unsigned int> flash_counts;
+		count_flashes(window_flashes, flash_counts);
+		
+		double max = *std::max_element(flash_counts.begin(), flash_counts.end());
+		
+		return 1.0 + 2*deme.GetSize() - max;
+  }
+};
+
 
 class cAbstractCompeteDemes_AttackKillAndEnergyConserve : public cAbstractCompeteDemes {
 
@@ -1437,9 +2031,39 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().NewTrial();
+    m_world->GetPopulation().NewTrial(ctx);
   }
 };
+
+
+/* This action decays the number of points a deme has accumulated by 
+ a percentage that is set in the configuration file. (hjg)*/
+class cActionDecayPoints : public cAction
+	{
+	private:
+	public:
+		cActionDecayPoints(cWorld* world, const cString& args) : cAction(world, args)
+		{
+			cString largs(args);
+		}
+		
+		static const cString GetDescription() { return "No Arguments"; }
+		
+		void Process(cAvidaContext& ctx)
+		{
+			double decay_percent = (double) m_world->GetConfig().POINT_DECAY_PERCENT.Get() / 100;
+			double cur_points = 0;
+			int sub_points = 0;
+			
+			// For each deme, subtract decay_percent of its points.
+			for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+				cur_points = m_world->GetPopulation().GetDeme(i).GetNumberOfPoints(); 
+				sub_points = (int) (cur_points * decay_percent); 
+				m_world->GetPopulation().GetDeme(i).SubtractNumberOfPoints(sub_points); 
+			}		
+			
+		}
+	};
 
 class cActionCompeteOrganisms : public cAction
 {
@@ -1458,7 +2082,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().CompeteOrganisms(m_type, m_parents_survive);
+    m_world->GetPopulation().CompeteOrganisms(ctx, m_type, m_parents_survive);
   }
 };
 
@@ -1981,16 +2605,28 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionModMutProb>("ModMutProb");
   action_lib->Register<cActionZeroMuts>("ZeroMuts");
 
+	action_lib->Register<cActionTrackAllMessages>("TrackAllMessages");
+	
   action_lib->Register<cActionCompeteDemes>("CompeteDemes");
   action_lib->Register<cActionReplicateDemes>("ReplicateDemes");
   action_lib->Register<cActionDivideDemes>("DivideDemes");
   action_lib->Register<cActionResetDemes>("ResetDemes");
   action_lib->Register<cActionCopyDeme>("CopyDeme");
+	
+	action_lib->Register<cActionDecayPoints>("DecayPoints");
 
-/****AbstractCompeteDemes sub-classes****/
+	action_lib->Register<cActionFlash>("Flash");
+	
+	/****AbstractCompeteDemes sub-classes****/
+		
   action_lib->Register<cAbstractCompeteDemes_AttackKillAndEnergyConserve>("CompeteDemes_AttackKillAndEnergyConserve");
 	action_lib->Register<cAbstractCompeteDemes_EnergyConserve>("CompeteDemes_EnergyConserve");
   
+  action_lib->Register<cAssignRandomCellData>("AssignRandomCellData");
+  action_lib->Register<cActionIteratedConsensus>("IteratedConsensus");
+	action_lib->Register<cActionSynchronization>("Synchronization");
+	action_lib->Register<cActionDesynchronization>("Desynchronization");
+	
   action_lib->Register<cActionNewTrial>("NewTrial");
   action_lib->Register<cActionCompeteOrganisms>("CompeteOrganisms");
   
@@ -2002,6 +2638,9 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionConnectCells>("ConnectCells");
   action_lib->Register<cActionDisconnectCells>("DisconnectCells");
   action_lib->Register<cActionSwapCells>("SwapCells");
+
+  action_lib->Register<cActionCompeteDemesByTaskCount>("CompeteDemesByTaskCount");
+  action_lib->Register<cActionCompeteDemesByTaskCountAndEfficiency>("CompeteDemesByTaskCountAndEfficiency");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInject>("inject");

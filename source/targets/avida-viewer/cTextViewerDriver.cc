@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -48,13 +48,13 @@ cTextViewerDriver::cTextViewerDriver(cWorld* world)
   m_view = new cView(world);
   m_view->SetViewMode(world->GetConfig().VIEW_MODE.Get());
 
-  cDriverManager::Register(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Register(this);
   world->SetDriver(this);
 }
 
 cTextViewerDriver::~cTextViewerDriver()
 {
-  cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Unregister(this);
   
   if (m_view != NULL) EndProg(0);
 }

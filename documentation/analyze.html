@@ -644,9 +644,14 @@ After a RECALCULATE (or RECALC), these additional formats become available:
 </tr>
 <tr>
 	<td><strong>total_task_performance_count</strong> (total # of tasks done)</td>
+  <td><strong>inst.n</strong> (# of times instruction number n is done)</td>
 </tr>
 </table>
 </div>
+
+<p>
+Please note that inst.n is only valid if INSTRUCTION_COUNT is on in defs.h.  It gives a count of 0 if there is no such instruction.
+</p>
 
 <p>
 If a FIND_LINEAGE was done before the RECALCULATE (or RECALC), the parent

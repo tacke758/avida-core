@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -71,19 +71,23 @@ public:
   virtual void SetPrevTaskCellID(int in_id) = 0;
 
   virtual bool Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome) = 0;
+  
   virtual cOrganism* GetNeighbor() = 0;
   virtual bool IsNeighborCellOccupied() = 0;
   virtual int GetNumNeighbors() = 0;
   virtual int GetFacing() = 0; //!< Returns the facing of this organism.
   virtual int GetNeighborCellContents() = 0;
   virtual void Rotate(int direction = 1) = 0;
+  
   virtual void Breakpoint() = 0;
+  
   virtual int GetInputAt(int& input_pointer) = 0;
   virtual void ResetInputs(cAvidaContext& ctx) = 0;
   virtual const tArray<int>& GetInputs() const = 0;
   virtual int Debug() = 0;
   virtual const tArray<double>& GetResources() = 0;
   virtual const tArray<double>& GetDemeResources(int deme_id) = 0;  
+  virtual const tArray< tArray<int> >& GetCellIdLists() = 0; 
   virtual void UpdateResources(const tArray<double>& res_change) = 0;
   virtual void UpdateDemeResources(const tArray<double>& res_change) = 0;
   virtual void Die() = 0;
@@ -98,10 +102,12 @@ public:
   virtual bool UpdateMerit(double new_merit) = 0;
   virtual bool TestOnDivide() = 0;
   virtual bool SendMessage(cOrgMessage& msg) = 0;
-
+  virtual bool BroadcastMessage(cOrgMessage& msg) = 0;
   virtual bool BcastAlarm(int jump_jabel, int bcast_range) = 0;
   virtual void DivideOrgTestamentAmongDeme(double value) = 0;
+	virtual void SendFlash() = 0;
   
+  virtual int GetStateGridID(cAvidaContext& ctx) = 0;
 };
 
 #endif

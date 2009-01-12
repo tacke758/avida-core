@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 
 #include "avida.h"
 #include "cAnalyze.h"
+#include "cAnalyzeGenotype.h"
 #include "cClassificationManager.h"
 #include "cEnvironment.h"
 #include "cEventList.h"
@@ -57,7 +58,7 @@ cWorld::~cWorld()
   // Delete after all classes that may be logging items
   if (m_data_mgr) { m_data_mgr->FlushAll(); }
   delete m_data_mgr; m_data_mgr = NULL;
-
+  
   // Delete Last
   delete m_conf; m_conf = NULL;
 
@@ -77,8 +78,6 @@ void cWorld::Setup()
   m_rng.ResetSeed(rand_seed);
   if (rand_seed != m_rng.GetSeed()) cout << " -> " << m_rng.GetSeed();
   cout << endl;
-  
-  m_actlib = cDriverManager::GetActionLibrary();
   
   m_data_mgr = new cDataFileManager(m_conf->DATA_DIR.Get(), (m_conf->VERBOSITY.Get() > VERBOSE_ON));
   if (m_conf->VERBOSITY.Get() > VERBOSE_NORMAL)
@@ -106,8 +105,6 @@ void cWorld::Setup()
 	if (m_conf->TRACK_CCLADES.Get() > 0)
 		m_class_mgr->LoadCCladeFounders(m_conf->TRACK_CCLADES_IDS.Get());
   
-	m_pop = new cPopulation(this);
-        m_pop->InitiatePop();
   
   // Setup Event List
   m_event_list = new cEventList(this);
@@ -115,8 +112,9 @@ void cWorld::Setup()
     cerr << "Error: Unable to load events" << endl;
     Avida::Exit(-1);
   }
-  
 	
+	m_pop = new cPopulation(this);
+  m_pop->InitiatePop();
   
   const bool revert_fatal = m_conf->REVERT_FATAL.Get() > 0.0;
   const bool revert_neg = m_conf->REVERT_DETRIMENTAL.Get() > 0.0;
@@ -150,11 +148,6 @@ void cWorld::GetEvents(cAvidaContext& ctx)
 int cWorld::GetNumInstructions()
 {
   return m_hw_mgr->GetInstSet().GetSize();
-}
-
-int cWorld::GetNumReactions()
-{
-  return m_env->GetReactionLib().GetSize();
 }
 
 int cWorld::GetNumResources()

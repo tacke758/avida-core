@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "population.hh" prior to 12/5/05.
- *  Copyright 1999-2008 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -105,7 +105,8 @@ private:
 
   // Other data...
   int world_x;                         // Structured population width.
-  int world_y;                         // Structured population
+  int world_y;                         // Structured population height.
+	int world_z; //!< Population depth.
   int num_organisms;                   // Cell count with living organisms
   tArray<cDeme> deme_array;            // Deme structure of the population.
  
@@ -228,8 +229,8 @@ public:
   // Deme-related stats methods
   void PrintDemeAllStats();
   void PrintDemeTestamentStats(const cString& filename);
+  void PrintDemeEnergySharingStats();
   void PrintDemeDonor();
-	void PrintDemeTotalAvgEnergy();
   void PrintDemeFitness();
   void PrintDemeGestationTime();
   void PrintDemeInstructions();
@@ -238,10 +239,11 @@ public:
   void PrintDemeMutationRate();
   void PrintDemeReceiver();
   void PrintDemeResource();
-  void PrintDemeSpatialResData(cResourceCount res, const int i, const int deme_id) const;
+  void PrintDemeSpatialResData(const cResourceCount& res, const int i, const int deme_id) const;
   void PrintDemeSpatialEnergyData() const;
   void PrintDemeSpatialSleepData() const;
   void PrintDemeTasks();
+	void PrintDemeTotalAvgEnergy();
   
   // Print deme founders
   void DumpDemeFounders(ofstream& fp);
@@ -280,6 +282,7 @@ public:
   const tArray<double>& GetCellResources(int cell_id) const { return resource_count.GetCellResources(cell_id); }
   const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id).GetDemeResourceCount().GetResources(); }
   const tArray<double>& GetDemeCellResources(int deme_id, int cell_id) { return GetDeme(deme_id).GetDemeResourceCount().GetCellResources( GetDeme(deme_id).GetRelativeCellID(cell_id) ); }
+  const tArray< tArray<int> >& GetCellIdLists() const { return resource_count.GetCellIdLists(); }
 
   cBirthChamber& GetBirthChamber(int id) { (void) id; return birth_chamber; }
 
@@ -313,8 +316,8 @@ public:
   tVector<pair<int,int> > getCellSleepLog(int i) { return sleep_log[i]; }
 
   // Trials and genetic algorithm @JEB
-  void NewTrial();
-  void CompeteOrganisms(int competition_type, int parents_survive);
+  void NewTrial(cAvidaContext& ctx);
+  void CompeteOrganisms(cAvidaContext& ctx, int competition_type, int parents_survive);
   
   // Let users change environmental variables durning the run @BDB 22-Feb-2008
   void UpdateResourceCount(const int Verbosity);
