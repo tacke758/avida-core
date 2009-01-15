@@ -171,3 +171,12 @@ void cWorld::SetDriver(cWorldDriver* driver, bool take_ownership)
   m_driver = driver;
   m_own_driver = take_ownership;
 }
+
+
+void cWorld::ResetDataFileManager(const cString dir)
+{
+  delete m_data_mgr;  //Will close all open files.
+  m_data_mgr = new cDataFileManager(dir, (m_conf->VERBOSITY.Get() > VERBOSE_ON));
+  if (m_conf->VERBOSITY.Get() > VERBOSE_NORMAL)
+    cout << "Resetting Data Directory: " << m_data_mgr->GetTargetDir() << endl;
+}
