@@ -81,11 +81,28 @@ public:
 };
 
 
+class cActionSetDataDir : public cAction
+  {
+  private:
+    cString m_dir;
+  public:
+    cActionSetDataDir(cWorld* world, const cString& args) : cAction(world, args)
+    { 
+      cString largs(args);
+      m_dir = (largs.GetSize()) ? largs.PopWord() : "data";
+    }
+    static const cString GetDescription() { return "Arguments: <string directory [default=data]>"; }
+    void Process(cAvidaContext& ctx) { m_world->ResetDataFileManager(m_dir); }
+  };
+
+
+
 void RegisterDriverActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionExit>("Exit");
   action_lib->Register<cActionExitAveLineageLabelGreater>("ExitAveLineageLabelGreater");
   action_lib->Register<cActionExitAveLineageLabelLess>("ExitAveLineageLabelLess");
+  action_lib->Register<cActionSetDataDir>("SetDataDir");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionExit>("exit");

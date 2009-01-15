@@ -115,7 +115,8 @@ public:
   // Access to Data File Manager
   std::ofstream& GetDataFileOFStream(const cString& fname) { return m_data_mgr->GetOFStream(fname); }
   cDataFile& GetDataFile(const cString& fname) { return m_data_mgr->Get(fname); }  
-
+  void ResetDataFileManager(const cString dir);  
+  
   // Config Dependent Modes
   bool GetTestOnDivide() const { return m_test_on_div; }
   bool GetTestSterilize() const { return m_test_sterilize; }
