@@ -139,7 +139,7 @@ bool cLocalThread::initializeInterruptState(const cString& handlerHeadInstructio
 			read_label.Clear();
 			next_label.Clear();
 			
-			// set all other heads to same spot
+			// set all heads to same spot
 			for(int i = 0; i < NUM_HEADS; i++) {
 				hardware->GetHead(i,m_id).Set(search_head.GetPosition());
 			}
@@ -982,7 +982,7 @@ void cHardwareCPU::PrintStatus(ostream& fp)
   // leave this out if there are no differences to keep it cleaner
   if ( m_organism->GetPhenotype().GetTimeUsed() != m_organism->GetPhenotype().GetCPUCyclesUsed() )
   {
-    fp << "  EnergyUsed:" << m_organism->GetPhenotype().GetTimeUsed();
+    fp << "  EnergyUsed:" << m_organism->GetPhenotype().GetTimeUsed();  // NOT ENERGY MODEL
   }
   fp << endl;
   
@@ -1019,7 +1019,16 @@ void cHardwareCPU::PrintStatus(ostream& fp)
       fp << "Ox" << setbase(16) << setfill('0') << setw(8) << (m_promoters[i].GetRegulatedBitCode()) << " "; 
     }
     fp << setfill(' ') << setbase(10) << endl;
-  }    
+  }
+	
+	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() == 1) {
+		cLocalThread* currentThread = GetThread(GetCurThread());
+		if(currentThread->isInterrupted())
+			fp << "Interrupted: Saved IP " << (currentThread->pushedState.heads[0]).GetPosition() << endl;
+		else
+			fp << "NOT Interrupted " <<endl;
+	}
+	fp << "Queued messages: "<< m_organism->NumQueuedMessages() << endl;
   fp.flush();
 }
 
@@ -6082,6 +6091,9 @@ bool cHardwareCPU::Inst_interrupt_handler_END(cAvidaContext& ctx) {
 	 On MSG_received_handler_END, process next interrupt or restore previous state
 	 */
 	const int threadID = GetCurThread();
+	if(m_threads[threadID].isInterrupted()) {
+		m_advance_ip = false;
+	}
 	m_threads[threadID].interruptContextSwitch(cLocalThread::INTERRUPT_COMPLETE);
 	return true;
 }
