@@ -152,7 +152,7 @@ bool cLocalThread::initializeInterruptState(const cString& handlerHeadInstructio
 
 void cLocalThread::interruptContextSwitch(int interruptType) {
 	// note: movement interrupts cannot be blocked, just message interrupts
-	// note: movements within an interrupt handler do not cause another interrupt
+	// note: movements within an interrupt handler do not cause another interrupt (REALLY?)
 	// note: interrupt handlers can be jumped into and out of
   // TODO: config arg to disallow jumping into and out of interrupt handler
 	
@@ -164,7 +164,9 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 		switch (interruptType) {
 			case cLocalThread::MSG_INTERRUPT:
 				if(initializeInterruptState("MSG_received_handler_START")) {
+					hardware->IP().Retreat();
 					hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
+					hardware->IP().Advance();
 				}
 				break;
 			case cLocalThread::MOVE_INTERRUPT:
@@ -181,7 +183,9 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 	else if(interrupted && interruptType == cLocalThread::INTERRUPT_COMPLETE) { // currently interrupted	
 		if(hardware->GetOrganism()->NumQueuedMessages() > 0) { // more messages to process
 			if(initializeInterruptState("MSG_received_handler_START")) {
+				hardware->IP().Retreat();
 				hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
+				hardware->IP().Advance();
 			}
 		} else { // interrupt -> normal
 			interrupted = false;
