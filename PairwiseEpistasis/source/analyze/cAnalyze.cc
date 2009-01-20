@@ -7008,19 +7008,19 @@ return;
  *              between parent and child genotypes.
  *          Adding instruction-set redundancy field                 
  * Arguments
- *    suffix = "1.NN"  The prefix of each file
- *    num_trials [= 1] default number of trials for plasticity
+ *    directory   [= "1NN"]  The directory to store each file
+ *    num_trials  [= 1] default number of trials for plasticity
  *     
 * ===================================================================================*/
 void cAnalyze::LandscapeBackground(cString cur_string)
 {
-  cString file_suffix;
+  cString directory;
   int     num_trials;
   double  zero = 0.0;
   double  xnan = 0.0/zero;  //Generate a nan
   
-  file_suffix  = (cur_string.GetSize()  == 0) ? "-1.NN" : cur_string.PopWord();
-  num_trials   = (cur_string.GetSize()  == 0) ? 1       : cur_string.PopWord().AsInt();
+  directory   = (cur_string.GetSize()  == 0) ? "1NN" : cur_string.PopWord();
+  num_trials  = (cur_string.GetSize()  == 0) ? 1     : cur_string.PopWord().AsInt();
   
   
   //Right now, only perform this on actual lineages
@@ -7050,21 +7050,25 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     cString str_0  = genotype_0->GetAlignedSequence();
     cString str_A  = genotype_A->GetAlignedSequence();
     
+    // 15 January -- We shouldn't have to do this.
     // Go through the parent and child alignment
     // Find the mutations in the child that are not present in the parent.
     // Store them into a list named mut
     tArray<int> mut(genotype_A->GetGenome().AsString().GetSize());
-    int num_muts = 0;
+    /*int num_muts = 0;
+    int num_sites = -1;
     for (int k = 0; k < str_A.GetSize(); k++){
-        char c0 = str_0[k];
-        char cA = str_A[k];
-        if (c0 != cA && c0 != '_' && cA != '_')
-          mut[num_muts++];
+      char c0 = str_0[k];
+      char cA = str_A[k];
+      if (cA != '_') num_sites++;
+      //if (c0 != cA && cA != '_')
+      //  mut[num_muts++] = num_sites;
     }
+     */
     
     //For each "child" genotype
     //Create a filename
-    cString filename = cStringUtil::Stringf("%d", genotype_A->GetID()) + file_suffix + ".dat";
+    cString filename = cStringUtil::Stringf("%s/%d-1NN.dat", static_cast<const char*>(directory), genotype_A->GetID());
     
     //Request a file
     cDataFile& df = m_world->GetDataFile(filename);
@@ -7104,13 +7108,16 @@ void cAnalyze::LandscapeBackground(cString cur_string)
     for (int k = 0; k < new_genotype.GetSize(); k++){
       
       //If this site contains the one of the last mutations, flag it
-      bool mut_site = (cur_mut < num_muts && mut[cur_mut++] == k) ? true : false;
+      //bool mut_site = false; 
+      //if (cur_mut < num_muts && mut[cur_mut] == k){
+      //  mut_site = true;
+      //  cur_mut++;
+      //}
       
       //Assuming this site isn't a recent mutant, mutate it to everything it can be
       for (int c = 0; c < inst_set.GetSize(); c++){
-        // If the "change" is the same as the original or is our current mutation
-        // then supply a nan.
-        if (mut_site || cInstruction(c).GetSymbol() == old_genotype[k])
+        // If the "change" is the same as the original supply nans
+        if (cInstruction(c).GetSymbol() == old_genotype[k])
         {
           Line.Set("%d %c %g %g %g %g %g %g %g %g", k, cInstruction(c).GetSymbol(), 
                 xnan, xnan, xnan, xnan, xnan, xnan, xnan, xnan);

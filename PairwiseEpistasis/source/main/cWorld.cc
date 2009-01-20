@@ -173,6 +173,9 @@ void cWorld::SetDriver(cWorldDriver* driver, bool take_ownership)
 }
 
 
+/*
+ This might be unsafe and cause memory leaks.
+*/
 void cWorld::ResetDataFileManager(const cString dir)
 {
   delete m_data_mgr;  //Will close all open files.
