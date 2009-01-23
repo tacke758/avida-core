@@ -842,7 +842,8 @@ public:
   void PrintCurrentTaskCounts(const cString& filename);
   void PrintPerDemeGenPerFounderData(const cString& filename);
 	void PrintDemeMigrationSuicidePoints(const cString& filename);
-
+	void PrintDemeInterrupt(const cString& filename);
+	void PrintOrgsLocationAndInterrupt(const cString& filename);
 	
 
 

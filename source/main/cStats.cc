@@ -28,6 +28,8 @@
 #include "cDataFile.h"
 #include "cEnvironment.h"
 #include "cGenotype.h"
+#include "cHardwareCPU.h" // for class cLocalThread.h
+//TODO: move cLocalThread to its own header file.
 #include "cHardwareManager.h"
 #include "cInstSet.h"
 #include "cPopulation.h"
@@ -1936,8 +1938,56 @@ void cStats::PrintDemeMigrationSuicidePoints(const cString& filename){
   df.Endl();
 }
 
+void cStats::PrintDemeInterrupt(const cString& filename){
+  cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("Interrupt model stats averaged over all demes");
+	df.WriteComment("Assumes each organism only contains a single thread!");
+	df.WriteTimeStamp();
+	
+	df.Write(m_update,   "Update");
+	unsigned int numInterrupted = 0;
+	int numDemes = m_world->GetPopulation().GetNumDemes();
+  for(int i=0; i<numDemes; ++i) {
+    cDeme& deme = m_world->GetPopulation().GetDeme(i);
+		for(int j = 0; j < deme.GetSize() ; ++j) {
+			cOrganism* org = deme.GetOrganism(j);
+			if(org != NULL) {
+				cLocalThread* currentThread = static_cast<cHardwareCPU*>(org->GetHardware(false))->GetThread(org->GetHardware(false)->GetCurThread());
+				if(currentThread->isInterrupted()) {
+					++numInterrupted;
+				}
+			}
+		}
+  }
+	df.Write((static_cast<double>(numInterrupted)/numDemes), "Organisms interrupted per deme" );
+  df.Endl();
+}
 
-
+void cStats::PrintOrgsLocationAndInterrupt(const cString& filename){
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("Organism interrupt data use to make large scale movie");
+	df.WriteComment("Assumes each organism only contains a single thread!");
+	df.WriteTimeStamp();
+	
+	int numDemes = m_world->GetPopulation().GetNumDemes();
+  for(int i=0; i<numDemes; ++i) {
+    cDeme& deme = m_world->GetPopulation().GetDeme(i);
+		for(int j = 0; j < deme.GetSize() ; ++j) {
+			cOrganism* org = deme.GetOrganism(j);
+			if(org != NULL) {
+				int absolute_cell_ID = org->GetCellID();				
+				std::pair<int, int> pos = deme.GetCellPosition(absolute_cell_ID);  
+				cLocalThread* currentThread = static_cast<cHardwareCPU*>(org->GetHardware(false))->GetThread(org->GetHardware(false)->GetCurThread());
+				df.Write(m_update,   "Update");
+				df.Write(org->GetID(), "Organism ID" );
+				df.Write(pos.first, "X coordinate" );
+				df.Write(pos.second, "Y coordinate" );
+				df.Write(currentThread->isInterrupted(), "In organisms interruped?" );
+				df.Endl();
+			}
+		}
+  }
+}
 
 void cStats::CompeteDemes(const std::vector<double>& fitness) {
   m_deme_fitness = fitness;

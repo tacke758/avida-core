@@ -1025,14 +1025,6 @@ void cHardwareCPU::PrintStatus(ostream& fp)
     fp << setfill(' ') << setbase(10) << endl;
   }
 	
-	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() == 1) {
-		cLocalThread* currentThread = GetThread(GetCurThread());
-		if(currentThread->isInterrupted())
-			fp << "Interrupted: Saved IP " << (currentThread->pushedState.heads[0]).GetPosition() << endl;
-		else
-			fp << "NOT Interrupted " <<endl;
-	}
-	fp << "Queued messages: "<< m_organism->NumQueuedMessages() << endl;
   fp.flush();
 }
 

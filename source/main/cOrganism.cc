@@ -648,6 +648,20 @@ void cOrganism::PrintStatus(ostream& fp, const cString& next_name)
   for (int i = 0; i < m_hardware->GetOutputBuf().GetNumStored(); i++) fp << " 0x" << setw(8) << m_hardware->GetOutputBuf()[i];
   fp << endl;
   
+	
+	std::pair<int, int> pos = m_world->GetPopulation().GetDeme(GetOrgInterface().GetDemeID()).GetCellPosition(GetCellID());
+	fp << "Location: (" << pos.first << "," << pos.second << ")\n";
+	
+	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() == 1) {
+		cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
+		if(currentThread->isInterrupted())
+			fp << "Interrupted: Saved IP " << (currentThread->pushedState.heads[0]).GetPosition() << endl;
+		else
+			fp << "NOT Interrupted " <<endl;
+	}
+	fp << "Queued messages: "<< static_cast<int>(NumQueuedMessages()) << endl;
+	
+	
   fp << setfill(' ') << setbase(10);
     
   fp << "---------------------------" << endl;
