@@ -55,6 +55,7 @@
 #include "cInitFile.h"
 #include "cInstSet.h"
 #include "cLandscape.h"
+#include "cModularityAnalysis.h"
 #include "cPhenotype.h"
 #include "cPhenPlastGenotype.h"
 #include "cPlasticPhenotype.h"
@@ -70,6 +71,7 @@
 #include "cWorld.h"
 #include "cWorldDriver.h"
 #include "tAnalyzeJob.h"
+#include "tAnalyzeJobBatch.h"
 #include "tDataCommandManager.h"
 #include "tDataEntry.h"
 #include "tDataEntryCommand.h"
@@ -899,7 +901,7 @@ void cAnalyze::LoadFile(cString cur_string)
   }
   
   const cString filetype = input_file.GetFiletype();
-  if (filetype != "population_data" &&  // Depricated
+  if (filetype != "population_data" &&  // Deprecated
       filetype != "genotype_data") {
     cerr << "Error: Cannot load files of type \"" << filetype << "\"." << endl;
     if (exit_on_error) exit(1);
@@ -4922,6 +4924,23 @@ void cAnalyze::CommandMapTasks(cString cur_string)
   }
 }
 
+void cAnalyze::CommandCalcFunctionalModularity(cString cur_string)
+{
+  cout << "Calculating Functional Modularity..." << endl;
+
+  tList<cModularityAnalysis> mod_list;
+  tAnalyzeJobBatch<cModularityAnalysis> jobbatch(m_jobqueue);
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+  for (cAnalyzeGenotype* cur_genotype = batch_it.Next(); cur_genotype; cur_genotype = batch_it.Next()) {
+    cModularityAnalysis* mod = new cModularityAnalysis(cur_genotype);
+    mod_list.Push(mod);
+    jobbatch.AddJob(mod, &cModularityAnalysis::CalcFunctionalModularity);
+  }
+  jobbatch.RunBatch();
+  cModularityAnalysis* mod = NULL;
+  while ((mod = mod_list.Pop())) delete mod;
+}
+
 void cAnalyze::CommandAverageModularity(cString cur_string)
 {
   cout << "Average Modularity calculations" << endl;
@@ -6198,7 +6217,6 @@ void cAnalyze::CommandAlign(cString cur_string)
 {
   // Align does not need any args yet.
   (void) cur_string;
-  int perform_slow_alignment = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() : 0;
   
   cout << "Aligning sequences..." << endl;
   
@@ -6224,28 +6242,7 @@ void cAnalyze::CommandAlign(cString cur_string)
     int num_del = 0;
     
     // Compare each string to the previous.
-    if (perform_slow_alignment == 0) {
-      cStringUtil::EditDistance(sequences[i], sequences[i-1], diff_info, '_');
-    }
-    else
-    if (perform_slow_alignment == 1) {
-      cStringUtil::GapMinimizingEditDistance(sequences[i], sequences[i-1], diff_info, '_');
-    }
-    else {
-      cString best_diff_info;
-      int min_dist = -1;
-      for (int j=0; j<i; j++) {
-        cString test_diff_info;
-        int test_dist = cStringUtil::GapMinimizingEditDistance(sequences[i], sequences[j], test_diff_info, '_');
-        if (min_dist == -1 || test_dist < min_dist) {
-          min_dist = test_dist;
-          best_diff_info = test_diff_info;
-          if (min_dist == 0) j=i;
-        }
-      }
-      
-       diff_info = best_diff_info;
-    }
+    cStringUtil::EditDistance(sequences[i], sequences[i-1], diff_info, '_');
     
     while (diff_info.GetSize() != 0) {
       cString cur_mut = diff_info.Pop(',');
@@ -9244,6 +9241,7 @@ void cAnalyze::SetupCommandDefLibrary()
   AddLibraryDef("MAP", &cAnalyze::CommandMapTasks);  // Deprecated...
   AddLibraryDef("MAP_TASKS", &cAnalyze::CommandMapTasks);
   AddLibraryDef("AVERAGE_MODULARITY", &cAnalyze::CommandAverageModularity);
+  AddLibraryDef("CALC_FUNCTIONAL_MODULARITY", &cAnalyze::CommandCalcFunctionalModularity);
   AddLibraryDef("ANALYZE_REDUNDANCY_BY_INST_FAILURE", &cAnalyze::CommandAnalyzeRedundancyByInstFailure);
   AddLibraryDef("MAP_MUTATIONS", &cAnalyze::CommandMapMutations);
   AddLibraryDef("ANALYZE_COMPLEXITY", &cAnalyze::AnalyzeComplexity);

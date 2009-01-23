@@ -1062,7 +1062,7 @@ public:
     if (m_end > m_world->GetPopulation().GetSize()) m_end = m_world->GetPopulation().GetSize();
   }
   
-  static const cString GetDescription() { return "Arguments: [string mut_type='copy'] [double prob=0.0] [int start_cell=-1] [int end_cell=-1]"; }
+  static const cString GetDescription() { return "Arguments: [string mut_type='COPY_MUT'] [double prob=0.0] [int start_cell=-1] [int end_cell=-1]"; }
   
   void Process(cAvidaContext& ctx)
   {
@@ -1194,7 +1194,7 @@ public:
       if (m_end > m_world->GetPopulation().GetSize()) m_end = m_world->GetPopulation().GetSize();
   }
   
-  static const cString GetDescription() { return "Arguments: [string mut_type='copy'] [double prob=0.0] [int start_cell=-1] [int end_cell=-1]"; }
+  static const cString GetDescription() { return "Arguments: [string mut_type='COPY_MUT'] [double prob=0.0] [int start_cell=-1] [int end_cell=-1]"; }
   
   void Process(cAvidaContext& ctx)
   {
@@ -1658,7 +1658,7 @@ public:
 	}
 
 	virtual double Fitness(const cDeme& deme) {
-		double fitness = deme.GetCurTaskExeCount()[_task_num]^2;///deme.GetInjectedCount());
+		double fitness = pow(deme.GetCurTaskExeCount()[_task_num], 2.0);///deme.GetInjectedCount());
     if (fitness == 0.0) fitness = 0.1;
     return fitness;
 	}
@@ -1706,6 +1706,58 @@ public:
     return fitness;
 	}
 };
+
+
+class cActionCompeteDemesByEnergyDistribution : public cAbstractCompeteDemes {
+private:
+
+public:
+	cActionCompeteDemesByEnergyDistribution(cWorld* world, const cString& args) : cAbstractCompeteDemes(world, args) {}
+	~cActionCompeteDemesByEnergyDistribution() {}
+	
+	static const cString GetDescription() { 
+		return "Competes demes according to the distribution of energy among the organisms"; 
+	}
+	
+	virtual double Fitness(const cDeme& deme) {
+		const int numcells = deme.GetSize();
+		
+		double min_energy = -1;
+		double max_energy = -1;
+		double current_energy;
+		double fitness;
+		
+		cOrganism *org;
+		
+		for(int cellid = 0; cellid < numcells; cellid++) {
+			org = deme.GetOrganism(cellid);
+			fitness = 0.0001;
+			
+			if (org != 0) {
+				current_energy = org->GetPhenotype().GetStoredEnergy();
+				
+				if((min_energy == -1) || (current_energy < min_energy)) {
+					min_energy = current_energy;
+				}
+				
+				if((max_energy == -1) || (current_energy > max_energy)) {
+					max_energy = current_energy;
+				}
+			}
+		}
+		
+		if((min_energy == -1) || (max_energy == -1)) {
+			fitness = 0.0001;
+		} else if (min_energy == max_energy) {
+			fitness = 100 * max_energy;
+		} else {
+			fitness = 100 * (max_energy/pow((max_energy - min_energy),2));
+		}
+				
+		return fitness;
+	}
+};
+
 
 
 /*! Send an artificial flash to a single organism in each deme in the population
@@ -2641,6 +2693,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 
   action_lib->Register<cActionCompeteDemesByTaskCount>("CompeteDemesByTaskCount");
   action_lib->Register<cActionCompeteDemesByTaskCountAndEfficiency>("CompeteDemesByTaskCountAndEfficiency");
+  action_lib->Register<cActionCompeteDemesByEnergyDistribution>("CompeteDemesByEnergyDistribution");	
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInject>("inject");

@@ -1381,14 +1381,15 @@ void cPhenotype::EnergyTestament(const double value) {
 
 void cPhenotype::ApplyDonatedEnergy() {
   double energy_cap = m_world->GetConfig().ENERGY_CAP.Get();
-  
+
   if((energy_store + energy_received_buffer) >= energy_cap) {
     IncreaseEnergyApplied(energy_cap - energy_store);
+    SetEnergy(energy_store + (energy_cap - energy_received_buffer));
   } else {
     IncreaseEnergyApplied(energy_received_buffer);
+    SetEnergy(energy_store + energy_received_buffer);
   }
   
-  SetEnergy(energy_store + energy_received_buffer);
   energy_received_buffer = 0.0;
 } //End AppplyDonatedEnergy()
 
@@ -1396,6 +1397,7 @@ void cPhenotype::ApplyDonatedEnergy() {
 void cPhenotype::ReceiveDonatedEnergy(const double donation) {
   assert(donation >= 0.0);  
   energy_received_buffer += donation;
+  IncreaseEnergyReceived(donation);
   is_energy_receiver = true;
 } //End ReceiveDonatedEnergy()
 

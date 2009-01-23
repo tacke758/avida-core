@@ -1,9 +1,9 @@
 /*
- *  tRCPtr.h
+ *  tRLockPtr.h
  *  Avida
  *
- *  Created by David on 11/12/08.
- *  Copyright 2008-2009 Michigan State University. All rights reserved.
+ *  Created by David on 1/12/09.
+ *  Copyright 2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -22,23 +22,28 @@
  *
  */
 
-#ifndef tRCPtr_h
-#define tRCPtr_h
+#ifndef tRLockPtr_h
+#define tRLockPtr_h
 
-template<class T> class tRCPtr
+#ifndef cRWLock_h
+#include "cRWLock.h"
+#endif
+
+
+template<class T> class tRLockPtr
 {
 private:
   T* m_ptr;
+  cRWLock* m_rwlock;
   
-  void handleNewPointer();
-
+  
 public:
-  tRCPtr(T* ptr = NULL) : m_ptr(ptr) { handleNewPointer(); }
-  tRCPtr(const tRCPtr& rhs) : m_ptr(rhs.m_ptr) { handleNewPointer(); }
-  ~tRCPtr() { if (m_ptr) m_ptr->RemoveReference(); }
+  tRLockPtr(T* ptr, cRWLock* rwlock) : m_ptr(ptr), m_rwlock(rwlock) { m_rwlock->ReadLock(); }
+  tRLockPtr(const tRLockPtr& p) : m_ptr(p.m_ptr), m_rwlock(p.m_rwlock) { m_rwlock->ReadLock(); }
+  ~tRLockPtr() { m_rwlock->Unlock(); }
   
-  tRCPtr& operator=(const tRCPtr& rhs);
-  
+  tRLockPtr& operator=(const tRLockPtr& rhs);
+
   inline bool operator!() const { return !m_ptr; }
   inline operator bool() const { return !operator!(); }
   
@@ -46,30 +51,22 @@ public:
   inline T& operator*() const { return *m_ptr; }
   
   template<class S> inline S* operator->() const { return m_ptr; }
-  template<class S> inline S& operator*() const { return *m_ptr; }
+  template<class S> inline S& operator->() const { return *m_ptr; }
   
-  template<class S> operator tRCPtr<S>() { return tRCPtr<S>(m_ptr); }
+  template<class S> operator tRLockPtr<S>() { return tRLockPtr<S>(m_ptr, m_rwlock); }
 };
 
-template<class T> inline void tRCPtr<T>::handleNewPointer()
-{
-  if (!m_ptr) return;
-  
-  if (m_ptr->IsExclusive()) m_ptr = new T(*m_ptr);
-  
-  m_ptr->AddReference();
-}
-
-template<class T> tRCPtr<T>& tRCPtr<T>::operator=(const tRCPtr& rhs)
+template<class T> tRLockPtr<T>& tRLockPtr<T>::operator=(const tRLockPtr& rhs)
 {
   if (m_ptr != rhs.m_ptr) {
-    T* old_ptr = m_ptr;
+    m_rwlock->Unlock();
     m_ptr = rhs.m_ptr;
-    handleNewPointer();
-    if (old_ptr) old_ptr->RemoveReference();
+    m_rwlock = rhs.m_rwlock;
+    m_rwlock->ReadLock();
   }
   
   return *this;
 }
+
 
 #endif

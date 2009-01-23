@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		10479F2E0F1BC54B00AF9F6A /* cMutationSteps.cc in Sources */ = {isa = PBXBuildFile; fileRef = 10479F2C0F1BC54B00AF9F6A /* cMutationSteps.cc */; };
 		2A57A3FF0D6B954D00FC54C7 /* cProbDemeProbSchedule.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2A57A3FD0D6B954D00FC54C7 /* cProbDemeProbSchedule.cc */; };
 		2A57A4000D6B954D00FC54C7 /* cProbDemeProbSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A57A3FE0D6B954D00FC54C7 /* cProbDemeProbSchedule.h */; };
 		5629D8110C3EE14800C5F152 /* cTextWindow.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5629D80D0C3EE13500C5F152 /* cTextWindow.cc */; };
@@ -215,6 +216,7 @@
 		BB11B3150F1AD49D0056DDB9 /* cDriverStatusConduit.cc in Sources */ = {isa = PBXBuildFile; fileRef = BB11B3140F1AD49D0056DDB9 /* cDriverStatusConduit.cc */; };
 		BB723EEE0E7B4DE9004461EB /* cOrganismThread.h in Headers */ = {isa = PBXBuildFile; fileRef = BB723EEC0E7B4DE9004461EB /* cOrganismThread.h */; };
 		BB723EEF0E7B4DE9004461EB /* cOrganismThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB723EED0E7B4DE9004461EB /* cOrganismThread.cpp */; };
+		BBCDD1E40F2A146C005F5AF7 /* cModularityAnalysis.cc in Sources */ = {isa = PBXBuildFile; fileRef = BBCDD1E30F2A146C005F5AF7 /* cModularityAnalysis.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -368,6 +370,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		10479F2C0F1BC54B00AF9F6A /* cMutationSteps.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cMutationSteps.cc; sourceTree = "<group>"; };
+		10479F2D0F1BC54B00AF9F6A /* cMutationSteps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cMutationSteps.h; sourceTree = "<group>"; };
 		1097463D0AE9606E00929ED6 /* cDeme.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cDeme.cc; sourceTree = "<group>"; };
 		1097463E0AE9606E00929ED6 /* cDeme.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cDeme.h; sourceTree = "<group>"; };
 		2A57A3FD0D6B954D00FC54C7 /* cProbDemeProbSchedule.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cProbDemeProbSchedule.cc; sourceTree = "<group>"; };
@@ -393,6 +397,7 @@
 		7005A70209BA0FA90007E16E /* cTestCPUInterface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cTestCPUInterface.cc; sourceTree = "<group>"; };
 		7005A70909BA0FBE0007E16E /* cOrgInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrgInterface.h; sourceTree = "<group>"; };
 		700AE91B09DB65F200A073FD /* cTaskContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cTaskContext.h; sourceTree = "<group>"; };
+		700D9CB20F1C55EB002CC711 /* tRLockPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tRLockPtr.h; sourceTree = "<group>"; };
 		700E11BC0A0815B600B604CD /* cDataEntry.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cDataEntry.cc; sourceTree = "<group>"; };
 		700E28CF0859FFD700CF158A /* tObjectFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tObjectFactory.h; sourceTree = "<group>"; };
 		700E2B83085DE50C00CF158A /* avida-viewer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "avida-viewer"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -882,6 +887,8 @@
 		BB11B3140F1AD49D0056DDB9 /* cDriverStatusConduit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDriverStatusConduit.cc; sourceTree = "<group>"; };
 		BB723EEC0E7B4DE9004461EB /* cOrganismThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrganismThread.h; sourceTree = "<group>"; };
 		BB723EED0E7B4DE9004461EB /* cOrganismThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cOrganismThread.cpp; sourceTree = "<group>"; };
+		BBCDD1E30F2A146C005F5AF7 /* cModularityAnalysis.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cModularityAnalysis.cc; sourceTree = "<group>"; };
+		BBCDD1E50F2A147D005F5AF7 /* cModularityAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cModularityAnalysis.h; sourceTree = "<group>"; };
 		DCC30FCF0762539D008F7A48 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
 		DCC3109C0762539E008F7A48 /* avida.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = avida.cc; sourceTree = "<group>"; };
 		DCC31547076253A4008F7A48 /* cCycleCheck.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cCycleCheck.cc; sourceTree = "<group>"; };
@@ -1022,6 +1029,8 @@
 		70422A1B091B141000A5E67F /* analyze */ = {
 			isa = PBXGroup;
 			children = (
+				BBCDD1E50F2A147D005F5AF7 /* cModularityAnalysis.h */,
+				BBCDD1E30F2A146C005F5AF7 /* cModularityAnalysis.cc */,
 				BB11B2DD0F1AD3690056DDB9 /* cGenotypeData.h */,
 				BB11B2DE0F1AD3690056DDB9 /* tAnalyzeJobBatch.h */,
 				BB11B2D90F1AD35B0056DDB9 /* cGenotypeBatch.cc */,
@@ -1306,6 +1315,7 @@
 				70436B250C36C64000A05ABA /* platform.h */,
 				70436B260C36C64000A05ABA /* PlatformExpert.cc */,
 				70436B270C36C64000A05ABA /* PlatformExpert.h */,
+				700D9CB20F1C55EB002CC711 /* tRLockPtr.h */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -1357,6 +1367,8 @@
 				70F7DC9F09293E6F009E311D /* cGenotype.h */,
 				70F7DAEF09290468009E311D /* cClassificationManager.h */,
 				70F7DAF009290468009E311D /* cClassificationManager.cc */,
+				10479F2D0F1BC54B00AF9F6A /* cMutationSteps.h */,
+				10479F2C0F1BC54B00AF9F6A /* cMutationSteps.cc */,
 			);
 			path = classification;
 			sourceTree = "<group>";
@@ -2094,6 +2106,8 @@
 				BB11B2E40F1AD3AC0056DDB9 /* cRCObject.cc in Sources */,
 				BB11B2E50F1AD3AC0056DDB9 /* cUnitTestDemo.cc in Sources */,
 				BB11B3150F1AD49D0056DDB9 /* cDriverStatusConduit.cc in Sources */,
+				10479F2E0F1BC54B00AF9F6A /* cMutationSteps.cc in Sources */,
+				BBCDD1E40F2A146C005F5AF7 /* cModularityAnalysis.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

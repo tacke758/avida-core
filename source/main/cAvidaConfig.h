@@ -361,7 +361,7 @@ public:
   CONFIG_ADD_VAR(SAME_LENGTH_SEX, int, 0, "0 = recombine with any genome\n1 = only recombine w/ same length");
 
   CONFIG_ADD_GROUP(DIVIDE_GROUP, "Divide Restrictions");
-  CONFIG_ADD_VAR(CHILD_SIZE_RANGE, double, 2.0, "Maximal differential between child and parent sizes.");
+  CONFIG_ADD_VAR(CHILD_SIZE_RANGE, double, 2.0, "Maximal differential between child and parent sizes.\n(Checked BEFORE mutations applied on divide.)");
   CONFIG_ADD_VAR(MIN_COPIED_LINES, double, 0.5, "Code fraction which must be copied before divide.");
   CONFIG_ADD_VAR(MIN_EXE_LINES, double, 0.5, "Code fraction which must be executed before divide.");
   CONFIG_ADD_VAR(MIN_GENOME_SIZE, int, 0, "Minimum number of instructions allowed in a genome. 0 = OFF");
@@ -371,12 +371,12 @@ public:
   CONFIG_ADD_VAR(IMMUNITY_TASK, int, -1, "Task providing immunity from the required task.");
   CONFIG_ADD_VAR(REQUIRED_REACTION, int, -1, "Reaction ID required for successful divide.");
   CONFIG_ADD_VAR(REQUIRED_BONUS, double, 0.0, "Required bonus to divide.");
+  CONFIG_ADD_VAR(REQUIRE_EXACT_COPY, int, 0, "Require offspring to be an exact copy (only divide mutations allowed).");
   CONFIG_ADD_VAR(IMPLICIT_REPRO_BONUS, int, 0, "Call Inst_Repro to divide upon achieving this bonus. 0 = OFF");  
   CONFIG_ADD_VAR(IMPLICIT_REPRO_CPU_CYCLES, int, 0, "Call Inst_Repro after this many cpu cycles. 0 = OFF");  
   CONFIG_ADD_VAR(IMPLICIT_REPRO_TIME, int, 0, "Call Inst_Repro after this time used. 0 = OFF");  
   CONFIG_ADD_VAR(IMPLICIT_REPRO_END, int, 0, "Call Inst_Repro after executing the last instruction in the genome.");  
   CONFIG_ADD_VAR(IMPLICIT_REPRO_ENERGY, double, 0.0, "Call Inst_Repro if organism accumulates this amount of energy.");    
-
   
   CONFIG_ADD_GROUP(MUTATION_GROUP, "Mutations");
   CONFIG_ADD_VAR(POINT_MUT_PROB, double, 0.0, "Mutation rate (per-location per update)");
@@ -391,7 +391,7 @@ public:
   CONFIG_ADD_VAR(DIV_INS_PROB, double, 0.0, "Insertion rate (per site, applied on divide)");
   CONFIG_ADD_VAR(DIV_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on divide)");
   CONFIG_ADD_VAR(DIV_UNIFORM_PROB, double, 0.0, "Uniform mutation probability (per site, applied on divide)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
-  CONFIG_ADD_VAR(DIV_SLIP_PROB, double, 0.0, "Slip rate");
+  CONFIG_ADD_VAR(DIV_SLIP_PROB, double, 0.0, "Slip rate (per site, applied on divide)");
   
   CONFIG_ADD_VAR(DIVIDE_MUT_PROB, double, 0.0, "Mutation rate (per divide)");
   CONFIG_ADD_VAR(DIVIDE_INS_PROB, double, 0.05, "Insertion rate (per divide)");
@@ -403,7 +403,7 @@ public:
   CONFIG_ADD_VAR(INJECT_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_MUT_PROB, double, 0.0, "Mutation rate (per site, applied on inject)");
   
-  CONFIG_ADD_VAR(SLIP_FILL_MODE, int, 0, "Fill insertions from slip mutations with 0=duplication, 1=nop-X, 2=random, 3=scrambled");
+  CONFIG_ADD_VAR(SLIP_FILL_MODE, int, 0, "Fill insertions from slip mutations with 0=duplication, 1=nop-X, 2=random, 3=scrambled, 4=nop-C");
   CONFIG_ADD_VAR(SLIP_COPY_MODE, int, 0, "How to handle 'on-copy' slip mutations:\n0 = actual read head slip\n1 = instant large mutation (obeys slip mode)");
   CONFIG_ADD_VAR(PARENT_MUT_PROB, double, 0.0, "Per-site, in parent, on divide");
   CONFIG_ADD_VAR(SPECIAL_MUT_LINE, int, -1, "If this is >= 0, ONLY this line is mutated");
@@ -517,9 +517,10 @@ public:
   CONFIG_ADD_VAR(FRAC_PARENT_ENERGY_GIVEN_TO_DEME_AT_BIRTH, double, 0.5, "Fraction of parent's energy given to offspring deme.");
   CONFIG_ADD_VAR(FRAC_ENERGY_DECAY_AT_ORG_BIRTH, double, 0.0, "Fraction of energy lost due to decay during organism reproduction.");
   CONFIG_ADD_VAR(FRAC_ENERGY_DECAY_AT_DEME_BIRTH, double, 0.0, "Fraction of energy lost due to decay during deme reproduction.");
-  CONFIG_ADD_VAR(NUM_INST_EXC_BEFORE_0_ENERGY, int, 0, "Number of instructions executed before energy is exhausted.");
+  CONFIG_ADD_VAR(NUM_CYCLES_EXC_BEFORE_0_ENERGY, int, 0, "Number of virtual CPU cycles executed before energy is exhausted.");
   CONFIG_ADD_VAR(ENERGY_CAP, double, -1.0, "Maximum amount of energy that can be stored in an organism.  -1 means the cap is set to Max Double");  // TODO - is this done?
   CONFIG_ADD_VAR(APPLY_ENERGY_METHOD, int, 0, "When should rewarded energy be applied to current energy?\n0 = on divide\n1 = on completion of task\n2 = on sleep");  
+  CONFIG_ADD_VAR(FIX_METABOLIC_RATE, double, -1.0, "Fix organism metobolic rate to value.  This value is static.  Feature disabled by default (value == -1)");
   CONFIG_ADD_VAR(FRAC_ENERGY_TRANSFER, double, 0.0, "Fraction of replaced organism's energy take by new resident");
   CONFIG_ADD_VAR(LOG_SLEEP_TIMES, bool, 0, "Log sleep start and end times. 0/1 (off/on)\nWARNING: may use lots of memory.");
   CONFIG_ADD_VAR(FRAC_ENERGY_RELINQUISH, double, 1.0, "Fraction of organisms energy to relinquish");
@@ -528,12 +529,14 @@ public:
   CONFIG_ADD_VAR(ATTACK_DECAY_RATE, double, 0.0, "Percent of cell's energy decayed by attack");
   CONFIG_ADD_VAR(ENERGY_THRESH_LOW, double, .33, "Threshold percent below which energy level is considered low.  Requires ENERGY_CAP.");
   CONFIG_ADD_VAR(ENERGY_THRESH_HIGH, double, .75, "Threshold percent above which energy level is considered high.  Requires ENERGY_CAP.");
+  CONFIG_ADD_VAR(ENERGY_COMPARISON_EPSILON, double, 0.0, "Percent difference (relative to executing organism) required in energy level comparisons");
   
   CONFIG_ADD_GROUP(ENERGY_SHARING_GROUP, "Energy Sharing Settings");
   CONFIG_ADD_VAR(ENERGY_SHARING_METHOD, int, 0, "Method for sharing energy.  0=receiver must actively receive/request, 1=energy pushed on receiver");
   CONFIG_ADD_VAR(ENERGY_SHARING_PCT, double, 0.0, "Percent of energy to share");
   CONFIG_ADD_VAR(ENERGY_SHARING_INCREMENT, double, 0.01, "Amount to change percent energy shared");
   CONFIG_ADD_VAR(ENERGY_SHARING_LOSS, double, 0.0, "Percent of shared energy lost in transfer");
+  CONFIG_ADD_VAR(ENERGY_SHARING_UPDATE_METABOLIC, bool, 0, "0/1 (off/on) - Whether to update an organism's metabolic rate on donate or reception/application of energy");
   
 	CONFIG_ADD_GROUP(INTERRUPT_GROUP, "Interrupt Settings");
   CONFIG_ADD_VAR(INTERRUPT_ENABLED, bool, 0, "Enable Interrupt Model. 0/1 (off/on)");
