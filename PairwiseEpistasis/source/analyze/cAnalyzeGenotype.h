@@ -199,9 +199,21 @@ private:
       int     m_recalculate_trials;  
       int     m_num_phenotypes;
       double  m_min_fitness;
+      double  m_min_gestation_time;
+      double  m_min_merit;
+    
       double  m_max_fitness;
+      double  m_max_gestation_time;
+      double m_max_merit;
+    
       double  m_avg_fitness;
+      double  m_avg_gestation_time;
+      double m_avg_merit;
+    
       double  m_likely_fitness;
+      double  m_likely_gestation_time;
+      double  m_likely_merit;
+    
       double  m_phenotypic_entropy;
       double  m_likely_frequency;
       double  m_min_fit_frequency;
@@ -348,18 +360,26 @@ public:
   int    GetNumPhenotypes()     const { CheckPhenPlast(); return m_phenplast_stats->m_num_phenotypes; }
   double GetPhenotypicEntropy() const { CheckPhenPlast(); return m_phenplast_stats->m_phenotypic_entropy; }
   double GetMaximumFitness()    const { CheckPhenPlast(); return m_phenplast_stats->m_max_fitness; }
+  double GetMaximumMerit()      const { CheckPhenPlast(); return m_phenplast_stats->m_max_merit; }
+  double GetMaximumGestTime()   const { CheckPhenPlast(); return m_phenplast_stats->m_max_gestation_time; }
   double GetMaximumFitnessFrequency() const {CheckPhenPlast(); return m_phenplast_stats->m_min_fit_frequency;}
   double GetMinimumFitness()    const { CheckPhenPlast(); return m_phenplast_stats->m_min_fitness; }
+  double GetMinimumMerit()      const { CheckPhenPlast(); return m_phenplast_stats->m_min_merit; }
+  double GetMinimumGestTime()   const { CheckPhenPlast(); return m_phenplast_stats->m_min_gestation_time; }
   double GetMinimumFitnessFrequency() const {CheckPhenPlast(); return m_phenplast_stats->m_min_fit_frequency;}
-  double GetAverageFitness()    const { CheckPhenPlast(); return m_phenplast_stats->m_avg_fitness; }
+  double GetAverageFitness()   const { CheckPhenPlast(); return m_phenplast_stats->m_avg_fitness; }
+  double GetAverageMerit()     const { CheckPhenPlast(); return m_phenplast_stats->m_avg_merit; }
+  double GetAverageGestTime()  const { CheckPhenPlast(); return m_phenplast_stats->m_avg_gestation_time; }
   double GetLikelyFrequency()  const { CheckPhenPlast(); return m_phenplast_stats->m_likely_frequency; }
-  double GetLikelyFitness()     const { CheckPhenPlast(); return m_phenplast_stats->m_likely_fitness; }
+  double GetLikelyFitness()    const { CheckPhenPlast(); return m_phenplast_stats->m_likely_fitness; }
+  double GetLikelyMerit()      const { CheckPhenPlast(); return m_phenplast_stats->m_likely_merit; }
+  double GetLikelyGestTime()   const { CheckPhenPlast(); return m_phenplast_stats->m_likely_gestation_time; }
   int    GetNumTrials()         const { CheckPhenPlast(); return m_phenplast_stats->m_recalculate_trials; }
   bool   PhenPlastCalculated()  const { return m_phenplast_stats != NULL; }
   
-  double GetFitnessRatio() const { return fitness_ratio; }
+  double GetFitnessRatio()    const { return fitness_ratio; }
   double GetEfficiencyRatio() const { return efficiency_ratio; }
-  double GetCompMeritRatio() const { return comp_merit_ratio; }
+  double GetCompMeritRatio()  const { return comp_merit_ratio; }
 
   const cString & GetTaskOrder() const { return task_order; }
   cString GetTaskList() const;

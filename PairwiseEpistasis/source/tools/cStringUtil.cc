@@ -280,6 +280,34 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2,
   return (int) dist_matrix(size2, size1);
 }
 
+
+
+int cStringUtil::AlignStrings(cString& A, cString& B)
+{
+  cString diff_info;
+  int retval = EditDistance(A, B, diff_info, '_');
+  int num_ins = 0;
+  int num_del = 0;
+  while (diff_info.GetSize() != 0) {
+    cString cur_mut = diff_info.Pop(',');
+    const char mut_type = cur_mut[0];
+    cur_mut.ClipFront(1); cur_mut.ClipEnd(1);
+    int position = cur_mut.AsInt();
+    
+    if (mut_type == 'M'){ 
+      continue;    
+    } else if (mut_type == 'I'){   
+      B.Insert('_', position + num_del);
+      num_ins++;
+    } else if (mut_type == 'D') { 
+      A.Insert('_', position + num_ins);
+      num_del++;
+    }
+  }
+  return retval;
+}
+
+
 const cString & cStringUtil::Convert(const cString& in_string,
 				     const cString& out_string)
 {

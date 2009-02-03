@@ -68,14 +68,26 @@ class cPhenPlastGenotype
     UniquePhenotypes m_unique;
     cWorld* m_world;
     
+    double m_min_fitness;
     double m_max_fitness;
     double m_avg_fitness;
     double m_likely_fitness;
+    
+  double m_min_merit;
+  double m_max_merit;
+  double m_avg_merit;
+  double m_likely_merit;
+  
+  double m_min_gest_time;
+  double m_max_gest_time;
+  double m_avg_gest_time;
+  double m_likely_gest_time;
+  
     double m_phenotypic_entropy;
     double m_max_freq;
     double m_max_fit_freq;
     double m_min_fit_freq;
-    double m_min_fitness;
+    
     
     void Process(cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx);
 
@@ -87,10 +99,26 @@ class cPhenPlastGenotype
     // Accessors
     int    GetNumPhenotypes() const     { return m_unique.size();  }
     int    GetNumTrials() const         { return m_num_trials;     }
+  
+    //   Fitness
     double GetMaximumFitness() const    { return m_max_fitness;    }
     double GetMinimumFitness() const    { return m_min_fitness;    }
     double GetAverageFitness() const    { return m_avg_fitness;    }
     double GetLikelyFitness()  const    { return m_likely_fitness; }
+    
+    //   Merit
+    double GetMaximumMerit() const    { return m_max_merit;    }
+    double GetMinimumMerit() const    { return m_min_merit;    }
+    double GetAverageMerit() const    { return m_avg_merit;    }
+    double GetLikelyMerit()  const    { return m_likely_merit; }
+  
+    //   Gestation Time
+    double GetMaximumGestTime() const    { return m_max_gest_time;    }
+    double GetMinimumGestTime() const    { return m_min_gest_time;    }
+    double GetAverageGestTime() const    { return m_avg_gest_time;    }
+    double GetLikelyGestTime()  const    { return m_likely_gest_time; }
+  
+    //  Frequency
     double GetPhenotypicEntropy() const { return m_phenotypic_entropy; }
     double GetMaximumFrequency() const  { return m_max_freq; }
     double GetMaximumFitnessFrequency() const {return m_max_fit_freq;}

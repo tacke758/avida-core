@@ -65,6 +65,8 @@ public:
    **/
   static int EditDistance(const cString& string1, const cString& string2);
   static int EditDistance(const cString& string1, const cString& string2, cString& info, const char gap = ' '); 
+  
+  static int AlignStrings(cString&, cString&);
 
   /**
    * Various, overloaded conversion functions for use in templates.  Note

@@ -33,9 +33,13 @@
 #include "tList.h"
 #endif
 
+#ifndef cAnalyzeGentoype
+#include "cAnalyzeGenotype.h"
+#endif
+
 // cGenotypeBatch      : Collection of cAnalyzeGenotypes
 
-class cAnalyzeGenotype;
+//class cAnalyzeGenotype;
 
 class cGenotypeBatch {
 private:
@@ -57,6 +61,14 @@ public:
 
   void SetLineage(bool _val=true) { is_lineage = _val; }
   void SetAligned(bool _val=true) { is_aligned = _val; }
+  
+  cAnalyzeGenotype* FindGenotypeByID(int id){
+    cAnalyzeGenotype* retval = NULL;
+    tListIterator<cAnalyzeGenotype> it(genotype_list);
+    while( (retval = it.Next()) != NULL)
+      if (retval->GetID() == id) break;
+    return retval;
+  }
 };
 
 

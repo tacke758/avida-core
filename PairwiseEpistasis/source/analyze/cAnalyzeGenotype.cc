@@ -371,6 +371,18 @@ void cAnalyzeGenotype::SummarizePhenotypicPlasticity(const cPhenPlastGenotype& p
   m_phenplast_stats->m_max_fitness = pp.GetMaximumFitness();
   m_phenplast_stats->m_avg_fitness = pp.GetAverageFitness();
   m_phenplast_stats->m_min_fitness = pp.GetMinimumFitness();
+  
+  m_phenplast_stats->m_max_merit = pp.GetMaximumMerit();
+  m_phenplast_stats->m_min_merit = pp.GetMinimumMerit();
+  m_phenplast_stats->m_avg_merit = pp.GetAverageMerit();
+  m_phenplast_stats->m_likely_merit = pp.GetLikelyMerit();
+  
+  m_phenplast_stats->m_max_gestation_time    = pp.GetMaximumGestTime();
+  m_phenplast_stats->m_min_gestation_time    = pp.GetMinimumGestTime();
+  m_phenplast_stats->m_avg_gestation_time    = pp.GetAverageGestTime();
+  m_phenplast_stats->m_likely_gestation_time = pp.GetLikelyGestTime();
+  
+  
   m_phenplast_stats->m_phenotypic_entropy = pp.GetPhenotypicEntropy();
   m_phenplast_stats->m_likely_frequency  = pp.GetMaximumFrequency();
   m_phenplast_stats->m_max_fit_frequency = pp.GetMaximumFitnessFrequency();
