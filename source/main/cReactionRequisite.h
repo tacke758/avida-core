@@ -23,6 +23,9 @@
  *
  */
 
+#include <climits>
+using namespace std;
+
 #ifndef cReactionRequisite_h
 #define cReactionRequisite_h
 

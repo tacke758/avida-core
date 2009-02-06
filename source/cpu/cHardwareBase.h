@@ -28,6 +28,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <climits>
 
 #ifndef tBuffer_h
 #include "tBuffer.h"
