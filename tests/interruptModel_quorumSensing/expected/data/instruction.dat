@@ -1,0 +1,16 @@
+# Avida instruction execution data
+# Fri Feb  6 10:36:45 2009
+#  1: Update
+#  2: nop-A
+#  3: nop-B
+#  4: nop-C
+#  5: nop-X
+#  6: repro
+#  7: send-msg
+#  8: MSG_received_handler_START
+#  9: interrupt_handler_END
+# 10: rotate-left-one
+# 11: rotate-right-one
+
+0 0 0 0 1078 22 0 0 0 0 0 
+100 275 175 25 22475 500 50 0 25 0 200 
