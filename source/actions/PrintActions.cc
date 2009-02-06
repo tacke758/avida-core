@@ -115,7 +115,6 @@ STATS_OUT_FILE(PrintDemeOrgReactionData,    deme_org_reactions.dat  );
 STATS_OUT_FILE(PrintDemeCurrentTaskExeData,	deme_cur_task_exe.dat	);
 STATS_OUT_FILE(PrintDemeMigrationSuicidePoints,	deme_mig_suicide_points.dat	);
 STATS_OUT_FILE(PrintDemeInterrupt,					deme_interrupt.dat	);
-STATS_OUT_FILE(PrintOrgsLocationAndInterrupt,					orgs_locationAndInterrupt.dat	);
 
 STATS_OUT_FILE(PrintCurrentTaskCounts,      curr_task_counts.dat);
 STATS_OUT_FILE(PrintGermlineData,           germline.dat        );
@@ -2349,6 +2348,36 @@ public:
   }
 };
 
+class cActionDumpInterruptGrid : public cAction {
+private:
+	cString m_filename;
+	
+public:
+	cActionDumpInterruptGrid(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+	{
+		cString largs(args);
+		if (largs.GetSize()) m_filename = largs.PopWord();  
+	}
+	static const cString GetDescription() { return "Arguments: [string fname='']"; }
+	void Process(cAvidaContext& ctx)
+	{
+		cString filename(m_filename);
+		if (filename == "") filename.Set("grid_interrupt.%d.dat", m_world->GetStats().GetUpdate());
+		ofstream& fp = m_world->GetDataFileOFStream(filename);
+		
+		for (int i = 0; i < m_world->GetPopulation().GetWorldY(); i++) {
+			for (int j = 0; j < m_world->GetPopulation().GetWorldX(); j++) {
+				cPopulationCell& cell = m_world->GetPopulation().GetCell(i * m_world->GetPopulation().GetWorldX() + j);
+				if(!cell.IsOccupied())
+					fp << -1 << " ";
+				else
+					fp << cell.GetOrganism()->isInterrupted() << " ";
+			}
+			fp << endl;
+		}
+		m_world->GetDataFileManager().Remove(filename);
+	}
+};
 
 class cActionDumpLineageGrid : public cAction
 {
@@ -2771,7 +2800,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintPerDemeGenPerFounderData>("PrintPerDemeGenPerFounderData");
   action_lib->Register<cActionPrintDemeMigrationSuicidePoints>("PrintDemeMigrationSuicidePoints");
   action_lib->Register<cActionPrintDemeInterrupt>("PrintDemeInterrupt");
-  action_lib->Register<cActionPrintOrgsLocationAndInterrupt>("PrintOrgsLocationAndInterrupt");
+  action_lib->Register<cActionDumpInterruptGrid>("DumpInterruptGrid");
 	
 
   //Coalescence Clade Actions

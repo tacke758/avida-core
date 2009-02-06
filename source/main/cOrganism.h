@@ -71,6 +71,9 @@
 #include "tSmartArray.h"
 #endif
 
+#ifndef cHardwareCPU_h        //TODO: make cLocalThread its own header file
+#include "cHardwareCPU.h"
+#endif
 
 class cAvidaContext;
 class cCodeLabel;
@@ -435,6 +438,11 @@ public:
 
   
   /***** context switch********/
+	bool isInterrupted() {
+		// retruns true if current thread is interrupted
+		cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
+		return currentThread->isInterrupted();
+	}
   bool BcastAlarmMSG(cAvidaContext& ctx, int jump_label, int bcast_range);
   void moveIPtoAlarmLabel(int jump_label);
   
