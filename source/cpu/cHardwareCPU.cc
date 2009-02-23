@@ -615,6 +615,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		
     // Messaging
     tInstLibEntry<tMethod>("send-msg", &cHardwareCPU::Inst_SendMessage, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type0", &cHardwareCPU::Inst_SendMessageType0, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type1", &cHardwareCPU::Inst_SendMessageType1, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type2", &cHardwareCPU::Inst_SendMessageType2, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type3", &cHardwareCPU::Inst_SendMessageType3, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type4", &cHardwareCPU::Inst_SendMessageType4, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type5", &cHardwareCPU::Inst_SendMessageType5, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type6", &cHardwareCPU::Inst_SendMessageType6, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type7", &cHardwareCPU::Inst_SendMessageType7, nInstFlag::STALL),
     tInstLibEntry<tMethod>("retrieve-msg", &cHardwareCPU::Inst_RetrieveMessage, nInstFlag::STALL),
 		
     // Alarms
@@ -6011,6 +6019,51 @@ bool cHardwareCPU::Inst_IfLessConsensus24(cAvidaContext& ctx)
 
 //// End copied from cHardwareExperimental
 
+bool cHardwareCPU::Inst_SendMessage(cAvidaContext& ctx)
+{
+	return Inst_SendMessageBase(ctx);
+}
+
+// send message for type 0 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType0(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 0);
+}
+
+// send message for type 1 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType1(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 1);
+}
+
+// send message for type 2 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType2(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 2);
+}
+
+// send message for type 3 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType3(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 3);
+}
+
+// send message for type 4 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType4(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 4);
+}
+
+// send message for type 5 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType5(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 5);
+}
+
+// send message for type 6 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType6(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 6);
+}
+
+// send message for type 7 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType7(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 7);
+}
+
 
 /*! Send a message to the organism that is currently faced by this cell,
  where the label field of sent message is from register ?BX?, and the data field
@@ -6018,12 +6071,12 @@ bool cHardwareCPU::Inst_IfLessConsensus24(cAvidaContext& ctx)
  */
 // If INTERRUPT_ENABLED then with function will cause the MSG receiver to jump inside its interrupt handler, 
 //     and call Inst_RetrieveMessage which eats a NOP if one exists
-bool cHardwareCPU::Inst_SendMessage(cAvidaContext& ctx)
-{
-  const int label_reg = FindModifiedRegister(REG_BX);
+/* basic message sending functionallity  */
+bool cHardwareCPU::Inst_SendMessageBase(cAvidaContext& ctx, int messageType) {
+	const int label_reg = FindModifiedRegister(REG_BX);
   const int data_reg = FindNextRegister(label_reg);
   
-  cOrgMessage msg = cOrgMessage(m_organism);
+  cOrgMessage msg = cOrgMessage(m_organism, messageType);
   msg.SetLabel(GetRegister(label_reg));
   msg.SetData(GetRegister(data_reg));
   return m_organism->SendMessage(ctx, msg);

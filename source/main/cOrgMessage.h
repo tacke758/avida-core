@@ -38,7 +38,7 @@ class cOrgMessage
 {
 public:
   //! Constructor that takes a pointer to the sending organism.
-  cOrgMessage(cOrganism* sender);
+  cOrgMessage(cOrganism* sender, int messageType = -1);
   
   cOrganism* GetSender() const { return m_pSender; }
   cOrganism* GetReceiver() const { return m_pReceiver; }
@@ -50,6 +50,8 @@ public:
   void SetData(unsigned int data) { m_data = data; }
   void SetLabel(unsigned int label) { m_label = label; }
 
+	int GetMessageType() const { return m_messageType; }
+	
   int GetSenderCellID() const { return m_senderCellID; }
   int GetSenderOrgID() const { return m_senderOrgID; }
 
@@ -58,8 +60,8 @@ public:
 
 private:
   //! Default constructor is only used internally, to support message predicates.
-  cOrgMessage() : m_pSender(0), m_pReceiver(0), m_data(0), m_label(0), m_senderOrgID(0),
-	  m_senderCellID(0), m_receiverOrgID(0), m_receiverCellID(0)
+  cOrgMessage() : m_pSender(0), m_pReceiver(0), m_data(0), m_label(0), m_messageType(-1),
+		m_senderOrgID(0), m_senderCellID(0), m_receiverOrgID(0), m_receiverCellID(0)
   {
   }
   
@@ -67,6 +69,7 @@ private:
   cOrganism* m_pReceiver;
   unsigned int m_data;
   unsigned int m_label;
+	int m_messageType; // type of message sent, -1 denotes no type (default).  Supports active messages.
 
   //! ID of the organism that sent this message
   int m_senderOrgID;

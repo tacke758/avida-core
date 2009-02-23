@@ -687,6 +687,16 @@ private:
   
   //// Messaging ////
   bool Inst_SendMessage(cAvidaContext& ctx);
+  bool Inst_SendMessageBase(cAvidaContext& ctx, int messageType = -1);
+  bool Inst_SendMessageType0(cAvidaContext& ctx);
+  bool Inst_SendMessageType1(cAvidaContext& ctx);
+  bool Inst_SendMessageType2(cAvidaContext& ctx);
+  bool Inst_SendMessageType3(cAvidaContext& ctx);
+  bool Inst_SendMessageType4(cAvidaContext& ctx);
+  bool Inst_SendMessageType5(cAvidaContext& ctx);
+  bool Inst_SendMessageType6(cAvidaContext& ctx);
+  bool Inst_SendMessageType7(cAvidaContext& ctx);
+
 public:
   bool Inst_RetrieveMessage(cAvidaContext& ctx);
 private:

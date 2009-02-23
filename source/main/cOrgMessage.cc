@@ -25,8 +25,8 @@
 #include "cOrgMessage.h"
 #include "cOrganism.h"
 
-cOrgMessage::cOrgMessage(cOrganism* sender) 
-	: m_pSender(sender), m_pReceiver(0), m_data(0), m_label(0),
+cOrgMessage::cOrgMessage(cOrganism* sender, int messageType) 
+	: m_pSender(sender), m_pReceiver(0), m_data(0), m_label(0), m_messageType(messageType),
 	m_receiverOrgID(0), m_receiverCellID(0)
 {
     assert(m_pSender);
