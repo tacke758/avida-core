@@ -898,6 +898,25 @@ const cOrgMessage* cOrganism::RetrieveMessage()
   }
 }
 
+int cOrganism::PeekRetrieveMessageType() {
+  InitMessaging();
+	
+  assert(m_msg->retrieve_index <= m_msg->received.size());
+	
+  // Return null if no new messages have been received
+  if (m_msg->retrieve_index == m_msg->received.size())
+		assert(false); // no message
+	
+	const cOrgMessage* msg;
+  if (m_world->GetConfig().ORGANISMS_REMEMBER_MESSAGES.Get()) {
+    // Return the type of next unretrieved message
+    msg = &m_msg->received.at(m_msg->retrieve_index);
+  } else {
+    // Not remembering messages, return the type from the front of the message queue.
+    msg = &m_msg->received.front();
+  }
+	return msg->GetMessageType();
+}
 
 void cOrganism::Move(cAvidaContext& ctx)
 {

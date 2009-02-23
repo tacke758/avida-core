@@ -709,8 +709,16 @@ private:
   bool Inst_Alarm_Label(cAvidaContext& ctx);
   bool Jump_To_Alarm_Label(int jump_label);
 
-  // interrupt		
+  // interrupt
 	bool Inst_MSG_Handler(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type0(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type1(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type2(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type3(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type4(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type5(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type6(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type7(cAvidaContext& ctx);
 	bool Inst_Moved_Handler(cAvidaContext& ctx);
 	bool Inst_End_Handler(cAvidaContext& ctx);
 	bool moveInstructionHeadToInterruptEnd();

@@ -120,6 +120,11 @@ void cLocalThread::restoreState() {
 
 // push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
 bool cLocalThread::initializeInterruptState(const cString& handlerHeadInstructionString) {
+	if(!interrupted) {
+		//Save current state
+		saveState();
+	}
+	
 	//Jump all heads 1 instruction passed msg-handler
 	cInstruction label_inst = hardware->GetInstSet().GetInst(handlerHeadInstructionString);
 	
@@ -143,34 +148,46 @@ bool cLocalThread::initializeInterruptState(const cString& handlerHeadInstructio
 			for(int i = 0; i < NUM_HEADS; i++) {
 				hardware->GetHead(i,m_id).Set(search_head.GetPosition());
 			}
+			interrupted = true;
 			return true;
 		}
 		search_head++;
 	}
+	interrupted = false;
 	return false;
 }
 
 void cLocalThread::interruptContextSwitch(int interruptType) {
 	// note: movement interrupts cannot be blocked, just message interrupts
-	// note: movements within an interrupt handler do not cause another interrupt (REALLY?)
+	// note: movements within an interrupt handler does not cause another interrupt (REALLY?)
 	// note: interrupt handlers can be jumped into and out of
   // TODO: config arg to disallow jumping into and out of interrupt handler
 	
 	if(!interrupted && interruptType != cLocalThread::INTERRUPT_COMPLETE) { //normal -> interrupt
 		//Save current state
-		saveState();
-		interrupted = true;
+//		saveState();
+//		interrupted = true;
+
+		cString msgHandlerString;
 		
 		switch (interruptType) {
 			case cLocalThread::MSG_INTERRUPT:
-				if(initializeInterruptState("msg-handler")) {
+
+				int messageType = hardware->GetOrganism()->PeekRetrieveMessageType();
+				if(messageType == -1) {
+					msgHandlerString.Set("msg-handler");
+				} else {
+					msgHandlerString.Set("msg-handler-type%d", messageType);
+				}
+
+				if(initializeInterruptState(msgHandlerString)) {
 					hardware->IP().Retreat();
 					hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 					hardware->IP().Advance();
 				}
 				break;
 			case cLocalThread::MOVE_INTERRUPT:
-				if(initializeInterruptState("moved_handler")) {
+				if(initializeInterruptState("moved-handler")) {
 					; // perform movement interrupt initialization here
 				}
 				break;
@@ -182,7 +199,16 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 	}
 	else if(interrupted && interruptType == cLocalThread::INTERRUPT_COMPLETE) { // currently interrupted	
 		if(hardware->GetOrganism()->NumQueuedMessages() > 0) { // more messages to process
-			if(initializeInterruptState("msg-handler")) {
+
+			cString msgHandlerString;
+			int messageType = hardware->GetOrganism()->PeekRetrieveMessageType();
+			if(messageType == -1) {
+				msgHandlerString.Set("msg-handler");
+			} else {
+				msgHandlerString.Set("msg-handler-type%d", messageType);
+			}
+			
+			if(initializeInterruptState(msgHandlerString)) {
 				hardware->IP().Retreat();
 				hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 				hardware->IP().Advance();
@@ -635,6 +661,15 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		
 		// Interrupt
     tInstLibEntry<tMethod>("msg-handler", &cHardwareCPU::Inst_MSG_Handler),
+		tInstLibEntry<tMethod>("msg-handler-type0", &cHardwareCPU::Inst_MSG_Handler_Type0),
+		tInstLibEntry<tMethod>("msg-handler-type1", &cHardwareCPU::Inst_MSG_Handler_Type1),
+		tInstLibEntry<tMethod>("msg-handler-type2", &cHardwareCPU::Inst_MSG_Handler_Type2),
+		tInstLibEntry<tMethod>("msg-handler-type3", &cHardwareCPU::Inst_MSG_Handler_Type3),
+		tInstLibEntry<tMethod>("msg-handler-type4", &cHardwareCPU::Inst_MSG_Handler_Type4),
+		tInstLibEntry<tMethod>("msg-handler-type5", &cHardwareCPU::Inst_MSG_Handler_Type5),
+		tInstLibEntry<tMethod>("msg-handler-type6", &cHardwareCPU::Inst_MSG_Handler_Type6),
+		tInstLibEntry<tMethod>("msg-handler-type7", &cHardwareCPU::Inst_MSG_Handler_Type7),
+		
     tInstLibEntry<tMethod>("moved-handler", &cHardwareCPU::Inst_Moved_Handler), // not well tested.
 		tInstLibEntry<tMethod>("end-handler", &cHardwareCPU::Inst_End_Handler),
 		
@@ -6183,6 +6218,46 @@ bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
 
 // jumps one instruction passed MSG_received_handler_END
 bool cHardwareCPU::Inst_MSG_Handler(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type0(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type1(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type2(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type3(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type4(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type5(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type6(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type7(cAvidaContext& ctx) {
 	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
