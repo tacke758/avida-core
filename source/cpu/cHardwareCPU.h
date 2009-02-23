@@ -700,9 +700,9 @@ private:
   bool Jump_To_Alarm_Label(int jump_label);
 
   // interrupt		
-	bool Inst_MSG_received_handler_START(cAvidaContext& ctx);
-	bool Inst_Moved_handler_START(cAvidaContext& ctx);
-	bool Inst_interrupt_handler_END(cAvidaContext& ctx);
+	bool Inst_MSG_Handler(cAvidaContext& ctx);
+	bool Inst_Moved_Handler(cAvidaContext& ctx);
+	bool Inst_End_Handler(cAvidaContext& ctx);
 	bool moveInstructionHeadToInterruptEnd();
 	
   //// Placebo ////

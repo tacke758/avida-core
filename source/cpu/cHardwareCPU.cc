@@ -71,7 +71,7 @@ using namespace std;
  Processing interrupt
  Save current state
  Push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX.  This step will consume a nop that follows interrupt header
- Jump 1 instruction passed MSG_received_handler_START
+ Jump 1 instruction passed msg-handler
  Process instructions until MSG_received_handler_END
  On MSG_received_handler_END, process next interrupt or restore previous state
  */
@@ -120,7 +120,7 @@ void cLocalThread::restoreState() {
 
 // push interrupt arguments into registers, i.e. MSG contents are placed in BX & CX, nothing for movement
 bool cLocalThread::initializeInterruptState(const cString& handlerHeadInstructionString) {
-	//Jump all heads 1 instruction passed MSG_received_handler_START
+	//Jump all heads 1 instruction passed msg-handler
 	cInstruction label_inst = hardware->GetInstSet().GetInst(handlerHeadInstructionString);
 	
 	cHeadCPU search_head(hardware->IP());
@@ -163,14 +163,14 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 		
 		switch (interruptType) {
 			case cLocalThread::MSG_INTERRUPT:
-				if(initializeInterruptState("MSG_received_handler_START")) {
+				if(initializeInterruptState("msg-handler")) {
 					hardware->IP().Retreat();
 					hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 					hardware->IP().Advance();
 				}
 				break;
 			case cLocalThread::MOVE_INTERRUPT:
-				if(initializeInterruptState("Moved_handler_START")) {
+				if(initializeInterruptState("moved_handler")) {
 					; // perform movement interrupt initialization here
 				}
 				break;
@@ -182,7 +182,7 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 	}
 	else if(interrupted && interruptType == cLocalThread::INTERRUPT_COMPLETE) { // currently interrupted	
 		if(hardware->GetOrganism()->NumQueuedMessages() > 0) { // more messages to process
-			if(initializeInterruptState("MSG_received_handler_START")) {
+			if(initializeInterruptState("msg-handler")) {
 				hardware->IP().Retreat();
 				hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 				hardware->IP().Advance();
@@ -626,11 +626,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("alarm-label-low", &cHardwareCPU::Inst_Alarm_Label),
 		
 		// Interrupt
-    tInstLibEntry<tMethod>("MSG_received_handler_START", &cHardwareCPU::Inst_MSG_received_handler_START),  // soon to be removed
-    tInstLibEntry<tMethod>("msg_handler", &cHardwareCPU::Inst_MSG_received_handler_START), // don't use yet
-    tInstLibEntry<tMethod>("moved_handler", &cHardwareCPU::Inst_Moved_handler_START), // don't use yet
-    tInstLibEntry<tMethod>("interrupt_handler_END", &cHardwareCPU::Inst_interrupt_handler_END),  // soon to be removed
-		tInstLibEntry<tMethod>("end_handler", &cHardwareCPU::Inst_interrupt_handler_END),
+    tInstLibEntry<tMethod>("msg-handler", &cHardwareCPU::Inst_MSG_Handler),
+    tInstLibEntry<tMethod>("moved-handler", &cHardwareCPU::Inst_Moved_Handler), // not well tested.
+		tInstLibEntry<tMethod>("end-handler", &cHardwareCPU::Inst_End_Handler),
 		
     // Placebo instructions
     tInstLibEntry<tMethod>("skip", &cHardwareCPU::Inst_Skip),
@@ -6111,8 +6109,8 @@ bool cHardwareCPU::Jump_To_Alarm_Label(int jump_label) {
 
 
 bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
-	//Jump 1 instruction passed MSG_received_handler_START
-	cInstruction label_inst = GetInstSet().GetInst("interrupt_handler_END");  //cStringUtil::Stringf("MSG_received_handler_END"));
+	//Jump 1 instruction passed msg-handler
+	cInstruction label_inst = GetInstSet().GetInst("end-handler");  //cStringUtil::Stringf("MSG_received_handler_END"));
 	
 	cHeadCPU search_head(IP());
 	int start_pos = search_head.GetPosition();
@@ -6131,17 +6129,17 @@ bool cHardwareCPU::moveInstructionHeadToInterruptEnd() {
 }
 
 // jumps one instruction passed MSG_received_handler_END
-bool cHardwareCPU::Inst_MSG_received_handler_START(cAvidaContext& ctx) {
+bool cHardwareCPU::Inst_MSG_Handler(cAvidaContext& ctx) {
 	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
 
-bool cHardwareCPU::Inst_Moved_handler_START(cAvidaContext& ctx) {
+bool cHardwareCPU::Inst_Moved_Handler(cAvidaContext& ctx) {
 	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
 
-bool cHardwareCPU::Inst_interrupt_handler_END(cAvidaContext& ctx) {
+bool cHardwareCPU::Inst_End_Handler(cAvidaContext& ctx) {
 	
 	/*
 	 Process instructions in interrupt handler until MSG_received_handler_END instruction
