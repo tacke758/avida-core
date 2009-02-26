@@ -3038,6 +3038,36 @@ void cPopulation::PrintDemeTasks() {
   df_task.Endl();
 }
 
+void cPopulation::PrintWithinDemeGeneticDistance() const {
+	static const int num_demes = deme_array.GetSize();
+	cDataFile & df = m_world->GetDataFile("deme_genetic_distance.dat");
+	cDoubleSum allDemeHammingDistances;
+	cDoubleSum allDemeLevenshteinDistances;
+	for (int deme_id = 0; deme_id < num_demes; deme_id++) {
+    const cDeme & cur_deme = deme_array[deme_id];
+		cIntSum inCurrentDemeHammingDistances;
+		cIntSum inCurrentDemeLevenshteinDistances;
+		
+		for (int i = 0; i < cur_deme.GetSize(); ++i) {
+      int cell_i = cur_deme.GetCellID(i);
+      if (cell_array[cell_i].IsOccupied() == false)
+				continue;
+			for (int j = i; j < cur_deme.GetSize(); ++j) {
+				int cell_j = cur_deme.GetCellID(j);
+				if (cell_array[cell_j].IsOccupied() == false)
+					break;
+				inCurrentDemeHammingDistances.Add(cGenomeUtil::FindHammingDistance(cell_array[cell_i].GetOrganism()->GetGenome(), cell_array[cell_j].GetOrganism()->GetGenome()));
+				inCurrentDemeLevenshteinDistances.Add(cGenomeUtil::FindEditDistance(cell_array[cell_i].GetOrganism()->GetGenome(), cell_array[cell_j].GetOrganism()->GetGenome()));
+			}
+    }
+		allDemeHammingDistances.Add(inCurrentDemeHammingDistances.Average());
+		allDemeLevenshteinDistances.Add(inCurrentDemeLevenshteinDistances.Average());
+	}
+	// print average
+	df.Write(allDemeHammingDistances.Average(), "Average genetic Hamming distance between all orgnaisms in deme averaged over all demes ");
+	df.Write(allDemeLevenshteinDistances.Average(), "Average genetic Levenshtein distance between all orgnaisms in deme averaged over all demes ");
+}
+
 void cPopulation::DumpDemeFounders(ofstream& fp) {
   fp << "#filetype deme_founders" << endl
   << "#format deme_id num_founders genotype_ids" << endl

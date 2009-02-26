@@ -2625,10 +2625,10 @@ public:
   }
 };
 
-class cActionPrintDemeSpacialSleep : public cAction
+class cActionPrintDemeSpatialSleep : public cAction
 {
 public:
-  cActionPrintDemeSpacialSleep(cWorld* world, const cString& args) : cAction(world, args) { ; }
+  cActionPrintDemeSpatialSleep(cWorld* world, const cString& args) : cAction(world, args) { ; }
   
   static const cString GetDescription() { return "No Arguments"; }
   
@@ -2649,6 +2649,18 @@ public:
   {
     m_world->GetPopulation().PrintDemeResource();
   }
+};
+
+class cActionPrintWithinDemeGeneticDistance : public cAction {
+	public:
+		cActionPrintWithinDemeGeneticDistance(cWorld* world, const cString& args) : cAction(world, args) { ; }
+		
+		static const cString GetDescription() { return "No Arguments"; }
+		
+		void Process(cAvidaContext& ctx)
+		{
+			m_world->GetPopulation().PrintWithinDemeGeneticDistance();
+		}
 };
 
 class cActionSaveDemeFounders : public cAction
@@ -2779,7 +2791,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDemeEnergySharingStats>("PrintDemeEnergySharingStats");
   action_lib->Register<cActionPrintDemeDonorStats>("PrintDemeDonorStats");
   action_lib->Register<cActionPrintDemeSpacialEnergy>("PrintDemeSpacialEnergyStats");
-  action_lib->Register<cActionPrintDemeSpacialSleep>("PrintDemeSpacialSleepStats");
+  action_lib->Register<cActionPrintDemeSpatialSleep>("PrintDemeSpatialSleepStats");
   action_lib->Register<cActionPrintDemeResources>("PrintDemeResourceStats");
   action_lib->Register<cActionPrintDemeReplicationData>("PrintDemeReplicationData");
   action_lib->Register<cActionPrintDemeCompetitionData>("PrintDemeCompetitionData");
@@ -2801,6 +2813,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDemeMigrationSuicidePoints>("PrintDemeMigrationSuicidePoints");
   action_lib->Register<cActionPrintDemeInterrupt>("PrintDemeInterrupt");
   action_lib->Register<cActionDumpInterruptGrid>("DumpInterruptGrid");
+	action_lib->Register<cActionPrintWithinDemeGeneticDistance>("PrintWithinDemeGeneticDistance");
 	
 
   //Coalescence Clade Actions

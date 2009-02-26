@@ -244,6 +244,7 @@ public:
   void PrintDemeSpatialSleepData() const;
   void PrintDemeTasks();
 	void PrintDemeTotalAvgEnergy();
+	void PrintWithinDemeGeneticDistance() const;
   
   // Print deme founders
   void DumpDemeFounders(ofstream& fp);
