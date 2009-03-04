@@ -2602,6 +2602,7 @@ void cPopulation::PrintDemeAllStats() {
   PrintDemeMutationRate();
   PrintDemeResource();
   PrintDemeInstructions();
+	PrintWithinDemeGeneticDistance();
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
     PrintDemeSpatialEnergyData();
@@ -3055,7 +3056,7 @@ void cPopulation::PrintWithinDemeGeneticDistance() const {
 			for (int j = i; j < cur_deme.GetSize(); ++j) {
 				int cell_j = cur_deme.GetCellID(j);
 				if (cell_array[cell_j].IsOccupied() == false)
-					break;
+					continue;
 				inCurrentDemeHammingDistances.Add(cGenomeUtil::FindHammingDistance(cell_array[cell_i].GetOrganism()->GetGenome(), cell_array[cell_j].GetOrganism()->GetGenome()));
 				inCurrentDemeLevenshteinDistances.Add(cGenomeUtil::FindEditDistance(cell_array[cell_i].GetOrganism()->GetGenome(), cell_array[cell_j].GetOrganism()->GetGenome()));
 			}
@@ -3066,6 +3067,7 @@ void cPopulation::PrintWithinDemeGeneticDistance() const {
 	// print average
 	df.Write(allDemeHammingDistances.Average(), "Average genetic Hamming distance between all orgnaisms in deme averaged over all demes ");
 	df.Write(allDemeLevenshteinDistances.Average(), "Average genetic Levenshtein distance between all orgnaisms in deme averaged over all demes ");
+	df.Endl();
 }
 
 void cPopulation::DumpDemeFounders(ofstream& fp) {
@@ -3438,7 +3440,7 @@ cPopulationCell& cPopulation::PositionDemeMigration(cPopulationCell& parent_cell
     
     //if the -unadjusted- id is above the excluded id, bump it up one
     //insures uniform prob of landing in any deme but the parent's
-    if(rnd_deme_id >= deme_id) rnd_deme_id++;
+    if(rnd_deme_id >= deme_id) ++rnd_deme_id;
     
     //set the new deme_id
     deme_id = rnd_deme_id;
