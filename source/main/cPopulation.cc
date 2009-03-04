@@ -3065,6 +3065,7 @@ void cPopulation::PrintWithinDemeGeneticDistance() const {
 		allDemeLevenshteinDistances.Add(inCurrentDemeLevenshteinDistances.Average());
 	}
 	// print average
+	df.Write(m_world->GetStats().GetUpdate(), "Update");
 	df.Write(allDemeHammingDistances.Average(), "Average genetic Hamming distance between all orgnaisms in deme averaged over all demes ");
 	df.Write(allDemeLevenshteinDistances.Average(), "Average genetic Levenshtein distance between all orgnaisms in deme averaged over all demes ");
 	df.Endl();
