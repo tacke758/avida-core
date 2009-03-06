@@ -2814,6 +2814,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintPerDemeGenPerFounderData>("PrintPerDemeGenPerFounderData");
   action_lib->Register<cActionPrintDemeMigrationSuicidePoints>("PrintDemeMigrationSuicidePoints");
   action_lib->Register<cActionPrintDemeInterrupt>("PrintDemeInterrupt");
+	action_lib->Register<cActionPrintDemeInterruptMsgType>("PrintDemeInterruptMsgType");
   action_lib->Register<cActionDumpInterruptGrid>("DumpInterruptGrid");
 	action_lib->Register<cActionPrintWithinDemeGeneticDistance>("PrintWithinDemeGeneticDistance");
 	
