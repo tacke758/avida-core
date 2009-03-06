@@ -18,14 +18,16 @@ private:
 protected:
 	int m_id;
 	bool interrupted;        //<! is thread interrupted
+	int interruptMessageType;
 
 public:
-	cOrganismThread() : m_id(-1), interrupted(false) {;}
+	cOrganismThread() : m_id(-1), interrupted(false), interruptMessageType(-1) {;}
 	virtual ~cOrganismThread() {;}
 	
 	int GetID() const { return m_id; }
 	void SetID(int in_id) { m_id = in_id; }
 	bool isInterrupted() const { return interrupted; }
+	int getInterruptMessageType() const { return interruptMessageType; }
 	
 	virtual void saveState() = 0;  //!< saves thread's current state
 	virtual void restoreState() = 0;  //!< restores thread's saved state

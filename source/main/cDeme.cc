@@ -863,3 +863,15 @@ void cDeme::GetSurroundingCellIds(tVector<int> &cells, const int absolute_cell_i
 	} //End if world is a torus
 	
 } //End GetSurroundingCellIds()
+
+
+// return true if all organisms in deme have perviously set an opinion OR if the deme is empty
+bool cDeme::allOrgsHaveSetOpinion() {
+  for (int i=0; i<GetSize(); ++i) {
+		cOrganism* org = GetCell(i).GetOrganism();
+    if(org != NULL && !org->HasOpinion()) {
+			return false;
+		}
+  }
+	return true;
+}

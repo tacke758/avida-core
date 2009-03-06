@@ -1237,6 +1237,7 @@ There are several bases this can be checked on:
 5: 'sat-mov-pred'...demes whose movement predicate was previously satisfied
 6: 'events-killed' ...demes that have killed a certian number of events
 7: 'sat-msg-pred'...demes whose movement predicate was previously satisfied
+8: 'set-opinion'...full demes containing orgs who have all set an opinion
 
 */
 
@@ -1305,6 +1306,11 @@ void cPopulation::ReplicateDemes(int rep_trigger)
         if(!(source_deme.MsgPredSatisfiedPreviously())) continue;
         break;
       }
+			case 8: {
+				if(!source_deme.IsFull() || !source_deme.allOrgsHaveSetOpinion()) 
+					continue; // no
+				break; // yes
+			}
       default: {
         cerr << "ERROR: Invalid replication trigger " << rep_trigger
         << " in cPopulation::ReplicateDemes()" << endl;

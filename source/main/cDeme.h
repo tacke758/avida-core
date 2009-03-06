@@ -335,7 +335,9 @@ public:
 	void ClearMigrationOut() { migrations_out = 0; }
 	void ClearMigrationIn() { migrations_in = 0; }
 	void ClearSuicides() { suicides = 0; }
-
+	
+	// ----Opinions--- //
+	bool allOrgsHaveSetOpinion();
 	
   void GetSurroundingCellIds(tVector<int> &cells, const int absolute_cell_id, const int radius);
 };

@@ -290,6 +290,8 @@ bool cPopulationInterface::SendMessage(cOrgMessage& msg) {
 /* Send a message to the given organism */
 bool cPopulationInterface::SendMessage(cOrganism* recvr, cOrgMessage& msg) {
   assert(recvr != NULL);
+	static const double drop_prob = m_world->GetConfig().NET_DROP_PROB.Get();
+	assert(!(drop_prob > 0.0)); // message dropping is not implemented for this type of message sending
   recvr->ReceiveMessage(msg);
   return true;
 } //End SendMessage()

@@ -652,10 +652,12 @@ void cOrganism::PrintStatus(ostream& fp, const cString& next_name)
 	std::pair<int, int> pos = m_world->GetPopulation().GetDeme(GetOrgInterface().GetDemeID()).GetCellPosition(GetCellID());
 	fp << "Location: (" << pos.first << "," << pos.second << ")\n";
 	
-	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() == 1) {
-		cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
-		if(currentThread->isInterrupted())
+	static const bool INTERRUPT_ENABLED = m_world->GetConfig().INTERRUPT_ENABLED.Get();
+	if(INTERRUPT_ENABLED) {
+		if(isInterrupted()) {
+			cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
 			fp << "Interrupted: Saved IP " << (currentThread->pushedState.heads[0]).GetPosition() << endl;
+		}
 		else
 			fp << "NOT Interrupted " <<endl;
 	}
@@ -866,10 +868,12 @@ void cOrganism::ReceiveMessage(cOrgMessage& msg)
     m_msg->received.push_back(msg);
   }
 	
-	
+	static const bool INTERRUPT_ENABLED = m_world->GetConfig().INTERRUPT_ENABLED.Get();
+	if(INTERRUPT_ENABLED) {
 	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
-	if(m_world->GetConfig().INTERRUPT_ENABLED.Get() && currentThread->isInterrupted() == false) {
-		currentThread->interruptContextSwitch(cLocalThread::MSG_INTERRUPT);
+		if(currentThread->isInterrupted() == false) {
+			currentThread->interruptContextSwitch(cLocalThread::MSG_INTERRUPT);
+		}
 	}
 	// else msg gets added to msg queue and will cause interrupt after current interrupt is processed
 }
@@ -973,3 +977,21 @@ void cOrganism::SendFlash(cAvidaContext& ctx) {
   m_world->GetStats().SentFlash(*this);
   DoOutput(ctx);
 }
+
+////////////////////
+// Interrupt Model//
+////////////////////
+
+// is the organism currently interrupted?
+bool cOrganism::isInterrupted() {
+	// retruns true if current thread is interrupted
+	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
+	return currentThread->isInterrupted();
+}
+
+// is the organism currently interrupted?
+int cOrganism::getInterruptedMessageType() {
+	cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
+	return currentThread->getInterruptMessageType();
+}
+

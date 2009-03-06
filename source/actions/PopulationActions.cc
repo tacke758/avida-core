@@ -1955,6 +1955,8 @@ public:
     'sat-mov-pred'  - ...demes whose movement predicate was previously satisfied
     'events-killed' ...demes that have killed a certian number of events
     'sat-msg-pred'  - ...demes whose message predicate was previously satisfied
+		'set-opinion'   - ...full demes containing orgs who have all set an opinion
+
 */
 
 class cActionReplicateDemes : public cAction
@@ -1976,6 +1978,7 @@ public:
     else if (in_trigger == "sat-mov-pred") m_rep_trigger = 5;
     else if (in_trigger == "events-killed") m_rep_trigger = 6;
     else if (in_trigger == "sat-msg-pred") m_rep_trigger = 7;
+		else if (in_trigger == "set-opinion") m_rep_trigger = 8;
     else {
       cString err("Unknown replication trigger '");
       err += in_trigger;

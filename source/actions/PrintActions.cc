@@ -115,6 +115,8 @@ STATS_OUT_FILE(PrintDemeOrgReactionData,    deme_org_reactions.dat  );
 STATS_OUT_FILE(PrintDemeCurrentTaskExeData,	deme_cur_task_exe.dat	);
 STATS_OUT_FILE(PrintDemeMigrationSuicidePoints,	deme_mig_suicide_points.dat	);
 STATS_OUT_FILE(PrintDemeInterrupt,					deme_interrupt.dat	);
+STATS_OUT_FILE(PrintDemeInterruptMsgType,		deme_interruptMsgType.dat	);
+
 
 STATS_OUT_FILE(PrintCurrentTaskCounts,      curr_task_counts.dat);
 STATS_OUT_FILE(PrintGermlineData,           germline.dat        );

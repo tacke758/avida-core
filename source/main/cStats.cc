@@ -1952,14 +1952,47 @@ void cStats::PrintDemeInterrupt(const cString& filename){
 		for(int j = 0; j < deme.GetSize() ; ++j) {
 			cOrganism* org = deme.GetOrganism(j);
 			if(org != NULL) {
-				cLocalThread* currentThread = static_cast<cHardwareCPU*>(org->GetHardware(false))->GetThread(org->GetHardware(false)->GetCurThread());
-				if(currentThread->isInterrupted()) {
+//				cLocalThread* currentThread = static_cast<cHardwareCPU*>(org->GetHardware(false))->GetThread(org->GetHardware(false)->GetCurThread());
+				if(org->isInterrupted()) {
 					++numInterrupted;
 				}
 			}
 		}
   }
 	df.Write((static_cast<double>(numInterrupted)/numDemes), "Organisms interrupted per deme" );
+  df.Endl();
+}
+
+void cStats::PrintDemeInterruptMsgType(const cString& filename) {
+	static const int NUM_MESSAGE_TYPES = 8;
+	cDoubleSum variance;
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("Interrupt model message type stats averaged over all demes");
+	df.WriteComment("Assumes each organism only contains a single thread!");
+	df.WriteTimeStamp();
+	df.Write(m_update,   "Update");
+	int numDemes = m_world->GetPopulation().GetNumDemes();
+  for(int i=0; i<numDemes; ++i) {
+		tArray<int> messagetypes(NUM_MESSAGE_TYPES, 0);
+		cIntSum collecter;
+    cDeme& deme = m_world->GetPopulation().GetDeme(i);
+		for(int j = 0; j < deme.GetSize() ; ++j) {
+			cOrganism* org = deme.GetOrganism(j);
+			if(org != NULL) {
+				if(org->isInterrupted()) {
+					messagetypes[org->getInterruptedMessageType()]++;
+				}
+			}
+		}
+		for(int j = 0; j < NUM_MESSAGE_TYPES; j++) {
+			// for none then skip
+			if(messagetypes[j] > 0)
+				collecter.Add(messagetypes[j]);
+		}
+		variance.Add(collecter.Variance());
+  }
+	
+	df.Write(variance.Average(), "Average variance in demes");
   df.Endl();
 }
 

@@ -181,6 +181,7 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 				}
 
 				if(initializeInterruptState(msgHandlerString)) {
+					interruptMessageType = messageType;
 					hardware->IP().Retreat();
 					hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 					hardware->IP().Advance();
@@ -209,12 +210,14 @@ void cLocalThread::interruptContextSwitch(int interruptType) {
 			}
 			
 			if(initializeInterruptState(msgHandlerString)) {
+				interruptMessageType = messageType;
 				hardware->IP().Retreat();
 				hardware->Inst_RetrieveMessage(m_world->GetDefaultContext());
 				hardware->IP().Advance();
 			}
 		} else { // interrupt -> normal
 			interrupted = false;
+			interruptMessageType = -1;
 			restoreState();
 		}
 	}
@@ -255,6 +258,7 @@ void cLocalThread::Reset(cWorld* world, cHardwareCPU* in_hardware, int in_id)
 	pushedState.next_label.Clear();
   
 	interrupted = false;
+	interruptMessageType = -1;
 	
   // Promoter model
   m_promoter_inst_executed = 0;

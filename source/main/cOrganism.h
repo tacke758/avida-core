@@ -440,11 +440,9 @@ public:
 
   
   /***** context switch********/
-	bool isInterrupted() {
-		// retruns true if current thread is interrupted
-		cLocalThread* currentThread = static_cast<cHardwareCPU*>(m_hardware)->GetThread(m_hardware->GetCurThread());
-		return currentThread->isInterrupted();
-	}
+	bool isInterrupted();
+	int getInterruptedMessageType();
+	
   bool BcastAlarmMSG(cAvidaContext& ctx, int jump_label, int bcast_range);
   void moveIPtoAlarmLabel(int jump_label);
   

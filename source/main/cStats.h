@@ -843,6 +843,7 @@ public:
   void PrintPerDemeGenPerFounderData(const cString& filename);
 	void PrintDemeMigrationSuicidePoints(const cString& filename);
 	void PrintDemeInterrupt(const cString& filename);
+	void PrintDemeInterruptMsgType(const cString& filename);
 	
 
 
