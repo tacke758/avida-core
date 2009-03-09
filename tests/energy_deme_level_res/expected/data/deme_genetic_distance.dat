@@ -1,0 +1,15 @@
+#  1: Update
+#  2: Average genetic Hamming distance between all orgnaisms in deme averaged over all demes 
+#  3: Average genetic Levenshtein distance between all orgnaisms in deme averaged over all demes 
+
+0 0.000000 0.000000 
+10 0 0 
+20 2.59583 2.0375 
+30 4.14012 1.31855 
+40 4.91299 0.963559 
+50 5.98862 0.829897 
+60 6.82267 0.996337 
+70 12.1667 10.6667 
+80 12.1667 10.6667 
+90 12.1667 10.6667 
+100 12.1667 10.6667 
