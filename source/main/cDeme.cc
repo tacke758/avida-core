@@ -333,6 +333,7 @@ void cDeme::KillAll()
       m_world->GetPopulation().KillOrganism(cell);
     }
   }
+	sleeping_count = 0;
 }
 
 void cDeme::UpdateStats()
