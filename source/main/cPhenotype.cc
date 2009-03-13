@@ -66,6 +66,8 @@ cPhenotype::cPhenotype(cWorld* world)
   , last_reaction_count(m_world->GetEnvironment().GetReactionLib().GetSize())
   , last_reaction_add_reward(m_world->GetEnvironment().GetReactionLib().GetSize())  
   , last_sense_count(m_world->GetStats().GetSenseSize())
+	, canSendMessage(true)
+	, canReceiveMessage(true)
 {
 }
 
@@ -245,6 +247,9 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
 
   // 7. Permanent information...
   permanent_germline_propensity = in_phen.permanent_germline_propensity;
+	
+	canSendMessage     = in_phen.canSendMessage;
+	canReceiveMessage  = in_phen.canReceiveMessage;
          
   return *this;
 }
@@ -445,6 +450,9 @@ void cPhenotype::SetupOffspring(const cPhenotype& parent_phenotype, const cGenom
   // permanently set germline propensity of org (since DivideReset is called first, it is now in the "last" slot...)
   permanent_germline_propensity  = parent_phenotype.last_child_germline_propensity;
 
+	canSendMessage = parent_phenotype.canSendMessage;
+	canReceiveMessage = parent_phenotype.canReceiveMessage;
+	
   initialized = true;
 }
 

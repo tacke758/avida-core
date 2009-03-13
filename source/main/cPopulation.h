@@ -112,7 +112,10 @@ private:
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
-
+	
+	double fracOrgsCantSendMSG;
+	double fracOrgsCantReceiveMSG;
+	
   ///////////////// Private Methods ////////////////////
   void BuildTimeSlicer(cChangeList* change_list); // Build the schedule object
 
@@ -322,6 +325,11 @@ public:
   
   // Let users change environmental variables durning the run @BDB 22-Feb-2008
   void UpdateResourceCount(const int Verbosity);
+	
+	double getFracOrgsCantSendMSG() const { return fracOrgsCantSendMSG; }
+	double getFracOrgsCantReceiveMSG() const { return fracOrgsCantReceiveMSG; }
+	void setFracOrgsCantSendMSG(double frac) { assert(1.0 >= frac && frac >= 0.0); fracOrgsCantSendMSG = frac; }
+	void setFracOrgsCantReceiveMSG(double frac) { assert(1.0 >= frac && frac >= 0.0); fracOrgsCantReceiveMSG = frac; }
 };
 
 

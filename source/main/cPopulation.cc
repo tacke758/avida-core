@@ -85,6 +85,8 @@ cPopulation::cPopulation(cWorld* world)
 , environment(world->GetEnvironment())
 , num_organisms(0)
 , sync_events(false)
+, fracOrgsCantSendMSG(0.0)
+, fracOrgsCantReceiveMSG(0.0)
 {
   // Avida specific information.
   world_x = world->GetConfig().WORLD_X.Get();
@@ -361,6 +363,16 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     // Update the phenotypes of each child....
     const cGenome & child_genome = child_array[i]->GetGenome();
     child_array[i]->GetPhenotype().SetupOffspring(parent_phenotype,child_genome);
+		
+		// can be removed after instruction set can be inherited
+		if(fracOrgsCantSendMSG > 0.0 && m_world->GetRandom().P(fracOrgsCantSendMSG)) {
+			child_array[i]->GetPhenotype().disableMsgSending();
+		}
+
+		if(fracOrgsCantReceiveMSG > 0.0 && m_world->GetRandom().P(fracOrgsCantReceiveMSG)) {
+			child_array[i]->GetPhenotype().disableMsgReceiving();
+		}
+		
     child_array[i]->GetPhenotype().SetMerit(merit_array[i]);
     
     // Do lineage tracking for the new organisms.

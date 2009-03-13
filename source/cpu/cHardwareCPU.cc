@@ -6112,6 +6112,10 @@ bool cHardwareCPU::Inst_SendMessageType7(cAvidaContext& ctx) {
 //     and call Inst_RetrieveMessage which eats a NOP if one exists
 /* basic message sending functionallity  */
 bool cHardwareCPU::Inst_SendMessageBase(cAvidaContext& ctx, int messageType) {
+	if(!m_organism->GetPhenotype().canSendMSG()) { // this can be removed once instruction sets can be inherited
+		return true;  // should this be false?
+	}
+	
 	const int label_reg = FindModifiedRegister(REG_BX);
   const int data_reg = FindNextRegister(label_reg);
   

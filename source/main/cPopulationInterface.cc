@@ -283,7 +283,11 @@ bool cPopulationInterface::SendMessage(cOrgMessage& msg) {
     return false;
   cOrganism* recvr = rcell->GetOrganism();
   assert(recvr != NULL);
-  recvr->ReceiveMessage(msg);
+	if(recvr->GetPhenotype().canReceiveMSG()) {  // can be removed once instructions sets are inherited
+		recvr->ReceiveMessage(msg);
+	} else {
+		GetDeme()->messageDropped();
+	}
   return true;
 }
 

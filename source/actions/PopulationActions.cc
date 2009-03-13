@@ -2630,7 +2630,41 @@ public:
   }
 };
 
+class cActionSetFracOrgsCantSendMSG : public cAction {
+	private:
+		double m_frac;
+	public:
+		cActionSetFracOrgsCantSendMSG(cWorld* world, const cString& args) : cAction(world, args), m_frac(0.0)
+		{
+			cString largs(args);
+			if (largs.GetSize()) m_frac = largs.PopWord().AsDouble();
+		}
+		
+		static const cString GetDescription() { return "Arguments: [int frac=0.0]"; }
+		
+		void Process(cAvidaContext& ctx)
+		{
+			m_world->GetPopulation().setFracOrgsCantSendMSG(m_frac);
+		}
+};
 
+class cActionSetFracOrgsCantReceiveMSG : public cAction {
+	private:
+		double m_frac;
+	public:
+		cActionSetFracOrgsCantReceiveMSG(cWorld* world, const cString& args) : cAction(world, args), m_frac(0.0)
+		{
+			cString largs(args);
+			if (largs.GetSize()) m_frac = largs.PopWord().AsDouble();
+		}
+		
+		static const cString GetDescription() { return "Arguments: [int frac=0.0]"; }
+		
+		void Process(cAvidaContext& ctx)
+		{
+			m_world->GetPopulation().setFracOrgsCantReceiveMSG(m_frac);
+		}
+};
 
 void RegisterPopulationActions(cActionLibrary* action_lib)
 {
@@ -2697,6 +2731,9 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionCompeteDemesByTaskCount>("CompeteDemesByTaskCount");
   action_lib->Register<cActionCompeteDemesByTaskCountAndEfficiency>("CompeteDemesByTaskCountAndEfficiency");
   action_lib->Register<cActionCompeteDemesByEnergyDistribution>("CompeteDemesByEnergyDistribution");	
+	
+	action_lib->Register<cActionSetFracOrgsCantSendMSG>("SetFracOrgsCantSendMSG");
+	action_lib->Register<cActionSetFracOrgsCantReceiveMSG>("SetFracOrgsCantReceiveMSG");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInject>("inject");

@@ -239,7 +239,10 @@ private:
   // 7. Information that is set once (when organism was born)
   double permanent_germline_propensity;
   
-
+	// messaging abality
+	bool canSendMessage;
+	bool canReceiveMessage;
+	
   inline void SetInstSetSize(int inst_set_size);
 
   
@@ -539,6 +542,11 @@ public:
   void ApplyDonatedEnergy();
   void ReceiveDonatedEnergy(const double value);
   double ExtractParentEnergy();
+	
+	void disableMsgSending() { canSendMessage = false; }
+	void disableMsgReceiving() { canReceiveMessage = false; }
+	bool canSendMSG() { return canSendMessage; }
+	bool canReceiveMSG() { return canReceiveMessage; }
   
   bool operator<(const cPhenotype& rhs) const;
   bool operator>(const cPhenotype& rhs) const;
