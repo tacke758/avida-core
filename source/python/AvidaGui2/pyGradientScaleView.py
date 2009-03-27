@@ -268,12 +268,21 @@ class pyGradientScaleView(QWidget):
     if x >= 100:
       ix = int(x)
       x = float(ix)
+
+    # FIXME: Early exit
+    # return QString("%1").arg(x, 0, 'f')
+
     if (x <= 10.0):
-      return QString("%1").arg(x, 0, 'f', 2)
+      # return QString("%1").arg(x, 0, 'f', 2)
+      my_string = '%.2f ' % x 
     elif (x < 100.0):
-      return QString("%1").arg(x, 0, 'f', 1)
+      # return QString("%1").arg(x, 0, 'f', 1)
+      my_string = '%.1f' % x
     elif (x < 10000.0):
-      return QString(str(ix))
+      # return QString(str(ix))
+      my_string = '%d' % ix
     else:
-      return QString("%1").arg(x, 0, 'g', 2)
+      # return QString("%1").arg(x, 0, 'g', 2)
+      my_string = '%.2g' % x
+    return QString(my_string)
 

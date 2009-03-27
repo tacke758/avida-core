@@ -5,7 +5,7 @@ from pyAvidaStatsInterface import pyAvidaStatsInterface
 from pyOnePop_GraphView import pyOnePop_GraphView
 from pyGraphCtrl import PrintFilter
 from qt import *
-from qwt import *
+from Qwt5 import *
 import os.path
 
 class pyOnePop_GraphCtrl(pyOnePop_GraphView):
@@ -60,12 +60,21 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         1,
         self.m_avida_stats_interface.m_entries[index].index
       )
-      self.m_graph_ctrl.m_curve = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index].name)
-      self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
-      self.m_graph_ctrl.setCurvePen(self.m_graph_ctrl.m_curve, QPen(Qt.red))
-      self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.curve(self.m_graph_ctrl.m_curve).boundingRect())
+      # Old QWT 4.2
+      # self.m_graph_ctrl.m_curve = self.m_graph_ctrl.insertCurve(self.m_avida_stats_interface.m_entries[index].name)
+      # self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
+      # self.m_graph_ctrl.setCurvePen(self.m_graph_ctrl.m_curve, QPen(Qt.red))
+      # self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.curve(self.m_graph_ctrl.m_curve).boundingRect())
+      # self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
+      # self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
+
+      self.m_graph_ctrl.m_curve = QwtPlotCurve(self.m_avida_stats_interface.m_entries[index].name)
+      self.m_graph_ctrl.m_curve.setData(self.m_x_array, self.m_y_array)
+      self.m_graph_ctrl.m_curve.setPen(QPen(Qt.red))
+      self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.m_curve.boundingRect())
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
+
     self.m_graph_ctrl.replot()
       
   def setAvidaSlot(self, avida):
@@ -97,10 +106,11 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         1
       )
       if hasattr(self.m_graph_ctrl, "m_curve"):
-        self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
+        # self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
+        self.m_graph_ctrl.m_curve.setData(self.m_x_array, self.m_y_array)
         # Quick hack: Cause the zoomer to limit zooming-out to the
         # boundaries of the displayed curve.
-        self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.curve(self.m_graph_ctrl.m_curve).boundingRect())
+        self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.m_curve.boundingRect())
         # Quick hack: If the user has zoomed-in on or -out from the graph,
         # autoscaling will have been disabled. This reenables it.
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)

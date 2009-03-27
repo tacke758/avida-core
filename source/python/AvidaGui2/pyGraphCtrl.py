@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qt import *
-from qwt import *
+from Qwt5 import *
 
 class pyGraphCtrl(QwtPlot):
 

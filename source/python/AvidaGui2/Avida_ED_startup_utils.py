@@ -90,6 +90,7 @@ def AvidaEd():
       qt.PYSIGNAL("doInitializeAvidaPhaseISig"),
       (edu_main_controller.m_edu_workspace_ctrl.m_session_mdl.m_tempdir,))
 
+    # Place to put plugin loading:
 
   finally:
     s_splash.clear()

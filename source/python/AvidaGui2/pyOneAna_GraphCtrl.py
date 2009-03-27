@@ -6,7 +6,7 @@ from pyOneAna_GraphView import pyOneAna_GraphView
 from pyGraphCtrl import PrintFilter
 from pyButtonListDialog import pyButtonListDialog
 from qt import *
-from qwt import *
+from Qwt5 import *
 import os.path
 import heapq
 from descr import *
@@ -268,17 +268,18 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
             str(row.m_petri_dish_dir_path), stat_1.file, 1, stat_1.index
         )
 
-        row.m_curve_1 = self.m_graph_ctrl.insertCurve(stat_1.name)
-        self.m_graph_ctrl.setCurveData(row.m_curve_1, self.m_curve_1_arrays[0],
+        row.m_curve_1 = QwtPlotCurve(stat_1.name)
+        row.m_curve_1.attach(self.m_graph_ctrl)
+        row.m_curve_1.setData(self.m_curve_1_arrays[0],
                                        self.m_curve_1_arrays[1])
         # set the pen
         if self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'thick':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 3))
+          row.m_curve_1.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 3))
         elif self.pen_styles[self.m_combo_box_1_style.currentItem()] is 'dotted':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
+          row.m_curve_1.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
         else:
-          self.m_graph_ctrl.setCurvePen(row.m_curve_1, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
-        self.m_graph_ctrl.setCurveYAxis(row.m_curve_1, QwtPlot.yLeft)
+          row.m_curve_1.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
+        row.m_curve_1.setYAxis(QwtPlot.yLeft)
         if not self.m_combo_box_2.currentItem():
           self.m_graph_ctrl.enableYRightAxis(False)
           self.m_graph_ctrl.setTitle(stat_1.name + " vs. " + self.x_axis_title)
@@ -296,15 +297,23 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
             str(row.m_petri_dish_dir_path), stat_2.file, 1, stat_2.index
         )
 
-        row.m_curve_2 = self.m_graph_ctrl.insertCurve(stat_2.name)
-        self.m_graph_ctrl.setCurveData(row.m_curve_2, self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])
+        # row.m_curve_2 = self.m_graph_ctrl.insertCurve(stat_2.name)   # QWT 4.2
+        row.m_curve_2 = QwtPlotCurve("stat_2.name")   # Curve must now be attached
+        row.m_curve_2.attach(self.m_graph_ctrl)
+        # self.m_graph_ctrl.setCurveData(row.m_curve_2, self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])  # Old QWT 4.2
+        row.m_curve_2.setData(self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])
+        #self.m_graph_ctrl.setData(row.m_curve_2, self.m_curve_2_arrays[0], self.m_curve_2_arrays[1])
         if self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'thick':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color,3))
+          # self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color,3))
+          row.m_curve_2.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color,3))
         elif self.pen_styles[self.m_combo_box_2_style.currentItem()] is 'dotted':
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
+          # self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
+          row.m_curve_2.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color, 0, Qt.DotLine))
         else:
-          self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
-        self.m_graph_ctrl.setCurveYAxis(row.m_curve_2, QwtPlot.yRight)
+          # self.m_graph_ctrl.setCurvePen(row.m_curve_2, QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
+          row.m_curve_2.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
+        # self.m_graph_ctrl.setCurveYAxis(row.m_curve_2, QwtPlot.yRight)
+        row.m_curve_2.setYAxis(QwtPlot.yRight)
         if not self.m_combo_box_1.currentItem():
           self.m_graph_ctrl.setTitle(stat_2.name + " vs. " + self.x_axis_title)
 

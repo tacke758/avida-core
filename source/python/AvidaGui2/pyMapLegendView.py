@@ -246,5 +246,7 @@ class pyMapLegendView(QWidget):
     if x >= 100:
       ix = int(x)
       x = float(ix)
-    return QString("%1").arg(x, 0, 'g', 2)
+      # QString("%1").arg(x, 0, 'g', 2)
+      mystring = '%.2g' % x
+    return QString(mystring)
 

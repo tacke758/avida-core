@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from qt import Qt, QPainter, QPixmap, QWidget, QToolTip, QSize, QLabel
-from qwt import QwtThermo
+from Qwt5 import QwtThermo
 
 class TimelineFlagWidget(QWidget):
     "TimelineFlag widget"
@@ -59,7 +59,7 @@ class pyTimeline(QwtThermo):
     flags on the timeline."""
     def __init__(self, *args):
         QwtThermo.__init__(self, *args)
-        self.setOrientation(Qt.Horizontal, QwtThermo.Bottom)
+        self.setOrientation(Qt.Horizontal, QwtThermo.BottomScale)
         self.setPipeWidth(32)
         self.flags = []         # holds the events for this timeline
         self.clusters = []      # holds event clusters for overlapping events

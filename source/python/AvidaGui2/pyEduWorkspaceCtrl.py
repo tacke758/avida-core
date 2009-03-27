@@ -57,6 +57,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_one_organism_ctrl    = pyOneOrganismCtrl(self.m_widget_stack, "m_one_organism_ctrl")
     self.m_one_analyze_ctrl     = pyOneAnalyzeCtrl(self.m_widget_stack, "m_one_analyze_ctrl")
 
+    # Mapping cli and ctrl elements
+    #   Need to set up methods to do this kind of work 
     for (cli, ctrl) in (
       (self.m_nav_bar_ctrl.m_one_population_cli, self.m_one_population_ctrl),
       (self.m_nav_bar_ctrl.m_one_organism_cli,   self.m_one_organism_ctrl),
