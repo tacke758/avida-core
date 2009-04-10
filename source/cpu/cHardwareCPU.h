@@ -696,6 +696,14 @@ private:
   bool Inst_SendMessageType5(cAvidaContext& ctx);
   bool Inst_SendMessageType6(cAvidaContext& ctx);
   bool Inst_SendMessageType7(cAvidaContext& ctx);
+  bool Inst_SendMessageType8(cAvidaContext& ctx);
+  bool Inst_SendMessageType9(cAvidaContext& ctx);
+  bool Inst_SendMessageType10(cAvidaContext& ctx);
+  bool Inst_SendMessageType11(cAvidaContext& ctx);
+  bool Inst_SendMessageType12(cAvidaContext& ctx);
+  bool Inst_SendMessageType13(cAvidaContext& ctx);
+  bool Inst_SendMessageType14(cAvidaContext& ctx);
+  bool Inst_SendMessageType15(cAvidaContext& ctx);
 
 public:
   bool Inst_RetrieveMessage(cAvidaContext& ctx);
@@ -719,6 +727,14 @@ private:
 	bool Inst_MSG_Handler_Type5(cAvidaContext& ctx);
 	bool Inst_MSG_Handler_Type6(cAvidaContext& ctx);
 	bool Inst_MSG_Handler_Type7(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type8(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type9(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type10(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type11(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type12(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type13(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type14(cAvidaContext& ctx);
+	bool Inst_MSG_Handler_Type15(cAvidaContext& ctx);
 	bool Inst_Moved_Handler(cAvidaContext& ctx);
 	bool Inst_End_Handler(cAvidaContext& ctx);
 	bool moveInstructionHeadToInterruptEnd();

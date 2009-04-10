@@ -653,6 +653,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("send-msg-type5", &cHardwareCPU::Inst_SendMessageType5, nInstFlag::STALL),
     tInstLibEntry<tMethod>("send-msg-type6", &cHardwareCPU::Inst_SendMessageType6, nInstFlag::STALL),
     tInstLibEntry<tMethod>("send-msg-type7", &cHardwareCPU::Inst_SendMessageType7, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type8", &cHardwareCPU::Inst_SendMessageType8, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type9", &cHardwareCPU::Inst_SendMessageType9, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type10", &cHardwareCPU::Inst_SendMessageType10, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type11", &cHardwareCPU::Inst_SendMessageType11, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type12", &cHardwareCPU::Inst_SendMessageType12, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type13", &cHardwareCPU::Inst_SendMessageType13, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type14", &cHardwareCPU::Inst_SendMessageType14, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type15", &cHardwareCPU::Inst_SendMessageType15, nInstFlag::STALL),
     tInstLibEntry<tMethod>("retrieve-msg", &cHardwareCPU::Inst_RetrieveMessage, nInstFlag::STALL),
 		
     // Alarms
@@ -673,6 +681,14 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		tInstLibEntry<tMethod>("msg-handler-type5", &cHardwareCPU::Inst_MSG_Handler_Type5),
 		tInstLibEntry<tMethod>("msg-handler-type6", &cHardwareCPU::Inst_MSG_Handler_Type6),
 		tInstLibEntry<tMethod>("msg-handler-type7", &cHardwareCPU::Inst_MSG_Handler_Type7),
+		tInstLibEntry<tMethod>("msg-handler-type8", &cHardwareCPU::Inst_MSG_Handler_Type8),
+		tInstLibEntry<tMethod>("msg-handler-type9", &cHardwareCPU::Inst_MSG_Handler_Type9),
+		tInstLibEntry<tMethod>("msg-handler-type10", &cHardwareCPU::Inst_MSG_Handler_Type10),
+		tInstLibEntry<tMethod>("msg-handler-type11", &cHardwareCPU::Inst_MSG_Handler_Type11),
+		tInstLibEntry<tMethod>("msg-handler-type12", &cHardwareCPU::Inst_MSG_Handler_Type12),
+		tInstLibEntry<tMethod>("msg-handler-type13", &cHardwareCPU::Inst_MSG_Handler_Type13),
+		tInstLibEntry<tMethod>("msg-handler-type14", &cHardwareCPU::Inst_MSG_Handler_Type14),
+		tInstLibEntry<tMethod>("msg-handler-type15", &cHardwareCPU::Inst_MSG_Handler_Type15),
 		
     tInstLibEntry<tMethod>("moved-handler", &cHardwareCPU::Inst_Moved_Handler), // not well tested.
 		tInstLibEntry<tMethod>("end-handler", &cHardwareCPU::Inst_End_Handler),
@@ -6103,6 +6119,45 @@ bool cHardwareCPU::Inst_SendMessageType7(cAvidaContext& ctx) {
 	return Inst_SendMessageBase(ctx, 7);
 }
 
+// send message for type 8 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType8(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 8);
+}	
+
+// send message for type 9 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType9(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 9);
+}	
+
+// send message for type 10 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType10(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 10);
+}	
+
+// send message for type 11 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType11(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 11);
+}	
+
+// send message for type 12 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType12(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 12);
+}	
+
+// send message for type 13 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType13(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 13);
+}	
+
+// send message for type 14 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType14(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 14);
+}	
+
+// send message for type 15 to faced neighbor
+bool cHardwareCPU::Inst_SendMessageType15(cAvidaContext& ctx) {
+	return Inst_SendMessageBase(ctx, 15);
+}	
 
 /*! Send a message to the organism that is currently faced by this cell,
  where the label field of sent message is from register ?BX?, and the data field
@@ -6266,6 +6321,46 @@ bool cHardwareCPU::Inst_MSG_Handler_Type6(cAvidaContext& ctx) {
 }
 
 bool cHardwareCPU::Inst_MSG_Handler_Type7(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type8(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type9(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type10(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type11(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type12(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type13(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type14(cAvidaContext& ctx) {
+	m_advance_ip = false;
+	return moveInstructionHeadToInterruptEnd();
+}
+
+bool cHardwareCPU::Inst_MSG_Handler_Type15(cAvidaContext& ctx) {
 	m_advance_ip = false;
 	return moveInstructionHeadToInterruptEnd();
 }
