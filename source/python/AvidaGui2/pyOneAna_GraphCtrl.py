@@ -262,7 +262,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
           self.m_graph_ctrl.replot()
           return
         self.m_graph_ctrl.setAxisTitle(QwtPlot.yLeft, stat_1.name)
-        self.m_graph_ctrl.enableYLeftAxis(True)
+        # self.m_graph_ctrl.enableYLeftAxis(True)
+        self.m_graph_ctrl.enableAxis(QwtPlot.yLeft,True)
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
         self.m_curve_1_arrays = self.m_avida_stats_interface.load(
             str(row.m_petri_dish_dir_path), stat_1.file, 1, stat_1.index
@@ -281,7 +282,8 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
           row.m_curve_1.setPen(QPen(self.m_Colors[row.layout.m_combo_box_1_color.currentItem()].qt_color))
         row.m_curve_1.setYAxis(QwtPlot.yLeft)
         if not self.m_combo_box_2.currentItem():
-          self.m_graph_ctrl.enableYRightAxis(False)
+          # self.m_graph_ctrl.enableYRightAxis(False)
+          self.m_graph_ctrl.enableAxis(QwtPlot.yRight,False)
           self.m_graph_ctrl.setTitle(stat_1.name + " vs. " + self.x_axis_title)
       else:
         self.m_graph_ctrl.enableYLeftAxis(False)
@@ -323,13 +325,17 @@ class pyOneAna_GraphCtrl(pyOneAna_GraphView):
       if self.m_combo_box_1.currentItem() and self.m_combo_box_2.currentItem():
         self.m_graph_ctrl.setTitle(self.m_avida_stats_interface.m_entries[self.m_combo_box_1.currentItem()].name + ' (' + self.pen_styles[self.m_combo_box_1_style.currentItem()] \
         + ') and ' + self.m_avida_stats_interface.m_entries[self.m_combo_box_2.currentItem()].name + ' (' +  self.pen_styles[self.m_combo_box_2_style.currentItem()] +') vs. ' + self.x_axis_title)
-        bounding_rect_1 = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
-        bounding_rect_2 = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
+        # bounding_rect_1 = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
+        bounding_rect_1 = row.m_curve_1.boundingRect()
+        # bounding_rect_2 = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
+        bounding_rect_2 = row.m_curve_2.boundingRect()
         bounding_rect = bounding_rect_1.unite(bounding_rect_2)
       elif self.m_combo_box_1.currentItem():
-        bounding_rect = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
+        # bounding_rect = self.m_graph_ctrl.curve(row.m_curve_1).boundingRect()
+        bounding_rect = row.m_curve_1.boundingRect()
       else:
-        bounding_rect = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
+        # bounding_rect = self.m_graph_ctrl.curve(row.m_curve_2).boundingRect()
+        bounding_rect = row.m_curve_2.boundingRect()
 
       self.m_graph_ctrl.m_zoomer.setZoomBase(bounding_rect)
   

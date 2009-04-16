@@ -12,6 +12,8 @@ class pyNavBarListView(QListView):
     apply(QListView.__init__,(self,) + args)
     self.viewport().setAcceptDrops( True )
 
+    self.m_viewer_dict = {}
+
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
 
@@ -120,6 +122,13 @@ class pyNavBarListView(QListView):
           self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raiseAnaViewSig"),())
         else:
           info ("Only populated petri dishes can be dragged into the Analysis Viewer.")
+
+      else:
+        # Check whether <viewer_dropped_in> is in dictionary.
+        # Lookup <viewer_dropped_in> is in dictionary.
+        # Call HandleDropEvent method of object in dictionary, passing <dropped_item_name> as argument
+        pass
+          
           
 class pyNavBarCtrl(QWidget):
 

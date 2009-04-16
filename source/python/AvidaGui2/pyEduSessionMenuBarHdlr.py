@@ -50,7 +50,7 @@ class pyEduSessionMenuBarHdlr(qt.QObject):
     main_window.m_new_workspace_fmi_id = main_window.m_file_menu.insertItem("New Workspace",
       self.m_session_mdl.m_session_mdtr, qt.PYSIGNAL("doNewWorkspaceSig"),
       qt.Qt.CTRL + qt.Qt.SHIFT + qt.Qt.Key_N)
-    main_window.m_open_workspace_fmi_id = main_window.m_file_menu.insertItem("Open Workspace...",
+    main_window.m_open_workspace_fmi_id = main_window.m_file_menu.insertItem("Open the Workspace...",
       self.m_session_mdl.m_session_mdtr, qt.PYSIGNAL("doOpenWorkspaceSig"),
       qt.Qt.CTRL + qt.Qt.Key_O)
     main_window.m_close_workspace_fmi_id = main_window.m_file_menu.insertItem("Close Workspace",
@@ -75,7 +75,7 @@ class pyEduSessionMenuBarHdlr(qt.QObject):
     main_window.m_menu_bar.insertItem("File", main_window.m_file_menu)
 
     main_window.m_edit_menu = qt.QPopupMenu()
-    main_window.m_undo_emi_id = main_window.m_edit_menu.insertItem("Undo",
+    main_window.m_undo_emi_id = main_window.m_edit_menu.insertItem("Undo Last Bad Thing",
       self.m_session_mdl.m_session_mdtr, qt.PYSIGNAL("doUndoSig"),
       qt.Qt.CTRL + qt.Qt.Key_Z)
     main_window.m_redo_emi_id = main_window.m_edit_menu.insertItem("Redo",

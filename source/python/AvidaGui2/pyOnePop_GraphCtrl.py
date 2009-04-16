@@ -68,7 +68,9 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
       # self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
       # self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
 
+      # New QWT methods
       self.m_graph_ctrl.m_curve = QwtPlotCurve(self.m_avida_stats_interface.m_entries[index].name)
+      self.m_graph_ctrl.m_curve.attach(self.m_graph_ctrl)
       self.m_graph_ctrl.m_curve.setData(self.m_x_array, self.m_y_array)
       self.m_graph_ctrl.m_curve.setPen(QPen(Qt.red))
       self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.m_curve.boundingRect())
@@ -91,6 +93,7 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         self.avidaUpdatedSlot)
 
   def avidaUpdatedSlot(self):
+    # print "... in avidaUpdatedSlot ..."
     if self.m_combo_box.currentItem():
       self.m_x_array = concatenate(
         (self.m_x_array, [self.m_avida.m_population.GetStats().GetUpdate()]),
@@ -106,8 +109,13 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         1
       )
       if hasattr(self.m_graph_ctrl, "m_curve"):
+        # print " m_graph_crtl has attribute m_curve\n"
         # self.m_graph_ctrl.setCurveData(self.m_graph_ctrl.m_curve, self.m_x_array, self.m_y_array)
         self.m_graph_ctrl.m_curve.setData(self.m_x_array, self.m_y_array)
+        # if self.m_graph_ctrl.m_curve.setData(self.m_x_array, self.m_y_array):
+        #  print " setData succeeded\n"
+        # else:
+        #  print " setData failed\n"
         # Quick hack: Cause the zoomer to limit zooming-out to the
         # boundaries of the displayed curve.
         self.m_graph_ctrl.m_zoomer.setZoomBase(self.m_graph_ctrl.m_curve.boundingRect())
@@ -116,6 +124,8 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
         self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
         self.m_graph_ctrl.replot()
+      else:
+        print " m_graph_crtl DOES NOT have attribute m_curve\n"
 
   def printGraphSlot(self):
     printer = QPrinter()

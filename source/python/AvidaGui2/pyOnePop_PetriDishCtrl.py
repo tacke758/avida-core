@@ -304,7 +304,8 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
 
   def SetMapModeAndGraphModeToDefaultsSlot(self):
     descr()
-    self.m_mode_combobox.setCurrentItem(2)
+    # @WRE: reset main population viewer mode to "Fitness" (1) rather than "Gestation Time" (2)
+    self.m_mode_combobox.setCurrentItem(1)
     self.m_mode_index = self.m_mode_combobox.currentItem()
     self.modeActivatedSlot(self.m_mode_index)
     

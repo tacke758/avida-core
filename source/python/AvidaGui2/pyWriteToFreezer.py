@@ -60,7 +60,7 @@ class pyWriteToFreezer:
       del in_dict["POPULATION"]
 
       # When the ANCESTOR_LINKS hash is passed in it has cell location linked
-      # to linage label.  We need to have organism ID linked to linage label.
+      # to lineage label.  We need to have organism ID linked to linage label.
 
       orig_anc_dict = in_dict["ANCESTOR_LINKS"]
       del in_dict["ANCESTOR_LINKS"]

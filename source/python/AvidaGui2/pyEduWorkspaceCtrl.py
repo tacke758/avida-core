@@ -17,23 +17,91 @@ from pyQuitDialogCtrl import pyQuitDialogCtrl
 from pyDefaultFiles import pyDefaultFiles
 from pyReadFreezer import pyReadFreezer
 from pyWarnAboutTrashCtrl import pyWarnAboutTrashCtrl
-# from pyImportItemCtrl import pyImportItemCtrl
 from pyBeforeStartingCtrl import pyBeforeStartingCtrl
 from pyHelpScreenCtrl import pyHelpScreenCtrl
 from pyAboutScreenCtrl import pyAboutScreenCtrl
 from pyRenameDialogCtrl import pyRenameDialogCtrl
 import pyNewIconView
-import os.path, shutil
+
 from qt import *
 
+import os, os.path, shutil, sys, traceback
+
+
+# plugin_visitor
+# Inputs:
+#   arg : arguments that can be passed to all plugins
+#   dirname : a directory to look for the plugins in
+#   names : a list of plugin names to look for
+def plugin_visitor(arg, dirname, names):
+  print "in plugin_visitor(...)..."
+
+  # For readability: our single argument is a pyEduWorkspaceCtrl instance.
+  edu_workspace_ctrl = arg
+
+  # Find all the plugins, recognize by the extension using the following 
+  # filter function:
+  plugins = filter(lambda f: (os.path.splitext(f)[1] == '.ae_plugin'), names)
+
+  #print "plugin_visitor: arg:", arg
+  #print "plugin_visitor: dirname:", dirname
+  #print "plugin_visitor: names:", names
+  #print "plugin_visitor: plugins:", plugins
+
+  # Save the system path as is, so it can be restored later.
+  sys_path = sys.path
+  #print "plugin_visitor: sys.path:", sys.path
+
+  # Operate on the list of plugins that have been found
+  for plugin in plugins:
+    # Put together the path to this plugin
+    plugin_path = os.path.abspath(os.path.join(dirname, plugin))
+    #print "plugin_visitor: plugin_path:", plugin_path
+    
+    # Alter the system path temporarily
+    sys.path = [plugin_path] + sys_path
+    try:
+      # Load the plugin
+      import ae_plugin
+
+      # Reload, because all the plugins get called the same
+      # ae_plugin == Bruce
+      reload(ae_plugin)
+
+      # Call to plugin method to start things off
+      p = ae_plugin.AEPlugin(workspace_ctrl = edu_workspace_ctrl)
+
+      # Now pass in the session model to allow the plugin to hook itself
+      # into the Avida instance
+      p.construct(edu_workspace_ctrl.m_session_mdl)
+
+      #print "plugin_visitor: p:", p
+    except Exception, details:
+      # Handle exceptions so that all the plugins can be tried
+      print "Exception:", details
+      trace = traceback.format_exc()
+
+    # Restore the original system path
+    sys.path = sys_path
+    #print "plugin_visitor: sys.path:", sys.path
+
+
 class pyEduWorkspaceCtrl(pyEduWorkspaceView):
+
+  def load_plugins(self):
+    print "in pyEduWorkspaceCtrl.load_plugins ..."
+    plugins_dir = os.path.join(self.m_session_mdl.m_current_workspace, 'plugins')
+    plugins_dir = os.path.abspath(plugins_dir)
+    files = os.listdir(plugins_dir)
+    plugins = filter(lambda f: (os.path.splitext(f)[1] == '.ae_plugin'), files)
+    os.path.walk(plugins_dir, plugin_visitor, self)
+
 
   def construct(self, session_mdl):
     self.m_session_mdl = session_mdl
     self.m_avida = None
     self.startStatus = True
     self.m_nav_bar_ctrl.construct(session_mdl)
-    # self.m_nav_bar_list_view.construct(session_mdl)
     self.m_freezer_ctrl.construct(session_mdl)
     self.m_cli_to_ctrl_dict = {}
     self.m_ctrl_to_cli_dict = {}
@@ -56,7 +124,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.m_one_population_ctrl  = pyOnePopulationCtrl(self.m_widget_stack, "m_one_population_ctrl")
     self.m_one_organism_ctrl    = pyOneOrganismCtrl(self.m_widget_stack, "m_one_organism_ctrl")
     self.m_one_analyze_ctrl     = pyOneAnalyzeCtrl(self.m_widget_stack, "m_one_analyze_ctrl")
-
     # Mapping cli and ctrl elements
     #   Need to set up methods to do this kind of work 
     for (cli, ctrl) in (
@@ -67,17 +134,18 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_cli_to_ctrl_dict[cli] = ctrl
       self.m_ctrl_to_cli_dict[ctrl] = cli
 
-    #self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.On)
-    #self.m_nav_bar_ctrl.m_one_population_cli.setState(QCheckListItem.Off)
-    #self.m_nav_bar_ctrl.m_one_population_cli.setSelected(True)
-    #self.m_nav_bar_ctrl.m_one_population_cli.setSelected(False)
-
     #for ctrl in self.m_ctrl_to_cli_dict.keys():
-    #  ctrl.construct(self.m_session_mdl)
     self.m_one_population_ctrl.construct(self.m_session_mdl)
     self.m_one_organism_ctrl.construct(self.m_session_mdl, self)
     self.m_one_analyze_ctrl.construct(self.m_session_mdl)
         
+
+    # Load plug-ins!
+    print "calling self.load_plugins() ..."
+    self.load_plugins()
+    print "... done calling self.load_plugins()."
+
+
     self.connect(
       self, PYSIGNAL("quitAvidaPhaseISig"), self.startQuitProcessSlot)
     self.connect(self, PYSIGNAL("quitAvidaPhaseIISig"), qApp, SLOT("quit()"))
@@ -90,8 +158,8 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raiseOrgViewSig"), self.raiseOrgViewSlot)
     self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raiseAnaViewSig"), self.raiseAnaViewSlot)
 
-    # self.connect(
-    #   self.fileOpenFreezerAction,SIGNAL("activated()"),self.freezerOpenSlot)
+    self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raiseViewSig"), self.switchToViewSlot)
+
     self.connect(self.popview_controlNext_UpdateAction,SIGNAL("activated()"), self.next_UpdateActionSlot)
     self.connect(self.popview_controlStartAction,SIGNAL("activated()"),self.startActionSlot)
 
@@ -123,10 +191,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
       self.m_session_mdl.m_session_mdtr,
       PYSIGNAL("doPauseSig"),
       self.doPauseAvidaSlot)
-    # self.connect(
-    #   self.m_session_mdl.m_session_mdtr,
-    #   PYSIGNAL("doNextUpdateSig"),
-    #   self.updatePBClickedSlot)
 
     self.connect(self.popview_controlRestart_ExpAction,SIGNAL("activated()"),
       self.Restart_ExpActionSlot)
@@ -154,13 +218,10 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
     # set up the trash can to have one trash can icon that can not be selected
 
-    # self.TrashCanIconView.setItemTextPos(QIconView.Right)
-    # self.TrashCanIconView.setSpacing(1)
     self.TrashCanIconView.setVScrollBarMode(QIconView.AlwaysOff)
     self.TrashCanIconView.setHScrollBarMode(QIconView.AlwaysOff)
     self.TrashCanIconView.setSelectionMode(QIconView.NoSelection)
     self.TrashCanIconView.setAutoArrange(False)
-    # TCIcon = pyNewIconView.TrashIconViewItem(self.TrashCanIconView)
 
     self.show()
 
@@ -181,15 +242,23 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         if old_controller is not None:
           old_controller.aboutToBeLowered(self)
         controller.aboutToBeRaised(self)
+        print "navBarItemClickedSlot: about to call raiseWidget on controller:", controller
         self.m_widget_stack.raiseWidget(controller)
+        print "navBarItemClickedSlot: done with call raiseWidget on controller:", controller
 
   # @kgn : desperate hacks to get drag & drop working.
   def switchToView(self, cli):
-    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, False)
-    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_organism_cli, False)
-    self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_analyze_cli, False)
+    for item in self.m_cli_to_ctrl_dict:
+      self.m_nav_bar_ctrl.m_list_view.setSelected(item, False)
     self.m_nav_bar_ctrl.m_list_view.setSelected(cli, True)
     self.navBarItemClickedSlot(cli)
+
+  def switchToViewSlot(self, ctrl):
+    print "in pyEduWorkspaceCtrl.switchToViewSlot(), called with ctrl:", ctrl
+    cli = self.m_ctrl_to_cli_dict[ctrl]
+    self.switchToView(cli)
+    print "pyEduWorkspaceCtrl.switchToViewSlot() done."
+
   def raisePopViewSlot(self):
     self.switchToView(self.m_nav_bar_ctrl.m_one_population_cli)
   def raiseOrgViewSlot(self):
@@ -314,6 +383,12 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
                 shutil.copyfile(sourceName, destName)
               else:
                 pyDefaultFiles(fileName, destName)
+
+            # Now copy plugins directory verbatim.
+            plugins_dir = os.path.join(self.m_session_mdl.m_current_workspace, 'plugins')
+            new_plugins_dir = os.path.join(new_dir, 'plugins')
+            shutil.copytree(plugins_dir, new_plugins_dir)
+
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
             self.m_session_mdl.directory_chosen = True
@@ -348,12 +423,11 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         initial_dir = ""
 
       workspace_dir = QFileDialog.getExistingDirectory(
-                    # self.m_session_mdl.m_current_workspace,
-                    initial_dir,
-                    None,
-                    "get existing workspace",
-                    tmpDialogCap,
-                    True);
+        initial_dir,
+        None,
+        "get existing workspace",
+        tmpDialogCap,
+        True);
       workspace_dir = str(workspace_dir)              
       workspace_dir = workspace_dir.strip()
 
@@ -422,7 +496,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
             shutil.copytree(self.m_session_mdl.m_current_workspace, new_dir)
             self.m_session_mdl.m_current_workspace = str(new_dir)
             self.m_session_mdl.m_current_freezer = os.path.join(new_dir, "freezer")
-            #self.setCaption(self.m_session_mdl.m_current_workspace)
             self.setCaption('%s - %s' % ("Avida-ED", os.path.basename(os.path.splitext(self.m_session_mdl.m_current_workspace)[0])) )
             self.m_session_mdl.m_session_mdtr.emit(
               PYSIGNAL("doRefreshFreezerInventorySig"), ())
@@ -448,10 +521,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
 
   def fileImportItem(self):
     "Import a freezer item that was previously exported"
-
-    # self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("importFreezerItemSig"), ())
-    # m_import_freeze_item = pyImportItemCtrl()
-    # item_to_import = m_import_freeze_item.showDialog(self.m_session_mdl)
 
     # If the user has not already chosen an active workspace for this session
     # make them do so now. If they chose not to pick a workspace, don't let
@@ -679,30 +748,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
   def helpIndex(self):
     self.help_dialog = pyHelpScreenCtrl()
     self.help_dialog.showDialog()
-  #  home = QDir("./documentation/index.html").absPath()
-  #  if self.help_screen is not None:
-  #    self.help_screen.setSource(home)
-  #  else:
-  #    self.help_screen = pyHelpScreenCtrl(home, ".", None)
-  #  #help_dialog.showDialog()
-  #  self.help_screen.show()
-
-  #def helpChanges(self):
-  #  home = QDir("./documentation/changes.html").absPath()
-  #  if self.help_screen is not None:
-  #    self.help_screen.setSource(home)
-  #  else:
-  #    self.help_screen = pyHelpScreenCtrl(home, ".", None)
-  #  self.help_screen.show()
-
-  #def helpKnownBugs(self):
-  #  home = QDir("./documentation/bugs.html").absPath()
-  #  if self.help_screen is not None:
-  #    descr("calling setSource")
-  #    self.help_screen.setSource(home)
-  #  else:
-  #    self.help_screen = pyHelpScreenCtrl(home, ".", None)
-  #  self.help_screen.show()
 
   # public slot
 
@@ -795,9 +840,6 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
     if not(os.path.exists(file_name)):
       short_file_name = os.path.join("freezer", "@default.empty")
       pyDefaultFiles(short_file_name, file_name)
-      #warningNoMethodName(file_name + 
-      # " does not exist -- please start experiment by dragging dish")
-      #return
     thawed_item = pyReadFreezer(file_name)
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("startNewExperimentSig"),
       ())
@@ -874,4 +916,53 @@ class pyEduWorkspaceCtrl(pyEduWorkspaceView):
         self.m_session_mdl.m_session_mdtr.emit(
           PYSIGNAL("DeleteFromAncestorViewSig"),
           (ancestor_item_name,) )
- 
+
+  #def AddViewerTonavBar(self, new_viewer):
+  #  """ AddViewerTonavBar
+  #  provides the mechanism to add another viewer to the NavBarView.
+  #  Abstraction of the process presently handled in "construct" method 
+  #  for built-in viewers.
+  #  """
+    # Using the population viewer as an example
+
+    # Add a control object for the new viewer
+    # self.m_one_population_ctrl  = pyOnePopulationCtrl(self.m_widget_stack, "m_one_population_ctrl")
+
+    # Mapping cli and ctrl elements
+    # self.m_cli_to_ctrl_dict[self.m_nav_bar_ctrl.m_one_population_cli] = self.m_one_population_ctrl
+    # self.m_ctrl_to_cli_dict[self.m_one_population_ctrl] = self.m_nav_bar_ctrl.m_one_population_cli
+
+    #for ctrl in self.m_ctrl_to_cli_dict.keys():
+    #self.m_one_population_ctrl.construct(self.m_session_mdl)
+        
+    # @kgn : desperate hacks to get drag & drop working.
+    # Kaben's comment: refactoring this should fairly straightforward.
+    # self.connect(self.m_session_mdl.m_session_mdtr, PYSIGNAL("raisePopViewSig"), self.raisePopViewSlot)
+
+    # Next connect is for where a user selects a veiwer from 
+    # the View menu
+    #self.connect( self.viewPopulationAction,SIGNAL("activated()"), 
+    #  self.viewPopulationActionSlot)
+   
+    # Kaben's best guess:
+    # This connect is for where a user restarts a petri dish by clicking on
+    # "Start New Experiment" in the "Control" menu, or when they double-click
+    # the default petri dish from the freezer.
+    # Kaben's comment: This is unique to the population viewer, or at least a
+    # single specific viewer that should be chosen to be the default (which
+    # might as well be the population viewer).
+    #self.connect(self.popview_controlRestart_ExpAction,SIGNAL("activated()"),
+    #  self.Restart_ExpActionSlot)
+
+    # Set viewer as active
+    # Wesley's comment: This is unique to the population viewer.
+    # self.navBarItemClickedSlot(self.m_nav_bar_ctrl.m_one_population_cli)
+    # Set selection in the NavBar
+    # self.m_nav_bar_ctrl.m_list_view.setSelected(self.m_nav_bar_ctrl.m_one_population_cli, True)
+    # Adjust splitter???
+    # Kaben's comment: This is a hard-wired dimension, and it will be wrong as
+    # soon as we add more viewers to the navigation bar.
+    #self.splitter1.setSizes([150,500,100])
+
+    #return
+

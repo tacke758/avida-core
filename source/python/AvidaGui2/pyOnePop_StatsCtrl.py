@@ -18,6 +18,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_session_mdl = session_mdl
     self.m_avida = None
     self.m_stat_task_button_states = [0,0,0,0,0,0,0,0,0]
+    self.m_stat_task_first_complete = [0,0,0,0,0,0,0,0,0]
     self.m_org_square_ctrl.construct()
     self.connect(
       self.m_session_mdl.m_session_mdtr, PYSIGNAL("setAvidaSig"),
@@ -77,6 +78,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
         self.avidaUpdatedSlot)
 
   def avidaUpdatedSlot(self):
+    # print "pyOnePop_StatsCtrl.avidaUpdatedSlot() called.\n"
     stats = self.m_avida.m_population.GetStats()
              
     #STATISTICS WINDOW
@@ -122,33 +124,89 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
 
     #TASK OUTLOOK 
+    # @WRE: get current update of run
+    age_now ="%d" %(stats.GetUpdate())
 
     num_not = str(stats.GetTaskLastCount(0))
-    self.m_num_not.setText(num_not)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[0]) <= 0) and (0 < int(num_not))):
+      self.m_stat_task_first_complete[0] = age_now
+    if ((int(self.m_stat_task_first_complete[0]) > 0) or (0 < int(num_not))):
+      self.m_num_not.setText("%s (1st@ %d)" %(num_not, int(self.m_stat_task_first_complete[0])))
+    else:
+      self.m_num_not.setText(num_not)
     
     num_nand = str(stats.GetTaskLastCount(1))
-    self.m_num_nand.setText(num_nand)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[1]) <= 0) and (0 < int(num_nand))):
+      self.m_stat_task_first_complete[1] = age_now
+    if ((int(self.m_stat_task_first_complete[1]) > 0) or (0 < int(num_nand))):
+      self.m_num_nand.setText("%s (1st@ %d)" %(num_nand, int(self.m_stat_task_first_complete[1])))
+    else:
+      self.m_num_nand.setText(num_nand)
 
     num_and = str(stats.GetTaskLastCount(2))
-    self.m_num_and.setText(num_and)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[2]) <= 0) and (0 < int(num_and))):
+      self.m_stat_task_first_complete[2] = age_now
+    if ((int(self.m_stat_task_first_complete[2]) > 0) or (0 < int(num_and))):
+      self.m_num_and.setText("%s (1st@ %d)" %(num_and, int(self.m_stat_task_first_complete[2])))
+    else:
+      self.m_num_and.setText(num_and)
 
     num_ornot = str(stats.GetTaskLastCount(3))
-    self.m_num_ornot.setText(num_ornot)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[3]) <= 0) and (0 < int(num_ornot))):
+      self.m_stat_task_first_complete[3] = age_now
+    if ((int(self.m_stat_task_first_complete[3]) > 0) or (0 < int(num_ornot))):
+      self.m_num_ornot.setText("%s (1st@ %d)" %(num_ornot, int(self.m_stat_task_first_complete[3])))
+    else:
+      self.m_num_ornot.setText(num_ornot)
 
     num_or = str(stats.GetTaskLastCount(4))
-    self.m_num_or.setText(num_or)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[4]) <= 0) and (0 < int(num_or))):
+      self.m_stat_task_first_complete[4] = age_now
+    if ((int(self.m_stat_task_first_complete[4]) > 0) or (0 < int(num_or))):
+      self.m_num_or.setText("%s (1st@ %d)" %(num_or, int(self.m_stat_task_first_complete[4])))
+    else:
+      self.m_num_or.setText(num_or)
 
     num_andnot = str(stats.GetTaskLastCount(5))
-    self.m_num_andnot.setText(num_andnot)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[5]) <= 0) and (0 < int(num_andnot))):
+      self.m_stat_task_first_complete[5] = age_now
+    if ((int(self.m_stat_task_first_complete[5]) > 0) or (0 < int(num_andnot))):
+      self.m_num_andnot.setText("%s (1st@ %d)" %(num_andnot, int(self.m_stat_task_first_complete[5])))
+    else:
+      self.m_num_andnot.setText(num_andnot)
 
     num_nor = str(stats.GetTaskLastCount(6))
-    self.m_num_nor.setText(num_nor)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[6]) <= 0) and (0 < int(num_nor))):
+      self.m_stat_task_first_complete[6] = age_now
+    if ((int(self.m_stat_task_first_complete[6]) > 0) or (0 < int(num_nor))):
+      self.m_num_nor.setText("%s (1st@ %d)" %(num_nor, int(self.m_stat_task_first_complete[6])))
+    else:
+      self.m_num_nor.setText(num_nor)
 
     num_xor = str(stats.GetTaskLastCount(7))
-    self.m_num_xor.setText(num_xor)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[7]) <= 0) and (0 < int(num_xor))):
+      self.m_stat_task_first_complete[7] = age_now
+    if ((int(self.m_stat_task_first_complete[7]) > 0) or (0 < int(num_xor))):
+      self.m_num_xor.setText("%s (1st @ %d)" %(num_xor, int(self.m_stat_task_first_complete[7])))
+    else:
+      self.m_num_xor.setText(num_xor)
 
     num_equals = str(stats.GetTaskLastCount(8))
-    self.m_num_equals.setText(num_equals)
+    # @WRE: adding first completion
+    if ((int(self.m_stat_task_first_complete[8]) <= 0) and (0 < int(num_equals))):
+      self.m_stat_task_first_complete[8] = age_now
+    if ((int(self.m_stat_task_first_complete[8]) > 0) or (0 < int(num_equals))):
+      self.m_num_equals.setText("%s (1st@ %d)" %(num_equals, int(self.m_stat_task_first_complete[8])))
+    else:
+      self.m_num_equals.setText(num_equals)
     
     if self.m_clicked_cell_number>= 0:
       self.updateOrgReportSlot(self.m_clicked_cell_item)
@@ -468,7 +526,6 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_num_xor.setText(task_last_line_array[8])
     self.m_num_equals.setText(task_last_line_array[9])
 
-
 #    petri_average_file.Load()    
 #    update_number = petri_average_file.GetNumLines()
 #    print "this pop at update number"
@@ -502,3 +559,4 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_num_nor.setText("-")
     self.m_num_xor.setText("-")
     self.m_num_equals.setText("-")
+    self.m_stat_task_first_complete = [0,0,0,0,0,0,0,0,0]
