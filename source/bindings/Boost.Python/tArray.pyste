@@ -52,6 +52,7 @@ inline void """ + setitem_wrapper_name + "(tArray<" + spec_str + "> &array, int 
 # Function to wrap class type specializations of tArray.
 
 def commonClassWrapperFactors(spec_str, spec_type):
+  exclude(spec_type.Resize)
   exclude(spec_type.ElementAt)
   decl_code_str = ""
   decl_code_str += addClass__len__Wrapper(spec_str, spec_type)

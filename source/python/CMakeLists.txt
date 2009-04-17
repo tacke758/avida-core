@@ -8,16 +8,25 @@ IF(AVD_GUI_PYQT)
       STRING(REGEX REPLACE "c:/" "/c/" PYUI_PATH ${PYUI_PATH})
     ENDIF(MINGW)
     SET(ABS_PYUI_MODULE ${PYUI_PATH}/${PYUI_MODULE})
-    ADD_CUSTOM_TARGET(
-      ${ABS_PYUI_MODULE}.py
-      ALL
-      ${PYUIC}
-      -p 2 -o
-      ${ABS_PYUI_MODULE}.py
-      ${ABS_PYUI_MODULE}.ui
-      DEPENDS
-      ${ABS_PYUI_MODULE}.ui
+    ADD_CUSTOM_COMMAND(
+      OUTPUT
+        ${ABS_PYUI_MODULE}.ui
+      COMMAND
+        ${PYUIC}
+        -p 2 -o
+        ${ABS_PYUI_MODULE}.py
+        ${ABS_PYUI_MODULE}.ui
     )
+    #ADD_CUSTOM_TARGET(
+    #  ${ABS_PYUI_MODULE}.py
+    #  ALL
+    #  ${PYUIC}
+    #  -p 2 -o
+    #  ${ABS_PYUI_MODULE}.py
+    #  ${ABS_PYUI_MODULE}.ui
+    #  DEPENDS
+    #  ${ABS_PYUI_MODULE}.ui
+    #)
     SET_DIRECTORY_PROPERTIES(PROPERTIES
       ADDITIONAL_MAKE_CLEAN_FILES "${ADDITIONAL_MAKE_CLEAN_FILES};${ABS_PYUI_MODULE}.py")
   ENDFOREACH(PYUI_FILE ${PYUI_FILES})

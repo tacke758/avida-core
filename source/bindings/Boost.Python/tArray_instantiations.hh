@@ -6,7 +6,8 @@
 
 #include "tArray.h"
 
-#include <exception>
+#include <assert.h>
+#include <stdexcept>
 
 typedef cOrganism * pOrganism;
 typedef cMutation * pMutation;

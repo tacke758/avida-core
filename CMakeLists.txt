@@ -109,8 +109,8 @@ OPTION(AVD_PY_MONOLITHIC
 )
 IF(AVD_PY_BINDINGS)
   INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/avdFindPython.cmake)
-  AVD_FIND_PYTHON(2.4 /Library/Frameworks)
-  SET( BOOST_VERSION "1_32" CACHE STRING "Version of Boost Library to use")
+  AVD_FIND_PYTHON(2.5 /Library/Frameworks)
+  SET( BOOST_VERSION "1_38" CACHE STRING "Version of Boost Library to use")
   FIND_LIBRARY(
     BOOST_LIBRARY
     NAMES
