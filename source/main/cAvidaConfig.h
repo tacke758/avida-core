@@ -419,6 +419,7 @@ public:
   CONFIG_ADD_VAR(REVERT_DETRIMENTAL, double, 0.0, "  0.0 to 1.0; Probability of reversion.");
   CONFIG_ADD_VAR(REVERT_NEUTRAL, double, 0.0, "");
   CONFIG_ADD_VAR(REVERT_BENEFICIAL, double, 0.0, "");
+  CONFIG_ADD_VAR(REVERT_TASKLOSS, double, 0.0, "should org be reverted if loses task(s) without gaining other(s)?");
   CONFIG_ADD_VAR(STERILIZE_FATAL, double, 0.0, "Should any mutations clear (kill) the organism?");
   CONFIG_ADD_VAR(STERILIZE_DETRIMENTAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_NEUTRAL, double, 0.0, "");

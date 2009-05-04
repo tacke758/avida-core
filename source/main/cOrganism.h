@@ -366,6 +366,7 @@ public:
   bool GetRevertNeg() const;
   bool GetRevertNeut() const;
   bool GetRevertPos() const;
+  bool GetRevertTaskLoss() const;
 
   bool GetSterilizeFatal() const;
   bool GetSterilizeNeg() const;

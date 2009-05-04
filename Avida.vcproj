@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Avida"
 	ProjectGUID="{E1C1D683-833F-40D9-A952-CEC54FE40EFC}"
 	RootNamespace="Avida"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -65,6 +66,8 @@
 				IgnoreDefaultLibraryNames="LIBCMT"
 				GenerateDebugInformation="true"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -84,9 +87,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -152,6 +152,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -171,9 +173,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -294,6 +293,62 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cBirthChamber.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthDemeHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthDemeHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGenomeSizeHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGenomeSizeHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGlobalHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGlobalHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGridLocalHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGridLocalHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthMateSelectHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthMateSelectHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthNeighborhoodHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthNeighborhoodHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthSelectionHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthSelectionHandler.h"
 				>
 			</File>
 			<File
