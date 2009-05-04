@@ -566,6 +566,7 @@ bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx)
   if (phenotype.CopyTrue() == true) return false;
 	
   const double parent_fitness = m_organism->GetTestFitness(ctx);
+  const tArray<int>& parenttasks = phenotype.GetCurTaskCount();
   const double neut_min = parent_fitness * (1.0 - m_organism->GetNeutralMin());
   const double neut_max = parent_fitness * (1.0 + m_organism->GetNeutralMax());
       
@@ -605,15 +606,14 @@ bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx)
   // check if child has lost any tasks parent had AND not gained any new tasks
   if (ctx.GetRandom().P(m_organism->GetRevertTaskLoss())) {
 	  const tArray<int>& childtasks = test_info.GetTestPhenotype().GetCurTaskCount();
-	  const tArray<int>& parenttasks = phenotype.GetCurTaskCount();
 	  bool del = false;
 	  bool added = false;
 	  for (int i=0; i<childtasks.GetSize(); i++)
-		  if (childtasks[i]>0 && parenttasks[i] == 0) {
+		  if (childtasks[i] > parenttasks[i]) {
 			  added = true;
 			  break;
 		  }
-		  else if (childtasks[i] == 0 && parenttasks[i] > 0)
+		  else if (childtasks[i] < parenttasks[i])
 			  del = true;
 	  revert = (del && !added);
   }
