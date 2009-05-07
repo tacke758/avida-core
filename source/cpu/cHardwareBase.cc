@@ -533,7 +533,7 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
       }
 	  // check if child has lost any tasks parent had AND not gained any new tasks
 	  if (ctx.GetRandom().P(m_organism->GetRevertTaskLoss())) {
-	    const tArray<int>& childtasks = test_info.GetTestPhenotype().GetCurTaskCount();
+	    const tArray<int>& childtasks = test_info.GetTestPhenotype().GetLastTaskCount();
 	    bool del = false;
 	    bool added = false;
 	    for (int i=0; i<childtasks.GetSize(); i++)
@@ -541,9 +541,10 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
 		added = true;
 		break;
 	      }
-	      else if (childtasks[i] < parenttasks[i])
+	      else if (childtasks[i] < parenttasks[i]) {
 		del = true;
-	    revert = (del && !added);
+	      }
+	    revert = (del & !added);
 	  }
       
       // Ideally, we won't have reversions and sterilizations turned on at the
@@ -619,7 +620,7 @@ bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx)
   }
   // check if child has lost any tasks parent had AND not gained any new tasks
   if (ctx.GetRandom().P(m_organism->GetRevertTaskLoss())) {
-	  const tArray<int>& childtasks = test_info.GetTestPhenotype().GetCurTaskCount();
+	  const tArray<int>& childtasks = test_info.GetTestPhenotype().GetLastTaskCount();
 	  bool del = false;
 	  bool added = false;
 	  for (int i=0; i<childtasks.GetSize(); i++)
@@ -627,9 +628,10 @@ bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx)
 			  added = true;
 			  break;
 		  }
-		  else if (childtasks[i] < parenttasks[i])
+		  else if (childtasks[i] < parenttasks[i]) {
 			  del = true;
-	  revert = (del && !added);
+		  }
+	  revert = (del & !added);
   }
  
   // Ideally, we won't have reversions and sterilizations turned on at the
