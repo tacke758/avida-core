@@ -43,6 +43,7 @@
 #ifndef cString_h
 #include "cString.h"
 #endif
+#include <map>
 
 
 class cAvidaContext;
@@ -73,6 +74,9 @@ private:
   mutable cGenotype_TestData test_data;
   cGenotype_BirthData birth_data;
   mutable cPhenPlastSummary* m_phenplast;
+
+  // for fitness sharing *SLG
+  std::map<cGenotype*, int> hdists;
   
   // Statistical info
 
@@ -132,6 +136,11 @@ public:
   void SetGenome(const cGenome & in_genome);
   void SetSpecies(cSpecies * in_species) { species = in_species; }
 
+  // for fitness sharing *SLG
+  int AddHDist(cGenotype* gen);
+  void AddHDist(cGenotype* gen, int dist) { hdists[gen] = dist; }
+  void RemHDist(cGenotype* gen) { hdists.erase(gen); }
+  double GetNicheVal();
  
   // Test CPU info -- only used with limited options on.
   inline bool GetTestViable(cAvidaContext& ctx) const;

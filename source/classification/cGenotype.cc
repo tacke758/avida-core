@@ -184,6 +184,35 @@ void cGenotype::UpdateReset()
   birth_data.breed_true_track.Next();
   birth_data.breed_in_track.Next();
 }
+// for fitness sharing *SLG
+int cGenotype::AddHDist(cGenotype* gen)
+{
+	int dist = cGenomeUtil::FindHammingDistance(GetGenome(), gen->GetGenome(), 0);
+	hdists[gen] = dist;
+	return dist;
+}
+
+// for fitness sharing *SLG
+double cGenotype::GetNicheVal()
+{
+	double r = m_world->GetConfig().NICHE_RADIUS.Get();
+	if (r==0.0)
+		return 1.0;
+	double p = m_world->GetConfig().NICHE_SCALING.Get();
+
+	double sum = 0;
+	map< cGenotype*, int >::iterator it = hdists.begin();
+	for(; it != hdists.end(); it++)
+	{
+		cGenotype* cur_gen = it->first;
+		double num_orgs = cur_gen->GetNumOrganisms();
+		double share = 0;
+		if (it->second < r)
+			share = 1 - pow((it->second / r),p);
+		sum += share * num_orgs;
+	}
+	return sum;
+}
 
 void cGenotype::SetGenome(const cGenome & in_genome)
 {

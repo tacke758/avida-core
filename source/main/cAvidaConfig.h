@@ -350,6 +350,8 @@ public:
   CONFIG_ADD_VAR(GENERATION_INC_METHOD, int, 1, "0 = Only the generation of the child is\n    increased on divide.\n1 = Both the generation of the mother and child are\n    increased on divide (good with DIVIDE_METHOD 1).");
   CONFIG_ADD_VAR(RESET_INPUTS_ON_DIVIDE, int, 0, "Reset environment inputs of parent upon successful divide.");
   CONFIG_ADD_VAR(REPRO_METHOD, int, 1, "Replace existing organism: 1=yes");
+  CONFIG_ADD_VAR(NICHE_RADIUS, double, 0.0, "niche radius to use with fitness sharing, 0 means no sharing");
+  CONFIG_ADD_VAR(NICHE_SCALING, double, 1.0, "scaling factor to use with fitness sharing");
 	
   CONFIG_ADD_GROUP(RECOMBINATION_GROUP, "Sexual Recombination and Modularity");
   CONFIG_ADD_VAR(RECOMBINATION_PROB, double, 1.0, "probability of recombination in div-sex");
@@ -424,6 +426,7 @@ public:
   CONFIG_ADD_VAR(STERILIZE_DETRIMENTAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_NEUTRAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_BENEFICIAL, double, 0.0, "");
+  CONFIG_ADD_VAR(STERILIZE_TASKLOSS, double, 0.0, "");
   CONFIG_ADD_VAR(FAIL_IMPLICIT, int, 0, "Should copies that failed *not* due to mutations\nbe eliminated?");
   CONFIG_ADD_VAR(NEUTRAL_MAX,double, 0.0, "The percent benifical change from parent fitness\nto be considered neutral.");
   CONFIG_ADD_VAR(NEUTRAL_MIN,double, 0.0, "The percent deleterious change from parent fitness\nto be considered neutral.");

@@ -393,6 +393,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
         delete test_cpu;
       }
     }
+
+	// for fitness sharing *SLG
+	double niche_val = parent_genotype->GetNicheVal(); 
+	cMerit parent_merit = parent_phenotype.GetMerit();
+	parent_merit.SetNicheVal(niche_val);
     AdjustSchedule(parent_cell, parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 
@@ -547,6 +552,9 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   }
   m_world->GetClassificationManager().AdjustGenotype(*in_genotype);
   
+	// for fitness sharing *SLG
+  double niche_val = in_genotype->GetNicheVal();
+
   // Initialize the time-slice for this new organism.
   AdjustSchedule(target_cell, in_organism->GetPhenotype().GetMerit());
   

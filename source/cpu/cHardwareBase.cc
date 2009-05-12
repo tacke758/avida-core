@@ -537,13 +537,14 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
 	    bool del = false;
 	    bool added = false;
 	    for (int i=0; i<childtasks.GetSize(); i++)
+		{
 	      if (childtasks[i] > parenttasks[i]) {
-		added = true;
-		break;
+			added = true;
+			break;
 	      }
-	      else if (childtasks[i] < parenttasks[i]) {
-		del = true;
-	      }
+	      else if (childtasks[i] < parenttasks[i])
+			del = true;
+		}
 	    revert = (del & !added);
 	  }
       
@@ -624,13 +625,14 @@ bool cHardwareBase::Divide_TestFitnessMeasures1(cAvidaContext& ctx)
 	  bool del = false;
 	  bool added = false;
 	  for (int i=0; i<childtasks.GetSize(); i++)
+	  {
 		  if (childtasks[i] > parenttasks[i]) {
 			  added = true;
 			  break;
 		  }
-		  else if (childtasks[i] < parenttasks[i]) {
+		  else if (childtasks[i] < parenttasks[i]) 
 			  del = true;
-		  }
+	  }
 	  revert = (del & !added);
   }
  

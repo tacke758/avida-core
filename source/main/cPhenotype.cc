@@ -1288,6 +1288,17 @@ int cPhenotype::CalcSizeMerit() const
     out_size = m_world->GetConfig().BASE_CONST_MERIT.Get();
     break;
   }
+  /*if (m_world->GetConfig().FITNESS_SHARING.Get()) 
+  {
+	  cGenotype * genotype = 
+	  cClassificationManager* classmgr = m_world->GetClassificationManager();
+	  for (cGenotype * cur_genotype = classmgr->ResetThread(0); cur_genotype != NULL;
+		  cur_genotype = classmgr.NextGenotype(0)) 
+	  {
+		  int cur_num = cur_genotype->GetNumOrganisms();
+	  }
+
+  }*/
 
   return out_size;
 } 

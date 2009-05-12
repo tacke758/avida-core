@@ -40,11 +40,12 @@ protected:
   unsigned int base;
   int offset;
   double value;
+  double niche_val;
 
   void UpdateValue(double in_value);
 
 public:
-  cMerit() : bits(0), base(0), offset(0), value(0) { ; }
+  cMerit() : bits(0), base(0), offset(0), value(0), niche_val(1) { ; }
 
   explicit cMerit(const int    in_value){ UpdateValue(in_value); }
   explicit cMerit(const unsigned int   in_value){ UpdateValue(in_value); }
@@ -52,6 +53,7 @@ public:
   cMerit(const cMerit& merit) { *this = merit; }
 
   bool OK() const;
+  void SetNicheVal(double in_val) { niche_val = in_val; }
 
   void operator=(const cMerit & _merit)
   {
@@ -89,7 +91,7 @@ public:
     assert(value < UINT_MAX);  // Fails for merit values > UINT_MAX.
     return (unsigned int) value; }
 
-  double GetDouble()      const { return value; }
+  double GetDouble()      const { return value/niche_val; }
 
   int GetBit(int bit_num)  const {
     assert(bit_num >= 0);
