@@ -3739,7 +3739,7 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
   //Length 100
   //const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab";
 
-  int num_trials = 10000000;  // 10 million trials
+  int num_trials = 100000000;  // 100 million trials
   int num_tests  = 100;        // Number of random numbers to test
   
   //Stochasticity
@@ -3766,6 +3766,8 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
     m_world->GetDriver().RaiseFatalException(2, "Cannot open equ_genomes.dat.");
   
   cCPUTestInfo* test_info = new cCPUTestInfo;
+  
+  //For each trial
   for (int n = 0; n < num_trials; n++){
     
     cString new_genome = base_genome;
@@ -3783,13 +3785,12 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
       const cPlasticPhenotype* phen = ppgenotype.GetPlasticPhenotype(pp);
       freq_via += (phen->IsViable()) ? phen->GetFrequency() : 0.0;
       tArray<int> tasks = phen->GetLastTaskCount();
-      int task_combination = 0;
+      unsigned task_combination = 0;
       if (phen->IsViable()){
-        for (int t = 0; t < 9; t++){
-          task_combination += (tasks[t] > 0) ? 1 << t : 0;
-          if (tasks[t] > 0 && t == 8)
-            print_equ_genome = true;
-        }
+        if (tasks[8] > 0)
+          print_equ_genome = true;
+        for (int t = 0; t < 9; t++)
+          task_combination |= (tasks[t] > 0) ? 1 << t : 0;
         gen_tasks[task_combination] += phen->GetFrequency();
       }
     }
