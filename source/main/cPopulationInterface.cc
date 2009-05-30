@@ -276,7 +276,10 @@ bool cPopulationInterface::SendMessage(cOrgMessage& msg) {
   cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id);
   assert(cell.IsOccupied()); // This organism; sanity.
   cPopulationCell* rcell = cell.ConnectionList().GetFirst();
-  assert(rcell != NULL); // Cells should never be null.
+  if(rcell == NULL) {
+		GetDeme()->messageDropped();
+		return true;
+	}
 
   // Fail if the cell we're facing is not occupied.
   if(!rcell->IsOccupied())

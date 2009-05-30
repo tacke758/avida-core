@@ -248,6 +248,7 @@ public:
   void PrintDemeTasks();
 	void PrintDemeTotalAvgEnergy();
 	void PrintWithinDemeGeneticDistance() const;
+	void DumpDemeBoundaryData(const cString& filename);
   
   // Print deme founders
   void DumpDemeFounders(ofstream& fp);

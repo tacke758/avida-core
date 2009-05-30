@@ -149,6 +149,7 @@ public:                                                                         
 POP_OUT_FILE(PrintPhenotypeData,       phenotype_count.dat );
 POP_OUT_FILE(PrintPhenotypeStatus,     phenotype_status.dat);
 POP_OUT_FILE(PrintDemeTestamentStats,  deme_testament.dat  );
+POP_OUT_FILE(DumpDemeBoundaryData,     deme_boundary  ); // file name is dummy
 
 
 class cActionPrintData : public cAction
@@ -2817,7 +2818,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
 	action_lib->Register<cActionPrintDemeInterruptMsgType>("PrintDemeInterruptMsgType");
   action_lib->Register<cActionDumpInterruptGrid>("DumpInterruptGrid");
 	action_lib->Register<cActionPrintWithinDemeGeneticDistance>("PrintWithinDemeGeneticDistance");
-	
+	action_lib->Register<cActionDumpDemeBoundaryData>("DumpDemeBoundaryData");
 
   //Coalescence Clade Actions
   action_lib->Register<cActionPrintCCladeCounts>("PrintCCladeCounts");

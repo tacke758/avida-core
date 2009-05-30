@@ -62,6 +62,7 @@ private:
   int m_deme_id;           // ID of the deme that this cell is part of.
   int m_cell_data;         // "data" that is local to the cell and can be retrieaved by the org.
   int m_spec_state;
+	int m_boundary;
 
   bool m_migrant; //@AWC -- does the cell contain a migrant genome?
 
@@ -77,7 +78,7 @@ private:
 
   
 public:
-  cPopulationCell() : m_world(NULL), m_organism(NULL), m_hardware(NULL), m_mut_rates(NULL), m_migrant(false) { ; }
+  cPopulationCell() : m_world(NULL), m_organism(NULL), m_hardware(NULL), m_mut_rates(NULL), m_boundary(-1), m_migrant(false) { ; }
   cPopulationCell(const cPopulationCell& in_cell);
   ~cPopulationCell() { delete m_mut_rates; }
 
@@ -121,6 +122,9 @@ public:
   inline bool IsOccupied() const { return m_organism != NULL; }
 
   double UptakeCellEnergy(double frac_to_uptake);
+	
+	int getBoundary() const { return m_boundary; }
+	void setBoundary(int boundary) { m_boundary = boundary; }
 
   bool OK();
 };

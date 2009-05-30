@@ -271,6 +271,16 @@ void cDeme::Reset(bool resetResources, double deme_energy)
     (*movement_pred_list[i]).Reset();
   }
   
+	static const int geometry = m_world->GetConfig().WORLD_GEOMETRY.Get();
+	if(geometry == nGeometry::NONE) {
+		for(int i = 0; i < GetSize(); ++i) {
+			cPopulationCell& cell = GetCell(i);
+			cell.ConnectionList().Clear();
+			cell.setBoundary(0);
+			nextAvailBoundary = 0;
+		}
+	}
+	
   if (resetResources) {
     deme_resource_count.ReinitializeResources(additional_resource);
   }
@@ -824,6 +834,7 @@ void cDeme::GetSurroundingCellIds(tVector<int> &cells, const int absolute_cell_i
 	
 	//Note: this code currently supports a grid or torus
 	assert(geometry == nGeometry::GRID || geometry == nGeometry::TORUS);
+	// TODO: make more general, use connection list
 	
 	if(geometry == nGeometry::GRID) {
 		for(int y = curr_y - radius; y <= curr_y + radius; y++) {

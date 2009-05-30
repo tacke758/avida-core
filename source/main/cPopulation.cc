@@ -45,6 +45,7 @@
 #include "cInstSet.h"
 #include "cIntegratedSchedule.h"
 #include "cLineage.h"
+#include "tList.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cPopulationCell.h"
@@ -112,8 +113,9 @@ cPopulation::cPopulation(cWorld* world)
       case nGeometry::TORUS: { cout << "Geometry: Torus" << endl; break; }
       case nGeometry::CLIQUE: { cout << "Geometry: Clique" << endl; break; }
       case nGeometry::HEX: { cout << "Geometry: Hex" << endl; break; }
-	  case nGeometry::LATTICE: { cout << "Geometry: Lattice" << endl; break; }
-	  case nGeometry::PARTIAL: { cout << "Geometry: Partial" << endl; break; }
+			case nGeometry::LATTICE: { cout << "Geometry: Lattice" << endl; break; }
+			case nGeometry::PARTIAL: { cout << "Geometry: Partial" << endl; break; }
+			case nGeometry::NONE: { cout << "Geometry: None" << endl; break; }	
       default:
         cout << "Unknown geometry!" << endl;
         assert(false);
@@ -206,6 +208,9 @@ cPopulation::cPopulation(cWorld* world)
         break;
 			case nGeometry::LATTICE:
 				build_lattice(&cell_array.begin()[i], &cell_array.begin()[i+deme_size], deme_size_x, deme_size_y, world_z);
+				break;
+			case nGeometry::NONE:
+				// TODO: check for geometry dependent things
 				break;
       default:
         assert(false);
@@ -429,9 +434,78 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   
   
   // Place all of the offspring...
+	const cString initiatingInst = ctx.getExtraData();
+	
   for (int i = 0; i < child_array.GetSize(); i++) {
-    ActivateOrganism(ctx, child_array[i], GetCell(target_cells[i]));
-    
+		cPopulationCell& targetCell = GetCell(target_cells[i]);
+    ActivateOrganism(ctx, child_array[i], targetCell);
+		cDeme& deme = GetDeme(targetCell.GetDemeID());
+		
+    if(initiatingInst != "") {
+			if(initiatingInst == "Repro-InParentBoundary") {
+				//Set target cell's boundary to parentCellBoundary
+				const int parentCellBoundary = parent_cell.getBoundary();
+				targetCell.setBoundary(parentCellBoundary);
+				
+				tList<cPopulationCell>& targetCellConnectionList = targetCell.ConnectionList();
+				tList<cPopulationCell>& parentCellConnectionList = parent_cell.ConnectionList();
+
+				//remove target from all connection lists that point to it, restriced to within deme
+				for(int cellIndex = 0; cellIndex < deme.GetSize(); ++cellIndex) {
+					GetCell(deme.GetCellID(cellIndex)).ConnectionList().Remove(&targetCell);
+				}
+				
+				// clear target cell connection list
+				targetCellConnectionList.Clear();
+				// target is now isolated
+				
+				// add parent cell to target's connection list
+				targetCellConnectionList.Push(&parent_cell);
+				// append parent's connection list to target's connection list
+				targetCellConnectionList.Append(parentCellConnectionList);
+				
+				// connect to the target everything the target is connected to 
+				for(int cellIndex = 0; cellIndex < targetCellConnectionList.GetSize(); ++cellIndex) {
+					targetCellConnectionList.GetPos(cellIndex)->ConnectionList().Push(&targetCell);
+				}
+								
+			} else if(initiatingInst == "Repro-NewInnerBoundary") {
+				//Set target cell's boundary to next available
+				const int nextAvailDemeBoundary = GetDeme(parent_cell.GetDemeID()).getThenIncNextAvailBoundary();
+				targetCell.setBoundary(nextAvailDemeBoundary);
+				
+				tList<cPopulationCell>& targetCellConnectionList = targetCell.ConnectionList();
+				tList<cPopulationCell>& parentCellConnectionList = parent_cell.ConnectionList();
+				
+				//remove target from all connection lists that point to it, restriced to within deme
+				for(int cellIndex = 0; cellIndex < deme.GetSize(); ++cellIndex) {
+					GetCell(deme.GetCellID(cellIndex)).ConnectionList().Remove(&targetCell);
+				}
+				
+				// clear target cell connection list
+				targetCellConnectionList.Clear();
+				// target is now isolated
+				
+				// add parent cell to target's connection list
+				targetCellConnectionList.Push(&parent_cell);
+				
+				// connect cell in parent's connection list that are at parent's boundary
+				for(int cellIndex = 0; cellIndex < parentCellConnectionList.GetSize(); ++cellIndex) {
+					cPopulationCell* cell = parentCellConnectionList.GetPos(cellIndex);
+					if(cell->getBoundary() == parent_cell.getBoundary()) {
+						targetCellConnectionList.Push(cell);
+					}
+				}
+								
+				// connect to the target everything the target is connected to 
+				for(int cellIndex = 0; cellIndex < targetCellConnectionList.GetSize(); ++cellIndex) {
+					targetCellConnectionList.GetPos(cellIndex)->ConnectionList().Push(&targetCell);
+				}
+			} else {
+				assert(false);  //unknown initiatingInst
+			}
+		}
+		
     //@JEB - we may want to pass along some state information from parent to child
     if ( (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_OFFSPRING) 
          || (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_BOTH) ) {
@@ -2647,6 +2721,40 @@ void cPopulation::PrintDemeTestamentStats(const cString& filename) {
   stats.SumEnergyTestamentToNeighborOrganisms().Clear();
 }
 
+void cPopulation::DumpDemeBoundaryData(const cString& filename) {
+	cString m_filename;
+	m_filename.Set("deme_boundary.%d.dat", m_world->GetStats().GetUpdate());
+	cDataFile& df = m_world->GetDataFile(m_filename);
+	
+	for(int i = 0; i < GetNumDemes(); ++i) {
+		cDeme& deme = GetDeme(i);
+		int currentBoundary = -1;  // start here as a check; if any have bourdary of -1 we have a problem
+		const int nextAvailableBoundary = deme.getNextAvailBoundary();
+				
+		while (currentBoundary <= nextAvailableBoundary) {
+			// TODO: search all cells in deme and print those with boundary equal to currentBoundary
+			for(int cellID = 0; cellID < deme.GetSize(); ++cellID) {
+				cPopulationCell& cell = deme.GetCell(cellID);
+				if(cell.getBoundary() == currentBoundary) {
+					df.Write(cellID, "cellID");
+					df.Write(currentBoundary, "boundary");
+					tList<cPopulationCell>& connectionList = cell.ConnectionList();
+					for(int listItem = 0; listItem < connectionList.GetSize(); ++listItem) {
+						for(int k = 0; k < deme.GetSize(); ++k) {
+							if(deme.GetAbsoluteCellID(k) == connectionList.GetPos(listItem)->GetID())
+								df.WriteBlockElement(k, listItem, connectionList.GetSize());
+						}
+					}
+					df.Endl();
+				}
+			}
+			++currentBoundary;
+		}
+		df.Endl();
+		df.Endl();
+	}
+	m_world->GetDataFileManager().Remove(m_filename);
+}	
 
 // Print some stats about the energy sharing behavior of each deme
 void cPopulation::PrintDemeEnergySharingStats() {
@@ -4457,6 +4565,8 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
     cGenotype * genotype = m_world->GetClassificationManager().FindGenotype(genome, lineage_label);
     deme.ReplaceGermline(*genotype);
   }
+	// TODO: fix.  every injected org is in boundary 0
+	GetCell(cell_id).setBoundary(deme_array[GetCell(cell_id).GetDemeID()].getThenIncNextAvailBoundary());
 }
 
 void cPopulation::InjectParasite(const cCodeLabel& label, const cGenome& injected_code, int cell_id)

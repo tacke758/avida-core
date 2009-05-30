@@ -34,7 +34,7 @@
 #  include "tMemTrack.h"
 # endif
 #endif
-
+#include "cString.h"
 
 class cRandom;
 
@@ -46,10 +46,11 @@ class cAvidaContext
 private:
   cRandom* m_rng;
   bool m_analyze;
+	cString extraData;
   
 public:
-  cAvidaContext(cRandom& rng) : m_rng(&rng), m_analyze(false) { ; }
-  cAvidaContext(cRandom* rng) : m_rng(rng), m_analyze(false) { ; }
+  cAvidaContext(cRandom& rng) : m_rng(&rng), m_analyze(false), extraData("") { ; }
+  cAvidaContext(cRandom* rng) : m_rng(rng), m_analyze(false), extraData("") { ; }
   ~cAvidaContext() { ; }
   
   void SetRandom(cRandom& rng) { m_rng = &rng; }  
@@ -59,6 +60,11 @@ public:
   void SetAnalyzeMode() { m_analyze = true; }
   void ClearAnalyzeMode() { m_analyze = false; }
   bool GetAnalyzeMode() { return m_analyze; }
+	
+	void setExtraData(const cString str) { assert(extraData==""); extraData = str; }  // must clear data before setting
+	void clearExtraData() { extraData = ""; }
+	cString getExtraData() const { return extraData; }
+
 };
 
 #endif

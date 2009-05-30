@@ -549,7 +549,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("h-divide0.001", &cHardwareCPU::Inst_HeadDivide0_001, nInstFlag::STALL),
     
     // High-level instructions
-		tInstLibEntry<tMethod>("repro_deme", &cHardwareCPU::Inst_ReproDeme, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("repro-newInnerBoundary", &cHardwareCPU::Inst_Repro_NewInnerBoundary, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("repro-inParentBoundary", &cHardwareCPU::Inst_Repro_InParentBoundary, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("repro-deme", &cHardwareCPU::Inst_ReproDeme, nInstFlag::STALL),
     tInstLibEntry<tMethod>("repro", &cHardwareCPU::Inst_Repro, nInstFlag::STALL),
     tInstLibEntry<tMethod>("repro-sex", &cHardwareCPU::Inst_ReproSex, nInstFlag::STALL),
     tInstLibEntry<tMethod>("repro-A", &cHardwareCPU::Inst_Repro, nInstFlag::STALL),
@@ -2911,6 +2913,115 @@ bool cHardwareCPU::Inst_ReproDeme(cAvidaContext& ctx) {
 	sourceDeme->ReplicateDeme();
 	return true;
 }
+
+bool cHardwareCPU::Inst_Repro_NewInnerBoundary(cAvidaContext& ctx) {
+//  // check if repro can replace an existing organism
+//  if(m_world->GetConfig().REPRO_METHOD.Get() == 0 && m_organism->IsNeighborCellOccupied())
+//    return false;
+	
+  if (m_organism->GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;
+  
+  // Setup child
+  cCPUMemory& child_genome = m_organism->ChildGenome();
+  child_genome = m_organism->GetGenome();
+	
+  // Do transposon movement and copying before other mutations
+  Divide_DoTransposons(ctx);
+  
+  // Perform Copy Mutations...
+  if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
+    for (int i = 0; i < m_memory.GetSize(); i++) {
+      if (m_organism->TestCopyMut(ctx)) {
+        child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+      }
+    }
+  }
+  
+  Divide_DoMutations(ctx);
+  
+  // Check viability
+  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->ChildGenome().GetSize(), 1);
+  if (!viable) { return false; }
+  
+  // Many tests will require us to run the offspring through a test CPU;
+  // this is, for example, to see if mutations need to be reverted or if
+  // lineages need to be updated.
+  Divide_TestFitnessMeasures(ctx);
+  
+#if INSTRUCTION_COSTS
+  // reset first time instruction costs
+  for (int i = 0; i < m_inst_ft_cost.GetSize(); i++) {
+    m_inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+  }
+#endif
+  
+  if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) m_advance_ip = false;
+  
+	ctx.setExtraData("Repro-NewInnerBoundary");
+  const bool parent_alive = m_organism->ActivateDivide(ctx);
+  ctx.clearExtraData();
+  
+  //Reset the parent
+  if (parent_alive) {
+    if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) Reset(ctx);
+  }
+  return true;
+}
+
+bool cHardwareCPU::Inst_Repro_InParentBoundary(cAvidaContext& ctx) {
+//  // check if repro can replace an existing organism
+//  if(m_world->GetConfig().REPRO_METHOD.Get() == 0 && m_organism->IsNeighborCellOccupied())
+//    return false;
+	
+  if (m_organism->GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;
+  
+  // Setup child
+  cCPUMemory& child_genome = m_organism->ChildGenome();
+  child_genome = m_organism->GetGenome();
+	
+  // Do transposon movement and copying before other mutations
+  Divide_DoTransposons(ctx);
+  
+  // Perform Copy Mutations...
+  if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
+    for (int i = 0; i < m_memory.GetSize(); i++) {
+      if (m_organism->TestCopyMut(ctx)) {
+        child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+      }
+    }
+  }
+  
+  Divide_DoMutations(ctx);
+  
+  // Check viability
+  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->ChildGenome().GetSize(), 1);
+  if (!viable) { return false; }
+  
+  // Many tests will require us to run the offspring through a test CPU;
+  // this is, for example, to see if mutations need to be reverted or if
+  // lineages need to be updated.
+  Divide_TestFitnessMeasures(ctx);
+  
+#if INSTRUCTION_COSTS
+  // reset first time instruction costs
+  for (int i = 0; i < m_inst_ft_cost.GetSize(); i++) {
+    m_inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+  }
+#endif
+  
+  if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) m_advance_ip = false;
+  
+	ctx.setExtraData("Repro-InParentBoundary");
+  const bool parent_alive = m_organism->ActivateDivide(ctx);
+  ctx.clearExtraData();
+
+  //Reset the parent
+  if (parent_alive) {
+    if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) Reset(ctx);
+  }
+	return true;
+}
+
 
 bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
 { 
