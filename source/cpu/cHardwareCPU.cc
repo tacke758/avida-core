@@ -663,6 +663,27 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("send-msg-type13", &cHardwareCPU::Inst_SendMessageType13, nInstFlag::STALL),
     tInstLibEntry<tMethod>("send-msg-type14", &cHardwareCPU::Inst_SendMessageType14, nInstFlag::STALL),
     tInstLibEntry<tMethod>("send-msg-type15", &cHardwareCPU::Inst_SendMessageType15, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type0-random", &cHardwareCPU::Inst_SendMessageType0_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type1-random", &cHardwareCPU::Inst_SendMessageType1_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type2-random", &cHardwareCPU::Inst_SendMessageType2_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type3-random", &cHardwareCPU::Inst_SendMessageType3_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type4-random", &cHardwareCPU::Inst_SendMessageType4_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type5-random", &cHardwareCPU::Inst_SendMessageType5_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type6-random", &cHardwareCPU::Inst_SendMessageType6_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type7-random", &cHardwareCPU::Inst_SendMessageType7_randon, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type8-random", &cHardwareCPU::Inst_SendMessageType8_randon, nInstFlag::STALL),
+
+		tInstLibEntry<tMethod>("send-msg-type0-outer", &cHardwareCPU::Inst_SendMessageType0_outer, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type1-outer", &cHardwareCPU::Inst_SendMessageType1_outer, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type2-outer", &cHardwareCPU::Inst_SendMessageType2_outer, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type3-within", &cHardwareCPU::Inst_SendMessageType3_within, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type4-within", &cHardwareCPU::Inst_SendMessageType4_within, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type5-within", &cHardwareCPU::Inst_SendMessageType5_within, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type6-inner", &cHardwareCPU::Inst_SendMessageType6_inner, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type7-inner", &cHardwareCPU::Inst_SendMessageType7_inner, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("send-msg-type8-inner", &cHardwareCPU::Inst_SendMessageType8_inner, nInstFlag::STALL),
+		
+		
     tInstLibEntry<tMethod>("retrieve-msg", &cHardwareCPU::Inst_RetrieveMessage, nInstFlag::STALL),
 		
     // Alarms
@@ -6269,6 +6290,182 @@ bool cHardwareCPU::Inst_SendMessageType14(cAvidaContext& ctx) {
 bool cHardwareCPU::Inst_SendMessageType15(cAvidaContext& ctx) {
 	return Inst_SendMessageBase(ctx, 15);
 }	
+
+// send message for type 0 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType0_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 0);
+}
+
+// send message for type 1 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType1_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 1);
+}
+
+// send message for type 2 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType2_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 2);
+}
+
+// send message for type 3 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType3_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 3);
+}
+
+// send message for type 4 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType4_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 4);
+}
+
+// send message for type 5 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType5_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 5);
+}
+
+// send message for type 6 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType6_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 6);
+}
+
+// send message for type 7 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType7_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 7);
+}
+
+// send message for type 8 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType8_randon(cAvidaContext& ctx) {
+	for(int i = 0; i < m_world->GetRandom().GetInt(m_organism->GetNeighborhoodSize()); ++i) {
+		Inst_RotateNextOccupiedCell(ctx);
+	}
+	return Inst_SendMessageBase(ctx, 8);
+}
+
+bool cHardwareCPU::RotateToRandomInOuterBoundary(const string& boundaryType) {
+	if(m_organism->GetCellID() == -1){
+		return true; // in test cpu
+	}
+	cPopulationCell& cell = m_world->GetPopulation().GetCell(m_organism->GetCellID());
+	const int bounrdyID = cell.getBoundary();
+	tList<cPopulationCell>& connectionList = cell.ConnectionList();
+	vector<cPopulationCell*> inBoundary;
+	
+	if(boundaryType == "outer") {
+		// collect all outer neighbors (their boundary < yours)
+		for(int i = 0; i < connectionList.GetSize(); ++i) {
+			cPopulationCell* current = connectionList.GetFirst();
+			if(current->getBoundary() < bounrdyID)
+				inBoundary.push_back(current);
+			connectionList.CircNext();
+		}
+	} else if(boundaryType == "inner") {
+		// collect all inner neighbors (their boundary < yours)
+		for(int i = 0; i < connectionList.GetSize(); ++i) {
+			cPopulationCell* current = connectionList.GetFirst();
+			if(current->getBoundary() > bounrdyID)
+				inBoundary.push_back(current);
+			connectionList.CircNext();
+		}
+	} else if(boundaryType == "within") {
+		// collect all within neighbors (their boundary < yours)
+		for(int i = 0; i < connectionList.GetSize(); ++i) {
+			cPopulationCell* current = connectionList.GetFirst();
+			if(current->getBoundary() == bounrdyID)
+				inBoundary.push_back(current);
+			connectionList.CircNext();
+		}
+	} else {
+		cerr<< "Unknown boundary type: "<<boundaryType<<endl;
+		exit(-1);
+	}
+	
+	
+	if(inBoundary.empty())
+		return false;
+	
+	// rotate to random outer neighbor
+	const int destinationIndex = m_world->GetRandom().GetInt(inBoundary.size());
+	while(connectionList.GetFirst() != inBoundary[destinationIndex])
+		connectionList.CircNext();
+	
+	return true;
+}
+
+// send message for type 0 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType0_outer(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("outer");
+	return Inst_SendMessageBase(ctx, 0);
+}
+
+// send message for type 1 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType1_outer(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("outer");
+	return Inst_SendMessageBase(ctx, 1);
+}
+
+// send message for type 2 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType2_outer(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("outer");
+	return Inst_SendMessageBase(ctx, 2);
+}
+
+// send message for type 3 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType3_within(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("within");
+	return Inst_SendMessageBase(ctx, 3);
+}
+
+// send message for type 4 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType4_within(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("within");
+	return Inst_SendMessageBase(ctx, 4);
+}
+
+// send message for type 5 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType5_within(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("within");
+	return Inst_SendMessageBase(ctx, 5);
+}
+
+// send message for type 6 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType6_inner(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("inner");
+	return Inst_SendMessageBase(ctx, 6);
+}
+
+// send message for type 7 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType7_inner(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("inner");
+	return Inst_SendMessageBase(ctx, 7);
+}
+
+// send message for type 8 to random occupied neighbor
+bool cHardwareCPU::Inst_SendMessageType8_inner(cAvidaContext& ctx) {
+	RotateToRandomInOuterBoundary("inner");
+	return Inst_SendMessageBase(ctx, 8);
+}
 
 /*! Send a message to the organism that is currently faced by this cell,
  where the label field of sent message is from register ?BX?, and the data field

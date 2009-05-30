@@ -706,7 +706,28 @@ private:
   bool Inst_SendMessageType13(cAvidaContext& ctx);
   bool Inst_SendMessageType14(cAvidaContext& ctx);
   bool Inst_SendMessageType15(cAvidaContext& ctx);
+  bool Inst_SendMessageType0_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType1_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType2_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType3_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType4_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType5_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType6_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType7_randon(cAvidaContext& ctx);
+  bool Inst_SendMessageType8_randon(cAvidaContext& ctx);
 
+	bool RotateToRandomInOuterBoundary(const string& boundaryType);
+
+	bool Inst_SendMessageType0_outer(cAvidaContext& ctx);
+  bool Inst_SendMessageType1_outer(cAvidaContext& ctx);
+  bool Inst_SendMessageType2_outer(cAvidaContext& ctx);
+  bool Inst_SendMessageType3_within(cAvidaContext& ctx);
+  bool Inst_SendMessageType4_within(cAvidaContext& ctx);
+  bool Inst_SendMessageType5_within(cAvidaContext& ctx);
+  bool Inst_SendMessageType6_inner(cAvidaContext& ctx);
+  bool Inst_SendMessageType7_inner(cAvidaContext& ctx);
+  bool Inst_SendMessageType8_inner(cAvidaContext& ctx);
+	
 public:
   bool Inst_RetrieveMessage(cAvidaContext& ctx);
 private:
