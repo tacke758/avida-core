@@ -1,0 +1,37 @@
+;--- Begin Test Configuration File (test_list) ---
+[main]
+; Command line arguments to pass to the application
+args = -s 1 -c avida.cfg -set INST_SET inst_set.SexDonateGbshadedEdtKinRndNopx -set MERIT_GIVEN 5 -set MERIT_RECEIVED 50 -set MAX_DONATE_KIN_DIST 1 -set MAX_DONATE_EDIT_DIST 15 -set MIN_GB_DONATE_THRESHOLD 80 -set MAX_DONATES 100 -set PRECALC_PHENOTYPE 4 -set BIRTH_METHOD 0
+
+app = %(default_app)s
+nonzeroexit = disallow   ; Exit code handling (disallow, allow, or require)
+                         ;  disallow - treat non-zero exit codes as failures
+                         ;  allow - all exit codes are acceptable
+                         ;  require - treat zero exit codes as failures, useful
+                         ;            for creating tests for app error checking
+createdby = heather goldsby; Who created the test
+email = hjg@msu.edu ; Email address for the test's creator
+
+[consistency]
+enabled = yes            ; Is this test a consistency test?
+long = no                ; Is this test a long test?
+
+[performance]
+enabled = no             ; Is this test a performance test?
+long = no                ; Is this test a long test?
+
+; The following variables can be used in constructing setting values by calling
+; them with %(variable_name)s.  For example see 'app' above.
+;
+; app 
+; builddir 
+; cpus 
+; mode 
+; perf_repeat 
+; perf_user_margin 
+; perf_wall_margin 
+; svn 
+; svnmetadir 
+; svnversion 
+; testdir 
+;--- End Test Configuration File ---
