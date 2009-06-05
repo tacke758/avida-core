@@ -25,6 +25,8 @@
 #ifndef cHardwareManager_h
 #define cHardwareManager_h
 
+#include <cassert>
+
 #ifndef cTestCPU_h
 #include "cTestCPU.h"
 #endif
@@ -39,8 +41,11 @@
 #include "tList.h"
 #endif
 
+#ifndef cInstSet_h
+#include "cInstSet.h"
+#endif
+
 class cHardwareBase;
-class cInstSet;
 class cOrganism;
 class cWorld;
 
@@ -52,7 +57,7 @@ class cHardwareManager
 #endif
 private:
   cWorld* m_world;
-  tList<cInstSet> m_inst_sets;
+  tArray<cInstSet*> m_inst_sets;
   int m_type;
 //  cTestResources m_testres;
   
@@ -63,13 +68,15 @@ private:
 
 public:
   cHardwareManager(cWorld* world);
-  ~cHardwareManager() { ; }
+  ~cHardwareManager() { for(int i = 0; i < m_inst_sets.GetSize(); i++) delete m_inst_sets[i]; }
   
   cHardwareBase* Create(cOrganism* in_org);
   cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
 
-  const cInstSet& GetInstSet(int id=0) const { return *m_inst_sets.GetPos(id); }
-  cInstSet& GetInstSet(int id=0) { return *m_inst_sets.GetPos(id); }
+  const cInstSet& GetInstSet(int id=0) const { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
+  cInstSet& GetInstSet(int id=0) { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
+  
+  bool AddInstSet(const cString& filename, int id = 0);
 };
 
 

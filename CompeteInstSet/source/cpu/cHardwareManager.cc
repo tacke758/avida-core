@@ -40,48 +40,86 @@ cHardwareManager::cHardwareManager(cWorld* world)
 : m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()) /*, m_testres(world) */
 {
   cString filename = world->GetConfig().INST_SET.Get();
-
+  
   // Setup the instruction library and collect the default filename
   cString default_filename;
-	switch (m_type)
+  switch (m_type)
 	{
 		case HARDWARE_TYPE_CPU_ORIGINAL:
-      m_inst_sets.Push(new cInstSet(world, cHardwareCPU::GetInstLib()));
 			default_filename = cHardwareCPU::GetDefaultInstFilename();
 			break;
 		case HARDWARE_TYPE_CPU_SMT:
-      m_inst_sets.Push(new cInstSet(world, cHardwareSMT::GetInstLib()));
 			default_filename = cHardwareSMT::GetDefaultInstFilename();
 			break;
 		case HARDWARE_TYPE_CPU_TRANSSMT:
-      m_inst_sets.Push(new cInstSet(world, cHardwareTransSMT::GetInstLib()));
 			default_filename = cHardwareTransSMT::GetDefaultInstFilename();
 			break;
 		case HARDWARE_TYPE_CPU_EXPERIMENTAL:
-      m_inst_sets.Push(new cInstSet(world, cHardwareExperimental::GetInstLib()));
 			default_filename = cHardwareExperimental::GetDefaultInstFilename();
 			break;
     case HARDWARE_TYPE_CPU_GX:
-      m_inst_sets.Push(new cInstSet(world, cHardwareGX::GetInstLib()));
 			default_filename = cHardwareGX::GetDefaultInstFilename();
 			break;      
 		default:
       m_world->GetDriver().RaiseFatalException(1, "Unknown/Unsupported HARDWARE_TYPE specified");
   }
-  
   if (filename == "" || filename == "-") {
     filename = default_filename;
     m_world->GetDriver().NotifyComment(cString("Using default instruction set: ") + filename);
   }
+  AddInstSet(filename);
+}
+
+
+bool cHardwareManager::AddInstSet(const cString& filename, int id)
+{
+  
+  cInstSet* new_inst_set;
+  switch (m_type)
+	{
+		case HARDWARE_TYPE_CPU_ORIGINAL:
+      new_inst_set = new cInstSet(m_world, cHardwareCPU::GetInstLib());
+			break;
+		case HARDWARE_TYPE_CPU_SMT:
+      new_inst_set = new cInstSet(m_world, cHardwareSMT::GetInstLib());
+			break;
+		case HARDWARE_TYPE_CPU_TRANSSMT:
+      new_inst_set = new cInstSet(m_world, cHardwareTransSMT::GetInstLib());
+			break;
+		case HARDWARE_TYPE_CPU_EXPERIMENTAL:
+      new_inst_set = new cInstSet(m_world, cHardwareExperimental::GetInstLib());
+			break;
+    case HARDWARE_TYPE_CPU_GX:
+      new_inst_set = new cInstSet(m_world, cHardwareGX::GetInstLib());
+			break;      
+		default:
+      m_world->GetDriver().RaiseFatalException(1, "Unknown/Unsupported HARDWARE_TYPE specified");
+  }
   
   
   if (m_world->GetConfig().INST_SET_FORMAT.Get()) {
-    m_inst_sets.GetPos(0)->LoadFromConfig();
+    new_inst_set->LoadFromConfig();
   } else {
-    m_inst_sets.GetPos(0)->LoadFromLegacyFile(filename);
+    new_inst_set->LoadFromLegacyFile(filename);
   }
   
+  cerr << m_inst_sets.GetSize() << endl;
+  if (m_inst_sets.GetSize() == 0 || m_inst_sets[0] == new_inst_set){
+    if (id <= m_inst_sets.GetSize() - 1){ //If our array is large enough
+      if (m_inst_sets[id] != NULL) //Old instruction set exists, delete it
+        delete m_inst_sets[id];
+      m_inst_sets[id] = new_inst_set;
+    } else{  //If we have to resize the array to accomodate the ID
+      m_inst_sets.Resize(id+1, NULL);
+      m_inst_sets[id] = new_inst_set;
+    }
+  } else{ //Our instruction set is incompatible
+    m_world->GetDriver().RaiseFatalException(1, "Additional instruction set addition is incompatible.");
+  }
+  
+  return true;
 }
+
 
 cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
 {
@@ -91,15 +129,15 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:
-      return new cHardwareCPU(m_world, in_org, m_inst_sets.GetPos(inst_id));
+      return new cHardwareCPU(m_world, in_org, m_inst_sets[inst_id]);
     case HARDWARE_TYPE_CPU_SMT:
-      return new cHardwareSMT(m_world, in_org, m_inst_sets.GetPos(inst_id));
+      return new cHardwareSMT(m_world, in_org, m_inst_sets[inst_id]);
     case HARDWARE_TYPE_CPU_TRANSSMT:
-      return new cHardwareTransSMT(m_world, in_org, m_inst_sets.GetPos(inst_id));
+      return new cHardwareTransSMT(m_world, in_org, m_inst_sets[inst_id]);
     case HARDWARE_TYPE_CPU_EXPERIMENTAL:
-      return new cHardwareExperimental(m_world, in_org, m_inst_sets.GetPos(inst_id));
+      return new cHardwareExperimental(m_world, in_org, m_inst_sets[inst_id]);
     case HARDWARE_TYPE_CPU_GX:
-      return new cHardwareGX(m_world, in_org, m_inst_sets.GetPos(inst_id));
+      return new cHardwareGX(m_world, in_org, m_inst_sets[inst_id]);
     default:
       return NULL;
   }

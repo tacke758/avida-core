@@ -59,7 +59,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
-  , m_inst_set_id(m_inst_set_id)
+  , m_inst_set_id(inst_set_id)
   , m_input_pointer(0)
   , m_input_buf(world->GetEnvironment().GetInputSize())
   , m_output_buf(world->GetEnvironment().GetOutputSize())
