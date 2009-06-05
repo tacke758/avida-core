@@ -103,8 +103,7 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
     new_inst_set->LoadFromLegacyFile(filename);
   }
   
-  cerr << m_inst_sets.GetSize() << endl;
-  if (m_inst_sets.GetSize() == 0 || m_inst_sets[0] == new_inst_set){
+  if (m_inst_sets.GetSize() == 0 || (*m_inst_sets[0] == *new_inst_set) ){
     if (id <= m_inst_sets.GetSize() - 1){ //If our array is large enough
       if (m_inst_sets[id] != NULL) //Old instruction set exists, delete it
         delete m_inst_sets[id];

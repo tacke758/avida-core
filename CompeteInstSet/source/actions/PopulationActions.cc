@@ -1524,6 +1524,31 @@ public:
 };
 
 
+class cActionAddInstSet : public cAction
+{
+  private:
+    cString m_filename;
+    int     m_id;
+  public:
+    cActionAddInstSet(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize()) ? largs.PopWord() : "-";
+      m_id       = (largs.GetSize()) ? largs.PopWord().AsInt() : 0;
+    }
+  
+  static const cString GetDescription() { return "Arguments: <path> <id>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    if (!m_world->GetHardwareManager().AddInstSet(m_filename, m_id))
+      m_world->GetDriver().RaiseException("cAddInstSet has failed.");
+    else
+      cerr << "Added inst_set " << m_filename << " as " << m_id << endl;
+  }
+};
+  
+
 void RegisterPopulationActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionInject>("Inject");
@@ -1597,4 +1622,6 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionConnectCells>("connect_cells");
   action_lib->Register<cActionDisconnectCells>("disconnect_cells");
   action_lib->Register<cActionSwapCells>("swap_cells");
+  
+  action_lib->Register<cActionAddInstSet>("add_inst_set");
 }
