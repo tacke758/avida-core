@@ -66,11 +66,20 @@ public:
     for(int i = 0; i < m_active; i++) m_data[i] = rhs[i];
     return *this;
   }
+  
   tSmartArray& operator=(const tArray<T>& rhs)
   {
     if (m_active != rhs.GetSize()) Resize(rhs.GetSize());
     for(int i = 0; i < m_active; i++) m_data[i] = rhs[i];
     return *this;
+  }
+  
+  bool operator==(const tSmartArray<T>& rhs) const
+  {
+    if (m_active != rhs.GetSize()) return false;
+    for (int i = 0; i < m_active; i++)
+      if (m_data[i] != rhs[i]) return false;
+    return true;
   }
   
   bool Good() const { return (m_data != NULL); }

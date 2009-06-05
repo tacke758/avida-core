@@ -56,6 +56,8 @@ public:
     : m_size(size), m_inst_error(inst_error), m_inst_default(inst_default), m_inst_null(inst_null) { ; }
   virtual ~cInstLib() { ; }
 
+  inline bool operator==(const cInstLib& _in) const;
+  
   inline int GetSize() const { return m_size; }
 
   virtual const cInstLibEntry& Get(int i) const = 0;
@@ -91,5 +93,12 @@ inline cInstruction cInstLib::GetInst(const cString& name)
   return m_inst_error;
 }
 
+inline bool cInstLib::operator==(const cInstLib& _in) const{
+  return (m_size         ==  _in.m_size && 
+          m_namemap      ==  _in.m_namemap &&
+          m_inst_error   ==  _in.m_inst_error &&
+          m_inst_default ==  _in.m_inst_default &&
+          m_inst_null    ==  _in.m_inst_null);
+}
 
 #endif

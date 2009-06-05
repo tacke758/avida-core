@@ -35,6 +35,10 @@
 # endif
 #endif
 
+#ifndef tList_h
+#include "tList.h"
+#endif
+
 class cHardwareBase;
 class cInstSet;
 class cOrganism;
@@ -48,7 +52,7 @@ class cHardwareManager
 #endif
 private:
   cWorld* m_world;
-  cInstSet* m_inst_set;
+  tList<cInstSet> m_inst_sets;
   int m_type;
 //  cTestResources m_testres;
   
@@ -64,8 +68,8 @@ public:
   cHardwareBase* Create(cOrganism* in_org);
   cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
 
-  const cInstSet& GetInstSet() const { return *m_inst_set; }
-  cInstSet& GetInstSet() { return *m_inst_set; }
+  const cInstSet& GetInstSet(int id=0) const { return *m_inst_sets.GetPos(id); }
+  cInstSet& GetInstSet(int id=0) { return *m_inst_sets.GetPos(id); }
 };
 
 

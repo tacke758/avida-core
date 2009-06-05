@@ -64,6 +64,8 @@ public:
   inline tDictionary() { ; }
   inline tDictionary(int in_hash_size) : m_hash(in_hash_size) { ; }
   
+  inline bool operator==(const tDictionary<T>& _rhs) const {return m_hash == _rhs.m_hash;} 
+  
   // The following methods just call the encapsulated tHashTable
   inline bool OK() { return m_hash.OK(); }
   inline int GetSize() { return m_hash.GetSize(); }

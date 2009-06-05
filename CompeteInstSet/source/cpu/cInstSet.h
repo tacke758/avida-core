@@ -88,7 +88,8 @@ public:
   inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib) { ; }
   inline cInstSet(const cInstSet& is);
   inline ~cInstSet() { ; }
-
+  
+  inline bool operator==(const cInstSet& _in) const;
   inline cInstSet& operator=(const cInstSet& _in);
 
   bool OK() const;
@@ -167,6 +168,22 @@ inline cInstSet& cInstSet::operator=(const cInstSet& _in)
   m_lib_nopmod_map = _in.m_lib_nopmod_map;
   m_mutation_chart = _in.m_mutation_chart;
   return *this;
+}
+
+//@MRR Instruction sets are equivalent if their mappings to function ids 
+// are identical.  Other properties are not considered.
+inline bool cInstSet::operator==(const cInstSet& _rhs) const{
+  //Check to make sure we are referencing the same library and have the
+  //same number of instructions in each instruction set
+  if (m_inst_lib                !=   _rhs.m_inst_lib || 
+      m_lib_name_map.GetSize()  !=   _rhs.m_lib_name_map.GetSize() ) 
+    return false;
+  
+  //Verify that the instruction sets have the same mapping
+  for (int i = 0; i < m_lib_name_map.GetSize(); i++)
+    if (m_lib_name_map[i].lib_fun_id != _rhs.m_lib_name_map[i].lib_fun_id)
+      return false;
+  return true;
 }
 
 inline cInstruction cInstSet::GetInst(const cString & in_name) const

@@ -407,6 +407,21 @@ public:
   }
   
   
+  //Equivalency-- all keys must have matching values
+  bool operator==(const tHashTable<HASH_TYPE,DATA_TYPE>& _rhs) const
+  {
+    if (GetSize() != _rhs.GetSize())  //Make sure they store the same number of entries
+        return false;
+    list_it.Reset();
+    while (list_it.Next() != NULL){  //See if every key has the same value in _rhs
+      DATA_TYPE value = list_it.Get()->data;
+      HASH_TYPE key   = list_it.Get()->key;
+      DATA_TYPE rhs_value;
+      if (!_rhs.Find(key,rhs_value) || value != rhs_value)
+        return false;
+    }
+    return true;
+  }
   
   template<class Archive> 
   void serialize(Archive & a, const unsigned int version){

@@ -154,7 +154,7 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   // This is asexual who doesn't need to wait in the birth chamber
   // just build the child and return.
   child_array.Resize(1);
-  child_array[0] = new cOrganism(m_world, ctx, child_genome);
+  child_array[0] = new cOrganism(m_world, ctx, child_genome, parent.GetInstSetID());
   merit_array.Resize(1);
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
@@ -193,8 +193,8 @@ bool cBirthChamber::DoPairAsexBirth(cAvidaContext& ctx,
 {
   // Build both child organisms...
   child_array.Resize(2);
-  child_array[0] = new cOrganism(m_world, ctx, old_entry.genome);
-  child_array[1] = new cOrganism(m_world, ctx, new_genome);
+  child_array[0] = new cOrganism(m_world, ctx, old_entry.genome,parent.GetInstSetID());
+  child_array[1] = new cOrganism(m_world, ctx, new_genome,parent.GetInstSetID());
 
   // Setup the merits for both children...
   merit_array.Resize(2);
@@ -521,7 +521,7 @@ void cBirthChamber::SetupGenotypeInfo(cOrganism* organism, cGenotype* parent0, c
 bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
 				    const cGenome& child_genome,
 				    cOrganism& parent,
-                                    tArray<cOrganism*>& child_array,
+            tArray<cOrganism*>& child_array,
 				    tArray<cMerit>& merit_array)
 {
   cPhenotype& parent_phenotype = parent.GetPhenotype();

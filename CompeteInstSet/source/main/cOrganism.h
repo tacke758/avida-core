@@ -101,6 +101,7 @@ protected:
   int m_lineage_label;                    // a lineages tag; inherited unchanged in offspring
   cLineage* m_lineage;                    // A lineage descriptor... (different from label)
 	int cclade_id;				                  // @MRR Coalescence clade information (set in cPopulation)
+  int m_inst_set_id;                      // @MRR inst_set id
  
 	// Other stats
   cCPUMemory m_child_genome; // Child genome, while under construction.
@@ -142,7 +143,7 @@ protected:
   cOrganism& operator=(const cOrganism&); // @not_implemented
   
 public:
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, int inst_set_id = 0);
   ~cOrganism();
 
   // --------  Accessor Methods  --------
@@ -169,6 +170,8 @@ public:
   
 	void SetCCladeLabel( int in_label ) { cclade_id = in_label; };  //@MRR
 	int  GetCCladeLabel() const { return cclade_id; }
+  
+  int GetInstSetID() const { return m_inst_set_id; } //@MRR
 	
 	
   int GetMaxExecuted() const { return m_max_executed; }

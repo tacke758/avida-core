@@ -74,6 +74,13 @@ public:
     for(int i = 0; i < m_size; i++) m_data[i] = rhs[i];
     return *this;
   }
+  
+  bool operator==(const tArray& _rhs) const {
+    if (m_size != _rhs.m_size) return false;
+    for (int i = 0; i < m_size; i++)
+      if (m_data[i] != _rhs.m_data[i]) return false;
+    return true;
+  }
 
   inline tArray operator+(const tArray& in_array) const {
     tArray tmp(m_size + in_array.m_size);
