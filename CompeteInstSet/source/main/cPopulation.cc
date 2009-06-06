@@ -490,7 +490,7 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   
   // Statistics...
   m_world->GetStats().RecordBirth(target_cell.GetID(), in_genotype->GetID(),
-                                  in_organism->GetPhenotype().ParentTrue());
+                                  in_organism->GetPhenotype().ParentTrue(), in_organism->GetInstSetID());
   
   // @MRR Do coalescence clade set up for new organisms.
   CCladeSetupOrganism(in_organism ); 
@@ -614,7 +614,7 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   // Statistics...
   cOrganism* organism = in_cell.GetOrganism();
   cGenotype* genotype = organism->GetGenotype();
-  m_world->GetStats().RecordDeath();
+  m_world->GetStats().RecordDeath(organism->GetInstSetID());
   
   int cellID = in_cell.GetID();
 
@@ -2685,7 +2685,7 @@ bool cPopulation::OK()
  * this organism.
  **/
 
-void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int lineage_label, double neutral)
+void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int lineage_label, double neutral, int inst_id)
 {
   // If an invalid cell was given, choose a new ID for it.
   if (cell_id < 0) {
@@ -2697,7 +2697,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
     }
   }
   
-  InjectGenome(cell_id, genome, lineage_label);
+  InjectGenome(cell_id, genome, lineage_label, inst_id);
   cPhenotype& phenotype = GetCell(cell_id).GetOrganism()->GetPhenotype();
   phenotype.SetNeutralMetric(neutral);
     
@@ -2887,13 +2887,13 @@ void cPopulation::FindEmptyCell(tList<cPopulationCell> & cell_list,
 
 // This function injects a new organism into the population at cell_id based
 // on the genotype passed in.
-void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
+void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype, int inst_set)
 {
   assert(cell_id >= 0 && cell_id < cell_array.GetSize());
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
-  cOrganism* new_organism = new cOrganism(m_world, ctx, new_genotype->GetGenome());
+  cOrganism* new_organism = new cOrganism(m_world, ctx, new_genotype->GetGenome(), inst_set);
 	
   //Coalescense Clade Setup
   new_organism->SetCCladeLabel(-1);  
@@ -2942,7 +2942,7 @@ void cPopulation::InjectClone(int cell_id, cOrganism& orig_org)
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
-  cOrganism* new_organism = new cOrganism(m_world, ctx, orig_org.GetGenome());
+  cOrganism* new_organism = new cOrganism(m_world, ctx, orig_org.GetGenome(), orig_org.GetInstSetID());
   
   // Set the genotype...
   new_organism->SetGenotype(orig_org.GetGenotype());
@@ -3031,13 +3031,13 @@ void cPopulation::InjectChild(int cell_id, cOrganism& orig_org)
 }
 
 
-void cPopulation::InjectGenome(int cell_id, const cGenome& genome, int lineage_label)
+void cPopulation::InjectGenome(int cell_id, const cGenome& genome, int lineage_label, int inst_set_id)
 {
   // Setup the genotype...
   cGenotype* new_genotype = m_world->GetClassificationManager().GetGenotypeInjected(genome, lineage_label);
   
   // The rest is done by InjectGenotype();
-  InjectGenotype( cell_id, new_genotype );
+  InjectGenotype( cell_id, new_genotype, inst_set_id );
 }
 
 

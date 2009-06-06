@@ -132,8 +132,8 @@ private:
    * Attention: InjectGenotype does *not* add the genotype to the archive.
    * It assumes that's where you got the genotype from.
    **/
-  void InjectGenotype(int cell_id, cGenotype* genotype);
-  void InjectGenome(int cell_id, const cGenome& genome, int lineage_label);
+  void InjectGenotype(int cell_id, cGenotype* genotype, int inst_set_id=0);
+  void InjectGenome(int cell_id, const cGenome& genome, int lineage_label, int inst_set_id=0);
   void InjectClone(int cell_id, cOrganism& orig_org);
   void InjectChild(int cell_id, cOrganism& orig_org);
 
@@ -159,7 +159,7 @@ public:
   
   // Inject an organism from the outside world.
   void Inject(const cGenome& genome, int cell_id = -1, double merit = -1, int lineage_label = 0,
-              double neutral_metric = 0);
+              double neutral_metric = 0, int inst_set_id=0);
   void InjectParasite(const cCodeLabel& label, const cGenome& injected_code, int cell_id);
   
   // Deactivate an organism in the population (required for deactivations)

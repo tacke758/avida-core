@@ -232,9 +232,14 @@ private:
   tArray<cString> reaction_names;
   tArray<cString> resource_names;
 
+  // Count of organisms using particular instruction sets
+  tArray<int> inst_set_orgs;
+  
   // Resampling Statistics @AWC - 06/29/06
   int num_resamplings;
   int num_failedResamplings;
+  
+
   
   
   // State variables
@@ -421,8 +426,8 @@ public:
   void CalcEnergy();
   void CalcFidelity();
 
-  void RecordBirth(int cell_id, int genotype_id, bool breed_true);
-  void RecordDeath() { num_deaths++; }
+  void RecordBirth(int cell_id, int genotype_id, bool breed_true, int inst_set_id);
+  void RecordDeath(int inst_set_id) { num_deaths++; inst_set_orgs[inst_set_id]--;}
   void AddGenotype() { tot_genotypes++; }
   void RemoveGenotype(int id_num, int parent_id,
 			     int parent_distance, int depth, int max_abundance,
@@ -512,6 +517,8 @@ public:
   int GetTotSpecies() const         { return tot_species; }
   int GetTotThreshSpecies() const   { return tot_thresh_species; }
   int GetTotLineages() const        { return tot_lineages; }
+  
+  tArray<int>& GetInstSetCounts() {return inst_set_orgs;}
 
   int GetTaskCurCount(int task_num) const { return task_cur_count[task_num]; }
   double GetTaskCurQuality(int task_num) const { return task_cur_quality[task_num]/(double)task_cur_count[task_num]; }  

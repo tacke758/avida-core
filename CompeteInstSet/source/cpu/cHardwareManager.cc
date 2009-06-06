@@ -35,6 +35,7 @@
 #include "cWorldDriver.h"
 #include "cOrganism.h"
 #include "tDictionary.h"
+#include "cStats.h"
 
 cHardwareManager::cHardwareManager(cWorld* world)
 : m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()) /*, m_testres(world) */
@@ -110,6 +111,7 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
       m_inst_sets[id] = new_inst_set;
     } else{  //If we have to resize the array to accomodate the ID
       m_inst_sets.Resize(id+1, NULL);
+      m_world->GetStats().GetInstSetCounts().Resize(id+1,0);
       m_inst_sets[id] = new_inst_set;
     }
   } else{ //Our instruction set is incompatible
@@ -125,6 +127,7 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
   assert(in_org != NULL);
   
   int inst_id = in_org->GetInstSetID();
+  assert(inst_id <= m_inst_sets.GetSize()-1);
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:

@@ -2598,6 +2598,29 @@ public:
 };
 
 
+class cActionPrintInstSetCounts : public cAction
+{
+  private:
+    cString m_filename;
+  public:
+    cActionPrintInstSetCounts(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize()) ? largs.PopWord() : "inst_set_count.dat";
+    }
+    static const cString GetDescription() { return "Arguments: [string verbosity='']"; }
+    void Process(cAvidaContext& ctx)
+    {
+      ofstream& fot = m_world->GetDataFileOFStream(m_filename);
+      int update = m_world->GetStats().GetUpdate();
+      fot << update << " ";
+      for (int k=0; k < m_world->GetStats().GetInstSetCounts().GetSize(); k++)
+        fot << m_world->GetStats().GetInstSetCounts()[k] << " ";
+      fot << endl;
+    }
+    
+};
+
 
 
 void RegisterPrintActions(cActionLibrary* action_lib)
@@ -2685,6 +2708,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpExecutionRatioGrid>("DumpExecutionRatioGrid");
   action_lib->Register<cActionDumpCellDataGrid>("DumpCellDataGrid");
   action_lib->Register<cActionDumpSleepGrid>("DumpSleepGrid");
+  
+  //@MRR Instset Competition Functions
+  action_lib->Register<cActionPrintInstSetCounts>("PrintInstSetCount");
   
   // Print Settings
   action_lib->Register<cActionSetVerbose>("SetVerbose");

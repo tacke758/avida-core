@@ -370,11 +370,13 @@ void cStats::CalcFidelity()
   dom_fidelity = base_fidelity * pow(1.0 - true_cm_rate, dom_size);
 }
 
-void cStats::RecordBirth(int cell_id, int genotype_id, bool breed_true)
+void cStats::RecordBirth(int cell_id, int genotype_id, bool breed_true, int inst_set_id)
 {
   tot_organisms++;
   num_births++;
 
+  inst_set_orgs[inst_set_id]++;
+  
   if (m_world->GetConfig().LOG_CREATURES.Get()) {
     cDataFile& df = m_world->GetDataFile("creature.log");
     df.Write(m_update, "Update");

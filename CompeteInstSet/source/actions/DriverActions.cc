@@ -80,12 +80,37 @@ public:
   }
 };
 
+class cActionExitIfSingleInstSetPresent : public cAction
+  {
+  private:
+    
+  public:
+    cActionExitIfSingleInstSetPresent(cWorld* world, const cString& args) : cAction(world, args)
+    {
+    }
+    
+    static const cString GetDescription() { return "Arguments: <double threshold>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      tArray<int> inst_set_orgs = m_world->GetStats().GetInstSetCounts();
+      int count = 0;
+      for (int k = 0; k < inst_set_orgs.GetSize(); k++) 
+        count += (inst_set_orgs[k] > 0) ? 1 : 0;
+      if (count == 1)
+        m_world->GetDriver().SetDone();
+    }
+  };
+
+
 
 void RegisterDriverActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionExit>("Exit");
   action_lib->Register<cActionExitAveLineageLabelGreater>("ExitAveLineageLabelGreater");
   action_lib->Register<cActionExitAveLineageLabelLess>("ExitAveLineageLabelLess");
+  
+  action_lib->Register<cActionExitIfSingleInstSetPresent>("ExitIfSingleInstSetPresent");
 
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionExit>("exit");
