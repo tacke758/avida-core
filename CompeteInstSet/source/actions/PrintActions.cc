@@ -2710,7 +2710,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpSleepGrid>("DumpSleepGrid");
   
   //@MRR Instset Competition Functions
-  action_lib->Register<cActionPrintInstSetCounts>("PrintInstSetCount");
+  action_lib->Register<cActionPrintInstSetCounts>("PrintInstSetCounts");
   
   // Print Settings
   action_lib->Register<cActionSetVerbose>("SetVerbose");
