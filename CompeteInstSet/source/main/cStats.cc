@@ -127,6 +127,7 @@ cStats::cStats(cWorld* world)
   task_cur_max_quality.Resize(num_tasks);
   task_last_max_quality.Resize(num_tasks);
   task_exe_count.Resize(num_tasks);
+  inst_set_orgs.Resize(m_world->GetHardwareManager().GetNumInstSets(), 0);
   task_cur_count.SetAll(0);
   task_cur_quality.SetAll(0);
   task_cur_max_quality.SetAll(0);

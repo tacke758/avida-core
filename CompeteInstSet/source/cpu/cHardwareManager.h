@@ -76,6 +76,8 @@ public:
   const cInstSet& GetInstSet(int id=0) const { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
   cInstSet& GetInstSet(int id=0) { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
   
+  int GetNumInstSets() const { return m_inst_sets.GetSize(); }
+  
   bool AddInstSet(const cString& filename, int id = 0);
 };
 

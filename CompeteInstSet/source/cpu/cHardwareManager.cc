@@ -111,7 +111,8 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
       m_inst_sets[id] = new_inst_set;
     } else{  //If we have to resize the array to accomodate the ID
       m_inst_sets.Resize(id+1, NULL);
-      m_world->GetStats().GetInstSetCounts().Resize(id+1,0);
+      if (m_inst_sets.GetSize() > 1) //Update our stats object if more than one inst set is added.   Initial size is set in cStats constructor.
+        m_world->GetStats().GetInstSetCounts().Resize(id+1,0);
       m_inst_sets[id] = new_inst_set;
     }
   } else{ //Our instruction set is incompatible
