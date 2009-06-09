@@ -102,6 +102,7 @@ public:
   // --------  Organism ---------
   cOrganism* GetOrganism() { return organism; }
   const cInstSet& GetInstSet() { return *m_inst_set; }
+  cInstSet* GetInstSetPtr() { return m_inst_set; }
 
   
   // --------  Core Functionality  --------

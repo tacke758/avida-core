@@ -34,6 +34,8 @@
 #include "cWorld.h"
 #include "cWorldDriver.h"
 #include "cOrganism.h"
+#include "cPopulation.h"
+#include "cPopulationCell.h"
 #include "tDictionary.h"
 #include "cStats.h"
 
@@ -106,8 +108,15 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
   
   if (m_inst_sets.GetSize() == 0 || (*m_inst_sets[0] == *new_inst_set) ){
     if (id <= m_inst_sets.GetSize() - 1){ //If our array is large enough
-      if (m_inst_sets[id] != NULL) //Old instruction set exists, delete it
+      if (m_inst_sets[id] != NULL){ //Old instruction set exists, migrate hardware and delete it
+        int sz = m_world->GetPopulation().GetSize();
+        for (int k = 0; k < sz; k++){  //Go through every organism and see if it's using the depricated instruction set
+          cInstSet* old = (m_world->GetPopulation().GetCell(k).IsOccupied()) ? m_world->GetPopulation().GetCell(k).GetHardware()->GetInstSetPtr() : NULL;
+          if (old != NULL && old == m_inst_sets[id])
+            old = new_inst_set;  //replace it if necessary
+        }
         delete m_inst_sets[id];
+      }
       m_inst_sets[id] = new_inst_set;
     } else{  //If we have to resize the array to accomodate the ID
       m_inst_sets.Resize(id+1, NULL);
@@ -128,7 +137,7 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
   assert(in_org != NULL);
   
   int inst_id = in_org->GetInstSetID();
-  assert(inst_id <= m_inst_sets.GetSize()-1);
+  assert(inst_id <= m_inst_sets.GetSize()-1 && m_inst_sets[inst_id] != NULL);
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:
