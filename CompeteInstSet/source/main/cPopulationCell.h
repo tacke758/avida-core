@@ -82,7 +82,7 @@ public:
   void Rotate(cPopulationCell& new_facing);
 
   inline cOrganism* GetOrganism() const { return m_organism; }
-  inline cHardwareBase* GetHardware() const { return m_hardware; }
+  inline cHardwareBase* GetHardware()  const { return m_hardware; }
   inline tList<cPopulationCell>& ConnectionList() { return m_connections; }
   inline cPopulationCell& GetCellFaced() { return *(m_connections.GetFirst()); }
   int GetFacing();  // Returns the facing of this cell.
