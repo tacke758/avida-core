@@ -137,6 +137,8 @@ cStats::cStats(cWorld* world)
   , m_spec_waste(0)
   , num_orgs_killed(0)
   , m_deme_num_repls(0)
+	, m_deme_num_repls_treatable(0)
+	, m_deme_num_repls_untreatable(0)
   , m_donate_to_donor (0)
   , m_donate_to_facing (0)
 {
@@ -1446,7 +1448,30 @@ void cStats::IncPredSat(int cell_id) {
   relative_pos_pred_sat.ElementAt(pos.first, pos.second)++;
 }
 
+void cStats::AddDemeResourceThresholdPredicate(cString& name) {
+	demeResourceThresholdPredicateMap[name] = 0;
+}
+	
+void cStats::IncDemeResourceThresholdPredicate(cString& name) {
+	++demeResourceThresholdPredicateMap[name];
+}
 
+void cStats::PrintDemeResourceThresholdPredicate(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+  df.WriteComment("Avida deme resource threshold predicate data");
+	df.WriteComment("Number of deme reproduced by a specific threshold since last update that data was printed");
+  df.WriteTimeStamp();
+  
+	if(demeResourceThresholdPredicateMap.size() > 0) {
+		df.Write(GetUpdate(), "Update [update]");
+		for(map<cString, int>::iterator iter = demeResourceThresholdPredicateMap.begin(); iter != demeResourceThresholdPredicateMap.end(); ++iter) {
+			df.Write(iter->second, iter->first);
+			iter->second = 0;
+		}
+		df.Endl();
+	}	
+}
 
 /*! This method prints information contained within all active message predicates.
 
@@ -1504,6 +1529,23 @@ void cStats::DemePreReplication(cDeme& source_deme, cDeme& target_deme)
   m_deme_births.Add(source_deme.GetBirthCount());
   m_deme_merit.Add(source_deme.GetHeritableDemeMerit().GetDouble());
   m_deme_generation.Add(source_deme.GetGeneration());
+	m_deme_density.Add(source_deme.GetDensity());
+	
+	if(source_deme.isTreatable()) {
+		++m_deme_num_repls_treatable;
+		m_deme_gestation_time_treatable.Add(source_deme.GetAge());
+		m_deme_births_treatable.Add(source_deme.GetBirthCount());
+		m_deme_merit_treatable.Add(source_deme.GetHeritableDemeMerit().GetDouble());
+		m_deme_generation_treatable.Add(source_deme.GetGeneration());		
+		m_deme_density_treatable.Add(source_deme.GetDensity());
+	} else {
+		++m_deme_num_repls_untreatable;
+		m_deme_gestation_time_untreatable.Add(source_deme.GetAge());
+		m_deme_births_untreatable.Add(source_deme.GetBirthCount());
+		m_deme_merit_untreatable.Add(source_deme.GetHeritableDemeMerit().GetDouble());
+		m_deme_generation_untreatable.Add(source_deme.GetGeneration());
+		m_deme_density_untreatable.Add(source_deme.GetDensity());
+	}
 }
 
 
@@ -1551,7 +1593,8 @@ void cStats::PrintDemeReplicationData(const cString& filename)
   df.Write(m_deme_births.Average(), "Mean number of births within replicated demes [numbirths]");
   df.Write(m_deme_merit.Average(), "Mean heritable merit of replicated demes [merit]");
   df.Write(m_deme_generation.Average(), "Mean generation of replicated demes [generation]");
-  
+  df.Write(m_deme_density.Average(), "Mean density of replicated demes [density]");
+	
   df.Endl();
   
   m_deme_num_repls = 0;
@@ -1559,8 +1602,90 @@ void cStats::PrintDemeReplicationData(const cString& filename)
   m_deme_births.Clear();
   m_deme_merit.Clear();
   m_deme_generation.Clear();
+	m_deme_density.Clear();
 }
 
+/*! Print statistics related to deme replication.  Currently only prints the
+ number of deme replications since the last time PrintDemeReplicationData was
+ invoked.
+ */
+void cStats::PrintDemeTreatableReplicationData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+  
+  df.WriteComment("Avida deme replication data for treatable deme");
+  df.WriteTimeStamp();
+  df.Write(GetUpdate(), "Update [update]");
+  df.Write(m_deme_num_repls_treatable, "Number of deme replications [numrepl]");
+  df.Write(m_deme_gestation_time_treatable.Average(), "Mean deme gestation time [gesttime]");
+  df.Write(m_deme_births_treatable.Average(), "Mean number of births within replicated demes [numbirths]");
+  df.Write(m_deme_merit_treatable.Average(), "Mean heritable merit of replicated demes [merit]");
+  df.Write(m_deme_generation_treatable.Average(), "Mean generation of replicated demes [generation]");
+	df.Write(m_deme_density_treatable.Average(), "Mean density of replicated demes [density]");
+  
+  df.Endl();
+  
+  m_deme_num_repls_treatable = 0;
+  m_deme_gestation_time_treatable.Clear();
+  m_deme_births_treatable.Clear();
+  m_deme_merit_treatable.Clear();
+  m_deme_generation_treatable.Clear();
+	m_deme_density_treatable.Clear();
+}
+
+/*! Print statistics related to deme replication.  Currently only prints the
+ number of deme replications since the last time PrintDemeReplicationData was
+ invoked.
+ */
+void cStats::PrintDemeUntreatableReplicationData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+  
+  df.WriteComment("Avida deme replication data for untreatable deme");
+  df.WriteTimeStamp();
+  df.Write(GetUpdate(), "Update [update]");
+  df.Write(m_deme_num_repls_untreatable, "Number of deme replications [numrepl]");
+  df.Write(m_deme_gestation_time_untreatable.Average(), "Mean deme gestation time [gesttime]");
+  df.Write(m_deme_births_untreatable.Average(), "Mean number of births within replicated demes [numbirths]");
+  df.Write(m_deme_merit_untreatable.Average(), "Mean heritable merit of replicated demes [merit]");
+  df.Write(m_deme_generation_untreatable.Average(), "Mean generation of replicated demes [generation]");
+	df.Write(m_deme_density_untreatable.Average(), "Mean density of replicated demes [density]");
+  
+  df.Endl();
+  
+  m_deme_num_repls_untreatable = 0;
+  m_deme_gestation_time_untreatable.Clear();
+  m_deme_births_untreatable.Clear();
+  m_deme_merit_untreatable.Clear();
+  m_deme_generation_untreatable.Clear();
+	m_deme_density_untreatable.Clear();
+}
+
+
+void cStats::PrintDemeTreatableCount(const cString& filename)
+{
+  cPopulation& pop = m_world->GetPopulation();
+	static const int numDemes = pop.GetNumDemes();
+	int treatable(0);
+	int untreatable(0);
+	for(int i = 0; i < numDemes; ++i) {
+		if(pop.GetDeme(i).isTreatable())
+			++treatable;
+		else
+			++untreatable;
+	}
+  
+	cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida deme replication data for untreatable deme");
+  df.WriteTimeStamp();
+  df.Write(GetUpdate(), "Update [update]");
+  df.Write(treatable, "Number demes treatable");
+  df.Write(untreatable, "Number demes untreatable");
+  df.Write(static_cast<double>(treatable)/static_cast<double>(untreatable), "Treatable:untreatable ratio");
+  
+  df.Endl();
+}
 
 void cStats::PrintGermlineData(const cString& filename)
 {
@@ -2476,4 +2601,40 @@ void cStats::PrintShadedAltruists(const cString& filename) {
 	
 }
 
+/* 	
+ Print data regarding group formation.
+ */
+void cStats::PrintGroupsFormedData(const cString& filename)
+{
+
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("The number of groups, average, max, and min number of orgs in groups");
+	
+	map<int,int> groups = m_world->GetPopulation().GetFormedGroups();
+	
+	map <int,int>::iterator itr;
+	double avg_size = 0.0;
+	double max_size = 0.0;
+	double min_size = 100000000000.0;
+	double active_groups = 0.0;
+	
+	for(itr = groups.begin();itr!=groups.end();itr++) {
+		avg_size += itr->second;
+		if (itr->second > max_size) max_size = itr->second;
+		if (itr->second < min_size) min_size = itr->second;
+		if (itr->second > 0) active_groups++;
+	}
+	
+	avg_size = avg_size / groups.size();
+	df.Write((double)groups.size(), "number of groups [num]");
+	df.Write(avg_size, "average size of groups [avg-size]");
+	df.Write(max_size, "max size of groups [max-size]");
+	df.Write(min_size, "min size of groups [min-size]");
+	df.Write(active_groups, "active groups [act-group]");
+	
+	
+	df.Endl();
+
+	
+}
 

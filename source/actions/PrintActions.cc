@@ -102,6 +102,10 @@ STATS_OUT_FILE(PrintInternalTasksQualData,  in_tasks_quality.dat);
 STATS_OUT_FILE(PrintSleepData,              sleep.dat           );
 STATS_OUT_FILE(PrintCompetitionData,        competition.dat     );
 STATS_OUT_FILE(PrintDemeReplicationData,    deme_repl.dat       );
+STATS_OUT_FILE(PrintDemeTreatableReplicationData,    deme_repl_treatable.dat       );
+STATS_OUT_FILE(PrintDemeUntreatableReplicationData,  deme_repl_untreatable.dat       );
+STATS_OUT_FILE(PrintDemeTreatableCount,    deme_treatable.dat       );
+
 STATS_OUT_FILE(PrintDemeCompetitionData,    deme_compete.dat);
 STATS_OUT_FILE(PrintDemeFoundersData,       deme_founders.dat   );
 STATS_OUT_FILE(PrintPerDemeTasksData,       per_deme_tasks.dat      );
@@ -121,6 +125,7 @@ STATS_OUT_FILE(PrintDemeInterruptMsgType,		deme_interruptMsgType.dat	);
 
 STATS_OUT_FILE(PrintCurrentTaskCounts,      curr_task_counts.dat);
 STATS_OUT_FILE(PrintGermlineData,           germline.dat        );
+STATS_OUT_FILE(PrintDemeResourceThresholdPredicate,     deme_resourceThresholdPredicate.dat );
 STATS_OUT_FILE(PrintPredicatedMessages,     messages.dat        );
 STATS_OUT_FILE(PrintCellData,               cell_data.dat       );
 STATS_OUT_FILE(PrintCurrentOpinions,        opinions.dat        );
@@ -138,6 +143,10 @@ STATS_OUT_FILE(PrintReputationData,         reputation.dat);
 STATS_OUT_FILE(PrintShadedAltruists,         shadedaltruists.dat);
 STATS_OUT_FILE(PrintDirectReciprocityData,         reciprocity.dat);
 STATS_OUT_FILE(PrintStringMatchData,         stringmatch.dat);
+
+// group formation 
+STATS_OUT_FILE(PrintGroupsFormedData,         groupformation.dat);
+
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
 class cAction ## METHOD : public cAction {                                                /*  2 */ \
@@ -157,6 +166,7 @@ POP_OUT_FILE(PrintPhenotypeData,       phenotype_count.dat );
 POP_OUT_FILE(PrintPhenotypeStatus,     phenotype_status.dat);
 POP_OUT_FILE(PrintDemeTestamentStats,  deme_testament.dat  );
 POP_OUT_FILE(DumpDemeBoundaryData,     deme_boundary  ); // file name is dummy
+POP_OUT_FILE(PrintCurrentMeanDemeDensity,  deme_currentMeanDensity.dat  );
 
 
 class cActionPrintData : public cAction
@@ -3041,7 +3051,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintPhenotypeStatus>("PrintPhenotypeStatus");
   
   action_lib->Register<cActionPrintDemeTestamentStats>("PrintDemeTestamentStats");
-  
+	action_lib->Register<cActionPrintCurrentMeanDemeDensity>("PrintCurrentMeanDemeDensity");
+
+	action_lib->Register<cActionPrintDemeResourceThresholdPredicate>("PrintDemeResourceThresholdPredicate");
 	action_lib->Register<cActionPrintPredicatedMessages>("PrintPredicatedMessages");
 	action_lib->Register<cActionPrintCellData>("PrintCellData");
 	action_lib->Register<cActionPrintCurrentOpinions>("PrintCurrentOpinions");
@@ -3059,6 +3071,11 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintDemeSpatialSleep>("PrintDemeSpatialSleepStats");
   action_lib->Register<cActionPrintDemeResources>("PrintDemeResourceStats");
   action_lib->Register<cActionPrintDemeReplicationData>("PrintDemeReplicationData");
+  action_lib->Register<cActionPrintDemeTreatableReplicationData>("PrintDemeTreatableReplicationData");
+  action_lib->Register<cActionPrintDemeUntreatableReplicationData>("PrintDemeUntreatableReplicationData");
+  action_lib->Register<cActionPrintDemeTreatableCount>("PrintDemeTreatableCount");
+
+	
   action_lib->Register<cActionPrintDemeCompetitionData>("PrintDemeCompetitionData");
   action_lib->Register<cActionPrintDemeFoundersData>("PrintDemeFoundersData");
   action_lib->Register<cActionPrintGermlineData>("PrintGermlineData");
@@ -3195,6 +3212,8 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintStringMatchData>("PrintStringMatchData");
 	action_lib->Register<cActionPrintShadedAltruists>("PrintShadedAltruists");
 
+	// Group Formation
+	action_lib->Register<cActionPrintGroupsFormedData>("PrintGroupsFormedData");
 	
   action_lib->Register<cActionSetVerbose>("VERBOSE");
 }

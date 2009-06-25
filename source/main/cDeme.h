@@ -24,6 +24,7 @@
 #ifndef cDeme_h
 #define cDeme_h
 
+#include <set>
 #include <vector>
 
 #include "cDemeCellEvent.h"
@@ -58,6 +59,8 @@ private:
   int width; //!< Width of this deme.
 
 	bool replicateDeme;
+	bool treatable;
+  std::set<int> treatment_ages;
 	
 // The following should be moved to cDemePhenotype / cPopulationPhenotype
   int cur_birth_count; //!< Number of organisms that have been born into this deme since reset.
@@ -141,7 +144,7 @@ private:
 	
   
 public:
-  cDeme() : _id(0), width(0), replicateDeme(false), cur_birth_count(0), last_birth_count(0), cur_org_count(0), last_org_count(0), injected_count(0), birth_count_perslot(0),
+  cDeme() : _id(0), width(0), replicateDeme(false), treatable(false), cur_birth_count(0), last_birth_count(0), cur_org_count(0), last_org_count(0), injected_count(0), birth_count_perslot(0),
             _age(0), generation(0), total_org_energy(0.0),
             time_used(0), gestation_time(0), cur_normalized_time_used(0.0), last_normalized_time_used(0.0), 
 						MSG_sendFailed(0), MSG_dropped(0), MSG_SuccessfullySent(0), MSG_sent(0),
@@ -181,6 +184,7 @@ public:
 
   int GetOrgCount() const { return cur_org_count; }
   int GetLastOrgCount() const { return last_org_count; }
+	double GetDensity() const { return static_cast<double>(cur_org_count) / static_cast<double>(GetSize()); }
 
   void IncOrgCount() { cur_org_count++; }
   void DecOrgCount() { cur_org_count--; }
@@ -199,6 +203,12 @@ public:
 	
 	bool TestReplication() const { return replicateDeme; }
 	void ReplicateDeme() { replicateDeme = true; }
+	
+	bool isTreatable() const { return treatable; }
+	void setTreatable(bool value) { treatable = value; }
+  void AddTreatmentAge(const int age) { treatment_ages.insert(age); }
+  bool IsTreatableAtAge(const int age);
+  bool IsTreatableNow() { return IsTreatableAtAge(_age); }
 
   int GetSlotFlowRate() const;
   int GetEventsTotal() const { return eventsTotal; }

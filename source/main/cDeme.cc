@@ -739,7 +739,9 @@ cOrgMovementPredicate* cDeme::GetMovPredicate(int i) {
 void cDeme::AddDemeResourceThresholdPredicate(cString resourceName, cString comparisonOperator, double threasholdValue) {
 	cDemeResourceThresholdPredicate* pred = new cDemeResourceThresholdPredicate(resourceName, comparisonOperator, threasholdValue);
 	deme_pred_list.Add(pred);
-	
+
+	cString name = resourceName + " " + comparisonOperator + cStringUtil::Stringf(" %f", threasholdValue);
+	m_world->GetStats().AddDemeResourceThresholdPredicate(name);
 }
 
 void cDeme::AddEventReceivedCenterPred(int times) {
@@ -864,3 +866,19 @@ int cDeme::GetSlotFlowRate() const {
   return 0;
 }
 
+
+// Return whether or not this deme is treatable at the given age (updates).  If a deme is not treatable,
+// this function will always return false.
+bool cDeme::IsTreatableAtAge(const int age) {
+  
+  if(isTreatable()) {
+		if(treatment_ages.size() == 0) // implies treatable every update
+			return true;
+    set<int>::iterator it;
+    it = treatment_ages.find(age);
+    if(it != treatment_ages.end()) return true;  
+  }
+  
+  return false;
+  
+} //End cDeme::IsTreatableAtAge()

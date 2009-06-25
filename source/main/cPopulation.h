@@ -27,6 +27,8 @@
 #define cPopulation_h
 
 #include <fstream>
+#include <map>
+
 
 #ifndef cBirthChamber_h
 #include "cBirthChamber.h"
@@ -115,7 +117,10 @@ private:
 	
 	double fracOrgsCantSendMSG;
 	double fracOrgsCantReceiveMSG;
-	
+		
+	// Group formation information
+	std::map<int, int> m_groups; //<! Maps the group id to the number of orgs in the group
+
   ///////////////// Private Methods ////////////////////
   void BuildTimeSlicer(cChangeList* change_list); // Build the schedule object
 
@@ -232,6 +237,7 @@ public:
   // Deme-related stats methods
   void PrintDemeAllStats();
   void PrintDemeTestamentStats(const cString& filename);
+	void PrintCurrentMeanDemeDensity(const cString& filename);
   void PrintDemeEnergySharingStats();
   void PrintDemeEnergyDistributionStats();
   void PrintDemeOrganismEnergyDistributionStats();
@@ -274,6 +280,8 @@ public:
   bool SaveClone(std::ofstream& fp);
   bool LoadClone(std::ifstream& fp);
   bool LoadDumpFile(cString filename, int update);
+  bool SaveStructuredPopulation(const cString& filename);
+  bool LoadStructuredPopulation(const cString& filename);
   bool DumpMemorySummary(std::ofstream& fp);
 
   bool OK();
@@ -333,6 +341,39 @@ public:
 	double getFracOrgsCantReceiveMSG() const { return fracOrgsCantReceiveMSG; }
 	void setFracOrgsCantSendMSG(double frac) { assert(1.0 >= frac && frac >= 0.0); fracOrgsCantSendMSG = frac; }
 	void setFracOrgsCantReceiveMSG(double frac) { assert(1.0 >= frac && frac >= 0.0); fracOrgsCantReceiveMSG = frac; }
+	
+	// Adds an organism to a group
+	void JoinGroup(int group_id);
+	// Removes an organism from a group
+	void LeaveGroup(int group_id);
+	// Identifies the number of organisms in a group
+  int NumberOfOrganismsInGroup(int group_id);
+	// Get the group information
+	map<int, int> GetFormedGroups() { return m_groups; }
+	
+private:
+  struct sTmpGenotype
+  {
+  public:
+    int id_num;
+    int parent_id;
+    int parent_id2;
+    int num_cpus;
+    int total_cpus;
+    double merit;
+    int update_born;
+    int update_dead;
+    tArray<int> cells;
+    
+    cGenotype *genotype;
+    
+    inline sTmpGenotype() : id_num(-1) { ; }
+    inline bool operator<(const sTmpGenotype& rhs) const { return id_num < rhs.id_num; }
+    inline bool operator>(const sTmpGenotype& rhs) const { return id_num > rhs.id_num; }
+    inline bool operator<=(const sTmpGenotype& rhs) const { return id_num <= rhs.id_num; }
+    inline bool operator>=(const sTmpGenotype& rhs) const { return id_num >= rhs.id_num; }
+  };  
+  
 };
 
 
