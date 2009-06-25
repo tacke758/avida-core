@@ -353,6 +353,26 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
   // Loop through choosing the later placement of each child in the population.
   bool parent_alive = true;  // Will the parent live through this process?
   for (int i = 0; i < child_array.GetSize(); i++) {
+/*		
+		THIS code will remove zero merit orgnaisms, thus never putting them into the scheduler.
+		WARNING: uncommenting this code will break consistancy, but will generalize the solution.
+		Currently, only asexual organisms that use the energy model are removed when they have zero merit.
+		If this code gets added then remove the "if(merit_array[0].GetDouble() <= 0.0)" block from cBirthChamber::DoAsexBirth, 
+			does not break consistancy for test energy_deme_level_res
+ 
+		if(merit_array[i].GetDouble() <= 0.0) {
+			// no weaklings!
+			if(child_array.GetSize() > 1) {
+				child_array.Swap(i, child_array.GetSize()-1);
+				child_array = child_array.Subset(0, child_array.GetSize()-2);
+			} else {
+				child_array.ResizeClear(0);
+				break;
+			}
+			--i;
+			continue;
+		}
+	*/	
     target_cells[i] = PositionChild(parent_cell, m_world->GetConfig().ALLOW_PARENT.Get()).GetID();
     
     // If we replaced the parent, make a note of this.
@@ -410,43 +430,49 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
 		
   // If we're not about to kill the parent, do some extra work on it.
   if (parent_alive == true) {
-    // Reset inputs and re-calculate merit if required
-    if (m_world->GetConfig().RESET_INPUTS_ON_DIVIDE.Get() > 0){
-      environment.SetupInputs(ctx, parent_cell.m_inputs);
-      
-      int pc_phenotype = m_world->GetConfig().PRECALC_PHENOTYPE.Get();
-      if (pc_phenotype) {
-        cCPUTestInfo test_info;
-        cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
-        test_info.UseManualInputs(parent_cell.GetInputs()); // Test using what the environment will be
-        test_cpu->TestGenome(ctx, test_info, parent_organism->GetHardware().GetMemory()); // Use the true genome
-        if (pc_phenotype & 1) { // If we must update the merit
-          parent_phenotype.SetMerit(test_info.GetTestPhenotype().GetMerit());
-        }
-        if (pc_phenotype & 2) {   // If we must update the gestation time
-          parent_phenotype.SetGestationTime(test_info.GetTestPhenotype().GetGestationTime());
-        }
-        if (pc_phenotype & 4) {   // If we must update the last instruction counts
-					parent_phenotype.SetTestCPUInstCount(test_info.GetTestPhenotype().GetLastInstCount());
+		if(parent_phenotype.GetMerit().GetDouble() <= 0.0) {
+			// no weakling parents either!			
+			parent_organism->GetPhenotype().SetToDie();
+			parent_alive = false;
+		}	else {
+			// Reset inputs and re-calculate merit if required
+			if (m_world->GetConfig().RESET_INPUTS_ON_DIVIDE.Get() > 0){
+				environment.SetupInputs(ctx, parent_cell.m_inputs);
+				
+				int pc_phenotype = m_world->GetConfig().PRECALC_PHENOTYPE.Get();
+				if (pc_phenotype) {
+					cCPUTestInfo test_info;
+					cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
+					test_info.UseManualInputs(parent_cell.GetInputs()); // Test using what the environment will be
+					test_cpu->TestGenome(ctx, test_info, parent_organism->GetHardware().GetMemory()); // Use the true genome
+					if (pc_phenotype & 1) { // If we must update the merit
+						parent_phenotype.SetMerit(test_info.GetTestPhenotype().GetMerit());
+					}
+					if (pc_phenotype & 2) {   // If we must update the gestation time
+						parent_phenotype.SetGestationTime(test_info.GetTestPhenotype().GetGestationTime());
+					}
+					if (pc_phenotype & 4) {   // If we must update the last instruction counts
+						parent_phenotype.SetTestCPUInstCount(test_info.GetTestPhenotype().GetLastInstCount());
+					}
+					parent_phenotype.SetFitness(parent_phenotype.GetMerit().CalcFitness(parent_phenotype.GetGestationTime())); // Update fitness
+					delete test_cpu;
 				}
-				parent_phenotype.SetFitness(parent_phenotype.GetMerit().CalcFitness(parent_phenotype.GetGestationTime())); // Update fitness
-        delete test_cpu;
-      }
-    }
-    AdjustSchedule(parent_cell, parent_phenotype.GetMerit());
-    
-    // In a local run, face the child toward the parent. 
-    const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
-    if (birth_method < NUM_LOCAL_POSITION_CHILD ||
-        birth_method == POSITION_CHILD_PARENT_FACING) {
-      for (int i = 0; i < child_array.GetSize(); i++) {
-        GetCell(target_cells[i]).Rotate(parent_cell);
-      }
-    }
-    
-    // Purge the mutations since last division
-    parent_organism->OffspringGenome().GetGenome().GetMutationSteps().Clear();
-  }
+			}
+			AdjustSchedule(parent_cell, parent_phenotype.GetMerit());
+			
+			// In a local run, face the child toward the parent. 
+			const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
+			if (birth_method < NUM_LOCAL_POSITION_CHILD ||
+					birth_method == POSITION_CHILD_PARENT_FACING) {
+				for (int i = 0; i < child_array.GetSize(); i++) {
+					GetCell(target_cells[i]).Rotate(parent_cell);
+				}
+			}
+			
+			// Purge the mutations since last division
+			parent_organism->OffspringGenome().GetGenome().GetMutationSteps().Clear();
+		}
+	}
   
   // Do any statistics on the parent that just gave birth...
   parent_genotype->AddGestationTime( parent_phenotype.GetGestationTime() );
@@ -833,6 +859,12 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   	organism->GetOrgInterface().UpdateResources(organism->GetRBins());
   }
   
+	// make sure the group composition is updated.
+	if(m_world->GetConfig().USE_FORM_GROUPS.Get() && organism->HasOpinion()) 
+	{
+			int opinion = organism->GetOpinion().first;
+			LeaveGroup(opinion);
+	}
   
   // Do the lineage handling
   if (m_world->GetConfig().LOG_LINEAGES.Get()) { m_world->GetClassificationManager().RemoveLineageOrganism(organism); }
@@ -840,8 +872,10 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   // Update count statistics...
   num_organisms--;
   
-  if (deme_array.GetSize() > 0) {
+	// Handle deme updates.
+  if(deme_array.GetSize() > 0) {
     deme_array[in_cell.GetDemeID()].DecOrgCount();
+		deme_array[in_cell.GetDemeID()].OrganismDeath(in_cell);
   }
   genotype->RemoveOrganism();
   
@@ -3884,11 +3918,11 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
 {
   assert(step_size > 0.0);
   assert(cell_id < cell_array.GetSize());
-  
+  	
   // If cell_id is negative, no cell could be found -- stop here.
   if (cell_id < 0) return;
   
-  cPopulationCell& cell = GetCell(cell_id);
+	cPopulationCell& cell = GetCell(cell_id);
   assert(cell.IsOccupied()); // Unoccupied cell getting processor time!
   cOrganism* cur_org = cell.GetOrganism();
   

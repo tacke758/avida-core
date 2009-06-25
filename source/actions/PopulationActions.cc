@@ -1073,6 +1073,124 @@ public:
 
 
 /*
+ Decay the given resource in treatable demes over time
+ 
+ Parameters:
+ - The name of resource to decay
+ - How the amount of decay decreases over time ['const', 'lin', 'taper'] -- CASE SENSITIVE!
+   - none: the amount of resource decayed remains constant over time
+   - lin: the amount of resource decayed decreases linearly throughout the duration
+   - taper: retains a slowly-decreasing amount of decay then drops off sharply at the end of the duration
+ - Base amount to be removed.
+ - Duration (how long this resource decay should last.  works only with lin and exp.  none lasts infinitely.)
+ */
+
+class cAction_TherapyDecayDemeResource : public cAction
+  {
+  private:
+    cString m_resname;
+    cString m_decrtype;
+    double m_amount;
+    double m_duration;
+  public:
+    cAction_TherapyDecayDemeResource(cWorld* world, const cString& args) : cAction(world, args), m_amount(0), m_duration(1)
+    {
+      cString largs(args);
+      if (largs.GetSize()) m_resname = largs.PopWord();
+      if (largs.GetSize()) m_decrtype = largs.PopWord();
+      if (largs.GetSize()) m_amount = largs.PopWord().AsDouble();
+      if (largs.GetSize()) m_duration = largs.PopWord().AsInt();
+      assert(m_amount >= 0);
+      assert(m_amount <= 1);
+      assert(m_duration >= 1);
+    }
+    
+    static const cString GetDescription() { return "Arguments: [string resource_name=resname, string decrease_type=(none|lin|exp), double amount=0.2]"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      double adjusted_amount;
+      int time_since_treatment;
+      int latest_treatment_age;
+      std::set<int> treatment_ages;
+      int deme_age;
+      
+      //adjusted amount will be something like max(0, 1 - (m_amount * time_since_treatment)) for linear
+            
+      cPopulation& pop = m_world->GetPopulation();
+      
+      for (int d = 0; d < pop.GetNumDemes(); d++) {
+        
+        cDeme &deme = pop.GetDeme(d);
+        deme_age = deme.GetAge();
+        latest_treatment_age = -1;
+        time_since_treatment = INT_MAX;
+        
+        if(deme.isTreatable()) {
+                    
+          treatment_ages = deme.GetTreatmentAges();
+          
+          // Find out the last update at which this treatment was started
+          for (std::set<int>::iterator it = treatment_ages.begin(); it != treatment_ages.end(); it++) {
+            if( (*it < deme_age) && (*it > latest_treatment_age) ) {
+              latest_treatment_age = *it;
+              time_since_treatment = deme_age - latest_treatment_age;
+            }
+          }
+          
+          // If we haven't begun treatment on this deme, or if this treatment is over, skip it.
+          if ((latest_treatment_age == -1) || (time_since_treatment > m_duration)) {
+            continue;
+          }
+                          
+          // Find out how much to decrease the resource by
+          // none - as long as the treatment is ongoing, it is at full force
+          // lin - as the treatment continues, the amount decayed decreases linearly
+          // exp - as treatment continues, the amount decayed decreases exponentially
+          if(m_decrtype == "const") {
+            if(time_since_treatment >= m_duration) {
+              adjusted_amount = 0;
+            } else {
+              adjusted_amount = m_amount;
+            }
+          } else if (m_decrtype == "lin") {
+            adjusted_amount = max(0.0, 1 - (time_since_treatment/m_duration)) * m_amount;
+          } else if (m_decrtype == "taper") {
+            adjusted_amount = max(0.0, 1 - pow(time_since_treatment/m_duration, 2)) * m_amount;
+          } else {
+            adjusted_amount = 0;
+          }
+                    
+          cResourceCount res = deme.GetDemeResourceCount();
+          const int resid = res.GetResourceByName(m_resname);
+          
+          if(resid == -1)
+          {
+            //Resource doesn't exist for this deme.  This is a bad situation, but just go to next deme.
+            cerr << "Error: Resource \"" << m_resname << "\" not defined for this deme" << endl;
+            continue;
+          }
+          
+          if(res.IsSpatial(resid)) {
+            for (int c = 0; c < deme.GetWidth() * deme.GetHeight(); c++) {
+              deme.AdjustSpatialResource(c, resid, -1 * deme.GetSpatialResource(c, resid) * adjusted_amount); 
+            } //End iterating through all cells
+          }
+          else
+          {
+            deme.AdjustResource(resid, -1 * res.Get(resid) * adjusted_amount);
+          }
+          
+        } //End if deme is treatable
+        
+      } //End iterating through all demes
+      
+    } //End Process()
+    
+  };
+
+
+/*
  In avida.cfg, when BASE_MERIT_METHOD is set to 6 (Merit prop. to num times MERIT_BONUS_INST is in genome), 
  the merit is incremented by MERIT_BONUS_EFFECT if MERIT_BONUS_EFFECT is positive and decremented by
  MERIT_BONUS_EFFECT if it is negative. For positive values the counting starts at 1, for negative values it starts
@@ -1745,7 +1863,7 @@ public:
 	
   /*! Deme fitness function, to be overriden by specific types of deme competition.
    */
-  virtual double Fitness(const cDeme& deme) = 0;
+  virtual double Fitness(cDeme& deme) = 0;
 };
 
 
@@ -1808,6 +1926,27 @@ public:
 protected:
 	int _compete_period; //!< Period at which demes compete.
 	std::vector<double> _update_fitness; //!< Running sum of returns from Update(cDeme).
+};
+
+
+/*! Competes demes based on the networks they've constructed.
+ */
+class cActionCompeteDemesByNetwork : public cAbstractCompeteDemes {
+public:
+	//! Constructor.
+	cActionCompeteDemesByNetwork(cWorld* world, const cString& args) : cAbstractCompeteDemes(world, args) {
+	}
+	
+	//! Destructor.
+	virtual ~cActionCompeteDemesByNetwork() { }
+	
+	//! Retrieve this class's description.
+	static const cString GetDescription() { return "No arguments."; }
+	
+	//! Calculate the current fitness of this deme.
+  virtual double Fitness(cDeme& deme) {
+		return deme.GetNetwork().Fitness();
+	}
 };
 
 
@@ -1881,7 +2020,7 @@ public:
 	static const cString GetDescription() { return "Arguments: [int compete_period=100 [int replace_number=0]]"; }
 	
 	//! Calculate the current fitness of this deme.
-  virtual double Fitness(const cDeme& deme) {
+  virtual double Fitness(cDeme& deme) {
 		return max_support(deme).first + 1;
 	}
 	
@@ -1952,7 +2091,7 @@ public:
 		return "Competes demes according to the number of times a given task has been completed within that deme"; 
 	}
 	
-	virtual double Fitness(const cDeme& deme) {
+	virtual double Fitness(cDeme& deme) {
 		double fitness = pow(deme.GetCurTaskExeCount()[_task_num], 2.0);///deme.GetInjectedCount());
     if (fitness == 0.0) fitness = 0.1;
     return fitness;
@@ -1991,7 +2130,7 @@ public:
 		return "Competes demes according to the number of times a given task has been completed within that deme and the efficiency with which it was done"; 
 	}
 	
-	virtual double Fitness(const cDeme& deme) {
+	virtual double Fitness(cDeme& deme) {
     double energy_used = _initial_deme_energy - deme.CalculateTotalEnergy();
 		double fitness = 
 		pow(deme.GetCurTaskExeCount()[_task_num] * (_initial_deme_energy/energy_used),2);
@@ -2014,7 +2153,7 @@ public:
 		return "Competes demes according to the distribution of energy among the organisms"; 
 	}
 	
-	virtual double Fitness(const cDeme& deme) {
+	virtual double Fitness(cDeme& deme) {
 		const int numcells = deme.GetSize();
 		
 		double min_energy = -1;
@@ -2106,7 +2245,7 @@ public:
   /*! Calculate the fitness based on how well the organisms in this deme have
 	 synchronized their flashes.
    */
-  virtual double Fitness(const cDeme& deme) {
+  virtual double Fitness(cDeme& deme) {
 		cStats::PopulationFlashes::const_iterator deme_flashes = m_world->GetStats().GetFlashTimes().find(deme.GetID());
 		if(deme_flashes == m_world->GetStats().GetFlashTimes().end()) {
 			// Hm, nothing to see here.  We're done.
@@ -2177,7 +2316,7 @@ public:
   static const cString GetDescription() { return "No Arguments"; }
   
 	//! Calculate fitness based on how well organisms have spread throughout phase-space.
-	virtual double Fitness(const cDeme& deme) {
+	virtual double Fitness(cDeme& deme) {
 		cStats::PopulationFlashes::const_iterator deme_flashes = m_world->GetStats().GetFlashTimes().find(deme.GetID());
 		if(deme_flashes == m_world->GetStats().GetFlashTimes().end()) {
 			// Hm, nothing to see here.  We're done.
@@ -2212,7 +2351,7 @@ public:
 	
 	static const cString GetDescription() { return "No Arguments"; }
   
-	double Fitness(const cDeme& deme) {    
+	double Fitness(cDeme& deme) {    
 		double eventsKilled = static_cast<double>(deme.GetEventsKilled());
 		double totalEvents  = static_cast<double>(deme.GetEventsTotal());
 		double energyRemaining = deme.CalculateTotalEnergy();
@@ -2229,7 +2368,7 @@ public:
 	
 	static const cString GetDescription() { return "No Arguments"; }
   
-	double Fitness(const cDeme& deme) {
+	double Fitness(cDeme& deme) {
 		if(m_world->GetConfig().DEMES_PREVENT_STERILE.Get() && deme.GetBirthCount() == 0)
 			return 1.0;
 		double energyRemaining = deme.CalculateTotalEnergy();
@@ -3203,6 +3342,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 	// Theraputic deme actions
 	action_lib->Register<cAction_TherapyStructuralNumInst>("TherapyStructuralNumInst");
 	action_lib->Register<cAction_TherapyStructuralRatioDistBetweenNearest>("TherapyStructuralRatioDistBetweenNearest");
+  action_lib->Register< cAction_TherapyDecayDemeResource>("TherapyDecayDemeResource");
 	
 	
   action_lib->Register<cActionToggleRewardInstruction>("ToggleRewardInstruction");
@@ -3234,6 +3374,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 	action_lib->Register<cAbstractCompeteDemes_EnergyConserve>("CompeteDemes_EnergyConserve");
   
   action_lib->Register<cAssignRandomCellData>("AssignRandomCellData");
+	action_lib->Register<cActionCompeteDemesByNetwork>("CompeteDemesByNetwork");
   action_lib->Register<cActionIteratedConsensus>("IteratedConsensus");
 	action_lib->Register<cActionSynchronization>("Synchronization");
 	action_lib->Register<cActionDesynchronization>("Desynchronization");

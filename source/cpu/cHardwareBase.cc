@@ -199,14 +199,35 @@ bool cHardwareBase::Divide_CheckViable(cAvidaContext& ctx, const int parent_size
  */
 int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier, const int maxmut)
 {
+  int max_genome_size = m_world->GetConfig().MAX_GENOME_SIZE.Get();
+  int min_genome_size = m_world->GetConfig().MIN_GENOME_SIZE.Get();
+  if (!max_genome_size || max_genome_size > MAX_CREATURE_SIZE) max_genome_size = MAX_CREATURE_SIZE;
+  if (!min_genome_size || min_genome_size < MIN_CREATURE_SIZE) min_genome_size = MIN_CREATURE_SIZE;
+
   int totalMutations = 0;
   cGenome& offspring_genome = m_organism->OffspringGenome().GetGenome();
   
   m_organism->GetPhenotype().SetDivType(mut_multiplier);
   
+  // @JEB 
+  // All slip mutations should happen first, so that there is a chance
+  // of getting a point mutation within one copy in the same divide.
+ 
   // Divide Slip Mutations - NOT COUNTED.
   if (m_organism->TestDivideSlip(ctx)) doSlipMutation(ctx, offspring_genome);
+ 
+  // Poisson Slip Mutations - NOT COUNTED
+  unsigned int num_poisson_slip = m_organism->NumDividePoissonSlip(ctx);
+  for (unsigned int i = 0; i < num_poisson_slip; i++) { doSlipMutation(ctx, offspring_genome);  }
     
+  // Slip Mutations (per site) - NOT COUNTED
+  if (m_organism->GetDivSlipProb() > 0) {
+    int num_mut = ctx.GetRandom().GetRandBinomial(offspring_genome.GetSize(), 
+                                                  m_organism->GetDivSlipProb() / mut_multiplier);
+    for (int i = 0; i < num_mut; i++) doSlipMutation(ctx, offspring_genome);
+  }
+  
+  
   // Divide Mutations
   if (m_organism->TestDivideMut(ctx) && totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
@@ -215,30 +236,69 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     offspring_genome.GetMutationSteps().AddSubstitutionMutation(mut_line, before_mutation, offspring_genome[mut_line].GetSymbol());
     totalMutations++;
   }
+    
+  
+  // Poisson Divide Mutations
+  unsigned int num_poisson_mut = m_organism->NumDividePoissonMut(ctx);
+  for (unsigned int i=0; i<num_poisson_mut; i++)
+  {
+    if (totalMutations >= maxmut) break;
+    const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
+    char before_mutation = offspring_genome[mut_line].GetSymbol();
+    offspring_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
+    offspring_genome.GetMutationSteps().AddSubstitutionMutation(mut_line, before_mutation, offspring_genome[mut_line].GetSymbol());
+    totalMutations++;
+  }
+ 
   
   // Divide Insertions
-  if (m_organism->TestDivideIns(ctx) && offspring_genome.GetSize() < MAX_CREATURE_SIZE && totalMutations < maxmut) {
+  if (m_organism->TestDivideIns(ctx) && offspring_genome.GetSize() < max_genome_size && totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize() + 1);
     offspring_genome.Insert(mut_line, m_inst_set->GetRandomInst(ctx));
     offspring_genome.GetMutationSteps().AddInsertionMutation(mut_line, offspring_genome[mut_line].GetSymbol());
     totalMutations++;
   }
-  
+
+
+  // Poisson Divide Insertions
+  unsigned int num_poisson_ins = m_organism->NumDividePoissonIns(ctx);
+  for (unsigned int i=0; i<num_poisson_ins; i++)
+  {
+    if (offspring_genome.GetSize() >= max_genome_size) break;
+    if (totalMutations >= maxmut) break;
+    const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize() + 1);
+    offspring_genome.Insert(mut_line, m_inst_set->GetRandomInst(ctx));
+    offspring_genome.GetMutationSteps().AddInsertionMutation(mut_line, offspring_genome[mut_line].GetSymbol());
+    totalMutations++;
+  }
+   
+   
   // Divide Deletions
-  if (m_organism->TestDivideDel(ctx) && offspring_genome.GetSize() > MIN_CREATURE_SIZE && totalMutations < maxmut) {
+  if (m_organism->TestDivideDel(ctx) && offspring_genome.GetSize() > min_genome_size && totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
     offspring_genome.GetMutationSteps().AddDeletionMutation(mut_line, offspring_genome[mut_line].GetSymbol());
     offspring_genome.Remove(mut_line);
     totalMutations++;
   }
 
+
+  // Poisson Divide Deletions
+  unsigned int num_poisson_del = m_organism->NumDividePoissonDel(ctx);
+  for (unsigned int i=0; i<num_poisson_del; i++)
+  {
+    if (offspring_genome.GetSize() <= min_genome_size) break;
+    if (totalMutations >= maxmut) break;
+    const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
+    offspring_genome.GetMutationSteps().AddDeletionMutation(mut_line, offspring_genome[mut_line].GetSymbol());
+    offspring_genome.Remove(mut_line);
+    totalMutations++;
+  }
+
+
   // Divide Uniform Mutations
   if (m_organism->TestDivideUniform(ctx) && totalMutations < maxmut) {
     if (doUniformMutation(ctx, offspring_genome)) totalMutations++;
   }
-  
-  
-  
   
   
   // Divide Mutations (per site)
@@ -257,14 +317,13 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     }
   }
 
-  
   // Insert Mutations (per site)
   if (m_organism->GetDivInsProb() > 0 && totalMutations < maxmut) {
     int num_mut = ctx.GetRandom().GetRandBinomial(offspring_genome.GetSize(), m_organism->GetDivInsProb());
 
-    // If would make creature too big, insert up to MAX_CREATURE_SIZE
-    if (num_mut + offspring_genome.GetSize() > MAX_CREATURE_SIZE) {
-      num_mut = MAX_CREATURE_SIZE - offspring_genome.GetSize();
+    // If would make creature too big, insert up to max_genome_size
+    if (num_mut + offspring_genome.GetSize() > max_genome_size) {
+      num_mut = max_genome_size - offspring_genome.GetSize();
     }
     
     // If we have lines to insert...
@@ -289,9 +348,9 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
   if (m_organism->GetDivDelProb() > 0 && totalMutations < maxmut) {
     int num_mut = ctx.GetRandom().GetRandBinomial(offspring_genome.GetSize(), m_organism->GetDivDelProb());
     
-    // If would make creature too small, delete down to MIN_CREATURE_SIZE
-    if (offspring_genome.GetSize() - num_mut < MIN_CREATURE_SIZE) {
-      num_mut = offspring_genome.GetSize() - MIN_CREATURE_SIZE;
+    // If would make creature too small, delete down to min_genome_size
+    if (offspring_genome.GetSize() - num_mut < min_genome_size) {
+      num_mut = offspring_genome.GetSize() - min_genome_size;
     }
     
     // If we have lines to delete...
@@ -320,18 +379,6 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     }
   }
   
-  
-  // Slip Mutations (per site) - NOT COUNTED
-  if (m_organism->GetDivSlipProb() > 0) {
-    int num_mut = ctx.GetRandom().GetRandBinomial(offspring_genome.GetSize(), 
-                                                  m_organism->GetDivSlipProb() / mut_multiplier);
-    for (int i = 0; i < num_mut; i++) doSlipMutation(ctx, offspring_genome);
-  }
-  
-  
-  
-  
-  
   // Mutations in the parent's genome
   if (m_organism->GetParentMutProb() > 0 && totalMutations < maxmut) {
     for (int i = 0; i < GetMemory().GetSize(); i++) {
@@ -349,17 +396,22 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
 
 bool cHardwareBase::doUniformMutation(cAvidaContext& ctx, cGenome& genome)
 {
+
   int mut = ctx.GetRandom().GetUInt((m_inst_set->GetSize() * 2) + 1);
   
   if (mut < m_inst_set->GetSize()) { // point
     int site = ctx.GetRandom().GetUInt(genome.GetSize());
     genome[site] = cInstruction(mut);
   } else if (mut == m_inst_set->GetSize()) { // delete
-    if (genome.GetSize() == MIN_CREATURE_SIZE) return false;
+    int min_genome_size = m_world->GetConfig().MIN_GENOME_SIZE.Get();
+    if (!min_genome_size || min_genome_size < MIN_CREATURE_SIZE) min_genome_size = MIN_CREATURE_SIZE;
+    if (genome.GetSize() == min_genome_size) return false;
     int site = ctx.GetRandom().GetUInt(genome.GetSize());
     genome.Remove(site);
   } else { // insert
-    if (genome.GetSize() == MAX_CREATURE_SIZE) return false;
+    int max_genome_size = m_world->GetConfig().MAX_GENOME_SIZE.Get();
+    if (!max_genome_size || max_genome_size > MAX_CREATURE_SIZE) max_genome_size = MAX_CREATURE_SIZE;
+    if (genome.GetSize() == max_genome_size) return false;
     int site = ctx.GetRandom().GetUInt(genome.GetSize() + 1);
     genome.Insert(site, cInstruction(mut - m_inst_set->GetSize() - 1));
   }
@@ -962,17 +1014,15 @@ bool cHardwareBase::Inst_DefaultEnergyUsage(cAvidaContext& ctx)
 bool cHardwareBase::SingleProcess_PayCosts(cAvidaContext& ctx, const cInstruction& cur_inst)
 {
 #if INSTRUCTION_COSTS
-
   if (m_world->GetConfig().ENERGY_ENABLED.Get() > 0) {
     // TODO:  Get rid of magic number. check avaliable energy first
     double energy_req = m_inst_energy_cost[cur_inst.GetOp()] * (m_organism->GetPhenotype().GetMerit().GetDouble() / 100.0); //compensate by factor of 100
     int cellID = m_organism->GetCellID();
-    
+		
     if((cellID != -1) && (energy_req > 0.0)) { // guard against running in the test cpu.
-
       if (m_organism->GetPhenotype().GetStoredEnergy() >= energy_req) {
-        m_inst_energy_cost[cur_inst.GetOp()] = 0;
-        // subtract energy used from current org energy.
+				m_inst_energy_cost[cur_inst.GetOp()] = 0.0;
+				// subtract energy used from current org energy.
         m_organism->GetPhenotype().ReduceEnergy(energy_req);  
         
         // tracking sleeping organisms
@@ -988,7 +1038,7 @@ bool cHardwareBase::SingleProcess_PayCosts(cAvidaContext& ctx, const cInstructio
         }
       } else {
         m_organism->GetPhenotype().SetToDie();
-        return false;
+				return false; // no more, your died...  (evil laugh)
       }
     }
   }
