@@ -350,11 +350,6 @@ public:
   void IncreaseEnergyReceived(double amount) { assert(amount >=0); total_energy_received += amount; }
   void IncreaseEnergyApplied(double amount) { assert(amount >=0); total_energy_applied += amount; }
 	
-	// ----Opinions--- //
-	bool allOrgsHaveSetOpinion();
-	
-  void GetSurroundingCellIds(tVector<int> &cells, const int absolute_cell_id, const int radius);
-	
 	// ----Boundaries---//
 	int getThenIncNextAvailBoundary() { return nextAvailBoundary++; }
 	int getNextAvailBoundary() const { return nextAvailBoundary; }

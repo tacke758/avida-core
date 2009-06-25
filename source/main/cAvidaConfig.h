@@ -537,6 +537,7 @@ public:
   CONFIG_ADD_VAR(ENERGY_SHARING_INCREMENT, double, 0.01, "Amount to change percent energy shared");
   CONFIG_ADD_VAR(ENERGY_SHARING_LOSS, double, 0.0, "Percent of shared energy lost in transfer");
   CONFIG_ADD_VAR(ENERGY_SHARING_UPDATE_METABOLIC, bool, 0, "0/1 (off/on) - Whether to update an organism's metabolic rate on donate or reception/application of energy");
+  CONFIG_ADD_VAR(LOG_ENERGY_SHARING, bool, 0, "Whether or not to log energy shares.  0/1 (off/on)");
   
 	CONFIG_ADD_GROUP(INTERRUPT_GROUP, "Interrupt Settings");
   CONFIG_ADD_VAR(INTERRUPT_ENABLED, bool, 0, "Enable Interrupt Model. 0/1 (off/on)");

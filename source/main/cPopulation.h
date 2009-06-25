@@ -234,6 +234,7 @@ public:
   void PrintDemeTestamentStats(const cString& filename);
   void PrintDemeEnergySharingStats();
   void PrintDemeEnergyDistributionStats();
+  void PrintDemeOrganismEnergyDistributionStats();
   void PrintDemeDonor();
   void PrintDemeFitness();
   void PrintDemeGestationTime();

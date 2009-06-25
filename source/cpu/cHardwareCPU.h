@@ -376,6 +376,21 @@ private:
   bool Inst_IfANotEqC(cAvidaContext& ctx);
   bool Inst_IfGrX(cAvidaContext& ctx);
   bool Inst_IfEquX(cAvidaContext& ctx);
+
+	// Probabilistic ifs.
+	bool Inst_IfP0p125(cAvidaContext& ctx);
+	bool Inst_IfP0p25(cAvidaContext& ctx);
+	bool Inst_IfP0p50(cAvidaContext& ctx);
+	bool Inst_IfP0p75(cAvidaContext& ctx);
+	
+	// If-less-else-if, else, endif
+  cHeadCPU Find(const char* instr);
+  void Else_TopHalf();
+  bool Inst_IfLessEnd(cAvidaContext& ctx);
+  bool Inst_IfNotEqualEnd(cAvidaContext& ctx);
+  bool Inst_IfGrtEquEnd(cAvidaContext& ctx);
+  bool Inst_Else(cAvidaContext& ctx);
+  bool Inst_EndIf(cAvidaContext& ctx);	
   
   bool Inst_JumpF(cAvidaContext& ctx);
   bool Inst_JumpB(cAvidaContext& ctx);
@@ -604,6 +619,7 @@ private:
   bool Inst_JumpHead(cAvidaContext& ctx);
   bool Inst_GetHead(cAvidaContext& ctx);
   bool Inst_IfLabel(cAvidaContext& ctx);
+  bool Inst_IfLabelDirect(cAvidaContext& ctx);
   bool Inst_IfLabel2(cAvidaContext& ctx);
   bool Inst_HeadDivide(cAvidaContext& ctx);
   bool Inst_HeadDivideRS(cAvidaContext& ctx); //AWC 06/29/06
@@ -613,6 +629,7 @@ private:
   bool Inst_HeadWrite(cAvidaContext& ctx);
   bool Inst_HeadCopy(cAvidaContext& ctx);
   bool Inst_HeadSearch(cAvidaContext& ctx);
+  bool Inst_HeadSearchDirect(cAvidaContext& ctx);
   bool Inst_SetFlow(cAvidaContext& ctx);
 
   bool Inst_HeadCopy2(cAvidaContext& ctx);
@@ -671,6 +688,12 @@ private:
   bool Inst_IfEnergyNotInBuffer(cAvidaContext& ctx);
   bool Inst_GetEnergyLevel(cAvidaContext& ctx);
   bool Inst_GetFacedEnergyLevel(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyRequestOn(cAvidaContext& ctx);
+  bool Inst_IfFacedEnergyRequestOff(cAvidaContext& ctx);
+  bool Inst_GetEnergyRequestStatus(cAvidaContext& ctx);
+  bool Inst_GetFacedEnergyRequestStatus(cAvidaContext& ctx);
+  
+
 	
   bool Inst_Sleep(cAvidaContext& ctx);
   bool Inst_GetUpdate(cAvidaContext& ctx);
@@ -685,7 +708,7 @@ private:
   bool Inst_Numberate24(cAvidaContext& ctx) { return Do_Numberate(ctx, 24); };
   bool Do_Numberate(cAvidaContext& ctx, int num_bits=0);
 
-    // Helper functions //
+	// Helper functions //
   bool IsActivePromoter();
   void NextPromoter();
   int  Numberate(int _pos, int _dir, int _num_bits = 0);
@@ -742,8 +765,12 @@ private:
 	
 public:
   bool Inst_RetrieveMessage(cAvidaContext& ctx);
-private:
-	
+  bool BroadcastX(cAvidaContext& ctx, int depth);
+  bool Inst_Broadcast1(cAvidaContext& ctx);
+  bool Inst_Broadcast2(cAvidaContext& ctx);
+  bool Inst_Broadcast4(cAvidaContext& ctx);
+  bool Inst_Broadcast8(cAvidaContext& ctx);
+  
   //// Alarm ////
   bool Inst_Alarm_MSG_local(cAvidaContext& ctx);
   bool Inst_Alarm_MSG_multihop(cAvidaContext& ctx);
@@ -856,6 +883,13 @@ private:
   std::pair<unsigned int, unsigned int> m_flash_info;
   //! Cycle timer; counts the number of cycles this virtual CPU has executed.
   unsigned int m_cycle_counter;	
+		
+	// -------- Neighborhood-sensing support --------
+public:	
+  //! Loads the current neighborhood into the organism's memory.
+  bool Inst_GetNeighborhood(cAvidaContext& ctx);
+	//! Test if the current neighborhood has changed from that in the organism's memory.
+	bool Inst_IfNeighborhoodChanged(cAvidaContext& ctx);
 };
 
 

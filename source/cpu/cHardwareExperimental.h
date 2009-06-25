@@ -107,6 +107,7 @@ private:
     unsigned int oldest_component:15;
     unsigned int env_component:1;
     
+    inline sInternalValue() : value(0) { ; }
     inline void Clear() { value = 0; originated = 0; from_env = 0, oldest_component = 0; env_component = 0; }
     inline sInternalValue& operator=(const sInternalValue& i);
   };
@@ -423,6 +424,7 @@ private:
   bool Inst_JumpHead(cAvidaContext& ctx);
   bool Inst_GetHead(cAvidaContext& ctx);
   bool Inst_IfLabel(cAvidaContext& ctx);
+  bool Inst_IfLabelDirect(cAvidaContext& ctx);
   bool Inst_HeadDivide(cAvidaContext& ctx);
   bool Inst_HeadDivideSex(cAvidaContext& ctx);
   bool Inst_HeadRead(cAvidaContext& ctx);
@@ -430,6 +432,8 @@ private:
   bool Inst_HeadCopy(cAvidaContext& ctx);
   bool Inst_HeadSearch(cAvidaContext& ctx);
   bool Inst_HeadSearchLabel(cAvidaContext& ctx);
+  bool Inst_HeadSearchDirect(cAvidaContext& ctx);
+  bool Inst_HeadSearchDirectLabel(cAvidaContext& ctx);
   bool Inst_SetFlow(cAvidaContext& ctx);
   
   // Goto Variants

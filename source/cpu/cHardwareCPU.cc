@@ -311,6 +311,20 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("if-grt-X", &cHardwareCPU::Inst_IfGrX),
     tInstLibEntry<tMethod>("if-equ-X", &cHardwareCPU::Inst_IfEquX),
 
+		// Probabilistic ifs.
+		tInstLibEntry<tMethod>("if-p-0.125", &cHardwareCPU::Inst_IfP0p125, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-p-0.25", &cHardwareCPU::Inst_IfP0p25, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-p-0.50", &cHardwareCPU::Inst_IfP0p50, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-p-0.75", &cHardwareCPU::Inst_IfP0p75, nInstFlag::STALL),
+				
+		// The below series of conditionals extend the traditional Avida single-instruction-skip
+		// to a block, or series of instructions.
+		tInstLibEntry<tMethod>("if-less.end", &cHardwareCPU::Inst_IfLessEnd, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-n-equ.end", &cHardwareCPU::Inst_IfNotEqualEnd, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if->=.end", &cHardwareCPU::Inst_IfGrtEquEnd, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("else", &cHardwareCPU::Inst_Else, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("end-if", &cHardwareCPU::Inst_EndIf, nInstFlag::STALL),
+
     tInstLibEntry<tMethod>("jump-f", &cHardwareCPU::Inst_JumpF),
     tInstLibEntry<tMethod>("jump-b", &cHardwareCPU::Inst_JumpB),
     tInstLibEntry<tMethod>("call", &cHardwareCPU::Inst_Call),
@@ -503,6 +517,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("h-write", &cHardwareCPU::Inst_HeadWrite),
     tInstLibEntry<tMethod>("h-copy", &cHardwareCPU::Inst_HeadCopy, nInstFlag::DEFAULT, "Copy from read-head to write-head; advance both"),
     tInstLibEntry<tMethod>("h-search", &cHardwareCPU::Inst_HeadSearch, nInstFlag::DEFAULT, "Find complement template and make with flow head"),
+    tInstLibEntry<tMethod>("h-search-direct", &cHardwareCPU::Inst_HeadSearch, nInstFlag::DEFAULT, "Find direct template and move the flow head"),
     tInstLibEntry<tMethod>("h-push", &cHardwareCPU::Inst_HeadPush),
     tInstLibEntry<tMethod>("h-pop", &cHardwareCPU::Inst_HeadPop),
     tInstLibEntry<tMethod>("set-head", &cHardwareCPU::Inst_SetHead),
@@ -511,6 +526,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("jmp-head", &cHardwareCPU::Inst_JumpHead, nInstFlag::DEFAULT, "Move head ?IP? by amount in CX register; CX = old pos."),
     tInstLibEntry<tMethod>("get-head", &cHardwareCPU::Inst_GetHead, nInstFlag::DEFAULT, "Copy the position of the ?IP? head into CX"),
     tInstLibEntry<tMethod>("if-label", &cHardwareCPU::Inst_IfLabel, nInstFlag::DEFAULT, "Execute next if we copied complement of attached label"),
+    tInstLibEntry<tMethod>("if-label-direct", &cHardwareCPU::Inst_IfLabel, nInstFlag::DEFAULT, "Execute next if we copied direct match of the attached label"),
     tInstLibEntry<tMethod>("if-label2", &cHardwareCPU::Inst_IfLabel2, 0, "If copied label compl., exec next inst; else SKIP W/NOPS"),
     tInstLibEntry<tMethod>("set-flow", &cHardwareCPU::Inst_SetFlow, nInstFlag::DEFAULT, "Set flow-head to position in ?CX?"),
     
@@ -623,6 +639,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 	  tInstLibEntry<tMethod>("if-energy-not-in-buffer", &cHardwareCPU::Inst_IfEnergyNotInBuffer, nInstFlag::STALL),
     tInstLibEntry<tMethod>("get-energy-level", &cHardwareCPU::Inst_GetEnergyLevel, nInstFlag::STALL),
     tInstLibEntry<tMethod>("get-faced-energy-level", &cHardwareCPU::Inst_GetFacedEnergyLevel, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("if-faced-request-on", &cHardwareCPU::Inst_IfFacedEnergyRequestOn, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("if-faced-request-off", &cHardwareCPU::Inst_IfFacedEnergyRequestOff, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("get-energy-request-status", &cHardwareCPU::Inst_GetEnergyRequestStatus, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("get-faced-energy-request-status", &cHardwareCPU::Inst_GetFacedEnergyRequestStatus, nInstFlag::STALL),
+
 	  
     // Sleep and time
     tInstLibEntry<tMethod>("sleep", &cHardwareCPU::Inst_Sleep, nInstFlag::STALL),
@@ -696,6 +717,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		
 		
     tInstLibEntry<tMethod>("retrieve-msg", &cHardwareCPU::Inst_RetrieveMessage, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("bcast1", &cHardwareCPU::Inst_Broadcast1, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("bcast2", &cHardwareCPU::Inst_Broadcast2, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("bcast4", &cHardwareCPU::Inst_Broadcast4, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("bcast8", &cHardwareCPU::Inst_Broadcast8, nInstFlag::STALL),
 		
     // Alarms
     tInstLibEntry<tMethod>("send-alarm-msg-local", &cHardwareCPU::Inst_Alarm_MSG_local, nInstFlag::STALL),
@@ -776,6 +801,10 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("hard-reset", &cHardwareCPU::Inst_HardReset, nInstFlag::STALL),
     tInstLibEntry<tMethod>("get-cycles", &cHardwareCPU::Inst_GetCycles, nInstFlag::STALL),		
 
+		// Neighborhood-sensing instructions
+		tInstLibEntry<tMethod>("get-neighborhood", &cHardwareCPU::Inst_GetNeighborhood, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-neighborhood-changed", &cHardwareCPU::Inst_IfNeighborhoodChanged, nInstFlag::STALL),
+		
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
   };
@@ -2193,6 +2222,38 @@ bool cHardwareCPU::Inst_IfEquX(cAvidaContext& ctx)       // Execute next if BX =
   if (GetRegister(REG_BX) != valueToCompare)  IP().Advance();
   
   return true;
+}
+
+
+bool cHardwareCPU::Inst_IfP0p125(cAvidaContext& ctx) {
+	if(m_world->GetRandom().P(0.875)) {
+		IP().Advance();
+	}
+	return true;
+}
+
+
+bool cHardwareCPU::Inst_IfP0p25(cAvidaContext& ctx) {
+	if(m_world->GetRandom().P(0.75)) {
+		IP().Advance();
+	}
+	return true;
+}
+
+
+bool cHardwareCPU::Inst_IfP0p50(cAvidaContext& ctx) {
+	if(m_world->GetRandom().P(0.5)) {
+		IP().Advance();
+	}
+	return true;
+}
+
+
+bool cHardwareCPU::Inst_IfP0p75(cAvidaContext& ctx) {
+	if(m_world->GetRandom().P(0.25)) {
+		IP().Advance();
+	}
+	return true;
 }
 
 bool cHardwareCPU::Inst_JumpF(cAvidaContext& ctx)
@@ -3996,6 +4057,7 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
   
   const int update_metabolic = m_world->GetConfig().ENERGY_SHARING_UPDATE_METABOLIC.Get();
   double energy_given = min(m_organism->GetPhenotype().GetStoredEnergy(), amount);
+  double energy_received;
   
   //update energy store and merit of donor
   m_organism->GetPhenotype().ReduceEnergy(energy_given);
@@ -4011,11 +4073,11 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
   }
   
   //apply loss in transfer
-  energy_given *= (1 - losspct);
+  energy_received = energy_given * (1 - losspct);
   
   //place energy into receiver's incoming energy buffer
-  to_org->GetPhenotype().ReceiveDonatedEnergy(energy_given);
-  to_org->GetDeme()->IncreaseEnergyReceived(energy_given);   // Harder for phenotype to get the deme, so it's done here
+  to_org->GetPhenotype().ReceiveDonatedEnergy(energy_received);
+  to_org->GetDeme()->IncreaseEnergyReceived(energy_received);   // Harder for phenotype to get the deme, so it's done here
   
   //if we are using the push energy method, pass the new energy into the receiver's energy store and recalculate merit
   if(m_world->GetConfig().ENERGY_SHARING_METHOD.Get() == 1) {
@@ -4025,6 +4087,24 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
       double receiverMerit = cMerit::EnergyToMerit(to_org->GetPhenotype().GetStoredEnergy() * to_org->GetPhenotype().GetEnergyUsageRatio(), m_world);
       to_org->UpdateMerit(receiverMerit);
 	  }
+  }
+  
+  
+  if(m_world->GetConfig().LOG_ENERGY_SHARING.Get() == 1) {    
+    cString tmpfilename = cStringUtil::Stringf("energy_sharing_log.dat");
+    cDataFile& df = m_world->GetDataFile(tmpfilename);
+    
+    cString UpdateStr = cStringUtil::Stringf("%d,%d,%d,%f,%f,%d,%f,%f", 
+                                             m_world->GetStats().GetUpdate(),
+                                             m_world->GetConfig().ENERGY_SHARING_METHOD.Get(),
+                                             m_organism->GetID(),
+                                             energy_given,
+                                             m_organism->GetPhenotype().GetStoredEnergy(),
+                                             to_org->GetID(),
+                                             energy_received,
+                                             to_org->GetPhenotype().GetStoredEnergy());
+    df.WriteRaw(UpdateStr);
+    
   }
   
 } //End DoEnergyDonateAmount()
@@ -4818,7 +4898,7 @@ bool cHardwareCPU::Inst_RequestEnergy(cAvidaContext& ctx)
   cOrgMessage msg(m_organism);
   // Could set the data field of the message to be the multiplier
   
-  m_organism->BroadcastMessage(ctx, msg);
+  m_organism->BroadcastMessage(ctx, msg, m_world->GetConfig().MESSAGE_BCAST_RADIUS.Get());
   m_organism->GetPhenotype().SetIsEnergyRequestor();
   m_organism->GetPhenotype().IncreaseNumEnergyRequests();
   
@@ -5464,6 +5544,13 @@ bool cHardwareCPU::Inst_IfLabel(cAvidaContext& ctx)
   return true;
 }
 
+bool cHardwareCPU::Inst_IfLabelDirect(cAvidaContext& ctx)
+{
+  ReadLabel();
+  if (GetLabel() != GetReadLabel())  IP().Advance();
+  return true;
+}
+
 // This is a variation on IfLabel that will skip the next command if the "if"
 // is false, but it will also skip all nops following that command.
 bool cHardwareCPU::Inst_IfLabel2(cAvidaContext& ctx)
@@ -5743,6 +5830,18 @@ bool cHardwareCPU::Inst_HeadSearch(cAvidaContext& ctx)
 {
   ReadLabel();
   GetLabel().Rotate(1, NUM_NOPS);
+  cHeadCPU found_pos = FindLabel(0);
+  const int search_size = found_pos.GetPosition() - IP().GetPosition();
+  GetRegister(REG_BX) = search_size;
+  GetRegister(REG_CX) = GetLabel().GetSize();
+  GetHead(nHardware::HEAD_FLOW).Set(found_pos);
+  GetHead(nHardware::HEAD_FLOW).Advance();
+  return true; 
+}
+
+bool cHardwareCPU::Inst_HeadSearchDirect(cAvidaContext& ctx)
+{
+  ReadLabel();
   cHeadCPU found_pos = FindLabel(0);
   const int search_size = found_pos.GetPosition() - IP().GetPosition();
   GetRegister(REG_BX) = search_size;
@@ -6065,6 +6164,93 @@ bool cHardwareCPU::Inst_GetFacedEnergyLevel(cAvidaContext& ctx) {
   return true;
 	
 } //End Inst_GetFacedEnergyLevel()
+
+
+bool cHardwareCPU::Inst_IfFacedEnergyRequestOn(cAvidaContext& ctx) {
+  
+  if(m_organism->GetCellID() < 0) {
+    return false;
+  }	
+  
+  cOrganism * neighbor = m_organism->GetNeighbor();
+  
+  if( (neighbor == NULL) || (neighbor->IsDead()) ) {
+    return false;  
+  }
+  
+  if(neighbor->GetPhenotype().IsEnergyRequestor() == false) {
+    IP().Advance();
+  }
+  
+  return true;
+	
+} //End Inst_IfFacedEnergyRequestOn()
+
+bool cHardwareCPU::Inst_IfFacedEnergyRequestOff(cAvidaContext& ctx) {
+  
+  if(m_organism->GetCellID() < 0) {
+    return false;
+  }	
+  
+  cOrganism * neighbor = m_organism->GetNeighbor();
+  
+  if( (neighbor == NULL) || (neighbor->IsDead()) ) {
+    return false;  
+  }
+  
+  if(neighbor->GetPhenotype().IsEnergyRequestor() == true) {
+    IP().Advance();
+  }
+  
+  return true;
+	
+} //End Inst_IfFacedEnergyRequestOff()
+
+
+bool cHardwareCPU::Inst_GetEnergyRequestStatus(cAvidaContext& ctx) {
+  
+  if(m_organism->GetCellID() < 0) {
+    return false;
+  }	
+  
+  const int reg = FindModifiedRegister(REG_BX);
+  int status = 0;
+  
+  if(m_organism->GetPhenotype().IsEnergyRequestor() == true) {
+    status = 1; 
+  }
+  
+  GetRegister(reg) = status;
+  
+  return true;
+  
+} //End Inst_GetEnergyRequestStatus()
+
+
+bool cHardwareCPU::Inst_GetFacedEnergyRequestStatus(cAvidaContext& ctx) {
+  
+  if(m_organism->GetCellID() < 0) {
+    return false;
+  }	
+  
+  cOrganism * neighbor = m_organism->GetNeighbor();
+  
+  if( (neighbor == NULL) || (neighbor->IsDead()) ) {
+    return false;  
+  }
+  
+  const int reg = FindModifiedRegister(REG_BX);
+  int status = 0;
+  
+  if(neighbor->GetPhenotype().IsEnergyRequestor() == true) {
+    status = 1; 
+  }
+  
+  GetRegister(reg) = status;
+  
+  return true;
+  
+} //End Inst_GetFacedEnergyRequestStatus()
 
 
 bool cHardwareCPU::Inst_Sleep(cAvidaContext& ctx) {
@@ -8636,4 +8822,159 @@ bool cHardwareCPU::Inst_HardReset(cAvidaContext& ctx) {
 bool cHardwareCPU::Inst_GetCycles(cAvidaContext& ctx) {
   GetRegister(FindModifiedRegister(REG_BX)) = m_cycle_counter;
   return true;
+}
+
+
+//! Loads the current neighborhood into the organism's memory.
+bool cHardwareCPU::Inst_GetNeighborhood(cAvidaContext& ctx) {
+	assert(m_organism != 0);
+	m_organism->LoadNeighborhood();
+	return true;
+}
+
+
+//! Test if the current neighborhood has changed from that in the organism's memory.
+bool cHardwareCPU::Inst_IfNeighborhoodChanged(cAvidaContext& ctx) {
+  assert(m_organism != 0);
+  if(!m_organism->HasNeighborhoodChanged()) {
+		IP().Advance();
+	}
+	
+	return true;
+}
+
+
+/*! Find the first occurence of the passed-in instruction from the IP() forward,
+ wrapping around the genome as required.  If the given instruction is not in the
+ genome, return the starting position.
+ */
+cHeadCPU cHardwareCPU::Find(const char* instr) {
+  cHeadCPU ptr(IP());
+  const int current = ptr.GetPosition();
+  ptr.Advance();
+  while(ptr.GetPosition() != current) {
+    ptr.Advance();
+    if(m_inst_set->GetName(ptr.GetInst())==instr) {
+      break;
+    }
+  }
+	return ptr;
+}
+
+
+bool cHardwareCPU::Inst_IfLessEnd(cAvidaContext& ctx) {
+  const int x = FindModifiedRegister(REG_BX);
+  const int y = FindNextRegister(x);
+	
+  if(GetRegister(x) >= GetRegister(y)) { Else_TopHalf(); }
+  return true;
+}
+
+
+bool cHardwareCPU::Inst_IfNotEqualEnd(cAvidaContext& ctx) {
+  const int x = FindModifiedRegister(REG_BX);
+  const int y = FindNextRegister(x);
+  
+  if(GetRegister(x) == GetRegister(y)) { Else_TopHalf(); }
+  return true;  
+}
+
+
+bool cHardwareCPU::Inst_IfGrtEquEnd(cAvidaContext& ctx) {
+  const int x = FindModifiedRegister(REG_BX);
+  const int y = FindNextRegister(x);
+  
+  if(GetRegister(x) < GetRegister(y)) { Else_TopHalf(); }
+  return true;
+}
+
+
+/*! This is the top-half of the else instruction, meant to be executed if the if
+ condition evaluates to false.
+ */
+void cHardwareCPU::Else_TopHalf() {
+  cHeadCPU else_head = Find("else");
+  cHeadCPU endif_head = Find("endif");  
+	
+  // Condition failed.  If there's an else-clause, jump to it.
+  // If there isn't an else-clause, try to jump to the endif.
+  // Note that the IP is unconditionally advanced *after* this instruction
+  // has executed.  If there is no else or endif, advance one instruction.
+  if(else_head.GetPosition() != IP().GetPosition()) {
+    IP().Set(else_head);
+  } else if(endif_head.GetPosition() != IP().GetPosition()) {
+    IP().Set(endif_head);
+  } else {
+    // No else or endif.  Advance past the next instruction (as normal).
+    IP().Advance();
+  }
+}
+
+
+/*! The only way that this instruction can be executed is if the if passed, or
+ if there was no if.  In both cases, we're going to jump to the first <end-if>, or
+ skip one instruction.
+ */
+bool cHardwareCPU::Inst_Else(cAvidaContext& ctx) {
+  cHeadCPU endif_head = Find("endif");
+  if(endif_head.GetPosition() != IP().GetPosition()) {
+    // If the <end-if> is somewhere else, jump to it.
+    IP().Set(endif_head);
+  } else {
+    // Otherwise, just skip one instruction.
+    IP().Advance();
+  }
+  return true; 
+}
+
+/*! This is just a placeholder; it has no functionality of its own.
+ */
+bool cHardwareCPU::Inst_EndIf(cAvidaContext& ctx) { 
+  return true; 
+}
+
+
+/*! A generic broadcast method, to simplify the development of different range
+ broadcasts.
+ */
+bool cHardwareCPU::BroadcastX(cAvidaContext& ctx, int depth) {
+	const int label_reg = FindModifiedRegister(REG_BX);
+  const int data_reg = FindNextRegister(label_reg);
+  
+  cOrgMessage msg = cOrgMessage(m_organism);
+  msg.SetLabel(GetRegister(label_reg));
+  msg.SetData(GetRegister(data_reg));
+  return m_organism->BroadcastMessage(ctx, msg, depth);
+}
+
+
+/*! A single-hop broadcast instruction - send a message to all 1-hop neighbors
+ of this organism.
+ */
+bool cHardwareCPU::Inst_Broadcast1(cAvidaContext& ctx) {
+  return BroadcastX(ctx, 1);
+}
+
+
+/*! A double-hop broadcast instruction - send a message to all 2-hop neighbors
+ of this organism.
+ */
+bool cHardwareCPU::Inst_Broadcast2(cAvidaContext& ctx) {
+  return BroadcastX(ctx, 2);
+}
+
+
+/*! Another broadcast instruction variant - send a message to all 4-hop neighbors
+ of this organism.
+ */
+bool cHardwareCPU::Inst_Broadcast4(cAvidaContext& ctx) {
+  return BroadcastX(ctx, 4);
+}
+
+
+/*! Another broadcast instruction variant - send a message to all 8-hop neighbors
+ of this organism.
+ */
+bool cHardwareCPU::Inst_Broadcast8(cAvidaContext& ctx) {
+  return BroadcastX(ctx, 8);
 }
