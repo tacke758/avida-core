@@ -404,6 +404,8 @@ public:
   CONFIG_ADD_VAR(DIVIDE_POISSON_SLIP_MEAN, double, 0.0, "Slip rate (Poisson distributed, per divide)");
 
   CONFIG_ADD_VAR(DIVIDE_UNIFORM_PROB, double, 0.0, "Uniform mutation probability (per divide)\n- Randomly applies any of the three classes of mutations (ins, del, point).");
+
+  CONFIG_ADD_VAR(DEATH_PROB, double, 0.0, "Death rate (parent organism, per divide)");
   
   CONFIG_ADD_VAR(INJECT_INS_PROB, double, 0.0, "Insertion rate (per site, applied on inject)");
   CONFIG_ADD_VAR(INJECT_DEL_PROB, double, 0.0, "Deletion rate (per site, applied on inject)");
@@ -645,7 +647,7 @@ public:
   CONFIG_ADD_VAR(MATCH_ALREADY_PRODUCED, int, 0, "0=off\n1=on");
 	
 	CONFIG_ADD_GROUP(GROUP_FORMATION_GROUP, "Group Formation Settings");
-  CONFIG_ADD_VAR(USE_FORM_GROUPS, bool, 0, "Enable organisms to form groups. 0/1 (off/on)");
+  CONFIG_ADD_VAR(USE_FORM_GROUPS, int, 0, "Enable organisms to form groups. 0=off,\n 1=on no restrict,\n 2=on restrict to defined");
 	
 	// -------- Deme network config options --------
 	CONFIG_ADD_VAR(DEME_NETWORK_TYPE, int, 0, "0=topology, structure of network determines fitness.");

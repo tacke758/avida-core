@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <vector>
 
+
 #ifndef cCodeLabel_h
 #include "cCodeLabel.h"
 #endif
@@ -211,6 +212,7 @@ protected:
   int m_epigenetic_saved_reg[NUM_REGISTERS];
   cCPUStack m_epigenetic_saved_stack;
   // Epigenetic State -->
+	
 
   bool SingleProcess_ExecuteInst(cAvidaContext& ctx, const cInstruction& cur_inst);
   
@@ -901,6 +903,12 @@ public:
   bool Inst_SetOpinion(cAvidaContext& ctx);
   //! Retrieve this organism's current opinion.
   bool Inst_GetOpinion(cAvidaContext& ctx);
+	//! Only get opinion.  If none then reg is set to zero
+	bool Inst_GetOpinionOnly_ZeroIfNone(cAvidaContext& ctx);
+	//! Clear this organism's current opinion.
+  bool Inst_ClearOpinion(cAvidaContext& ctx);
+	//! Execute next instruction is org has an opinion, otherwise skip
+	bool Inst_IfOpinionSet(cAvidaContext& ctx);
 
 	// -------- Cell Data Support --------
 public:
@@ -949,7 +957,7 @@ public:
 	bool Inst_IfNeighborhoodChanged(cAvidaContext& ctx);
 
 	
-// -------- Group Formation Support --------
+	// -------- Group Formation Support --------
 public:
 	//! An organism joins a group by setting it opinion to the group id. 
 	bool Inst_JoinGroup(cAvidaContext& ctx);
@@ -957,8 +965,15 @@ public:
 	bool Inst_NumberOrgsInMyGroup(cAvidaContext& ctx);
 	//! Returns the number of organisms in the current organism's group
 	bool Inst_NumberOrgsInGroup(cAvidaContext& ctx);		
-	
-	
+
+	// -------- Network creation support --------
+public:
+	//! Create a link to the currently-faced cell.
+	bool Inst_CreateLinkByFacing(cAvidaContext& ctx);
+	//! Create a link to the cell specified by xy-coordinates.
+	bool Inst_CreateLinkByXY(cAvidaContext& ctx);
+	//! Create a link to the cell specified by index.
+	bool Inst_CreateLinkByIndex(cAvidaContext& ctx);
 };
 
 
@@ -1057,3 +1072,5 @@ inline void cHardwareCPU::SwitchStack()
 }
 
 #endif
+
+

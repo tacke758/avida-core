@@ -1,8 +1,0 @@
-# Interrupt model stats averaged over all demes
-# Assumes each organism only contains a single thread!
-# Thu Jun 25 17:20:58 2009
-#  1: Update
-#  2: Organisms interrupted per deme
-
-99 0.000000 
-199 0 

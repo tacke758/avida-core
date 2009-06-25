@@ -43,6 +43,7 @@
 #endif
 
 
+
 class cEnvReqs;
 class cString;
 class cWorld;
@@ -321,6 +322,8 @@ private:
 	// group formation 
 	void Load_FormSpatialGroup(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
 	double Task_FormSpatialGroup(cTaskContext& ctx) const; 
+	void Load_FormSpatialGroupWithID(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
+	double Task_FormSpatialGroupWithID(cTaskContext& ctx) const; 
 };
 
 

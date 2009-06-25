@@ -37,6 +37,7 @@
 #include "cStateGrid.h"
 #include "tArrayUtils.h"
 #include "tHashTable.h"
+#include "cEnvironment.h"
 
 #include "platform.h"
 
@@ -440,6 +441,9 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
   
 	if (name == "form-group")
     Load_FormSpatialGroup(name, info, envreqs, errors);
+	
+	if (name == "form-group-id")
+    Load_FormSpatialGroupWithID(name, info, envreqs, errors);
   
   // Make sure we have actually found a task  
   if (task_array.GetSize() == start_size) {
@@ -3400,20 +3404,82 @@ void cTaskLib::Load_FormSpatialGroup(const cString& name, const cString& argstr,
 
 double cTaskLib::Task_FormSpatialGroup(cTaskContext& ctx) const
 {
-	int ideal_group_size = ctx.GetTaskEntry()->GetArguments().GetInt(0);
+	double t = (double) ctx.GetTaskEntry()->GetArguments().GetInt(0);
 	double reward = 0.0;
 	int group_id = 0; 
 	if (ctx.GetOrganism()->HasOpinion()) {
 		group_id = ctx.GetOrganism()->GetOpinion().first;
 	}
-	int orgs_in_group = m_world->GetPopulation().NumberOfOrganismsInGroup(group_id);
+	double g = (double) m_world->GetPopulation().NumberOfOrganismsInGroup(group_id);
+	double num = (t-g) * (t-g);
+	double denom = (t*t);
 	
-	if (orgs_in_group < ideal_group_size) {
+	reward = 1 - (num/denom);
+	if (reward < 0) reward = 0;
+	/*if (orgs_in_group < ideal_group_size) {
 		reward = orgs_in_group*orgs_in_group;
 	} else {
 		reward = ideal_group_size*ideal_group_size;
 	}
-	reward = reward / ideal_group_size;
+	reward = reward / ideal_group_size;*/
+	return reward;
+}
+
+
+/* Reward organisms for having a given group-id, provided the group is under the 
+ max number of members.*/
+void cTaskLib::Load_FormSpatialGroupWithID(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
+{
+	cArgSchema schema;
+  
+  // Integer Arguments
+  schema.AddEntry("group_size", 0, 1);
+  schema.AddEntry("group_id", 1, 1);
+	
+
+  
+  cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
+  if (args) NewTask(name, "FormSpatialGroupWithID", &cTaskLib::Task_FormSpatialGroupWithID, 0, args);
+	
+	// Add this group id to the list in the instructions file. 
+	m_world->GetEnvironment().AddGroupID(args->GetInt(1));
+	
+}
+
+double cTaskLib::Task_FormSpatialGroupWithID(cTaskContext& ctx) const
+{
+	double t = (double) ctx.GetTaskEntry()->GetArguments().GetInt(0);
+	int des_group_id = ctx.GetTaskEntry()->GetArguments().GetInt(1);
+
+	double reward = 0.0;
+	int group_id = -1; 
+	if (ctx.GetOrganism()->HasOpinion()) {
+		group_id = ctx.GetOrganism()->GetOpinion().first;
+	}
+	
+	// If the organism is in the group...
+	if (group_id == des_group_id) {
+		double g = (double) m_world->GetPopulation().NumberOfOrganismsInGroup(group_id);
+		// If the population size is less than the max size
+		if (g < t) {
+			reward = 1;
+		} else {
+			
+			double num = (t-g) * (t-g);
+			double denom = (t*t);
+			
+			if (denom > 0) {
+				reward = 1 - (num/denom);
+				if (reward < 0) reward = 0;
+			} else {
+				reward = 0;
+			}
+			
+		}
+		
+	}
+	
+
 	return reward;
 }
 

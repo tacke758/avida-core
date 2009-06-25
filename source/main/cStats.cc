@@ -1468,6 +1468,7 @@ void cStats::PrintDemeResourceThresholdPredicate(const cString& filename)
 		for(map<cString, int>::iterator iter = demeResourceThresholdPredicateMap.begin(); iter != demeResourceThresholdPredicateMap.end(); ++iter) {
 			df.Write(iter->second, iter->first);
 			iter->second = 0;
+			assert(iter->second == 0 && demeResourceThresholdPredicateMap[iter->first] == 0);
 		}
 		df.Endl();
 	}	
@@ -1731,6 +1732,7 @@ void cStats::PrintDemeFoundersData(const cString& filename)
   m_deme_founders.clear();
 }
 
+
 void cStats::PrintPerDemeTasksData(const cString& filename){
   cDataFile& df = m_world->GetDataFile(filename);
 	df.WriteComment("Avida deme tasks data");
@@ -1741,7 +1743,7 @@ void cStats::PrintPerDemeTasksData(const cString& filename){
 
   const int num_tasks = m_world->GetEnvironment().GetNumTasks();
 
-	df.Write(m_update,   "Update");
+	df.Write(m_update, "Update");
   for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
     cDeme& deme = m_world->GetPopulation().GetDeme(i);
     for(int j = 0; j < num_tasks; j++) {
@@ -1750,6 +1752,7 @@ void cStats::PrintPerDemeTasksData(const cString& filename){
 	}
   df.Endl();
 }
+
 
 void cStats::PrintPerDemeTasksExeData(const cString& filename){
   cDataFile& df = m_world->GetDataFile(filename);
@@ -1761,7 +1764,7 @@ void cStats::PrintPerDemeTasksExeData(const cString& filename){
 
   const int num_tasks = m_world->GetEnvironment().GetNumTasks();
 
-	df.Write(m_update,   "Update");
+	df.Write(m_update, "Update");
   for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
     cDeme& deme = m_world->GetPopulation().GetDeme(i);
     for(int j = 0; j < num_tasks; j++) {
@@ -1770,6 +1773,92 @@ void cStats::PrintPerDemeTasksExeData(const cString& filename){
 	}
   df.Endl();
 }
+
+
+void cStats::PrintAvgDemeTasksExeData(const cString& filename) {
+  cDataFile& df = m_world->GetDataFile(filename);
+  const int num_demes = m_world->GetPopulation().GetNumDemes();
+  const int num_tasks = m_world->GetEnvironment().GetNumTasks();
+  cIntSum tasksum;
+  
+	df.WriteComment("Avida average deme tasks data");
+	df.WriteTimeStamp();
+  df.WriteComment("First column is the update, remaining columns are the average number of times");
+  df.WriteComment("each task has been executed by the demes");
+  df.WriteComment(cStringUtil::Stringf("Data based on %i demes and %i tasks", num_demes, num_tasks));
+  
+  df.Write(m_update, "Update");
+  
+  for(int t = 0; t < num_tasks; t++) {
+    tasksum.Clear();
+    
+    for(int d = 0; d < num_demes; d++) {
+      cDeme& deme = m_world->GetPopulation().GetDeme(d);
+      tasksum.Add(deme.GetLastTaskExeCount()[t]);
+    }
+    df.Write(tasksum.Average(), task_names[t]);
+  }
+  df.Endl();  
+}
+
+
+void cStats::PrintAvgTreatableDemeTasksExeData(const cString& filename) {
+  cDataFile& df = m_world->GetDataFile(filename);
+  const int num_demes = m_world->GetPopulation().GetNumDemes();
+  const int num_tasks = m_world->GetEnvironment().GetNumTasks();
+  cIntSum tasksum;
+  
+	df.WriteComment("Avida average tasks data for treatable demes");
+	df.WriteTimeStamp();
+  df.WriteComment("First column is the update, remaining columns are the average number of times");
+  df.WriteComment("each task has been executed by treatable demes");
+  df.WriteComment(cStringUtil::Stringf("Data based on %i demes and %i tasks", num_demes, num_tasks));
+  
+  df.Write(m_update, "Update");
+  
+  for(int t = 0; t < num_tasks; t++) {
+    tasksum.Clear();
+    
+    for(int d = 0; d < num_demes; d++) {
+      cDeme& deme = m_world->GetPopulation().GetDeme(d);
+      if(deme.isTreatable()) {
+        tasksum.Add(deme.GetLastTaskExeCount()[t]);
+      }
+    }
+    df.Write(tasksum.Average(), task_names[t]);
+  }
+  df.Endl();  
+}
+
+
+void cStats::PrintAvgUntreatableDemeTasksExeData(const cString& filename) {
+  cDataFile& df = m_world->GetDataFile(filename);
+  const int num_demes = m_world->GetPopulation().GetNumDemes();
+  const int num_tasks = m_world->GetEnvironment().GetNumTasks();
+  cIntSum tasksum;
+  
+	df.WriteComment("Avida average tasks data for untreatable demes");
+	df.WriteTimeStamp();
+  df.WriteComment("First column is the update, remaining columns are the average number of times");
+  df.WriteComment("each task has been executed by untreatable demes");
+  df.WriteComment(cStringUtil::Stringf("Data based on %i demes and %i tasks", num_demes, num_tasks));
+  
+  df.Write(m_update, "Update");
+  
+  for(int t = 0; t < num_tasks; t++) {
+    tasksum.Clear();
+    
+    for(int d = 0; d < num_demes; d++) {
+      cDeme& deme = m_world->GetPopulation().GetDeme(d);
+      if(!deme.isTreatable()) {
+        tasksum.Add(deme.GetLastTaskExeCount()[t]);
+      }
+    }
+    df.Write(tasksum.Average(), task_names[t]);
+  }
+  df.Endl();  
+}
+
 
 void cStats::PrintPerDemeReactionData(const cString& filename){
   cDataFile& df = m_world->GetDataFile(filename);
@@ -2186,6 +2275,51 @@ void cStats::PrintCurrentOpinions(const cString& filename) {
 		}
 		df.Endl();
 	}	
+}
+
+void cStats::PrintOpinionsSetPerDeme(const cString& filename) {
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("Current fractions of opinions set in deme.");
+	df.WriteComment("This files shows data for both treatable and untreatable demes.");
+	df.WriteTimeStamp();
+	
+	cIntSum    treatableOpinionCounts, untreatableOpinionCounts;
+	cDoubleSum treatableDensityCounts, untreatableDensityCounts;
+	treatableOpinionCounts.Clear();
+	untreatableOpinionCounts.Clear();
+	treatableDensityCounts.Clear();
+	untreatableDensityCounts.Clear();
+	
+	for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+    cDeme& deme = m_world->GetPopulation().GetDeme(i);
+		int demeSize = deme.GetSize();
+		if(deme.isTreatable()) {
+			// accumultate counts for treatable demes 
+			for(int orgID = 0; orgID < demeSize; ++orgID) {
+				treatableOpinionCounts.Add(deme.GetNumOrgsWithOpinion());
+				treatableDensityCounts.Add(deme.GetDensity());
+			}
+		} else {
+			// accumultate counts for untreatable demes 
+			for(int orgID = 0; orgID < demeSize; ++orgID) {
+				untreatableOpinionCounts.Add(deme.GetNumOrgsWithOpinion());
+				untreatableDensityCounts.Add(deme.GetDensity());
+			}
+		}
+	}
+	
+	df.Write(GetUpdate(), "Update [update]");
+	
+	if(treatableOpinionCounts.N() > 0 and untreatableOpinionCounts.N() > 0) {
+		df.Write(treatableOpinionCounts.Average(), "Average number of opinions set in Treatable demes");
+		df.Write(untreatableOpinionCounts.Average(), "Average number of opinions set in Unreatable demes");
+		df.Write(treatableDensityCounts.Average(), "Average density of Treatable demes");
+		df.Write(untreatableDensityCounts.Average(), "Average density of Unreatable demes");
+	} else {
+		df.Write(untreatableOpinionCounts.Average(), "Average number of opinions set in demes");
+		df.Write(untreatableDensityCounts.Average(), "Average density of demes");
+	}
+	df.Endl();
 }
 
 /*! Called when an organism issues a flash instruction.
@@ -2608,7 +2742,7 @@ void cStats::PrintGroupsFormedData(const cString& filename)
 {
 
 	cDataFile& df = m_world->GetDataFile(filename);
-	df.WriteComment("The number of groups, average, max, and min number of orgs in groups");
+	df.WriteComment("Information about the groups joined and used by the organisms");
 	
 	map<int,int> groups = m_world->GetPopulation().GetFormedGroups();
 	
@@ -2618,6 +2752,7 @@ void cStats::PrintGroupsFormedData(const cString& filename)
 	double max_size = 0.0;
 	double min_size = 100000000000.0;
 	double active_groups = 0.0;
+	double groups_per_org = 0.0;
 	
 	for(itr = groups.begin();itr!=groups.end();itr++) {
 		double cur_size = itr->second;
@@ -2630,8 +2765,20 @@ void cStats::PrintGroupsFormedData(const cString& filename)
 		}
 	}
 	
+	cOrganism* org; 
+	for(int i=0; i<m_world->GetPopulation().GetSize(); ++i) {
+    cPopulationCell& cell = m_world->GetPopulation().GetCell(i);
+		org = cell.GetOrganism();
+		
+    if(cell.IsOccupied()) {
+			org = cell.GetOrganism();
+			groups_per_org += org->HasOpinion();
+		}	
+	}
+	
 	avg_size = avg_size / groups.size();
 	avg_size_wout_empty = avg_size_wout_empty / active_groups;
+	groups_per_org = groups_per_org / m_world->GetPopulation().GetSize();
 	df.WriteTimeStamp();
 	df.Write(m_update,   "Update [update]");
 	df.Write((double)groups.size(), "number of groups [num]");
@@ -2640,6 +2787,37 @@ void cStats::PrintGroupsFormedData(const cString& filename)
 	df.Write(max_size, "max size of groups [maxsize]");
 	df.Write(min_size, "min size of groups [minsize]");
 	df.Write(active_groups, "active groups [actgroup]");
+	df.Write(groups_per_org, "groups per org life [groupsperorg]");
+	
+	
+	df.Endl();
+	
+}
+
+/* 	
+ Print data regarding the ids of used groups.
+ */
+void cStats::PrintGroupIds(const cString& filename)
+{
+	
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment("The ids of groups used.");
+	
+	map<int,int> groups = m_world->GetPopulation().GetFormedGroups();
+	
+	map <int,int>::iterator itr;
+
+	df.WriteTimeStamp();
+	
+	for(itr = groups.begin();itr!=groups.end();itr++) {
+		double cur_size = itr->second;
+		if (cur_size > 0) {
+			df.Write(m_update,   "Update [update]");
+			df.Write(itr->first, "group id [groupid]");
+			df.Write(cur_size, "size of groups [grsize]");
+			df.Endl();
+		}
+	}
 	
 	
 	df.Endl();

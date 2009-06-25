@@ -131,12 +131,28 @@ cPopulationCell& cDeme::GetCell(int pos) const
   return m_world->GetPopulation().GetCell(cell_ids[pos]);
 }
 
+cPopulationCell& cDeme::GetCell(int x, int y) const
+{
+	return m_world->GetPopulation().GetCell(GetCellID(x,y));
+}
+
 
 cOrganism* cDeme::GetOrganism(int pos) const
 {
   return GetCell(pos).GetOrganism();
 }
 
+int cDeme::GetNumOrgsWithOpinion() const {
+	int demeSize = GetSize();
+	int count = 0;
+	
+	for(int pos = 0; pos < demeSize; ++pos) {
+		cPopulationCell& cell = GetCell(pos);
+		if(cell.IsOccupied() and cell.GetOrganism()->HasOpinion())
+			++count;
+	}
+	return count;
+}
 
 void cDeme::ProcessUpdate() {
 	// test deme predicate
@@ -250,6 +266,9 @@ void cDeme::ProcessUpdate() {
     }
   }
   ++_age;
+	
+	// Let the network process the update too, if we have one.
+	if(IsNetworkInitialized()) { m_network->ProcessUpdate(); }
 }
 
 

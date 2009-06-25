@@ -389,7 +389,7 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
       }
     }
   }
-  
+    
   return totalMutations;
 }
 
@@ -989,10 +989,10 @@ bool cHardwareBase::Inst_DoubleEnergyUsage(cAvidaContext& ctx)
   return true;
 }
 
-bool cHardwareBase::Inst_HalfEnergyUsage(cAvidaContext& ctx)
+bool cHardwareBase::Inst_HalveEnergyUsage(cAvidaContext& ctx)
 {
   cPhenotype& phenotype = m_organism->GetPhenotype();
-  phenotype.HalfEnergyUsage();
+  phenotype.HalveEnergyUsage();
   double newOrgMerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy()  * phenotype.GetEnergyUsageRatio());
   m_organism->UpdateMerit(newOrgMerit);
   return true;

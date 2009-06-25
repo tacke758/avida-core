@@ -347,6 +347,7 @@ public:
   bool TestDivideSlip(cAvidaContext& ctx) const { return m_mut_rates.TestDivideSlip(ctx); } 
   
   bool TestParentMut(cAvidaContext& ctx) const { return m_mut_rates.TestParentMut(ctx); }
+  bool TestDeath(cAvidaContext& ctx) const { return m_mut_rates.TestDeath(ctx); }
   
   double GetCopyMutProb() const { return m_mut_rates.GetCopyMutProb(); }
   double GetCopyInsProb() const { return m_mut_rates.GetCopyInsProb(); }
@@ -364,6 +365,7 @@ public:
   double GetDivSlipProb() const { return m_mut_rates.GetDivSlipProb(); }
 
   double GetParentMutProb() const { return m_mut_rates.GetParentMutProb();}
+  double GetDeathProb() const { return m_mut_rates.GetDeathProb();}
 
   double GetInjectInsProb() const { return m_mut_rates.GetInjectInsProb(); }
   double GetInjectDelProb() const { return m_mut_rates.GetInjectDelProb(); }
@@ -490,6 +492,8 @@ public:
   const DatedOpinionList& GetOpinions() { InitOpinions(); return m_opinion->opinion_list; }
   //! Return whether this organism has an opinion.
   bool HasOpinion() { InitOpinions(); return m_opinion->opinion_list.size(); }
+	//! remove all opinions
+	void ClearOpinion() { InitOpinions(); m_opinion->opinion_list.clear(); }
   
 private:
   //! Initialize opinion support.

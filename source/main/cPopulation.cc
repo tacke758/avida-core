@@ -424,6 +424,17 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
 			child_array[i]->SetReputation(parent_organism->GetReputation()); 
 		}
 		
+		
+		// If spatial groups are used, put the offspring in the 
+		// parents' group
+		if (m_world->GetConfig().USE_FORM_GROUPS.Get()){
+			assert(parent_organism->HasOpinion());
+			int group = parent_organism->GetOpinion().first;
+			child_array[i]->SetOpinion(group); 
+			JoinGroup(group);
+
+		}
+		
 	
 	}
 	
@@ -4385,8 +4396,10 @@ void cPopulation::UpdateDominantParaStats()
   stats.SetDomInjSequence(dom_inj_genotype->GetGenome().AsString());
 }
 
-void cPopulation::CalcUpdateStats()
+void cPopulation::ProcessPostUpdate(cAvidaContext& ctx)
 {
+  //ProcessUpdateCellActions(ctx);
+  
   cStats& stats = m_world->GetStats();
   // Reset the Genebank to prepare it for stat collection.
   m_world->GetClassificationManager().UpdateReset();
@@ -4406,6 +4419,15 @@ void cPopulation::CalcUpdateStats()
   // Have stats calculate anything it now can...
   stats.CalcEnergy();
   stats.CalcFidelity();
+  
+  for (int i = 0; i < deme_array.GetSize(); i++) deme_array[i].ProcessUpdate();
+}
+
+void cPopulation::ProcessUpdateCellActions(cAvidaContext& ctx)
+{
+  for (int i = 0; i < cell_array.GetSize(); i++) {
+    if (cell_array[i].MutationRates().TestDeath(ctx)) KillOrganism(cell_array[i]);
+  }
 }
 
 
@@ -5418,7 +5440,7 @@ void cPopulation::NewTrial(cAvidaContext& ctx)
   //is processed, they accurately reflect this trial only...
   cStats& stats = m_world->GetStats();
   stats.ProcessUpdate();
-  CalcUpdateStats();
+  ProcessPostUpdate(ctx);
 }
 
 /*

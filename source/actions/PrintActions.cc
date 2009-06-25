@@ -111,6 +111,9 @@ STATS_OUT_FILE(PrintDemeNetworkData,        deme_network.dat);
 STATS_OUT_FILE(PrintDemeFoundersData,       deme_founders.dat   );
 STATS_OUT_FILE(PrintPerDemeTasksData,       per_deme_tasks.dat      );
 STATS_OUT_FILE(PrintPerDemeTasksExeData,    per_deme_tasks_exe.dat  );
+STATS_OUT_FILE(PrintAvgDemeTasksExeData,    avg_deme_tasks_exe.dat  );
+STATS_OUT_FILE(PrintAvgTreatableDemeTasksExeData, avg_treatable_deme_tasks_exe.dat  );
+STATS_OUT_FILE(PrintAvgUntreatableDemeTasksExeData, avg_untreatable_deme_tasks_exe.dat  );
 STATS_OUT_FILE(PrintPerDemeReactionData,    per_deme_reactions.dat  );
 STATS_OUT_FILE(PrintDemeTasksData,          deme_tasks.dat      );
 STATS_OUT_FILE(PrintDemeTasksExeData,       deme_tasks_exe.dat  );
@@ -130,6 +133,7 @@ STATS_OUT_FILE(PrintDemeResourceThresholdPredicate,     deme_resourceThresholdPr
 STATS_OUT_FILE(PrintPredicatedMessages,     messages.dat        );
 STATS_OUT_FILE(PrintCellData,               cell_data.dat       );
 STATS_OUT_FILE(PrintCurrentOpinions,        opinions.dat        );
+STATS_OUT_FILE(PrintOpinionsSetPerDeme,     opinions_set.dat    );
 STATS_OUT_FILE(PrintPerDemeGenPerFounderData,   deme_gen_between_founders.dat );
 STATS_OUT_FILE(PrintSynchronizationData,    sync.dat            );
 STATS_OUT_FILE(PrintDetailedSynchronizationData, sync-detail.dat);
@@ -147,6 +151,7 @@ STATS_OUT_FILE(PrintStringMatchData,         stringmatch.dat);
 
 // group formation 
 STATS_OUT_FILE(PrintGroupsFormedData,         groupformation.dat);
+STATS_OUT_FILE(PrintGroupIds,         groupids.dat);
 
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
@@ -3058,6 +3063,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
 	action_lib->Register<cActionPrintPredicatedMessages>("PrintPredicatedMessages");
 	action_lib->Register<cActionPrintCellData>("PrintCellData");
 	action_lib->Register<cActionPrintCurrentOpinions>("PrintCurrentOpinions");
+	action_lib->Register<cActionPrintOpinionsSetPerDeme>("PrintOpinionsSetPerDeme");
 	action_lib->Register<cActionPrintSynchronizationData>("PrintSynchronizationData");
   action_lib->Register<cActionPrintDetailedSynchronizationData>("PrintDetailedSynchronizationData");
 	
@@ -3083,6 +3089,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSaveDemeFounders>("SaveDemeFounders");
   action_lib->Register<cActionPrintPerDemeTasksData>("PrintPerDemeTasksData");
   action_lib->Register<cActionPrintPerDemeTasksExeData>("PrintPerDemeTasksExeData");
+  action_lib->Register<cActionPrintAvgDemeTasksExeData>("PrintAvgDemeTasksExeData");
+  action_lib->Register<cActionPrintAvgTreatableDemeTasksExeData>("PrintAvgTreatableDemeTasksExeData");
+  action_lib->Register<cActionPrintAvgUntreatableDemeTasksExeData>("PrintAvgUntreatableDemeTasksExeData");
   action_lib->Register<cActionPrintPerDemeReactionData>("PrintPerDemeReactionData");
   action_lib->Register<cActionPrintDemeTasksData>("PrintDemeTasksData");
   action_lib->Register<cActionPrintDemeTasksExeData>("PrintDemeTasksExeData");
@@ -3215,6 +3224,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
 
 	// Group Formation
 	action_lib->Register<cActionPrintGroupsFormedData>("PrintGroupsFormedData");
+	action_lib->Register<cActionPrintGroupIds>("PrintGroupIds");
 	
   action_lib->Register<cActionSetVerbose>("VERBOSE");
 }

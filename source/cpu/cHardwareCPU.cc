@@ -679,7 +679,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		
     // Energy usage
     tInstLibEntry<tMethod>("double-energy-usage", &cHardwareCPU::Inst_DoubleEnergyUsage, nInstFlag::STALL),
-    tInstLibEntry<tMethod>("half-energy-usage", &cHardwareCPU::Inst_HalfEnergyUsage, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("halve-energy-usage", &cHardwareCPU::Inst_HalveEnergyUsage, nInstFlag::STALL),
     tInstLibEntry<tMethod>("default-energy-usage", &cHardwareCPU::Inst_DefaultEnergyUsage, nInstFlag::STALL),
 		
     // Messaging
@@ -789,6 +789,9 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     // These are STALLs because opinions are only relevant with respect to time.
     tInstLibEntry<tMethod>("set-opinion", &cHardwareCPU::Inst_SetOpinion, nInstFlag::STALL),
     tInstLibEntry<tMethod>("get-opinion", &cHardwareCPU::Inst_GetOpinion, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("get-opinionOnly", &cHardwareCPU::Inst_GetOpinionOnly_ZeroIfNone, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("clear-opinion", &cHardwareCPU::Inst_ClearOpinion, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("if-opinion-set", &cHardwareCPU::Inst_IfOpinionSet, nInstFlag::STALL),
 		
 		// Data collection
 		tInstLibEntry<tMethod>("if-cell-data-changed", &cHardwareCPU::Inst_IfCellDataChanged, nInstFlag::STALL),
@@ -835,6 +838,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
 		tInstLibEntry<tMethod>("join-group", &cHardwareCPU::Inst_JoinGroup, nInstFlag::STALL),
 		tInstLibEntry<tMethod>("orgs-in-my-group", &cHardwareCPU::Inst_NumberOrgsInMyGroup, nInstFlag::STALL),
 		tInstLibEntry<tMethod>("orgs-in-group", &cHardwareCPU::Inst_NumberOrgsInGroup, nInstFlag::STALL),
+		
+		// Network creation instructions
+		tInstLibEntry<tMethod>("create-link-facing", &cHardwareCPU::Inst_CreateLinkByFacing, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("create-link-xy", &cHardwareCPU::Inst_CreateLinkByXY, nInstFlag::STALL),
+		tInstLibEntry<tMethod>("create-link-index", &cHardwareCPU::Inst_CreateLinkByIndex, nInstFlag::STALL),
 		
     // Must always be the last instruction in the array
     tInstLibEntry<tMethod>("NULL", &cHardwareCPU::Inst_Nop, 0, "True no-operation instruction: does nothing"),
@@ -4874,7 +4882,7 @@ bool cHardwareCPU::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
 		}
 		
 		// stop searching through the neighbors if we already found one
-		if (found == true);{
+		if (found == true) {
     	break;
 		}
 		
@@ -8994,6 +9002,35 @@ bool cHardwareCPU::Inst_GetOpinion(cAvidaContext& ctx)
   return true;
 }
 
+bool cHardwareCPU::Inst_GetOpinionOnly_ZeroIfNone(cAvidaContext& ctx)
+{
+	assert(m_organism != 0);
+	const int opinion_reg = FindModifiedRegister(REG_BX);
+  if(m_organism->HasOpinion()) {
+    GetRegister(opinion_reg) = m_organism->GetOpinion().first;
+  } else {
+		GetRegister(opinion_reg) = 0;
+	}
+  return true;
+}
+
+
+bool cHardwareCPU::Inst_ClearOpinion(cAvidaContext& ctx) {
+	assert(m_organism != 0);
+	m_organism->ClearOpinion();
+	return true;
+}
+
+/*! If the organism has an opinion then execute the next instruction, else skip.
+ */
+bool cHardwareCPU::Inst_IfOpinionSet(cAvidaContext& ctx)
+{
+	assert(m_organism != 0);
+  if(!m_organism->HasOpinion()) IP().Advance();
+  return true;
+}
+
+
 
 /*! Collect this cell's data, and place it in ?BX?.  Set the flag indicating that
  this organism has collected cell data to true, and set the last collected cell data
@@ -9684,12 +9721,21 @@ bool cHardwareCPU::Inst_JoinGroup(cAvidaContext& ctx)
 	int opinion;
 	// Check if the org is currently part of a group
 	assert(m_organism != 0);
+	
+	// check if this is a valid group
+	if (m_world->GetConfig().USE_FORM_GROUPS.Get() == 2) { 
+		int prop_group_id =   GetRegister(FindModifiedRegister(REG_BX));
+		if (!(m_world->GetEnvironment().IsGroupID(prop_group_id))){
+			return true;
+		}
+	}
+
+	
   if(m_organism->HasOpinion()) {
 		opinion = m_organism->GetOpinion().first;
 		// subtract org from group
 		m_world->GetPopulation().LeaveGroup(opinion);
   }
-	
 	
 	// Call the set opinion instruction, which does all the dirty work.
 	Inst_SetOpinion(ctx);
@@ -9717,7 +9763,6 @@ bool cHardwareCPU::Inst_NumberOrgsInMyGroup(cAvidaContext& ctx)
 	return true;
 }
 
-
 //! Gets the number of organisms in the group of a given id
 //! specified by the ?BX? register and places the value in the ?CX? register
 bool cHardwareCPU::Inst_NumberOrgsInGroup(cAvidaContext& ctx)
@@ -9732,3 +9777,35 @@ bool cHardwareCPU::Inst_NumberOrgsInGroup(cAvidaContext& ctx)
 	GetRegister(num_org_reg) = num_orgs;
 	return true;
 }
+
+
+
+
+/*! Create a link to the currently-faced cell.
+ */
+bool cHardwareCPU::Inst_CreateLinkByFacing(cAvidaContext& ctx) {
+	const int wreg = FindModifiedRegister(REG_BX);
+	m_organism->GetOrgInterface().CreateLinkByFacing(GetRegister(wreg));
+	return true;
+}
+
+/*! Create a link to the cell specified by xy-coordinates.
+ */
+bool cHardwareCPU::Inst_CreateLinkByXY(cAvidaContext& ctx) {
+  const int xreg = FindModifiedRegister(REG_BX);
+  const int yreg = FindNextRegister(xreg);
+	const int wreg = FindNextRegister(yreg);
+	m_organism->GetOrgInterface().CreateLinkByXY(GetRegister(xreg), GetRegister(yreg), GetRegister(wreg));
+  return true;
+}
+
+/*! Create a link to the cell specified by index.
+ */
+bool cHardwareCPU::Inst_CreateLinkByIndex(cAvidaContext& ctx) {
+  const int idxreg = FindModifiedRegister(REG_BX);
+	const int wreg = FindNextRegister(idxreg);
+	m_organism->GetOrgInterface().CreateLinkByIndex(GetRegister(idxreg), GetRegister(wreg));
+  return true;
+}
+
+

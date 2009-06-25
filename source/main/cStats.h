@@ -777,6 +777,7 @@ public:
   void PrintExtendedTimeData(const cString& filename);
   void PrintNumOrgsKilledData(const cString& filename);
   void PrintGroupsFormedData(const cString& filename);
+	void PrintGroupIds(const cString& filename);
   
   // deme predicate stats
   void IncEventCount(int x, int y);
@@ -850,6 +851,9 @@ public:
 
   void PrintPerDemeTasksData(const cString& filename);
   void PrintPerDemeTasksExeData(const cString& filename);
+  void PrintAvgDemeTasksExeData(const cString& filename);
+  void PrintAvgTreatableDemeTasksExeData(const cString& filename);
+  void PrintAvgUntreatableDemeTasksExeData(const cString& filename);
   void PrintPerDemeReactionData(const cString& filename);
   void PrintDemeTasksData(const cString& filename);
   void PrintDemeTasksExeData(const cString& filename);
@@ -915,6 +919,8 @@ public:
 public:
 	//! Prints the current opinions of all organisms in the population.
 	void PrintCurrentOpinions(const cString& filename);
+	//! Prints the average number of organism with set opinions
+	void PrintOpinionsSetPerDeme(const cString& filename);
 	
 	// -------- Synchronization support --------
 public:
