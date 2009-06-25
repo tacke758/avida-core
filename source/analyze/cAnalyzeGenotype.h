@@ -70,7 +70,9 @@
 #ifndef tRCPtr_h
 #include "tRCPtr.h"
 #endif
-
+#ifndef cPhenPlastSummary_h
+#include "cPhenPlastSummary.h"
+#endif
 
 // cAnalyzeGenotype    : Collection of information about loaded genotypes
 
@@ -214,20 +216,7 @@ private:
 
   
   // Group 6: Phenotypic Plasticity
-  class cAnalyzePhenPlast{
-  public:
-      int     m_recalculate_trials;  
-      int     m_num_phenotypes;
-      double  m_min_fitness;
-      double  m_max_fitness;
-      double  m_avg_fitness;
-      double  m_likely_fitness;
-      double  m_phenotypic_entropy;
-      double  m_likely_frequency;
-      double  m_min_fit_frequency;
-      double  m_max_fit_frequency;
-  };
-  mutable cAnalyzePhenPlast* m_phenplast_stats;
+  mutable cPhenPlastSummary* m_phenplast_stats;
   
   int NumCompare(double new_val, double old_val) const {
     if (new_val == old_val) return  0;
@@ -261,7 +250,7 @@ public:
   ReadToken* GetReadToken() const { m_data->rwlock.ReadLock(); return new ReadToken(this); }
 
   void SetGenotypeData(int data_id, cGenotypeData* data);
-  cGenotypeData* GetGenotypeData(ReadToken* tk, int data_id) const { tk->Validate(this); return m_data->dmap.Get(data_id, NULL); }
+  cGenotypeData* GetGenotypeData(ReadToken* tk, int data_id) const { tk->Validate(this); return m_data->dmap.GetWithDefault(data_id, NULL); }
   
 
   void Recalculate(cAvidaContext& ctx, cCPUTestInfo* test_info = NULL, cAnalyzeGenotype* parent_genotype = NULL, int num_trials = 1);
@@ -389,7 +378,15 @@ public:
   double GetLikelyFrequency()  const { CheckPhenPlast(); return m_phenplast_stats->m_likely_frequency; }
   double GetLikelyFitness()     const { CheckPhenPlast(); return m_phenplast_stats->m_likely_fitness; }
   int    GetNumTrials()         const { CheckPhenPlast(); return m_phenplast_stats->m_recalculate_trials; }
-  
+  double GetViableProbability()  const { CheckPhenPlast(); return m_phenplast_stats->m_viable_probability; }
+  double GetTaskProbability(int task_id) const { 
+    if (task_id >= m_world->GetEnvironment().GetNumTasks()) return 0.0;
+    CheckPhenPlast();
+    return m_phenplast_stats->m_task_probabilities[task_id];
+  }
+  cString DescTaskProb(int task_id) const;
+  tArray<double> GetTaskProbabilities() const { CheckPhenPlast(); return m_phenplast_stats->m_task_probabilities; }  
+    
   
   double GetFitnessRatio() const { return fitness_ratio; }
   double GetEfficiencyRatio() const { return efficiency_ratio; }
@@ -424,6 +421,7 @@ public:
   }
   const tArray<double>& GetTaskQualities() const { return task_qualities; }
   
+  
   // number of different tasks performed
   int GetTotalTaskCount() const {
   	int total_task_count = 0;
@@ -448,6 +446,18 @@ public:
     return m_env_inputs;
   }
   cString DescEnvInput(int input_id) const { return cStringUtil::Stringf("task.%d", input_id); }
+  
+  double GetRBinTotal(int resource_id) const {
+    if (resource_id >= rbins_total.GetSize()) return -1;
+    return rbins_total[resource_id];
+  }
+  cString DescRTot(int resource_id) const { return cStringUtil::Stringf("Resource %d Total", resource_id);}
+  
+  double GetRBinAvail(int resource_id) const {
+    if (resource_id >= rbins_avail.GetSize()) return -1;
+    return rbins_avail[resource_id];
+  }
+  cString DescRAvail(int resource_id) const { return cStringUtil::Stringf("Resource %d Available", resource_id);}
 
   // Comparisons...  Compares a genotype to the "previous" one, which is
   // passed in, in one specified phenotype.

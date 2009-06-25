@@ -25,6 +25,7 @@
 #include "cPhenPlastGenotype.h"
 #include <iostream>
 #include <cmath>
+#include <cfloat>
 
 cPhenPlastGenotype::cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cCPUTestInfo& test_info,  cWorld* world, cAvidaContext& ctx)
 : m_genome(in_genome), m_num_trials(num_trials), m_world(world)
@@ -68,6 +69,8 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
   
   // Update statistics
   UniquePhenotypes::iterator uit = m_unique.begin();
+  int num_tasks = world->GetEnvironment().GetNumTasks();
+  m_task_probabilities.Resize(num_tasks, 0.0);
   m_max_fitness     =  -1.0;
   m_avg_fitness     =   0.0;
   m_likely_fitness  =  -1.0;
@@ -75,7 +78,8 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
   m_max_fit_freq    =   0.0;
   m_min_fit_freq    =   0.0;
   m_phenotypic_entropy = 0.0;
-  m_min_fitness     = (*uit)->GetFitness();
+  m_viable_probability = 0.0;
+  m_min_fitness     = DBL_MAX;
   while(uit != m_unique.end()){
     cPlasticPhenotype* this_phen = static_cast<cPlasticPhenotype*>(*uit);
     double fit = this_phen->GetFitness();
@@ -94,6 +98,11 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
     }
     m_avg_fitness += freq * fit;
     m_phenotypic_entropy -= freq * log(freq) / log(2.0);
+    
+    for (int i = 0; i < num_tasks; i++)
+      m_task_probabilities[i] += (this_phen->GetLastTaskCount()[i] > 0) ? freq : 0;
+    
+    m_viable_probability += (this_phen->IsViable() > 0) ? freq : 0;
     ++uit;
   }
   

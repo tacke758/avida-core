@@ -193,10 +193,8 @@ cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
     knockout_stats = new cAnalyzeKnockouts;
     *knockout_stats = *(_gen.knockout_stats);
   }
-  if (_gen.m_phenplast_stats != NULL){
-    m_phenplast_stats = new cAnalyzePhenPlast;
-    *m_phenplast_stats = *(_gen.m_phenplast_stats);
-  }
+  if (_gen.m_phenplast_stats != NULL)
+    m_phenplast_stats = new cPhenPlastSummary(*_gen.m_phenplast_stats);
 }
 
 cAnalyzeGenotype::~cAnalyzeGenotype()
@@ -294,6 +292,8 @@ tDataCommandManager<cAnalyzeGenotype>* cAnalyzeGenotype::buildDataCommandManager
   ADD_GDATA(double (), "phen_avg_fitness",   "Phen Plast Wtd Avg Fitness",            GetAverageFitness,         SetNULL, 0, 0, 0);
   ADD_GDATA(double (), "phen_likely_freq",   "Freq of Most Likely Phenotype",         GetLikelyFrequency,        SetNULL, 0, 0, 0);
   ADD_GDATA(double (), "phen_likely_fitness","Fitness of Most Likely Phenotype",      GetLikelyFitness,          SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "prob_viable",        "Probability Viable",                    GetViableProbability,      SetNULL, 0, 0, 0);
+  
   
   // @JEB There is a difference between these two. parent_muts is based on an alignment. mut_steps is based on recorded mutations during run.
   ADD_GDATA(const cString& (), "parent_muts", "Mutations from Parent", GetParentMuts,   SetParentMuts, 0, "(none)", "");
@@ -313,10 +313,7 @@ tDataCommandManager<cAnalyzeGenotype>* cAnalyzeGenotype::buildDataCommandManager
   //         versions we should rename these.
   ADD_GDATA(cString (), "link", "Phenotype Map",              GetMapLink,      SetNULL, 0, 0,       0);
   ADD_GDATA(cString (), "html",  "Genome Sequence",            GetHTMLSequence, SetNULL, 0, "(N/A)", "");
-  
-  dcm->Add("inst", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
-              ("inst", &cAnalyzeGenotype::DescInstExe, &cAnalyzeGenotype::GetInstExecutedCount));
-  
+    
   // coarse-grained task stats
   ADD_GDATA(int (), 		"total_task_count","# Different Tasks", 		GetTotalTaskCount, SetNULL, 1, 0, 0);
   ADD_GDATA(int (), 		"total_task_performance_count", "Total Tasks Performed",	GetTotalTaskPerformanceCount, SetNULL, 1, 0, 0);
@@ -326,8 +323,17 @@ tDataCommandManager<cAnalyzeGenotype>* cAnalyzeGenotype::buildDataCommandManager
            ("task", &cAnalyzeGenotype::DescTask, &cAnalyzeGenotype::GetTaskCount, 5));
   dcm->Add("env_input", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
            ("env_input", &cAnalyzeGenotype::DescEnvInput, &cAnalyzeGenotype::GetEnvInput));
-    
-  // The remaining values should actually go in a seperate list called
+  dcm->Add("inst", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
+           ("inst", &cAnalyzeGenotype::DescInstExe, &cAnalyzeGenotype::GetInstExecutedCount));
+  dcm->Add("r_tot", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("r_tot", &cAnalyzeGenotype::DescRTot, &cAnalyzeGenotype::GetRBinTotal));
+  dcm->Add("r_avail", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("r_avail", &cAnalyzeGenotype::DescRAvail, &cAnalyzeGenotype::GetRBinAvail));
+  dcm->Add("prob_task", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("prob_task", &cAnalyzeGenotype::DescTaskProb, &cAnalyzeGenotype::GetTaskProbability, 5));
+  
+  
+  // The remaining values should actually go in a separate list called
   // "population_data_list", but for the moment we're going to put them
   // here so that we only need to worry about a single system to load and
   // save genotype information.
@@ -350,8 +356,14 @@ tDataCommandManager<cAnalyzeGenotype>& cAnalyzeGenotype::GetDataCommandManager()
 
 cString cAnalyzeGenotype::DescTask(int task_id) const
 {
-  if (task_id > task_counts.GetSize()) return "";
+  if (task_id > m_world->GetEnvironment().GetNumTasks()) return "";
   return m_world->GetEnvironment().GetTask(task_id).GetDesc();
+}
+
+cString cAnalyzeGenotype::DescTaskProb(int task_id) const
+{
+  if (task_id > m_world->GetEnvironment().GetNumTasks()) return "";
+  return DescTask(task_id) + " (Probability)";
 }
 
 
@@ -548,26 +560,11 @@ void cAnalyzeGenotype::CheckPhenPlast() const
     test_info.SetInstSet(&m_inst_set);
     
     cPhenPlastGenotype pp(genome, 1000, test_info, m_world, m_world->GetDefaultContext());
-    SummarizePhenotypicPlasticity(pp);
+    m_phenplast_stats = new cPhenPlastSummary(pp);
   }
 }
 
-void cAnalyzeGenotype::SummarizePhenotypicPlasticity(const cPhenPlastGenotype& pp) const
-{
 
-  if (m_phenplast_stats == NULL)
-    m_phenplast_stats = new cAnalyzePhenPlast;
-  m_phenplast_stats->m_recalculate_trials = pp.GetNumTrials();
-  m_phenplast_stats->m_max_fitness = pp.GetMaximumFitness();
-  m_phenplast_stats->m_avg_fitness = pp.GetAverageFitness();
-  m_phenplast_stats->m_min_fitness = pp.GetMinimumFitness();
-  m_phenplast_stats->m_phenotypic_entropy = pp.GetPhenotypicEntropy();
-  m_phenplast_stats->m_likely_frequency  = pp.GetMaximumFrequency();
-  m_phenplast_stats->m_max_fit_frequency = pp.GetMaximumFitnessFrequency();
-  m_phenplast_stats->m_min_fit_frequency = pp.GetMinimumFitnessFrequency();
-  m_phenplast_stats->m_likely_fitness = pp.GetLikelyFitness();
-  m_phenplast_stats->m_num_phenotypes = pp.GetNumPhenotypes();
-}
 
 void cAnalyzeGenotype::CalcLandscape(cAvidaContext& ctx)
 {
@@ -575,6 +572,7 @@ void cAnalyzeGenotype::CalcLandscape(cAvidaContext& ctx)
   m_land->SetDistance(1);
   m_land->Process(ctx);
 }
+
 
 void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cCPUTestInfo* test_info, cAnalyzeGenotype* parent_genotype, int num_trials)
 {  
@@ -625,7 +623,11 @@ void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cCPUTestInfo* test_info, 
   }
 
   // Summarize plasticity information if multiple recalculations performed
-  if (num_trials > 1) SummarizePhenotypicPlasticity(recalc_data);
+  if (num_trials > 1){
+    if (m_phenplast_stats != NULL)
+      delete m_phenplast_stats;
+    m_phenplast_stats = new cPhenPlastSummary(recalc_data);
+  }
 }
 
 

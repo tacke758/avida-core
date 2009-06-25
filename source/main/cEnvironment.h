@@ -115,11 +115,15 @@ private:
 
   bool LoadSetActive(cString desc);
 
+  double GetTaskProbability(cAvidaContext& ctx, cTaskContext& taskctx, 
+                            const tList<cReactionProcess>& req_proc, bool& force_mark_task) const;
+
   bool TestRequisites(const tList<cReactionRequisite>& req_list, int task_count, 
                       const tArray<int>& reaction_count, const bool on_divide = false) const;
   void DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>& process_list, 
-                   const tArray<double>& resource_count, tArray<double>& rbin_count,
-                   const double task_quality, const int task_count, const int reaction_id, 
+                   const tArray<double>& resource_count, const tArray<double>& rbin_count,
+                   const double task_quality, const double task_probability,
+                   const int task_count, const int reaction_id, 
                    cReactionResult& result) const;
 
   cEnvironment(); // @not_implemented
@@ -145,7 +149,7 @@ public:
 
   bool TestOutput(cAvidaContext& ctx, cReactionResult& result, cTaskContext& taskctx,
                   const tArray<int>& task_count, const tArray<int>& reaction_count,
-                  const tArray<double>& resource_count, tArray<double>& rbins_count) const;
+                  const tArray<double>& resource_count, const tArray<double>& rbins_count) const;
 
   // Accessors
   int GetNumTasks() const { return m_tasklib.GetSize(); }
