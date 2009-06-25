@@ -2758,7 +2758,6 @@ void cPopulation::DumpDemeBoundaryData(const cString& filename) {
 
 // Print some stats about the energy sharing behavior of each deme
 void cPopulation::PrintDemeEnergySharingStats() {
-  //TODO: BDC: move this from covering the population to per deme or deme average
   const int num_demes = deme_array.GetSize();
   cStats& stats = m_world->GetStats();
   cDataFile & df_donor = m_world->GetDataFile("deme_energy_sharing.dat");
@@ -2769,6 +2768,9 @@ void cPopulation::PrintDemeEnergySharingStats() {
   double num_requestors = 0;
   double num_donors = 0;
   double num_receivers = 0;
+  double num_donations = 0;
+  double num_receptions = 0;
+  double num_applications;
   double amount_donated = 0.0;
   double amount_received = 0.0;
   double amount_applied = 0.0;  
@@ -2783,20 +2785,77 @@ void cPopulation::PrintDemeEnergySharingStats() {
       if(phenotype.IsEnergyRequestor()) num_requestors++;
       if(phenotype.IsEnergyDonor()) num_donors++;
       if(phenotype.IsEnergyReceiver()) num_receivers++;
+      num_donations += phenotype.GetNumEnergyDonations();
+      num_receptions += phenotype.GetNumEnergyReceptions();
+      num_applications += phenotype.GetNumEnergyApplications();
       amount_donated += phenotype.GetAmountEnergyDonated();
       amount_received += phenotype.GetAmountEnergyReceived();
       amount_applied += phenotype.GetAmountEnergyApplied();
     }
   }
+  
   df_donor.Write(num_requestors/num_demes, "Average number of organisms that have requested energy");
   df_donor.Write(num_donors/num_demes, "Average number of organisms that have donated energy");
   df_donor.Write(num_receivers/num_demes, "Average number of organisms that have received energy");
+  df_donor.Write(num_donations/num_demes, "Average number of donations per deme");
+  df_donor.Write(num_receptions/num_demes, "Average number of receipts per deme");
+  df_donor.Write(num_applications/num_demes, "Average number of applications per deme");
   df_donor.Write(amount_donated/num_demes, "Average total amount of energy donated per deme");
   df_donor.Write(amount_received/num_demes, "Average total amount of energy received per deme");
   df_donor.Write(amount_applied/num_demes, "Average total amount of donated energy applied per deme");
   df_donor.Endl();  
   
-}
+} //End PrintDemeEnergySharingStats()
+
+
+// Print some stats about the distribution of energy among organisms in a deme
+void cPopulation::PrintDemeEnergyDistributionStats() {
+  const int num_demes = deme_array.GetSize();
+  cStats& stats = m_world->GetStats();
+  cString comment;
+  
+  cDoubleSum deme_energy_distribution;
+
+  cDoubleSum overall_average;
+  cDoubleSum overall_variance;
+  cDoubleSum overall_stddev;
+  
+  cDataFile & df_dist = m_world->GetDataFile("deme_energy_distribution.dat");
+  comment.Set("Average distribution of energy among organisms in each of %d %d x %d demes", num_demes, m_world->GetConfig().WORLD_X.Get(), m_world->GetConfig().WORLD_Y.Get()/num_demes);
+  df_dist.WriteComment(comment);
+  df_dist.WriteTimeStamp();
+  df_dist.Write(stats.GetUpdate(), "Update");
+      
+  for (int deme_id = 0; deme_id < num_demes; deme_id++) {
+    const cDeme & cur_deme = deme_array[deme_id];
+    
+    for (int i = 0; i < cur_deme.GetSize(); i++) {
+      
+      int cur_cell = cur_deme.GetCellID(i);
+      if (cell_array[cur_cell].IsOccupied() == false) {
+        //TODO: BDC: Get energy of cell and add that instead
+        deme_energy_distribution.Add(cur_deme.GetCellEnergy(cur_cell));
+        continue;
+      }
+      //TODO: add 0 for this deme
+      
+      deme_energy_distribution.Add(GetCell(cur_cell).GetOrganism()->GetPhenotype().GetStoredEnergy());
+    }
+    
+    overall_average.Add(deme_energy_distribution.Average());
+    overall_variance.Add(deme_energy_distribution.Variance());
+    overall_stddev.Add(deme_energy_distribution.StdDeviation());
+    deme_energy_distribution.Clear();
+  
+  }
+  
+  df_dist.Write(overall_average.Average(), "Average of Average Energy Level");
+  df_dist.Write(overall_variance.Average(), "Average of Energy Level Variance");
+  df_dist.Write(overall_stddev.Average(), "Average of Energy Level Standard Deviations");
+  
+  df_dist.Endl();
+  
+} //End PrintDemeEnergyDistributionStats()
 
 
 void cPopulation::PrintDemeDonor() {

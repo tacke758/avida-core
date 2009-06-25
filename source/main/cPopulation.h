@@ -233,6 +233,7 @@ public:
   void PrintDemeAllStats();
   void PrintDemeTestamentStats(const cString& filename);
   void PrintDemeEnergySharingStats();
+  void PrintDemeEnergyDistributionStats();
   void PrintDemeDonor();
   void PrintDemeFitness();
   void PrintDemeGestationTime();
