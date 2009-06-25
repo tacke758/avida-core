@@ -386,8 +386,22 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
     
     //By default, store the parent cclade, this may get modified in ActivateOrgansim (@MRR)
     child_array[i]->SetCCladeLabel(parent_organism->GetCCladeLabel());
-  }
-  
+		
+		// If inherited reputation is turned on, set the offspring's reputation 
+		// to that of its parent.
+		if (m_world->GetConfig().INHERIT_REPUTATION.Get() == 1) {
+			child_array[i]->SetReputation(parent_organism->GetReputation()); 
+		} else if (m_world->GetConfig().INHERIT_REPUTATION.Get() == 2) { 
+			child_array[i]->SetTag(parent_organism->GetTag()); 	
+		}else if (m_world->GetConfig().INHERIT_REPUTATION.Get() == 3) { 
+			child_array[i]->SetTag(parent_organism->GetTag()); 
+			child_array[i]->SetReputation(parent_organism->GetReputation()); 
+		}
+		
+	
+	}
+	
+		
   // If we're not about to kill the parent, do some extra work on it.
   if (parent_alive == true) {
     // Reset inputs and re-calculate merit if required
@@ -406,7 +420,10 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
         if (pc_phenotype & 2) {   // If we must update the gestation time
           parent_phenotype.SetGestationTime(test_info.GetTestPhenotype().GetGestationTime());
         }
-        parent_phenotype.SetFitness(parent_phenotype.GetMerit().CalcFitness(parent_phenotype.GetGestationTime())); // Update fitness
+        if (pc_phenotype & 4) {   // If we must update the last instruction counts
+					parent_phenotype.SetTestCPUInstCount(test_info.GetTestPhenotype().GetLastInstCount());
+				}
+				parent_phenotype.SetFitness(parent_phenotype.GetMerit().CalcFitness(parent_phenotype.GetGestationTime())); // Update fitness
         delete test_cpu;
       }
     }
@@ -1323,7 +1340,11 @@ There are several bases this can be checked on:
 5: 'sat-mov-pred'...demes whose movement predicate was previously satisfied
 6: 'events-killed' ...demes that have killed a certian number of events
 7: 'sat-msg-pred'...demes whose movement predicate was previously satisfied
+<<<<<<< .working
 8: 'set-opinion'...full demes containing orgs who have all set an opinion
+=======
+8: 'sat-deme-predicate'...demes whose predicate has been satisfied; does not include movement or message predicates as those are organisms-level
+>>>>>>> .merge-right.r3250
 
 */
 
@@ -1392,6 +1413,10 @@ void cPopulation::ReplicateDemes(int rep_trigger)
         if(!(source_deme.MsgPredSatisfiedPreviously())) continue;
         break;
       }
+			case 8: {
+        if(!(source_deme.DemePredSatisfiedPreviously())) continue;
+        break;
+			}
       default: {
         cerr << "ERROR: Invalid replication trigger " << rep_trigger
         << " in cPopulation::ReplicateDemes()" << endl;

@@ -133,6 +133,11 @@ STATS_OUT_FILE(PrintFlowRateTuples,         flow_rate_tuples.dat);
 STATS_OUT_FILE(PrintDynamicMaxMinData,		maxmin.dat			);
 STATS_OUT_FILE(PrintNumOrgsKilledData,      orgs_killed.dat);
 
+// reputation
+STATS_OUT_FILE(PrintReputationData,         reputation.dat);
+STATS_OUT_FILE(PrintShadedAltruists,         shadedaltruists.dat);
+STATS_OUT_FILE(PrintDirectReciprocityData,         reciprocity.dat);
+STATS_OUT_FILE(PrintStringMatchData,         stringmatch.dat);
 
 #define POP_OUT_FILE(METHOD, DEFAULT)                                                     /*  1 */ \
 class cAction ## METHOD : public cAction {                                                /*  2 */ \
@@ -1778,7 +1783,6 @@ class cActionPrintPlasticGenotypeSummary : public cAction
   {
     
     //Setup
-    int num_tasks = m_world->GetEnvironment().GetNumTasks();
     ofstream& fot = m_world->GetDataFileOFStream(m_filename);
     if (m_first_run == true){
       PrintHeader(fot);
@@ -3184,6 +3188,13 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpTaskGrid>("dump_task_grid");
   action_lib->Register<cActionDumpDonorGrid>("dump_donor_grid");
   action_lib->Register<cActionDumpReceiverGrid>("dump_receiver_grid");
+	
+	// Reputation
+  action_lib->Register<cActionPrintReputationData>("PrintReputationData");
+	action_lib->Register<cActionPrintDirectReciprocityData>("PrintDirectReciprocityData");
+  action_lib->Register<cActionPrintStringMatchData>("PrintStringMatchData");
+	action_lib->Register<cActionPrintShadedAltruists>("PrintShadedAltruists");
 
+	
   action_lib->Register<cActionSetVerbose>("VERBOSE");
 }

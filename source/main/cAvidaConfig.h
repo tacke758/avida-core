@@ -419,10 +419,12 @@ public:
   CONFIG_ADD_VAR(REVERT_DETRIMENTAL, double, 0.0, "  0.0 to 1.0; Probability of reversion.");
   CONFIG_ADD_VAR(REVERT_NEUTRAL, double, 0.0, "");
   CONFIG_ADD_VAR(REVERT_BENEFICIAL, double, 0.0, "");
+  CONFIG_ADD_VAR(REVERT_TASKLOSS, double, 0.0, "should org be reverted if loses task(s) without gaining other(s)?");
   CONFIG_ADD_VAR(STERILIZE_FATAL, double, 0.0, "Should any mutations clear (kill) the organism?");
   CONFIG_ADD_VAR(STERILIZE_DETRIMENTAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_NEUTRAL, double, 0.0, "");
   CONFIG_ADD_VAR(STERILIZE_BENEFICIAL, double, 0.0, "");
+  CONFIG_ADD_VAR(STERILIZE_TASKLOSS, double, 0.0, "");
   CONFIG_ADD_VAR(FAIL_IMPLICIT, int, 0, "Should copies that failed *not* due to mutations\nbe eliminated?");
   CONFIG_ADD_VAR(NEUTRAL_MAX,double, 0.0, "The percent benifical change from parent fitness\nto be considered neutral.");
   CONFIG_ADD_VAR(NEUTRAL_MIN,double, 0.0, "The percent deleterious change from parent fitness\nto be considered neutral.");
@@ -455,7 +457,7 @@ public:
   CONFIG_ADD_VAR(MIN_GB_DONATE_THRESHOLD, int, -1, "threshold green beard donates only to orgs above this\ndonation attempt threshold; -1=no thresh");
   CONFIG_ADD_VAR(DONATE_THRESH_QUANTA, int, 10, "The size of steps between quanta donate thresholds");
   CONFIG_ADD_VAR(MAX_DONATES, int, 1000000, "Limit on number of donates organisms are allowed.");
-  CONFIG_ADD_VAR(PRECALC_PHENOTYPE, int, 0, "0 = Disabled\n 1 = Assign precalculated merit at birth (unlimited resources only)\n 2 = Assign precalculated gestation time\n 3 = Assign precalculated merit AND gestation time.\nFitness will be evaluated for organism based on these settings.");
+  CONFIG_ADD_VAR(PRECALC_PHENOTYPE, int, 0, "0 = Disabled\n 1 = Assign precalculated merit at birth (unlimited resources only)\n 2 = Assign precalculated gestation time\n 3 = Assign precalculated merit AND gestation time.\n 4 = Assign last instruction counts \n 5 = Assign last instruction counts and merit\n 6 = Assign last instruction counts and gestation time \n 7 = Assign everything currently supported\nFitness will be evaluated for organism based on these settings.");
   CONFIG_ADD_VAR(FASTFORWARD_UPDATES, int, 0, "Fast-forward if the average generation has not changed in this many updates. (0 = off)");
   CONFIG_ADD_VAR(FASTFORWARD_NUM_ORGS, int, 0, "Fast-forward if population is equal to this");
   CONFIG_ADD_VAR(GENOTYPE_PHENPLAST_CALC, int, 100, "Number of times to test a genotype's\nplasticity during runtime.");
@@ -620,6 +622,23 @@ public:
 	
   CONFIG_ADD_CUSTOM_FORMAT(INST_SET_NEW, "Instruction Set Definition");
   CONFIG_ADD_FORMAT_VAR(INST, "Instruction entry in the instruction set");
+	
+	
+	//--------- Reputation config options --------------
+	CONFIG_ADD_GROUP(REPUTATION_GROUP, "Reputation Settings");
+  CONFIG_ADD_VAR(RAW_MATERIAL_AMOUNT, int, 100, "Number of raw materials an organism starts with");
+  CONFIG_ADD_VAR(AUTO_REPUTATION, int, 0, "Is an organism's reputation automatically computed based on its donations\n0=no\n1=increment for each donation + standing\n2=+1 for donations given -1 for donations received\n3=1 for donors -1 for recivers who have not donated\n4=+1 for donors\n5=+1 for donors during task check");
+  CONFIG_ADD_VAR(ALT_BENEFIT, int, 1.00, "Number multiplied by the number of raw materials received from another organism to compute reward");
+  CONFIG_ADD_VAR(ALT_COST, int, 1.00, "Number multiplied by the number of your raw materials");
+  CONFIG_ADD_VAR(ROTATE_ON_DONATE, int, 0, "Rotate an organism to face its donor 0/1 (off/on)");
+  CONFIG_ADD_VAR(REPUTATION_REWARD, int, 0, "Reward an organism for having a good reputation");
+  CONFIG_ADD_VAR(DONATION_FAILURE_PERCENT, int, 0, "Percentage of times that a donation fails");
+  CONFIG_ADD_VAR(RANDOMIZE_RAW_MATERIAL_AMOUNT, int, 0, "Should all the organisms receive the same amount 0/1 (off/on)");
+  CONFIG_ADD_VAR(DONATION_RESTRICTIONS, int, 0, "0=none\n1=inter-species only\n2=different tag only");
+  CONFIG_ADD_VAR(INHERIT_REPUTATION, int, 0, "0=reputations are not inherited\n1=reputations are inherited\n2=tags are inherited");
+  CONFIG_ADD_VAR(SPECIALISTS, int, 0, "0=generalists allowed\n1=only specialists");
+  CONFIG_ADD_VAR(STRING_AMOUNT_CAP, int, -1, "-1=no cap on string amounts\n#=CAP");
+  CONFIG_ADD_VAR(MATCH_ALREADY_PRODUCED, int, 0, "0=off\n1=on");
   
 #endif
   

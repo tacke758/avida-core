@@ -81,6 +81,15 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genom
   , m_net(NULL)
   , m_msg(0)
   , m_opinion(0)
+  , m_self_raw_materials(world->GetConfig().RAW_MATERIAL_AMOUNT.Get())
+  , m_other_raw_materials(0)
+  , m_num_donate(0)
+  , m_num_donate_received(0)
+  , m_amount_donate_received(0)
+  , m_num_reciprocate(0)
+  , m_failed_reputation_increases(0)
+  , m_tag(make_pair(-1, 0))
+
 {
   m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome);
   
@@ -113,6 +122,14 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, int hw_type, int inst_se
   , m_net(NULL)
   , m_msg(0)
   , m_opinion(0)
+  , m_self_raw_materials(world->GetConfig().RAW_MATERIAL_AMOUNT.Get())
+  , m_other_raw_materials(0)
+  , m_num_donate(0)
+  , m_num_donate_received(0)
+  , m_amount_donate_received(0)
+  , m_num_reciprocate(0)
+  , m_failed_reputation_increases(0)
+  , m_tag(make_pair(-1, 0))
 {
   m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome);
 
@@ -173,6 +190,13 @@ void cOrganism::initialize(cAvidaContext& ctx)
   
   if (m_world->GetConfig().NET_ENABLED.Get()) m_net = new cNetSupport();
   m_id = m_world->GetStats().GetTotCreatures();  
+	
+	// randomize the amout of raw materials an organism has at its 
+	// disposal.
+	if (m_world->GetConfig().RANDOMIZE_RAW_MATERIAL_AMOUNT.Get()) {
+		int raw_mat = m_world->GetConfig().RAW_MATERIAL_AMOUNT.Get();
+		m_self_raw_materials = m_world->GetRandom().GetUInt(0, raw_mat+1); 
+	}
 }
 
 
@@ -229,6 +253,12 @@ void cOrganism::AddToRBin(const int index, const double value)
 	if(value > 0)
 	{ m_phenotype.AddToCurRBinTotal(index, value); }
 }  
+
+void cOrganism::IncCollectSpecCount(const int spec_id)
+{
+  int current_count = m_phenotype.GetCurCollectSpecCount(spec_id);
+  m_phenotype.SetCurCollectSpecCount(spec_id, current_count + 1);
+}
 
 double cOrganism::GetTestFitness(cAvidaContext& ctx)
 {
@@ -642,11 +672,13 @@ bool cOrganism::GetRevertFatal() const { return m_world->GetConfig().REVERT_FATA
 bool cOrganism::GetRevertNeg() const { return m_world->GetConfig().REVERT_DETRIMENTAL.Get(); }
 bool cOrganism::GetRevertNeut() const { return m_world->GetConfig().REVERT_NEUTRAL.Get(); }
 bool cOrganism::GetRevertPos() const { return m_world->GetConfig().REVERT_BENEFICIAL.Get(); }
+bool cOrganism::GetRevertTaskLoss() const { return m_world->GetConfig().REVERT_TASKLOSS.Get(); }
 
 bool cOrganism::GetSterilizeFatal() const { return m_world->GetConfig().STERILIZE_FATAL.Get(); }
 bool cOrganism::GetSterilizeNeg() const { return m_world->GetConfig().STERILIZE_DETRIMENTAL.Get(); }
 bool cOrganism::GetSterilizeNeut() const { return m_world->GetConfig().STERILIZE_NEUTRAL.Get(); }
 bool cOrganism::GetSterilizePos() const { return m_world->GetConfig().STERILIZE_BENEFICIAL.Get(); }
+bool cOrganism::GetSterilizeTaskLoss() const { return m_world->GetConfig().STERILIZE_TASKLOSS.Get(); }
 double cOrganism::GetNeutralMin() const { return m_world->GetConfig().NEUTRAL_MIN.Get(); }
 double cOrganism::GetNeutralMax() const { return m_world->GetConfig().NEUTRAL_MAX.Get(); }
 
@@ -1057,4 +1089,213 @@ bool cOrganism::HasNeighborhoodChanged() {
 	
 	// If the symmetric difference is empty, then nothing has changed -- return 
 	return !symdiff.empty();
+}
+
+
+/* Called when raw materials are donated to others or when the 
+ raw materials are consumed. Amount is the number of resources 
+ donated. The boolean flag is used to indicate if the donation 
+ was successful... It would fail if the organism did not have 
+ that many resources. */
+bool cOrganism::SubtractSelfRawMaterials (int amount)
+{
+	bool isSuccessful = false;
+	if (amount <= m_self_raw_materials) { 
+		isSuccessful = true; 
+		m_self_raw_materials -= amount;
+	}
+	return isSuccessful;
+}
+
+
+/* Called when other raw materials are consumed. Amount is the 
+ number of resources consumed. The boolean flag is used to 
+ indicate if the donation was successful... It would fail if 
+ the organism did not have that many resources. */
+bool cOrganism::SubtractOtherRawMaterials (int amount)
+{
+	bool isSuccessful = false;
+	if (amount <= m_other_raw_materials) { 
+		isSuccessful = true; 
+		m_other_raw_materials -= amount;
+	}
+	return isSuccessful;
+}
+
+/* Called when raw materials are received from others. Amount 
+ is the number of resources received. The boolean flag is used 
+ to indicate if the reception was successful, which should always
+ be the case... */
+
+bool cOrganism::AddOtherRawMaterials (int amount, int donor_id) {
+	bool isSuccessful = true;
+	m_other_raw_materials += amount;
+	donor_list.insert(donor_id);
+	m_num_donate_received += amount;	
+	m_amount_donate_received++;	
+	return isSuccessful;
+}
+
+/* Called when raw materials are received from others. Amount 
+ is the number of resources received. The boolean flag is used 
+ to indicate if the reception was successful, which should always
+ be the case... 
+ 
+ This version is used if there is only one resource that is both
+ donated and recieved.
+ */
+
+bool cOrganism::AddRawMaterials (int amount, int donor_id) {
+	bool isSuccessful = true;
+	m_self_raw_materials += amount;
+	donor_list.insert(donor_id);	
+	m_num_donate_received += amount;
+	m_amount_donate_received++;
+	return isSuccessful;
+}
+
+
+/* Get an organism's reputation, which is expressed as an 
+ opinion. 0 is the default reputation (this should be refactored
+ to be cleaner). */
+int cOrganism::GetReputation() {
+	int rep =0;
+	if (HasOpinion()) {
+		rep = GetOpinion().first;
+	}
+	return rep;
+}
+
+/* Set an organism's reputation */
+void cOrganism::SetReputation(int rep) {
+	SetOpinion(rep);
+	return;
+}
+
+/* An organism's reputation is based on a running average*/
+void cOrganism::SetAverageReputation(int rep){
+	int current_total = GetReputation() * m_opinion->opinion_list.size(); 
+	int new_rep = (current_total + rep)/(m_opinion->opinion_list.size()+1);
+	SetReputation(new_rep);
+}
+
+
+/* Check if an organism has previously donated to this organism */
+bool cOrganism::IsDonor(int neighbor_id) 
+{
+	bool found = false;
+	if (donor_list.find(neighbor_id) != donor_list.end()) {
+		found = true;
+	}
+	return found;
+}
+
+
+
+/* Update the tag. If the organism was not already tagged, 
+ or the new tag is the same as the old tag, or the number
+ of bits is > than the old tag, update.*/
+void cOrganism::UpdateTag(int new_tag, int bits)
+{
+	unsigned int rand_int = m_world->GetRandom().GetUInt(0, 2);
+	if ((m_tag.first == -1) || 
+			(m_tag.first == new_tag) ||
+			(m_tag.second < bits)) {
+		m_tag = make_pair(new_tag, bits);
+	} else if ((m_tag.second == bits) && rand_int){ 		
+		m_tag = make_pair(new_tag, bits);
+	}
+}
+
+
+/* See if the output buffer matches the string */
+int cOrganism::MatchOutputBuffer(cString string_to_match)
+{
+	tBuffer<int> org_str (GetOutputBuf());
+	int num_matched =0; 
+	for (int j = 0; j < string_to_match.GetSize(); j++)
+	{
+		if (string_to_match[j]=='0' && org_str[j]==0 ||
+				string_to_match[j]=='1' && org_str[j]==1)
+			num_matched++;
+	}
+	return num_matched;
+}
+
+
+void cOrganism::SetOutputNegative1() 
+{ 
+	for (int i=0; i<GetOutputBuf().GetCapacity(); i++) {
+		AddOutput(-1);
+	}
+	m_output_buf.Clear(); 
+}
+
+/* Initialize the string tracking map */
+void cOrganism::InitStringMap() 
+{
+	if (!m_string_map.size()) { 
+		// Get the strings from the task lib. 
+		std::vector < cString > temp_strings = m_world->GetEnvironment().GetMatchStringsFromTask(); 
+		// Create structure for each of them. 
+		for (unsigned int i=0; i < temp_strings.size(); i++){
+			m_string_map[i].m_string = temp_strings[i]; 
+		}
+	}
+}
+
+
+bool cOrganism::ProduceString(int i)  
+{ 
+	bool val = false; 
+	int cap = m_world->GetConfig().STRING_AMOUNT_CAP.Get(); 
+	if ((cap == -1) || (m_string_map[i].on_hand < cap)) 
+	{
+		m_string_map[i].prod_string++; 
+		m_string_map[i].on_hand++;
+		val = true;
+	}
+	return val;
+}
+
+/* Donate a string*/
+bool cOrganism::DonateString(int string_tag, int amount)
+{
+	bool val = false; 
+	if (m_string_map[string_tag].on_hand >= amount) {
+		val = true;
+		m_string_map[string_tag].on_hand -= amount;
+	}
+	return val;
+	
+}
+
+/* Receive a string*/
+bool cOrganism::ReceiveString(int string_tag, int amount, int donor_id)
+{
+	bool val = false; 
+	int cap = m_world->GetConfig().STRING_AMOUNT_CAP.Get(); 
+	if ((cap == -1) || (m_string_map[string_tag].on_hand < cap)) 
+	{
+		m_string_map[string_tag].received_string++; 
+		m_string_map[string_tag].on_hand++;
+		donor_list.insert(donor_id);	
+		m_num_donate_received += amount;
+		m_amount_donate_received++;
+		val = true;
+	}
+	return val;
+}
+
+/* Check to see if this amount is below the organism's cap*/
+bool cOrganism::CanReceiveString(int string_tag, int amount)
+{
+	bool val = false; 
+	int cap = m_world->GetConfig().STRING_AMOUNT_CAP.Get(); 
+	if ((cap == -1) || (m_string_map[string_tag].on_hand < cap)) 
+	{
+		val = true;
+	}
+	return val;
+	
 }
