@@ -130,8 +130,8 @@ int cSpecies::Compare(const cGenome & test_genome, int max_fail_count)
     // If this position has changed, check if crossovers here are viable.
     if (test_genome[i] != genome[i]) {
       // Continue crossing over on each side...
-      cross_genome1.SetInst(i, test_genome[i], test_genome.IsProtected(i));
-      cross_genome2.SetInst(i, genome[i], genome.IsProtected(i));
+      cross_genome1[i] = test_genome[i];
+      cross_genome2[i] = genome[i];
    
       // Run each side, and determine viability...
       testcpu->TestGenome(ctx, test_info, cross_genome1);
@@ -155,7 +155,6 @@ int cSpecies::Compare(const cGenome & test_genome, int max_fail_count)
 bool cSpecies::OK()
 {
   assert(id_num >= 0);  // Species has negative ID value!
-  assert(genome.OK());  // Species genome not registering as OK!
 
   // Assert valid statistics in species.
   assert(total_organisms >= 0 && total_genotypes >= 0 &&

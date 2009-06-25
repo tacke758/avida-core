@@ -87,7 +87,7 @@ bool cInjectGenotype::LoadClone(ifstream & fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    genome.SetInst(i, temp_inst, false);
+    genome[i] = temp_inst;
     // @CAO add something here to load arguments for instructions.
   }
 
@@ -98,11 +98,7 @@ bool cInjectGenotype::OK()
 {
   bool ret_value = true;
 
-  // Check the components...
-
-  if (!genome.OK()) ret_value = false;
-
-  // And the statistics
+  // Check statistics
   assert( id_num >= 0 && num_injected >= 0 && total_injected >= 0 );
   assert( birth_data.update_born >= -1);
 

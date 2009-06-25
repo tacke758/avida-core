@@ -54,12 +54,12 @@
 using namespace std;
 
 
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome)
+cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome)
   : m_world(world)
   , m_genotype(NULL)
   , m_phenotype(world)
-  , m_initial_genome(in_genome)
-  , m_mut_info(world->GetEnvironment().GetMutationLib(), in_genome.GetSize())
+  , m_initial_genome(genome)
+  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
@@ -83,18 +83,51 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
   , m_opinion(0)
 {
-  m_hardware = m_world->GetHardwareManager().Create(ctx, this);
+  m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome);
+  
+  initialize(ctx);
+}
+cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, int hw_type, int inst_set_id, const cGenome& genome)
+  : m_world(world)
+  , m_genotype(NULL)
+  , m_phenotype(world)
+  , m_initial_genome(hw_type, inst_set_id, genome)
+  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
+  , m_interface(NULL)
+  , m_lineage_label(-1)
+  , m_lineage(NULL)
+  , m_rbins(0)
+  , m_input_pointer(0)
+  , m_input_buf(world->GetEnvironment().GetInputSize())
+  , m_output_buf(world->GetEnvironment().GetOutputSize())
+  , m_received_messages(RECEIVED_MESSAGES_SIZE)
+  , m_cur_sg(0)
+  , m_sent_value(0)
+  , m_sent_active(false)
+  , m_test_receive_pos(0)
+  , m_pher_drop(false)
+  , frac_energy_donating(m_world->GetConfig().ENERGY_SHARING_PCT.Get())
+  , m_max_executed(-1)
+  , m_is_running(false)
+  , m_is_sleeping(false)
+  , m_is_dead(false)
+  , killed_event(false)
+  , m_net(NULL)
+  , m_msg(0)
+  , m_opinion(0)
+{
+  m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome);
 
 
   initialize(ctx);
 }
 
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, cInstSet* inst_set)
+cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome, cInstSet* inst_set)
   : m_world(world)
   , m_genotype(NULL)
   , m_phenotype(world)
-  , m_initial_genome(in_genome)
-  , m_mut_info(world->GetEnvironment().GetMutationLib(), in_genome.GetSize())
+  , m_initial_genome(genome)
+  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
@@ -118,7 +151,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
   , m_opinion(0)
 {
-  m_hardware = m_world->GetHardwareManager().Create(ctx, this, inst_set);
+  m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome, inst_set);
   
   initialize(ctx);
 }
@@ -371,7 +404,7 @@ void cOrganism::doOutput(cAvidaContext& ctx,
   if(m_world->GetConfig().ENERGY_ENABLED.Get() && m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 1 && task_completed) {
     m_phenotype.RefreshEnergy();
     m_phenotype.ApplyToEnergyStore();
-    double newMerit = cMerit::EnergyToMerit(GetPhenotype().GetStoredEnergy() * GetPhenotype().GetEnergyUsageRatio(), m_world);
+    double newMerit = m_phenotype.ConvertEnergyToMerit(m_phenotype.GetStoredEnergy() * m_phenotype.GetEnergyUsageRatio());
     if(newMerit != -1) {
       m_interface->UpdateMerit(newMerit);
     }
@@ -684,7 +717,7 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
   } else {
     fp << endl;
     fp << "# Final Memory: " << m_hardware->GetMemory().AsString() << endl;
-    fp << "# Child Memory: " << m_child_genome.AsString() << endl;
+    fp << "# Child Memory: " << m_offspring_genome.GetGenome().AsString() << endl;
   }
 }
 
@@ -733,7 +766,7 @@ bool cOrganism::ActivateDivide(cAvidaContext& ctx)
   DoOutput(ctx, true);
 
   // Activate the child!  (Keep Last: may kill this organism!)
-  return m_interface->Divide(ctx, this, m_child_genome);
+  return m_interface->Divide(ctx, this, m_offspring_genome);
 }
 
 

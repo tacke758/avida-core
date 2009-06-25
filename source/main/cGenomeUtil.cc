@@ -187,7 +187,7 @@ cGenome cGenomeUtil::Crop(const cGenome & in_genome, int start, int end)
   const int out_length = end - start;
   cGenome out_genome(out_length);
   for (int i = 0; i < out_length; i++) {
-    out_genome.SetInst(i, in_genome[i+start], in_genome.IsProtected(i+start));//false); //BEB TODO: change false
+    out_genome[i] = in_genome[i+start];
   }
 
   return out_genome;
@@ -207,10 +207,10 @@ cGenome cGenomeUtil::Cut(const cGenome & in_genome, int start, int end)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < start; i++) {
-    out_genome.SetInst(i, in_genome[i], in_genome.IsProtected(i));
+    out_genome[i] = in_genome[i];
   }
   for (int i = start; i < out_length; i++) {
-    out_genome.SetInst(i, in_genome[i+cut_length], in_genome.IsProtected(i+cut_length));
+    out_genome[i] = in_genome[i+cut_length];
   }
 
   return out_genome;
@@ -225,10 +225,10 @@ cGenome cGenomeUtil::Join(const cGenome & genome1, const cGenome & genome2)
 
   cGenome out_genome(out_length);
   for (int i = 0; i < length1; i++) {
-    out_genome.SetInst(i, genome1[i], genome1.IsProtected(i));
+    out_genome[i] = genome1[i];
   }
   for (int i = 0; i < length2; i++) {
-    out_genome.SetInst(i+length1, genome2[i], genome2.IsProtected(i));
+    out_genome[i+length1] = genome2[i];
   }
 
   return out_genome;
@@ -263,7 +263,7 @@ bool cGenomeUtil::LoadGenome(const cString& filename, const cInstSet& inst_set, 
 		
 //		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
 		
-    new_genome.SetInst(line_num, inst_set.GetInst(cur_line.GetWord(0)), site_protected);
+    new_genome[line_num] = inst_set.GetInst(cur_line.GetWord(0));
     
     if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
@@ -302,7 +302,7 @@ cGenome cGenomeUtil::LoadInternalGenome(istream& fp, const cInstSet& inst_set)
 			site_protected = true;
 		
 		cerr<< cur_line.GetWord(0) << " " << cur_line.GetWord(1) << " " << site_protected << endl;
-    new_genome.SetInst(line_num, inst_set.GetInst(cur_line.GetWord(0)), site_protected);
+    new_genome[line_num] = inst_set.GetInst(cur_line.GetWord(0));
 		 
     if (new_genome[line_num] == inst_set.GetInstError()) {
       // You're using the wrong instruction set!  YOU FOOL!
@@ -333,7 +333,7 @@ cGenome cGenomeUtil::RandomGenome(cAvidaContext& ctx, int length, const cInstSet
 {
   cGenome genome(length);
   for (int i = 0; i < length; i++) {
-    genome.SetInst(i, inst_set.GetRandomInst(ctx), false);
+    genome[i] = inst_set.GetRandomInst(ctx);
   }
   return genome;
 }
@@ -345,9 +345,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(cAvidaContext& c
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome.SetInst(i, inst, false);
+    genome[i] = inst;
   }
-  genome.SetInst(length, inst_set.GetInst("repro"), false);
+  genome[length] = inst_set.GetInst("repro");
   return genome;
 }
 
@@ -358,9 +358,9 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusReproSex(cAvidaContext
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
 	  while (inst_set.GetRedundancy(inst)==0)
 		  inst = inst_set.GetRandomInst(ctx);
-    genome.SetInst(i, inst, false);
+    genome[i] = inst;
   }
-  genome.SetInst(length, inst_set.GetInst("repro-sex"), false);
+  genome[length] = inst_set.GetInst("repro-sex");
   return genome;
 }
 

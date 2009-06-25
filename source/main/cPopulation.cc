@@ -317,13 +317,13 @@ inline void cPopulation::AdjustSchedule(const cPopulationCell& cell, const cMeri
 // Activate the child, given information from the parent.
 // Return true if parent lives through this process.
 
-bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, cOrganism& parent_organism)
+bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offspring_genome, cOrganism* parent_organism)
 {
   if (m_world->GetConfig().FASTFORWARD_NUM_ORGS.Get() > 0 && GetNumOrganisms() >= m_world->GetConfig().FASTFORWARD_NUM_ORGS.Get())
   {
     return true;
   }
-  assert(&parent_organism != NULL);
+  assert(parent_organism != NULL);
   
   tArray<cOrganism*> child_array;
   tArray<cMerit> merit_array;
@@ -331,14 +331,14 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   // Update the parent's phenotype.
   // This needs to be done before the parent goes into the birth chamber
   // or the merit doesn't get passed onto the child correctly
-  cPhenotype& parent_phenotype = parent_organism.GetPhenotype();
-  parent_phenotype.DivideReset(parent_organism.GetGenome());
+  cPhenotype& parent_phenotype = parent_organism->GetPhenotype();
+  parent_phenotype.DivideReset(parent_organism->GetGenome());
   
-  birth_chamber.SubmitOffspring(ctx, child_genome, parent_organism, child_array, merit_array);
+  birth_chamber.SubmitOffspring(ctx, offspring_genome, parent_organism, child_array, merit_array);
   
   // First, setup the genotype of all of the offspring.
-  cGenotype* parent_genotype = parent_organism.GetGenotype();
-  const int parent_id = parent_organism.GetOrgInterface().GetCellID();
+  cGenotype* parent_genotype = parent_organism->GetGenotype();
+  const int parent_id = parent_organism->GetOrgInterface().GetCellID();
   assert(parent_id >= 0 && parent_id < cell_array.GetSize());
   cPopulationCell& parent_cell = cell_array[parent_id];
   
@@ -358,7 +358,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
       child_array[i]->MutationRates().Copy(GetCell(target_cells[i]).MutationRates());
     } else {
       // Update the mutation rates of each child from its parent.
-      child_array[i]->MutationRates().Copy(parent_organism.MutationRates());
+      child_array[i]->MutationRates().Copy(parent_organism->MutationRates());
       // If there is a meta-mutation rate, do tests for it.
       if (child_array[i]->MutationRates().GetMetaCopyMutProb() > 0.0) {
         child_array[i]->MutationRates().DoMetaCopyMut(ctx);
@@ -366,8 +366,8 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     }
     
     // Update the phenotypes of each child....
-    const cGenome & child_genome = child_array[i]->GetGenome();
-    child_array[i]->GetPhenotype().SetupOffspring(parent_phenotype,child_genome);
+    const cGenome& genome = child_array[i]->GetGenome();
+    child_array[i]->GetPhenotype().SetupOffspring(parent_phenotype, genome);
 		
 		// can be removed after instruction set can be inherited
 		if(fracOrgsCantSendMSG > 0.0 && m_world->GetRandom().P(fracOrgsCantSendMSG)) {
@@ -381,11 +381,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     child_array[i]->GetPhenotype().SetMerit(merit_array[i]);
     
     // Do lineage tracking for the new organisms.
-    LineageSetupOrganism(child_array[i], parent_organism.GetLineage(),
-                         parent_organism.GetLineageLabel(), parent_genotype);
+    LineageSetupOrganism(child_array[i], parent_organism->GetLineage(),
+                         parent_organism->GetLineageLabel(), parent_genotype);
     
     //By default, store the parent cclade, this may get modified in ActivateOrgansim (@MRR)
-    child_array[i]->SetCCladeLabel(parent_organism.GetCCladeLabel());
+    child_array[i]->SetCCladeLabel(parent_organism->GetCCladeLabel());
   }
   
   // If we're not about to kill the parent, do some extra work on it.
@@ -399,7 +399,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
         cCPUTestInfo test_info;
         cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
         test_info.UseManualInputs(parent_cell.GetInputs()); // Test using what the environment will be
-        test_cpu->TestGenome(ctx, test_info, parent_organism.GetHardware().GetMemory()); // Use the true genome
+        test_cpu->TestGenome(ctx, test_info, parent_organism->GetHardware().GetMemory()); // Use the true genome
         if (pc_phenotype & 1) { // If we must update the merit
           parent_phenotype.SetMerit(test_info.GetTestPhenotype().GetMerit());
         }
@@ -422,7 +422,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     }
     
     // Purge the mutations since last division
-    parent_organism.ChildGenome().GetMutationSteps().Clear();
+    parent_organism->OffspringGenome().GetGenome().GetMutationSteps().Clear();
   }
   
   // Do any statistics on the parent that just gave birth...
@@ -509,7 +509,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
     //@JEB - we may want to pass along some state information from parent to child
     if ( (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_OFFSPRING) 
          || (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_BOTH) ) {
-      child_array[i]->GetHardware().InheritState(parent_organism.GetHardware());
+      child_array[i]->GetHardware().InheritState(parent_organism->GetHardware());
     }
     
     cGenotype* child_genotype = child_array[i]->GetGenotype();
@@ -1553,7 +1553,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<next_germ.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          next_germ.SetInst(i, instset.GetRandomInst(ctx), false);
+          next_germ[i] = instset.GetRandomInst(ctx);
         }
       }
     }
@@ -1604,7 +1604,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
     if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0.0) {
       for(int i=0; i<new_genome.GetSize(); ++i) {
         if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) {
-          new_genome.SetInst(i, instset.GetRandomInst(ctx), false);
+          new_genome[i] = instset.GetRandomInst(ctx);
         }
       }
     }
@@ -1647,8 +1647,8 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
           cOrganism* organism = cell.GetOrganism(); 
           cPhenotype& phenotype = organism->GetPhenotype(); 
           phenotype.SetEnergy(phenotype.GetStoredEnergy() + offspring_deme_energy/static_cast<double>(target_deme.GetOrgCount())); 
-          phenotype.SetMerit(cMerit(cMerit::EnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio(), m_world))); 
-          totalEnergyInjectedIntoOrganisms += phenotype.GetStoredEnergy(); 
+          phenotype.SetMerit(cMerit(phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio()))); 
+          totalEnergyInjectedIntoOrganisms += phenotype.GetStoredEnergy();
         } 
       } 
       target_deme.SetEnergyInjectedIntoOrganisms(totalEnergyInjectedIntoOrganisms); 
@@ -1663,7 +1663,7 @@ void cPopulation::ReplaceDeme(cDeme& source_deme, cDeme& target_deme)
           cOrganism* organism = cell.GetOrganism(); 
           cPhenotype& phenotype = organism->GetPhenotype(); 
           phenotype.SetEnergy(phenotype.GetStoredEnergy() + parent_deme_energy/static_cast<double>(source_deme.GetOrgCount())); 
-          phenotype.SetMerit(cMerit(cMerit::EnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio(), m_world))); 
+          phenotype.SetMerit(cMerit(phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio()))); 
           totalEnergyInjectedIntoOrganisms += phenotype.GetStoredEnergy(); 
         } 
       } 
@@ -3872,7 +3872,6 @@ void cPopulation::ProcessStepSpeculative(cAvidaContext& ctx, double step_size, i
 {
   assert(step_size > 0.0);
   assert(cell_id < cell_array.GetSize());
-  assert(m_world->GetHardwareManager().SupportsSpeculative());
   
   // If cell_id is negative, no cell could be found -- stop here.
   if (cell_id < 0) return;
@@ -4781,7 +4780,7 @@ void cPopulation::FindEmptyCell(tList<cPopulationCell> & cell_list,
 
 // This function injects a new organism into the population at cell_id based
 // on the genotype passed in.
-void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
+void cPopulation::InjectGenotype(int cell_id, cGenotype* new_genotype)
 {
   assert(cell_id >= 0 && cell_id < cell_array.GetSize());
   if (cell_id < 0 || cell_id >= cell_array.GetSize()) {
@@ -4790,7 +4789,8 @@ void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
-  cOrganism* new_organism = new cOrganism(m_world, ctx, new_genotype->GetGenome());
+  cMetaGenome tmp_genome(m_world->GetConfig().HARDWARE_TYPE.Get(), 1, new_genotype->GetGenome()); // @TODO - genotypes need metagenomes
+  cOrganism* new_organism = new cOrganism(m_world, ctx, tmp_genome);
   
   //Coalescense Clade Setup
   new_organism->SetCCladeLabel(-1);  
@@ -4803,9 +4803,9 @@ void cPopulation::InjectGenotype(int cell_id, cGenotype *new_genotype)
   phenotype.SetupInject(new_genotype->GetGenome());  //TODO  sets merit to lenght of genotype
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
-    phenotype.SetMerit(cMerit(cMerit::EnergyToMerit(phenotype.GetStoredEnergy(), m_world)));
+    phenotype.SetMerit(cMerit(phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy())));
   } else {
-    phenotype.SetMerit( cMerit(new_genotype->GetTestMerit(ctx)) );
+    phenotype.SetMerit(cMerit(new_genotype->GetTestMerit(ctx)));
   }
   
   // @CAO are these really needed?
@@ -4858,7 +4858,7 @@ void cPopulation::InjectClone(int cell_id, cOrganism& orig_org)
   
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
-  cOrganism* new_organism = new cOrganism(m_world, ctx, orig_org.GetGenome());
+  cOrganism* new_organism = new cOrganism(m_world, ctx, orig_org.GetMetaGenome());
   
   // Set the genotype...
   new_organism->SetGenotype(orig_org.GetGenotype());
@@ -4896,20 +4896,20 @@ void cPopulation::InjectChild(int cell_id, cOrganism& parent)
   cAvidaContext& ctx = m_world->GetDefaultContext();
   
   // Do mutations on the child genome, but restore it to its current state afterward.
-  cGenome save_child = parent.ChildGenome();
+  cMetaGenome save_child = parent.OffspringGenome();
   parent.GetHardware().Divide_DoMutations(ctx);
-  cGenome child_genome = parent.ChildGenome();
+  cMetaGenome child_genome = parent.OffspringGenome();
   parent.GetHardware().Divide_TestFitnessMeasures(ctx);
-  parent.ChildGenome() = save_child;
+  parent.OffspringGenome() = save_child;
   cOrganism* new_organism = new cOrganism(m_world, ctx, child_genome);
   
   // Set the genotype...
   assert(parent.GetGenotype());  
-  cGenotype* new_genotype = m_world->GetClassificationManager().GetGenotype(child_genome, parent.GetGenotype(), NULL);
+  cGenotype* new_genotype = m_world->GetClassificationManager().GetGenotype(child_genome.GetGenome(), parent.GetGenotype(), NULL);
   new_organism->SetGenotype(new_genotype);
   
   // Setup the phenotype...
-  new_organism->GetPhenotype().SetupOffspring(parent.GetPhenotype(),child_genome);
+  new_organism->GetPhenotype().SetupOffspring(parent.GetPhenotype(),child_genome.GetGenome());
   
   // Prep the cell..
   if (m_world->GetConfig().BIRTH_METHOD.Get() == POSITION_CHILD_FULL_SOUP_ELDEST &&
@@ -5461,8 +5461,8 @@ void cPopulation::CompeteOrganisms(cAvidaContext& ctx, int competition_type, int
     org_count[from_cell_id]--;
     org_count[to_cell_id]++;
     
-    cOrganism * organism = GetCell(from_cell_id).GetOrganism();
-    organism->ChildGenome() = organism->GetGenome();
+    cOrganism* organism = GetCell(from_cell_id).GetOrganism();
+    organism->OffspringGenome() = organism->GetMetaGenome();
     if (m_world->GetVerbosity() >= VERBOSE_DETAILS) cout << "Injecting Child " << from_cell_id << " to " << to_cell_id << endl;  
     InjectChild( to_cell_id, *organism );  
     
@@ -5475,8 +5475,8 @@ void cPopulation::CompeteOrganisms(cAvidaContext& ctx, int competition_type, int
     for (int cell_id = 0; cell_id < num_cells; cell_id++) {
       if (!is_init[cell_id])
       {
-        cOrganism * organism = GetCell(cell_id).GetOrganism();
-        organism->ChildGenome() = organism->GetGenome();
+        cOrganism* organism = GetCell(cell_id).GetOrganism();
+        organism->OffspringGenome() = organism->GetMetaGenome();
         if (m_world->GetVerbosity() >= VERBOSE_DETAILS) cout << "Re-injecting Self " << cell_id << " to " << cell_id << endl;  
         InjectChild( cell_id, *organism ); 
       }

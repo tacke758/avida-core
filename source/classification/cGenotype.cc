@@ -41,8 +41,9 @@ cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   : m_world(world)
   , genome(1)
   , name("001-no_name")
-  , flag_threshold(false)
-  , is_active(true)
+  , m_flag_threshold(false)
+  , m_is_active(true)
+  , m_track_parent_dist(m_world->GetConfig().TRACK_PARENT_DIST.Get())
   , defer_adjust(0)
   , id_num(in_id)
   , symbol(0)
@@ -99,7 +100,7 @@ cGenotype* cGenotype::LoadClone(cWorld* world, ifstream& fp)
     int inst_op;
     fp >> inst_op;
     temp_inst.SetOp(static_cast<unsigned char>(inst_op));
-    ret->genome.SetInst(i, temp_inst, false);
+    ret->genome[i] = temp_inst;
     // @CAO add something here to load arguments for instructions.
   }
   
@@ -108,13 +109,7 @@ cGenotype* cGenotype::LoadClone(cWorld* world, ifstream& fp)
 
 bool cGenotype::OK()
 {
-  bool ret_value = true;
-
-  // Check the components...
-
-  if (!genome.OK()) ret_value = false;
-
-  // And the statistics
+  // Check statistics
   assert( id_num >= 0 && num_organisms >= 0 && total_organisms >= 0 );
   assert( birth_data.update_born >= -1 && birth_data.parent_distance >= -1 );
   assert( sum_copied_size.Sum() >= 0 && sum_exe_size.Sum() >= 0 );
@@ -124,7 +119,7 @@ bool cGenotype::OK()
   assert( tmp_sum_gestation_time.Sum() >= 0 && tmp_sum_repro_rate.Sum() >= 0 );
   assert( tmp_sum_merit.Sum() >= 0 && tmp_sum_fitness.Sum() >= 0 );
 
-  return ret_value;
+  return true;
 }
 
 void cGenotype::AddMerit(const cMerit & in)
@@ -154,7 +149,7 @@ void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
     birth_data.ancestor_ids[5] = parent2->GetAncestorID(1);    
   }
 
-  birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
+  if (m_track_parent_dist) birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
   birth_data.parent_species = parent->GetSpecies();
   birth_data.gene_depth = parent->GetDepth() + 1;
   birth_data.lineage_label = parent->GetLineageLabel();

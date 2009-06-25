@@ -76,10 +76,11 @@ public:
   void SetPrevSeenCellID(int in_id) { m_prevseen_cell_id = in_id; }
   void SetPrevTaskCellID(int in_id) { m_prev_task_cell = in_id; }
 
-  bool Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome);
+  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome);
   cOrganism* GetNeighbor();
   bool IsNeighborCellOccupied();
   int GetNumNeighbors();
+  void GetNeighborhoodCellIDs(tArray<int>& list);
   int GetFacing(); // Returns the facing of this organism.
   int GetNeighborCellContents();
   void Rotate(int direction = 1);

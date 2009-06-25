@@ -98,7 +98,7 @@ void cModularityAnalysis::CalcFunctionalModularity(cAvidaContext& ctx)
     for (int line_num = 0; line_num < max_line; line_num++) {
       int cur_inst = base_genome[line_num].GetOp();
       
-      mod_genome.SetInst(line_num, null_inst, false);
+      mod_genome[line_num] = null_inst;
       
       // Run the modified genome through the Test CPU
       testcpu->TestGenome(ctx, test_info, mod_genome);
@@ -121,7 +121,7 @@ void cModularityAnalysis::CalcFunctionalModularity(cAvidaContext& ctx)
       }
           
       // Reset the mod_genome back to the original sequence.
-      mod_genome.SetOp(line_num, cur_inst);
+      mod_genome[line_num].SetOp(cur_inst);
     }
     
     tArray<int> sites_inv_x_tasks(num_tasks + 1, 0);  // # of inst's involved in 0,1,2,3... tasks    

@@ -35,11 +35,11 @@
 #ifndef cCPUMemory_h
 #include "cCPUMemory.h"
 #endif
-#ifndef cGenome_h
-#include "cGenome.h"
-#endif
 #ifndef cLocalMutations_h
 #include "cLocalMutations.h"
+#endif
+#ifndef cMetaGenome_h
+#include "cMetaGenome.h"
 #endif
 #ifndef cMutationRates_h
 #include "cMutationRates.h"
@@ -97,7 +97,7 @@ private:
   cHardwareBase* m_hardware;              // The actual machinery running this organism.
   cGenotype* m_genotype;                  // Information about organisms with this genome.
   cPhenotype m_phenotype;                 // Descriptive attributes of organism.
-  const cGenome m_initial_genome;         // Initial genome; can never be changed!
+  const cMetaGenome m_initial_genome;         // Initial genome; can never be changed!
   tArray<cInjectGenotype*> m_parasites;   // List of all parasites associated with this organism.
   cMutationRates m_mut_rates;             // Rate of all possible mutations.
   cLocalMutations m_mut_info;             // Info about possible mutations;
@@ -110,7 +110,7 @@ private:
   																				// Note: m_rbins gets its proper size in SetOrgInterface()
   
 	// Other stats
-  cCPUMemory m_child_genome;              // Child genome, while under construction.
+  cMetaGenome m_offspring_genome;              // Child genome, while under construction.
 
   // Input and Output with the environment
   int m_input_pointer;
@@ -158,8 +158,9 @@ private:
   cOrganism& operator=(const cOrganism&); // @not_implemented
   
 public:
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome);
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, cInstSet* inst_set);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome);
+  cOrganism(cWorld* world, cAvidaContext& ctx, int hw_type, int inst_set_id, const cGenome& genome);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome, cInstSet* inst_set);
   ~cOrganism();
 
   // --------  Support Methods  --------
@@ -182,7 +183,8 @@ public:
   cPhenotype& GetPhenotype() { return m_phenotype; }
   void SetPhenotype(cPhenotype& _in_phenotype) { m_phenotype = _in_phenotype; }
 
-  const cGenome& GetGenome() const { return m_initial_genome; }
+  const cGenome& GetGenome() const { return m_initial_genome.GetGenome(); }
+  const cMetaGenome& GetMetaGenome() const { return m_initial_genome; }
   
   const cMutationRates& MutationRates() const { return m_mut_rates; }
   cMutationRates& MutationRates() { return m_mut_rates; }
@@ -211,7 +213,7 @@ public:
 
   int GetMaxExecuted() const { return m_max_executed; }
   
-  cCPUMemory& ChildGenome() { return m_child_genome; }
+  cMetaGenome& OffspringGenome() { return m_offspring_genome; }
 
   void SetRunning(bool in_running) { m_is_running = in_running; }
   bool IsRunning() { return m_is_running; }

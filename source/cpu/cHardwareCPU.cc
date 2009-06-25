@@ -430,10 +430,11 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("sense", &cHardwareCPU::Inst_SenseLog2, nInstFlag::STALL),           // If you add more sense instructions
     tInstLibEntry<tMethod>("sense-unit", &cHardwareCPU::Inst_SenseUnit, nInstFlag::STALL),      // and want to keep stats, also add
     tInstLibEntry<tMethod>("sense-m100", &cHardwareCPU::Inst_SenseMult100, nInstFlag::STALL),   // the names to cStats::cStats() @JEB
+
     tInstLibEntry<tMethod>("if-resources", &cHardwareCPU::Inst_IfResources, nInstFlag::STALL),
     tInstLibEntry<tMethod>("collect", &cHardwareCPU::Inst_Collect, nInstFlag::STALL),
     tInstLibEntry<tMethod>("collect-no-env-remove", &cHardwareCPU::Inst_CollectNoEnvRemove, nInstFlag::STALL),
-    tInstLibEntry<tMethod>("collect-no-internal-add", &cHardwareCPU::Inst_CollectNoInternalAdd, nInstFlag::STALL),
+    tInstLibEntry<tMethod>("destroy", &cHardwareCPU::Inst_Destroy, nInstFlag::STALL),
 		
     tInstLibEntry<tMethod>("donate-rnd", &cHardwareCPU::Inst_DonateRandom),
     tInstLibEntry<tMethod>("donate-kin", &cHardwareCPU::Inst_DonateKin),
@@ -828,8 +829,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
   return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, def, null_inst);
 }
 
-cHardwareCPU::cHardwareCPU(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set)
+cHardwareCPU::cHardwareCPU(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, int inst_set_id)
+: cHardwareBase(world, in_organism, in_inst_set, inst_set_id)
 , m_last_cell_data(false, 0)
 {
   m_functions = s_inst_slib->GetFunctions();
@@ -1087,9 +1088,7 @@ void cHardwareCPU::ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst
 bool cHardwareCPU::OK()
 {
   bool result = true;
-  
-  if (!m_memory.OK()) result = false;
-  
+    
   for (int i = 0; i < m_threads.GetSize(); i++) {
     if (m_threads[i].stack.OK() == false) result = false;
     if (m_threads[i].next_label.OK() == false) result = false;
@@ -1615,7 +1614,7 @@ bool cHardwareCPU::Allocate_Random(cAvidaContext& ctx, const int old_size, const
   m_memory.Resize(new_size);
 	
   for (int i = old_size; i < new_size; i++) {
-    m_memory.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+    m_memory[i] = m_inst_set->GetRandomInst(ctx);
   }
   return true;
 }
@@ -1708,8 +1707,10 @@ bool cHardwareCPU::Divide_Main(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   
   // Make sure it is an exact copy at this point (before divide mutations) if required
   if (m_world->GetConfig().REQUIRE_EXACT_COPY.Get() && (m_organism->GetGenome() != child_genome) ) {
@@ -1776,8 +1777,10 @@ bool cHardwareCPU::Divide_MainRS(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   
   // Cut off everything in this memory past the divide point.
   m_memory.Resize(div_point);
@@ -1867,8 +1870,10 @@ bool cHardwareCPU::Divide_Main1RS(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   
   // Cut off everything in this memory past the divide point.
   m_memory.Resize(div_point);
@@ -1958,8 +1963,10 @@ bool cHardwareCPU::Divide_Main2RS(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   
   // Cut off everything in this memory past the divide point.
   m_memory.Resize(div_point);
@@ -3035,19 +3042,16 @@ void cHardwareCPU::Divide_DoTransposons(cAvidaContext& ctx)
   if (!transposon_in_use) return;
   
   static cInstruction transposon_inst = GetInstSet().GetInst(cStringUtil::Stringf("transposon"));
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
 	
   // Count the number of transposons that are marked as executed
   int tr_count = 0;
-  for (int i=0; i < child_genome.GetSize(); i++) 
-  {
-    if (child_genome.FlagExecuted(i) && (child_genome[i] == transposon_inst)) tr_count++;
+  for (int i = 0; i < m_memory.GetSize(); i++) {
+    if (m_memory.FlagExecuted(i) && (m_memory[i] == transposon_inst)) tr_count++;
   }
   
-  for (int i=0; i < tr_count; i++) 
-  {
-    if (ctx.GetRandom().P(0.01))
-    {
+  for (int i = 0; i < tr_count; i++) {
+    if (ctx.GetRandom().P(0.01)) {
       const unsigned int mut_line = ctx.GetRandom().GetUInt(child_genome.GetSize() + 1);
       child_genome.Insert(mut_line, transposon_inst);
     }
@@ -3077,7 +3081,7 @@ bool cHardwareCPU::Inst_Repro_NewInnerBoundary(cAvidaContext& ctx) {
   if (m_organism->GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;
   
   // Setup child
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = m_organism->GetGenome();
 	
   // Do transposon movement and copying before other mutations
@@ -3087,7 +3091,7 @@ bool cHardwareCPU::Inst_Repro_NewInnerBoundary(cAvidaContext& ctx) {
   if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
       if (m_organism->TestCopyMut(ctx)) {
-        child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+        child_genome[i] = m_inst_set->GetRandomInst(ctx);
       }
     }
   }
@@ -3095,7 +3099,7 @@ bool cHardwareCPU::Inst_Repro_NewInnerBoundary(cAvidaContext& ctx) {
   Divide_DoMutations(ctx);
   
   // Check viability
-  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->ChildGenome().GetSize(), 1);
+  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->OffspringGenome().GetSize(), 1);
   if (!viable) { return false; }
   
   // Many tests will require us to run the offspring through a test CPU;
@@ -3131,7 +3135,7 @@ bool cHardwareCPU::Inst_Repro_InParentBoundary(cAvidaContext& ctx) {
   if (m_organism->GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;
   
   // Setup child
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = m_organism->GetGenome();
 	
   // Do transposon movement and copying before other mutations
@@ -3141,7 +3145,7 @@ bool cHardwareCPU::Inst_Repro_InParentBoundary(cAvidaContext& ctx) {
   if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
       if (m_organism->TestCopyMut(ctx)) {
-        child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+        child_genome[i] = m_inst_set->GetRandomInst(ctx);
       }
     }
   }
@@ -3149,7 +3153,7 @@ bool cHardwareCPU::Inst_Repro_InParentBoundary(cAvidaContext& ctx) {
   Divide_DoMutations(ctx);
   
   // Check viability
-  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->ChildGenome().GetSize(), 1);
+  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->OffspringGenome().GetSize(), 1);
   if (!viable) { return false; }
   
   // Many tests will require us to run the offspring through a test CPU;
@@ -3187,9 +3191,11 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   if (m_organism->GetPhenotype().GetCurBonus() < m_world->GetConfig().REQUIRED_BONUS.Get()) return false;
   
   // Setup child
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = m_organism->GetGenome();
-	
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+
   // Do transposon movement and copying before other mutations
   Divide_DoTransposons(ctx);
   
@@ -3197,7 +3203,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
       if (m_organism->TestCopyMut(ctx)) {
-        child_genome.SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+        child_genome[i] = m_inst_set->GetRandomInst(ctx);
       }
     }
   }
@@ -3205,7 +3211,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   Divide_DoMutations(ctx);
   
   // Check viability
-  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->ChildGenome().GetSize(), 1);
+  bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), m_organism->OffspringGenome().GetSize(), 1);
   if (!viable) { return false; }
   
   // Many tests will require us to run the offspring through a test CPU;
@@ -3395,8 +3401,9 @@ bool cHardwareCPU::Inst_Inject(cAvidaContext& ctx)
   }
   
   // Since its legal to cut out the injected piece, do so.
-  cGenome inject_code( cGenomeUtil::Crop(m_memory, start_pos, end_pos) );
+  cGenome inject_code(cGenomeUtil::Crop(m_memory, start_pos, end_pos));
   m_memory.Remove(start_pos, inject_size);
+  AdjustHeads();
   
   // If we don't have a host, stop here.
   cOrganism * host_organism = m_organism->GetNeighbor();
@@ -3851,10 +3858,12 @@ bool cHardwareCPU::FindModifiedResource(int& start_index, int& end_index)
 }
 
 /* Helper function to reduce code redundancy in the Inst_Collect variations.
- * Does all the heavy lifting of external resource collection.  Use env_remove
- * to specify whether the collected resources should be removed from the
- * environment, and internal_add to specify whether the collected resources
- * should be added to the organism's internal resources.
+ * Does all the heavy lifting of external resource collection.
+ *
+ * env_remove   - specifies whether the collected resources should be removed from
+ *                the environment
+ * internal_add - specifies whether the collected resources should be added to 
+ *                the organism's internal resources.
  */
 bool cHardwareCPU::DoCollect(cAvidaContext& ctx, bool env_remove, bool internal_add)
 {
@@ -3948,9 +3957,10 @@ bool cHardwareCPU::Inst_CollectNoEnvRemove(cAvidaContext& ctx)
   return DoCollect(ctx, false, true);
 }
 
-/* Like Inst_Collect, but the collected resources are not added to the organism.
+/* Collects resource from the environment but does not add it to the organism,
+ * effectively destroying it.
  */
-bool cHardwareCPU::Inst_CollectNoInternalAdd(cAvidaContext& ctx)
+bool cHardwareCPU::Inst_Destroy(cAvidaContext& ctx)
 {
   return DoCollect(ctx, true, false);
 }
@@ -4012,21 +4022,23 @@ void cHardwareCPU::DoEnergyDonate(cOrganism* to_org)
   assert(to_org != NULL);
 	
   const double frac_energy_given = m_organism->GetFracEnergyDonating();
-	
-  double cur_energy = m_organism->GetPhenotype().GetStoredEnergy();
+  
+  cPhenotype& phenotype = m_organism->GetPhenotype();
+
+  double cur_energy = phenotype.GetStoredEnergy();
   double energy_given = cur_energy * frac_energy_given;
   
   //update energy store and merit of donor
-  m_organism->GetPhenotype().ReduceEnergy(energy_given);
-  m_organism->GetPhenotype().IncreaseEnergyDonated(energy_given);
-  double senderMerit = cMerit::EnergyToMerit(m_organism->GetPhenotype().GetStoredEnergy()  * m_organism->GetPhenotype().GetEnergyUsageRatio(), m_world);
+  phenotype.ReduceEnergy(energy_given);
+  phenotype.IncreaseEnergyDonated(energy_given);
+  double senderMerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy()  * phenotype.GetEnergyUsageRatio());
   m_organism->UpdateMerit(senderMerit);
-  m_organism->GetPhenotype().SetIsEnergyDonor();
+  phenotype.SetIsEnergyDonor();
   
   // update energy store and merit of donee
   to_org->GetPhenotype().ReduceEnergy(-1.0*energy_given);
   to_org->GetPhenotype().IncreaseEnergyReceived(energy_given);
-  double receiverMerit = cMerit::EnergyToMerit(to_org->GetPhenotype().GetStoredEnergy() * to_org->GetPhenotype().GetEnergyUsageRatio(), m_world);
+  double receiverMerit = to_org->GetPhenotype().ConvertEnergyToMerit(to_org->GetPhenotype().GetStoredEnergy() * to_org->GetPhenotype().GetEnergyUsageRatio());
   to_org->UpdateMerit(receiverMerit);
   to_org->GetPhenotype().SetIsEnergyReceiver();
 }
@@ -4054,21 +4066,23 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
   assert(amount >= 0);
   assert(losspct >= 0);
   assert(losspct <= 1);
+
+  cPhenotype& phenotype = m_organism->GetPhenotype();
   
   const int update_metabolic = m_world->GetConfig().ENERGY_SHARING_UPDATE_METABOLIC.Get();
-  double energy_given = min(m_organism->GetPhenotype().GetStoredEnergy(), amount);
+  double energy_given = min(phenotype.GetStoredEnergy(), amount);
   double energy_received;
   
   //update energy store and merit of donor
-  m_organism->GetPhenotype().ReduceEnergy(energy_given);
-  m_organism->GetPhenotype().SetIsEnergyDonor();
-  m_organism->GetPhenotype().IncreaseEnergyDonated(energy_given);
-  m_organism->GetPhenotype().IncreaseNumEnergyDonations();
+  phenotype.ReduceEnergy(energy_given);
+  phenotype.SetIsEnergyDonor();
+  phenotype.IncreaseEnergyDonated(energy_given);
+  phenotype.IncreaseNumEnergyDonations();
   
   m_organism->GetDeme()->IncreaseEnergyDonated(energy_given);
   
   if(update_metabolic == 1) {
-    double senderMerit = cMerit::EnergyToMerit(m_organism->GetPhenotype().GetStoredEnergy()  * m_organism->GetPhenotype().GetEnergyUsageRatio(), m_world);
+    double senderMerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy()  * phenotype.GetEnergyUsageRatio());
     m_organism->UpdateMerit(senderMerit);
   }
   
@@ -4084,7 +4098,7 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
     to_org->GetPhenotype().ApplyDonatedEnergy();
 	  
 	  if(update_metabolic == 1) {
-      double receiverMerit = cMerit::EnergyToMerit(to_org->GetPhenotype().GetStoredEnergy() * to_org->GetPhenotype().GetEnergyUsageRatio(), m_world);
+      double receiverMerit = to_org->GetPhenotype().ConvertEnergyToMerit(to_org->GetPhenotype().GetStoredEnergy() * to_org->GetPhenotype().GetEnergyUsageRatio());
       to_org->UpdateMerit(receiverMerit);
 	  }
   }
@@ -4099,7 +4113,7 @@ void cHardwareCPU::DoEnergyDonateAmount(cOrganism* to_org, const double amount)
                                              m_world->GetConfig().ENERGY_SHARING_METHOD.Get(),
                                              m_organism->GetID(),
                                              energy_given,
-                                             m_organism->GetPhenotype().GetStoredEnergy(),
+                                             phenotype.GetStoredEnergy(),
                                              to_org->GetID(),
                                              energy_received,
                                              to_org->GetPhenotype().GetStoredEnergy());
@@ -4605,16 +4619,17 @@ bool cHardwareCPU::Inst_DonateNULL(cAvidaContext& ctx)
 //Move energy from an organism's received energy buffer into their energy store, recalculate merit
 bool cHardwareCPU::Inst_ReceiveDonatedEnergy(cAvidaContext& ctx)
 {
-  if(m_organism->GetCellID() < 0) {
+  if (m_organism->GetCellID() < 0) {
     return false;
   }
   
-  if(m_organism->GetPhenotype().GetEnergyInBufferAmount() > 0) {
-    m_organism->GetPhenotype().ApplyDonatedEnergy();
+  cPhenotype& phenotype = m_organism->GetPhenotype();
+  if (phenotype.GetEnergyInBufferAmount() > 0) {
+    phenotype.ApplyDonatedEnergy();
 	 
-	  if(m_world->GetConfig().ENERGY_SHARING_UPDATE_METABOLIC.Get() == 1) {
-        double receiverMerit = cMerit::EnergyToMerit(m_organism->GetPhenotype().GetStoredEnergy() * m_organism->GetPhenotype().GetEnergyUsageRatio(), m_world);
-        m_organism->UpdateMerit(receiverMerit);
+	  if (m_world->GetConfig().ENERGY_SHARING_UPDATE_METABOLIC.Get() == 1) {
+      double receiverMerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio());
+      m_organism->UpdateMerit(receiverMerit);
   	}
   }
   
@@ -4662,7 +4677,8 @@ bool cHardwareCPU::Inst_DonateEnergy(cAvidaContext& ctx)
 //Update the organism's metabolic rate
 bool cHardwareCPU::Inst_UpdateMetabolicRate(cAvidaContext& ctx)
 {
-  double newmerit = cMerit::EnergyToMerit(m_organism->GetPhenotype().GetStoredEnergy()  * m_organism->GetPhenotype().GetEnergyUsageRatio(), m_world);
+  cPhenotype& phenotype = m_organism->GetPhenotype();
+  double newmerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy()  * phenotype.GetEnergyUsageRatio());
   m_organism->UpdateMerit(newmerit);
   
   return true;
@@ -6264,10 +6280,12 @@ bool cHardwareCPU::Inst_Sleep(cAvidaContext& ctx) {
   }
   m_organism->SetSleeping(false);  //this instruction get executed at the end of a sleep cycle
   GetOrganism()->GetOrgInterface().GetDeme()->DecSleepingCount();
-  if(m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 2) {
-    m_organism->GetPhenotype().RefreshEnergy();
-    m_organism->GetPhenotype().ApplyToEnergyStore();
-    double newMerit = cMerit::EnergyToMerit(m_organism->GetPhenotype().GetStoredEnergy() * m_organism->GetPhenotype().GetEnergyUsageRatio(), m_world);
+
+  cPhenotype& phenotype = m_organism->GetPhenotype();
+  if (m_world->GetConfig().APPLY_ENERGY_METHOD.Get() == 2) {
+    phenotype.RefreshEnergy();
+    phenotype.ApplyToEnergyStore();
+    double newMerit = phenotype.ConvertEnergyToMerit(phenotype.GetStoredEnergy() * phenotype.GetEnergyUsageRatio());
     pop.UpdateMerit(cellID, newMerit);
   }
   return true;

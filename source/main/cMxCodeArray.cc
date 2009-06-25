@@ -276,7 +276,7 @@ void cMxCodeArray::CopyDataTo(cGenome & other_code) const
   other_code = cGenome(size);
 
   for (int i = 0; i < size; i++) {
-    other_code.SetInst(i, data[i], false);
+    other_code[i] = data[i];
   }
 }
 

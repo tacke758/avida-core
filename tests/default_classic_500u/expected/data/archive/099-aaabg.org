@@ -1,4 +1,4 @@
-# Thu Feb  7 16:22:57 2008
+# Fri Mar  6 17:36:39 2009
 # Filename........: archive/099-aaabg.org
 # Update Output...: 350
 # Is Viable.......: 1
@@ -8,7 +8,7 @@
 # Genotype ID.....: 1186
 # Parent Gen ID...: 509
 # Tree Depth......: 6
-# Parent Distance.: 1
+# Parent Distance.: -1
 # 
 # Generation: 0
 # Merit...........: 96.000000

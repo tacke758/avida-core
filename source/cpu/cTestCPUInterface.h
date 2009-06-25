@@ -62,10 +62,11 @@ public:
   void SetPrevSeenCellID(int in_id) { ; }
   void SetPrevTaskCellID(int in_id) { ; }
 
-  bool Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome);
+  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome);
   cOrganism* GetNeighbor();
   bool IsNeighborCellOccupied();
   int GetNumNeighbors();
+  void GetNeighborhoodCellIDs(tArray<int>& list);
   int GetNeighborCellContents() { return 0; }
   void Rotate(int direction = 1);
   void Breakpoint() { ; }

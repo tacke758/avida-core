@@ -4,7 +4,7 @@
 #  1: ID
 #  2: parent ID
 #  3: parent distance
-#  4: number of orgranisms currently alive
+#  4: number of organisms currently alive
 #  5: total number of organisms that ever existed
 #  6: length of genome
 #  7: merit

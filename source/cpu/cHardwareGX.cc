@@ -311,8 +311,9 @@ tInstLib<cHardwareGX::tMethod>* cHardwareGX::initInstLib(void)
 /*! Construct a cHardwareGX instance from the passed-in cOrganism.  This amounts to
 creating an initial cProgramid from in_organism's genome.
 */
-cHardwareGX::cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set)
+cHardwareGX::cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism,
+                         cInstSet* in_inst_set, int inst_set_id)
+: cHardwareBase(world, in_organism, in_inst_set, inst_set_id)
 {
   m_last_unique_id_assigned = 0;
   m_functions = s_inst_slib->GetFunctions();
@@ -415,6 +416,8 @@ void cHardwareGX::internalReset()
   */
 bool cHardwareGX::SingleProcess(cAvidaContext& ctx, bool speculative)
 {
+  if (speculative) return false;
+
   cPhenotype& phenotype = m_organism->GetPhenotype();
 
   // Turn over programids if using the implicit model
@@ -632,7 +635,7 @@ bool cHardwareGX::OK()
 {
   bool result = true;
   for(programid_list::iterator i=m_programids.begin(); i!=m_programids.end() && result; ++i) {
-    result = result && (*i)->m_memory.OK() && (*i)->m_stack.OK() && (*i)->m_next_label.OK();
+    result = result && (*i)->m_stack.OK() && (*i)->m_next_label.OK();
   }
   return result;
 }
@@ -1130,7 +1133,7 @@ bool cHardwareGX::Allocate_Random(cAvidaContext& ctx, const int old_size, const 
   GetMemory().Resize(new_size);
   
   for (int i = old_size; i < new_size; i++) {
-    GetMemory().SetInst(i, m_inst_set->GetRandomInst(ctx), false);
+    GetMemory()[i] = m_inst_set->GetRandomInst(ctx);
   }
   return true;
 }
@@ -1247,7 +1250,7 @@ bool cHardwareGX::Divide_Main(cAvidaContext& ctx)
 //  
 //  // Since the divide will now succeed, set up the information to be sent
 //  // to the new organism
-//  cGenome & child_genome = m_organism->ChildGenome();
+//  cGenome & child_genome = m_organism->OffspringGenome();
 //  child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
 //  
 //  // Cut off everything in this memory past the divide point.
@@ -2078,8 +2081,10 @@ bool cHardwareGX::Inst_MaxAlloc(cAvidaContext& ctx)   // Allocate maximal more
 bool cHardwareGX::Inst_Repro(cAvidaContext& ctx)
 {
   // Setup child
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = m_organism->GetGenome();
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   m_organism->GetPhenotype().SetLinesCopied(m_organism->GetGenome().GetSize());
   
   Divide_DoMutations(ctx);
@@ -3768,8 +3773,10 @@ bool cHardwareGX::Inst_ProgramidDivide(cAvidaContext& ctx)
   
   // Ok, we're good to go.  We have to create the offspring's genome and delete the
   // offspring's programids from m_programids.
-  cCPUMemory& child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome.Resize(1);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
   if (m_world->GetVerbosity() >= VERBOSE_DETAILS) std::cout << "-=OFFSPRING=-" << endl;
   for(programid_list::iterator i=offspring.begin(); i!=offspring.end(); ++i) {
     (*i)->AppendLinearGenome(child_genome);
@@ -3883,9 +3890,11 @@ bool cHardwareGX::Inst_ProgramidImplicitDivide(cAvidaContext& ctx)
 
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome & child_genome = m_organism->ChildGenome();
+  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
   child_genome = m_programids[write_head.GetMemSpace()]->GetMemory();
   child_genome = cGenomeUtil::Crop(child_genome, 0, child_end);
+  m_organism->OffspringGenome().SetHardwareType(GetType());
+  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
 
 
   // Handle Divide Mutations...
@@ -4335,7 +4344,7 @@ void cHardwareGX::cProgramid::Reset()
 /*! Append this programid's genome to the passed in genome.  Include the tags
 that specify what this programid is capable of.
 */
-void cHardwareGX::cProgramid::AppendLinearGenome(cCPUMemory& genome) {
+void cHardwareGX::cProgramid::AppendLinearGenome(cGenome& genome) {
   genome.Append(GetInst("PROGRAMID"));
   if(GetExecutable()) { genome.Append(GetInst("EXECUTABLE")); }
   if(GetBindable()) { genome.Append(GetInst("BINDABLE")); }

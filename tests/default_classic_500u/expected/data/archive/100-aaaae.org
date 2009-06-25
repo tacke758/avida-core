@@ -1,4 +1,4 @@
-# Thu Feb  7 16:22:55 2008
+# Fri Mar  6 17:36:35 2009
 # Filename........: archive/100-aaaae.org
 # Update Output...: 150
 # Is Viable.......: 1
@@ -8,7 +8,7 @@
 # Genotype ID.....: 22
 # Parent Gen ID...: 3
 # Tree Depth......: 2
-# Parent Distance.: 1
+# Parent Distance.: -1
 # 
 # Generation: 0
 # Merit...........: 96.000000

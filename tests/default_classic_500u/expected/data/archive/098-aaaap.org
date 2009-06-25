@@ -1,4 +1,4 @@
-# Thu Feb  7 16:22:58 2008
+# Fri Mar  6 17:36:42 2009
 # Filename........: archive/098-aaaap.org
 # Update Output...: 400
 # Is Viable.......: 1
@@ -8,7 +8,7 @@
 # Genotype ID.....: 3435
 # Parent Gen ID...: 1186
 # Tree Depth......: 7
-# Parent Distance.: 1
+# Parent Distance.: -1
 # 
 # Generation: 0
 # Merit...........: 95.000000
