@@ -771,6 +771,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("sensef-m100", &cHardwareCPU::Inst_SenseMult100Facing),
     tInstLibEntry<tMethod>("sense-pheromone", &cHardwareCPU::Inst_SensePheromone),
     tInstLibEntry<tMethod>("sense-pheromone-faced", &cHardwareCPU::Inst_SensePheromoneFaced),
+    tInstLibEntry<tMethod>("sense-pheromone-inDemeGlobal", &cHardwareCPU::Inst_SensePheromoneInDemeGlobal),
     tInstLibEntry<tMethod>("exploit", &cHardwareCPU::Inst_Exploit, nInstFlag::STALL),
     tInstLibEntry<tMethod>("exploit-forward5", &cHardwareCPU::Inst_ExploitForward5, nInstFlag::STALL),
     tInstLibEntry<tMethod>("exploit-forward3", &cHardwareCPU::Inst_ExploitForward3, nInstFlag::STALL),
@@ -7707,7 +7708,7 @@ bool cHardwareCPU::DoSensePheromone(cAvidaContext& ctx, int cellid)
   cDeme &deme = pop.GetDeme(pop.GetCell(cellid).GetDemeID());
   int relative_cell_id = deme.GetRelativeCellID(cellid);
 	
-  cResourceCount deme_resource_count = deme.GetDemeResourceCount();
+  const cResourceCount& deme_resource_count = deme.GetDemeResourceCount();
   tArray<double> cell_resources = deme_resource_count.GetCellResources(relative_cell_id);
   double pher_amount = 0;
 	
@@ -7727,6 +7728,26 @@ bool cHardwareCPU::DoSensePheromone(cAvidaContext& ctx, int cellid)
   return true;
 	
 } //End DoSensePheromone()
+
+bool cHardwareCPU::DoSensePheromoneInDemeGlobal(cAvidaContext& ctx) {
+	if(m_organism->GetCellID() == -1) {
+		return false;
+	}
+	int reg_to_set = FindModifiedRegister(REG_BX);
+  cDeme& deme = m_world->GetPopulation().GetDeme(m_organism->GetDemeID());
+	const cResourceCount& deme_resource_count = deme.GetDemeResourceCount();
+
+	if(deme_resource_count.GetSize() == 0) assert(false); // change to: return false;
+	
+	double pher_amount = 0;
+	for (int i = 0; i < deme_resource_count.GetSize(); i++) {
+    if(strncmp(deme_resource_count.GetResName(i), "pheromone", 9) == 0) {
+      pher_amount += deme_resource_count.Get(i);
+    }
+  }
+	GetRegister(reg_to_set) = (int)floor(pher_amount + 0.5);
+	return true;
+}
 
 bool cHardwareCPU::Inst_SensePheromone(cAvidaContext& ctx)
 {
@@ -7754,6 +7775,10 @@ bool cHardwareCPU::Inst_SensePheromoneFaced(cAvidaContext& ctx)
 	
   return DoSensePheromone(ctx, fcellid);
 } //End Inst_SensePheromoneFacing()
+
+bool cHardwareCPU::Inst_SensePheromoneInDemeGlobal(cAvidaContext& ctx) {
+	return DoSensePheromoneInDemeGlobal(ctx);
+}
 
 bool cHardwareCPU::Inst_Exploit(cAvidaContext& ctx)
 {
