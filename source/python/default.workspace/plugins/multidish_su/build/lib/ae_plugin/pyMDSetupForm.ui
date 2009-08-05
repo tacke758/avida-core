@@ -1,0 +1,520 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>md_setup_Form</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>md_setup_Form</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>667</width>
+            <height>677</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Multi-Dish Setup</string>
+    </property>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>20</y>
+                <width>580</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>MD_Setup_textLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>21</x>
+                    <y>1</y>
+                    <width>108</width>
+                    <height>27</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Multi-Dish Setup</string>
+            </property>
+        </widget>
+        <widget class="QToolButton">
+            <property name="name">
+                <cstring>MD_Setup_Switch_toolButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>505</x>
+                    <y>1</y>
+                    <width>52</width>
+                    <height>27</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Switch</string>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>400</y>
+                <width>500</width>
+                <height>170</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout4</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>10</y>
+                    <width>460</width>
+                    <height>148</height>
+                </rect>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" row="0" column="3">
+                    <property name="name">
+                        <cstring>sd_4_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 4</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="0" column="1">
+                    <property name="name">
+                        <cstring>sd_2_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 2</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="3">
+                    <property name="name">
+                        <cstring>sd_12_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 12</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="1">
+                    <property name="name">
+                        <cstring>sd_14_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 14</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="0">
+                    <property name="name">
+                        <cstring>sd_13_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 13</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="0" column="0">
+                    <property name="name">
+                        <cstring>sd1_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 1</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="3">
+                    <property name="name">
+                        <cstring>sd_16_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 16</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="1">
+                    <property name="name">
+                        <cstring>sd_10_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 10</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="2">
+                    <property name="name">
+                        <cstring>sd_11_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 11</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="0" column="2">
+                    <property name="name">
+                        <cstring>sd_3_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 3</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="1">
+                    <property name="name">
+                        <cstring>sd_6_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 6</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="2">
+                    <property name="name">
+                        <cstring>sd_7_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 7</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="0">
+                    <property name="name">
+                        <cstring>sd_5_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 5</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="0">
+                    <property name="name">
+                        <cstring>sd_9_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 9</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="2">
+                    <property name="name">
+                        <cstring>sd_15_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 15</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="1" column="3">
+                    <property name="name">
+                        <cstring>sd_8_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish 8</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>60</y>
+                <width>450</width>
+                <height>190</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout16</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>10</y>
+                    <width>401</width>
+                    <height>170</height>
+                </rect>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel" row="3" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>md_values_textLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>MD: </string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="2">
+                    <property name="name">
+                        <cstring>layout8</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sdnx_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Grid Cells / SubDish row</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>sdnx_spinBox</cstring>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                            <property name="value">
+                                <number>40</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>layout5</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sdx_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>SubDishes / row</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>sdx_spinBox</cstring>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                            <property name="value">
+                                <number>4</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>layout10</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>md_name_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Multi-Dish name</string>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>md_name_lineEdit</cstring>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>layout7</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sdy_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>SubDishes /  col</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>sdy_spinBox</cstring>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                            <property name="value">
+                                <number>4</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QPushButton" row="3" column="0">
+                    <property name="name">
+                        <cstring>md_set_values_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Set Values</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="2">
+                    <property name="name">
+                        <cstring>layout9</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sdny_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Grid Cells / SubDish  col</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>sdny_spinBox</cstring>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                            <property name="value">
+                                <number>40</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QPushButton" row="4" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>md_generate_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Generate Multi-Dish</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame6</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>260</y>
+                <width>501</width>
+                <height>130</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout15</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>11</y>
+                    <width>265</width>
+                    <height>101</height>
+                </rect>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>sd_pick_textLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>SubDish</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>layout14</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sd_pos_in_md_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>SubDish Position in Multi-Dish</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>sd_pos_in_md_spinBox</cstring>
+                            </property>
+                            <property name="minValue">
+                                <number>1</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QComboBox" row="0" column="1">
+                    <property name="name">
+                        <cstring>sd_pick_comboBox</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="0" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>sd_add_pushButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Add SubDish</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </widget>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

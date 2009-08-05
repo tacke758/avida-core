@@ -1,0 +1,179 @@
+#
+#  pyAvida.py
+#  AvidaEd
+#
+#  Created by Kaben Nanlohy on 05.3.3.
+#  Copyright (c) 2005 __MyCompanyName__. All rights reserved.
+#
+import pyAvidaThreadedDriver; reload(pyAvidaThreadedDriver)
+from pyAvidaThreadedDriver import *
+
+import pyMdtr; reload(pyMdtr)
+from pyMdtr import *
+
+import qt
+from AvidaCore import *
+
+from descr import *
+
+class pyMDAvida(qt.QObject):
+
+  def __init__(self):
+    qt.QObject.__init__(self, None, self.__class__.__name__)
+
+  def construct(self, avida_cfg):
+    print "pyMDAvida: construct()"
+    self.m_name = avida_cfg.GetFilename()
+    print "pyMDAvida: construct(): filename = " + str(self.m_name)
+    self.m_environment = cEnvironment()
+    print "pyMDAvida: construct(): environment = " + str(self.m_environment)
+    print "pyMDAvida: construct(): calling cConfig.Setup"
+    cConfig.Setup(avida_cfg)
+    print "pyMDAvida: construct(): testing for existing environment, " + str(cConfig.GetEnvironmentFilename())
+    if 0 == self.m_environment.Load(cConfig.GetEnvironmentFilename()):
+      print "Unable to load environment... aborting."
+      self.m_population = None
+      return None
+
+    self.m_environment.GetInstSet().SetInstLib(cHardwareCPU.GetInstLib())
+    cHardwareUtil.LoadInstSet(cConfig.GetInstFilename(), self.m_environment.GetInstSet())
+    cConfig.SetNumInstructions(self.m_environment.GetInstSet().GetSize())
+    cConfig.SetNumTasks(self.m_environment.GetTaskLib().GetSize())
+    cConfig.SetNumReactions(self.m_environment.GetReactionLib().GetSize())
+    cConfig.SetNumResources(self.m_environment.GetResourceLib().GetSize())
+    descr("cConfig.Set...() called.")
+
+    
+    # Test-CPU creation.
+    test_interface = cPopulationInterface()
+    descr("cPopulationInterface() called.")
+
+    BuildTestPopInterface(test_interface)
+    descr("BuildTestPopInterface(test_interface) called.")
+
+    cTestCPU.Setup(
+      self.m_environment.GetInstSet(),
+      self.m_environment,
+      self.m_environment.GetResourceLib().GetSize(),
+      test_interface)
+    descr("cTestCPU.Setup() called.")
+
+    self.m_avida_threaded_driver = pyAvidaThreadedDriver(self.m_environment)
+    descr("pyAvidaThreadedDriver(self.m_environment) called.")
+
+    self.m_avida_threaded_driver.construct()
+    descr("self.m_avida_threaded_driver.construct() done.")
+
+    self.m_population = self.m_avida_threaded_driver.GetPopulation()
+    descr("self.m_avida_threaded_driver.GetPopulation() done.")
+
+    self.m_name = avida_cfg.GetFilename()
+    self.m_avida_thread_mdtr = pyMdtr()
+    self.m_should_update = False
+
+    self.connect(
+      self.m_avida_thread_mdtr,
+      qt.PYSIGNAL("MDdoPauseAvidaSig"),
+      self.doPauseAvidaSlot)
+    self.connect(
+      self.m_avida_thread_mdtr,
+      qt.PYSIGNAL("MDdoStartAvidaSig"),
+      self.doStartAvidaSlot)
+    self.connect(
+      self.m_avida_thread_mdtr,
+      qt.PYSIGNAL("MDdoUpdateAvidaSig"),
+      self.doUpdateAvidaSlot)
+    self.connect(
+      self.m_avida_thread_mdtr,
+      qt.PYSIGNAL("MDdoCloseAvidaSig"),
+      self.doCloseAvidaSlot)
+
+    self.m_update_ck_timer = qt.QTimer()
+    self.connect(
+      self.m_update_ck_timer,
+      qt.SIGNAL("timeout()"),
+      self.updateCheckSlot)
+    self.m_update_ck_timer.start(1000)
+
+    return self
+
+  def addGuiWorkFunctor(self, thread_work_functor):
+    self.m_avida_threaded_driver.addGuiWorkFunctor(thread_work_functor)
+    
+  def removeGuiWorkFunctor(self, thread_work_functor):
+    self.m_avida_threaded_driver.removeGuiWorkFunctor(thread_work_functor)
+
+  def destruct(self):
+    print("pyAvida.destruct() ...")
+    self.m_avida_thread_mdtr.emit(qt.PYSIGNAL("MDdoCloseAvidaSig"),())
+    if hasattr(self, "m_update_ck_timer"):
+      self.m_update_ck_timer.stop()
+      del self.m_update_ck_timer
+    else:
+      print("pyAvida.destruct() self.m_update_ck_timer missing.")
+
+    if hasattr(self, "m_avida_thread_mdtr"):
+      del self.m_avida_thread_mdtr
+    else:
+      print("pyAvida.destruct() self.m_avida_thread_mdtr missing.")
+
+    if hasattr(self, "m_avida_threaded_driver"):
+      self.m_avida_threaded_driver.doExit()
+      self.m_avida_threaded_driver.m_thread.join()
+      del self.m_avida_threaded_driver
+    else:
+      print("pyAvida.destruct() self.m_avida_threaded_driver missing.")
+
+    print("pyAvida.destruct() done.")
+
+  def __del__(self):
+    print("pyAvida.__del__()...")
+    self.destruct()
+    print("pyAvida.__del__() done.")
+
+  def shouldUpdate(self):
+    return self.m_should_update
+
+  def isUpdating(self):
+    return self.m_is_updating
+
+  def updateCheckSlot(self):
+    descr("updateCheckSlot() ... ")
+    if self.m_avida_threaded_driver.m_updated_semaphore.acquire(False):
+      self.m_is_updating = False
+      self.m_avida_thread_mdtr.emit(qt.PYSIGNAL("MDAvidaUpdatedSig"),())
+      if True == self.m_should_update:
+        descr("m_should_update == True")
+        self.doUpdateAvidaSlot()
+      else:
+        descr("m_should_update == False")
+        
+    descr("updateCheckSlot() done.")
+
+  def doPauseAvidaSlot(self):
+    self.m_should_update = False;
+
+  def doStartAvidaSlot(self):
+    self.m_should_update = True;
+    self.doUpdateAvidaSlot()
+
+  def doUpdateAvidaSlot(self):
+    #try:
+      self.m_is_updating = True
+      descr("calling doUpdate()")
+      self.m_avida_threaded_driver.doUpdate()
+      descr("doUpdate() call done")
+    #except AttributeError:
+    #  pass
+    
+
+  def doStepAvidaSlot(self, cell_id):
+    print("pyAvida.doStepAvidaSlot() ...")
+
+  def doCloseAvidaSlot(self):
+    print("pyAvida.doCloseAvidaSlot() ...")
+    self.m_avida_threaded_driver.doExit()
+    if self.m_avida_threaded_driver.m_thread.isAlive():
+      self.m_avida_threaded_driver.m_thread.join()
+    else:
+      print("pyAvida.doCloseAvidaSlot() thread is dead!")

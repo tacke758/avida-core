@@ -1,0 +1,81 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'testclient.ui'
+#
+# Created: Thu Apr 16 18:59:55 2009
+#      by: The PyQt User Interface Compiler (pyuic) 3.17.6
+#
+# WARNING! All changes made in this file will be lost!
+
+
+from qt import *
+
+
+class Form1(QWidget):
+    def __init__(self,parent = None,name = None,fl = 0):
+        QWidget.__init__(self,parent,name,fl)
+
+        if not name:
+            self.setName("Form1")
+
+        self.IPGroupBox = QGroupBox(self,"IPGroupBox")
+        self.IPGroupBox.setGeometry(QRect(10,10,200,120))
+
+        self.IPPushButton = QPushButton(self.IPGroupBox,"IPPushButton")
+        self.IPPushButton.setGeometry(QRect(10,80,118,32))
+
+        self.IPLabel1 = QLabel(self.IPGroupBox,"IPLabel1")
+        self.IPLabel1.setGeometry(QRect(20,30,160,20))
+
+        self.IPLineEdit = QLineEdit(self.IPGroupBox,"IPLineEdit")
+        self.IPLineEdit.setGeometry(QRect(10,60,170,22))
+
+        self.CommandButtonGroup = QButtonGroup(self,"CommandButtonGroup")
+        self.CommandButtonGroup.setGeometry(QRect(10,130,200,180))
+
+        self.radioButton1 = QRadioButton(self.CommandButtonGroup,"radioButton1")
+        self.radioButton1.setGeometry(QRect(20,20,109,22))
+
+        self.radioButton2 = QRadioButton(self.CommandButtonGroup,"radioButton2")
+        self.radioButton2.setGeometry(QRect(20,50,130,20))
+
+        self.radioButton4 = QRadioButton(self.CommandButtonGroup,"radioButton4")
+        self.radioButton4.setGeometry(QRect(20,110,130,22))
+
+        self.radioButton5 = QRadioButton(self.CommandButtonGroup,"radioButton5")
+        self.radioButton5.setGeometry(QRect(20,140,130,22))
+
+        self.radioButton3 = QRadioButton(self.CommandButtonGroup,"radioButton3")
+        self.radioButton3.setGeometry(QRect(20,80,160,20))
+
+        self.MsgTextEdit = QTextEdit(self,"MsgTextEdit")
+        self.MsgTextEdit.setGeometry(QRect(220,20,210,290))
+
+        self.ConsoleTextEdit = QTextEdit(self,"ConsoleTextEdit")
+        self.ConsoleTextEdit.setGeometry(QRect(61,320,370,161))
+
+        self.pushButton3 = QPushButton(self,"pushButton3")
+        self.pushButton3.setGeometry(QRect(0,450,60,32))
+
+        self.languageChange()
+
+        self.resize(QSize(447,499).expandedTo(self.minimumSizeHint()))
+        self.clearWState(Qt.WState_Polished)
+
+
+    def languageChange(self):
+        self.setCaption(self.__tr("Form1"))
+        self.IPGroupBox.setTitle(self.__tr("IP Address"))
+        self.IPPushButton.setText(self.__tr("Change IP"))
+        self.IPLabel1.setText(self.__tr("Server IP:"))
+        self.CommandButtonGroup.setTitle(self.__tr("Commands"))
+        self.radioButton1.setText(self.__tr("Send Request"))
+        self.radioButton2.setText(self.__tr("Join Request"))
+        self.radioButton4.setText(self.__tr("Submit Request"))
+        self.radioButton5.setText(self.__tr("Update Request"))
+        self.radioButton3.setText(self.__tr("Remove Request"))
+        self.pushButton3.setText(self.__tr("Send"))
+
+
+    def __tr(self,s,c = None):
+        return qApp.translate("Form1",s,c)
