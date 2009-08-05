@@ -13,7 +13,7 @@ Within a run:
 
 """
 
-class AvidaCtrl():
+class AvidaCtrl:
     def __init__(self):
         """
         Basic initialization for Avida instance

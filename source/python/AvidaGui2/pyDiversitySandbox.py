@@ -20,7 +20,7 @@ import random
 
 from UserDict import UserDict
 
-class UnrealWorld():
+class UnrealWorld:
     """
     UnrealWorld provides a class for generating an x by y grid of random
     or mutated genotypes and phenotypes.
@@ -65,7 +65,7 @@ class UnrealWorld():
                 mystr += parent[kk]
         return mystr
 
-class diversity():
+class diversity:
     """
     diversity: a class to provide a variety of methods for measures of diversity
 

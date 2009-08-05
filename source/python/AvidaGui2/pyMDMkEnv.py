@@ -6,7 +6,7 @@ Module to assist in writing out Avida environment files for Multi-Dish runs.
 
 import pyGridMaster
 
-class MkEnv():
+class MkEnv:
     """
     MkEnv
 

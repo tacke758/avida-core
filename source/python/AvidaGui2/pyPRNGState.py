@@ -14,7 +14,7 @@ from AvidaCore import cRandom, cTools
 
 import qt
 
-class StackType():
+class StackType:
     """
     StackType
     Abstract stack data type. 
