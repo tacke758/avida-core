@@ -5,6 +5,7 @@ import string
 class pyReadFreezer:
 
   def __init__(self, in_file_name = None):
+    print "pyReadFreezer.__init__()"
     self.file_name = in_file_name
     self.dictionary = {}
     freezefile = open(self.file_name)
@@ -27,12 +28,18 @@ class pyReadFreezer:
         if line[0] == "*":
           section_key = line[1:].upper()
           self.dictionary[section_key] = {}
+          print "Added dictionary section '%s'" % (section_key)
+
+
         else:
 
           # split into key and value (which could be multiple words)
 
           var_name, value = line.split(' ',1)
           self.dictionary[section_key][var_name.upper()] = value
+
+    # ??? debug, turn off
+    # print self.dictionary["SETTINGS"]
 	
   def GetDictionary(self):
     return self.dictionary

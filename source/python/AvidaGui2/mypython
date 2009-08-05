@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Build environment python
+# /Users/welsberr/aed_env/Build/AvidaOneStepLocal/bin/python $1
+
+# Run-time python
+/Users/welsberr/avida/avida-ed/Avida-Ed-onestep-qt3/Build/avida_bld/Avida-ED/bin/Avida-ED.app/Contents/MacOS/python $1

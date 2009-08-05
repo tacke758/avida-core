@@ -116,7 +116,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       lineage_range = len(self.m_session_mdl.m_ancestors_dict)
       non_normalized_index = int(label) + 1
       normalized_index = float(non_normalized_index) / float(lineage_range)
-      print "self.m_petri_dish_ctrl is: ", self.m_petri_dish_ctrl
+      # print "self.m_petri_dish_ctrl is: ", self.m_petri_dish_ctrl
       a_sensible_color = self.m_petri_dish_ctrl.m_color_lookup_functor(normalized_index)
 
       #the following ugly code is brought to you by the fact that I can't delete objects
@@ -236,6 +236,10 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     if (e.source is self):
       return
 
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Large dishes may take a few minutes to process. Be patient.",))
+    self.repaint()
+
+
     current_page = self.m_petri_dish_widget_stack.visibleWidget()
     current_page_int = self.m_petri_dish_widget_stack.id(current_page)
 
@@ -311,6 +315,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
     
   def DefrostSlot(self, dish_name, petri_dict):
       descr()
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Large dishes may take a few minutes to process. Be patient.",))
+      self.repaint()
+
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("raisePopViewSig"),())
 
 #    if self.isVisible():
@@ -345,6 +352,7 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
           else:
             return
 
+      
       self.RenameDishSlot(dish_name)
       self.finishedPetriDish = False
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("FillDishSig"), 
@@ -358,6 +366,9 @@ class pyOnePop_PetriDishCtrl(pyOnePop_PetriDishView):
       self.m_session_mdl.m_session_mdtr.emit(
        PYSIGNAL("restartPopulationSig"), (self.m_session_mdl, ))
 
+      self.m_session_mdl.m_session_mdtr.emit(
+        PYSIGNAL("refreshSubDishList"), ())
+      
 
   def finishedPetriDishSlot(self):
     descr()

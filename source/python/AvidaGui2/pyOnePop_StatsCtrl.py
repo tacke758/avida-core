@@ -8,6 +8,8 @@ from qt import *
 from pyOnePop_StatsView import pyOnePop_StatsView
 from pyOrgSquareCtrl import pyOrgSquareCtrl
 import os
+from pyGridMaster import Grids 
+from AvidaCore import cConfig
 
 class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
@@ -80,7 +82,9 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
   def avidaUpdatedSlot(self):
     # print "pyOnePop_StatsCtrl.avidaUpdatedSlot() called.\n"
     stats = self.m_avida.m_population.GetStats()
-             
+    
+    self.m_session_mdl.md_runstats["AVERAGES"] = {}
+         
     #STATISTICS WINDOW
     string_output_length = 7
 
@@ -95,6 +99,8 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       avg_fitness = "%.2g" %(stats.GetAveFitness())
       self.m_avg_fitness.setText(avg_fitness)
 
+    self.m_session_mdl.md_runstats["AVERAGES"]["AVG_FITNESS"] = avg_fitness
+
     # i got rid of dominant stats, jmc
 #    dom_fitness = str(stats.GetDomFitness())
 #    string_length = len(dom_fitness)
@@ -105,6 +111,7 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     num_orgs = stats.GetNumCreatures()
     self.m_num_orgs.setText(QString("%1").arg(num_orgs))
+    self.m_session_mdl.md_runstats["TOTAL_ORGS"] = num_orgs
 
     avg_gest = "%d" %(stats.GetAveGestation())
 #    string_length = len(avg_gest)
@@ -112,12 +119,16 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 #      avg_gest = avg_gest + '0'
 #      string_length = string_length+1
     self.m_avg_gest.setText(QString("%1").arg(avg_gest))
+    self.m_session_mdl.md_runstats["AVERAGES"]["AVG_GESTATION"] = avg_gest
+    
  
     avg_merit = "%d" %(stats.GetAveMerit())
     self.m_avg_merit.setText(QString("%1").arg(avg_merit))
+    self.m_session_mdl.md_runstats["AVERAGES"]["AVG_MERIT"] = avg_merit
 
     avg_age = "%d" %(stats.GetAveCreatureAge())
     self.m_avg_age.setText(QString("%1").arg(avg_age))
+    self.m_session_mdl.md_runstats["AVERAGES"]["AVG_AGE"] = avg_age
 
     avg_genome_length = "%d" %(stats.GetAveSize())
 #    self.m_avg_genome_length.setText(QString("%1").arg(avg_genome_length))
@@ -125,7 +136,11 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
 
     #TASK OUTLOOK 
     # @WRE: get current update of run
-    age_now ="%d" %(stats.GetUpdate())
+    age_now ="%d" % (stats.GetUpdate())
+    self.m_session_mdl.md_runstats["UPDATE"] = age_now
+
+    self.m_session_mdl.md_runstats["TASKS"] = []
+    self.m_session_mdl.md_runstats["TASKSRAW"] = []
 
     num_not = str(stats.GetTaskLastCount(0))
     # @WRE: adding first completion
@@ -133,8 +148,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[0] = age_now
     if ((int(self.m_stat_task_first_complete[0]) > 0) or (0 < int(num_not))):
       self.m_num_not.setText("%s (1st@ %d)" %(num_not, int(self.m_stat_task_first_complete[0])))
+      mdrsstr = "Not: %s (1st@ %d)" % (num_not, int(self.m_stat_task_first_complete[0]))
     else:
       self.m_num_not.setText(num_not)
+      mdrsstr = "Not: %s" % (num_not)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_not)
     
     num_nand = str(stats.GetTaskLastCount(1))
     # @WRE: adding first completion
@@ -142,8 +162,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[1] = age_now
     if ((int(self.m_stat_task_first_complete[1]) > 0) or (0 < int(num_nand))):
       self.m_num_nand.setText("%s (1st@ %d)" %(num_nand, int(self.m_stat_task_first_complete[1])))
+      mdrsstr = "Nand: %s (1st@ %d)" % (num_nand, int(self.m_stat_task_first_complete[1]))
     else:
       self.m_num_nand.setText(num_nand)
+      mdrsstr = "Nand: %s" % (num_nand)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_nand)
 
     num_and = str(stats.GetTaskLastCount(2))
     # @WRE: adding first completion
@@ -151,8 +176,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[2] = age_now
     if ((int(self.m_stat_task_first_complete[2]) > 0) or (0 < int(num_and))):
       self.m_num_and.setText("%s (1st@ %d)" %(num_and, int(self.m_stat_task_first_complete[2])))
+      mdrsstr = "And: %s (1st@ %d)" % (num_and, int(self.m_stat_task_first_complete[2]))
     else:
       self.m_num_and.setText(num_and)
+      mdrsstr = "And: %s" % (num_and)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_and)
 
     num_ornot = str(stats.GetTaskLastCount(3))
     # @WRE: adding first completion
@@ -160,8 +190,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[3] = age_now
     if ((int(self.m_stat_task_first_complete[3]) > 0) or (0 < int(num_ornot))):
       self.m_num_ornot.setText("%s (1st@ %d)" %(num_ornot, int(self.m_stat_task_first_complete[3])))
+      mdrsstr = "Orn: %s (1st@ %d)" % (num_ornot, int(self.m_stat_task_first_complete[3]))
     else:
       self.m_num_ornot.setText(num_ornot)
+      mdrsstr = "Orn: %s" % (num_ornot)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_ornot)
 
     num_or = str(stats.GetTaskLastCount(4))
     # @WRE: adding first completion
@@ -169,8 +204,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[4] = age_now
     if ((int(self.m_stat_task_first_complete[4]) > 0) or (0 < int(num_or))):
       self.m_num_or.setText("%s (1st@ %d)" %(num_or, int(self.m_stat_task_first_complete[4])))
+      mdrsstr = "Or: %s (1st@ %d)" % (num_or, int(self.m_stat_task_first_complete[4]))
     else:
       self.m_num_or.setText(num_or)
+      mdrsstr = "Or: %s" % (num_or)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_or)
 
     num_andnot = str(stats.GetTaskLastCount(5))
     # @WRE: adding first completion
@@ -178,8 +218,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[5] = age_now
     if ((int(self.m_stat_task_first_complete[5]) > 0) or (0 < int(num_andnot))):
       self.m_num_andnot.setText("%s (1st@ %d)" %(num_andnot, int(self.m_stat_task_first_complete[5])))
+      mdrsstr = "Andn: %s (1st@ %d)" % (num_andnot, int(self.m_stat_task_first_complete[5]))
     else:
       self.m_num_andnot.setText(num_andnot)
+      mdrsstr = "Andn: %s" % (num_andnot)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_andnot)
 
     num_nor = str(stats.GetTaskLastCount(6))
     # @WRE: adding first completion
@@ -187,8 +232,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[6] = age_now
     if ((int(self.m_stat_task_first_complete[6]) > 0) or (0 < int(num_nor))):
       self.m_num_nor.setText("%s (1st@ %d)" %(num_nor, int(self.m_stat_task_first_complete[6])))
+      mdrsstr = "Nor: %s (1st@ %d)" % (num_nor, int(self.m_stat_task_first_complete[6]))
     else:
       self.m_num_nor.setText(num_nor)
+      mdrsstr = "Nor: %s" % (num_nor)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_nor)
 
     num_xor = str(stats.GetTaskLastCount(7))
     # @WRE: adding first completion
@@ -196,8 +246,13 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[7] = age_now
     if ((int(self.m_stat_task_first_complete[7]) > 0) or (0 < int(num_xor))):
       self.m_num_xor.setText("%s (1st @ %d)" %(num_xor, int(self.m_stat_task_first_complete[7])))
+      mdrsstr = "Xor: %s (1st@ %d)" % (num_xor, int(self.m_stat_task_first_complete[7]))
     else:
       self.m_num_xor.setText(num_xor)
+      mdrsstr = "Xor: %s" % (num_xor)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_xor)
 
     num_equals = str(stats.GetTaskLastCount(8))
     # @WRE: adding first completion
@@ -205,11 +260,25 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
       self.m_stat_task_first_complete[8] = age_now
     if ((int(self.m_stat_task_first_complete[8]) > 0) or (0 < int(num_equals))):
       self.m_num_equals.setText("%s (1st@ %d)" %(num_equals, int(self.m_stat_task_first_complete[8])))
+      mdrsstr = "Equ: %s (1st@ %d)" % (num_equals, int(self.m_stat_task_first_complete[8]))
     else:
       self.m_num_equals.setText(num_equals)
+      mdrsstr = "Equ: %s" % (num_equals)
+
+    self.m_session_mdl.md_runstats["TASKS"].append(mdrsstr)
+    self.m_session_mdl.md_runstats["TASKSRAW"].append(num_equals)
     
     if self.m_clicked_cell_number>= 0:
       self.updateOrgReportSlot(self.m_clicked_cell_item)
+
+    # @WRE: Whole population statistics for diversity and multi-dish
+    self.doWholePopStats()    
+
+    # Launch updates for Multi-Dish display
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("haveMDDiversityUpdate"), ())
+    self.m_session_mdl.m_session_mdtr.emit(
+      PYSIGNAL("haveMDRunStatsUpdate"), ())
 
   def notButtonClickedSlot(self):
     self.m_stat_task_button_states[0] = self.m_not_button.state()
@@ -349,6 +418,8 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     organism = clicked_cell.GetOrganism()
     phenotype = organism.GetPhenotype()
     genotype = organism.GetGenotype()
+
+    # print "organism at %s : gen.= %s , phen.= %s" % (self.m_clicked_cell_number,genotype,phenotype)
 
     # print info about the org clicked on 
 
@@ -560,3 +631,215 @@ class pyOnePop_StatsCtrl(pyOnePop_StatsView):
     self.m_num_xor.setText("-")
     self.m_num_equals.setText("-")
     self.m_stat_task_first_complete = [0,0,0,0,0,0,0,0,0]
+
+  def getPhenotypeStr(self,grid_cell):
+    """
+    getPhenotypeStr
+
+    Method to return a string representing the phenotype.
+    Represention: 1 if the task was done, 0 if not. Nine places
+    for the logic-9 environment.
+    """
+
+    clicked_cell = self.m_avida.m_population.GetCell(int(grid_cell))
+
+    organism = clicked_cell.GetOrganism()
+    phenotype = organism.GetPhenotype()
+    # genotype = organism.GetGenotype()
+
+    phenstr = ""
+
+    # get the Tarray of tasks
+    m_clickedOrg_task_count = phenotype.GetLastTaskCount()
+
+    num_not_clickedOrg = m_clickedOrg_task_count[0]
+    if num_not_clickedOrg>0:
+      phenstr = "1"
+    else:
+      phenstr = "0"
+
+    num_nand_clickedOrg = m_clickedOrg_task_count[1]
+    if num_nand_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_and_clickedOrg = m_clickedOrg_task_count[2]
+    if num_and_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_ornot_clickedOrg = m_clickedOrg_task_count[3]
+    if num_ornot_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_or_clickedOrg = m_clickedOrg_task_count[4]
+    if num_or_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_andnot_clickedOrg = m_clickedOrg_task_count[5]
+    if num_andnot_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_nor_clickedOrg = m_clickedOrg_task_count[6]
+    if num_nor_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_xor_clickedOrg = m_clickedOrg_task_count[7]
+    if num_xor_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    num_equals_clickedOrg = m_clickedOrg_task_count[8]
+    if num_equals_clickedOrg>0:
+      phenstr = phenstr + "1"
+    else:
+      phenstr = phenstr + "0"
+
+    return phenstr
+
+  def doWholePopStats(self):
+    """
+    doWholePopStats
+
+    These stats are especially needed to fulfill requirements for the
+    Multi-Dish version of Avida-ED.
+
+    Theory of operation: once per update, go over the entire population, 
+    getting useful statistics, including diversity measures. Display the
+    diversity measures on screen. If possible, save them to a database.
+    """
+
+    # pop : a list of occupied cells
+    # popsize : how many occupied cells we have
+    # popgen : dictionary: cell => genome
+    # popphen : dictionary: cell => phenotypes
+
+    # Getting ancestor string:
+    # self.m_session_mdl.m_cell_num_ancestor_name_dict[str(self.m_clicked_cell_number)])
+    # Pattern: name-pos-cell
+    # Can't count on "name" not including "-" characters, so use negative indexing
+
+    # Get gridmaster object to translate cell locations if multi-dish
+    if (True == self.m_session_mdl.m_is_multi_dish):
+      grid = Grids(self.m_session_mdl.m_multi_dish_dict["MD_SD_X"],
+                   self.m_session_mdl.m_multi_dish_dict["MD_SD_Y"],
+                   self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEX"],
+                   self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEY"])
+      md_sds = int(self.m_session_mdl.m_multi_dish_dict["MD_SD_X"]) * int(self.m_session_mdl.m_multi_dish_dict["MD_SD_Y"])
+
+    # Collect diversity data
+    # Clear the dictionary
+    self.m_session_mdl.md_diversity = {}
+
+    # Establish dictionaries
+    self.m_session_mdl.md_diversity["POP_GEN"] = {}
+    self.m_session_mdl.md_diversity["POP_PHEN"] = {}
+
+    self.m_session_mdl.md_diversity["NATIVES"] = {}
+    self.m_session_mdl.md_diversity["IMMIGRANTS"] = {}
+    self.m_session_mdl.md_diversity["EMIGRANTS"] = {}
+
+    self.m_session_mdl.md_diversity["POP_COUNTS"] = {}
+
+    # Establish lists and counters
+    self.m_session_mdl.md_diversity["POP_GEN"]["TOTAL"] = []
+    self.m_session_mdl.md_diversity["POP_COUNTS"]["TOTAL"] = 0
+    if (True == self.m_session_mdl.m_is_multi_dish): # if multi-dish
+      for ii in range(md_sds): # number of subdishes
+        self.m_session_mdl.md_diversity["POP_GEN"][str(ii)] = []
+        self.m_session_mdl.md_diversity["POP_COUNTS"][str(ii)] = 0
+
+    self.m_session_mdl.md_diversity["POP_PHEN"]["TOTAL"] = []
+    if (True == self.m_session_mdl.m_is_multi_dish): # if multi-dish
+      for ii in range(md_sds): # number of subdishes
+        self.m_session_mdl.md_diversity["POP_PHEN"][str(ii)] = []
+
+    if (True == self.m_session_mdl.m_is_multi_dish): # if multi-dish
+      for ii in range(md_sds): # number of subdishes
+        self.m_session_mdl.md_diversity["NATIVES"][str(ii)] = 0
+        self.m_session_mdl.md_diversity["IMMIGRANTS"][str(ii)] = 0
+        self.m_session_mdl.md_diversity["EMIGRANTS"][str(ii)] = 0
+
+    #self.session_model.md_diversity["POP_GEN"] = {}
+    #self.m_avida.m_population.GetCell(int(self.m_clicked_cell_number)).IsOccupied()
+
+    # For all the cells in the population
+    # Borrowed control flow from pyPetriDishCtrl.py
+    if self.m_avida is not None:
+      self.m_change_list = self.m_avida.m_avida_threaded_driver.GetChangeList()
+      self.m_world_w = cConfig.GetWorldX()
+      self.m_world_h = cConfig.GetWorldY()
+    else:
+      self.m_world_w = 30
+      self.m_world_h = 30
+    # print "Avida-ED world w = %s, h = %s" % (self.m_world_w,self.m_world_h)
+    if self.m_avida != None:
+      for x in range(self.m_world_w):
+        for y in range(self.m_world_h):
+          cell_ndx = x + self.m_world_w*y
+          
+          cell = self.m_avida.m_population.GetCell(cell_ndx)
+          # Check: is it occupied?
+          if cell.IsOccupied() == True:
+            self.m_session_mdl.md_diversity["POP_COUNTS"]["TOTAL"] += 1
+            
+            organism = cell.GetOrganism()
+            genome = organism.GetGenome()
+            phenotype = organism.GetPhenotype()
+            # population_dict[cell.GetID()] = str(genome.AsString())
+            # ancestor_dict[cell.GetID()] = str(organism.GetLineageLabel())
+
+            # Get the genome string
+            thisgenstr = str(genome.AsString())
+            self.m_session_mdl.md_diversity["POP_GEN"]["TOTAL"].append(thisgenstr)
+
+            # Get the phenotype string
+            thisphenstr = self.getPhenotypeStr(cell.GetID())
+            # print "Phenotype string %s" % (thisphenstr)
+            self.m_session_mdl.md_diversity["POP_PHEN"]["TOTAL"].append(thisphenstr)
+
+            # If MD
+            if (True == self.m_session_mdl.m_is_multi_dish): # if multi-dish
+
+              # Figure out the ancestral subdish position
+              ll = str(organism.GetLineageLabel())
+              # anc = self.m_session_mdl.m_ancestors_dict[cell.GetID()]
+              anc = self.m_session_mdl.m_ancestors_dict[str(ll)]
+              anclist = anc.split("-")
+              anc_pos = anclist[-2]
+              #print "Org at %s has ancestor %s, anc. SD pos. %s" % (cell_ndx,anc,anc_pos)
+              
+              # Figure out the current subdish position
+              sdinfo = grid.serverCell2ClientCell(int(self.m_session_mdl.m_multi_dish_dict["MD_SD_X"]),
+                                                  int(self.m_session_mdl.m_multi_dish_dict["MD_SD_Y"]),
+                                                  int(self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEX"]),
+                                                  int(self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEY"]),
+                                                  int(cell_ndx))
+              #print "sdinfo: %s" % (sdinfo)
+              cur_pos = sdinfo[-1]
+              #print "Anc. pos = %s, Cur. pos = %s" % (anc_pos, cur_pos)
+              # Increment count in native or immigrant tally for subdish
+              if (int(anc_pos) == int(cur_pos)):
+                #print "add to native count"
+                self.m_session_mdl.md_diversity["NATIVES"][str(cur_pos)] += 1
+              else:
+                self.m_session_mdl.md_diversity["IMMIGRANTS"][str(cur_pos)] += 1
+                self.m_session_mdl.md_diversity["EMIGRANTS"][str(anc_pos)] += 1
+
+              # SubDish diversity data
+              self.m_session_mdl.md_diversity["POP_GEN"][str(cur_pos)].append(thisgenstr)
+              self.m_session_mdl.md_diversity["POP_PHEN"][str(cur_pos)].append(thisphenstr)
+
+    pass
+

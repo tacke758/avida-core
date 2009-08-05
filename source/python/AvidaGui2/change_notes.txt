@@ -1,0 +1,11 @@
+
+
+Code for grabbing the population genomes is in
+
+pyPetriDishCtrl.py :
+  def extractPopulationSlot(self, send_reset_signal = False, send_quit_signal = False):
+
+Will need to do that to compute diversity metrics
+
+
+

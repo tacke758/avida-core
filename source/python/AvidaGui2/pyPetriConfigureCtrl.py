@@ -234,6 +234,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
   def FillDishSlot(self, dish_name, petri_dict):
     
     self.full_petri_dict = petri_dict.dictionary
+
+    print "Dictionary sections:"
+    print self.full_petri_dict.keys()
+
     settings_dict =  petri_dict.dictionary["SETTINGS"]
 
     # Erase all items for the ancestor list 
@@ -451,12 +455,19 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
 
 
   def CreateFilesFromPetriSlot(self, out_dir = None):
+    # print "**********************      CreateFilesFromPetriSlot  *************************************************"
 
     # The input files will be placed in a python generated temporary directory
     # ouput files will be stored in tmp_dir/output until the data is frozen
     # (ie saved)
-
-    self.full_petri_dict["SETTINGS"] = self.Form2Dictionary()
+    
+    # @WRE: Problem here with non-square layouts
+    # Figure out if we've read a full petri dish. If so, we already have all the "SETTINGS" we need.
+    if (self.full_petri_dict.has_key("CELLS")):
+      #print "Not calling Form2Dictionary"
+      pass
+    else:
+      self.full_petri_dict["SETTINGS"] = self.Form2Dictionary()
     write_object = pyWriteAvidaCfgEvent(self.full_petri_dict,
       self.m_session_mdl, 
       self.m_session_mdl.m_current_workspace,
@@ -465,8 +476,10 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     self.m_session_mdl.m_session_mdtr.emit(
       PYSIGNAL("doInitializeAvidaPhaseIISig"), 
       (os.path.join(self.m_session_mdl.m_tempdir, "avida_cfg.avida"),))
+    print "Using temporary directory %s" % (self.m_session_mdl.m_tempdir)
       
   def Form2Dictionary(self):
+    # print "Form2Dictionary"
     settings_dict = {}
     
     # Write START_CREATUREi for all the organisms in the Ancestor Icon View
@@ -539,12 +552,22 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
     return settings_dict
     
   def FreezePetriSlot(self, population_dict = None, ancestor_dict = None, send_reset_signal = False, send_quit_signal = False):
+    print "pyPetriConfigureCtrl.FreezePetriSlot()"
     if len(population_dict) == 0:
       freeze_empty_only_flag = True;
     else:
       freeze_empty_only_flag = False;
     tmp_dict = {}
-    tmp_dict["SETTINGS"] = self.Form2Dictionary()
+
+    # @WRE: Handle multi-dish case 
+    if (True == self.m_session_mdl.m_is_multi_dish):
+      print "Multi-Dish case"
+      tmp_dict["MULTI_DISH"] = self.m_session_mdl.m_multi_dish_dict
+      # ??? Need to carry over settings from previous, not collect them from the form
+      tmp_dict["SETTINGS"] = self.Form2Dictionary()
+    else:
+      print "Regular dish case"
+      tmp_dict["SETTINGS"] = self.Form2Dictionary()
     m_pop_up_freezer_file_name = pyFreezeDialogCtrl()
     file_name = m_pop_up_freezer_file_name.showDialog(self.m_session_mdl, freeze_empty_only_flag)
     file_name_len = len(file_name.rstrip())
@@ -578,7 +601,6 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
         self.m_session_mdl.saved_empty_dish = True
       else:
         self.m_session_mdl.saved_full_dish = True
-
     
       # Have program redraw the freezer menu pane
 
@@ -689,6 +711,8 @@ class pyPetriConfigureCtrl(pyPetriConfigureView):
           freezer_item_name_temp = freezer_item_name
           self.m_session_mdl.new_empty_dish = True
         thawed_item = pyReadFreezer(freezer_item_name_temp)
+        print "WRE: new status bar message signal."
+        self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Large dishes may take a few minutes to process. Be patient.",))
         self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
           (os.path.splitext((os.path.split(str(freezer_item_name))[1]))[0], thawed_item,))
 

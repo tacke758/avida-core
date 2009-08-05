@@ -6,6 +6,8 @@ from AvidaCore import *
 
 from descr import *
 
+from pyMDMkEnv import *
+
 # Class to write the working avida_cfg, event and environment files based on 
 # the contents of settings dictionary
 
@@ -23,21 +25,36 @@ class pyWriteAvidaCfgEvent:
       settings_dict = {}
     else:
       settings_dict = in_dict["SETTINGS"]
+      self.m_settings_dict = settings_dict
+      print "pyWriteAvidaCfgEvent.__init__()"
+      print settings_dict
 	
     # Copies default event file and add to the 
     # temporary dictionary where the input files will live
 
     shutil.copyfile(os.path.join(workspace_dir, "events.default"), os.path.join(tmp_in_dir, "events.cfg"))
     
+    # Assume that it is not a multi-dish, disprove that later
+    self.m_session_mdl.m_is_multi_dish = False
+
     # If this is a full petri dish inject all the organisms, otherwise
     # inject the start creature in the center of the grid
 
     
     #if we have a full petri dish...
+    # Existence of "CELLS" section defines a full petri dish, except if this is the research version
     if in_dict.has_key("CELLS") and \
        (not (os.path.exists(os.path.join(workspace_dir,"research.version")))): 
+
+      print " - full petri dish"
+
+      # Local reference to "CELLS"
       cells_dict = in_dict["CELLS"]
+      # Local reference to "ORGANISMS"
       organisms_dict = in_dict["ORGANISMS"]
+
+      print " - dish has %s organisms and %s cells" % (len(organisms_dict.keys()),len(cells_dict.keys()))
+
       self.m_session_mdl.m_founding_cells_dict = cells_dict
 
       if in_dict.has_key("ANCESTOR_NAMES"):
@@ -58,6 +75,14 @@ class pyWriteAvidaCfgEvent:
       self.m_session_mdl.m_global_num_of_ancestors = \
         len(session_mdl.m_cell_num_ancestor_name_dict)
 
+      # @WRE: Multi-dish?
+      if (in_dict.has_key("MULTI_DISH")):
+        self.m_session_mdl.m_multi_dish_dict = in_dict["MULTI_DISH"]
+      else:
+        self.m_session_mdl.m_multi_dish_dict = {}
+      if (0 < len(self.m_session_mdl.m_multi_dish_dict.keys())):
+        self.m_session_mdl.m_is_multi_dish = True
+
     #if it is not a full petri dish
     else:
       self.m_session_mdl.m_cell_num_ancestor_name_dict = {}
@@ -70,6 +95,8 @@ class pyWriteAvidaCfgEvent:
       if settings_dict.has_key("START_CREATURE0"):
         world_x = settings_dict["WORLD-X"]
         world_y = settings_dict["WORLD-Y"]
+
+        print "World size set as x = %s, y = %s" % (world_x, world_y)
 
         # Count all ancestors with the name of the form START_CREATUREx
 
@@ -105,6 +132,12 @@ class pyWriteAvidaCfgEvent:
 
     settings_dict["EVENT_FILE"] = os.path.join(tmp_in_dir, "events.cfg")
     settings_dict["ENVIRONMENT_FILE"] = os.path.join(tmp_in_dir, "environment.cfg")
+
+    # @WRE: Handle Multi-Dish case separately
+    #if (True == self.m_session_mdl.m_is_multi_dish):
+    #  self.writeMDEnvironmentFile(workspace_dir, settings_dict, self.m_session_mdl.m_multi_dish_dict)
+    #else: # Regular dish case
+
     self.writeEnvironmentFile(workspace_dir, settings_dict)
     settings_dict["INST_SET"] = os.path.join(tmp_in_dir, "inst_set.default")
     avida_cfg_file_name = self.writeAvidaCfgFile(workspace_dir, tmp_in_dir, \
@@ -195,50 +228,72 @@ class pyWriteAvidaCfgEvent:
 
   def writeEnvironmentFile(self, workspace_dir, settings_dict):
  
-    orig_environment_file = open(os.path.join(workspace_dir, "environment.default"))
-    lines = orig_environment_file.readlines()
-    orig_environment_file.close()
-    out_environment_file = open(settings_dict["ENVIRONMENT_FILE"], "w")
-    for line in lines:
-      comment_start = line.find("#")
-      if comment_start > -1:
-        if comment_start == 0:
-          clean_line = ""
-        else:
-          clean_line = line[:comment_start]
-      else:
-        clean_line = line;
-      clean_line = clean_line.strip()
-      if len(clean_line) > 0:
-        split_out = string.split(clean_line)
-        command_name = split_out[0].upper()
-
-        # if it is a reaction line check further (otherwise print the line)
-
-        if command_name == "REACTION":
-          resource_name = split_out[1].upper()
-          resource_key = "REWARD_" + resource_name
-          task_name = split_out[2]
-
-          # If the there is a reward key for this resource check further
-          # (otherwise print the line)
- 
-          if settings_dict.has_key(resource_key) == True:
-
-            # If the value of the reward key is true print it out as is 
-            # (otherwise print out as a zero bonus)
-
-            if settings_dict[resource_key] == "YES":
-              out_environment_file.write(line)
-            else:
-              out_environment_file.write("REACTION " + resource_name + " " +
-                                task_name + " process:value=0.0:type=add\n")
+    if (False == self.m_session_mdl.m_is_multi_dish):   # This is not a multi-dish, so use the normal processing
+      orig_environment_file = open(os.path.join(workspace_dir, "environment.default"))
+      lines = orig_environment_file.readlines()
+      orig_environment_file.close()
+      out_environment_file = open(settings_dict["ENVIRONMENT_FILE"], "w")
+      for line in lines:
+        comment_start = line.find("#")
+        if comment_start > -1:
+          if comment_start == 0:
+            clean_line = ""
           else:
-            out_environment_file.write(line)
+            clean_line = line[:comment_start]
         else:
-          out_environment_file.write(line)
+          clean_line = line;
+        clean_line = clean_line.strip()
+        if len(clean_line) > 0:
+          split_out = string.split(clean_line)
+          command_name = split_out[0].upper()
+  
+          # if it is a reaction line check further (otherwise print the line)
+  
+          if command_name == "REACTION":
+            resource_name = split_out[1].upper()
+            resource_key = "REWARD_" + resource_name
+            task_name = split_out[2]
+  
+            # If the there is a reward key for this resource check further
+            # (otherwise print the line)
+   
+            if settings_dict.has_key(resource_key) == True:
+  
+              # If the value of the reward key is true print it out as is 
+              # (otherwise print out as a zero bonus)
+  
+              if settings_dict[resource_key] == "YES":
+                out_environment_file.write(line)
+              else:
+                out_environment_file.write("REACTION " + resource_name + " " +
+                                  task_name + " process:value=0.0:type=add\n")
+            else:
+              out_environment_file.write(line)
+          else:
+            out_environment_file.write(line)  
+      out_environment_file.close()
+    else:
+      # This is where the multi-dish processing happens
+      # Need to write out both RESOURCE and REACTION definitions for spatial resources
+      # Need to make sure the order of initial resources corresponds to the canonical order
+      # for in-run tracking to work.
 
-    out_environment_file.close()
+      # ???
+      # Get a MkEnv object
+      # print self.m_settings_dict
+      print self.m_session_mdl.m_multi_dish_dict
+
+      mkenv = MkEnv(int(self.m_session_mdl.m_multi_dish_dict["MD_SD_X"]),
+                    int(self.m_session_mdl.m_multi_dish_dict["MD_SD_Y"]),
+                    int(self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEX"]),
+                    int(self.m_session_mdl.m_multi_dish_dict["MD_SD_SIZEY"]))
+
+      # Have it write out the environment file
+      out_environment_file = str(settings_dict["ENVIRONMENT_FILE"])
+      mkenv.mkMDTemplate(out_environment_file,self.m_session_mdl.m_multi_dish_dict)
+      
+          
+      pass
 
   def modifyEventFile(self, cells_dict, organisms_dict, ancestor_link_dict, merits_dict,
     event_file_name, tmp_out_dir = None):

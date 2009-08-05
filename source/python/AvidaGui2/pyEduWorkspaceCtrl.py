@@ -43,10 +43,10 @@ def plugin_visitor(arg, dirname, names):
   # filter function:
   plugins = filter(lambda f: (os.path.splitext(f)[1] == '.ae_plugin'), names)
 
-  #print "plugin_visitor: arg:", arg
-  #print "plugin_visitor: dirname:", dirname
-  #print "plugin_visitor: names:", names
-  #print "plugin_visitor: plugins:", plugins
+  print "plugin_visitor: arg:", arg
+  print "plugin_visitor: dirname:", dirname
+  print "plugin_visitor: names:", names
+  print "plugin_visitor: plugins:", plugins
 
   # Save the system path as is, so it can be restored later.
   sys_path = sys.path
@@ -56,7 +56,7 @@ def plugin_visitor(arg, dirname, names):
   for plugin in plugins:
     # Put together the path to this plugin
     plugin_path = os.path.abspath(os.path.join(dirname, plugin))
-    #print "plugin_visitor: plugin_path:", plugin_path
+    print "plugin_visitor: plugin_path:", plugin_path
     
     # Alter the system path temporarily
     sys.path = [plugin_path] + sys_path
@@ -75,7 +75,7 @@ def plugin_visitor(arg, dirname, names):
       # into the Avida instance
       p.construct(edu_workspace_ctrl.m_session_mdl)
 
-      #print "plugin_visitor: p:", p
+      print "plugin_visitor: p:", p
     except Exception, details:
       # Handle exceptions so that all the plugins can be tried
       print "Exception:", details

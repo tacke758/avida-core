@@ -27,6 +27,7 @@ class pyPetriDishCtrl(QWidget):
     self.clearWState(Qt.WState_Polished)
 
   def construct(self, session_mdl):
+    print "pyPetriDishCtrl.construct()"
     self.m_session_mdl = session_mdl
     self.m_avida = None
 
@@ -102,11 +103,13 @@ class pyPetriDishCtrl(QWidget):
                  self.vbarScrollPrevLineSlot)    
 
   def doStartAvidaSlot (self):
+    print "pyPetriDishCtrl.doStartAvidaSlot"
 #    self.m_avida_has_started = True //replacing with the session_mdl version
 
     self.m_session_mdl.m_avida_has_started = True
 
   def restart(self):
+    print "pyPetriDishCtrl.restart"
     self.m_cell_info = None
     self.m_changed_cell_items = []
     self.m_color_lookup_functor = None
@@ -144,6 +147,7 @@ class pyPetriDishCtrl(QWidget):
       self.m_canvas)
 
   def setAvidaSlot(self, avida):
+    print "pyPetriDishCtrl.setAvidaSlot()"
     descr(avida)
     old_avida = self.m_avida
     self.m_avida = avida
@@ -205,6 +209,7 @@ class pyPetriDishCtrl(QWidget):
     self.updateCellItems(True)
 
   def setDragSlot(self, org_clicked_on_item = None):
+    print "pyPetriDishCtrl.setDragSlot()"
     descr(org_clicked_on_item)
     if org_clicked_on_item:
       clicked_cell_num = org_clicked_on_item.m_population_cell.GetID()
@@ -313,7 +318,7 @@ class pyPetriDishCtrl(QWidget):
       if self.m_canvas: self.m_canvas.update()
 
   def extractPopulationSlot(self, send_reset_signal = False, send_quit_signal = False):
-
+    print "pyPetriDishCtrl.extractPopulationSlot()"
     # If there is an active Avida object find all the cells that are occupied
     # and place them in a dictionary.  Fire off the signal for the next freezer
     # phase with that signal.

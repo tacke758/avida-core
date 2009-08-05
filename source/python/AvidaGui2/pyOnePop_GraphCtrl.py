@@ -77,6 +77,13 @@ class pyOnePop_GraphCtrl(pyOnePop_GraphView):
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.xBottom)
       self.m_graph_ctrl.setAxisAutoScale(QwtPlot.yLeft)
 
+
+      # @WRE: attach a grid
+      self.m_graph_ctrl.m_grid = Qwt.QwtPlotGrid()
+      self.m_graph_ctrl.m_grid.attach(self.m_graph_ctrl)
+      self.m_graph_ctrl.m_grid.setPen(QPen(Qt.black, 0, Qt.DotLine))
+
+
     self.m_graph_ctrl.replot()
       
   def setAvidaSlot(self, avida):

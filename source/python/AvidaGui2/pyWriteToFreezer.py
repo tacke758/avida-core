@@ -20,7 +20,13 @@ class pyWriteToFreezer:
 
     elif out_file_name.endswith(".full"):
       is_dish = True
-      self.simplifyPopulation(in_dict)
+      if (in_dict.has_key("MULTI_DISH")):
+        # Multi-dish already has correct set of population links
+        self.simplifyPopulation(in_dict)
+        pass
+      else:
+        # Other dishes require fixup
+        self.simplifyPopulation(in_dict)
       out_file_name = os.path.join(out_file_name, 'petri_dish')
 
     elif out_file_name.endswith(".empty"):
@@ -40,6 +46,7 @@ class pyWriteToFreezer:
     elif is_dish == True:
 
       for section in in_dict.keys():
+        print "writing out section '%s'" % (str(section))
     
         # Always print out the petri dishes settings and if it is a full dish
         # print out the cell and organism information
@@ -55,6 +62,7 @@ class pyWriteToFreezer:
     out_freezer_file.close()
     
   def simplifyPopulation(self, in_dict = None):
+    print "simplifyPopulation"
     if in_dict.has_key("POPULATION"):
       pop_dict = in_dict["POPULATION"]
       del in_dict["POPULATION"]

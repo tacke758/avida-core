@@ -269,6 +269,8 @@ class pyFreezerCtrl(QWidget):
     self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemsSelectedSig"),
       ("",))
 
+    self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("refreshSubDishList"), ())
+    
   # if mouse is pressed on list item prepare its info to be dragged        
 
   def pressed_itemSlot(self, item):
@@ -354,6 +356,7 @@ class pyFreezerCtrl(QWidget):
 
       descr("item.text(0) is: ",str(item.text(0)))
       descr("file_name is", file_name)
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Large dishes may take a few minutes to process. Be patient.",))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (item.text(0), thawed_item,))
       descr("BDB -- item.text(0) = " + str(item.text(0)))
@@ -371,6 +374,7 @@ class pyFreezerCtrl(QWidget):
         short_name = short_name[:-5]
         in_file_name = os.path.join(in_file_name, "petri_dish")
       thawed_item = pyReadFreezer(in_file_name)
+      self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("statusBarMessageSig"), ("Large dishes may take a few minutes to process. Be patient.",))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("doDefrostDishSig"),
         (short_name, thawed_item,))
       self.m_session_mdl.m_session_mdtr.emit(PYSIGNAL("freezerItemDoubleClicked"),
@@ -405,6 +409,7 @@ class pyFreezerCtrl(QWidget):
         file_name = str(item.text(0)) + ".empty"
       elif str(top_level.text(0)).startswith(" Populated Dish"):
         file_name = str(item.text(0)) + ".full"
+        print "pyFreezerCtrl : rebuilding filename %s" % (file_name)
       elif str(top_level.text(0)).startswith(" Organism"):
         file_name = str(item.text(0)) + ".organism"
       file_name = os.path.join(self.m_session_mdl.m_current_freezer, file_name)
