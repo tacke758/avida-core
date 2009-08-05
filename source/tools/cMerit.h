@@ -30,6 +30,7 @@
 #include <cmath>
 #include <climits>
 #include <cassert>
+using namespace std;
 
 class cWorld;
 
@@ -61,6 +62,7 @@ public:
     base   = _merit.base;
     offset = _merit.offset;
     value  = _merit.value;
+    niche_val = _merit.niche_val;
   }
 
   void operator=(double _merit) { UpdateValue(_merit); }
@@ -84,14 +86,16 @@ public:
   int  operator!=(const double _m) const { return value != _m; }
   int  operator!=(const unsigned int _m)   const { return (offset!=0 || base!=_m); }
 
-  void Clear() { value = 0; base = 0; offset = 0; bits = 0; }
+  void Clear() { value = 0; base = 0; offset = 0; bits = 0; niche_val = 1.0; }
 
   // @TCC - This function fails for values > UINT_MAX...
   unsigned int GetUInt()   const {
     assert(value < UINT_MAX);  // Fails for merit values > UINT_MAX.
     return (unsigned int) value; }
 
-  double GetDouble()      const { return value/niche_val; }
+  double GetDouble()      const { 
+    if (niche_val<1) return value;
+    return value/niche_val; }
 
   int GetBit(int bit_num)  const {
     assert(bit_num >= 0);

@@ -116,20 +116,24 @@ void cClassificationManager::UpdateReset()
 void cClassificationManager::AddGenotype(cGenotype* in_genotype, int list_num)
 {
   assert( in_genotype != 0 );
-  
+ 
   if (list_num < 0) list_num = FindCRC(in_genotype->GetGenome());
   
   m_active_genotypes[list_num].Push(in_genotype);
-
+  m_genotype_ctl->Insert(*in_genotype);
+  
   // for fitness sharing *SLG
-  for (int i = 0; i < m_genotype_ctl->GetSize(); i++) {
-	  cGenotype * genotype = m_genotype_ctl->Get(0);
-	  int hd = genotype->AddHDist(in_genotype);
-	  in_genotype->AddHDist(genotype, hd);
-	  m_genotype_ctl->Next(0);
+  if (m_world->GetConfig().NICHE_RADIUS.Get() > 0)
+  {    
+    m_genotype_ctl->Reset(0);
+    for (int i = 0; i < m_genotype_ctl->GetSize(); i++) {
+      cGenotype * genotype = m_genotype_ctl->Get(0);
+      int hd = genotype->AddHDist(in_genotype);
+      in_genotype->AddHDist(genotype, hd);
+      m_genotype_ctl->Next(0);
+    }
   }
 
-  m_genotype_ctl->Insert(*in_genotype);
   m_world->GetStats().AddGenotype();
   
   // Speciation... If we are creating a new genotype here, we must
@@ -263,13 +267,15 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
     m_active_genotypes[list_num].Remove(&in_genotype);
     m_genotype_ctl->Remove(in_genotype);
 
-	// for fitness sharing *SLG
-	for (int i = 0; i < m_genotype_ctl->GetSize(); i++) {
-		cGenotype * genotype = m_genotype_ctl->Get(0);
-		genotype->RemHDist(&in_genotype);
-		m_genotype_ctl->Next(0);
-	}
-
+    m_genotype_ctl->Reset(0);
+    // for fitness sharing *SLG
+    for (int i = 0; i < m_genotype_ctl->GetSize(); i++) {
+      cGenotype * genotype = m_genotype_ctl->Get(0);
+      if (genotype!=NULL)
+	genotype->RemHDist(&in_genotype);
+      m_genotype_ctl->Next(0);
+    }
+    
     in_genotype.Deactivate(m_world->GetStats().GetUpdate(), m_world->GetStats().GetTotCreatures());
     if (m_world->GetConfig().TRACK_MAIN_LINEAGE.Get()) {
       m_genotype_ctl->InsertHistoric(in_genotype);

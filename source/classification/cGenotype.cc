@@ -211,6 +211,8 @@ double cGenotype::GetNicheVal()
 			share = 1 - pow((it->second / r),p);
 		sum += share * num_orgs;
 	}
+	if (sum<1)
+	  sum = 1.0;
 	return sum;
 }
 

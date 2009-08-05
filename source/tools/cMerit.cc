@@ -36,6 +36,7 @@ void cMerit::UpdateValue(double in_value)
     offset = 0;
 
   base = static_cast<unsigned int>(mant * exp.mult[bits - offset] * 2.0);
+  niche_val = 1.0;
 }
 
 

@@ -450,6 +450,7 @@ public:
 
   ////////////////////  Accessors -- Modifying  ///////////////////
   void SetMerit(const cMerit& in_merit) { merit = in_merit; }
+  void SetMeritNicheVal(const double in_niche_val) { merit.SetNicheVal(in_niche_val); }
   void SetFitness(const double in_fit) { fitness = in_fit; }
   void ReduceEnergy(const double cost);
   void SetEnergy(const double value);

@@ -395,9 +395,8 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
     }
 
 	// for fitness sharing *SLG
-	double niche_val = parent_genotype->GetNicheVal(); 
-	cMerit parent_merit = parent_phenotype.GetMerit();
-	parent_merit.SetNicheVal(niche_val);
+    double niche_val = parent_genotype->GetNicheVal(); 
+    parent_phenotype.SetMeritNicheVal(niche_val);
     AdjustSchedule(parent_cell, parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 
@@ -552,9 +551,10 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   }
   m_world->GetClassificationManager().AdjustGenotype(*in_genotype);
   
-	// for fitness sharing *SLG
+  // for fitness sharing *SLG
   double niche_val = in_genotype->GetNicheVal();
-
+  in_organism->GetPhenotype().SetMeritNicheVal(niche_val);
+  
   // Initialize the time-slice for this new organism.
   AdjustSchedule(target_cell, in_organism->GetPhenotype().GetMerit());
   
@@ -3732,7 +3732,6 @@ void cPopulation::ProcessStepSpeculative(cAvidaContext& ctx, double step_size, i
   
   cOrganism* cur_org = cell.GetOrganism();
   cHardwareBase* hw = cell.GetHardware();
-  
   if (cell.GetSpeculativeState()) {
     // We have already executed this instruction, just decrement the counter
     cell.DecSpeculative();
@@ -3749,7 +3748,6 @@ void cPopulation::ProcessStepSpeculative(cAvidaContext& ctx, double step_size, i
       m_world->GetStats().AddSpeculative(spec_count);
     }
   }
-  
   double merit = cur_org->GetPhenotype().GetMerit().GetDouble();
   if (cur_org->GetPhenotype().GetToDelete() == true) {
     delete cur_org;
