@@ -94,6 +94,12 @@ cPopulation::cPopulation(cWorld* world)
   int num_demes = m_world->GetConfig().NUM_DEMES.Get();
   const int num_cells = world_x * world_y * world_z;
   const int geometry = world->GetConfig().WORLD_GEOMETRY.Get();
+
+  if (m_world->GetConfig().NICHE_RADIUS.Get() > 0)	
+  {
+	  hdists.Resize(num_cells, num_cells);
+	  hdists.SetAll(-1);
+  }
   
   if(m_world->GetConfig().ENERGY_CAP.Get() == -1) {
     m_world->GetConfig().ENERGY_CAP.Set(std::numeric_limits<double>::max());
@@ -395,8 +401,12 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
     }
 
 	// for fitness sharing *SLG
-    double niche_val = parent_genotype->GetNicheVal(); 
+
+    double niche_val = 1;
+	if (m_world->GetConfig().NICHE_RADIUS.Get() > 0) 
+		niche_val = GetNicheVal(parent_id);//parent_genotype->GetNicheVal(); 
     parent_phenotype.SetMeritNicheVal(niche_val);
+
     AdjustSchedule(parent_cell, parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 
@@ -552,22 +562,27 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   m_world->GetClassificationManager().AdjustGenotype(*in_genotype);
   
   // for fitness sharing *SLG
-  double niche_val = in_genotype->GetNicheVal();
+  double niche_val = 1;
+  if (m_world->GetConfig().NICHE_RADIUS.Get() > 0)	
+  {
+	  UpdateHDists(target_cell.GetID(), in_genotype);
+	  niche_val = GetNicheVal(target_cell.GetID());
+  }
   in_organism->GetPhenotype().SetMeritNicheVal(niche_val);
-  
+
   // Initialize the time-slice for this new organism.
   AdjustSchedule(target_cell, in_organism->GetPhenotype().GetMerit());
-  
+
   // Special handling for certain birth methods.
   if (m_world->GetConfig().BIRTH_METHOD.Get() == POSITION_CHILD_FULL_SOUP_ELDEST) {
-    reaper_queue.Push(&target_cell);
+	  reaper_queue.Push(&target_cell);
   }
-  
+
   // Keep track of statistics for organism counts...
   num_organisms++;
-  
+
   if (deme_array.GetSize() > 0) {
-    deme_array[target_cell.GetDemeID()].IncOrgCount();
+	  deme_array[target_cell.GetDemeID()].IncOrgCount();
   }
   
   // Statistics...
@@ -912,6 +927,40 @@ void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
   } else {
     AdjustSchedule(cell2, cMerit(0));
   }
+}
+
+// maintain grid of hamming distances between each org in population and each other org
+// cell_id is cell we're about to place a new org, gen is its genotype
+void cPopulation::UpdateHDists(int cell_id, cGenotype* gen)
+{
+	for (int i=0; i<cell_array.GetSize(); i++)
+	{
+		int dist = m_world->GetConfig().NICHE_RADIUS.Get();
+		if (cell_array[i].GetOrganism())
+			dist = cGenomeUtil::FindHammingDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome(), 0);
+		hdists[i][cell_id] = dist;
+		hdists[cell_id][i] = dist;
+	}
+}
+
+double cPopulation::GetNicheVal(int cell_id)
+{
+	double r = m_world->GetConfig().NICHE_RADIUS.Get();
+	if (r==0.0)
+		return 1.0;
+	double p = m_world->GetConfig().NICHE_SCALING.Get();
+
+	double sum = 0;
+	for(int i=0; i < hdists.GetNumCols(); i++)
+	{
+		double share = 0;
+		if 	(hdists[cell_id][i] < r)
+			share = 1 - pow((hdists[cell_id][i] / r),p);
+		sum += share;
+	}
+	if (sum<1)
+	  sum = 1.0;
+	return sum;
 }
 
 // CompeteDemes  probabilistically copies demes into the next generation

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="avida"
-	ProjectGUID="{260D06F7-2BB8-48C5-8C67-0D9E0FA1A07D}"
+	ProjectGUID="{6A554B77-0482-4ABC-885D-FC3F599CE4C2}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				BasicRuntimeChecks="3"
 				CompileAs="2"
 				DebugInformationFormat="3"
@@ -34,13 +34,13 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,CMAKE_INTDIR=\&quot;Debug\&quot;"
 				AssemblerListingLocation="Debug"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/Debug/avida.pdb"
+				ProgramDataBaseFileName="Z:/Documents/Research/EcoEvo/FitShare/bin/Debug/avida.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				PreprocessorDefinitions="WIN32,_WINDOWS,_DEBUG,CMAKE_INTDIR=\&quot;Debug\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -64,15 +64,15 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  lib\Debug\avidacore.lib "
-				OutputFile="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\Debug\avida.exe"
+				OutputFile="Z:\Documents\Research\EcoEvo\FitShare\bin\Debug\avida.exe"
 				Version="0.0"
 				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/Debug/avida.pdb"
+				ProgramDataBaseFile="Z:/Documents/Research/EcoEvo/FitShare/bin/Debug/avida.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\Debug\avida.lib"/>
+				ImportLibrary="Z:\Documents\Research\EcoEvo\FitShare\bin\Debug\avida.lib"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -85,7 +85,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				CompileAs="2"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="2"
@@ -96,13 +96,13 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;Release\&quot;"
 				AssemblerListingLocation="Release"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/Release/avida.pdb"
+				ProgramDataBaseFileName="Z:/Documents/Research/EcoEvo/FitShare/bin/Release/avida.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;Release\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -126,14 +126,14 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  lib\Release\avidacore.lib "
-				OutputFile="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\Release\avida.exe"
+				OutputFile="Z:\Documents\Research\EcoEvo\FitShare\bin\Release\avida.exe"
 				Version="0.0"
 				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/Release/avida.pdb"
+				ProgramDataBaseFile="Z:/Documents/Research/EcoEvo/FitShare/bin/Release/avida.pdb"
 				SubSystem="1"
-				ImportLibrary="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\Release\avida.lib"/>
+				ImportLibrary="Z:\Documents\Research\EcoEvo\FitShare\bin\Release\avida.lib"/>
 		</Configuration>
 		<Configuration
 			Name="MinSizeRel|Win32"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				CompileAs="2"
 				ExceptionHandling="1"
 				InlineFunctionExpansion="1"
@@ -157,13 +157,13 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
 				AssemblerListingLocation="MinSizeRel"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/MinSizeRel/avida.pdb"
+				ProgramDataBaseFileName="Z:/Documents/Research/EcoEvo/FitShare/bin/MinSizeRel/avida.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;MinSizeRel\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -187,14 +187,14 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=" /STACK:10000000 /machine:I386"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  lib\MinSizeRel\avidacore.lib "
-				OutputFile="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\MinSizeRel\avida.exe"
+				OutputFile="Z:\Documents\Research\EcoEvo\FitShare\bin\MinSizeRel\avida.exe"
 				Version="0.0"
 				GenerateManifest="TRUE"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/MinSizeRel/avida.pdb"
+				ProgramDataBaseFile="Z:/Documents/Research/EcoEvo/FitShare/bin/MinSizeRel/avida.pdb"
 				SubSystem="1"
-				ImportLibrary="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\MinSizeRel\avida.lib"/>
+				ImportLibrary="Z:\Documents\Research\EcoEvo\FitShare\bin\MinSizeRel\avida.lib"/>
 		</Configuration>
 		<Configuration
 			Name="RelWithDebInfo|Win32"
@@ -207,7 +207,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions=" /Zm1000"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				CompileAs="2"
 				DebugInformationFormat="3"
 				ExceptionHandling="1"
@@ -219,13 +219,13 @@
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
 				AssemblerListingLocation="RelWithDebInfo"
 				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/RelWithDebInfo/avida.pdb"
+				ProgramDataBaseFileName="Z:/Documents/Research/EcoEvo/FitShare/bin/RelWithDebInfo/avida.pdb"
 />
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\actions&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\analyze&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\classification&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-core&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\viewer-coreGUI&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\cpu&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\drivers&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\main&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\platform&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\source\tools&quot;;"
+				AdditionalIncludeDirectories="Z:\Documents\Research\EcoEvo\FitShare\source;Z:\Documents\Research\EcoEvo\FitShare\source\actions;Z:\Documents\Research\EcoEvo\FitShare\source\analyze;Z:\Documents\Research\EcoEvo\FitShare\source\classification;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-core;Z:\Documents\Research\EcoEvo\FitShare\source\viewer-coreGUI;Z:\Documents\Research\EcoEvo\FitShare\source\cpu;Z:\Documents\Research\EcoEvo\FitShare\source\drivers;Z:\Documents\Research\EcoEvo\FitShare\source\main;Z:\Documents\Research\EcoEvo\FitShare\source\platform;Z:\Documents\Research\EcoEvo\FitShare\source\tools;"
 				PreprocessorDefinitions="WIN32,_WINDOWS,NDEBUG,CMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -249,54 +249,54 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=" /STACK:10000000 /machine:I386 /debug"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  lib\RelWithDebInfo\avidacore.lib "
-				OutputFile="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\RelWithDebInfo\avida.exe"
+				OutputFile="Z:\Documents\Research\EcoEvo\FitShare\bin\RelWithDebInfo\avida.exe"
 				Version="0.0"
 				GenerateManifest="TRUE"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				ProgramDataBaseFile="C:/Documents and Settings/Sherri Goings/Desktop/development/bin/RelWithDebInfo/avida.pdb"
+				ProgramDataBaseFile="Z:/Documents/Research/EcoEvo/FitShare/bin/RelWithDebInfo/avida.pdb"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				ImportLibrary="C:\Documents and Settings\Sherri Goings\Desktop\development\bin\RelWithDebInfo\avida.lib"/>
+				ImportLibrary="Z:\Documents\Research\EcoEvo\FitShare\bin\RelWithDebInfo\avida.lib"/>
 		</Configuration>
 	</Configurations>
 	<Files>
 			<File
-				RelativePath="C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt">
+				RelativePath="Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
 					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Documents and Settings/Sherri Goings/Desktop/development/CMakeLists.txt"
-					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; &quot;-HC:/Documents and Settings/Sherri Goings/Desktop/development&quot; &quot;-BC:/Documents and Settings/Sherri Goings/Desktop/development&quot; --check-stamp-file CMakeFiles/generate.stamp"
-					AdditionalDependencies="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeSystem.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCCompiler.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCPlatform.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXPlatform.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeRCCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;"
+					Description="Building Custom Rule Z:/Documents/Research/EcoEvo/FitShare/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; -HZ:/Documents/Research/EcoEvo/FitShare -BZ:/Documents/Research/EcoEvo/FitShare --check-stamp-file CMakeFiles/generate.stamp"
+					AdditionalDependencies="Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeSystem.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCCompiler.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCPlatform.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXPlatform.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeRCCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;"
 					Outputs="CMakeFiles\generate.stamp"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
 					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Documents and Settings/Sherri Goings/Desktop/development/CMakeLists.txt"
-					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; &quot;-HC:/Documents and Settings/Sherri Goings/Desktop/development&quot; &quot;-BC:/Documents and Settings/Sherri Goings/Desktop/development&quot; --check-stamp-file CMakeFiles/generate.stamp"
-					AdditionalDependencies="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeSystem.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCCompiler.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCPlatform.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXPlatform.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeRCCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;"
+					Description="Building Custom Rule Z:/Documents/Research/EcoEvo/FitShare/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; -HZ:/Documents/Research/EcoEvo/FitShare -BZ:/Documents/Research/EcoEvo/FitShare --check-stamp-file CMakeFiles/generate.stamp"
+					AdditionalDependencies="Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeSystem.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCCompiler.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCPlatform.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXPlatform.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeRCCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;"
 					Outputs="CMakeFiles\generate.stamp"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="MinSizeRel|Win32">
 					<Tool
 					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Documents and Settings/Sherri Goings/Desktop/development/CMakeLists.txt"
-					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; &quot;-HC:/Documents and Settings/Sherri Goings/Desktop/development&quot; &quot;-BC:/Documents and Settings/Sherri Goings/Desktop/development&quot; --check-stamp-file CMakeFiles/generate.stamp"
-					AdditionalDependencies="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeSystem.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCCompiler.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCPlatform.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXPlatform.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeRCCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;"
+					Description="Building Custom Rule Z:/Documents/Research/EcoEvo/FitShare/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; -HZ:/Documents/Research/EcoEvo/FitShare -BZ:/Documents/Research/EcoEvo/FitShare --check-stamp-file CMakeFiles/generate.stamp"
+					AdditionalDependencies="Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeSystem.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCCompiler.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCPlatform.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXPlatform.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeRCCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;"
 					Outputs="CMakeFiles\generate.stamp"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="RelWithDebInfo|Win32">
 					<Tool
 					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Documents and Settings/Sherri Goings/Desktop/development/CMakeLists.txt"
-					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; &quot;-HC:/Documents and Settings/Sherri Goings/Desktop/development&quot; &quot;-BC:/Documents and Settings/Sherri Goings/Desktop/development&quot; --check-stamp-file CMakeFiles/generate.stamp"
-					AdditionalDependencies="&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeSystem.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCCompiler.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCPlatform.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeCXXPlatform.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeFiles\CMakeRCCompiler.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Documents and Settings\Sherri Goings\Desktop\development\CMakeLists.txt&quot;;"
+					Description="Building Custom Rule Z:/Documents/Research/EcoEvo/FitShare/CMakeLists.txt"
+					CommandLine="&quot;C:\Program Files\CMake 2.6\bin\cmake.exe&quot; -HZ:/Documents/Research/EcoEvo/FitShare -BZ:/Documents/Research/EcoEvo/FitShare --check-stamp-file CMakeFiles/generate.stamp"
+					AdditionalDependencies="Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeSystem.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCCompiler.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeGenericSystem.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\gcc.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\WindowsPaths.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\Windows-cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCPlatform.cmake;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeCXXPlatform.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\Platform\cl.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeFiles\CMakeRCCompiler.cmake;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeRCInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCXXInformation.cmake&quot;;&quot;C:\Program Files\CMake 2.6\share\cmake-2.6\Modules\CMakeCommonLanguageInclude.cmake&quot;;Z:\Documents\Research\EcoEvo\FitShare\CMakeLists.txt;"
 					Outputs="CMakeFiles\generate.stamp"/>
 				</FileConfiguration>
 			</File>
@@ -307,7 +307,7 @@
 			Name="avida"
 			Filter="">
 			<File
-				RelativePath="C:\Documents and Settings\Sherri Goings\Desktop\development\source\targets\avida\primitive.cc">
+				RelativePath="Z:\Documents\Research\EcoEvo\FitShare\source\targets\avida\primitive.cc">
 			</File>
 		</Filter>
 		</Filter>

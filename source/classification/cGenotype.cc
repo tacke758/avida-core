@@ -40,6 +40,25 @@
 
 using namespace std;
 
+//namespace
+//{
+//	class cGenoCounter
+//	{
+//	public:
+//		cGenoCounter() { m_nCount = 0; }
+//		~cGenoCounter() 
+//		{
+//			cout << "Number of cGenotypes still present in memory: " << m_nCount << endl;
+//		}
+//		void Add() { m_nCount++; }
+//		void Remove() { m_nCount--; }
+//
+//	private:
+//		int m_nCount;
+//	};
+//
+//	static cGenoCounter s_genoCounter;
+//}
 
 cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   : m_world(world)
@@ -62,6 +81,7 @@ cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   , next(NULL)
   , prev(NULL)
 {
+	//s_genoCounter.Add();
 }
 
 cGenotype::~cGenotype()
@@ -79,6 +99,8 @@ cGenotype::~cGenotype()
   
   if (m_phenplast != NULL)
     delete m_phenplast;
+
+  //s_genoCounter.Remove();
 }
 
 bool cGenotype::SaveClone(ofstream& fp)
@@ -189,6 +211,7 @@ int cGenotype::AddHDist(cGenotype* gen)
 {
 	int dist = cGenomeUtil::FindHammingDistance(GetGenome(), gen->GetGenome(), 0);
 	hdists[gen] = dist;
+	//cout << hdists.size() << " : ";
 	return dist;
 }
 

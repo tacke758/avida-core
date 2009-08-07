@@ -44,6 +44,8 @@
 #include "cString.h"
 #endif
 #include <map>
+#include <iostream>
+using namespace std;
 
 
 class cAvidaContext;
@@ -139,7 +141,7 @@ public:
   // for fitness sharing *SLG
   int AddHDist(cGenotype* gen);
   void AddHDist(cGenotype* gen, int dist) { hdists[gen] = dist; }
-  void RemHDist(cGenotype* gen) { hdists.erase(gen); }
+  void RemHDist(cGenotype* gen) { int erased = hdists.erase(gen); if (erased==0) cout << "0"; }
   double GetNicheVal();
  
   // Test CPU info -- only used with limited options on.

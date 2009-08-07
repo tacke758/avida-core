@@ -94,7 +94,7 @@ private:
   cResourceCount resource_count;       // Global resources available
   cBirthChamber birth_chamber;         // Global birth chamber.
   tArray<tList<cSaleItem> > market;   // list of lists of items for sale, each list goes with 1 label
-
+  tMatrix<int> hdists;					// grid with hamming distance between each cell and each other cell
   tVector<pair<int,int> > *sleep_log;
   
   // Data Tracking...
@@ -183,6 +183,8 @@ public:
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
   void SwapCells(cPopulationCell & cell1, cPopulationCell & cell2);
+  void UpdateHDists(int cell_id, cGenotype* gen);
+  double GetNicheVal(int cell_id);
 
   // Deme-related methods
   //! Compete all demes with each other based on the given competition type.
