@@ -3730,124 +3730,157 @@ void cAnalyze::CommandPairwiseEntropy(cString cur_string)
 */
 void cAnalyze::CommandRandomSearch(cString cur_string)
 {
-  //Quick and dirty implementation
-  //Length 50
-  const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccutycasvab";
-                            // ######                                   #########";
-                            // 012345                                   123456789
-                            // These sites need to remain static for a viable organism
-  //Length 100
-  //const cString base_genome = "rucavccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccutycasvab";
 
-  int num_trials = 100000000;  // 100 million trials
-  int num_tests  = 100;        // Number of random numbers to test
+  cString base_genome           = (cur_string.GetSize()) ? cur_string.PopWord() : "rucavc???????????????????????????????????utycasvab";
+  int num_trials                = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() : 100000000;
+  int num_tests                 = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() : 100;
+  bool print_task_summary       = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() != 0 : true;           //Print summary of task combinations / freqs
+  bool print_viability_summary  = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() != 0 : true;  //Print summary of viability & num phenotypes
+  bool print_viable_genotypes   = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() != 0 : true;  //Print statically viable genotypes
+  int  taskN_genotypes          = (cur_string.GetSize()) ? cur_string.PopWord().AsInt() : -1;  //-1 disables; print viable genotypes performing taskN
   
-  //Stochasticity
-  //[<=10 frequency, <=20 frequent, <= 30 frequent ... <= 90 frequent >90 frequent static]
-  //  0             1 2 3 4 5 6 7 8 9 10 
-  tMatrix<int> num_tasks(512,11);    // Task counter (rows<-task combination, columns<-stochasticity);  [All viable]
+ 
+  
+  int ntasks = m_world->GetEnvironment().GetNumTasks();
+  int num_task_combs = (int) pow( 2.0, ntasks);
+  bool print_taskN_genotypes = (taskN_genotypes >= 0 && taskN_genotypes+1 <= ntasks) ? true: false;
+  const cString viable_summary_path = "rs_viable_summary.dat";
+  const cString task_summary_path   = "rs_task_summary.dat";
+  const cString taskN_viable_path     = "rs_taskN_viables.dat";
+  const cString viable_genotypes_path    = "rs_static+viable_genotypes.dat";
   
   
-  //Initialize our task matrix
-  for (int t = 0; t < 512; t++)
-   for (int s = 0; s < 11; s++)
-    num_tasks.ElementAt(t,s) = 0;
+  // Optional componenent inits----------------------------------------------------------------------------------
+  tMatrix<int> num_tasks;
+  if (print_task_summary) {
+    //Stochasticity
+    //[<=10 frequency, <=20 frequent, <= 30 frequent ... <= 90 frequent >90 frequent static]
+    //  0             1 2 3 4 5 6 7 8 9 10 
+    num_tasks.Resize(num_task_combs,11);    // Task counter (rows<-task combination, columns<-stochasticity);  [All viable]    
+    //Initialize our task matrix
+    for (int t = 0; t < num_task_combs; t++)
+     for (int s = 0; s < 11; s++)
+      num_tasks.ElementAt(t,s) = 0;
+  }
+  tMatrix<int> viability;
+  if (print_viability_summary){
+    //[rows = 1 phenotype ... 10 phenotypes > 10 phenotypes]
+    //[columns = 0% viable, <10% viable <20% viable ... >90% viable all viable]
+    viability.Resize(11,12);  
+    for (int i = 0; i < 11; i++)
+      for (int j = 0; j < 12; j++)
+        viability.ElementAt(i,j) = 0;
+  }
+  ofstream* fot_taskN = NULL;
+  if (print_taskN_genotypes)
+    fot_taskN = &m_world->GetDataFileOFStream(taskN_viable_path);
+  ofstream* fot_viable = NULL;
+  if (print_viable_genotypes)
+    fot_viable = &m_world->GetDataFileOFStream(viable_genotypes_path);
   
-  //[rows = 1 phenotype ... 10 phenotypes > 10 phenotypes]
-  //[columns = 0% viable, <10% viable <20% viable ... >90% viable all viable]
-  tMatrix<int> viability(11,12);  
-  for (int i = 0; i < 11; i++)
-    for (int j = 0; j < 12; j++)
-      viability.ElementAt(i,j) = 0;
   
-  //File output
-  ofstream fot2("data/equ_genomes.dat");
-  if (!fot2.is_open())
-    m_world->GetDriver().RaiseFatalException(2, "Cannot open equ_genomes.dat.");
   
+  // Genomic search ----------------------------------------------------------------------------------------------
   cCPUTestInfo* test_info = new cCPUTestInfo;
+  int gsize = base_genome.GetSize();
   
-  //For each trial
-  for (int n = 0; n < num_trials; n++){
+  for (int n = 0; n < num_trials; n++){   //For each trial
+    cString new_genome = base_genome;     //Copy our base genome
+    for (int pos = 0; pos < gsize; pos++) //Go through each position
+      if (new_genome[pos] == '?')         //If it is marked as mutable
+        new_genome[pos] = inst_set.GetRandomInst(m_ctx).GetSymbol();  //Find something to put there
     
-    cString new_genome = base_genome;
-    for (int pos = 6; pos < 41; pos++)
-      new_genome[pos] = inst_set.GetRandomInst(m_ctx).GetSymbol();
-    
-    cPhenPlastGenotype ppgenotype(new_genome, num_tests, *test_info, m_world, m_ctx);
+    cPhenPlastGenotype ppgenotype(new_genome, num_tests, *test_info, m_world, m_ctx);  //Test new genome
     
     //Process our individual phenotypes
-    tArray<double> gen_tasks(512,0.0);
-    int    num_phens = ppgenotype.GetNumPhenotypes();
-    double freq_via  = 0.0;
-    bool   print_equ_genome = false;
-    for (int pp = 0; pp < num_phens; pp++){
-      const cPlasticPhenotype* phen = ppgenotype.GetPlasticPhenotype(pp);
-      freq_via += (phen->IsViable()) ? phen->GetFrequency() : 0.0;
-      tArray<int> tasks = phen->GetLastTaskCount();
-      unsigned task_combination = 0;
-      if (phen->IsViable()){
-        if (tasks[8] > 0)
-          print_equ_genome = true;
-        for (int t = 0; t < 9; t++)
-          task_combination |= (tasks[t] > 0) ? 1 << t : 0;
-        gen_tasks[task_combination] += phen->GetFrequency();
+    tArray<double> gen_tasks;
+    if (print_task_summary)
+      gen_tasks.Resize(num_task_combs,0.0);
+    int    num_phens = ppgenotype.GetNumPhenotypes();  //Number of phenotypes
+    double freq_via  = 0.0;                            //Probability of genotype being viable
+    
+    bool found_taskN_phenotype = false;
+    for (int pp = 0; pp < num_phens; pp++){  //For each phenotype
+      const cPlasticPhenotype* phen = ppgenotype.GetPlasticPhenotype(pp);  //Get the phenotype
+      freq_via += (phen->IsViable()) ? phen->GetFrequency() : 0.0;         //Accumulate viability probability
+      tArray<int> tasks = phen->GetLastTaskCount();                        //Get the task vector
+      unsigned task_combination = 0;                                       //Generate the task matrix's row id
+      if (phen->IsViable()){           //If the phenotype is viable
+        if (tasks[taskN_genotypes] > 0)              //Check to see if it performs EQU
+          found_taskN_phenotype = true;
+        if (print_task_summary){
+          for (int t = 0; t < ntasks; t++)
+            task_combination |= (tasks[t] > 0) ? 1 << t : 0; //Generate the task combination
+          gen_tasks[task_combination] += phen->GetFrequency(); //Store the combination and frequency
+        }
       }
     }
     
+    // Tabulate genotype summary -----------------------------------------------------------------------------
+    if (print_taskN_genotypes && found_taskN_phenotype)
+      *fot_taskN << new_genome << endl;
     
-    //Process our genotype
-    if (print_equ_genome)
-      fot2 << new_genome << endl;
+    if (print_viable_genotypes && freq_via == 1.0)
+      *fot_viable << new_genome << endl;
     
-    //How often do viable task combinations occur and at what plasticity?
-    //Excluding zero performance
-    for (int t = 0; t < 512; t++){
-      if (gen_tasks[t] > 0){
-        int s = static_cast<int>(gen_tasks[t] * 100) / 10;
-        num_tasks.ElementAt(t,s)++;
+    if (print_task_summary){
+      //How often do viable task combinations occur and at what plasticity?
+      //Excluding zero performance
+      for (int t = 0; t < num_task_combs; t++){
+        if (gen_tasks[t] > 0){
+          int s = static_cast<int>(gen_tasks[t] * 100) / 10;  // Bin frequency
+          num_tasks.ElementAt(t,s)++;
+        }
       }
-      
     }
     
     //How many phenotypes were there and how often are they viable?
-    int s  = (freq_via > 0.0) ? static_cast<int>(freq_via * 100) / 10 + 1 : 0;
-    int np = (num_phens <= 10) ? num_phens-1 : 10;
-    viability.ElementAt(np,s)++;
+    if (print_viability_summary){
+      int s  = (freq_via > 0.0) ? static_cast<int>(freq_via * 100) / 10 + 1 : 0;
+      int np = (num_phens <= 10) ? num_phens-1 : 10;
+      viability.ElementAt(np,s)++;
+    }
   }
   delete test_info;
   
-  //We're done with our EQU genotype file
-  fot2.close();
+  //We're done with our taskN genotype file
+  if (print_taskN_genotypes) 
+    m_world->GetDataFileManager().Remove(taskN_viable_path);
   
-  ofstream fot("data/task_summary.dat");
-  if (!fot.is_open())
-    m_world->GetDriver().RaiseFatalException(2, "Cannot open task_summary.dat.");
+  if (print_viable_genotypes)
+    m_world->GetDataFileManager().Remove(viable_genotypes_path);
   
-  fot << "# Search summary for " << num_trials << " trials @ " <<  num_tests << " num_tests ea. trial." << endl;
-  fot << "# Row is a particular combination (Power of two, lowest bit = NOT" << endl;
-  fot << "# Column is count of genotypes with a task performance range (e.g. first column = <= 10% excl 0, <20% ... 100%)" << endl;
-  
-  for (int t = 0; t < 512; t++){
-    for (int s = 0; s < 11; s++)
-      fot << num_tasks.ElementAt(t,s) << " ";
-    fot << endl;
+  //Print out task summary
+  if (print_task_summary){
+    ofstream& fot = m_world->GetDataFileOFStream(task_summary_path);
+    if (!fot.is_open())
+      m_world->GetDriver().RaiseFatalException(2, "Cannot open task_summary.dat.");
+    fot << "# Search summary for " << num_trials << " trials @ " <<  num_tests << " num_tests ea. trial." << endl;
+    fot << "# Row is a particular combination (Power of two, e.g. in logic9 environment lowest bit = NOT" << endl;
+    fot << "# Column is count of genotypes with a task performance range (e.g. first column = <= 10% excl 0, <20% ... 100%)" << endl;
+    for (int t = 0; t < num_task_combs; t++){
+      for (int s = 0; s < 11; s++)
+        fot << num_tasks.ElementAt(t,s) << " ";
+      fot << endl;
+    }
+    m_world->GetDataFileManager().Remove(task_summary_path);
   }
-  fot.close();
   
-  fot.open("data/via_summary.dat");
-  if (!fot.is_open())
-    m_world->GetDriver().RaiseFatalException(2, "Cannot open via_summary.dat.");
-  fot << "# Search summary for " << num_trials << " trials @ " << num_tests << " num_tests ea. trial." << endl;
-  fot << "# Row is number of phenoytypes observed (last row > 10)" << endl;
-  fot << "# Column is viability frequency count (all non-viable, <10% non-viable  ... >90% viable, all viable)" << endl;
-  for (int p = 0; p < 11; p++){
-    for (int nv = 0; nv < 12 ; nv++)
-      fot << viability.ElementAt(p,nv) << " ";
-    fot << endl;
+  //Print viability and phenotype plasticity summary
+  if (print_viability_summary){
+    ofstream& fot = m_world->GetDataFileOFStream(viable_summary_path);
+    if (!fot.is_open())
+      m_world->GetDriver().RaiseFatalException(2, "Cannot open viable summary.");
+    fot << "# Search summary for " << num_trials << " trials @ " << num_tests << " num_tests ea. trial." << endl;
+    fot << "# Row is number of phenoytypes observed (last row > 10)" << endl;
+    fot << "# Column is viability frequency count (all non-viable, <10% non-viable  ... >90% viable, all viable)" << endl;
+    for (int p = 0; p < 11; p++){
+      for (int nv = 0; nv < 12 ; nv++)
+        fot << viability.ElementAt(p,nv) << " ";
+      fot << endl;
+    }
+    m_world->GetDataFileManager().Remove(viable_summary_path);
   }
-  fot.close();
-  
   
 }
 
