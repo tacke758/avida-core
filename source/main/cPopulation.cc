@@ -431,9 +431,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, const cMetaGenome& offsp
   
   
   // Place all of the offspring...
-  for (int i = 0; i < child_array.GetSize(); i++) {
-    ActivateOrganism(ctx, child_array[i], GetCell(target_cells[i]));
-    
+  for (int i = 0; i < child_array.GetSize(); i++) 
+  {
+	  int parent_cell = (child_array[i]->GetGenotype() == parent_genotype) ? parent_id : -1;
+	  ActivateOrganism(ctx, child_array[i], GetCell(target_cells[i]), parent_cell);
+
     //@JEB - we may want to pass along some state information from parent to child
     if ( (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_OFFSPRING) 
          || (m_world->GetConfig().EPIGENETIC_METHOD.Get() == EPIGENETIC_METHOD_BOTH) ) {
@@ -491,7 +493,7 @@ bool cPopulation::ActivateParasite(cOrganism& parent, const cCodeLabel& label, c
   return true;
 }
 
-void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, cPopulationCell& target_cell)
+void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, cPopulationCell& target_cell, int par_cell)
 {
   assert(in_organism != NULL);
   assert(in_organism->GetGenome().GetSize() >= 1);
@@ -565,7 +567,7 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   double niche_val = 1;
   if (m_world->GetConfig().NICHE_RADIUS.Get() > 0)	
   {
-	  UpdateHDists(target_cell.GetID(), in_genotype);
+	  UpdateHDists(target_cell.GetID(), par_cell, in_genotype);
 	  niche_val = GetNicheVal(target_cell.GetID());
   }
   in_organism->GetPhenotype().SetMeritNicheVal(niche_val);
@@ -931,13 +933,18 @@ void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
 
 // maintain grid of hamming distances between each org in population and each other org
 // cell_id is cell we're about to place a new org, gen is its genotype
-void cPopulation::UpdateHDists(int cell_id, cGenotype* gen)
+void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
 {
 	for (int i=0; i<cell_array.GetSize(); i++)
 	{
 		int dist = m_world->GetConfig().NICHE_RADIUS.Get();
 		if (cell_array[i].GetOrganism())
-		  dist = cGenomeUtil::FindEditDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome());
+		{
+			if (par_id==-1)
+				dist = cGenomeUtil::FindEditDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome());
+			else
+				dist = hdists[i][par_id];
+		}
 		hdists[i][cell_id] = dist;
 		hdists[cell_id][i] = dist;
 	}

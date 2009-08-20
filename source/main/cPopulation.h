@@ -147,7 +147,7 @@ private:
   void CCladeSetupOrganism(cOrganism* organism); 
 	
   // Must be called to activate *any* organism in the population.
-  void ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, cPopulationCell& target_cell);
+  void ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, cPopulationCell& target_cell, int parent_cell=-1);
   
   inline void AdjustSchedule(const cPopulationCell& cell, const cMerit& merit);
   
@@ -183,7 +183,7 @@ public:
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
   void SwapCells(cPopulationCell & cell1, cPopulationCell & cell2);
-  void UpdateHDists(int cell_id, cGenotype* gen);
+  void UpdateHDists(int cell_id, int parent_id, cGenotype* gen);
   double GetNicheVal(int cell_id);
 
   // Deme-related methods
