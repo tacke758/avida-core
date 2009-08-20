@@ -937,7 +937,7 @@ void cPopulation::UpdateHDists(int cell_id, cGenotype* gen)
 	{
 		int dist = m_world->GetConfig().NICHE_RADIUS.Get();
 		if (cell_array[i].GetOrganism())
-			dist = cGenomeUtil::FindHammingDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome(), 0);
+		  dist = cGenomeUtil::FindEditDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome());
 		hdists[i][cell_id] = dist;
 		hdists[cell_id][i] = dist;
 	}
