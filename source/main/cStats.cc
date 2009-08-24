@@ -139,6 +139,7 @@ cStats::cStats(cWorld* world)
   const cEnvironment& env = m_world->GetEnvironment();
   const int num_tasks = env.GetNumTasks();
     
+  num_dist_calcs = 0;
   task_cur_count.Resize(num_tasks);
   task_last_count.Resize(num_tasks);
   task_cur_quality.Resize(num_tasks);
@@ -846,7 +847,9 @@ void cStats::PrintCountData(const cString& filename)
   df.Write(num_single_thread_creatures, "number of single-threaded organisms");
   df.Write(num_multi_thread_creatures, "number of multi-threaded organisms");
   df.Write(num_modified, "number of modified organisms");
+  df.Write(num_dist_calcs, "number of edit dist calculations since last printed");
   df.Endl();
+  num_dist_calcs = 0;
 }
 
 void cStats::PrintMessageData(const cString& filename) {

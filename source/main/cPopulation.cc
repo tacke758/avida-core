@@ -941,7 +941,10 @@ void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
 		if ( par_gen == gen->GetGenome() )
 			par_dist = 0;
 		else
+		{
 			par_dist = cGenomeUtil::FindEditDistance(par_gen, gen->GetGenome());
+			m_world->GetStats().IncNumDistCalcs();
+		}
 	}
 	for (int i=0; i<cell_array.GetSize(); i++)
 	{

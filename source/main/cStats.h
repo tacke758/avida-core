@@ -190,6 +190,8 @@ private:
   cString dom_sequence;
   int coal_depth;
 
+  int num_dist_calcs;
+
   // Dominant Parasite
   cInjectGenotype * dom_inj_genotype;
   int dom_inj_size;
@@ -558,6 +560,8 @@ public:
   void IncExecuted() { num_executed++; }
   
   void IncNumOrgsKilled() { num_orgs_killed++; }
+
+  void IncNumDistCalcs() { num_dist_calcs++; }
 
   void AddCurTask(int task_num) { task_cur_count[task_num]++; }
   void AddCurTaskQuality(int task_num, double quality) 
