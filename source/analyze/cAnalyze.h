@@ -250,6 +250,7 @@ private:
   // Population Analysis Commands...
   void CommandPrintPhenotypes(cString cur_string);
   void CommandPrintDiversity(cString cur_string);
+  void CommandPrintDistances(cString cur_string);
   void CommandPrintTreeStats(cString cur_string);
   void CommandPrintCumulativeStemminess(cString cur_string);
   void CommandPrintGamma(cString cur_string);
