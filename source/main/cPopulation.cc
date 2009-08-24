@@ -949,15 +949,9 @@ void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
 		if (cell_array[i].GetOrganism())
 		{
 			if ( par_dist != -1 && (par_dist==0 || hdists[i][par_id]-par_dist >= dist) )
-			{
 				dist = hdists[i][par_id]-par_dist;
-				//cout << dist << " ";
-			}
 			else
-			{
 				dist = cGenomeUtil::FindEditDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome());
-				cout << dist << " ";
-			}
 		}
 		hdists[i][cell_id] = dist;
 		hdists[cell_id][i] = dist;
