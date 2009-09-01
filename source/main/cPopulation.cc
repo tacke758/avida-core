@@ -935,10 +935,10 @@ void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
 void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
 {
 	int par_dist=-1;
-	if (par_id>=0)
-	{
+	if (par_id>=0 and par_id!=cell_id)
+	{	
 		const cGenome& par_gen = cell_array[par_id].GetOrganism()->GetGenome();
-		if ( par_gen == gen->GetGenome() )
+	    if ( par_gen == gen->GetGenome() )
 			par_dist = 0;
 		else
 			par_dist = cGenomeUtil::FindEditDistance(par_gen, gen->GetGenome());
@@ -946,15 +946,20 @@ void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
 	for (int i=0; i<cell_array.GetSize(); i++)
 	{
 		int dist = m_world->GetConfig().NICHE_RADIUS.Get();
+		int dist1 = -1;
 		if (cell_array[i].GetOrganism())
 		{
-			if ( par_dist != -1 && (par_dist==0 || hdists[i][par_id]-par_dist >= dist) )
-				dist = hdists[i][par_id]-par_dist;
-			else
-			{
+		  	if (cell_id==i)
+				dist = 0;
+			else if (i==par_id)
+				dist = par_dist;
+		    else if ( par_dist != -1 && (par_dist==0 || hdists[i][par_id]-par_dist >= dist ))
+		  		dist = hdists[par_id][i]-par_dist;
+		  	else
+		  	{
 				dist = cGenomeUtil::FindEditDistance(cell_array[i].GetOrganism()->GetGenome(), gen->GetGenome());
 				m_world->GetStats().IncNumDistCalcs();
-			}
+		  	}
 		}
 		hdists[i][cell_id] = dist;
 		hdists[cell_id][i] = dist;
