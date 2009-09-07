@@ -566,7 +566,28 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   double niche_val = 1;
   if (m_world->GetConfig().NICHE_RADIUS.Get() > 0)	
   {
-	  UpdateHDists(target_cell.GetID(), par_cell, in_genotype);
+
+	  // only do this optimization if this organism has a parent, otherwise we're injecting and have to calculate
+	  // all distances
+	  int par_dist = -1;
+	  if (par_cell >= 0)
+	  {
+		  // get proper parent genome, usually just in parent cell, but if child overwrote parent 
+		  // its stored in the saved genotype
+		  cGenotype* par_gen;
+		  if (par_cell == target_cell.GetID())
+			  par_gen = old_genotype;
+		  else 
+			  par_gen = cell_array[par_cell].GetOrganism()->GetGenotype();
+		  // find distance between child and parent genomes
+		  if ( par_gen->GetGenome() == in_organism->GetGenome() )
+			  par_dist = 0;
+		  else
+			  par_dist = cGenomeUtil::FindEditDistance(par_gen->GetGenome(), in_organism->GetGenome());
+	  }
+
+	  // and update table accordingly
+	  UpdateHDists(target_cell.GetID(), par_cell, in_genotype, par_dist);
 	  niche_val = GetNicheVal(target_cell.GetID());
   }
   in_organism->GetPhenotype().SetMeritNicheVal(niche_val);
@@ -932,21 +953,11 @@ void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
 
 // maintain grid of hamming distances between each org in population and each other org
 // cell_id is cell we're about to place a new org, gen is its genotype
-void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen)
+void cPopulation::UpdateHDists(int cell_id, int par_id, cGenotype* gen, int par_dist)
 {
-	int par_dist=-1;
-	if (par_id>=0 and par_id!=cell_id)
-	{	
-		const cGenome& par_gen = cell_array[par_id].GetOrganism()->GetGenome();
-	    if ( par_gen == gen->GetGenome() )
-			par_dist = 0;
-		else
-			par_dist = cGenomeUtil::FindEditDistance(par_gen, gen->GetGenome());
-	}
 	for (int i=0; i<cell_array.GetSize(); i++)
 	{
 		int dist = m_world->GetConfig().NICHE_RADIUS.Get();
-		int dist1 = -1;
 		if (cell_array[i].GetOrganism())
 		{
 		  	if (cell_id==i)

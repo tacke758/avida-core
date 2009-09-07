@@ -183,7 +183,7 @@ public:
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
   void SwapCells(cPopulationCell & cell1, cPopulationCell & cell2);
-  void UpdateHDists(int cell_id, int parent_id, cGenotype* gen);
+  void UpdateHDists(int cell_id, int parent_id, cGenotype* gen, int par_dist);
   double GetNicheVal(int cell_id);
 
   // Deme-related methods
