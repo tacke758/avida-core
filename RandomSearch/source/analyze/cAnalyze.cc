@@ -3820,8 +3820,8 @@ void cAnalyze::CommandRandomSearch(cString cur_string)
     if (print_taskN_genotypes && found_taskN_phenotype)
       *fot_taskN << new_genome << endl;
     
-    if (print_viable_genotypes && freq_via == 1.0)
-      *fot_viable << new_genome << endl;
+    if (print_viable_genotypes && freq_via > 0.0)
+      *fot_viable << freq_via << " " << new_genome << endl;
     
     if (print_task_summary){
       //How often do viable task combinations occur and at what plasticity?
