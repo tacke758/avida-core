@@ -147,6 +147,10 @@ cStats::cStats(cWorld* world)
   task_cur_max_quality.Resize(num_tasks);
   task_last_max_quality.Resize(num_tasks);
   task_exe_count.Resize(num_tasks);
+  new_task_count.Resize(num_tasks);
+  prev_task_count.Resize(num_tasks);
+  cur_task_count.Resize(num_tasks);
+  new_reaction_count.Resize(env.GetNumReactions());
   task_cur_count.SetAll(0);
   task_cur_quality.SetAll(0);
   task_cur_max_quality.SetAll(0);
@@ -156,6 +160,10 @@ cStats::cStats(cWorld* world)
   task_cur_max_quality.SetAll(0);
   task_last_max_quality.SetAll(0);
   task_exe_count.SetAll(0);
+  new_task_count.SetAll(0);
+  prev_task_count.SetAll(0);
+  cur_task_count.SetAll(0);
+  new_reaction_count.SetAll(0);
   
   // Stats for internal resource use
   task_internal_cur_count.Resize(num_tasks);
@@ -955,6 +963,70 @@ void cStats::PrintTasksQualData(const cString& filename)
     df.Write(task_last_max_quality[i], task_names[i] + " Max");
   }
   df.Endl();
+}
+
+void cStats::PrintNewTasksData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida new tasks data");
+  df.WriteTimeStamp();
+  df.WriteComment("First column gives the current update, all further columns give the number");
+  df.WriteComment("of times the particular task has newly evolved since the last time printed.");
+
+  df.Write(m_update,   "Update");
+  for (int i = 0; i < new_task_count.GetSize(); i++) {
+    df.Write(new_task_count[i], task_names[i]);
+  }
+  df.Endl();
+  new_task_count.SetAll(0);
+}
+
+void cStats::PrintNewTasksDataPlus(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida new tasks data");
+  df.WriteTimeStamp();
+  df.WriteComment("First column gives the current update, all further columns are in sets of 3, giving the number");
+  df.WriteComment("of times the particular task has newly evolved since the last time printed, then the average");
+  df.WriteComment("number of tasks the parent of the organism evolving the new task performed, then the average");
+  df.WriteComment("number of tasks the organism evolving the new task performed.  One set of 3 for each task");
+
+  df.Write(m_update,   "Update");
+  for (int i = 0; i < new_task_count.GetSize(); i++) {
+    df.Write(new_task_count[i], task_names[i] + " - num times newly evolved");
+	double prev_ave = -1;
+	double cur_ave = -1;
+	if (new_task_count[i]>0) {
+		prev_ave = prev_task_count[i]/double(new_task_count[i]);
+		cur_ave = cur_task_count[i]/double(new_task_count[i]);
+	}
+	df.Write(prev_ave, "ave num tasks parent performed");
+	df.Write(cur_ave, "ave num tasks cur org performed");
+
+  }
+  df.Endl();
+  new_task_count.SetAll(0);
+  prev_task_count.SetAll(0);
+  cur_task_count.SetAll(0);
+}
+
+void cStats::PrintNewReactionData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida new reactions data");
+  df.WriteTimeStamp();
+  df.WriteComment("First column gives the current update, all further columns give the number");
+  df.WriteComment("of times the particular reaction has newly evolved since the last time printed.");
+
+  df.Write(m_update,   "Update");
+  for (int i = 0; i < new_reaction_count.GetSize(); i++) {
+    df.Write(new_reaction_count[i], reaction_names[i]);
+  }
+  df.Endl();
+  new_reaction_count.SetAll(0);
 }
 
 void cStats::PrintDynamicMaxMinData(const cString& filename)

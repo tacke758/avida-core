@@ -1140,9 +1140,28 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
     cur_task_time[i] = cur_update_time; // Find out time from context
   }
 
+  for (int i = 0; i < num_tasks; i++) {
+	  if (result.TaskDone(i) && !last_task_count[i])
+	  {
+		  m_world->GetStats().AddNewTaskCount(i);
+		  int prev_num_tasks = 0;
+		  int cur_num_tasks = 0;
+		  for (int j=0; j< num_tasks; j++)
+		  {
+			  if (last_task_count[j]>0)
+				  prev_num_tasks++;
+			  if (cur_task_count[j]>0)
+				  cur_num_tasks++;
+		  }
+		  m_world->GetStats().AddOtherTaskCounts(i, prev_num_tasks, cur_num_tasks);
+	  }
+  }
+	
   for (int i = 0; i < num_reactions; i++) {
     if (result.ReactionTriggered(i) == true) cur_reaction_count[i]++;
     cur_reaction_add_reward[i] += result.GetReactionAddBonus(i);
+	if (result.ReactionTriggered(i) && last_reaction_count[i]==0) 
+		m_world->GetStats().AddNewReactionCount(i); 
   }
 
   // Update the merit bonus

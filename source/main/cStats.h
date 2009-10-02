@@ -239,6 +239,10 @@ private:
   tArray<double> task_cur_max_quality;
   tArray<double> task_last_max_quality;
   tArray<int> task_exe_count;
+  tArray<int> new_task_count;
+  tArray<int> prev_task_count;
+  tArray<int> cur_task_count;
+   tArray<int> new_reaction_count;
   
   // Stats for internal resource bins and use of internal resources
   tArray<int> task_internal_cur_count;
@@ -575,6 +579,12 @@ public:
 	  task_last_quality[task_num] += quality; 
 	  if (quality > task_last_max_quality[task_num]) task_last_max_quality[task_num] = quality;
   }
+  void AddNewTaskCount(int task_num) {new_task_count[task_num]++; }
+  void AddOtherTaskCounts(int task_num, int prev_tasks, int cur_tasks) {
+	  prev_task_count[task_num] += prev_tasks; 
+	  cur_task_count[task_num] += cur_tasks;
+  }
+  void AddNewReactionCount(int reaction_num) {new_reaction_count[reaction_num]++; }
   void IncTaskExeCount(int task_num, int task_count) { task_exe_count[task_num] += task_count; }
   void ZeroTasks();
   
@@ -751,12 +761,15 @@ public:
   void PrintParasiteData(const cString& filename);
   void PrintStatsData(const cString& filename);
   void PrintCountData(const cString& filename);
-	void PrintMessageData(const cString& filename);
+  void PrintMessageData(const cString& filename);
   void PrintTotalsData(const cString& filename);
   void PrintTasksData(const cString& filename);
   void PrintTasksExeData(const cString& filename);
   void PrintTasksQualData(const cString& filename);
   void PrintDynamicMaxMinData(const cString& filename);
+  void PrintNewTasksData(const cString& filename);
+  void PrintNewReactionData(const cString& filename);
+  void PrintNewTasksDataPlus(const cString& filename);
   void PrintReactionData(const cString& filename);
   void PrintReactionExeData(const cString& filename);
   void PrintCurrentReactionData(const cString& filename);
