@@ -11,6 +11,8 @@ import sys
 from pyMDDishAssembly import MDDishAssembly
 from pyDiversitySandbox import *
 #from pyWutils import *
+from pyReadFreezer import *
+from descr import *
 
 def before(instr,pat):
     """
@@ -69,6 +71,21 @@ class pyMDSetupFormCtrl():
         self.session_model = session_model
         self.mdda = MDDishAssembly()
 
+    def MDSubDishGetSize(self,sd_name):
+        """
+        MDSubDishGetSize
+
+        Method to retrieve X and Y dimensions of the sub-dish.
+        """
+        # Have sub-dish, read the information
+        petridish = "%s/%s.full/petri_dish" % (self.session_model.m_current_freezer,sd_name)
+        sds = pyReadFreezer(petridish)
+
+        sdset = {}
+            
+        sdset = sds.dictionary["SETTINGS"]
+
+        return (sdset['WORLD-X'],sdset['WORLD-Y'])
 
     def MDSSetValuesButtonClick(self):
         """
@@ -87,7 +104,7 @@ class pyMDSetupFormCtrl():
 
         self.mdname = self.view_form.md_name_lineEdit.text()
 
-        ostr = "MD: SDx=%s, SDy=%s, SDnx=%s, SDny=%s, size=%sx%s" % (self.sdx,
+        ostr = "SDx=%s, SDy=%s, SDnx=%s, SDny=%s, size=%sx%s" % (self.sdx,
                                                                      self.sdy,
                                                                      self.sdnx,
                                                                      self.sdny,
@@ -170,6 +187,21 @@ class pyMDSetupFormCtrl():
         mutli-dish
         """
         print "MDSSubDishAddButtonClick"
+
+        sd_name = before(str(self.view_form.sd_pick_comboBox.currentText()),".full")
+        (thisx,thisy) = self.MDSubDishGetSize(sd_name)
+
+        # warning("Your sub-dish %s is of size %sx%s" % (sd_name,thisx,thisy))
+        # Check for right-sized sub-dish                                                                                                                                                                                                
+        if ((str(thisx) != str(self.sdnx)) or (str(thisy) != str(self.sdny))):
+            print "Sub-dish %s has wrong dimensions, skipping it: X %s != %s, Y %s != %s" % (sd_name,thisx,self.sdnx,thisy,self.sdny)
+            # How about a messagebox for this? TBD
+            # As suggested in email: warning("You are a bonehead and set the grid sizes wrong ")
+            # As implemented:
+            warning("The sub-dish expected size is %sx%s, but sub-dish %s is %sx%s " % (self.sdnx,self.sdny,sd_name,thisx,thisy) )
+            return
+
+
 
         # Track the new assignment in the layout
         sdpos = self.view_form.sd_pos_in_md_spinBox.value()
@@ -285,7 +317,7 @@ class pyMDSetupFormCtrl():
 
         divcalc = diversity()
 
-        tstr = "Total pop. size = %s" % (self.session_model.md_diversity["POP_COUNTS"]["TOTAL"])
+        tstr = "Update: %s, Total pop. size = %s" % (self.session_model.md_runstats["UPDATE"], self.session_model.md_diversity["POP_COUNTS"]["TOTAL"])
         self.view_form.MDDiversity_textEdit.append(tstr)
 
         tstr = " "
@@ -360,7 +392,7 @@ class pyMDSetupFormCtrl():
         tstr = " "
         self.view_form.MDDiversity_textEdit.append(tstr)
 
-        tstr = "Report of Diversity Measures (Genome length = %s, Phenotype length = %s" % (len(self.session_model.md_diversity["POP_GEN"]["TOTAL"][0]),
+        tstr = "Report of Diversity Measures (Genome length = %s, Phenotype length = %s)" % (len(self.session_model.md_diversity["POP_GEN"]["TOTAL"][0]),
                                                                                             len(self.session_model.md_diversity["POP_PHEN"]["TOTAL"][0]))
         self.view_form.MDDiversity_textEdit.append(tstr)
         tstr = " "

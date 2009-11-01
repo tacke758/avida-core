@@ -36,6 +36,163 @@
             </attribute>
             <widget class="QGroupBox">
                 <property name="name">
+                    <cstring>generateMulti_Dish_groupBox</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>508</x>
+                        <y>442</y>
+                        <width>250</width>
+                        <height>130</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Step 3. Generate Multi-Dish</string>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>md_generate_pushButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>22</x>
+                            <y>58</y>
+                            <width>200</width>
+                            <height>32</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Generate Multi-Dish</string>
+                    </property>
+                </widget>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>setSubDishLayout_groupBox</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>200</y>
+                        <width>500</width>
+                        <height>410</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Step 2. Layout SubDishes</string>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout20</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>12</x>
+                            <y>28</y>
+                            <width>460</width>
+                            <height>50</height>
+                        </rect>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sd_pick_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Choose SubDish</string>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>sd_pick_comboBox</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>sd_list_refresh_pushButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Refresh</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>sd_pos_in_md_textLabel</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>15</x>
+                            <y>91</y>
+                            <width>247</width>
+                            <height>32</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Choose SubDish Position in Multi-Dish</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>sd_pos_in_md_spinBox</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>268</x>
+                            <y>94</y>
+                            <width>59</width>
+                            <height>26</height>
+                        </rect>
+                    </property>
+                    <property name="minValue">
+                        <number>1</number>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>sd_add_pushButton</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>333</x>
+                            <y>91</y>
+                            <width>119</width>
+                            <height>32</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Add SubDish</string>
+                    </property>
+                </widget>
+                <widget class="QTextEdit">
+                    <property name="name">
+                        <cstring>md_layout_textEdit</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>130</y>
+                            <width>480</width>
+                            <height>270</height>
+                        </rect>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Courier New</family>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="wordWrap">
+                        <enum>NoWrap</enum>
+                    </property>
+                </widget>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
                     <cstring>setMDParams_groupBox</cstring>
                 </property>
                 <property name="geometry">
@@ -43,76 +200,12 @@
                         <x>0</x>
                         <y>0</y>
                         <width>500</width>
-                        <height>170</height>
+                        <height>200</height>
                     </rect>
                 </property>
                 <property name="title">
                     <string>Step 1: Set Multi-Dish Parameters</string>
                 </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>md_set_values_pushButton</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>11</x>
-                            <y>129</y>
-                            <width>117</width>
-                            <height>32</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Set Values</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>md_values_textLabel</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>134</x>
-                            <y>129</y>
-                            <width>345</width>
-                            <height>32</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>MD: </string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>md_name_textLabel</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>12</x>
-                            <y>100</y>
-                            <width>107</width>
-                            <height>22</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>Multi-Dish name</string>
-                    </property>
-                </widget>
-                <widget class="QLineEdit">
-                    <property name="name">
-                        <cstring>md_name_lineEdit</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>125</x>
-                            <y>100</y>
-                            <width>353</width>
-                            <height>22</height>
-                        </rect>
-                    </property>
-                    <property name="text">
-                        <string>md-</string>
-                    </property>
-                </widget>
                 <widget class="QLabel">
                     <property name="name">
                         <cstring>sdy_textLabel</cstring>
@@ -253,161 +346,87 @@
                         <number>30</number>
                     </property>
                 </widget>
-            </widget>
-            <widget class="QGroupBox">
-                <property name="name">
-                    <cstring>generateMulti_Dish_groupBox</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>508</x>
-                        <y>442</y>
-                        <width>250</width>
-                        <height>130</height>
-                    </rect>
-                </property>
-                <property name="title">
-                    <string>Step 3. Generate Multi-Dish</string>
-                </property>
-                <widget class="QPushButton">
+                <widget class="QLabel">
                     <property name="name">
-                        <cstring>md_generate_pushButton</cstring>
+                        <cstring>md_values_textLabel</cstring>
                     </property>
                     <property name="geometry">
                         <rect>
-                            <x>22</x>
-                            <y>58</y>
-                            <width>200</width>
+                            <x>133</x>
+                            <y>160</y>
+                            <width>345</width>
                             <height>32</height>
                         </rect>
                     </property>
                     <property name="text">
-                        <string>Generate Multi-Dish</string>
+                        <string>MD: </string>
                     </property>
                 </widget>
-            </widget>
-            <widget class="QGroupBox">
-                <property name="name">
-                    <cstring>setSubDishLayout_groupBox</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>170</y>
-                        <width>500</width>
-                        <height>420</height>
-                    </rect>
-                </property>
-                <property name="title">
-                    <string>Step 2. Layout SubDishes</string>
-                </property>
-                <widget class="QLayoutWidget">
+                <widget class="QPushButton">
                     <property name="name">
-                        <cstring>layout20</cstring>
+                        <cstring>md_set_values_pushButton</cstring>
                     </property>
                     <property name="geometry">
                         <rect>
-                            <x>12</x>
-                            <y>28</y>
-                            <width>460</width>
-                            <height>50</height>
+                            <x>10</x>
+                            <y>160</y>
+                            <width>117</width>
+                            <height>32</height>
                         </rect>
                     </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>sd_pick_textLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Choose SubDish</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox">
-                            <property name="name">
-                                <cstring>sd_pick_comboBox</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>sd_list_refresh_pushButton</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Refresh</string>
-                            </property>
-                        </widget>
-                    </hbox>
+                    <property name="text">
+                        <string>Set Values</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>md_name_lineEdit</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>125</x>
+                            <y>130</y>
+                            <width>353</width>
+                            <height>22</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>md-</string>
+                    </property>
                 </widget>
                 <widget class="QLabel">
                     <property name="name">
-                        <cstring>sd_pos_in_md_textLabel</cstring>
+                        <cstring>md_name_textLabel</cstring>
                     </property>
                     <property name="geometry">
                         <rect>
-                            <x>14</x>
-                            <y>90</y>
-                            <width>247</width>
-                            <height>46</height>
+                            <x>12</x>
+                            <y>130</y>
+                            <width>107</width>
+                            <height>22</height>
                         </rect>
                     </property>
                     <property name="text">
-                        <string>Choose SubDish Position in Multi-Dish</string>
+                        <string>Multi-Dish name</string>
                     </property>
                 </widget>
-                <widget class="QSpinBox">
+                <widget class="QCheckBox">
                     <property name="name">
-                        <cstring>sd_pos_in_md_spinBox</cstring>
+                        <cstring>MD_mutation_on_checkBox</cstring>
                     </property>
                     <property name="geometry">
                         <rect>
-                            <x>277</x>
+                            <x>10</x>
                             <y>100</y>
-                            <width>73</width>
-                            <height>26</height>
-                        </rect>
-                    </property>
-                    <property name="minValue">
-                        <number>1</number>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>sd_add_pushButton</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>12</x>
-                            <y>378</y>
-                            <width>480</width>
-                            <height>32</height>
+                            <width>120</width>
+                            <height>22</height>
                         </rect>
                     </property>
                     <property name="text">
-                        <string>Add SubDish To Multi-Dish Layout</string>
+                        <string>Mutation on?</string>
                     </property>
-                </widget>
-                <widget class="QTextEdit">
-                    <property name="name">
-                        <cstring>md_layout_textEdit</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>12</x>
-                            <y>146</y>
-                            <width>480</width>
-                            <height>230</height>
-                        </rect>
-                    </property>
-                    <property name="font">
-                        <font>
-                            <family>Courier New</family>
-                            <bold>1</bold>
-                        </font>
-                    </property>
-                    <property name="wordWrap">
-                        <enum>NoWrap</enum>
+                    <property name="checked">
+                        <bool>true</bool>
                     </property>
                 </widget>
             </widget>

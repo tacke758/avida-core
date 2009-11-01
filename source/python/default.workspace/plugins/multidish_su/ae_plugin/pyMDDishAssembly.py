@@ -11,6 +11,7 @@ import pyGridMaster
 import pyMDLineage
 import sys
 import string
+from descr import *
 
 class MDDishAssembly():
     """
@@ -87,6 +88,14 @@ class MDDishAssembly():
         """
         print "makeMultiDish(%s,%s)" % (md_name,workspace_dir)
 
+        # Clear temporary dictionaries
+        settings_dict = {}
+        organisms_dict = {}
+        anc_names_dict = {}
+        anc_links_dict = {}
+        cells_dict = {}
+        md_dict = {}
+
         # Check various things
 
         # Multi-dish needs to have ".full" suffix
@@ -105,6 +114,13 @@ class MDDishAssembly():
         if (0 and (True == os.path.exists(mdfullpath))):
             print "makeMultiDish error: file %s does exist" % (mdfullpath)
             return(-2)
+
+        # Add a check here that the sub-dish is not too large
+        # TBD
+        # Size of multi-dish
+        settings_dict['WORLD-X'] = self.sd_sizex * self.sd_x
+        settings_dict['WORLD-Y'] = self.sd_sizey * self.sd_y
+        md_cell_limit = settings_dict['WORLD-X'] * settings_dict['WORLD-Y']
         
         print "makeMultiDish : checks OK, processing"
         # Checks complete, so make the multi-dish
@@ -115,14 +131,6 @@ class MDDishAssembly():
         # Make the full filename
         mdfname = "%s/%s.full" % (workspace_dir,md_name)
         
-        # Clear temporary dictionaries
-        settings_dict = {}
-        organisms_dict = {}
-        anc_names_dict = {}
-        anc_links_dict = {}
-        cells_dict = {}
-        md_dict = {}
-
         # Create "petri_dish" file
         pdname = mdfullpath + '/petri_dish'
 
@@ -138,10 +146,6 @@ class MDDishAssembly():
         settings_dict['REWARD_NOR'] = "NO"
         settings_dict['REWARD_XOR'] = "NO"
         settings_dict['REWARD_EQU'] = "NO"
-
-        # Size of multi-dish
-        settings_dict['WORLD-X'] = self.sd_sizex * self.sd_x
-        settings_dict['WORLD-Y'] = self.sd_sizey * self.sd_y
 
         settings_dict["COPY_MUT_PROB"] = 0.02
 
@@ -220,12 +224,27 @@ class MDDishAssembly():
             sdcells = {}
             sdorgs = {}
             sdset = {}
+            
             sdcells = self.sds[sdn].dictionary["CELLS"]
             sdorgs = self.sds[sdn].dictionary["ORGANISMS"]
             sdset = self.sds[sdn].dictionary["SETTINGS"]
+
+            # Check for right-sized sub-dish
+            if ((str(sdset['WORLD-X']) != str(self.sd_sizex)) or (str(sdset['WORLD-Y']) != str(self.sd_sizey))):
+                print "Sub-dish %s has wrong dimensions, skipping it: X %s != %s, Y %s != %s" % (sdn,sdset['WORLD-X'],self.sd_sizex,sdset['WORLD-Y'],self.sd_sizey)
+                # How about a messagebox for this? TBD
+                # warning("You are a bonehead and set the grid sizes wrong ")
+                warning("The sub-dish expected size is %sx%s, but sub-dish %s is %sx%s " % (self.sd_sizex,self.sd_sizey,sdn,sdset['WORLD-X'],sdset['WORLD-Y']) )
+                continue
+
             # Clear the sub-dish to multi-dish organism index dict
             sd_orgn = {}
             for orgn in sdorgs.keys():  # orgn has sub-dish organism number
+                # Sanity check: will this map to a valid place in the multi-dish?
+                # TBD
+                # Problem: Organism maps to possibly many cells, so can we trim the 
+                # organism list to only those that exist in valid cells?
+
                 # sub-dish org to multi-dish org conversion
                 sd_orgn[orgn] = md_org_n    # Associate it with the current multi-dish organism number
                 md_org_n += 1               # Increment the current multi-dish organism number
@@ -263,8 +282,15 @@ class MDDishAssembly():
 
                 #print "md cell = %s, md x = %s, md y = %s" % (mdc, mdx, mdy)
                 sys.stdout.flush()
-                # Set it in the dict
-                cells_dict[mdc] = sd_orgn[orgn]
+
+                # Sanity check: will this map to a valid place in the multi-dish?
+                if (mdc < md_cell_limit):
+                    # Set it in the dict
+                    cells_dict[mdc] = sd_orgn[orgn]
+                else:
+                    # Probably should warn the user that there is a problem here
+                    # TBD
+                    pass
             # END: for cell in sdcells
 
             # Handle settings

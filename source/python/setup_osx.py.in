@@ -39,7 +39,7 @@ setup(
     py2app = dict(
       # Python modules to copy :
       # includes = ['iqt', 'sip', 'qt', 'qwt', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore'],
-      includes = ['sip', 'qt', 'Qwt5', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore'],
+      includes = ['ctypes', 'sip', 'qt', 'qtnetwork', 'Qwt5', 'readline', 'unittest', 'IPython', 'AvidaGui2', 'AvidaCore', 'socket', 'SocketServer', 'sqlite3'],
       # Python packages to copy :
       # packages = ['IPython', 'AvidaGui2'],
       packages = ['AvidaGui2'],
