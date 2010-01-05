@@ -208,6 +208,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cFitnessMatrix.cc
   ${MAIN_DIR}/cGenome.cc
   ${MAIN_DIR}/cGenomeUtil.cc
+  ${MAIN_DIR}/cInheritedInstSet.cc
   ${MAIN_DIR}/cInstruction.cc
   ${MAIN_DIR}/cLandscape.cc
   ${MAIN_DIR}/cLocalMutations.cc

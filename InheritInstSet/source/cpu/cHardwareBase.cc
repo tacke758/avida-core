@@ -50,7 +50,7 @@
 
 cHardwareBase::~cHardwareBase(){
   if (m_inherited_instset)
-    delete static_cast<cInheritedInstSet*>(m_inst_set);
+    delete m_inst_set;
 }
 
 
