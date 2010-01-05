@@ -303,7 +303,7 @@ protected:
 
 public:
   //! Main constructor for cHardwareGX; called from cHardwareManager for every organism.
-  cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
   virtual ~cHardwareGX(); //!< Destructor; removes all cProgramids.
     
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }

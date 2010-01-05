@@ -143,8 +143,8 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
   return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, error, def, null_inst);
 }
 
-cHardwareExperimental::cHardwareExperimental(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set)
+cHardwareExperimental::cHardwareExperimental(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set, bool inherited_instset)
+: cHardwareBase(world, in_organism, in_m_inst_set, inherited_instset)
 {
   /* FIXME:  reorganize storage of m_functions.  -- kgn */
   m_functions = s_inst_slib->GetFunctions();

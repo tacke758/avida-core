@@ -399,8 +399,8 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
   return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, error, def, null_inst);
 }
 
-cHardwareCPU::cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set)
+cHardwareCPU::cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set, bool inherited_instset)
+: cHardwareBase(world, in_organism, in_m_inst_set, inherited_instset)
 {
   /* FIXME:  reorganize storage of m_functions.  -- kgn */
   m_functions = s_inst_slib->GetFunctions();

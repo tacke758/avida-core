@@ -83,7 +83,7 @@ class cInjectGenotype;
 class cLineage;
 class cOrgSinkMessage;
 class cSaleItem;
-
+class cInstSet;
 
 
 class cOrganism
@@ -144,7 +144,7 @@ protected:
   cOrganism& operator=(const cOrganism&); // @not_implemented
   
 public:
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, int inst_set_id = 0);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, int inst_set_id = 0, const cInstSet* instset = NULL);
   ~cOrganism();
 
   // --------  Accessor Methods  --------

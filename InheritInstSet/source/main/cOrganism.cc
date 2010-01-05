@@ -49,7 +49,7 @@
 using namespace std;
 
 
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, int inst_set_id)
+cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome, int inst_set_id, const cInstSet* inst_set)
   : m_world(world)
   , m_genotype(NULL)
   , m_phenotype(world)
@@ -74,7 +74,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
 {
   // Initialization of structures...
-  m_hardware = m_world->GetHardwareManager().Create(this);
+  m_hardware = m_world->GetHardwareManager().Create(this, inst_set);
 //  m_cpu_stats.Setup();
 
   if (m_world->GetConfig().DEATH_METHOD.Get() > DEATH_METHOD_OFF) {

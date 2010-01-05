@@ -12,7 +12,6 @@
 
 #include "tArray.h"
 #include "tList.h"
-#include "defs.h"
 
 #include "cInstSet.h"
 
@@ -30,9 +29,7 @@ class cInheritedInstSet : public cInstSet{
     void InitRedByValue(int val);
     
   
-    bool MutateAllInsts(double p);
-    bool MutateSingleInst();
-  
+   
     inline int GetRandomRedundancy(int id);
     inline bool RandProceed(double p);
   
@@ -41,12 +38,15 @@ class cInheritedInstSet : public cInstSet{
   
   
   public:
+    virtual ~cInheritedInstSet() {;}
     cInheritedInstSet(const cInheritedInstSet* in);
+    cInheritedInstSet(const cInstSet* in, tArray< tArray<int> >& allowed_redundancies);
     cInheritedInstSet(const cInstSet* in, int init_val, 
                       const tArray< tArray<int> >& allowed_redundancies);
     cInstSet* MakeInstSet();
     
-    void DoMutation(eIIS_MUT_TYPE type, double prob);
+    bool MutateAllInsts(double p);
+    bool MutateSingleInst(double p);
   
     void Sync();
   

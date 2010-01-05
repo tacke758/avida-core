@@ -134,8 +134,8 @@ tInstLib<cHardwareSMT::tMethod>* cHardwareSMT::initInstLib(void)
   return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, error, def, null_inst);
 }
 
-cHardwareSMT::cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set), m_mem_array(1), m_mem_marks(1)
+cHardwareSMT::cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set, bool inherited_instset)
+: cHardwareBase(world, in_organism, in_m_inst_set, inherited_instset), m_mem_array(1), m_mem_marks(1)
 , m_mem_lbls(Pow(NUM_NOPS, MAX_MEMSPACE_LABEL) / MEM_LBLS_HASH_FACTOR)
 , m_thread_lbls(Pow(NUM_NOPS, MAX_THREAD_LABEL) / THREAD_LBLS_HASH_FACTOR)
 {

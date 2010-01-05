@@ -47,10 +47,10 @@
 
 #include "functions.h"
 
-
 cHardwareBase::~cHardwareBase(){
-  if (m_inherited_instset)
+  if (m_inherited_instset){
     delete m_inst_set;
+  }
 }
 
 
@@ -381,6 +381,16 @@ unsigned cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multip
 //      cpu_stats.mut_stats.copy_mut_line_count++;
 //    }
 //  }
+  
+  //@MRR Inherited Instruction Set Mutations
+  if (m_inherited_instset){
+    double per_inst = m_world->GetConfig().EIS_MUT_RED_PERINST.Get();
+    double single_in_set = m_world->GetConfig().EIS_MUT_RED_PERSET.Get();
+    if (per_inst > 0)
+      static_cast<cInheritedInstSet*>(m_inst_set)->MutateAllInsts(per_inst);
+    if (single_in_set > 0)
+      static_cast<cInheritedInstSet*>(m_inst_set)->MutateSingleInst(single_in_set);
+  }
   
   return totalMutations;
 }

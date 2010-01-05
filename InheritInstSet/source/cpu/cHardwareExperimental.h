@@ -193,9 +193,9 @@ protected:
   cHardwareExperimental& operator=(const cHardwareExperimental&); // @not_implemented
 
 public:
-  cHardwareExperimental(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareExperimental(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
   explicit cHardwareExperimental(const cHardwareExperimental&);
-  ~cHardwareExperimental() { ; }
+  virtual ~cHardwareExperimental() { ; }
   static tInstLib<cHardwareExperimental::tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-experimental.cfg"; }
 

@@ -223,9 +223,9 @@ protected:
   cHardwareCPU& operator=(const cHardwareCPU&); // @not_implemented
 
 public:
-  cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareCPU(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
   explicit cHardwareCPU(const cHardwareCPU&);
-  ~cHardwareCPU() { ; }
+  virtual ~cHardwareCPU() { ; }
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-classic.cfg"; }
 

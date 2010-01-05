@@ -196,8 +196,8 @@ protected:
   cHardwareSMT& operator=(const cHardwareSMT&); // @not_implemented
   
 public:
-  cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
-  ~cHardwareSMT() { ; }
+  cHardwareSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
+  virtual ~cHardwareSMT() { ; }
   static cInstLib* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-smt.cfg"; }
 	

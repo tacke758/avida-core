@@ -172,7 +172,7 @@ void cHardwareManager::LoadRedundancyFile(cString path){
 }
                           
 
-cHardwareBase* cHardwareManager::Create(cOrganism* in_org, cOrganism* parent_org)
+cHardwareBase* cHardwareManager::Create(cOrganism* in_org, const cInstSet* parent_instset)
 {
   assert(in_org != NULL);
   
@@ -180,21 +180,21 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org, cOrganism* parent_org
   assert(inst_id <= m_inst_sets.GetSize()-1 && m_inst_sets[inst_id] != NULL);
 
   cInstSet* this_instset = (!m_inherited_instset) ? m_inst_sets[inst_id] :
-              (parent_org == NULL) ? new cInheritedInstSet(m_inst_sets[inst_id], m_init_redundancy, m_allowed_redundancies) :
-                                     new cInheritedInstSet(static_cast<cInheritedInstSet*>(parent_org->GetHardware().GetInstSetPtr()));
+              (parent_instset == NULL) ? new cInheritedInstSet(m_inst_sets[inst_id], m_init_redundancy, m_allowed_redundancies) :
+                                     new cInheritedInstSet(parent_instset, m_allowed_redundancies);
   
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:
-      return new cHardwareCPU(m_world, in_org, this_instset);
+      return new cHardwareCPU(m_world, in_org, this_instset, m_inherited_instset);
     case HARDWARE_TYPE_CPU_SMT:
-      return new  cHardwareSMT(m_world, in_org, this_instset);
+      return new  cHardwareSMT(m_world, in_org, this_instset, m_inherited_instset);
     case HARDWARE_TYPE_CPU_TRANSSMT:
-      return  new cHardwareTransSMT(m_world, in_org, this_instset);
+      return  new cHardwareTransSMT(m_world, in_org, this_instset, m_inherited_instset);
     case HARDWARE_TYPE_CPU_EXPERIMENTAL:
-      return new cHardwareExperimental(m_world, in_org, this_instset);
+      return new cHardwareExperimental(m_world, in_org, this_instset, m_inherited_instset);
     case HARDWARE_TYPE_CPU_GX:
-      return new cHardwareGX(m_world, in_org, this_instset);
+      return new cHardwareGX(m_world, in_org, this_instset, m_inherited_instset);
     default:
       return NULL;
   }

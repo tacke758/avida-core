@@ -312,8 +312,8 @@ tInstLib<cHardwareGX::tMethod>* cHardwareGX::initInstLib(void)
 /*! Construct a cHardwareGX instance from the passed-in cOrganism.  This amounts to
 creating an initial cProgramid from in_organism's genome.
 */
-cHardwareGX::cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set)
-: cHardwareBase(world, in_organism, in_m_inst_set)
+cHardwareGX::cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set, bool inherited_instset)
+: cHardwareBase(world, in_organism, in_m_inst_set, inherited_instset)
 {
   m_last_unique_id_assigned = 0;
   m_functions = s_inst_slib->GetFunctions();

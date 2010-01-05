@@ -81,7 +81,7 @@ public:
   cHardwareManager(cWorld* world);
   ~cHardwareManager() { for(int i = 0; i < m_inst_sets.GetSize(); i++) delete m_inst_sets[i]; }
   
-  cHardwareBase* Create(cOrganism* in_org, cOrganism* parent_org = NULL);
+  cHardwareBase* Create(cOrganism* in_org, const cInstSet* parent_instset = NULL);
   cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
 
   const cInstSet& GetInstSet(int id=0) const { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }

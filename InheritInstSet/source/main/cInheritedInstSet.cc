@@ -20,6 +20,10 @@ cInheritedInstSet::cInheritedInstSet(const cInheritedInstSet* in) : cInstSet(*in
 }
 
 
+cInheritedInstSet::cInheritedInstSet(const cInstSet* in, tArray< tArray<int> >& allowed_redundancies) : cInstSet(*in)
+{
+  m_allowed_redundancies = allowed_redundancies;
+}
 
 cInheritedInstSet::cInheritedInstSet(const cInstSet* in, int init_val, const tArray< tArray<int> >& allowed_redundancies) : cInstSet(*in)
 {
@@ -52,21 +56,6 @@ void cInheritedInstSet::InitRedByValue(int val)
 
 
 
-void cInheritedInstSet::DoMutation(eIIS_MUT_TYPE type, double p)
-{
-  bool did_mutate = false;
-  if (type == PER_INST){
-    did_mutate = MutateAllInsts(p);
-  } else if (type == PER_INSTSET){
-    if (RandProceed(p))
-      did_mutate = MutateSingleInst();
-  }
-  if (did_mutate)
-    Sync();
-  return;
-}
-
-
 bool cInheritedInstSet::MutateAllInsts(double p)
 {
   bool did_mutate = false;
@@ -79,8 +68,10 @@ bool cInheritedInstSet::MutateAllInsts(double p)
 }
 
 
-bool cInheritedInstSet::MutateSingleInst()
+bool cInheritedInstSet::MutateSingleInst(double p)
 {
+  if (RandProceed(p) > p)
+    return false;
   int id = m_world->GetRandom().GetUInt(0,m_lib_name_map.GetSize());
   m_lib_name_map[id].redundancy = GetRandomRedundancy(id);
   return true;

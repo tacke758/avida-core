@@ -87,7 +87,8 @@ public:
 public:
   inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib) { ; }
   inline cInstSet(const cInstSet& is);
-  inline ~cInstSet() { ; }
+  inline cInstSet(const cInstSet* is);
+  virtual ~cInstSet() { ; }
   
   inline bool operator==(const cInstSet& _in) const;
   inline cInstSet& operator=(const cInstSet& _in);
@@ -161,6 +162,13 @@ inline cInstSet::cInstSet(const cInstSet& is)
 {
 }
 
+inline cInstSet::cInstSet(const cInstSet* is)
+: m_world(is->m_world), m_inst_lib(is->m_inst_lib), m_lib_name_map(is->m_lib_name_map)
+,m_lib_nopmod_map(is->m_lib_nopmod_map), m_mutation_chart(is->m_mutation_chart)
+{
+}
+
+
 inline cInstSet& cInstSet::operator=(const cInstSet& _in)
 {
   m_inst_lib = _in.m_inst_lib;
@@ -169,6 +177,8 @@ inline cInstSet& cInstSet::operator=(const cInstSet& _in)
   m_mutation_chart = _in.m_mutation_chart;
   return *this;
 }
+
+
 
 //@MRR Instruction sets are equivalent if their mappings to function ids 
 // are identical.  Other properties are not considered.

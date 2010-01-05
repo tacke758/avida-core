@@ -36,6 +36,7 @@
 #include "cTools.h"
 #include "cWorld.h"
 #include "cStats.h"
+#include "cHardwareBase.h"
 
 cBirthChamber::cBirthChamber(cWorld* world) : m_world(world)
 {
@@ -154,7 +155,7 @@ bool cBirthChamber::DoAsexBirth(cAvidaContext& ctx, const cGenome& child_genome,
   // This is asexual who doesn't need to wait in the birth chamber
   // just build the child and return.
   child_array.Resize(1);
-  child_array[0] = new cOrganism(m_world, ctx, child_genome, parent.GetInstSetID());
+  child_array[0] = new cOrganism(m_world, ctx, child_genome, parent.GetInstSetID(), &parent.GetHardware().GetInstSet());
   merit_array.Resize(1);
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
@@ -193,8 +194,8 @@ bool cBirthChamber::DoPairAsexBirth(cAvidaContext& ctx,
 {
   // Build both child organisms...
   child_array.Resize(2);
-  child_array[0] = new cOrganism(m_world, ctx, old_entry.genome,parent.GetInstSetID());
-  child_array[1] = new cOrganism(m_world, ctx, new_genome,parent.GetInstSetID());
+  child_array[0] = new cOrganism(m_world, ctx, old_entry.genome,parent.GetInstSetID(), &parent.GetHardware().GetInstSet());
+  child_array[1] = new cOrganism(m_world, ctx, new_genome,parent.GetInstSetID(), &parent.GetHardware().GetInstSet());
 
   // Setup the merits for both children...
   merit_array.Resize(2);
@@ -235,6 +236,8 @@ cBirthChamber::cBirthEntry* cBirthChamber::FindSexSizeWaiting(const cGenome& chi
       size_wait_entry[child_length].merit = parent.GetPhenotype().GetMerit();
     }
     size_wait_entry[child_length].parent_genotype = parent_genotype;
+    size_wait_entry[child_length].parent_instset = new cInstSet(parent.GetHardware().GetInstSet());
+    size_wait_entry[child_length].parent_instset_id = parent.GetInstSetID();
     size_wait_entry[child_length].update_in = m_world->GetStats().GetUpdate();
     return NULL; 				
   }
@@ -264,6 +267,8 @@ cBirthChamber::cBirthEntry* cBirthChamber::FindSexMateSelectWaiting(const cGenom
       mate_select_wait_entry[mate_id].merit = parent.GetPhenotype().GetMerit();
     }
     mate_select_wait_entry[mate_id].parent_genotype = parent_genotype;
+    mate_select_wait_entry[mate_id].parent_instset =  new cInstSet(parent.GetHardware().GetInstSet());
+    mate_select_wait_entry[mate_id].parent_instset_id = parent.GetInstSetID();
     mate_select_wait_entry[mate_id].update_in = m_world->GetStats().GetUpdate();
     return NULL;
   }
@@ -292,6 +297,8 @@ cBirthChamber::cBirthEntry* cBirthChamber::FindSexLocalWaiting(cAvidaContext& ct
       local_wait_entry[parent_id].merit = parent.GetPhenotype().GetMerit();
     }
     local_wait_entry[parent_id].parent_genotype = parent_genotype;
+    local_wait_entry[parent_id].parent_instset = new cInstSet(parent.GetHardware().GetInstSet());
+    local_wait_entry[parent_id].parent_instset_id = parent.GetInstSetID();
     local_wait_entry[parent_id].update_in = m_world->GetStats().GetUpdate();
     return NULL; 				
   }
@@ -324,6 +331,8 @@ cBirthChamber::cBirthEntry* cBirthChamber::FindSexDemeWaiting(const cGenome& chi
     }
     deme_wait_entry[parent_deme].parent_genotype = parent_genotype;
     deme_wait_entry[parent_deme].update_in = m_world->GetStats().GetUpdate();
+    deme_wait_entry[parent_deme].parent_instset = new cInstSet(parent.GetHardware().GetInstSet());
+    deme_wait_entry[parent_deme].parent_instset_id = parent.GetInstSetID();
     return NULL; 				
   }
 
@@ -346,6 +355,8 @@ cBirthChamber::cBirthEntry* cBirthChamber::FindSexGlobalWaiting(const cGenome& c
       global_wait_entry.merit = parent.GetPhenotype().GetMerit();
     }
     global_wait_entry.parent_genotype = parent_genotype;
+    global_wait_entry.parent_instset = new cInstSet(parent.GetHardware().GetInstSet());
+    global_wait_entry.parent_instset_id = parent.GetInstSetID();
     global_wait_entry.update_in = m_world->GetStats().GetUpdate();
     return NULL;
   }
@@ -629,8 +640,8 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
 
   if (two_fold_cost == 0) {	// Build the two organisms.
     child_array.Resize(2);
-    child_array[0] = new cOrganism(m_world, ctx, genome0);
-    child_array[1] = new cOrganism(m_world, ctx, genome1);
+    child_array[0] = new cOrganism(m_world, ctx, genome0, old_entry->parent_instset_id, old_entry->parent_instset);
+    child_array[1] = new cOrganism(m_world, ctx, genome1, parent.GetInstSetID(), parent.GetHardware().GetInstSetPtr());
     
     if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
       child_array[0]->GetPhenotype().SetEnergy(meritOrEnergy0);
@@ -653,7 +664,7 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
     merit_array.Resize(1);
 
     if (ctx.GetRandom().GetDouble() < 0.5) {
-      child_array[0] = new cOrganism(m_world, ctx, genome0);
+      child_array[0] = new cOrganism(m_world, ctx, genome0, old_entry->parent_instset_id, old_entry->parent_instset );
       if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
         child_array[0]->GetPhenotype().SetEnergy(meritOrEnergy0);
         meritOrEnergy0 = cMerit::EnergyToMerit(child_array[0]->GetPhenotype().GetStoredEnergy(), m_world);
@@ -664,7 +675,7 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
       SetupGenotypeInfo(child_array[0], parent0_genotype, parent1_genotype);
     } 
     else {
-      child_array[0] = new cOrganism(m_world, ctx, genome1);
+      child_array[0] = new cOrganism(m_world, ctx, genome1, parent.GetInstSetID(), parent.GetHardware().GetInstSetPtr());
       if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
         child_array[0]->GetPhenotype().SetEnergy(meritOrEnergy1);
         meritOrEnergy1 = cMerit::EnergyToMerit(child_array[1]->GetPhenotype().GetStoredEnergy(), m_world);

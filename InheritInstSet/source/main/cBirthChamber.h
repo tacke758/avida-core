@@ -32,6 +32,9 @@
 #ifndef cMerit_h
 #include "cMerit.h"
 #endif
+#ifndef cInstSet_h
+#include "cInstSet.h"
+#endif
 
 /**
  * All genome-based organisms must go through the birth chamber, which will
@@ -48,6 +51,7 @@ class cOrganism;
 template <class T> class tArray;
 class cWorld;
 
+
 class cBirthChamber {
 private:
 
@@ -57,9 +61,12 @@ private:
     double energy4Offspring;
     cMerit merit;
     cGenotype * parent_genotype;
+    cInstSet* parent_instset;  //@MRR for inheritence
+    int parent_instset_id;  //@MRR for inheriting global instset tags
     int update_in;  // Update entry was created; Set to -1 if entry is empty.
 
-    cBirthEntry() : parent_genotype(NULL), update_in(-1) { ; }
+    cBirthEntry() : parent_genotype(NULL), parent_instset(NULL), update_in(-1) { ; }
+    ~cBirthEntry() { if (parent_instset != NULL) delete parent_instset; }
   };
   
   cWorld* m_world;
