@@ -38,6 +38,8 @@
 #include "cPopulationCell.h"
 #include "tDictionary.h"
 #include "cStats.h"
+#include "cInheritedInstSet.h"
+
 
 cHardwareManager::cHardwareManager(cWorld* world)
 : m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()) /*, m_testres(world) */
@@ -71,7 +73,9 @@ cHardwareManager::cHardwareManager(cWorld* world)
     m_world->GetDriver().NotifyComment(cString("Using default instruction set: ") + filename);
   }
   AddInstSet(filename);
+  LoadRedundancyFile(m_world->GetConfig().EIS_REDUNDANCY_FILE.Get());
 }
+
 
 
 bool cHardwareManager::AddInstSet(const cString& filename, int id)
@@ -133,25 +137,64 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
   return true;
 }
 
+                          
+void cHardwareManager::LoadRedundancyFile(cString path){
+  
+  if (path == "-"){
+    m_inherited_instset = false;
+    return;
+  }
+  
+  cInitFile file(path);
+    
+  if (file.WasOpened() == false) {
+    tConstListIterator<cString> err_it(file.GetErrors());
+    const cString* errstr = NULL;
+    while ((errstr = err_it.Next())) m_world->GetDriver().RaiseException(*errstr);
+    m_world->GetDriver().RaiseFatalException(1, cString("Could not open redundancy allowance file '") + path + "'.");
+  }
+  
+  if (file.GetNumLines() != m_inst_sets[0]->GetSize())
+    m_world->GetDriver().RaiseFatalException(1, cString("Allowed instruction redundancies has an incorrect number of entries for the loaded instruction set."));
+  
+  m_allowed_redundancies = tArray< tArray<int> >( m_inst_sets[0]->GetSize(), tArray<int>(0));
+  for (int line_id = 0; line_id < file.GetNumLines(); line_id++) {
+    cString cur_line = file.GetLine(line_id);
+    cString inst_name = cur_line.PopWord();
+    if (inst_name != m_inst_sets[0]->GetName(line_id))
+      m_world->GetDriver().RaiseFatalException(1, cString("Allowed instruction redundancies are not in the same order as the loaded instruction set."));
+    while (cur_line.GetSize())
+      m_allowed_redundancies[line_id].Push( cur_line.PopWord().AsInt() );
+  }
+  m_inherited_instset = true;
+  m_init_redundancy = m_world->GetConfig().EIS_INIT_RED.Get();
+  return;
+}
+                          
 
-cHardwareBase* cHardwareManager::Create(cOrganism* in_org)
+cHardwareBase* cHardwareManager::Create(cOrganism* in_org, cOrganism* parent_org)
 {
   assert(in_org != NULL);
   
   int inst_id = in_org->GetInstSetID();
   assert(inst_id <= m_inst_sets.GetSize()-1 && m_inst_sets[inst_id] != NULL);
+
+  cInstSet* this_instset = (!m_inherited_instset) ? m_inst_sets[inst_id] :
+              (parent_org == NULL) ? new cInheritedInstSet(m_inst_sets[inst_id], m_init_redundancy, m_allowed_redundancies) :
+                                     new cInheritedInstSet(static_cast<cInheritedInstSet*>(parent_org->GetHardware().GetInstSetPtr()));
+  
   switch (m_type)
   {
     case HARDWARE_TYPE_CPU_ORIGINAL:
-      return new cHardwareCPU(m_world, in_org, m_inst_sets[inst_id]);
+      return new cHardwareCPU(m_world, in_org, this_instset);
     case HARDWARE_TYPE_CPU_SMT:
-      return new cHardwareSMT(m_world, in_org, m_inst_sets[inst_id]);
+      return new  cHardwareSMT(m_world, in_org, this_instset);
     case HARDWARE_TYPE_CPU_TRANSSMT:
-      return new cHardwareTransSMT(m_world, in_org, m_inst_sets[inst_id]);
+      return  new cHardwareTransSMT(m_world, in_org, this_instset);
     case HARDWARE_TYPE_CPU_EXPERIMENTAL:
-      return new cHardwareExperimental(m_world, in_org, m_inst_sets[inst_id]);
+      return new cHardwareExperimental(m_world, in_org, this_instset);
     case HARDWARE_TYPE_CPU_GX:
-      return new cHardwareGX(m_world, in_org, m_inst_sets[inst_id]);
+      return new cHardwareGX(m_world, in_org, this_instset);
     default:
       return NULL;
   }

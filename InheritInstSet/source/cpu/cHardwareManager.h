@@ -45,6 +45,10 @@
 #include "cInstSet.h"
 #endif
 
+#ifndef tList_h
+#include "tArray.h"
+#endif
+
 class cHardwareBase;
 class cOrganism;
 class cWorld;
@@ -57,9 +61,16 @@ class cHardwareManager
 #endif
 private:
   cWorld* m_world;
-  tArray<cInstSet*> m_inst_sets;
+  tArray<cInstSet*> m_inst_sets;  //Global instruction sets
+  bool m_inherited_instset;       //Are we using per-organism instruction sets?
+  tArray< tArray<int> > m_allowed_redundancies;  //Global restriction on per-organsim instruction sets.
+  int m_init_redundancy;
+
   int m_type;
+  
 //  cTestResources m_testres;
+  
+  void LoadRedundancyFile(cString path);
   
   cHardwareManager(); // @not_implemented
   cHardwareManager(const cHardwareManager&); // @not_implemented
@@ -70,7 +81,7 @@ public:
   cHardwareManager(cWorld* world);
   ~cHardwareManager() { for(int i = 0; i < m_inst_sets.GetSize(); i++) delete m_inst_sets[i]; }
   
-  cHardwareBase* Create(cOrganism* in_org);
+  cHardwareBase* Create(cOrganism* in_org, cOrganism* parent_org = NULL);
   cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
 
   const cInstSet& GetInstSet(int id=0) const { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }

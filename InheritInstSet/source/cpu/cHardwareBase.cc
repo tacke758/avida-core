@@ -48,6 +48,12 @@
 #include "functions.h"
 
 
+cHardwareBase::~cHardwareBase(){
+  if (m_inherited_instset)
+    delete static_cast<cInheritedInstSet*>(m_inst_set);
+}
+
+
 int cHardwareBase::GetExecutedSize(const int parent_size)
 {
   int executed_size = 0;

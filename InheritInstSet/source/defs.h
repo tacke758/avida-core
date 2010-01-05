@@ -172,5 +172,11 @@ enum eVerbosity {
   VERBOSE_DEBUG         // Print Debug Information, as applicable.
 };
 
+//@MRR
+//Inherited Instruction Set Mutation Types
+enum eIIS_MUT_TYPE{
+  PER_INST = 0,      //By Instruction
+  PER_INSTSET        //By Instruction Set
+};
 
 #endif

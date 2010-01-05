@@ -495,8 +495,18 @@ public:
   CONFIG_ADD_VAR(BIOMIMETIC_K, int, 0, "Carrying capacity in number of organisms");
   
   
+  
+  // @MRR: Information for inherited, mutable instruction sets
+  CONFIG_ADD_GROUP(EVOLVABLE_INSTSETS, "Evolvable Instruction Set Settings");
+  CONFIG_ADD_VAR(EIS_REDUNDANCY_FILE, cString, "-", "If not -, the file to load instructions allowable redudancies from.\nMust in the same order as the default instruction set.\nIf not set, this group is disabled.");
+  CONFIG_ADD_VAR(EIS_INIT_RED, int, 0, "Set the initial redundancy of instructions.\n>0 is the initial value\n0=Random\n-1=Use Default instruction set redundancy.");
+  CONFIG_ADD_VAR(EIS_MUT_RED_PERINST, double, 0.0, "The mutation rate of instruction sets, applied per organism divide, per instruction.");
+  CONFIG_ADD_VAR(EIS_MUT_RED_PERSET, double, 0.0, "The probability of mutating a single instruction redundanc, applied on divide.");
+  
   CONFIG_ADD_CUSTOM_FORMAT(INST_SET_NEW, "Instruction Set Definition");
   CONFIG_ADD_FORMAT_VAR(INST, "Instruction entry in the instruction set");
+  
+  
   
 #endif
   

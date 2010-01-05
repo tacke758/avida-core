@@ -44,7 +44,6 @@
 #include "cTools.h"
 #include "cWorld.h"
 #include "cStats.h"
-
 #include <iomanip>
 
 using namespace std;

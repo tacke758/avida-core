@@ -34,6 +34,10 @@
 #include "tBuffer.h"
 #endif
 
+#ifndef cInheritedInstSet_h
+#include "cInheritedInstSet.h"
+#endif
+
 using namespace std;
 
 class cAvidaContext;
@@ -49,6 +53,8 @@ class cMutation;
 class cOrganism;
 class cString;
 class cWorld;
+
+
 //class cStats; //AWC 06/29/06
 
 class cHardwareBase
@@ -58,6 +64,7 @@ protected:
   cOrganism* organism;       // Organism using this hardware.
   cInstSet* m_inst_set;      // Instruction set being used.
   cHardwareTracer* m_tracer; // Set this if you want execution traced.
+  bool m_inherited_instset;  // True if this hardware contains a unique instruction set (cast from cInheritedInstSet)
 
   // Instruction costs...
 //#if INSTRUCTION_COSTS
@@ -92,17 +99,28 @@ protected:
   cHardwareBase& operator=(const cHardwareBase&); // @not_implemented
 
 public:
-  cHardwareBase(cWorld* world, cOrganism* in_organism, cInstSet* inst_set)
-    : m_world(world), organism(in_organism), m_inst_set(inst_set), m_tracer(NULL)
+  cHardwareBase(cWorld* world, cOrganism* in_organism, cInstSet* inst_set, bool inherited=false)
+    : m_world(world), organism(in_organism), m_inst_set(inst_set), m_tracer(NULL), m_inherited_instset(inherited)
   {
     assert(organism != NULL);
   }
-  virtual ~cHardwareBase() { ; }
+  virtual ~cHardwareBase();
 
   // --------  Organism ---------
   cOrganism* GetOrganism() { return organism; }
   const cInstSet& GetInstSet() { return *m_inst_set; }
-  void SetInstSet(cInstSet* _in) {m_inst_set = _in; }
+  cInstSet* GetInstSetPtr() { return m_inst_set; } //Be Careful!
+  void SetInstSet(cInstSet* _in){ 
+    if (!m_inherited_instset)
+      m_inst_set = _in; 
+    else{
+      cInheritedInstSet* ptr = static_cast<cInheritedInstSet*>(m_inst_set);
+      delete ptr;
+      m_inst_set = _in;
+    }
+  }
+  
+  bool IsInheritedInstSet() const { return m_inherited_instset; } 
 
   
   // --------  Core Functionality  --------

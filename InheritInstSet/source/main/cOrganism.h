@@ -71,12 +71,13 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
-
+#ifndef cGenotype
+#include "cGenotype.h"
+#endif
 
 class cAvidaContext;
 class cCodeLabel;
 class cEnvironment;
-class cGenotype;
 class cHardwareBase;
 class cInjectGenotype;
 class cLineage;
@@ -123,7 +124,7 @@ protected:
   bool m_is_running;       // Does this organism have the CPU?
   bool m_is_sleeping;      // Is this organisms sleeping?
   bool m_is_dead;          // Is this organism dead?
-  
+
   class cNetSupport
   {
   public:
