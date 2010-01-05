@@ -23,7 +23,6 @@ class cWorld;
 class cInheritedInstSet : public cInstSet{
 
   private:
-    tArray<int>    m_redundancies;  
     tArray< tArray<int> >  m_allowed_redundancies;
   
     void InitRedRandomly();

@@ -14,10 +14,8 @@
 #include <cassert>
 
 
-cInheritedInstSet::cInheritedInstSet(const cInheritedInstSet* in) : cInstSet(* ((cInstSet*) in) )
+cInheritedInstSet::cInheritedInstSet(const cInheritedInstSet* in) : cInstSet(*in)
 {
-
-  m_redundancies = in->m_redundancies;
   m_allowed_redundancies = in->m_allowed_redundancies;
 }
 
@@ -28,9 +26,7 @@ cInheritedInstSet::cInheritedInstSet(const cInstSet* in, int init_val, const tAr
   m_allowed_redundancies = allowed_redundancies;
   if (init_val == 0)
     InitRedRandomly();
-  else if (init_val < 0)
-    InitRedByBaseInstSet();
-  else
+  else if (init_val > 0)
     InitRedByValue(init_val);
   Sync();
 }
@@ -39,29 +35,17 @@ cInheritedInstSet::cInheritedInstSet(const cInstSet* in, int init_val, const tAr
 
 void cInheritedInstSet::InitRedRandomly()
 {
-  m_redundancies = tArray<int>(m_allowed_redundancies.GetSize(),-1);
-  for (int x = 0; x < m_redundancies.GetSize(); x++)
-    m_redundancies[x] = GetRandomRedundancy(x);
+  for (int x = 0; x < m_lib_name_map.GetSize(); x++)
+    m_lib_name_map[x].redundancy = GetRandomRedundancy(x);
   return;
 }
 
-
-
-void cInheritedInstSet::InitRedByBaseInstSet()
-{
-  m_redundancies = tArray<int>(m_allowed_redundancies.GetSize(), -1);
-  for (int id = 0; id < m_lib_name_map.GetSize(); id++){
-    m_redundancies[id] = m_lib_name_map[id].redundancy;
-  }
-  return;
-}
 
 
 void cInheritedInstSet::InitRedByValue(int val)
 {
-  m_redundancies = tArray<int>(m_allowed_redundancies.GetSize(), -1);
-  for (int x = 0; x < m_redundancies.GetSize(); x++){
-    m_redundancies[x] = val;
+  for (int x = 0; x < m_lib_name_map.GetSize(); x++){
+    m_lib_name_map[x].redundancy = GetRandomRedundancy(x);
   }
   return;
 }
@@ -86,9 +70,9 @@ void cInheritedInstSet::DoMutation(eIIS_MUT_TYPE type, double p)
 bool cInheritedInstSet::MutateAllInsts(double p)
 {
   bool did_mutate = false;
-  for (int id = 0; id < m_redundancies.GetSize(); id++)
+  for (int id = 0; id < m_lib_name_map.GetSize(); id++)
     if (RandProceed(p)){
-      m_redundancies[id] = GetRandomRedundancy(id);
+      m_lib_name_map[id].redundancy = GetRandomRedundancy(id);
       did_mutate = true;
     }
   return did_mutate;
@@ -97,8 +81,8 @@ bool cInheritedInstSet::MutateAllInsts(double p)
 
 bool cInheritedInstSet::MutateSingleInst()
 {
-  int id = m_world->GetRandom().GetUInt(0,m_redundancies.GetSize());
-  m_redundancies[id] = GetRandomRedundancy(id);
+  int id = m_world->GetRandom().GetUInt(0,m_lib_name_map.GetSize());
+  m_lib_name_map[id].redundancy = GetRandomRedundancy(id);
   return true;
 }
 
@@ -107,13 +91,13 @@ bool cInheritedInstSet::MutateSingleInst()
 void cInheritedInstSet::Sync()
 {
   int sum = 0;
-  for (int x = 0; x < m_redundancies.GetSize(); x++)
-    sum += m_redundancies[x];
+  for (int x = 0; x < m_lib_name_map.GetSize(); x++)
+    sum += m_lib_name_map[x].redundancy;
   assert(sum <= 255);
   m_mutation_chart = tArray<int>(sum, -1);
   int ndx = 0;
-  for (int id = 0; id < m_redundancies.GetSize(); id++)
-    for (int n = 0; n < m_redundancies[id]; n++)
+  for (int id = 0; id < m_lib_name_map.GetSize(); id++)
+    for (int n = 0; n < m_lib_name_map[id].redundancy; n++)
       m_mutation_chart[ndx++] = id;
 }
 
