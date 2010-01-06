@@ -100,6 +100,8 @@ public:
   const cString& GetName(const cInstruction& inst) const { return GetName(inst.GetOp()); }
   
   int GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
+  int GetRedundancy(int index) const { return m_lib_name_map[index].redundancy; }
+  
   int GetCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].cost; }
   int GetFTCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].ft_cost; }
   int GetEnergyCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].energy_cost; }
@@ -217,5 +219,8 @@ inline cInstruction cInstSet::GetInst(const cString & in_name) const
   */
   return cInstruction(0);
 }
+
+
+
 
 #endif

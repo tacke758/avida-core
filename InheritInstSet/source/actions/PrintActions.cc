@@ -2598,6 +2598,7 @@ public:
 };
 
 
+//@MRR
 class cActionPrintInstSetCounts : public cAction
 {
   private:
@@ -2620,6 +2621,179 @@ class cActionPrintInstSetCounts : public cAction
     }
     
 };
+
+//@MRR January 2010
+class cActionPrintInstSetRedundancies : public cAction
+  {
+  private:
+    cString m_filename;
+    bool first_run;
+    
+    typedef tArray< tArray<int> > VarMtx;
+    const VarMtx* allowed_redundancies;
+    
+    void PrintHeader(ofstream& fot, const cInstSet iset)
+    {
+      fot << "# Instruction Set Redundancy Tabulation" << endl
+          << "# format: update, inst_letter0:red0:..:redN letter1:..." << endl
+          << "# Allowed Redundancies" << endl;
+      for (int ndx = 0; ndx < iset.GetSize(); ndx++){
+        fot << "# " << cInstruction(ndx).GetSymbol() << " ";
+        for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
+          fot << (*allowed_redundancies)[ndx][red] << " ";
+        fot << endl;
+      }
+      fot << endl;
+    }
+    
+    VarMtx InitRedCounter(const VarMtx* orig)
+    {
+      VarMtx empty = VarMtx(orig->GetSize());
+      for (int ndx = 0; ndx < orig->GetSize(); ndx++){
+        empty[ndx] = tArray<int>( (*orig)[ndx].GetSize(), 0);
+      }
+      return empty;
+    }
+    
+    int RedNdx(int inst, int val)
+    {
+      tArray<int> this_row = (*allowed_redundancies)[inst];
+      for (int n = 0; n < this_row.GetSize(); n++)
+        if (this_row[n] == val) return n;
+      return -1;
+    }
+    
+    
+  public:
+    cActionPrintInstSetRedundancies(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize()) ? largs.PopWord() : "instset_redundancy.dat";
+      first_run = true;
+    }
+    static const cString GetDescription() { return "Arguments: [string filename='instset_redundancy.dat']"; }
+    void Process(cAvidaContext& ctx)
+    {
+      
+      ofstream& fot = m_world->GetDataFileOFStream(m_filename);
+      
+      //Grab some information from the pouplation
+      cPopulation* pop = &m_world->GetPopulation();
+      cHardwareManager& mgr = m_world->GetHardwareManager();
+      allowed_redundancies = mgr.GetAllowedRedundancies();
+      const cInstSet mgr_iset = mgr.GetInstSet();
+      
+      if (first_run){
+        PrintHeader(fot, mgr_iset);
+        first_run = false;
+      }
+      
+      VarMtx red_counter = InitRedCounter(allowed_redundancies);
+      
+      for (int i = 0; i < pop->GetWorldX(); i++){
+        for (int j = 0; j < pop->GetWorldY(); j++){
+          int cell_num = i * pop->GetWorldX() + j;
+          if (pop->GetCell(cell_num).IsOccupied() == true) {
+            cOrganism* organism = (pop->GetCell(cell_num).IsOccupied()) ? pop->GetCell(cell_num).GetOrganism() : NULL;
+            if (organism != NULL){
+              cInstSet* instset = organism->GetHardware().GetInstSetPtr();
+              int ndx = -1;
+              for (int i = 0; i < instset->GetSize(); i++)
+                if ((ndx=RedNdx(i, instset->GetRedundancy(i)))  > -1) red_counter[i][ndx]++;
+            }
+          }
+        }
+      }
+      fot << m_world->GetStats().GetUpdate() << " ";
+      for (int i = 0; i < red_counter.GetSize(); i++){
+        fot << cInstruction(i).GetSymbol();
+        for (int r = 0; r < red_counter[i].GetSize(); r++)
+          fot << ":" << red_counter[i][r];
+        fot << " ";
+      }
+      fot << endl;
+    }
+  };
+
+
+
+
+
+
+
+
+//@MRR January 2010
+class cActionDumpInstSetRedundancies : public cAction
+{
+  private:
+    cString m_filename;
+    bool first_run;
+    
+    typedef tArray< tArray<int> > VarMtx;
+    const VarMtx* allowed_redundancies;
+    
+    void PrintHeader(ofstream& fot, const cInstSet iset)
+    {
+      fot << "# Instruction Set Redundancy Tabulation" << endl
+      << "# format: genotype_id red_inst0 ... " << endl
+      << "# Allowed Redundancies" << endl;
+      for (int ndx = 0; ndx < iset.GetSize(); ndx++){
+        fot << "# " << cInstruction(ndx).GetSymbol() << " ";
+        for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
+          fot << (*allowed_redundancies)[ndx][red] << " ";
+        fot << endl;
+      }
+      fot << endl;
+    }
+    
+    
+  public:
+    cActionDumpInstSetRedundancies(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize()) ? largs.PopWord() : "instset_redundancy";
+    }
+    static const cString GetDescription() { return "Arguments: [string filename_prefix='instset_redundancy']"; }
+    void Process(cAvidaContext& ctx)
+    {
+      
+      int update =  m_world->GetStats().GetUpdate();
+      cString path = cStringUtil::Stringf("%s-%d.dat", static_cast<const char*>(m_filename), update);
+      ofstream& fot = m_world->GetDataFileOFStream(path);
+      
+      //Grab some information from the pouplation
+      cPopulation* pop = &m_world->GetPopulation();
+      cHardwareManager& mgr = m_world->GetHardwareManager();
+      allowed_redundancies = mgr.GetAllowedRedundancies();
+      const cInstSet mgr_iset = mgr.GetInstSet();
+      
+      PrintHeader(fot, mgr_iset);
+      
+      for (int i = 0; i < pop->GetWorldX(); i++){
+        for (int j = 0; j < pop->GetWorldY(); j++){
+          int cell_num = i * pop->GetWorldX() + j;
+          if (pop->GetCell(cell_num).IsOccupied() == true) {
+            cOrganism* organism = (pop->GetCell(cell_num).IsOccupied()) ? pop->GetCell(cell_num).GetOrganism() : NULL;
+            if (organism != NULL){
+              cInstSet* instset = organism->GetHardware().GetInstSetPtr();
+              cGenotype* genotype = organism->GetGenotype();
+              fot << genotype->GetID();
+              for (int i = 0; i < instset->GetSize(); i++)
+                fot << " "  << instset->GetRedundancy(i);
+              fot << endl;
+            }
+          }
+        }
+      }
+      
+      m_world->GetDataFileManager().Remove(path);
+    }
+};
+
+
+
+
+
 
 
 
@@ -2711,7 +2885,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   
   //@MRR Instset Competition Functions
   action_lib->Register<cActionPrintInstSetCounts>("PrintInstSetCounts");
-  
+  action_lib->Register<cActionPrintInstSetRedundancies>("PrintInstSetRedundancies");
+  action_lib->Register<cActionDumpInstSetRedundancies>("DumpInstSetRedundancies");
+
   // Print Settings
   action_lib->Register<cActionSetVerbose>("SetVerbose");
   

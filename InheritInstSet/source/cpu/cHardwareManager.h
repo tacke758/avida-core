@@ -63,7 +63,7 @@ private:
   cWorld* m_world;
   tArray<cInstSet*> m_inst_sets;  //Global instruction sets
   bool m_inherited_instset;       //Are we using per-organism instruction sets?
-  tArray< tArray<int> > m_allowed_redundancies;  //Global restriction on per-organsim instruction sets.
+  tArray< tArray<int> >* m_allowed_redundancies;  //Global restriction on per-organsim instruction sets.
   int m_init_redundancy;
 
   int m_type;
@@ -90,6 +90,7 @@ public:
   int GetNumInstSets() const { return m_inst_sets.GetSize(); }
   
   bool AddInstSet(const cString& filename, int id = 0);
+  tArray< tArray<int> >* GetAllowedRedundancies() { return m_allowed_redundancies; }
 };
 
 
