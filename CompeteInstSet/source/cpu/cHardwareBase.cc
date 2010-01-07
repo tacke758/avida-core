@@ -108,16 +108,18 @@ bool cHardwareBase::Divide_CheckViable(cAvidaContext& ctx, const int parent_size
   if (m_world->GetTestSterilize() && !phenotype.IsInjected()) {
     const int merit_base = phenotype.CalcSizeMerit();
     const double cur_fitness = merit_base * phenotype.GetCurBonus() / phenotype.GetTimeUsed();
-    const double fitness_ratio = cur_fitness / phenotype.GetLastFitness();
+    const double prev_fitness = (m_world->GetConfig().FIT_COMPARE_BASE.Get() == "ANCESTOR") ? phenotype.GetMaxAncFitness() : phenotype.GetLastFitness();
+    const double fitness_ratio = (prev_fitness > 0.0) ? cur_fitness / prev_fitness: -1.0;
     
     bool sterilize = false;
-    
-    if (fitness_ratio < nHardware::FITNESS_NEUTRAL_MIN) {
-      if (ctx.GetRandom().P(organism->GetSterilizeNeg())) sterilize = true;
-    } else if (fitness_ratio <= nHardware::FITNESS_NEUTRAL_MAX) {
-      if (ctx.GetRandom().P(organism->GetSterilizeNeut())) sterilize = true;
-    } else {
-      if (ctx.GetRandom().P(organism->GetSterilizePos())) sterilize = true;
+    if (fitness_ratio > 0.0){
+      if (fitness_ratio < nHardware::FITNESS_NEUTRAL_MIN) {
+        if (ctx.GetRandom().P(organism->GetSterilizeNeg())) sterilize = true;
+      } else if (fitness_ratio <= nHardware::FITNESS_NEUTRAL_MAX) {
+        if (ctx.GetRandom().P(organism->GetSterilizeNeut())) sterilize = true;
+      } else {
+        if (ctx.GetRandom().P(organism->GetSterilizePos())) sterilize = true;
+      }
     }
     
     if (sterilize) {
@@ -533,9 +535,10 @@ bool cHardwareBase::Divide_TestFitnessMeasures(cAvidaContext& ctx)
   // this won't be an issue.
   if (phenotype.CopyTrue() == true) return false;
 	
-  const double parent_fitness = organism->GetTestFitness(ctx);
-  const double neut_min = parent_fitness * (1.0 - organism->GetNeutralMin());//nHardware::FITNESS_NEUTRAL_MIN;
-    const double neut_max = parent_fitness * (1.0 + organism->GetNeutralMax());//nHardware::FITNESS_NEUTRAL_MAX;
+  const double base_fitness = (m_world->GetConfig().FIT_COMPARE_BASE.Get() == "ANCESTOR") ? 
+                                phenotype.GetMaxAncFitness() : organism->GetTestFitness(ctx);
+  const double neut_min = base_fitness * (1.0 - organism->GetNeutralMin());//nHardware::FITNESS_NEUTRAL_MIN;
+  const double neut_max = base_fitness * (1.0 + organism->GetNeutralMax());//nHardware::FITNESS_NEUTRAL_MAX;
       
       cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
       cCPUTestInfo test_info;

@@ -154,6 +154,7 @@ private:
   double neutral_metric; // Undergoes drift (gausian 0,1) per generation
   double life_fitness; 	 // Organism fitness during its lifetime, 
 		         // calculated based on merit just before the divide
+  double max_ancestral_fitness;  //@MRR Maximum fitness of ancestor (-1 if n/a).
 
   // 5. Status Flags...  (updated at each divide)
   bool to_die;		 // Has organism has triggered something fatal?
@@ -321,7 +322,8 @@ public:
   const tArray<int>& GetLastInstCount() const { assert(initialized == true); return last_inst_count; }
   const tArray<int>& GetLastSenseCount() const { assert(initialized == true); return last_sense_count; }
   double GetLastFitness() const { assert(initialized == true); return last_fitness; }
-
+  double GetMaxAncFitness() const { assert(initialized==true); return max_ancestral_fitness;}
+  
   int GetNumDivides() const { assert(initialized == true); return num_divides;}
   int GetGeneration() const { assert(initialized == true); return generation; }
   int GetCPUCyclesUsed() const { assert(initialized == true); return cpu_cycles_used; }

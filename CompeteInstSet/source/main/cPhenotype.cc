@@ -140,7 +140,8 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
   last_reaction_add_reward = in_phen.last_reaction_add_reward; 
   last_inst_count          = in_phen.last_inst_count;	  
   last_sense_count         = in_phen.last_sense_count;   
-  last_fitness             = in_phen.last_fitness;            
+  last_fitness             = in_phen.last_fitness;      
+  max_ancestral_fitness    = in_phen.max_ancestral_fitness;
   
   // 4. Records from this organisms life...
   num_divides              = in_phen.num_divides;      
@@ -313,6 +314,8 @@ void cPhenotype::SetupOffspring(const cPhenotype & parent_phenotype,
   last_inst_count           = parent_phenotype.last_inst_count;
   last_sense_count          = parent_phenotype.last_sense_count;
   last_fitness              = CalcFitness(last_merit_base, last_bonus, gestation_time, last_cpu_cycles_used);
+  max_ancestral_fitness     = (parent_phenotype.fitness > parent_phenotype.max_ancestral_fitness) ? 
+  parent_phenotype.fitness : parent_phenotype.max_ancestral_fitness;
 
   // Setup other miscellaneous values...
   num_divides     = 0;
@@ -434,6 +437,8 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   trial_time_used = 0;
   trial_cpu_cycles_used = 0;
   
+  max_ancestral_fitness = -1.0;
+  
   // Copy last values from parent
   last_merit_base = genome_length;
   last_bonus      = 1;
@@ -552,7 +557,9 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   gestation_time  = time_used - gestation_start;
   gestation_start = time_used;
   fitness = CalcFitness( cur_merit_base, cur_bonus, gestation_time, cpu_cycles_used); 
+  max_ancestral_fitness  = (fitness > max_ancestral_fitness) ? fitness : max_ancestral_fitness;
 
+  
   // Lock in cur values as last values.
   last_merit_base           = cur_merit_base;
   last_bonus                = cur_bonus;
@@ -691,6 +698,8 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   gestation_start = time_used;
   fitness         = CalcFitness(cur_merit_base, cur_bonus, gestation_time, cpu_cycles_used);
   (void) div_type; 				// Unchanged
+  max_ancestral_fitness  = (fitness > max_ancestral_fitness) ? fitness : max_ancestral_fitness;
+
 
   // Lock in cur values as last values.
   last_merit_base           = cur_merit_base;
@@ -863,7 +872,8 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   last_inst_count          = clone_phenotype.last_inst_count;
   last_sense_count         = clone_phenotype.last_sense_count;  
   last_fitness             = CalcFitness(last_merit_base, last_bonus, gestation_time, last_cpu_cycles_used);
-
+  max_ancestral_fitness    = clone_phenotype.max_ancestral_fitness;
+  
   // Setup other miscellaneous values...
   num_divides     = 0;
   generation      = clone_phenotype.generation;
@@ -1081,6 +1091,7 @@ bool cPhenotype::SaveState(ofstream& fp)
   fp << age                 << " ";
   fp << neutral_metric      << " ";
   fp << life_fitness        << " ";
+  fp << max_ancestral_fitness << " ";
 
   fp << is_injected         << " ";
   fp << is_donor_last       << " ";
@@ -1190,6 +1201,7 @@ bool cPhenotype::LoadState(ifstream & fp)
   fp >> age;
   fp >> neutral_metric;
   fp >> life_fitness;
+  fp >> max_ancestral_fitness;
 
   fp >> is_injected;
   fp >> is_donor_last;

@@ -360,6 +360,7 @@ public:
   CONFIG_ADD_VAR(MUT_RATE_SOURCE, int, 1, "1 = Mutation rates determined by environment.\n2 = Mutation rates inherited from parent.");
  
   CONFIG_ADD_GROUP(REVERSION_GROUP, "Mutation Reversion\nThese slow down avida a lot, and should be set to 0.0 normally.");
+  CONFIG_ADD_VAR(FIT_COMPARE_BASE, cString, "PARENT", "Which fitness should an organsim be\ncompared to during revision/reversion\nPARENT=Organism's Parent\nANCESTOR=Maximum Fit Ancestor");
   CONFIG_ADD_VAR(REVERT_FATAL, double, 0.0, "Should any mutations be reverted on birth?");
   CONFIG_ADD_VAR(REVERT_DETRIMENTAL, double, 0.0, "  0.0 to 1.0; Probability of reversion.");
   CONFIG_ADD_VAR(REVERT_NEUTRAL, double, 0.0, "");
