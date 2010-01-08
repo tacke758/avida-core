@@ -357,7 +357,7 @@ void cAnalyzeGenotype::CheckPhenPlast() const
 {
   // Implicit genotype recalculation if required
   if (m_phenplast_stats == NULL){
-    cPhenPlastGenotype pp(genome, 1000, m_world, m_world->GetDefaultContext());
+    cPhenPlastGenotype pp(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, m_world->GetDefaultContext());
     SummarizePhenotypicPlasticity(pp);
   }
 }

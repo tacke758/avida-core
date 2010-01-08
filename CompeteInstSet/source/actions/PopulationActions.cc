@@ -35,6 +35,7 @@
 #include "cStats.h"
 #include "cWorld.h"
 #include "cOrganism.h"
+#include "cPhenPlastGenotype.h"
 
 
 /*
@@ -82,6 +83,10 @@ public:
   void Process(cAvidaContext& ctx)
   {
     cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
+    if (m_merit == 0){
+      cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+      m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+    }
     m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
   }
 };
@@ -128,6 +133,10 @@ public:
   void Process(cAvidaContext& ctx)
   {
     cGenome genome = cGenomeUtil::RandomGenome(ctx, m_length, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
+    if (m_merit == 0){
+      cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+      m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+    }
     m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
   }
 };
@@ -174,6 +183,10 @@ public:
 	  for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
 	  {
 		  cGenome genome = cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(ctx, m_length, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
+      if (m_merit == 0){
+        cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+        m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+      }
 		  m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
 	  }
   }
@@ -220,6 +233,10 @@ public:
   void Process(cAvidaContext& ctx)
   {
     cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
+    if (m_merit == 0){
+      cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+      m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+    }
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
       m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
   }
@@ -279,6 +296,10 @@ public:
       m_world->GetDriver().NotifyWarning("InjectRange has invalid range!");
     } else {
       cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
+      if (m_merit == 0){
+        cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+        m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+      }
       for (int i = m_cell_start; i < m_cell_end; i++) {
         m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
       }
@@ -339,6 +360,10 @@ public:
       m_world->GetDriver().NotifyWarning("InjectRange has invalid range!");
     } else {
       cGenome genome(m_sequence);
+      if (m_merit == 0){
+        cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+        m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+      }
       for (int i = m_cell_start; i < m_cell_end; i++) {
         m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
       }
@@ -509,6 +534,10 @@ public:
     cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
     if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
       for(int i=1; i<m_world->GetPopulation().GetNumDemes(); ++i) {  // first org has already been injected
+        if (m_merit == 0){
+          cPhenPlastGenotype pg(genome, m_world->GetConfig().STOCHASTICITY_TRIALS.Get(), m_world, ctx);
+          m_merit = pg.GetMostLikelyPhenotype()->GetMerit().GetDouble();
+        }
         m_world->GetPopulation().Inject(genome,
                                         m_world->GetPopulation().GetDeme(i).GetCellID(0),
                                         m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
