@@ -2637,11 +2637,15 @@ class cActionPrintInstSetRedundancies : public cAction
       fot << "# Instruction Set Redundancy Tabulation" << endl
           << "# format: update, inst_letter0:red0:..:redN letter1:..." << endl
           << "# Allowed Redundancies" << endl;
-      for (int ndx = 0; ndx < iset.GetSize(); ndx++){
-        fot << "# " << cInstruction(ndx).GetSymbol() << " ";
-        for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
-          fot << (*allowed_redundancies)[ndx][red] << " ";
-        fot << endl;
+      if (allowed_redundancies != NULL){
+         for (int ndx = 0; ndx < iset.GetSize(); ndx++){
+            fot << "# " << cInstruction(ndx).GetSymbol() << " ";
+            for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
+               fot << (*allowed_redundancies)[ndx][red] << " ";
+            fot << endl;
+         }
+      }else{
+         fot << "# N/A" << endl;
       }
       fot << endl;
     }
@@ -2687,6 +2691,13 @@ class cActionPrintInstSetRedundancies : public cAction
         PrintHeader(fot, mgr_iset);
         first_run = false;
       }
+
+      if (allowed_redundancies == NULL){
+         fot << m_world->GetStats().GetUpdate() << " " << "N/A" << endl;
+         return;
+      }
+
+
       
       VarMtx red_counter = InitRedCounter(allowed_redundancies);
       
@@ -2737,11 +2748,15 @@ class cActionDumpInstSetRedundancies : public cAction
       fot << "# Instruction Set Redundancy Tabulation" << endl
       << "# format: genotype_id red_inst0 ... " << endl
       << "# Allowed Redundancies" << endl;
-      for (int ndx = 0; ndx < iset.GetSize(); ndx++){
-        fot << "# " << cInstruction(ndx).GetSymbol() << " ";
-        for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
-          fot << (*allowed_redundancies)[ndx][red] << " ";
-        fot << endl;
+      if (allowed_redundancies != NULL){
+         for (int ndx = 0; ndx < iset.GetSize(); ndx++){
+            fot << "# " << cInstruction(ndx).GetSymbol() << " ";
+            for (int red = 0; red < (*allowed_redundancies)[ndx].GetSize(); red++)
+               fot << (*allowed_redundancies)[ndx][red] << " ";
+            fot << endl;
+         }
+      }else{
+         fot << "# N/A" << endl;
       }
       fot << endl;
     }
