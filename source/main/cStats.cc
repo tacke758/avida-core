@@ -39,6 +39,7 @@
 #include <cfloat>
 #include <cmath>
 #include <vector>
+using namespace std;
 
 
 
@@ -209,6 +210,16 @@ cStats::cStats(cWorld* world)
   // End sense tracking initialization
   
   // initialize UML property values
+  uml_wit_phen_counts.Resize(21);
+  uml_scen_phen_counts.Resize(21);
+  uml_wit_tot_phen_counts.Resize(18);
+  uml_prop_phen_counts.Resize(21);
+  uml_prop_tot_phen_counts.Resize(18);
+  uml_wit_phen_counts.SetAll(0);
+  uml_scen_phen_counts.SetAll(0);
+  uml_wit_tot_phen_counts.SetAll(0);
+  uml_prop_phen_counts.SetAll(0);
+  uml_prop_tot_phen_counts.SetAll(0);
   m_propertySuccess =0;
   m_propertyFailure =0;
   m_propertyTotal = 0;
@@ -1020,12 +1031,60 @@ void cStats::PrintSenseExeData(const cString& filename)
 
 void cStats::addScenarioCompletion(std::vector<double> s) 
 { 
+        if (m_scenario_completion.size() != s.size())
+	  m_scenario_completion.resize(s.size());
 
-	m_scenario_completion.resize(s.size());
-	for(unsigned int i=0; i<s.size(); ++i) {
-		m_scenario_completion[i].Add(s[i]);
+	int a=-1,c=-1;
+	for(int i=0; i<s.size(); i++) 
+	{
+	  m_scenario_completion[i].Add(s[i]);
+	  if (s[i]>.99)
+	    {
+	      if (0<=i && i<3)
+		  a = i;
+	      else if (6<=i && i<12) 
+		c = i-6;
+	    }
 	}
+	int index;
+	if (a<0)
+	  if (c<0)
+	    index = 0;
+	  else
+	    index = 1;
+	else if (c<0)
+	  index = 2;
+	else
+	  index = a*6+c+3;
+	uml_scen_phen_counts[index] += 1;
+	
+	/*string key="";
+	for (int i=0; i<s.size(); i++) {
+		key += (s[i]>=.99) ? '1' : '0';
+	}
+	if (m_scenario_phenotypes.find(key) != m_scenario_phenotypes.end())
+		m_scenario_phenotypes[key]+=1;
+	else
+	m_scenario_phenotypes[key]=1;*/
+}
 
+void cStats::PrintScenarioPhenotypeData(const cString& filename)
+{
+	cDataFile& df = m_world->GetDataFile(filename);
+	df.WriteComment( "Avida scenario phenotype counts\n" );
+	df.WriteComment( "update 00 0X X0 11 12 13 14 15 16 21 22 ...\n" );
+	df.WriteTimeStamp();
+	df.Write( GetUpdate(), "update" );
+	for (int i=0; i<uml_scen_phen_counts.GetSize(); i++)
+	  {
+	    df.Write( uml_scen_phen_counts[i], "tot");
+	    df.Write( uml_wit_phen_counts[i], "W12");
+	    df.Write( uml_prop_phen_counts[i], "P12");
+	  }
+	df.Endl();
+	uml_scen_phen_counts.SetAll(0);
+	uml_wit_phen_counts.SetAll(0);
+	uml_prop_phen_counts.SetAll(0);
 }
 
 void cStats::PrintPropertyData(const cString& filename)

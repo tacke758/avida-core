@@ -259,7 +259,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   bool parent_alive = true;  // Will the parent live through this process?
   for (int i = 0; i < child_array.GetSize(); i++) {
     target_cells[i] = PositionChild(parent_cell, m_world->GetConfig().ALLOW_PARENT.Get()).GetID();
-    
+
+    // for uml, want to place 2 children and delete parent
+    //if (i==1)
+    //  target_cells[i] = parent_cell.GetID();
+
     // If we replaced the parent, make a note of this.
     if (target_cells[i] == parent_cell.GetID()) parent_alive = false;      
     
@@ -304,6 +308,8 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
 				delete test_cpu;
 			}
 		}
+		// uml, want parent org to start with default model each time instead of building over generations
+		parent_organism.resetUMLModel();
 		schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 

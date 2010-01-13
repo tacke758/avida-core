@@ -30,6 +30,9 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <map>
+#include <cstring>
+using namespace std;
 
 
 #ifndef defs_h
@@ -252,6 +255,11 @@ private:
   tArray<cString> sense_names;
 
 // Stats for UML state diagrams
+  tArray<int> uml_scen_phen_counts;
+  tArray<int> uml_wit_tot_phen_counts;
+  tArray<int> uml_wit_phen_counts;
+  tArray<int> uml_prop_tot_phen_counts;
+  tArray<int> uml_prop_phen_counts;
   cDoubleSum av_number_of_states;
   cDoubleSum av_number_of_trans;	
   cDoubleSum av_number_of_triggers;
@@ -307,6 +315,8 @@ private:
 */  
 
   std::vector<cDoubleSum> m_scenario_completion;
+  //map<string,int> m_scenario_phenotypes;
+
   cStats(); // @not_implemented
   cStats(const cStats&); // @not_implemented
   cStats& operator=(const cStats&); // @not_implemented
@@ -665,9 +675,18 @@ public:
   void PrintSenseExeData(const cString& filename);
   void PrintUMLData(const cString& filename);
   void PrintPropertyData(const cString& filename);
+  void PrintScenarioPhenotypeData(const cString& filename);
 
   
    // UML Data Function
+  void addWITPhenTot(int index) { uml_wit_tot_phen_counts[index] += 1; }
+  int getWITPhenTot(int index) { return uml_wit_tot_phen_counts[index]; }
+  void addWITPhen(int index) { uml_wit_phen_counts[index] += 1; }
+  int getWITPhen(int index) { return uml_wit_phen_counts[index]; }
+  void addPROPPhenTot(int index) { uml_prop_tot_phen_counts[index] += 1; }
+  int getPROPPhenTot(int index) { return uml_prop_tot_phen_counts[index]; }
+  void addPROPPhen(int index) { uml_prop_phen_counts[index] += 1; }
+  int getPROPPhen(int index) { return uml_prop_phen_counts[index]; }
   void addState(int x) { av_number_of_states.Add(x); }
   void addTrans(int x) { av_number_of_trans.Add(x); }
   void addTriggers(int x) { av_number_of_triggers.Add(x); }

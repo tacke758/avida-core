@@ -538,7 +538,7 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
   if (parent_phenotype.DivideSex() == false) {
     return DoAsexBirth(ctx, child_genome, parent, child_array, merit_array);
   }
-
+  
   // If we make it this far, this must be a sexual or a "waiting" asexual
   // organism (which is the same as sexual with 0 recombination points)
 
@@ -574,7 +574,7 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
 
   // If we couldn't find a waiting entry, this one was saved -- stop here!
   if (old_entry == NULL) {
-    return false;
+      return false;
   }
 
   // We have now found a waiting entry.  Mark it no longer waiting and use it.
@@ -583,7 +583,7 @@ bool cBirthChamber::SubmitOffspring(cAvidaContext& ctx,
   // If we are NOT recombining, handle that here.
   if (parent_phenotype.CrossNum() == 0 || 
       ctx.GetRandom().GetDouble() > m_world->GetConfig().RECOMBINATION_PROB.Get()) {
-    return DoPairAsexBirth(ctx, *old_entry, child_genome, parent, child_array, merit_array);
+      return DoPairAsexBirth(ctx, *old_entry, child_genome, parent, child_array, merit_array);
   }
 
   // If we made it this far, RECOMBINATION will happen!

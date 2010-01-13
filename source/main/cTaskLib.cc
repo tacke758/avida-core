@@ -1,4 +1,3 @@
-
 /*
  *  cTaskLib.cc
  *  Avida
@@ -30,10 +29,13 @@
 #include "cEnvReqs.h"
 #include "tHashTable.h"
 #include "cTaskState.h"
+#include "cHardwareManager.h"
+#include "cTestCPU.h"
 
 #include "platform.h"
 
 #include <cstdlib>
+#include "stdlib.h"
 #include <cmath>
 #include <climits>
 #include <iomanip>
@@ -41,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <fstream>
 
 // Various workarounds for Visual Studio shortcomings
 #if AVIDA_PLATFORM(WINDOWS)
@@ -408,7 +411,7 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
   else if (name == "trans10") // 
 	  NewTask(name, "Successfully created trans 10", &cTaskLib::Task_Trans10);	  
   else if (name == "scens") // 
-	  NewTask(name, "Successfully created scenarios", &cTaskLib::Task_Scenarios);	  
+	  NewTask(name, "Successfully created scenarios", &cTaskLib::Task_Scenarios);	
   else if (name == "numStates") // 
 	  NewTask(name, "Successfully created 5 states", &cTaskLib::Task_NumStates);  	  
   else if (name == "numTrans") // 
@@ -433,6 +436,9 @@ cTaskEntry* cTaskLib::AddTask(const cString& name, const cString& info, cEnvReqs
 	  NewTask(name, "Export XMI", &cTaskLib::Task_ExportXMI);
   else if (name == "check-props") 
 	  NewTask(name, "Check Properties", &cTaskLib::Task_Properties);
+  else if (name == "indscen") //
+	  Load_IndividualScenario(name, info, envreqs, errors);
+
  
 /*  else if (name == "mult_trans") // 
 	  NewTask(name, "Successfully completed multiple transitions", &cTaskLib::Task_MultTrans);*/
@@ -2961,6 +2967,22 @@ double cTaskLib::Task_Scenarios(cTaskContext& ctx) const
 	return bonus;
 }
 
+void cTaskLib::Load_IndividualScenario(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors)
+{
+  cArgSchema schema;
+  schema.AddEntry("scenario", 0, cArgSchema::SCHEMA_INT);
+  cArgContainer* args = cArgContainer::Load(argstr, schema, errors);
+  if (args) NewTask(name, "indscen", &cTaskLib::Task_IndividualScenario, 0, args);
+}
+
+// Note: must call Task_Scenarios first to set values in scenario completion vector
+double cTaskLib::Task_IndividualScenario(cTaskContext& ctx) const
+{
+	const int index = ctx.GetTaskEntry()->GetArguments().GetInt(0);
+	double bonus = ((ctx.getOrganism())->getUMLModel()->getScenarioCompletion())[index];
+    return bonus;
+}
+
 double cTaskLib::Task_Properties(cTaskContext& ctx) const
 {
 	double bonus = 0.0; 
@@ -3018,8 +3040,7 @@ double cTaskLib::Task_Hydra(cTaskContext& ctx) const
 		
 		return 0;
 	}
-		
-	m_world->GetStats().HydraAttempt();
+          m_world->GetStats().HydraAttempt();
 
 	if (organism->getParentXMI() == temp) {
 	
@@ -3171,7 +3192,7 @@ double cTaskLib::SpinWitnessCoprocess(cTaskContext& ctx, const std::string& neve
 double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	cOrganism* organism = ctx.getOrganism();
 	double bonus = 0.0;
-		
+			
 	/*if (organism->getUMLModel()->getBonusInfo("spinw1") <= 1)	
 	{ 
 		organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
@@ -3204,9 +3225,61 @@ double cTaskLib::Task_SpinN1(cTaskContext& ctx) const {
 	}
 	
 	organism->getUMLModel()->setBonusInfo("spinn1", bonus);	
-	if (bonus > 0) 	m_world->GetStats().N1Passed();
+		
+	if (bonus > 0) m_world->GetStats().N1Passed();
+	else return bonus;
+	
+	std::vector<double> scen_comp = organism->getUMLModel()->getScenarioCompletion();
+	int a,c;
+	// build string representing phenotype based on scenario completion
+	//std::string pheno = "";
+	cString pheno = "";
+	for (int i=0; i<scen_comp.size(); i++)
+	{
+	    if (i>=3 && i<=5)
+	      continue;
+	    if (scen_comp[i]==1)
+	      {
+		pheno += '1';
+		if (i<3)
+		  a = i;
+		else 
+		  c = i-6;
+	      }
+	    else
+	      pheno += '0';
+	}
+	int phen_index = a*6+c;
+	m_world->GetStats().addPROPPhenTot(phen_index);
+	phen_index += 3;
+	m_world->GetStats().addPROPPhen(phen_index);
+	int phen_count = m_world->GetStats().getPROPPhenTot(phen_index);
+	
+	std::ostringstream strstrm, strstrm2;
+	strstrm << "rm *." << pheno << "*\n";
+	strstrm << "cp tmp.xmi P1." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID() 
+		<< "." << pheno << "." << phen_count << ".xml\n";
+	if(system(strstrm.str().c_str())!=0) return 0.0;
+	char upd[20];
+	sprintf(upd, "%d", m_world->GetStats().GetUpdate());
+	char orgid[20];
+	sprintf(orgid, "%d", organism->GetID());
+	cString filename = "P1.";
+	filename += upd;
+	filename += ".";
+	filename += orgid;
+	filename += ".";
+	filename += pheno;
+	filename += ".org";
+	ofstream myfile(filename);
+	myfile << organism->GetGenome().AsString() << endl;
+	myfile.close();
+		
+	//cTestCPU* testcpu = m_world->GetHardwareManager().CreateTestCPU();
+	//       testcpu->PrintGenome(m_world->GetDefaultContext(), organism->GetGenome(), filename, organism->GetGenotype(), m_world->GetStats().GetUpdate());
 
 	return bonus;
+
 }
 
 
@@ -3234,7 +3307,6 @@ double cTaskLib::Task_SpinW1(cTaskContext& ctx) const {
 	organism->getUMLModel()->setBonusInfo("spinw1", bonus);	
 	if (bonus > 0) 	m_world->GetStats().W1Passed();
 	
-
 	return bonus;
 }
 
@@ -3270,6 +3342,42 @@ double cTaskLib::Task_SpinN2(cTaskContext& ctx) const {
 	
 	organism->getUMLModel()->setBonusInfo("spinn2", bonus);	
 	if (bonus > 0) 	m_world->GetStats().N2Passed();
+	else
+	  return bonus;
+
+	// if N1 also passed want to print xml file so can analyze
+	if (organism->getUMLModel()->getBonusInfo("spinn1") > 0)
+	  {
+	    std::vector<double> scen_comp = organism->getUMLModel()->getScenarioCompletion();
+	    int a,c;
+	    // build string representing phenotype based on scenario completion
+	    std::string pheno = "";
+	    for (int i=0; i<scen_comp.size(); i++)
+	      {
+		if (i>=3 && i<=5)
+		  continue;
+		if (scen_comp[i]==1)
+		  {
+		    pheno += '1';
+		    if (i<3)
+		      a = i;
+		    else 
+		      c = i-6;
+		  }
+		else
+		  pheno += '0';
+	      }
+	    int phen_index = a*6+c;
+	    m_world->GetStats().addPROPPhenTot(phen_index);
+	    phen_index += 3;
+	    m_world->GetStats().addPROPPhen(phen_index);
+	    int phen_count = m_world->GetStats().getPROPPhenTot(phen_index);
+	    std::ostringstream strstrm, strstrm2;
+	    strstrm << "rm *." << pheno << "*\n";
+	    strstrm << "cp tmp.xmi P12." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID() 
+		    << "." << pheno << "." << phen_count << ".xml\n";
+	    if(system(strstrm.str().c_str())!=0) return 0.0;
+	  }
 
 	return bonus;
 }
@@ -3297,7 +3405,61 @@ double cTaskLib::Task_SpinW2(cTaskContext& ctx) const {
 
 	organism->getUMLModel()->setBonusInfo("spinw2", bonus);	
 	if (bonus > 0) 	m_world->GetStats().W2Passed();
+	else return bonus;
+	
+	// if W1 also passed want to print xml file so can analyze
+	if (organism->getUMLModel()->getBonusInfo("spinw1") > 0)
+	{
+	  std::vector<double> scen_comp = organism->getUMLModel()->getScenarioCompletion();
+	  int a,c;
+	  // build string representing phenotype based on scenario completion
+	  std::string pheno = "";
+	  for (int i=0; i<scen_comp.size(); i++)
+	    {
+	      if (i>=3 && i<=5)
+		continue;
+	      if (scen_comp[i]==1)
+		{
+		  pheno += '1';
+		  if (i<3)
+		    a = i;
+		  else 
+		    c = i-6;
+		}
+	      else
+		pheno += '0';
+	    }
+	  int phen_index = a*6+c;
+	  m_world->GetStats().addWITPhenTot(phen_index);
+	  int phen_count = m_world->GetStats().getWITPhenTot(phen_index);
 
+	  phen_index += 3;	  
+	  m_world->GetStats().addWITPhen(phen_index);
+
+	  std::ostringstream strstrm, strstrm2;
+	  std::string com1="rm *.";
+	  com1 += pheno;
+	  com1 += "*";
+	  system(com1.c_str());
+	  strstrm2 << "cp tmp.xmi W12." << m_world->GetStats().GetUpdate() << "." << ctx.getOrganism()->GetID() 
+	  	  << "." << pheno << "." << phen_count << ".xml\n";
+	  if(system(strstrm2.str().c_str())!=0) return 0.0;
+	  char upd[20];
+	  sprintf(upd, "%d", m_world->GetStats().GetUpdate());
+	  char orgid[20];
+	  sprintf(orgid, "%d", organism->GetID());
+	  std::string filename = "W12.";
+	  filename += upd;
+	  filename += ".";
+	  filename += orgid;
+	  filename += ".";
+	  filename += pheno;
+	  filename += ".org";
+	  ofstream file2(filename.c_str());
+	  file2 << organism->GetGenome().AsString() << endl;
+	  file2.close();
+
+	}
 	return bonus;
 }
 

@@ -2827,7 +2827,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   // that crash when evaluating this kind of organism -- JEB
 
   organism->modelCheck(ctx);
-	
+  organism->GetPhenotype().SetDivideSex(true);
 	
   // Setup child
   cCPUMemory& child_genome = organism->ChildGenome();

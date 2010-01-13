@@ -533,7 +533,7 @@ double cUMLModel::checkForScenarios()
 
 				
 		if (s.alt_set_name != current_alt_set) { 
-			// these update the running totals.
+		  // these update the running totals.
 			percent_scenario_complete += current_alt_set_percent_complete;
 			total_bonus += current_alt_set_max_bonus;
 			scenarios[max_alt_set_id].utilityMap["Used"] = 1;
@@ -544,20 +544,22 @@ double cUMLModel::checkForScenarios()
 			current_alt_set = s.alt_set_name;
 			current_alt_set_percent_complete = scenario_completion[i];
 			num_sets++;
-		} else { 
+			} else { 
 			if(current_alt_set_percent_complete < scenario_completion[i]) {
 				current_alt_set_percent_complete = scenario_completion[i];
 				current_alt_set_max_bonus = temp_bonus;
+				if (i!=0)
+				  scenario_completion[max_alt_set_id] = 0;
 				max_alt_set_id = i;
 			}
+			else
+			  scenario_completion[i]=0;
 		}
 	}
-	
 	// finish out by storing the values of the last set: 
 	percent_scenario_complete += current_alt_set_percent_complete;
 	total_bonus += current_alt_set_max_bonus;
 	scenarios[max_alt_set_id].utilityMap["Used"] = 1;
-
 	
 	percent_scenario_complete = percent_scenario_complete/num_sets;
 	

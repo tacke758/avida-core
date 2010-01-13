@@ -306,6 +306,9 @@ private:  // Direct task related methods
   double Task_Nondeterminism(cTaskContext& ctx) const;
   double Task_ExportXMI(cTaskContext& ctx) const;
   double Task_Properties(cTaskContext& ctx) const;
+  void Load_IndividualScenario(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
+  double Task_IndividualScenario(cTaskContext& ctx) const;
+ 
 
 };
 

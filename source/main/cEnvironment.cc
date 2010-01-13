@@ -833,7 +833,7 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
     
     // Examine requisites on this reaction
     if (TestRequisites(cur_reaction->GetRequisites(), task_cnt, reaction_count, on_divide) == false) {
-      continue;
+       continue;
     }
 
     const double task_quality = m_tasklib.TestOutput(taskctx);

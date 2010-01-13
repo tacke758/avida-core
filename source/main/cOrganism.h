@@ -310,6 +310,7 @@ public:
   
  // UML
   void modelCheck(cAvidaContext& ctx);
+  void resetUMLModel();
   cUMLModel* getUMLModel();
 //  cUMLModel* getParentUMLModel() { return m_parent_model; } 
   std::string getParentXMI() { return m_parent_xmi; }

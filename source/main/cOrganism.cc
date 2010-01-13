@@ -591,7 +591,6 @@ void cOrganism::Fault(int fault_loc, int fault_type, cString fault_desc)
 void cOrganism::modelCheck(cAvidaContext& ctx)
 {
 	if(GetCellID()==-1) return;
-
 	if (m_model.getGenMode() == 0) {
 		m_model.printXMI();	
 		
@@ -601,9 +600,6 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 		} 
 	
 	}
-	
-
-
 
   const tArray<double> & resource_count = m_interface->GetResources();
   
@@ -715,6 +711,14 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 
   
   
+}
+
+void cOrganism::resetUMLModel()
+{
+  m_model = cUMLModel((const char*)m_world->GetConfig().SEED_MODEL.Get());
+  m_state_diag=0;
+  m_orig_state_index=0;
+  m_dest_state_index=0;
 }
 
 cUMLModel* cOrganism::getUMLModel()
