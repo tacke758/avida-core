@@ -309,7 +309,9 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
 			}
 		}
 		// uml, want parent org to start with default model each time instead of building over generations
+		cout << "a";
 		parent_organism.resetUMLModel();
+		cout << "b";
 		schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 
