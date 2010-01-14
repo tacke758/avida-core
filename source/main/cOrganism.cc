@@ -715,7 +715,7 @@ void cOrganism::modelCheck(cAvidaContext& ctx)
 
 void cOrganism::resetUMLModel()
 {
-  m_model = cUMLModel((const char*)m_world->GetConfig().SEED_MODEL.Get());
+  m_model.ResetModel();
   m_state_diag=0;
   m_orig_state_index=0;
   m_dest_state_index=0;

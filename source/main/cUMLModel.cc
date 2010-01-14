@@ -9,6 +9,26 @@
 
 using namespace std;
 
+void cUMLModel::ResetModel()
+{
+  bonus_info.clear();
+  scenario_completion.clear();   
+  classes = _cfg_classes;
+  state_diagrams = _cfg_state_diagrams;
+  scenarios = _cfg_scenarios;
+  hydraMode = _cfg_hydra_mode; 
+  witnessMode = _cfg_witness_mode;
+  genMode = _cfg_gen_mode;
+  relatedClassMode = _cfg_related_class_mode;
+  delete gen;
+  gen = new cMDEPropertyGenerator(_cfg_gen);
+  gen->setRelatedClassMode(_cfg_related_class_mode);
+  percent_scenario_complete = 0;
+  
+  // Initialize the property generator.
+  //  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);
+  createExpressionsFromClasses();
+}
 xmi_info loadFile(const char* filename) {
 	std::string data, line; // or maybe stringstream? (strstream?)
 	std::ifstream infile;

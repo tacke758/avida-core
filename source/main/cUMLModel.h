@@ -37,6 +37,8 @@ public:
 	cUMLModel(const char* seed_model);
 	~cUMLModel();
 	
+	void ResetModel();
+	
 	// Used to check if the diagrams satisfy the specified scenarios
 	double checkForScenarios();
 	
