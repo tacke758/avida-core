@@ -10,9 +10,7 @@
 using namespace std;
 
 void cUMLModel::ResetModel()
-{
-  bonus_info.clear();
-  scenario_completion.clear();   
+{   
   classes = _cfg_classes;
   state_diagrams = _cfg_state_diagrams;
   scenarios = _cfg_scenarios;
@@ -23,7 +21,6 @@ void cUMLModel::ResetModel()
   delete gen;
   gen = new cMDEPropertyGenerator(_cfg_gen);
   gen->setRelatedClassMode(_cfg_related_class_mode);
-  percent_scenario_complete = 0;
   
   // Initialize the property generator.
   //  gen = new cMDEPropertyGenerator(_cfg_related_class_mode);

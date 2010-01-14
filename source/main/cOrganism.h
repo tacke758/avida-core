@@ -312,6 +312,7 @@ public:
   void modelCheck(cAvidaContext& ctx);
   void resetUMLModel();
   cUMLModel* getUMLModel();
+  void resetUMLModel();
 //  cUMLModel* getParentUMLModel() { return m_parent_model; } 
   std::string getParentXMI() { return m_parent_xmi; }
   int getStateDiagramIndex() { return m_state_diag; } 
