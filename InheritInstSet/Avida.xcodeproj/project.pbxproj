@@ -176,7 +176,7 @@
 		70DCAC9C097AF7C0002F8733 /* primitive.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC9B097AF7C0002F8733 /* primitive.cc */; };
 		B4480DDF10F3DE4E00FC179B /* cInheritedInstSet.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4480DDE10F3DE4E00FC179B /* cInheritedInstSet.cc */; };
 		B4BDF47B11050F3300658C60 /* cDemeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B4BDF47911050F3300658C60 /* cDemeManager.h */; };
-		B4BDF47C11050F3300658C60 /* cDemeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B4BDF47A11050F3300658C60 /* cDemeManager.cpp */; };
+		B4BDF47C11050F3300658C60 /* cDemeManager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4BDF47A11050F3300658C60 /* cDemeManager.cc */; };
 		B4BDF4851105138F00658C60 /* cDemeCompetitions.h in Headers */ = {isa = PBXBuildFile; fileRef = B4BDF4831105138F00658C60 /* cDemeCompetitions.h */; };
 		B4BDF4861105138F00658C60 /* cDemeCompetitions.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4BDF4841105138F00658C60 /* cDemeCompetitions.cc */; };
 		B4DA5DBE10F289170052C0A5 /* cInheritedInstSet.h in Headers */ = {isa = PBXBuildFile; fileRef = B4DA5DBC10F289170052C0A5 /* cInheritedInstSet.h */; };
@@ -721,7 +721,7 @@
 		70FB86A908BFAFEC00BDF589 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		B4480DDE10F3DE4E00FC179B /* cInheritedInstSet.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cInheritedInstSet.cc; sourceTree = "<group>"; };
 		B4BDF47911050F3300658C60 /* cDemeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeManager.h; sourceTree = "<group>"; };
-		B4BDF47A11050F3300658C60 /* cDemeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDemeManager.cpp; sourceTree = "<group>"; };
+		B4BDF47A11050F3300658C60 /* cDemeManager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDemeManager.cc; sourceTree = "<group>"; };
 		B4BDF4831105138F00658C60 /* cDemeCompetitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeCompetitions.h; sourceTree = "<group>"; };
 		B4BDF4841105138F00658C60 /* cDemeCompetitions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDemeCompetitions.cc; sourceTree = "<group>"; };
 		B4DA5DBC10F289170052C0A5 /* cInheritedInstSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cInheritedInstSet.h; sourceTree = "<group>"; };
@@ -1202,7 +1202,7 @@
 				B4BDF4831105138F00658C60 /* cDemeCompetitions.h */,
 				B4BDF4841105138F00658C60 /* cDemeCompetitions.cc */,
 				B4BDF47911050F3300658C60 /* cDemeManager.h */,
-				B4BDF47A11050F3300658C60 /* cDemeManager.cpp */,
+				B4BDF47A11050F3300658C60 /* cDemeManager.cc */,
 				B4DA5DBC10F289170052C0A5 /* cInheritedInstSet.h */,
 				B4480DDE10F3DE4E00FC179B /* cInheritedInstSet.cc */,
 				B4FA259E0C5EB7600086D4B5 /* cPhenPlastGenotype.cc */,
@@ -1751,7 +1751,7 @@
 				B4FA25A90C5EB7880086D4B5 /* cPhenPlastGenotype.cc in Sources */,
 				B516AF840C91E2D400023D53 /* cDemeCellEvent.cc in Sources */,
 				B4480DDF10F3DE4E00FC179B /* cInheritedInstSet.cc in Sources */,
-				B4BDF47C11050F3300658C60 /* cDemeManager.cpp in Sources */,
+				B4BDF47C11050F3300658C60 /* cDemeManager.cc in Sources */,
 				B4BDF4861105138F00658C60 /* cDemeCompetitions.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
