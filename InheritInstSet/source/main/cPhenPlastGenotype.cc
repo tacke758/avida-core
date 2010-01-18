@@ -54,6 +54,10 @@ cPhenPlastGenotype::~cPhenPlastGenotype()
 
 void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx)
 {
+  int default_trials = world->GetConfig().STOCHASTICITY_TRIALS.Get();
+  m_num_trials = (m_num_trials == -1) ? default_trials :
+                      (m_num_trials <= 0) ? 1 : m_num_trials;
+  
   if (m_num_trials > 1)
     test_info.UseRandomInputs(true);
   cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();

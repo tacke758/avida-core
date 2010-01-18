@@ -33,6 +33,7 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width, cWorld* world)
   birth_count = 0;
   org_count = 0;
   m_world = world;
+  iset_id = -1;
 
   // If width is negative, set it to the full number of cells.
   width = in_width;
@@ -50,6 +51,7 @@ int cDeme::GetCellID(int x, int y) const
   const int pos = y * width + x;
   return cell_ids[pos];
 }
+
 
 
 /*! Note that for this method to work, we blatantly assume that IDs are in

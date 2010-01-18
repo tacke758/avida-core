@@ -85,6 +85,7 @@ class cPopulation
 #if USE_tMemTrack
   tMemTrack<cPopulation> mt;
 #endif
+    friend class cDemeManager;
 private:
   // Components...
   cWorld* m_world;
@@ -106,7 +107,6 @@ private:
   int world_x;                         // Structured population width.
   int world_y;                         // Structured population
   int num_organisms;                   // Cell count with living organisms
-  tArray<cDeme> deme_array;            // Deme structure of the population.
  
   // Outside interactions...
   bool sync_events;   // Do we need to sync up the event list with population?
@@ -136,6 +136,7 @@ private:
   void InjectGenome(int cell_id, const cGenome& genome, int lineage_label, int inst_set_id=0);
   void InjectClone(int cell_id, cOrganism& orig_org);
   void InjectChild(int cell_id, cOrganism& orig_org);
+  void CopyClone(int source_cell_id, int target_cell_id);
 
   void LineageSetupOrganism(cOrganism* organism, cLineage* lineage, int lin_label, cGenotype* parent_genotype = NULL);
   void CCladeSetupOrganism(cOrganism* organism); 
@@ -148,6 +149,8 @@ private:
   cPopulation& operator=(const cPopulation&); // @not_implemented
   
 public:
+
+  
   cPopulation(cWorld* world);
   ~cPopulation();
 
@@ -174,30 +177,6 @@ public:
   void AddSellValue(const int data, const int label, const int sell_price, const int org_id, const int cell_id);
   int BuyValue(const int label, const int buy_price, const int cell_id);
   void SwapCells(cPopulationCell & cell1, cPopulationCell & cell2);
-
-  // Deme-related methods
-  void CompeteDemes(int competition_type);
-  void ReplicateDemes(int rep_trigger);
-  void DivideDemes();
-  void ResetDemes();
-  void CopyDeme(int deme1_id, int deme2_id);
-  void SpawnDeme(int deme1_id, int deme2_id=-1);
-
-  // Deme-related stats methods
-  void PrintDemeAllStats();
-  void PrintDemeDonor();
-  void PrintDemeFitness();
-  void PrintDemeGestationTime();
-  void PrintDemeInstructions();
-  void PrintDemeLifeFitness();
-  void PrintDemeMerit();
-  void PrintDemeMutationRate();
-  void PrintDemeReceiver();
-  void PrintDemeResource();
-  void PrintDemeSpatialResData(cResourceCount res, const int i, const int deme_id) const;
-  void PrintDemeSpatialEnergyData() const;
-  void PrintDemeSpatialSleepData() const;
-  void PrintDemeTasks();
 
   
   // Print donation stats
@@ -226,19 +205,16 @@ public:
   int GetSize() { return cell_array.GetSize(); }
   int GetWorldX() { return world_x; }
   int GetWorldY() { return world_y; }
-  int GetNumDemes() { return deme_array.GetSize(); }
-  cDeme& GetDeme(int i) { return deme_array[i]; }
+
 
   cPopulationCell& GetCell(int in_num);
   const tArray<double>& GetResources() const { return resource_count.GetResources(); }
   const tArray<double>& GetCellResources(int cell_id) const { return resource_count.GetCellResources(cell_id); }
-  const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id).GetDemeResourceCount().GetResources(); }
   cBirthChamber& GetBirthChamber(int id) { (void) id; return birth_chamber; }
 
   void UpdateResources(const tArray<double>& res_change);
   void UpdateResource(int id, double change);
   void UpdateCellResources(const tArray<double>& res_change, const int cell_id);
-  void UpdateDemeCellResources(const tArray<double>& res_change, const int cell_id);
 
   void SetResource(int id, double new_level);
   double GetResource(int id) const { return resource_count.Get(id); }

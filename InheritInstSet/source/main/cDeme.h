@@ -29,6 +29,7 @@
 #include "tArray.h"
 #include "cResourceCount.h"
 #include "cStringList.h"
+#include "cAvidaContext.h"
 
 class cResource;
 class cWorld;
@@ -41,11 +42,14 @@ class cDeme
 {
 private:
   cWorld* m_world;
+  cAvidaContext& ctx;
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
   int org_count; //!< Number of organisms are currently in this deme.
   int _age; //!< Age of this deme, in updates.
+  
+  int m_instset_id;  //@MRR Cludging together linkage to cHardwareManager
   
   cGermline _germline; //!< The germline for this deme, if used.
 
@@ -57,10 +61,10 @@ private:
   tArray<cDemeCellEvent> cell_events;
   
 public:
-  cDeme() : width(0), birth_count(0), org_count(0), _age(0), deme_resource_count(0) { ; }
+  cDeme() : width(0), birth_count(0), org_count(0), _age(0), deme_resource_count(0), { ; }
   ~cDeme() { ; }
 
-  void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);
+  void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL, cAvidaContext& ctx);
 
   int GetSize() const { return cell_ids.GetSize(); }
   int GetCellID(int pos) const { return cell_ids[pos]; }
@@ -68,6 +72,10 @@ public:
   //! Returns an (x,y) pair for the position of the passed-in cell ID.
   std::pair<int, int> GetCellPosition(int cellid) const;
 
+  //@MRR
+  int GetInsetSetID() const { return instset_id; }
+  int SetInstSetID(int id) const { m_instset_id = id; }
+  
   int GetWidth() const { return width; }
   int GetHeight() const { return cell_ids.GetSize() / width; }
 
@@ -94,6 +102,11 @@ public:
   /*! Returns the age of this deme, updates.  Age is defined as the number of 
     updates since the last time Reset() was called. */
   int GetAge() const { return _age; }
+  
+  void Sterilize() const;
+  void ReplaceDeme(const cDeme& source);
+  void SeedDeme(const cGenotype, int cell_id);
+  void SampleRandomOrganism();
   
   const cResourceCount& GetDemeResourceCount() const { return deme_resource_count; }
   void SetDemeResourceCount(const cResourceCount in_res) { deme_resource_count = in_res; }
