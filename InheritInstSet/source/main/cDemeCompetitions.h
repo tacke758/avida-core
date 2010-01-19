@@ -7,8 +7,16 @@
  *
  */
 
+#ifndef cDemeCompetitions_h
+#define cDemeCompetitions_h
+
+#ifndef cPopulation_h
 #include "cPopulation.h"
+#endif
+
+#ifndef cDemeManager_h
 #include "cDemeManager.h"
+#endif
 
 class cDemeCompetitions{
  
@@ -24,3 +32,6 @@ class cDemeCompetitions{
     static void AverageOrganismLife(cDemeManager& mgr);
     static void StrongRankSelectionLife(cDemeManager& mgr);
 };
+
+#endif
+

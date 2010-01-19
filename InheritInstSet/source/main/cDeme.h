@@ -42,7 +42,6 @@ class cDeme
 {
 private:
   cWorld* m_world;
-  cAvidaContext& ctx;
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
@@ -64,7 +63,7 @@ public:
   cDeme() : width(0), birth_count(0), org_count(0), _age(0), deme_resource_count(0), { ; }
   ~cDeme() { ; }
 
-  void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL, cAvidaContext& ctx);
+  void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);
 
   int GetSize() const { return cell_ids.GetSize(); }
   int GetCellID(int pos) const { return cell_ids[pos]; }

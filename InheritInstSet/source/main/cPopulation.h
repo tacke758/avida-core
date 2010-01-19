@@ -31,9 +31,6 @@
 #ifndef cBirthChamber_h
 #include "cBirthChamber.h"
 #endif
-#ifndef cDeme_h
-#include "cDeme.h"
-#endif
 #ifndef cOrgInterface_h
 #include "cOrgInterface.h"
 #endif
@@ -241,6 +238,10 @@ public:
   // Trials and genetic algorithm @JEB
   void NewTrial();
   void CompeteOrganisms(int competition_type, int parents_survive, double scaled_time, int dynamic_scaling);
+  
+  // Deme functions are contained in deme manager
+  inline int GetNumDemes() const { m_deme_manager->GetNumDemes(); }
+  inline cDemeManager& GetDemeManager() {return m_deme_manager;}
 };
 
 

@@ -33,7 +33,7 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width, cWorld* world)
   birth_count = 0;
   org_count = 0;
   m_world = world;
-  iset_id = -1;
+  m_instset_id = -1;
 
   // If width is negative, set it to the full number of cells.
   width = in_width;
