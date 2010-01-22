@@ -42,7 +42,7 @@
 
 
 cHardwareManager::cHardwareManager(cWorld* world)
-: m_world(world), m_type(world->GetConfig().HARDWARE_TYPE.Get()), m_allowed_redundancies(NULL) /*, m_testres(world) */
+: m_world(world), m_allowed_redundancies(NULL), m_type(world->GetConfig().HARDWARE_TYPE.Get())  /*, m_testres(world) */
 {
   cString filename = world->GetConfig().INST_SET.Get();
   

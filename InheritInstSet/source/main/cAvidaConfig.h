@@ -301,6 +301,7 @@ public:
   CONFIG_ADD_VAR(GERMLINE_RANDOM_PLACEMENT, int, 0, "Defines how the seed for a germline is placed\n within the deme;\n0 = organisms is placed in center of deme, no orientation\n1 = organisms is placed in center of deme and oriented\n2 = organism is randomly placed in deme, no orientation");
   CONFIG_ADD_VAR(MAX_DEME_AGE, int, 500, "The maximum age of a deme (in updates) to be\nused for age-based replication (default=500).");  
   CONFIG_ADD_VAR(ISET_ID_MUTPROB, double, 0.25, "The probability of chainging an instruction set id +/- 1");
+  CONFIG_ADD_VAR(NUM_DEME_TOURNAMENTS, int, 20, "The number of tournaments to hold during deme competition when using tournament selection.");
   
   
   CONFIG_ADD_GROUP(REPRODUCTION_GROUP, "Birth and Death");

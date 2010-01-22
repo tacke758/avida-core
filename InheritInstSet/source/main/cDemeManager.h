@@ -24,6 +24,9 @@
 
 class cResourceCount; 
 
+typedef void (*tDemeCompetition)(cDemeManager& mgr);
+typedef tArray<int> (*tDemeSelection)(cDemeManager& mgr);
+typedef bool (*tDemeTrigger)(cDemeManager& mgr, int deme_id);
 
 class cDemeManager{
   friend class cDemeCompetitions;
@@ -59,16 +62,19 @@ class cDemeManager{
     cPopulation& GetPopulation() { return m_population;}
     
     // Deme-related methods
-    void CompeteDemes(void (*fitfunc)(cDemeManager&), tArray<int> (*selfunc)(cDemeManager&));
-    void ReplicateDemes(bool (*trigfunc)(cDemeManager&, int));
+    void CompeteDemes(tDemeCompetition, tDemeSelection);
+    void ReplicateDemes(tDemeTrigger);
     void DivideDemes();
     void ResetDemes();
+    void ResetDemeOrganisms();
     void CopyDeme(int source_id, int target_id);
     void CopyDemeGermline(int source_id, int target_id);
     void SterileRandomInjection(int source_id, int target_id);
     void SterileGermlineInjection(int source_id, int target_id);
     void SpawnDeme(int source_id, int target_id=-1);
     void SterilizeDeme(int deme_id);
+  
+    cOrganism* SampleRandomDemeOrganism(int deme_id);
   
     // Deme-related stats methods
     void PrintDemeAllStats();
@@ -88,8 +94,8 @@ class cDemeManager{
     const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id)->GetDemeResourceCount().GetResources(); }
     void UpdateDemeCellResources(const tArray<double>& res_change, const int cell_id);
   
-    tArray<int> CompeteFitnessProportional(cDemeManager& mgr);
-    tArray<int> CompeteTournament(cDemeManager& mgr);
+    tArray<int> SelectFitnessProportional(cDemeManager& mgr);
+    tArray<int> SelectTournament(cDemeManager& mgr);
 };
 
 

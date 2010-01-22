@@ -45,7 +45,7 @@ m_population(p)
     for (int offset = 0; offset < m_deme_size; offset++) {
       int cell_id = deme_id * m_deme_size + offset;
       deme_cells[offset] = cell_id;
-      m_population.cell_array[cell_id].SetDemeID(deme_id);
+      m_population.GetCell(cell_id).SetDemeID(deme_id);
     }
     m_demes[deme_id] = new cDeme();
     m_demes[deme_id]->Setup(deme_cells, m_deme_size_x, m_world);
@@ -60,10 +60,10 @@ cDemeManager::~cDemeManager()
 }
 
 
-void cDemeManager::CompeteDemes(void (*FitFunc)(cDemeManager&), tArray<int> (*SelFunc)(cDemeManager&))
+void cDemeManager::CompeteDemes(tDemeCompetition fit_func, tDemeSelection sel_func)
 {
-  FitFunc(*this);
-  tArray<int> deme_count = SelFunc(*this);
+  fit_func(*this);
+  tArray<int> deme_count = sel_func(*this);
   
   int num_demes = GetNumDemes();
   tArray<bool> is_init(num_demes, false); 
@@ -100,14 +100,14 @@ void cDemeManager::CompeteDemes(void (*FitFunc)(cDemeManager&), tArray<int> (*Se
     if (!is_init[i]) SterileRandomInjection(i,i);
     
   // Reset all deme stats to zero.
-  ResetStats(); 
+  ResetDemes(); 
 }
 
 
 
 
 
-void cDemeManager::ReplicateDemes(bool (*trigger)(cDemeManager&, int) )
+void cDemeManager::ReplicateDemes(tDemeTrigger trigger)
 {
   assert(GetNumDemes()>1); // Sanity check.
   
@@ -152,10 +152,17 @@ void cDemeManager::SpawnDeme(int src_id, int target_id)
 
 // Reset Demes goes through each deme and resets the individual organisms as
 // if they were just injected into the population.
-void cDemeManager::ResetDemes()
+void cDemeManager::ResetDemeOrganisms()
 {
   for (int deme_id = 0; deme_id < GetNumDemes(); deme_id++)
     CopyDeme(deme_id, deme_id);
+}
+
+
+void cDemeManager::ResetDemes()
+{
+  for (int deme_id = 0; deme_id < GetNumDemes(); deme_id++)
+    GetDeme(deme_id)->Reset();
 }
 
 
@@ -164,7 +171,7 @@ void cDemeManager::ResetDemes()
 void cDemeManager::SterilizeDeme(int id)
 {
   for (int i=0; i< GetDeme(id)->GetSize(); i++)
-    m_population.KillOrganism(m_population.cell_array[GetDeme(id)->GetCellID(i)]);
+    m_population.KillOrganism(m_population.GetCell(GetDeme(id)->GetCellID(i)));
   return;
 }
 
@@ -201,9 +208,9 @@ void cDemeManager::CopyDemeGermline(int source_id, int target_id)
   
   if(m_world->GetConfig().GERMLINE_RANDOM_PLACEMENT.Get() == 1) {
     int offset = target_deme->GetCellID(0);
-    m_population.cell_array[target_deme_inject_cell].Rotate(m_population.cell_array[GridNeighbor(target_deme_inject_cell-offset,
+    m_population.GetCell(target_deme_inject_cell).Rotate(m_population.GetCell(GridNeighbor(target_deme_inject_cell-offset,
                                                                        target_deme->GetWidth(), 
-                                                                       target_deme->GetHeight(), -1, -1)+offset]);
+                                                                       target_deme->GetHeight(), -1, -1)+offset));
   }
 }
 
@@ -256,12 +263,11 @@ void cDemeManager::SterileGermlineInjection(int source_id, int target_id)
 
 void cDemeManager::SterileRandomInjection(int src_id, int target_id)
 {
-  int source_cell = GetDeme(src_id)->GetRandomOrganism();
+  cOrganism* seed_org = SampleRandomDemeOrganism(src_id);
   cDeme& target_deme = *GetDeme(target_id);
   target_deme.Reset();
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
-    cOrganism* seed_org = m_population.cell_array[source_cell].GetOrganism();
     cGenome seed_genome = seed_org->GetGenome();
     int seed_lineage = seed_org->GetLineageLabel();
     
@@ -272,9 +278,9 @@ void cDemeManager::SterileRandomInjection(int src_id, int target_id)
     
     // Rotate to face northwest
     int offset = target_deme.GetCellID(0);
-    m_population.cell_array[target_deme_inject_cell].Rotate(m_population.cell_array[GridNeighbor(target_deme_inject_cell-offset,
+    m_population.GetCell(target_deme_inject_cell).Rotate(m_population.GetCell(GridNeighbor(target_deme_inject_cell-offset,
                                                                        target_deme.GetWidth(), 
-                                                                       target_deme.GetHeight(), -1, -1)+offset]);
+                                                                       target_deme.GetHeight(), -1, -1)+offset));
   } 
   else {
     
@@ -282,20 +288,20 @@ void cDemeManager::SterileRandomInjection(int src_id, int target_id)
     
     // And do the replication into the central cell of the target deme...
     const int target_cell = target_deme.GetCellID(GetDeme(target_id)->GetWidth()/2, target_deme.GetHeight()/2);
-    m_population.CopyClone(source_cell, target_cell);
+    m_population.InjectClone(target_cell, *seed_org);
     
     // Rotate both injected cells to face northwest.
     int offset=target_deme.GetCellID(0);
-    m_population.cell_array[target_cell].Rotate(m_population.cell_array[GridNeighbor(target_cell-offset,
+    m_population.GetCell(target_cell).Rotate(m_population.GetCell(GridNeighbor(target_cell-offset,
                                                         target_deme.GetWidth(), 
-                                                        target_deme.GetHeight(), -1, -1)+offset]);
+                                                        target_deme.GetHeight(), -1, -1)+offset));
     }
 }
 
 
 
 
-tArray<int> cDemeManager::CompeteFitnessProportional(cDemeManager& mgr)
+tArray<int> cDemeManager::SelectFitnessProportional(cDemeManager& mgr)
 {
   int num_demes = mgr.GetNumDemes();
   // Pick which demes should be in the next generation.
@@ -320,7 +326,7 @@ tArray<int> cDemeManager::CompeteFitnessProportional(cDemeManager& mgr)
 }
 
 
-tArray<int> cDemeManager::CompeteTournament(cDemeManager& mgr)
+tArray<int> cDemeManager::SelectTournament(cDemeManager& mgr)
 {
   tArray<int> deme_count(0);
   int num_demes = mgr.GetNumDemes();
@@ -334,7 +340,7 @@ tArray<int> cDemeManager::CompeteTournament(cDemeManager& mgr)
     double max_fitness = 0.0;
     int win_id = -1;
     int player_id;
-    for (int k = 0; k < m_world->GetConfig().NUM_DEME_TOURNAMENTS().Get(); k++)
+    for (int k = 0; k < m_world->GetConfig().NUM_DEME_TOURNAMENTS.Get(); k++)
       player_id = deme_ids[mgr.m_world->GetRandom().GetUInt(valid)];
       win_id = (win_id == -1 || mgr.m_deme_fitness[player_id] > max_fitness) ? player_id : win_id;
     deme_count[win_id]++;
@@ -390,7 +396,7 @@ void cDemeManager::PrintDemeDonor() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_donor.Add(phenotype.IsDonorLast()); 	
     }
@@ -418,7 +424,7 @@ void cDemeManager::PrintDemeFitness() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_fitness.Add(phenotype.GetFitness()); 	
     }
@@ -446,7 +452,7 @@ void cDemeManager::PrintDemeGestationTime() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_gest_time.Add(phenotype.GetGestationTime()); 	
     }
@@ -480,7 +486,7 @@ void cDemeManager::PrintDemeInstructions() {
     const cDeme & cur_deme = *GetDeme(deme_id);
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       
       for (int j = 0; j < num_inst; j++) {
@@ -513,7 +519,7 @@ void cDemeManager::PrintDemeLifeFitness() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_life_fitness.Add(phenotype.GetLifeFitness()); 	
     }
@@ -541,7 +547,7 @@ void cDemeManager::PrintDemeMerit() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_merit.Add(phenotype.GetMerit().GetDouble()); 	
     }
@@ -570,7 +576,7 @@ void cDemeManager::PrintDemeMutationRate() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       single_deme_mut_rate.Add(m_population.GetCell(cur_cell).GetOrganism()->MutationRates().GetCopyMutProb());
     }
     comment.Set("Deme %d", deme_id);
@@ -599,7 +605,7 @@ void cDemeManager::PrintDemeReceiver() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       single_deme_receiver.Add(phenotype.IsReceiver()); 	
     }
@@ -741,7 +747,7 @@ void cDemeManager::PrintDemeTasks() {
     
     for (int i = 0; i < cur_deme.GetSize(); i++) {
       int cur_cell = cur_deme.GetCellID(i);
-      if (m_population.cell_array[cur_cell].IsOccupied() == false) continue;
+      if (m_population.GetCell(cur_cell).IsOccupied() == false) continue;
       cPhenotype & phenotype = m_population.GetCell(cur_cell).GetOrganism()->GetPhenotype();
       for (int j = 0; j < num_task; j++) {
         // only interested if task is done once! 
@@ -756,4 +762,22 @@ void cDemeManager::PrintDemeTasks() {
     }
   }
   df_task.Endl();
+}
+
+
+cOrganism* cDemeManager::SampleRandomDemeOrganism(int deme_id){
+
+  cDeme& deme = *GetDeme(deme_id);
+  if (deme.GetOrgCount() < 1)
+    return NULL;
+  int num_cells = deme.GetSize();
+  tArray<int> occupied(num_cells);
+  int count = 0;
+  for (int i = 0; i < num_cells; i++){
+    int cell = deme.GetCellID(i);
+    if (m_population.GetCell(cell).IsOccupied())
+      occupied[count++] = cell;
+  }
+  int selected = m_world->GetRandom().GetUInt(count);
+  return m_population.GetCell(selected).GetOrganism();
 }

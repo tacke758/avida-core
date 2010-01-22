@@ -298,7 +298,7 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
 }
 
 
-
+ 
 void cInstSet::LoadFromLegacyFile(const cString& filename)
 {
   cInitFile file(filename);

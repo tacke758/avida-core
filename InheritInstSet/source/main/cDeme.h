@@ -34,6 +34,7 @@
 class cResource;
 class cWorld;
 class cGenotype;
+class cOrganism;
 
 /*! Demes are groups of cells in the population that are somehow bound together
 as a unit.  The deme object is used from within cPopulation to manage these 
@@ -106,7 +107,6 @@ public:
   void Sterilize() const;
   void ReplaceDeme(const cDeme& source);
   void SeedDeme(const cGenotype& genotype, int cell_id);
-  void SampleRandomOrganism();
   
   const cResourceCount& GetDemeResourceCount() const { return deme_resource_count; }
   void SetDemeResourceCount(const cResourceCount in_res) { deme_resource_count = in_res; }
