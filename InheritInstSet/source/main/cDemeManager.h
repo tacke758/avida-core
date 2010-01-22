@@ -18,21 +18,30 @@
 #include "cDeme.h"
 #endif
 
+#ifndef tArray_h
+#include "tArray.h"
+#endif
+
+class cResourceCount; 
+
 
 class cDemeManager{
-  friend class cDemeCompeitions;
+  friend class cDemeCompetitions;
   friend class cDemeTriggers;
   
   
   private:
     cWorld*        m_world;
     cPopulation&   m_population;
+    int            m_deme_size_x;
+    int            m_deme_size_y;
+    int            m_deme_size;
     tArray<cDeme*> m_demes;
     tArray<double> m_deme_fitness;
     double         m_total_deme_fitness;
   
   
-    static cGenome DoGermlineMutation(const cGenome& source_germ);
+    cGenome DoGermlineMutation(const cGenome& source_germ);
     
     cDemeManager();
     cDemeManager(const cDemeManager&);
@@ -42,8 +51,12 @@ class cDemeManager{
     cDemeManager(cPopulation& p);
     ~cDemeManager();
   
-    int GetNumDemes() { return deme_array.GetSize(); }
-    cDeme* GetDeme(int i) { return deme_array[i]; }
+    int GetNumDemes() const { return m_demes.GetSize(); }
+    cDeme* GetDeme(int i) { return m_demes[i]; }
+    int GetDemeSize() const {return m_deme_size;}
+    int GetDemeSizeX() const {return m_deme_size_x;}
+    int GetDemeSizeY() const {return m_deme_size_y;}
+    cPopulation& GetPopulation() { return m_population;}
     
     // Deme-related methods
     void CompeteDemes(void (*fitfunc)(cDemeManager&), tArray<int> (*selfunc)(cDemeManager&));
@@ -72,11 +85,11 @@ class cDemeManager{
     void PrintDemeSpatialEnergyData();
     void PrintDemeSpatialSleepData();
     void PrintDemeTasks();
-    const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id).GetDemeResourceCount().GetResources(); }
+    const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id)->GetDemeResourceCount().GetResources(); }
     void UpdateDemeCellResources(const tArray<double>& res_change, const int cell_id);
   
-    static tArray<int> CompeteFitnessProportional(cDemeManager& mgr);
-    static tArray<int> CompeteTournament(cDemeManager& mgr);
+    tArray<int> CompeteFitnessProportional(cDemeManager& mgr);
+    tArray<int> CompeteTournament(cDemeManager& mgr);
 };
 
 

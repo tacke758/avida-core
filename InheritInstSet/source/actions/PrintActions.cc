@@ -30,6 +30,7 @@
 #include "cAnalyzeGenotype.h"
 #include "cClassificationManager.h"
 #include "cCPUTestInfo.h"
+#include "cDemeManager.h"
 #include "cEnvironment.h"
 #include "cGenome.h"
 #include "cGenomeUtil.h"
@@ -2498,7 +2499,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().PrintDemeAllStats();
+    m_world->GetPopulation().GetDemeManager().PrintDemeAllStats();
   }
 };
 
@@ -2511,7 +2512,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().PrintDemeDonor();
+    m_world->GetPopulation().GetDemeManager().PrintDemeDonor();
   }
 };
 
@@ -2525,7 +2526,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().PrintDemeSpatialEnergyData();
+    m_world->GetPopulation().GetDemeManager().PrintDemeSpatialEnergyData();
   }
 };
 
@@ -2538,7 +2539,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().PrintDemeSpatialSleepData();
+    m_world->GetPopulation().GetDemeManager().PrintDemeSpatialSleepData();
   }
 };
 
@@ -2551,7 +2552,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().PrintDemeResource();
+    m_world->GetPopulation().GetDemeManager().PrintDemeResource();
   }
 };
 

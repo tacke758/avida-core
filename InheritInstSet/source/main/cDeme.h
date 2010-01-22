@@ -33,6 +33,7 @@
 
 class cResource;
 class cWorld;
+class cGenotype;
 
 /*! Demes are groups of cells in the population that are somehow bound together
 as a unit.  The deme object is used from within cPopulation to manage these 
@@ -60,7 +61,7 @@ private:
   tArray<cDemeCellEvent> cell_events;
   
 public:
-  cDeme() : width(0), birth_count(0), org_count(0), _age(0), deme_resource_count(0), { ; }
+  cDeme() : width(0), birth_count(0), org_count(0), _age(0), m_instset_id(0), deme_resource_count(0) { ; }
   ~cDeme() { ; }
 
   void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);
@@ -72,8 +73,8 @@ public:
   std::pair<int, int> GetCellPosition(int cellid) const;
 
   //@MRR
-  int GetInsetSetID() const { return instset_id; }
-  int SetInstSetID(int id) const { m_instset_id = id; }
+  int GetInsetSetID() const { return m_instset_id; }
+  void SetInstSetID(int id)  { m_instset_id = id; }
   
   int GetWidth() const { return width; }
   int GetHeight() const { return cell_ids.GetSize() / width; }
@@ -104,7 +105,7 @@ public:
   
   void Sterilize() const;
   void ReplaceDeme(const cDeme& source);
-  void SeedDeme(const cGenotype, int cell_id);
+  void SeedDeme(const cGenotype& genotype, int cell_id);
   void SampleRandomOrganism();
   
   const cResourceCount& GetDemeResourceCount() const { return deme_resource_count; }

@@ -25,6 +25,7 @@
 
 #include "cPopulationCell.h"
 
+#include "cDemeManager.h"
 #include "nHardware.h"
 #include "cOrganism.h"
 #include "cTools.h"
@@ -194,7 +195,7 @@ cOrganism * cPopulationCell::RemoveOrganism()
   // For the moment, the cell doesn't keep track of much...
   cOrganism * out_organism = m_organism;
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1 && m_world->GetConfig().FRAC_ENERGY_TRANSFER.Get() > 0.0) {
-    m_world->GetPopulation().GetDeme(m_deme_id).GiveBackCellEnergy(m_cell_id, m_organism->GetPhenotype().GetStoredEnergy() * m_world->GetConfig().FRAC_ENERGY_TRANSFER.Get());
+    m_world->GetPopulation().GetDemeManager().GetDeme(m_deme_id)->GiveBackCellEnergy(m_cell_id, m_organism->GetPhenotype().GetStoredEnergy() * m_world->GetConfig().FRAC_ENERGY_TRANSFER.Get());
   }
   m_organism = NULL;
   m_hardware = NULL;
@@ -205,10 +206,10 @@ double cPopulationCell::UptakeCellEnergy(double frac_to_uptake) {
   assert(0.0 <= frac_to_uptake);
   assert(frac_to_uptake <= 1.0);
 
-  double cell_energy = m_world->GetPopulation().GetDeme(m_deme_id).GetAndClearCellEnergy(m_cell_id);  
+  double cell_energy = m_world->GetPopulation().GetDemeManager().GetDeme(m_deme_id)->GetAndClearCellEnergy(m_cell_id);  
   double uptakeAmount = cell_energy * frac_to_uptake;
   cell_energy -= uptakeAmount;
-  m_world->GetPopulation().GetDeme(m_deme_id).GiveBackCellEnergy(m_cell_id, cell_energy);
+  m_world->GetPopulation().GetDemeManager().GetDeme(m_deme_id)->GiveBackCellEnergy(m_cell_id, cell_energy);
   return uptakeAmount;
 }
 

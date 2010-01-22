@@ -14,9 +14,7 @@
 #include "cPopulation.h"
 #endif
 
-#ifndef cDemeManager_h
-#include "cDemeManager.h"
-#endif
+class cDemeManager;
 
 class cDemeCompetitions{
  

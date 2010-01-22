@@ -15,8 +15,8 @@ class cDemeTriggers{
     cDemeTriggers();
   
   public:
-    static bool ReplicateNonEmpty(cDemeManager& mgr);
-    static bool ReplicateFull(cDemeManager& mgr);
-    static bool ReplicateCornersFilled(cDemeManager& mgr);
-    static bool ReplicateOldDemes(cDemeManager& mgr);
+    static bool ReplicateNonEmpty(cDemeManager& mgr, int id);
+    static bool ReplicateFull(cDemeManager& mgr, int id);
+    static bool ReplicateCornersFilled(cDemeManager& mgr, int id);
+    static bool ReplicateOldDemes(cDemeManager& mgr, int id);
 };

@@ -33,22 +33,22 @@ m_population(p)
   int num_demes = m_world->GetConfig().NUM_DEMES.Get();
   
   // What are the sizes of the demes that we're creating?
-  const int deme_size_x = world_x;
-  const int deme_size_y = world_y / num_demes;
-  const int deme_size = deme_size_x * deme_size_y;
+  m_deme_size_x = world_x;
+  m_deme_size_y = world_y / num_demes;
+  m_deme_size = m_deme_size_x * m_deme_size_y;
   
   m_demes.Resize(num_demes);
   
   // Setup the deme structures.
-  tArray<int> deme_cells(deme_size);
+  tArray<int> deme_cells(m_deme_size);
   for (int deme_id = 0; deme_id < num_demes; deme_id++) {
-    for (int offset = 0; offset < deme_size; offset++) {
-      int cell_id = deme_id * deme_size + offset;
+    for (int offset = 0; offset < m_deme_size; offset++) {
+      int cell_id = deme_id * m_deme_size + offset;
       deme_cells[offset] = cell_id;
       m_population.cell_array[cell_id].SetDemeID(deme_id);
     }
     m_demes[deme_id] = new cDeme();
-    m_demes[deme_id]->Setup(deme_cells, deme_size_x, m_world);
+    m_demes[deme_id]->Setup(deme_cells, m_deme_size_x, m_world);
   }
 }
 
@@ -257,7 +257,8 @@ void cDemeManager::SterileGermlineInjection(int source_id, int target_id)
 void cDemeManager::SterileRandomInjection(int src_id, int target_id)
 {
   int source_cell = GetDeme(src_id)->GetRandomOrganism();
-  GetDeme(target_id)->Reset();
+  cDeme& target_deme = *GetDeme(target_id);
+  target_deme.Reset();
   
   if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
     cOrganism* seed_org = m_population.cell_array[source_cell].GetOrganism();
@@ -266,7 +267,7 @@ void cDemeManager::SterileRandomInjection(int src_id, int target_id)
     
     SterilizeDeme(target_id);
     
-    int target_deme_inject_cell = GetDeme(target_id)->GetCellID(GetDeme(target_id)->GetSize()/2);
+    int target_deme_inject_cell = target_deme.GetCellID(GetDeme(target_id)->GetSize()/2);
     m_population.InjectGenome(target_deme_inject_cell, seed_genome, seed_lineage); // target deme
     
     // Rotate to face northwest
@@ -280,7 +281,7 @@ void cDemeManager::SterileRandomInjection(int src_id, int target_id)
     SterilizeDeme(target_id);
     
     // And do the replication into the central cell of the target deme...
-    const int target_cell = GetDeme(target_id)->GetCellID(GetDeme(target_id)->GetWidth()/2, target_deme.GetHeight()/2);
+    const int target_cell = target_deme.GetCellID(GetDeme(target_id)->GetWidth()/2, target_deme.GetHeight()/2);
     m_population.CopyClone(source_cell, target_cell);
     
     // Rotate both injected cells to face northwest.
@@ -300,7 +301,7 @@ tArray<int> cDemeManager::CompeteFitnessProportional(cDemeManager& mgr)
   // Pick which demes should be in the next generation.
   tArray<int> new_demes(num_demes, -1);
   for (int i = 0; i < num_demes; i++) {
-    double birth_choice = (double) mgr.m_world->GetRandom().GetDouble(mgr.m_total_fitness);
+    double birth_choice = (double) mgr.m_world->GetRandom().GetDouble(mgr.m_total_deme_fitness);
     double test_total = 0.0;
     for (int test_deme = 0; test_deme < num_demes; test_deme++) {
       test_total += mgr.m_deme_fitness[test_deme];
@@ -670,7 +671,7 @@ void cDemeManager::PrintDemeSpatialEnergyData() {
 
 
 // Write spatial data to a file that can easily be read into Matlab
-void cDemeManager::PrintDemeSpatialResData( cResourceCount res, const int i, const int deme_id) 
+void cDemeManager::PrintDemeSpatialResData( cResourceCount res, const int i, const int deme_id) const
 {
   const char* tmpResName = res.GetResName(i);
   cString tmpfilename = cStringUtil::Stringf( "deme_spacial_resource_%s.m", tmpResName );
@@ -727,7 +728,7 @@ void cDemeManager::PrintDemeSpatialSleepData()
 void cDemeManager::PrintDemeTasks() {
   cStats& stats = m_world->GetStats();
   const int num_demes = GetNumDemes();
-  const int num_task = environment.GetNumTasks();
+  const int num_task = m_population.environment.GetNumTasks();
   cDataFile & df_task = m_world->GetDataFile("deme_task.dat");
   df_task.WriteComment("Num orgs doing each task for each deme in population");
   df_task.WriteTimeStamp();

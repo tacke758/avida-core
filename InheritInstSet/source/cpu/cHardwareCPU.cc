@@ -28,6 +28,7 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
+#include "cDemeManager.h"
 #include "functions.h"
 #include "cGenomeUtil.h"
 #include "cGenotype.h"
@@ -4261,7 +4262,7 @@ bool cHardwareCPU::Inst_GetUpdate(cAvidaContext& ctx) {
 bool cHardwareCPU::Inst_GetCellPosition(cAvidaContext& ctx) {
   int absolute_cell_ID = organism->GetCellID();
   int deme_id = organism->GetOrgInterface().GetDemeID();
-  std::pair<int, int> pos = m_world->GetPopulation().GetDeme(deme_id).GetCellPosition(absolute_cell_ID);  
+  std::pair<int, int> pos = m_world->GetPopulation().GetDemeManager().GetDeme(deme_id)->GetCellPosition(absolute_cell_ID);  
   const int xreg = FindModifiedRegister(REG_BX);
   const int yreg = FindNextRegister(xreg);
   GetRegister(xreg) = pos.first;
@@ -4272,7 +4273,7 @@ bool cHardwareCPU::Inst_GetCellPosition(cAvidaContext& ctx) {
 bool cHardwareCPU::Inst_GetDistanceFromDiagonal(cAvidaContext& ctx) {
   int absolute_cell_ID = organism->GetOrgInterface().GetCellID();
   int deme_id = organism->GetOrgInterface().GetDemeID();
-  std::pair<int, int> pos = m_world->GetPopulation().GetDeme(deme_id).GetCellPosition(absolute_cell_ID);  
+  std::pair<int, int> pos = m_world->GetPopulation().GetDemeManager().GetDeme(deme_id)->GetCellPosition(absolute_cell_ID);  
   const int reg = FindModifiedRegister(REG_BX);
   
   if(pos.first > pos.second) {

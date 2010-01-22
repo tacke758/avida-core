@@ -87,6 +87,7 @@ private:
   // Components...
   cWorld* m_world;
   cSchedule* schedule;                // Handles allocation of CPU cycles
+  cDemeManager* m_deme_manager;
   tArray<cPopulationCell> cell_array;  // Local cells composing the population
   cResourceCount resource_count;       // Global resources available
   cBirthChamber birth_chamber;         // Global birth chamber.
@@ -240,8 +241,8 @@ public:
   void CompeteOrganisms(int competition_type, int parents_survive, double scaled_time, int dynamic_scaling);
   
   // Deme functions are contained in deme manager
-  inline int GetNumDemes() const { m_deme_manager->GetNumDemes(); }
-  inline cDemeManager& GetDemeManager() {return m_deme_manager;}
+  int GetNumDemes();
+  inline cDemeManager& GetDemeManager() {return *m_deme_manager;}
 };
 
 

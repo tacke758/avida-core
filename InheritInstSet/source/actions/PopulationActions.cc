@@ -27,6 +27,7 @@
 #include "cAction.h"
 #include "cActionLibrary.h"
 #include "cCodeLabel.h"
+#include "cDemeManager.h"
 #include "cGenome.h"
 #include "cGenomeUtil.h"
 #include "cHardwareManager.h"
@@ -510,7 +511,7 @@ public:
     if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
       for(int i=1; i<m_world->GetPopulation().GetNumDemes(); ++i) {  // first org has already been injected
         m_world->GetPopulation().Inject(genome,
-                                        m_world->GetPopulation().GetDeme(i).GetCellID(0),
+                                        m_world->GetPopulation().GetDemeManager().GetDeme(i)->GetCellID(0),
                                         m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
       }
     } else {
@@ -518,7 +519,7 @@ public:
         // WARNING: initial ancestor has already be injected into the population
         //           calling this will overwrite it.
         m_world->GetPopulation().Inject(genome,
-                                        m_world->GetPopulation().GetDeme(i).GetCellID(0),
+                                        m_world->GetPopulation().GetDemeManager().GetDeme(i)->GetCellID(0),
                                         m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
       }
     }
@@ -991,7 +992,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().CompeteDemes(m_type);
+    m_world->GetPopulation().GetDemeManager().CompeteDemes(m_type);
   }
 };
 
@@ -1033,7 +1034,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().ReplicateDemes(m_rep_trigger);
+    m_world->GetPopulation().GetDemeManager().ReplicateDemes(m_rep_trigger);
   }
 };
 
@@ -1069,7 +1070,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().DivideDemes();
+    m_world->GetPopulation().GetDemeManager().DivideDemes();
   }
 };
 
@@ -1087,7 +1088,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().ResetDemes();
+    m_world->GetPopulation().GetDemeManager().ResetDemes();
   }
 };
 
@@ -1109,7 +1110,7 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().CopyDeme(m_id1, m_id2);
+    m_world->GetPopulation().GetDemeManager().CopyDeme(m_id1, m_id2);
   }
 };
 

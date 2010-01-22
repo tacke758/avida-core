@@ -33,6 +33,7 @@
 
 #include "cAction.h"
 #include "cActionLibrary.h"
+#include "cDemeManager.h"
 #include "cEnvironment.h"
 #include "cPopulation.h"
 #include "cResource.h"
@@ -487,7 +488,7 @@ public:
     cPopulation& pop = m_world->GetPopulation();
     int numDemes = pop.GetNumDemes();
     for(int i = 0; i < numDemes; i++) {
-      pop.GetDeme(i).SetCellEvent(m_x1, m_y1, m_x2, m_y2, m_delay, m_duration);
+      pop.GetDemeManager().GetDeme(i)->SetCellEvent(m_x1, m_y1, m_x2, m_y2, m_delay, m_duration);
     }
   }
 };

@@ -27,6 +27,7 @@
 #include "cAvidaContext.h"
 #include "cChangeList.h"
 #include "cClassificationManager.h"
+#include "cDemeManager.h"
 #include "cDriverManager.h"
 #include "cGenotype.h"
 #include "cHardwareBase.h"
@@ -109,8 +110,8 @@ void cDefaultRunDriver::Run()
     population.CalcUpdateStats();
     
     // Process the update for each deme.
-    for(int i=0; i<population.GetNumDemes(); ++i) {
-      population.GetDeme(i).ProcessUpdate();
+    for(int i=0; i <  population.GetNumDemes(); ++i) {
+      population.GetDemeManager().GetDeme(i)->ProcessUpdate();
     }
     
     // No viewer; print out status for this update....

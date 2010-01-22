@@ -31,6 +31,7 @@
 #include "cCodeLabel.h"
 #include "cConstSchedule.h"
 #include "cDataFile.h"
+#include "cDemeManager.h"
 #include "cEnvironment.h"
 #include "functions.h"
 #include "cGenome.h"
@@ -73,6 +74,7 @@ using namespace std;
 cPopulation::cPopulation(cWorld* world)
 : m_world(world)
 , schedule(NULL)
+, m_deme_manager(NULL)
 //, resource_count(world->GetEnvironment().GetResourceLib().GetSize())
 , birth_chamber(world)
 , environment(world->GetEnvironment())
@@ -133,8 +135,11 @@ cPopulation::cPopulation(cWorld* world)
   
   
   //Initialize demes
-  m_deme_manager = cDemeManager(*this);
+  m_deme_manager = new cDemeManager(*this);
   
+  int deme_size = GetDemeManager().GetDemeSize();
+  int deme_size_x = GetDemeManager().GetDemeSizeX();
+  int deme_size_y = GetDemeManager().GetDemeSizeY();
   
   // Setup the topology.
   // What we're doing here is chopping the cell_array up into num_demes pieces.
@@ -182,8 +187,8 @@ cPopulation::cPopulation(cWorld* world)
   
   for(int i = 0; i < num_demes; i++) {
     cResourceCount tmp_deme_res_count(num_deme_res);
-    m_deme_manager.GetDeme(i)->SetDemeResourceCount(tmp_deme_res_count);
-    m_deme_manager.GetDeme(i)->ResizeSpatialGrids(deme_size_x, deme_size_y);
+    GetDemeManager().GetDeme(i)->SetDemeResourceCount(tmp_deme_res_count);
+    GetDemeManager().GetDeme(i)->ResizeSpatialGrids(deme_size_x, deme_size_y);
   }
 
   for (int i = 0; i < resource_lib.GetSize(); i++) {
@@ -205,7 +210,7 @@ cPopulation::cPopulation(cWorld* world)
     } else if(res->GetDemeResource()) {
       deme_res_index++;
       for(int j = 0; j < GetNumDemes(); j++) {
-        m_deme_manager.GetDeme(j)->SetupDemeRes(deme_res_index, res, world->GetVerbosity());
+        GetDemeManager().GetDeme(j)->SetupDemeRes(deme_res_index, res, world->GetVerbosity());
         // could add deme resources to global resource stats here
       }
     } else {
@@ -473,8 +478,8 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   
   // Keep track of statistics for organism counts...
   num_organisms++;
-  if (m_deme_manager.GetNumDemes() > 0) {
-    m_deme_manager.GetDeme(target_cell.GetDemeID())->IncOrgCount();
+  if (GetDemeManager().GetNumDemes() > 0) {
+    GetDemeManager().GetDeme(target_cell.GetDemeID())->IncOrgCount();
   }
   
   // Statistics...
@@ -639,7 +644,7 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   
   // Update count statistics...
   num_organisms--;
-  if (m_deme_manager.GetNumDemes() > 0) {
+  if (GetDemeManager().GetNumDemes() > 0) {
     m_deme_manager->GetDeme(in_cell.GetDemeID())->DecOrgCount();
   }
   genotype->RemoveOrganism();
@@ -1004,16 +1009,16 @@ cPopulationCell& cPopulation::PositionChild(cPopulationCell& parent_cell, bool p
   }
   else if (birth_method == POSITION_CHILD_DEME_RANDOM) {
     const int deme_id = parent_cell.GetDemeID();
-    const int deme_size = m_deme_manager.GetDeme(deme_id)->GetSize();
+    const int deme_size = GetDemeManager().GetDeme(deme_id)->GetSize();
     
     int out_pos = m_world->GetRandom().GetUInt(deme_size);
-    int out_cell_id = m_deme_manager.GetDeme(deme_id)->GetCellID(out_pos);
+    int out_cell_id = GetDemeManager().GetDeme(deme_id)->GetCellID(out_pos);
     while (parent_ok == false && out_cell_id == parent_cell.GetID()) {
       out_pos = m_world->GetRandom().GetUInt(deme_size);
-      out_cell_id = m_deme_manager.GetDeme(deme_id)->GetCellID(out_pos);
+      out_cell_id = GetDemeManager().GetDeme(deme_id)->GetCellID(out_pos);
     }
     
-    m_deme_manager.GetDeme(deme_id)->IncBirthCount();
+    GetDemeManager().GetDeme(deme_id)->IncBirthCount();
     return GetCell(out_cell_id);    
   }
   else if (birth_method == POSITION_CHILD_PARENT_FACING) {
@@ -1083,9 +1088,9 @@ cPopulationCell& cPopulation::PositionChild(cPopulationCell& parent_cell, bool p
     }
   }
   
-  if (m_deme_manager.GetNumDemes() > 0) {
+  if (GetDemeManager().GetNumDemes() > 0) {
     const int deme_id = parent_cell.GetDemeID();
-    m_deme_manager(deme_id)->IncBirthCount();
+    GetDemeManager().GetDeme(deme_id)->IncBirthCount();
   }
   
   // If there are no possibilities, return parent.
@@ -1117,8 +1122,8 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
   }
   m_world->GetStats().IncExecuted();
   resource_count.Update(step_size);
-  for(int i = 0; i < m_deme_manager.GetNumDemes(); i++) {
-    m_deme_manager-.GetDeme(i)->Update(step_size);
+  for(int i = 0; i < GetDemeManager().GetNumDemes(); i++) {
+    GetDemeManager().GetDeme(i)->Update(step_size);
   }
 }
 
@@ -1765,7 +1770,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   
   // If we're using germlines, then we have to be a little careful here.
 	if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
-		cDeme& deme = *m_deme_manager.GetDeme(GetCell(cell_id).GetDemeID());
+		cDeme& deme = *GetDemeManager().GetDeme(GetCell(cell_id).GetDemeID());
 		if(deme.GetGermline().Size()==0) {  
 			deme.GetGermline().Add(GetCell(cell_id).GetOrganism()->GetGenome());
 		}
@@ -2520,4 +2525,10 @@ void cPopulation::CompeteOrganisms(int competition_type, int parents_survive, do
   cout << "Copied  : Min fitness = " << lowest_fitness_copied << ", Max fitness = " << highest_fitness_copied << " (scaled to Max = 1.0)" << endl;
   cout << "Copied  : Different organisms = " << different_orgs_copied << endl;
 
+}
+
+
+int cPopulation::GetNumDemes()
+{
+  return GetDemeManager().GetNumDemes();
 }
