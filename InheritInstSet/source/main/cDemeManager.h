@@ -22,27 +22,35 @@
 #include "tArray.h"
 #endif
 
+#ifndef tDictionary_h
+#include "tDictionary_h"
+#endif
+
+#ifndef cDemeMethods_h
+#include "cDemeMethodsLib.h"
+#endif
+
 class cResourceCount; 
 
-typedef void (*tDemeCompetition)(cDemeManager& mgr);
-typedef tArray<int> (*tDemeSelection)(cDemeManager& mgr);
-typedef bool (*tDemeTrigger)(cDemeManager& mgr, int deme_id);
+
 
 class cDemeManager{
   friend class cDemeCompetitions;
   friend class cDemeTriggers;
+  friend class cDemeSelections;
+  friend class cDemeReplications;
   
   
   private:
-    cWorld*        m_world;
-    cPopulation&   m_population;
-    int            m_deme_size_x;
-    int            m_deme_size_y;
-    int            m_deme_size;
-    tArray<cDeme*> m_demes;
-    tArray<double> m_deme_fitness;
-    double         m_total_deme_fitness;
-  
+    cWorld*          m_world;
+    cPopulation&     m_population;
+    int              m_deme_size_x;
+    int              m_deme_size_y;
+    int              m_deme_size;
+    tArray<cDeme*>   m_demes;
+    tArray<double>   m_deme_fitness;
+    double           m_total_deme_fitness;
+    cDemeMethodsLib  m_methods;
   
     cGenome DoGermlineMutation(const cGenome& source_germ);
     
@@ -51,6 +59,7 @@ class cDemeManager{
     cDemeManager operator=(const cDemeManager&);
   
   public:
+  
     cDemeManager(cPopulation& p);
     ~cDemeManager();
   
@@ -62,19 +71,22 @@ class cDemeManager{
     cPopulation& GetPopulation() { return m_population;}
     
     // Deme-related methods
-    void CompeteDemes(tDemeCompetition, tDemeSelection);
-    void ReplicateDemes(tDemeTrigger);
-    void DivideDemes();
-    void ResetDemes();
-    void ResetDemeOrganisms();
+    void CompeteDemes(const cString& fit_fun, const cString& sel_fun, const cString& repl_fun);
+    void ReplicateDemes(const cString& trigger, const cString& repl_func);
     void CopyDeme(int source_id, int target_id);
     void CopyDemeGermline(int source_id, int target_id);
-    void SterileRandomInjection(int source_id, int target_id);
-    void SterileGermlineInjection(int source_id, int target_id);
-    void SpawnDeme(int source_id, int target_id=-1);
+    void ResetDemes();
     void SterilizeDeme(int deme_id);
+    void ResetDemeOrganisms();
+    void SpawnDeme(int source_id, int target_id=-1);
   
+    void SterileInjectCenter(const cGenome& genome, int target_id);
+    void SterileInjectRandom(const cGenome& genome, int target_id);
+    void SterileInjectFull(const cGenome& genome, int target_id);
+  
+    
     cOrganism* SampleRandomDemeOrganism(int deme_id);
+    const cGenome*   SampleRandomDemeGenome(int deme_id);
   
     // Deme-related stats methods
     void PrintDemeAllStats();
@@ -93,10 +105,6 @@ class cDemeManager{
     void PrintDemeTasks();
     const tArray<double>& GetDemeResources(int deme_id) { return GetDeme(deme_id)->GetDemeResourceCount().GetResources(); }
     void UpdateDemeCellResources(const tArray<double>& res_change, const int cell_id);
-  
-    tArray<int> SelectFitnessProportional(cDemeManager& mgr);
-    tArray<int> SelectTournament(cDemeManager& mgr);
 };
-
 
 #endif

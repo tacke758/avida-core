@@ -7,16 +7,24 @@
  *
  */
 
-#include "cDemeManager.h"
+#ifndef cDemeTriggers_h
+#define cDemeTriggers_h
+
+class cDemeManager;
+
+typedef bool (*tDemeTrigger)(cDemeManager& mgr, int deme_id);
 
 class cDemeTriggers{
-
   private:
     cDemeTriggers();
+    cDemeTriggers(const cDemeTriggers&);
+    cDemeTriggers& operator=(const cDemeTriggers&);
   
   public:
-    static bool ReplicateNonEmpty(cDemeManager& mgr, int id);
-    static bool ReplicateFull(cDemeManager& mgr, int id);
-    static bool ReplicateCornersFilled(cDemeManager& mgr, int id);
-    static bool ReplicateOldDemes(cDemeManager& mgr, int id);
+    static bool ReplicateNonEmpty(cDemeManager& mgr, int deme_id);
+    static bool ReplicateFull(cDemeManager& mgr, int deme_id);
+    static bool ReplicateCornersFilled(cDemeManager& mgr, int deme_id);
+    static bool ReplicateOldDemes(cDemeManager& mgr, int deme_id);
 };
+
+#endif

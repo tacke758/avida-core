@@ -7,6 +7,7 @@
  *
  */
 
+#include "cDemeManager.h"
 #include "cDemeTriggers.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"

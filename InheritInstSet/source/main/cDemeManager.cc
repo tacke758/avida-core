@@ -53,6 +53,8 @@ m_population(p)
 }
 
 
+
+
 cDemeManager::~cDemeManager()
 {
   for (int k=0; k < GetNumDemes(); k++)
@@ -60,10 +62,18 @@ cDemeManager::~cDemeManager()
 }
 
 
-void cDemeManager::CompeteDemes(tDemeCompetition fit_func, tDemeSelection sel_func)
+
+
+
+void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, const cString& repl_fun)
 {
-  fit_func(*this);
-  tArray<int> deme_count = sel_func(*this);
+  tDemeCompetition competition = m_methods.GetCompetition(fit_fun);
+  tDemeSelection selection = m_methods.GetSelection(sel_fun);
+  tDemeReplication replication = m_methods.GetReplication(repl_fun);
+  assert(replication != NULL && selection != NULL && competition != NULL);
+  
+  competition(*this);
+  tArray<int> deme_count = selection(*this);
   
   int num_demes = GetNumDemes();
   tArray<bool> is_init(num_demes, false); 
@@ -87,54 +97,57 @@ void cDemeManager::CompeteDemes(tDemeCompetition fit_func, tDemeSelection sel_fu
     deme_count[from_deme_id]--;
     deme_count[to_deme_id]++;
        
-    if(m_world->GetConfig().DEMES_USE_GERMLINE.Get())
-      SterileGermlineInjection(from_deme_id, to_deme_id);
-    else
-      SterileRandomInjection(from_deme_id, to_deme_id);
+    replication(*this, to_deme_id, from_deme_id);
     
     is_init[to_deme_id] = true;
   }
   
-  // Now re-inject all remaining demes into themselves to reset them.
   for (int i = 0; i < GetNumDemes(); i++)
-    if (!is_init[i]) SterileRandomInjection(i,i);
-    
-  // Reset all deme stats to zero.
-  ResetDemes(); 
+    if (is_init[i] == false) 
+      replication(*this, i, i);
 }
 
 
 
 
 
-void cDemeManager::ReplicateDemes(tDemeTrigger trigger)
+void cDemeManager::ReplicateDemes(const cString& trigger_fun, const cString& repl_fun)
 {
+  tDemeTrigger trigger = m_methods.GetTrigger(trigger_fun);
+  tDemeReplication replication = m_methods.GetReplication(repl_fun);
+  assert(trigger != NULL && replication != NULL);
+  
   assert(GetNumDemes()>1); // Sanity check.
   
   // Determine which demes should be replicated.
   const int num_demes = GetNumDemes();
   
   // Loop through all candidate demes...
-  for (int deme_id = 0; deme_id < num_demes; deme_id++) {
+  for (int source_id = 0; source_id < num_demes; source_id++) {
     
     // Doesn't make sense to try and replicate a deme that *has no organisms*.
-    if (GetDeme(deme_id)->IsEmpty() || trigger(*this,deme_id) == false) continue;
+    if (GetDeme(source_id)->IsEmpty() || trigger(*this,source_id) == false) continue;
     
     // -- If we made it this far, we should replicate this deme --
-    int target_id = deme_id;
-    while(target_id == deme_id) 
+    int target_id = source_id;
+    while(target_id == source_id) 
       target_id = m_world->GetRandom().GetUInt(num_demes);
     
-    if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()){
-      SterileGermlineInjection(deme_id, target_id);
-      SterileGermlineInjection(deme_id, deme_id);
-    }
-    else{
-      SterileRandomInjection(deme_id, target_id);
-      SterileRandomInjection(deme_id, deme_id);
-    }
+    replication(*this, source_id, target_id);
   }
 }
+
+
+void cDemeManager::CopyDeme(int source_id, int target_id)
+{
+  cDeme* source = GetDeme(source_id);
+  cDeme* target = GetDeme(target_id);
+  assert(source != NULL && target != NULL);
+  for (int i = 0; i < source->GetSize(); i++) 
+    m_population.CopyClone(source->GetCellID(i), target->GetCellID(i));
+  source->Reset();
+}
+
 
 
 
@@ -145,13 +158,13 @@ void cDemeManager::SpawnDeme(int src_id, int target_id)
     do{
       target_id = m_world->GetRandom().GetUInt(GetNumDemes());
     } while (target_id != src_id);
-  SterileRandomInjection(src_id, target_id);
+  m_methods.GetReplication("BySterilizingAndInjectingAtRandom")(*this, src_id, target_id);
 }
 
 
 
-// Reset Demes goes through each deme and resets the individual organisms as
-// if they were just injected into the population.
+
+
 void cDemeManager::ResetDemeOrganisms()
 {
   for (int deme_id = 0; deme_id < GetNumDemes(); deme_id++)
@@ -159,11 +172,15 @@ void cDemeManager::ResetDemeOrganisms()
 }
 
 
+
+
+
 void cDemeManager::ResetDemes()
 {
   for (int deme_id = 0; deme_id < GetNumDemes(); deme_id++)
     GetDeme(deme_id)->Reset();
 }
+
 
 
 
@@ -179,38 +196,55 @@ void cDemeManager::SterilizeDeme(int id)
 
 
 
-
-void cDemeManager::CopyDeme(int source_id, int target_id){
-  for (int i = 0; i < GetDeme(source_id)->GetSize(); i++) 
-    m_population.CopyClone(GetDeme(source_id)->GetCellID(i), GetDeme(target_id)->GetCellID(i) );    
+void cDemeManager::SterileInjectCenter(const cGenome& genome, int target_id)
+{
+  cDeme* target = GetDeme(target_id);
+  assert(target != NULL);
+  
+  SterilizeDeme(target_id);
+  const int target_cell = target->GetCellID(target->GetWidth()/2, target->GetHeight()/2);
+  m_population.InjectGenome(target_cell, genome, -1);
 }
 
 
+
+
+void cDemeManager::SterileInjectRandom(const cGenome& genome, int target_id)
+{
+  cDeme* target = GetDeme(target_id);
+  assert(target != NULL);
+  
+  SterilizeDeme(target_id);
+  const int target_cell = target->GetCellID(m_world->GetRandom().GetUInt(target->GetSize()));
+  m_population.InjectGenome(target_cell, genome, -1);
+}
+
+
+void cDemeManager::SterileInjectFull(const cGenome& genome, int target_id)
+{
+  cDeme* target = GetDeme(target_id);
+  assert(target != NULL);
+  
+  SterilizeDeme(target_id);
+  for (int i = 0; i < target->GetSize(); i++) 
+    m_population.InjectGenome(target->GetCellID(i), genome, -1 );
+}
 
 
 
 
 void cDemeManager::CopyDemeGermline(int source_id, int target_id)
 {
-  int target_deme_inject_cell;
-  cDeme* source_deme = GetDeme(source_id);
-  cDeme* target_deme = GetDeme(target_id);
-  if(m_world->GetConfig().GERMLINE_RANDOM_PLACEMENT.Get() == 2) {
-    // organism is randomly placed in deme
-    target_deme_inject_cell = target_deme->GetCellID(m_world->GetRandom().GetInt(0, target_deme->GetSize()-1));
-  } else {
-    // organisms is placed in center of deme
-    target_deme_inject_cell = target_deme->GetCellID(target_deme->GetSize()/2);
-  }
-  // Lineage label is wrong here; fix.
-  SterilizeDeme(target_id);
-  m_population.InjectGenome(target_deme_inject_cell, source_deme->GetGermline().GetLatest(), 0); // source deme
-  
-  if(m_world->GetConfig().GERMLINE_RANDOM_PLACEMENT.Get() == 1) {
-    int offset = target_deme->GetCellID(0);
-    m_population.GetCell(target_deme_inject_cell).Rotate(m_population.GetCell(GridNeighbor(target_deme_inject_cell-offset,
-                                                                       target_deme->GetWidth(), 
-                                                                       target_deme->GetHeight(), -1, -1)+offset));
+  cDeme* target = GetDeme(target_id);
+  cDeme* source = GetDeme(source_id);
+  assert(target!=NULL && source!=NULL);
+  if (m_world->GetConfig().DEMES_USE_GERMLINES.Get() > 0){
+    cGenome source_germ  = source->GetGermline().GetLatest();
+    cGenome mutated_germ = DoGermlineMutation(source_germ);
+    target->ReplaceGermline(source->GetGermline());
+    target->GetGermline().Add(mutated_germ);
+    if (m_world->GetConfig().GERMLINE_REPLACES_SOURCE.Get() > 0)
+      source->GetGermline().Add(mutated_germ);
   }
 }
 
@@ -231,122 +265,6 @@ cGenome cDemeManager::DoGermlineMutation(const cGenome& source_germ)
 
 
 
-
-
-
-void cDemeManager::SterileGermlineInjection(int source_id, int target_id)
-{
-  // Get the latest germ from the source deme.
-  cGermline& source_germline =  GetDeme(source_id)->GetGermline();
-  cGenome& source_genome = source_germline.GetLatest();
-  cGenome next_germ = DoGermlineMutation(source_genome);
-  
-  // Here we're adding the next_germ to the germline(s).  Note the
-  // config option to determine if we should update the source_germline
-  // as well.
-  GetDeme(target_id)->ReplaceGermline(source_germline);
-  GetDeme(target_id)->GetGermline().Add(next_germ);
-  
-  if(m_world->GetConfig().GERMLINE_REPLACES_SOURCE.Get())
-    source_germline.Add(next_germ);
-    
-  // Reset Deme
-  GetDeme(target_id)->Reset();
-  
-  CopyDemeGermline(source_id, target_id);
-}
-
-
-
-
-
-
-void cDemeManager::SterileRandomInjection(int src_id, int target_id)
-{
-  cOrganism* seed_org = SampleRandomDemeOrganism(src_id);
-  cDeme& target_deme = *GetDeme(target_id);
-  target_deme.Reset();
-  
-  if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
-    cGenome seed_genome = seed_org->GetGenome();
-    int seed_lineage = seed_org->GetLineageLabel();
-    
-    SterilizeDeme(target_id);
-    
-    int target_deme_inject_cell = target_deme.GetCellID(GetDeme(target_id)->GetSize()/2);
-    m_population.InjectGenome(target_deme_inject_cell, seed_genome, seed_lineage); // target deme
-    
-    // Rotate to face northwest
-    int offset = target_deme.GetCellID(0);
-    m_population.GetCell(target_deme_inject_cell).Rotate(m_population.GetCell(GridNeighbor(target_deme_inject_cell-offset,
-                                                                       target_deme.GetWidth(), 
-                                                                       target_deme.GetHeight(), -1, -1)+offset));
-  } 
-  else {
-    
-    SterilizeDeme(target_id);
-    
-    // And do the replication into the central cell of the target deme...
-    const int target_cell = target_deme.GetCellID(GetDeme(target_id)->GetWidth()/2, target_deme.GetHeight()/2);
-    m_population.InjectClone(target_cell, *seed_org);
-    
-    // Rotate both injected cells to face northwest.
-    int offset=target_deme.GetCellID(0);
-    m_population.GetCell(target_cell).Rotate(m_population.GetCell(GridNeighbor(target_cell-offset,
-                                                        target_deme.GetWidth(), 
-                                                        target_deme.GetHeight(), -1, -1)+offset));
-    }
-}
-
-
-
-
-tArray<int> cDemeManager::SelectFitnessProportional(cDemeManager& mgr)
-{
-  int num_demes = mgr.GetNumDemes();
-  // Pick which demes should be in the next generation.
-  tArray<int> new_demes(num_demes, -1);
-  for (int i = 0; i < num_demes; i++) {
-    double birth_choice = (double) mgr.m_world->GetRandom().GetDouble(mgr.m_total_deme_fitness);
-    double test_total = 0.0;
-    for (int test_deme = 0; test_deme < num_demes; test_deme++) {
-      test_total += mgr.m_deme_fitness[test_deme];
-      if (birth_choice < test_total) {
-        new_demes[i] = test_deme;
-        break;
-      }
-    }
-  }
-  
-  // Track how many of each deme we should have.
-  tArray<int> deme_count(num_demes, 0);
-  for (int i = 0; i < num_demes; i++) 
-    deme_count[new_demes[i]]++;
-  return deme_count;
-}
-
-
-tArray<int> cDemeManager::SelectTournament(cDemeManager& mgr)
-{
-  tArray<int> deme_count(0);
-  int num_demes = mgr.GetNumDemes();
-  tArray<int> deme_ids(num_demes, -1);
-  int valid = 0;
-  for (int id = 0; id < num_demes; id++)
-    if (mgr.GetDeme(id)->GetBirthCount() > 0)
-      deme_ids[valid++] = id;
-  
-  for (int id = 0; id < num_demes; id++){
-    double max_fitness = 0.0;
-    int win_id = -1;
-    int player_id;
-    for (int k = 0; k < m_world->GetConfig().NUM_DEME_TOURNAMENTS.Get(); k++)
-      player_id = deme_ids[mgr.m_world->GetRandom().GetUInt(valid)];
-      win_id = (win_id == -1 || mgr.m_deme_fitness[player_id] > max_fitness) ? player_id : win_id;
-    deme_count[win_id]++;
-  }
-  return deme_count;
-}
 
 
 
@@ -780,4 +698,21 @@ cOrganism* cDemeManager::SampleRandomDemeOrganism(int deme_id){
   }
   int selected = m_world->GetRandom().GetUInt(count);
   return m_population.GetCell(selected).GetOrganism();
+}
+
+
+const cGenome* cDemeManager::SampleRandomDemeGenome(int deme_id){
+  cDeme& deme = *GetDeme(deme_id);
+  if (deme.GetOrgCount() < 1)
+    return NULL;
+  int num_cells = deme.GetSize();
+  tArray<int> occupied(num_cells);
+  int count = 0;
+  for (int i = 0; i < num_cells; i++){
+    int cell = deme.GetCellID(i);
+    if (m_population.GetCell(cell).IsOccupied())
+      occupied[count++] = cell;
+  }
+  int selected = m_world->GetRandom().GetUInt(count);
+  return &m_population.GetCell(selected).GetOrganism()->GetGenome();
 }

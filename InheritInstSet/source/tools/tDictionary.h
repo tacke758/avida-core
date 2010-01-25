@@ -50,6 +50,8 @@
 #endif
 
 
+
+
 template <class T> class tDictionary {
 #if USE_tMemTrack
   tMemTrack<tDictionary<T> > mt;
@@ -62,6 +64,7 @@ private:
 
 public:
   inline tDictionary() { ; }
+  
   inline tDictionary(int in_hash_size) : m_hash(in_hash_size) { ; }
   
   inline bool operator==(const tDictionary<T>& _rhs) const {return m_hash == _rhs.m_hash;} 
@@ -79,6 +82,7 @@ public:
     m_hash.AsLists(name_list, value_list);
   }
   inline void GetKeys(tList<cString>& names) const { m_hash.GetKeys(names); }
+
   
   // This function will take an input string and load its value into the
   // dictionary; it will only work for types that cStringUtil can convert to.

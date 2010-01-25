@@ -79,10 +79,11 @@ class cSaleItem;
 
 class cPopulation
 {
+  friend class cDemeManager;
 #if USE_tMemTrack
   tMemTrack<cPopulation> mt;
 #endif
-    friend class cDemeManager;
+   
 private:
   // Components...
   cWorld* m_world;

@@ -980,99 +980,51 @@ public:
 class cActionCompeteDemes : public cAction
 {
 private:
-  int m_type;
+  cString m_fit;
+  cString m_sel;
+  cString m_rep;
+  
 public:
-  cActionCompeteDemes(cWorld* world, const cString& args) : cAction(world, args), m_type(1)
+  cActionCompeteDemes(cWorld* world, const cString& args) : cAction(world, args)
   {
     cString largs(args);
-    if (largs.GetSize()) m_type = largs.PopWord().AsInt();
+    m_fit = (largs.GetSize()>0) ? largs.PopWord() : "UsingControl";
+    m_sel = (largs.GetSize()>0) ? largs.PopWord() : "WithFitnessProportionalSelection";
+    m_rep = (largs.GetSize()>0) ? largs.PopWord() : "BySerilizingAndInjectingAtCenter";
   }
   
-  static const cString GetDescription() { return "Arguments: [int type=1]"; }
+  static const cString GetDescription() { return "Arguments: [FitnessMethod] [SelectionMethod] [ReplacementMethod]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().GetDemeManager().CompeteDemes(m_type);
+    m_world->GetPopulation().GetDemeManager().CompeteDemes(m_fit, m_sel, m_rep);
   }
 };
 
 
-/* This Action will check if any demes have met the critera to be replicated
-   and do so.  There are several bases this can be checked on:
-
-    'all'       - ...all non-empty demes in the population.
-    'full_deme' - ...demes that have been filled up.
-    'corners'   - ...demes with upper left and lower right corners filled.
-    'deme-age'  - ...demes that are a certain age
-*/
 
 class cActionReplicateDemes : public cAction
 {
 private:
-  int m_rep_trigger;
+  cString m_trig;
+  cString m_rep;
+  
 public:
-  cActionReplicateDemes(cWorld* world, const cString& args) : cAction(world, args), m_rep_trigger(-1)
+  cActionReplicateDemes(cWorld* world, const cString& args) : cAction(world, args)
   {
     cString largs(args);
-    cString in_trigger("full_deme");
-    if (largs.GetSize()) in_trigger = largs.PopWord();
-    
-    if (in_trigger == "all") m_rep_trigger = 0;
-    else if (in_trigger == "full_deme") m_rep_trigger = 1;
-    else if (in_trigger == "corners") m_rep_trigger = 2;
-    else if (in_trigger == "deme-age") m_rep_trigger = 3;
-    else {
-      cString err("Unknown replication trigger '");
-      err += in_trigger;
-      err += "' in ReplicatDemes action.";
-      m_world->GetDriver().RaiseException(err);
-      return;
-    }
+    m_trig = (largs.GetSize()>0) ? largs.PopWord() : "WhenNotEmpty";
+    m_rep  = (largs.GetSize()>0) ? largs.PopWord() : "BySterilizingAndInjectingAtCenter";
   }
   
-  static const cString GetDescription() { return "Arguments: [string trigger=full_deme]"; }
+  static const cString GetDescription() { return "Arguments: [TriggerMethod] [ReplacementMethod]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().GetDemeManager().ReplicateDemes(m_rep_trigger);
+    m_world->GetPopulation().GetDemeManager().ReplicateDemes(m_trig, m_rep);
   }
 };
 
-
-/*
-   This action will determine if any demes have filled up, and if so move half
-   of the members into a new deme.  Specifically, it will leave the even
-   numbered cells (0,2,4, etc.) and take the odd numbered ones (1,3,5, etc.)
-
-   @CAO This next part should be configurable
-   All replicated organisms will have their merit recalculated given the full
-   list of completed tasks, and assigned to all offspring *and* all parents.
-
-   This action should be used in combination with:
-      BIRTH_METHOD 8 (always repoduce into id+1)
-      BASE_MERIT_METHOD 0 (Constant base merit)
-      BASE_CONST_MERIT 0 (Use a base merit of zero, hence all merits = 0)
-
-   These settings will make sure that all merit will be set by this action.
-*/
-
-class cActionDivideDemes : public cAction
-{
-private:
-public:
-  cActionDivideDemes(cWorld* world, const cString& args) : cAction(world, args)
-  {
-    cString largs(args);
-    // Nothing to do here yet....
-  }
-  
-  static const cString GetDescription() { return "No arguments (yet!)"; }
-  
-  void Process(cAvidaContext& ctx)
-  {
-    m_world->GetPopulation().GetDemeManager().DivideDemes();
-  }
-};
 
 
 /*
@@ -1587,11 +1539,12 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionModMutProb>("ModMutProb");
   action_lib->Register<cActionZeroMuts>("ZeroMuts");
 
+  
   action_lib->Register<cActionCompeteDemes>("CompeteDemes");
   action_lib->Register<cActionReplicateDemes>("ReplicateDemes");
-  action_lib->Register<cActionDivideDemes>("DivideDemes");
   action_lib->Register<cActionResetDemes>("ResetDemes");
   action_lib->Register<cActionCopyDeme>("CopyDeme");
+  
   
   action_lib->Register<cActionNewTrial>("NewTrial");
   action_lib->Register<cActionCompeteOrganisms>("CompeteOrganisms");

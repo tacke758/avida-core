@@ -1769,7 +1769,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   LineageSetupOrganism(GetCell(cell_id).GetOrganism(), 0, lineage_label);
   
   // If we're using germlines, then we have to be a little careful here.
-	if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
+	if(m_world->GetConfig().DEMES_USE_GERMLINES.Get()) {
 		cDeme& deme = *GetDemeManager().GetDeme(GetCell(cell_id).GetDemeID());
 		if(deme.GetGermline().Size()==0) {  
 			deme.GetGermline().Add(GetCell(cell_id).GetOrganism()->GetGenome());

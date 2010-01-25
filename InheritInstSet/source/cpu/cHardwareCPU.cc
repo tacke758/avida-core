@@ -28,7 +28,7 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
-#include "cDemeManager.h"
+#include "cDemeManager.h"\
 #include "functions.h"
 #include "cGenomeUtil.h"
 #include "cGenotype.h"

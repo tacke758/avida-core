@@ -16,10 +16,15 @@
 
 class cDemeManager;
 
+typedef void (*tDemeCompetition)(cDemeManager& mgr);
+
+
 class cDemeCompetitions{
  
   private:
     cDemeCompetitions();
+    cDemeCompetitions(const cDemeCompetitions&);
+    cDemeCompetitions& operator=(const cDemeCompetitions&);
   
   public:
     static void Control(cDemeManager& mgr);
