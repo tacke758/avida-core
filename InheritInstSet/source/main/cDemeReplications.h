@@ -21,8 +21,9 @@ class cDemeReplications{
     cDemeReplications(const cDemeReplications&);
     cDemeReplications& operator=(const cDemeReplications&);
   
-    static bool PrepareInjection(cDemeManager& mgr, int source, int target, const cGenome* inject = NULL);
-  
+    static bool PrepareReplication(cDemeManager& mgr, int source, int target, const cGenome*& injected);
+    static bool PrepareReplication(cDemeManager& mgr, int source, int target);
+                          
   public:
     static void SterileInjectionAtCenter(cDemeManager& mgr, int source, int target);
     static void SterileInjectionAtRandom(cDemeManager& mgr, int source, int target);

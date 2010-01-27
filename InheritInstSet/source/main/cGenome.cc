@@ -24,7 +24,7 @@
  */
 
 #include "cGenome.h"
-
+#include <iostream>
 
 using namespace std;
 

@@ -20,6 +20,7 @@
 #include "cStats.h"
 #include "cWorld.h"
 
+#include <iostream>
 #include <cassert>
 
 
@@ -38,6 +39,8 @@ m_population(p)
   m_deme_size = m_deme_size_x * m_deme_size_y;
   
   m_demes.Resize(num_demes);
+  m_deme_fitness.Resize(num_demes, 0.0);
+  m_total_deme_fitness = 0.0;
   
   // Setup the deme structures.
   tArray<int> deme_cells(m_deme_size);
@@ -702,9 +705,10 @@ cOrganism* cDemeManager::SampleRandomDemeOrganism(int deme_id){
 
 
 const cGenome* cDemeManager::SampleRandomDemeGenome(int deme_id){
+  const cGenome* retval = NULL;
   cDeme& deme = *GetDeme(deme_id);
   if (deme.GetOrgCount() < 1)
-    return NULL;
+    return retval;
   int num_cells = deme.GetSize();
   tArray<int> occupied(num_cells);
   int count = 0;
@@ -713,6 +717,10 @@ const cGenome* cDemeManager::SampleRandomDemeGenome(int deme_id){
     if (m_population.GetCell(cell).IsOccupied())
       occupied[count++] = cell;
   }
-  int selected = m_world->GetRandom().GetUInt(count);
-  return &m_population.GetCell(selected).GetOrganism()->GetGenome();
+  if (count == 0)
+    return retval;
+  int selected = occupied[m_world->GetRandom().GetUInt(count)];
+  
+  retval = &m_population.GetCell(selected).GetOrganism()->GetGenome();
+  return retval;
 }

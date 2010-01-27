@@ -203,6 +203,12 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cBirthChamber.cc
   ${MAIN_DIR}/cDeme.cc
   ${MAIN_DIR}/cDemeCellEvent.cc
+  ${MAIN_DIR}/cDemeCompetitions.cc
+  ${MAIN_DIR}/cDemeManager.cc
+  ${MAIN_DIR}/cDemeMethodsLib.cc
+  ${MAIN_DIR}/cDemeReplications.cc
+  ${MAIN_DIR}/cDemeSelections.cc
+  ${MAIN_DIR}/cDemeTriggers.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
   ${MAIN_DIR}/cFitnessMatrix.cc

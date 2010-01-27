@@ -31,6 +31,8 @@ tArray<int> cDemeSelections::FitnessProportional(cDemeManager& mgr)
     }
   }
   
+  assert(test_total > 0.0)
+  
   // Track how many of each deme we should have.
   tArray<int> deme_count(num_demes, 0);
   for (int i = 0; i < num_demes; i++) 
@@ -41,21 +43,32 @@ tArray<int> cDemeSelections::FitnessProportional(cDemeManager& mgr)
 
 tArray<int> cDemeSelections::Tournament(cDemeManager& mgr)
 {
-  tArray<int> deme_count(0);
   int num_demes = mgr.GetNumDemes();
+  tArray<int> deme_count(num_demes,0);
+  
   tArray<int> deme_ids(num_demes, -1);
   int valid = 0;
   for (int id = 0; id < num_demes; id++)
     if (mgr.GetDeme(id)->GetBirthCount() > 0)
       deme_ids[valid++] = id;
   
+  if (valid == 0){
+    for (int k = 0; k < num_demes; k++)
+      deme_count[k] = 1;
+    return deme_count;
+  }
+  
   for (int id = 0; id < num_demes; id++){
     double max_fitness = 0.0;
     int win_id = -1;
     int player_id;
-    for (int k = 0; k < mgr.m_world->GetConfig().NUM_DEME_TOURNAMENTS.Get(); k++)
+    for (int k = 0; k < mgr.m_world->GetConfig().NUM_DEME_TOURNAMENTS.Get(); k++){
       player_id = deme_ids[mgr.m_world->GetRandom().GetUInt(valid)];
-    win_id = (win_id == -1 || mgr.m_deme_fitness[player_id] > max_fitness) ? player_id : win_id;
+      if (win_id == -1 || mgr.m_deme_fitness[player_id] > max_fitness){
+        win_id = player_id;
+        max_fitness = mgr.m_deme_fitness[player_id];
+      }
+    }
     deme_count[win_id]++;
   }
   return deme_count;

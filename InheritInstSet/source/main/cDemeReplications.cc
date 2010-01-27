@@ -17,7 +17,24 @@
 #include "cWorld.h"
 
 
-bool cDemeReplications::PrepareInjection(cDemeManager& mgr, int source_id, int target_id, const cGenome* injected)
+bool cDemeReplications::PrepareReplication(cDemeManager& mgr, int source_id, int target_id)
+{
+  cDeme* source = mgr.GetDeme(source_id);
+  cDeme* target = mgr.GetDeme(target_id);
+  assert(source != NULL && target != NULL);
+  
+  bool using_germline = (mgr.m_world->GetConfig().DEMES_USE_GERMLINES.Get() > 0);
+  
+  target->Reset();
+  
+  if (using_germline){
+    if (source_id != target_id)
+      mgr.CopyDemeGermline(source_id, target_id);
+  }
+  return true;
+}
+
+bool cDemeReplications::PrepareReplication(cDemeManager& mgr, int source_id, int target_id, const cGenome*& injected)
 {
   cDeme* source = mgr.GetDeme(source_id);
   cDeme* target = mgr.GetDeme(target_id);
@@ -42,8 +59,8 @@ bool cDemeReplications::PrepareInjection(cDemeManager& mgr, int source_id, int t
 
 void cDemeReplications::SterileInjectionAtCenter(cDemeManager& mgr, int source_id, int target_id)
 {
-  cGenome* inject;
-  if (cDemeReplications::PrepareInjection(mgr, source_id, target_id, inject))
+  const cGenome* inject;
+  if (cDemeReplications::PrepareReplication(mgr, source_id, target_id, inject))
     mgr.SterileInjectCenter(cGenome(*inject), target_id);
 }
 
@@ -51,8 +68,8 @@ void cDemeReplications::SterileInjectionAtCenter(cDemeManager& mgr, int source_i
 
 void cDemeReplications::SterileInjectionAtRandom(cDemeManager& mgr, int source_id, int target_id)
 {
-  cGenome* inject;
-  if (cDemeReplications::PrepareInjection(mgr, source_id, target_id, inject))
+  const cGenome* inject;
+  if (cDemeReplications::PrepareReplication(mgr, source_id, target_id, inject))
      mgr.SterileInjectRandom(cGenome(*inject), target_id);
 }
 
@@ -60,15 +77,17 @@ void cDemeReplications::SterileInjectionAtRandom(cDemeManager& mgr, int source_i
 
 void cDemeReplications::SterileFullInjection(cDemeManager& mgr, int source_id, int target_id)
 {
-  cGenome* inject;
-  if (cDemeReplications::PrepareInjection(mgr, source_id, target_id, inject));
-    mgr.SterileInjectFull(cGenome(*inject), target_id);
+  const cGenome* inject;
+  if (cDemeReplications::PrepareReplication(mgr, source_id, target_id, inject)){
+    cGenome copy(*inject);
+    mgr.SterileInjectFull(copy, target_id);
+  }
 }
 
 
 void cDemeReplications::InjectCopy(cDemeManager& mgr, int source_id, int target_id)
 {
-  cDemeReplications::PrepareInjection(mgr, source_id, target_id);
+  cDemeReplications::PrepareReplication(mgr, source_id, target_id);
   mgr.CopyDeme(source_id, target_id);
 }
 
