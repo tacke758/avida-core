@@ -29,9 +29,8 @@ tArray<int> cDemeSelections::FitnessProportional(cDemeManager& mgr)
         break;
       }
     }
+    assert(test_total > 0.0);
   }
-  
-  assert(test_total > 0.0)
   
   // Track how many of each deme we should have.
   tArray<int> deme_count(num_demes, 0);

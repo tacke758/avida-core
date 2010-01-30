@@ -32,6 +32,7 @@
 #include "cConstSchedule.h"
 #include "cDataFile.h"
 #include "cDemeManager.h"
+#include "cDemeProbSchedule.h"
 #include "cEnvironment.h"
 #include "functions.h"
 #include "cGenome.h"
@@ -48,6 +49,7 @@
 #include "cPhenotype.h"
 #include "cPhenPlastGenotype.h"
 #include "cPopulationCell.h"
+#include "cProbDemeProbSchedule.h"
 #include "cProbSchedule.h"
 #include "cResource.h"
 #include "cResourceCount.h"
@@ -1116,15 +1118,21 @@ void cPopulation::ProcessStep(cAvidaContext& ctx, double step_size, int cell_id)
   cPopulationCell& cell = GetCell(cell_id);
   assert(cell.IsOccupied()); // Unoccupied cell getting processor time!
   cOrganism* cur_org = cell.GetOrganism();
+  double merit = cur_org->GetPhenotype().GetMerit().GetDouble();
   cell.GetHardware()->SingleProcess(ctx);
   if (cur_org->GetPhenotype().GetToDelete() == true) {
     delete cur_org;
   }
   m_world->GetStats().IncExecuted();
   resource_count.Update(step_size);
-  for(int i = 0; i < GetDemeManager().GetNumDemes(); i++) {
-    GetDemeManager().GetDeme(i)->Update(step_size);
-  }
+  
+  // these must be done even if there is only one deme.
+	for(int i = 0; i < GetNumDemes(); i++)
+		GetDemeManager().GetDeme(i)->Update(step_size);
+  
+	cDeme & deme = *GetDemeManager().GetDeme(GetCell(cell_id).GetDemeID());
+	deme.IncTimeUsed(merit);
+  
 }
 
 
@@ -1837,6 +1845,12 @@ void cPopulation::BuildTimeSlicer(cChangeList * change_list)
       break;
     case SLICE_INTEGRATED_MERIT:
       schedule = new cIntegratedSchedule(cell_array.GetSize());
+      break;
+    case SLICE_DEME_PROB_MERIT:
+      schedule = new cDemeProbSchedule(cell_array.GetSize(), m_world->GetRandom().GetInt(0x7FFFFFFF), GetDemeManager().GetNumDemes());
+      break;
+    case SLICE_PROB_DEMESIZE_PROB_MERIT:
+      schedule = new cProbDemeProbSchedule(cell_array.GetSize(), m_world->GetRandom().GetInt(0x7FFFFFFF), GetDemeManager().GetNumDemes());
       break;
     default:
       cout << "Warning: Requested Time Slicer not found, defaulting to Integrated." << endl;

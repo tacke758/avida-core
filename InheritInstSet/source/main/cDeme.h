@@ -49,6 +49,9 @@ private:
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
   int org_count; //!< Number of organisms are currently in this deme.
   int _age; //!< Age of this deme, in updates.
+  int time_used;
+  double cur_normalized_time_used;
+  double last_normalized_time_used;
   
   int m_instset_id;  //@MRR Cludging together linkage to cHardwareManager
   
@@ -119,6 +122,9 @@ public:
   void Update(double time_step) { deme_resource_count.Update(time_step); }
   int GetRelativeCellID(int absolute_cell_id) { return absolute_cell_id % GetSize(); } //!< assumes all demes are the same size
 
+  void IncTimeUsed(double merit) { time_used++; cur_normalized_time_used += 1.0/merit/(double)org_count; }
+  int GetTimeUsed() { return time_used; }
+  
   void SetCellEvent(int x1, int y1, int x2, int y2, int delay, int duration);
 };
 
