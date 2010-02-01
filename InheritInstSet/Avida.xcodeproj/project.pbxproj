@@ -178,6 +178,8 @@
 		B41FB8791114C5D300DFC986 /* cDemeProbSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = B41FB8751114C5D300DFC986 /* cDemeProbSchedule.h */; };
 		B41FB87A1114C5D300DFC986 /* cProbDemeProbSchedule.cc in Sources */ = {isa = PBXBuildFile; fileRef = B41FB8761114C5D300DFC986 /* cProbDemeProbSchedule.cc */; };
 		B41FB87B1114C5D300DFC986 /* cProbDemeProbSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = B41FB8771114C5D300DFC986 /* cProbDemeProbSchedule.h */; };
+		B41FB941111792A400DFC986 /* DemeActions.h in Headers */ = {isa = PBXBuildFile; fileRef = B41FB93F111792A400DFC986 /* DemeActions.h */; };
+		B41FB942111792A400DFC986 /* DemeActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = B41FB940111792A400DFC986 /* DemeActions.cc */; };
 		B42A6878110DFC75007896C0 /* cDemeMethodsLib.h in Headers */ = {isa = PBXBuildFile; fileRef = B42A6876110DFC75007896C0 /* cDemeMethodsLib.h */; };
 		B42A6893110E030F007896C0 /* cDemeSelections.h in Headers */ = {isa = PBXBuildFile; fileRef = B42A6891110E030F007896C0 /* cDemeSelections.h */; };
 		B437A74B110630C7002BD0EF /* cDemeTriggers.h in Headers */ = {isa = PBXBuildFile; fileRef = B437A749110630C7002BD0EF /* cDemeTriggers.h */; };
@@ -735,6 +737,8 @@
 		B41FB8751114C5D300DFC986 /* cDemeProbSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeProbSchedule.h; sourceTree = "<group>"; };
 		B41FB8761114C5D300DFC986 /* cProbDemeProbSchedule.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cProbDemeProbSchedule.cc; sourceTree = "<group>"; };
 		B41FB8771114C5D300DFC986 /* cProbDemeProbSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cProbDemeProbSchedule.h; sourceTree = "<group>"; };
+		B41FB93F111792A400DFC986 /* DemeActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemeActions.h; sourceTree = "<group>"; };
+		B41FB940111792A400DFC986 /* DemeActions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemeActions.cc; sourceTree = "<group>"; };
 		B42A6876110DFC75007896C0 /* cDemeMethodsLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeMethodsLib.h; sourceTree = "<group>"; };
 		B42A6891110E030F007896C0 /* cDemeSelections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeSelections.h; sourceTree = "<group>"; };
 		B437A749110630C7002BD0EF /* cDemeTriggers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeTriggers.h; sourceTree = "<group>"; };
@@ -881,6 +885,8 @@
 			isa = PBXGroup;
 			children = (
 				707AEEEF09E80725001AEA89 /* cAction.h */,
+				B41FB93F111792A400DFC986 /* DemeActions.h */,
+				B41FB940111792A400DFC986 /* DemeActions.cc */,
 				707AEEFE09E83381001AEA89 /* cActionLibrary.h */,
 				707AF04409EAB529001AEA89 /* LandscapeActions.h */,
 				707AF04509EAB529001AEA89 /* LandscapeActions.cc */,
@@ -1510,6 +1516,7 @@
 				B47C76C5110E360800202CBF /* cDemeReplications.h in Headers */,
 				B41FB8791114C5D300DFC986 /* cDemeProbSchedule.h in Headers */,
 				B41FB87B1114C5D300DFC986 /* cProbDemeProbSchedule.h in Headers */,
+				B41FB941111792A400DFC986 /* DemeActions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1801,6 +1808,7 @@
 				B47C76C6110E360800202CBF /* cDemeSelections.cc in Sources */,
 				B41FB8781114C5D300DFC986 /* cDemeProbSchedule.cc in Sources */,
 				B41FB87A1114C5D300DFC986 /* cProbDemeProbSchedule.cc in Sources */,
+				B41FB942111792A400DFC986 /* DemeActions.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

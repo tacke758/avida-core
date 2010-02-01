@@ -52,12 +52,17 @@ class cEventList
   tMemTrack<cEventList> mt;
 #endif
 public:
-  enum eTriggerType { UPDATE, GENERATION, IMMEDIATE, UNDEFINED };
+  enum eTriggerType { UPDATE, GENERATION, IMMEDIATE, EVENT, UNDEFINED };
   
   static const double TRIGGER_BEGIN;
   static const double TRIGGER_END;
   static const double TRIGGER_ALL;
   static const double TRIGGER_ONCE;
+  static const double TRIGGER_EVENT;
+  
+  static const double EVENT_DEME_PREREPLACEMENT;
+  static const double EVENT_DEME_POSTREPLACEMENT;
+  
 
 
 private:

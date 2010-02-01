@@ -31,6 +31,7 @@
 #include "cStringList.h"
 #include "cAvidaContext.h"
 
+class cPopulation;
 class cResource;
 class cWorld;
 class cGenotype;
@@ -40,10 +41,13 @@ class cOrganism;
 as a unit.  The deme object is used from within cPopulation to manage these 
 groups. */
 
+
+
 class cDeme
 {
 private:
   cWorld* m_world;
+  cPopulation* m_population;
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
@@ -78,7 +82,9 @@ public:
 
   //@MRR
   int GetInsetSetID() const { return m_instset_id; }
-  void SetInstSetID(int id)  { m_instset_id = id; }
+  void SetInstSetID(int id)  { cDeme::ForEachDemeOrganism(cDeme::SynchInstSet); }
+  static void SynchInstSet(cOrganism*, cDeme*);
+  void ForEachDemeOrganism( void (*func)(cOrganism*, cDeme*) );
   
   int GetWidth() const { return width; }
   int GetHeight() const { return cell_ids.GetSize() / width; }

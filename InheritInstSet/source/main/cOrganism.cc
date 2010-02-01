@@ -664,3 +664,11 @@ const cOrgMessage* cOrganism::RetrieveMessage()
   
   return 0;
 }
+
+
+void cOrganism::SetInstSetByID(int id)
+{
+  assert(m_hardware->IsInheritedInstSet() == false);
+  m_hardware->SetInstSet(&m_world->GetHardwareManager().GetInstSet(id));
+}
+

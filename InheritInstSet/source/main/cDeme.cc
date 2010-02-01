@@ -22,6 +22,7 @@
  */
 
 #include "cDeme.h"
+#include "cOrganism.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cResource.h"
@@ -177,4 +178,16 @@ void cDeme::SetCellEvent(int x1, int y1, int x2, int y2, int delay, int duration
 }
 
 
+void cDeme::ForEachDemeOrganism( void (*func)(cOrganism*, cDeme*) )
+{
+  for (int k = 0; k < cell_ids.GetSize(); k++)
+    if (m_population->GetCell(cell_ids[k]).IsOccupied())
+      func(m_population->GetCell(cell_ids[k]).GetOrganism(),this);
+}
 
+void cDeme::SynchInstSet(cOrganism* org, cDeme* deme)
+{
+  assert(org != NULL && deme != NULL);
+  org->SetInstSetByID(deme->m_instset_id);
+  return;
+}

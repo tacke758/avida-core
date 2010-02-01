@@ -43,6 +43,9 @@ const double cEventList::TRIGGER_END = DBL_MAX;
 const double cEventList::TRIGGER_ALL = 0.0;
 const double cEventList::TRIGGER_ONCE = DBL_MAX;
 
+const double cEventList::EVENT_DEME_PREREPLACEMENT   = 1.0;
+const double cEventList::EVENT_DEME_POSTREPLACEMENT = 2.0;
+
 
 cEventList::~cEventList()
 {
@@ -133,6 +136,7 @@ double cEventList::GetTriggerValue(eTriggerType trigger) const
   case GENERATION:
     t_val = m_world->GetStats().SumGeneration().Average();
     break;
+  case EVENT:
   case UNDEFINED:
     break;
   }
@@ -150,6 +154,9 @@ void cEventList::Process(cAvidaContext& ctx)
     cEventListEntry* next_entry = entry->GetNext();
     
     // Check trigger condition
+    
+    if (entry->GetTrigger() == EVENT)
+      continue;
     
     // IMMEDIATE Events always happen and are always deleted
     if (entry->GetTrigger() == IMMEDIATE) {
@@ -206,7 +213,7 @@ void cEventList::Sync()
 void cEventList::SyncEvent(cEventListEntry* entry)
 {
   // Ignore events that are immdeiate
-  if (entry->GetTrigger() == IMMEDIATE) return;
+  if (entry->GetTrigger() == IMMEDIATE || entry->GetTrigger() == EVENT) return;
   
   double t_val = GetTriggerValue(entry->GetTrigger());
   
@@ -251,10 +258,12 @@ void cEventList::PrintEventList(ostream& os)
       case IMMEDIATE:
         os << "immediate ";
         break;
+      case EVENT:
+        os << "event: ";
       default:
         os << "undefined ";
     }
-    if (entry->GetTrigger() != IMMEDIATE) {
+    if (entry->GetTrigger() != IMMEDIATE || entry->GetTrigger() != EVENT) {
       if (entry->GetStart() == TRIGGER_BEGIN) os << "begin";
       else os << entry->GetStart();
 
@@ -270,8 +279,18 @@ void cEventList::PrintEventList(ostream& os)
       else os << entry->GetStop();
       
       os << " ";
-    }
+    } else if (entry->GetTrigger() == EVENT){
+      cString event_type = "Unknown";
+      double interval = entry->GetInterval();
+      if (interval == EVENT_DEME_PREREPLACEMENT)
+        event_type = "DemePreReplacement";
+      else if (interval == EVENT_DEME_POSTREPLACEMENT)
+        event_type = "DemePostReplacement";
+      os << " " << event_type << " "; 
+    } 
+    
     os << entry->GetName() << " " << entry->GetArgs() << endl;
+    
     entry = next_entry;
   }
 }
@@ -306,7 +325,9 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
   } else if( cur_word == "g" || cur_word == "generation") {
     trigger = GENERATION;
     cur_word = cur_line.PopWord();
-  } else {
+  } else if (cur_word == "e" || cur_word == "event")
+    trigger = EVENT;
+  else {
     // If Trigger is skipped so assume IMMEDIATE
     trigger = IMMEDIATE;
   }
@@ -347,11 +368,19 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
     }
     cur_word = cur_line.PopWord(); // timing provided, so get next word
     
-  } else { // We don't have timing, so assume IMMEDIATE
+  } else if (trigger == IMMEDIATE){ // We don't have timing, so assume IMMEDIATE
     trigger = IMMEDIATE;
     start = TRIGGER_BEGIN;
     interval = TRIGGER_ONCE;
     stop = TRIGGER_END;
+  } else if (trigger == EVENT){
+    start = TRIGGER_BEGIN;
+    stop = TRIGGER_END;
+    if (tmp == "DemePreReplacement"){
+      interval = EVENT_DEME_PREREPLACEMENT;
+    } else if (tmp == "DemePostReplacement"){
+      interval = EVENT_DEME_POSTREPLACEMENT;
+    }
   }
   
   // Get the rest of the info

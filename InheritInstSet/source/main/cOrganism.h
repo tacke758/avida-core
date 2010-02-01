@@ -173,6 +173,7 @@ public:
 	int  GetCCladeLabel() const { return cclade_id; }
   
   int GetInstSetID() const { return m_inst_set_id; } //@MRR
+  void SetInstSetByID(int id);
 	
 	
   int GetMaxExecuted() const { return m_max_executed; }

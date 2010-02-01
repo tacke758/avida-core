@@ -109,13 +109,12 @@ public:
   // --------  Organism ---------
   cOrganism* GetOrganism() { return organism; }
   const cInstSet& GetInstSet() { return *m_inst_set; }
-  cInstSet* GetInstSetPtr() { return m_inst_set; } //Be Careful!
+  cInstSet*& GetInstSetPtr() { return m_inst_set; } //Be Careful!
   void SetInstSet(cInstSet* _in){ 
     if (!m_inherited_instset)
       m_inst_set = _in; 
     else{
-      cInheritedInstSet* ptr = static_cast<cInheritedInstSet*>(m_inst_set);
-      delete ptr;
+      delete m_inst_set;
       m_inst_set = _in;
     }
   }

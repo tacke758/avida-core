@@ -24,6 +24,7 @@
 
 #include "cActionLibrary.h"
 
+#include "DemeActions.h"
 #include "DriverActions.h"
 #include "EnvironmentActions.h"
 #include "LandscapeActions.h"
@@ -35,7 +36,8 @@
 cActionLibrary* cActionLibrary::ConstructDefaultActionLibrary()
 {
   cActionLibrary* actlib = new cActionLibrary();
-
+  
+  RegisterDemeActions(actlib);
   RegisterDriverActions(actlib);
   RegisterEnvironmentActions(actlib);
   RegisterLandscapeActions(actlib);

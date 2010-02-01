@@ -100,14 +100,19 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
     deme_count[from_deme_id]--;
     deme_count[to_deme_id]++;
        
+    PreDemeReplacementEvents(from_deme_id, false);
     replication(*this, to_deme_id, from_deme_id);
+    PostDemeReplacementEvents(from_deme_id, false);
     
     is_init[to_deme_id] = true;
   }
   
   for (int i = 0; i < GetNumDemes(); i++)
-    if (is_init[i] == false) 
+    if (is_init[i] == false){
+      PreDemeReplacementEvents(i, true);
       replication(*this, i, i);
+      PostDemeReplacementEvents(i, true);
+    }
 }
 
 
@@ -136,7 +141,9 @@ void cDemeManager::ReplicateDemes(const cString& trigger_fun, const cString& rep
     while(target_id == source_id) 
       target_id = m_world->GetRandom().GetUInt(num_demes);
     
+    PreDemeReplacementEvents(target_id, false);
     replication(*this, source_id, target_id);
+    PostDemeReplacementEvents(target_id, false);
   }
 }
 
