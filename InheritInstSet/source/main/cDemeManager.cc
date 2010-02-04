@@ -9,6 +9,7 @@
 
 #include "cDemeManager.h"
 
+#include "defs.h"
 #include "cAvidaConfig.h"
 #include "cDemeCompetitions.h"
 #include "cEnvironment.h"
@@ -100,18 +101,18 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
     deme_count[from_deme_id]--;
     deme_count[to_deme_id]++;
        
-    PreDemeReplacementEvents(from_deme_id, false);
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
     replication(*this, to_deme_id, from_deme_id);
-    PostDemeReplacementEvents(from_deme_id, false);
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
     
     is_init[to_deme_id] = true;
   }
   
   for (int i = 0; i < GetNumDemes(); i++)
     if (is_init[i] == false){
-      PreDemeReplacementEvents(i, true);
+       m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
       replication(*this, i, i);
-      PostDemeReplacementEvents(i, true);
+      m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
     }
 }
 
@@ -141,9 +142,9 @@ void cDemeManager::ReplicateDemes(const cString& trigger_fun, const cString& rep
     while(target_id == source_id) 
       target_id = m_world->GetRandom().GetUInt(num_demes);
     
-    PreDemeReplacementEvents(target_id, false);
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
     replication(*this, source_id, target_id);
-    PostDemeReplacementEvents(target_id, false);
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
   }
 }
 

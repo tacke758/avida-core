@@ -26,6 +26,10 @@
 #ifndef cEventList_h
 #define cEventList_h
 
+#ifndef defs_h
+#include "defs.h"
+#endif
+
 #ifndef cAction_h
 #include "cAction.h"
 #endif
@@ -34,6 +38,10 @@
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
 # endif
+#endif
+
+#ifndef tList_h
+#include "tList.h"
 #endif
 
 
@@ -59,13 +67,22 @@ public:
   static const double TRIGGER_ALL;
   static const double TRIGGER_ONCE;
   static const double TRIGGER_EVENT;
-  
-  static const double EVENT_DEME_PREREPLACEMENT;
-  static const double EVENT_DEME_POSTREPLACEMENT;
-  
 
 
 private:
+  
+  class cEventTriggerEntry
+  {
+    private:
+      cAction* m_action;
+      cString  m_name;
+      eEventTrigger m_trigger;
+    public:
+      cEventTriggerEntry(cAction* action, const cString& name, eEventTrigger trigger) : m_action(action), m_name(name), m_trigger(trigger) {;}
+      cString  GetName() const {return m_name;}
+      cAction* GetAction() const {return m_action;}
+      eEventTrigger GetEventTrigger() const {return m_trigger;}
+  };
   
   class cEventListEntry
   {
@@ -81,8 +98,10 @@ private:
     
     cEventListEntry* m_prev;
     cEventListEntry* m_next;
+  
     
   public:
+  
     cEventListEntry(cAction* action, const cString& name, eTriggerType trigger = UPDATE, double start = TRIGGER_BEGIN,
                     double interval = TRIGGER_ONCE, double stop = TRIGGER_END, cEventListEntry* prev = NULL,
                     cEventListEntry* next = NULL) :
@@ -118,6 +137,7 @@ private:
   cWorld* m_world;
   cEventListEntry* m_head;
   cEventListEntry* m_tail;
+  tList<cEventTriggerEntry> m_trigger_events;
   int m_num_events;
 
 
@@ -182,6 +202,10 @@ public:
   void Sync(); // Get all events caught up.
 
   void PrintEventList(std::ostream& os = std::cout);
+  
+  eEventTrigger ParseEventCode(cString event);
+  bool AddTriggerEvent(const cString& trigger, const cString& name, const cString& arg);
+  bool TriggerEvent(eEventTrigger id, cAvidaContext& ctx);
 };
 
 

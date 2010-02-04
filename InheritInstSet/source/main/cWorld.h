@@ -38,6 +38,10 @@
 #include "cRandom.h"
 #endif
 
+#ifndef defs_h
+#include "defs.h"
+#endif
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -130,6 +134,9 @@ public:
   // @DMB - Inherited from cAvidaDriver heritage
   void GetEvents(cAvidaContext& ctx);
 
+  // @MRR
+  bool TriggerEvent(eEventTrigger id, cAvidaContext& ctx); 
+  
   // Save to archive 
   template<class Archive>
   void save(Archive & a, const unsigned int version) const {

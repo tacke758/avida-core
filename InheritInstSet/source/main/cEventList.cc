@@ -43,8 +43,7 @@ const double cEventList::TRIGGER_END = DBL_MAX;
 const double cEventList::TRIGGER_ALL = 0.0;
 const double cEventList::TRIGGER_ONCE = DBL_MAX;
 
-const double cEventList::EVENT_DEME_PREREPLACEMENT   = 1.0;
-const double cEventList::EVENT_DEME_POSTREPLACEMENT = 2.0;
+
 
 
 cEventList::~cEventList()
@@ -85,6 +84,29 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
   
   return false;
 }
+
+
+
+bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, const cString& args)
+{
+  eEventTrigger event = ParseEventCode(trigger);
+  cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
+  m_trigger_events.Push(new cEventTriggerEntry(action, name, event));
+  return false;
+}
+
+
+eEventTrigger cEventList::ParseEventCode(cString event)
+{
+  if (event.ToUpper() = "DEMEREPLACMENTPRE")
+    return TRIGGER_DEME_REPLACEMENT_PRE;
+  else if (event.ToUpper() == "DEMEREPLACEMENTPOST")
+    return TRIGGER_DEME_REPLACEMENT_POST;
+  else
+    return TRIGGER_UNKNOWN;
+}
+
+
 
 bool cEventList::LoadEventFile(const cString& filename)
 {
@@ -279,15 +301,7 @@ void cEventList::PrintEventList(ostream& os)
       else os << entry->GetStop();
       
       os << " ";
-    } else if (entry->GetTrigger() == EVENT){
-      cString event_type = "Unknown";
-      double interval = entry->GetInterval();
-      if (interval == EVENT_DEME_PREREPLACEMENT)
-        event_type = "DemePreReplacement";
-      else if (interval == EVENT_DEME_POSTREPLACEMENT)
-        event_type = "DemePostReplacement";
-      os << " " << event_type << " "; 
-    } 
+    }
     
     os << entry->GetName() << " " << entry->GetArgs() << endl;
     
@@ -374,13 +388,10 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
     interval = TRIGGER_ONCE;
     stop = TRIGGER_END;
   } else if (trigger == EVENT){
-    start = TRIGGER_BEGIN;
-    stop = TRIGGER_END;
-    if (tmp == "DemePreReplacement"){
-      interval = EVENT_DEME_PREREPLACEMENT;
-    } else if (tmp == "DemePostReplacement"){
-      interval = EVENT_DEME_POSTREPLACEMENT;
-    }
+    cString trigger = cur_word;
+    name = cur_line.PopWord();
+    arg_list = cur_line;
+    return AddTriggerEvent(cur_word, name, cur_line);
   }
   
   // Get the rest of the info
@@ -389,3 +400,19 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
   
   return AddEvent(trigger, start, interval, stop, name, arg_list);
 }
+
+
+//@MRR
+bool cEventList::TriggerEvent(eEventTrigger id, cAvidaContext& ctx)
+{
+  bool triggered = false;
+  tListIterator<cEventTriggerEntry> cur_it(m_trigger_events);
+  cEventTriggerEntry* cur;
+  while ( (cur = cur_it.Next()) != NULL )
+    if (cur->GetEventTrigger() == id){
+      cur->GetAction()->Process(ctx);
+      triggered = true;
+    }
+  return triggered;
+}
+

@@ -171,3 +171,10 @@ void cWorld::SetDriver(cWorldDriver* driver, bool take_ownership)
   m_driver = driver;
   m_own_driver = take_ownership;
 }
+
+
+
+bool cWorld::TriggerEvent(eEventTrigger id, cAvidaContext& ctx)
+{
+  return m_event_list->TriggerEvent(id, ctx);
+}

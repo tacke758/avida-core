@@ -80,9 +80,6 @@ class cDemeManager{
     void ResetDemeOrganisms();
     void SpawnDeme(int source_id, int target_id=-1);
   
-    void PreDemeReplacementEvents(int deme_id, bool is_self=false) {;}
-    void PostDemeReplacementEvents(int deme_id, bool is_self=false) {;}
-  
     void SterileInjectCenter(const cGenome& genome, int target_id);
     void SterileInjectRandom(const cGenome& genome, int target_id);
     void SterileInjectFull(const cGenome& genome, int target_id);

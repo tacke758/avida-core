@@ -181,4 +181,10 @@ enum eIIS_MUT_TYPE{
   PER_INSTSET        //By Instruction Set
 };
 
+
+enum eEventTrigger{
+  TRIGGER_UNKNOWN = 0,
+  TRIGGER_DEME_REPLACEMENT_PRE,
+  TRIGGER_DEME_REPLACEMENT_POST
+};
 #endif
