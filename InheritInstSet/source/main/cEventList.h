@@ -79,13 +79,13 @@ private:
   class cEventTriggerEntry
   {
     private:
-      cDemeAction* m_action;
+      cAction* m_action;
       cString  m_name;
       eEventTrigger m_trigger;
     public:
-      cEventTriggerEntry(cDemeAction* action, const cString& name, eEventTrigger trigger) : m_action(action), m_name(name), m_trigger(trigger) {;}
+      cEventTriggerEntry(cAction* action, const cString& name, eEventTrigger trigger) : m_action(action), m_name(name), m_trigger(trigger) {;}
       cString  GetName() const {return m_name;}
-      cDemeAction* GetAction() const {return m_action;}
+      cAction* GetAction() const {return m_action;}
       eEventTrigger GetEventTrigger() const {return m_trigger;}
   };
   
@@ -210,7 +210,7 @@ public:
   
   eEventTrigger ParseEventCode(cString event);
   bool AddTriggerEvent(const cString& trigger, const cString& name, const cString& arg);
-  bool TriggerEvent(eEventTrigger id, cEventContext& state);
+  bool TriggerEvent(cEventContext& state);
 };
 
 

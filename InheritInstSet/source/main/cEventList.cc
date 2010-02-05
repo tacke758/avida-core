@@ -90,7 +90,7 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
 bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, const cString& args)
 {
   eEventTrigger event = ParseEventCode(trigger);
-  cDemeAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
+  cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
   m_trigger_events.Push(new cEventTriggerEntry(action, name, event));
   cerr << "Trigger " << name << " " << trigger << " added." << endl;
   return true;
@@ -404,18 +404,17 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
 
 
 //@MRR
-bool cEventList::TriggerEvent(eEventTrigger id, cEventContext& state)
+bool cEventList::TriggerEvent(cEventContext& state)
 {
   bool triggered = false;
   tListIterator<cEventTriggerEntry> cur_it(m_trigger_events);
   cEventTriggerEntry* cur;
-  while ( (cur = cur_it.Next()) != NULL )
-    cerr << cur->GetEventTrigger() << " received " << id << endl;
-    if (cur->GetEventTrigger() == id){
-      cerr << "About to process." << endl;
+  while ( (cur = cur_it.Next()) != NULL ){
+    if (cur->GetEventTrigger() == state.GetEventTrigger()){
       cur->GetAction()->Process(state);
       triggered = true;
     }
+  }
   return triggered;
 }
 

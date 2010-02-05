@@ -30,6 +30,7 @@
 #endif
 
 class cAvidaContext;
+class cEventContext;
 class cWorld;
 
 class cAction
@@ -50,6 +51,7 @@ public:
   const cString& GetArgs() const { return m_args; }
   
   virtual void Process(cAvidaContext& ctx) = 0;
+  virtual void Process(cEventContext& ctx) {;}
 };
 
 #endif

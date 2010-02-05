@@ -138,7 +138,7 @@ public:
   void GetEvents(cAvidaContext& ctx);
 
   // @MRR
-  bool TriggerEvent(eEventTrigger id, cEventContext& state); 
+  bool TriggerEvent(cEventContext& state); 
   
   // Save to archive 
   template<class Archive>

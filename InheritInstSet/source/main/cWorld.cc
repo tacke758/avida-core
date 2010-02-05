@@ -174,7 +174,7 @@ void cWorld::SetDriver(cWorldDriver* driver, bool take_ownership)
 
 
 
-bool cWorld::TriggerEvent(eEventTrigger id, cEventContext& state)
+bool cWorld::TriggerEvent(cEventContext& state)
 {
-  return m_event_list->TriggerEvent(id, state);
+  return m_event_list->TriggerEvent(state);
 }

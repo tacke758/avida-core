@@ -10,6 +10,11 @@
 #ifndef cEventContext_h
 #define cEventContext_h
 
+
+#ifndef defs_h
+#include "defs.h"
+#endif 
+
 #ifndef tDictionary_h
 #include "tDictionary.h"
 #endif
@@ -29,6 +34,7 @@
 
 class cCntxEntry{
 private:
+  
   cString  m_name;
   cFlexVar m_value;
   cCntxEntry() {;}
@@ -44,13 +50,16 @@ public:
 class cEventContext : public cAvidaContext
 {
   private:
+    eEventTrigger m_trigger;
     tDictionary< cCntxEntry* > m_state_info;
   
   public:
-    cEventContext(cAvidaContext& ctx) : cAvidaContext(ctx) {;}
+    cEventContext(cAvidaContext& ctx, eEventTrigger id = TRIGGER_UNKNOWN) : cAvidaContext(ctx), m_trigger(id) {;}
     ~cEventContext();
     const cFlexVar* operator[](const cString& name);
     cEventContext& operator<<(const cCntxEntry& entry);
+    void SetEventTrigger(eEventTrigger id) {m_trigger = id;}
+    eEventTrigger GetEventTrigger() const {return m_trigger;}
 };
 
 #endif
