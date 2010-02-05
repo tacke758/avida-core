@@ -90,9 +90,10 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
 bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, const cString& args)
 {
   eEventTrigger event = ParseEventCode(trigger);
-  cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
+  cDemeAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
   m_trigger_events.Push(new cEventTriggerEntry(action, name, event));
-  return false;
+  cerr << "Trigger " << name << " " << trigger << " added." << endl;
+  return true;
 }
 
 
@@ -280,12 +281,10 @@ void cEventList::PrintEventList(ostream& os)
       case IMMEDIATE:
         os << "immediate ";
         break;
-      case EVENT:
-        os << "event: ";
       default:
         os << "undefined ";
     }
-    if (entry->GetTrigger() != IMMEDIATE || entry->GetTrigger() != EVENT) {
+    if (entry->GetTrigger() != IMMEDIATE) {
       if (entry->GetStart() == TRIGGER_BEGIN) os << "begin";
       else os << entry->GetStart();
 
@@ -339,8 +338,10 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
   } else if( cur_word == "g" || cur_word == "generation") {
     trigger = GENERATION;
     cur_word = cur_line.PopWord();
-  } else if (cur_word == "e" || cur_word == "event")
+  } else if (cur_word == "e" || cur_word == "event") {
     trigger = EVENT;
+    cur_word = cur_line.PopWord();
+  }
   else {
     // If Trigger is skipped so assume IMMEDIATE
     trigger = IMMEDIATE;
@@ -403,14 +404,16 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
 
 
 //@MRR
-bool cEventList::TriggerEvent(eEventTrigger id, cAvidaContext& ctx)
+bool cEventList::TriggerEvent(eEventTrigger id, cEventContext& state)
 {
   bool triggered = false;
   tListIterator<cEventTriggerEntry> cur_it(m_trigger_events);
   cEventTriggerEntry* cur;
   while ( (cur = cur_it.Next()) != NULL )
+    cerr << cur->GetEventTrigger() << " received " << id << endl;
     if (cur->GetEventTrigger() == id){
-      cur->GetAction()->Process(ctx);
+      cerr << "About to process." << endl;
+      cur->GetAction()->Process(state);
       triggered = true;
     }
   return triggered;

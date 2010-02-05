@@ -11,7 +11,11 @@
 
 #include "cAction.h"
 #include "cActionLibrary.h"
+#include "cDeme.h"
+#include "cDemeManager.h"
 #include "cString.h"
+
+#include <iostream>
 
 class cDemeActionMutateInstSetID : public cDemeAction
   {
@@ -25,8 +29,17 @@ class cDemeActionMutateInstSetID : public cDemeAction
     
     static const cString GetDescription() { return "Arguments: <path> <id>"; }
     
-    void Process(cAvidaContext& ctx, cDeme* deme)
+    void Process(cAvidaContext& ctx)
     {
+      return;
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      cerr << "Made it into process." << endl;
+      int source_id = (*ctx["source_id"]).AsInt();
+      int target_id = (*ctx["target_id"]).AsInt();
+      cerr << "Event Triggered " << source_id << " " << target_id << " " << endl;
     }
   
   };

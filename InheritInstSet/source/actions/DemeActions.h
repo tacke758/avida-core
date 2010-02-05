@@ -11,6 +11,7 @@
 #define DemeActions_h
 
 #include "cAction.h"
+#include "cEventContext.h"
 
 class cActionLibrary;
 class cAvidaContext;
@@ -20,10 +21,9 @@ class cDeme;
 class cDemeAction : public cAction
 {
   private:
-    void Process(cAvidaContext& ctx) {;}
   public:
     cDemeAction(cWorld* world, const cString& args) : cAction(world,args) {;};
-    virtual void Process(cAvidaContext& ctx, cDeme* deme) = 0;
+    virtual void Process(cEventContext&) = 0;
 };
 
 void RegisterDemeActions(cActionLibrary* action_lib);

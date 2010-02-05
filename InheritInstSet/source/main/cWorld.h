@@ -31,6 +31,9 @@
 #ifndef cAvidaContext_h
 #include "cAvidaContext.h"
 #endif
+#ifndef cEventContext_h
+#include "cEventContext.h"
+#endif
 #ifndef cDataFileManager_h
 #include "cDataFileManager.h"
 #endif
@@ -135,7 +138,7 @@ public:
   void GetEvents(cAvidaContext& ctx);
 
   // @MRR
-  bool TriggerEvent(eEventTrigger id, cAvidaContext& ctx); 
+  bool TriggerEvent(eEventTrigger id, cEventContext& state); 
   
   // Save to archive 
   template<class Archive>

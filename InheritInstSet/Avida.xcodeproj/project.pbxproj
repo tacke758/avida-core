@@ -193,6 +193,8 @@
 		B4BDF47C11050F3300658C60 /* cDemeManager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4BDF47A11050F3300658C60 /* cDemeManager.cc */; };
 		B4BDF4851105138F00658C60 /* cDemeCompetitions.h in Headers */ = {isa = PBXBuildFile; fileRef = B4BDF4831105138F00658C60 /* cDemeCompetitions.h */; };
 		B4BDF4861105138F00658C60 /* cDemeCompetitions.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4BDF4841105138F00658C60 /* cDemeCompetitions.cc */; };
+		B4D07294111B6E5200914F3F /* cEventContext.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D07292111B6E5200914F3F /* cEventContext.h */; };
+		B4D07295111B6E5200914F3F /* cEventContext.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4D07293111B6E5200914F3F /* cEventContext.cc */; };
 		B4DA5DBE10F289170052C0A5 /* cInheritedInstSet.h in Headers */ = {isa = PBXBuildFile; fileRef = B4DA5DBC10F289170052C0A5 /* cInheritedInstSet.h */; };
 		B4FA258A0C5EB65E0086D4B5 /* cPlasticPhenotype.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4FA25810C5EB6510086D4B5 /* cPlasticPhenotype.cc */; };
 		B4FA25A90C5EB7880086D4B5 /* cPhenPlastGenotype.cc in Sources */ = {isa = PBXBuildFile; fileRef = B4FA259E0C5EB7600086D4B5 /* cPhenPlastGenotype.cc */; };
@@ -752,6 +754,8 @@
 		B4BDF47A11050F3300658C60 /* cDemeManager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDemeManager.cc; sourceTree = "<group>"; };
 		B4BDF4831105138F00658C60 /* cDemeCompetitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeCompetitions.h; sourceTree = "<group>"; };
 		B4BDF4841105138F00658C60 /* cDemeCompetitions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDemeCompetitions.cc; sourceTree = "<group>"; };
+		B4D07292111B6E5200914F3F /* cEventContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cEventContext.h; sourceTree = "<group>"; };
+		B4D07293111B6E5200914F3F /* cEventContext.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cEventContext.cc; sourceTree = "<group>"; };
 		B4DA5DBC10F289170052C0A5 /* cInheritedInstSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cInheritedInstSet.h; sourceTree = "<group>"; };
 		B4FA25800C5EB6510086D4B5 /* cPhenPlastGenotype.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cPhenPlastGenotype.h; sourceTree = "<group>"; };
 		B4FA25810C5EB6510086D4B5 /* cPlasticPhenotype.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cPlasticPhenotype.cc; sourceTree = "<group>"; };
@@ -1229,6 +1233,8 @@
 		DCC310040762539D008F7A48 /* main */ = {
 			isa = PBXGroup;
 			children = (
+				B4D07292111B6E5200914F3F /* cEventContext.h */,
+				B4D07293111B6E5200914F3F /* cEventContext.cc */,
 				B47C76BF110E360800202CBF /* cDemeMethodsLib.cc */,
 				B47C76C0110E360800202CBF /* cDemeReplications.cc */,
 				B47C76C1110E360800202CBF /* cDemeReplications.h */,
@@ -1517,6 +1523,7 @@
 				B41FB8791114C5D300DFC986 /* cDemeProbSchedule.h in Headers */,
 				B41FB87B1114C5D300DFC986 /* cProbDemeProbSchedule.h in Headers */,
 				B41FB941111792A400DFC986 /* DemeActions.h in Headers */,
+				B4D07294111B6E5200914F3F /* cEventContext.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1809,6 +1816,7 @@
 				B41FB8781114C5D300DFC986 /* cDemeProbSchedule.cc in Sources */,
 				B41FB87A1114C5D300DFC986 /* cProbDemeProbSchedule.cc in Sources */,
 				B41FB942111792A400DFC986 /* DemeActions.cc in Sources */,
+				B4D07295111B6E5200914F3F /* cEventContext.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -100,19 +100,23 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
     // We now have both a from and a to deme....
     deme_count[from_deme_id]--;
     deme_count[to_deme_id]++;
-       
-    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
+    
+    cEventContext state(m_world->GetDefaultContext());
+    state << (cCntxEntry("target_id", from_deme_id)) << (cCntxEntry("source_id", to_deme_id));
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, state);
     replication(*this, to_deme_id, from_deme_id);
-    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, state);
     
     is_init[to_deme_id] = true;
   }
   
   for (int i = 0; i < GetNumDemes(); i++)
     if (is_init[i] == false){
-       m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
+      cEventContext state(m_world->GetDefaultContext());
+      state << cCntxEntry("target_id", i) << cCntxEntry("source_id", i);
+      m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, state);      
       replication(*this, i, i);
-      m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
+      m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, state);
     }
 }
 
@@ -142,9 +146,11 @@ void cDemeManager::ReplicateDemes(const cString& trigger_fun, const cString& rep
     while(target_id == source_id) 
       target_id = m_world->GetRandom().GetUInt(num_demes);
     
-    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, m_world->GetDefaultContext());
+    cEventContext state(m_world->GetDefaultContext());
+    state << cCntxEntry("target_id", target_id) << cCntxEntry("source_id", source_id);
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_PRE, state);
     replication(*this, source_id, target_id);
-    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, m_world->GetDefaultContext());
+    m_world->TriggerEvent(TRIGGER_DEME_REPLACEMENT_POST, state);
   }
 }
 

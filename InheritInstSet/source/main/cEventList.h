@@ -34,6 +34,10 @@
 #include "cAction.h"
 #endif
 
+#ifndef DemeActions_h
+#include "DemeActions.h"
+#endif
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -46,6 +50,7 @@
 
 
 class cAvidaContext;
+class cEventContext;
 class cString;
 class cWorld;
 
@@ -74,13 +79,13 @@ private:
   class cEventTriggerEntry
   {
     private:
-      cAction* m_action;
+      cDemeAction* m_action;
       cString  m_name;
       eEventTrigger m_trigger;
     public:
-      cEventTriggerEntry(cAction* action, const cString& name, eEventTrigger trigger) : m_action(action), m_name(name), m_trigger(trigger) {;}
+      cEventTriggerEntry(cDemeAction* action, const cString& name, eEventTrigger trigger) : m_action(action), m_name(name), m_trigger(trigger) {;}
       cString  GetName() const {return m_name;}
-      cAction* GetAction() const {return m_action;}
+      cDemeAction* GetAction() const {return m_action;}
       eEventTrigger GetEventTrigger() const {return m_trigger;}
   };
   
@@ -205,7 +210,7 @@ public:
   
   eEventTrigger ParseEventCode(cString event);
   bool AddTriggerEvent(const cString& trigger, const cString& name, const cString& arg);
-  bool TriggerEvent(eEventTrigger id, cAvidaContext& ctx);
+  bool TriggerEvent(eEventTrigger id, cEventContext& state);
 };
 
 
