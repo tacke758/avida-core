@@ -413,7 +413,6 @@ bool cEventList::TriggerEvent(cEventContext& state)
   cEventTriggerEntry* cur;
   while ( (cur = cur_it.Next()) != NULL ){
     if (cur->GetEventTrigger() == state.GetEventTrigger()){
-      cerr << state.GetEventTrigger();
       cur->GetAction()->Process(state);
       triggered = true;
     }
