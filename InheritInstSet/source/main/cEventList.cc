@@ -99,7 +99,7 @@ bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, co
 
 eEventTrigger cEventList::ParseEventCode(cString event)
 {
-  if (event.ToUpper() = "DEMEREPLACMENTPRE")
+  if (event.ToUpper() == "DEMEREPLACMENTPRE")
     return TRIGGER_DEME_REPLACEMENT_PRE;
   else if (event.ToUpper() == "DEMEREPLACEMENTPOST")
     return TRIGGER_DEME_REPLACEMENT_POST;
@@ -413,6 +413,7 @@ bool cEventList::TriggerEvent(cEventContext& state)
   cEventTriggerEntry* cur;
   while ( (cur = cur_it.Next()) != NULL ){
     if (cur->GetEventTrigger() == state.GetEventTrigger()){
+      cerr << state.GetEventTrigger();
       cur->GetAction()->Process(state);
       triggered = true;
     }

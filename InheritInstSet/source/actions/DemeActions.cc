@@ -82,6 +82,7 @@ class cDemeActionPrintInstSetData : public cDemeAction
       fot << "#format: update%d ";
       for (int k = 0; k < num_demes; k++)
         fot << "demeID_" << k << "%d fitness_" << k << "%f instset_" << k << "%d ";
+      fot << endl;
     }
   
   public:
