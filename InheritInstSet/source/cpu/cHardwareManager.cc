@@ -24,6 +24,7 @@
 
 #include "cHardwareManager.h"
 
+#include "cEventContext.h"
 #include "cHardwareCPU.h"
 #include "cHardwareExperimental.h"
 #include "cHardwareSMT.h"
@@ -113,12 +114,10 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
   if (m_inst_sets.GetSize() == 0 || (*m_inst_sets[0] == *new_inst_set) ){
     if (id <= m_inst_sets.GetSize() - 1){ //If our array is large enough
       if (m_inst_sets[id] != NULL){ //Old instruction set exists, migrate hardware and delete it
-        int sz = m_world->GetPopulation().GetSize();
-        for (int k = 0; k < sz; k++){  //Go through every organism and see if it's using the depricated instruction set
-          if (m_world->GetPopulation().GetCell(k).IsOccupied())
-            m_world->GetPopulation().GetCell(k).GetHardware()->SetInstSet(new_inst_set);
-        }
         cerr << "Deprecating instruction set " << m_inst_sets[id] << " using id " << id << endl;
+        cEventContext state(m_world->GetDefaultContext());
+        state << cCntxEntry("id",id) << cCntxEntry("ptr", (int) new_inst_set);
+        cPopulation::ForAllOrganisms(cHardwareManager::ReplaceDeprecatedInstSet, m_world->GetPopulation(), state);
         delete m_inst_sets[id];
       }
       m_inst_sets[id] = new_inst_set;
@@ -198,4 +197,13 @@ cHardwareBase* cHardwareManager::Create(cOrganism* in_org, const cInstSet* paren
     default:
       return NULL;
   }
+}
+
+
+void cHardwareManager::ReplaceDeprecatedInstSet(cOrganism* org, cEventContext& ctx)
+{
+  int id = (*ctx["id"]).AsInt();
+  cInstSet* ptr = (cInstSet*) ( (*ctx["ptr"]).AsInt() );
+  if (org->GetInstSetID() == id)
+    org->GetHardware().SetInstSet(ptr);
 }

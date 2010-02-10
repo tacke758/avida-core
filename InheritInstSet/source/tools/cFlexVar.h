@@ -117,7 +117,7 @@ private:
     char AsChar() const { return m_value; }
     double AsDouble() const { return (double) m_value; }
     void SetString(cString & in_str) const { in_str.Set("%c", m_value); }
-
+    
     eFlexType GetType() const { return TYPE_CHAR; }
     void Print(std::ostream& out) const { out << m_value; }
 

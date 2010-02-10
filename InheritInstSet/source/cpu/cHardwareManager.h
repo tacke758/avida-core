@@ -49,6 +49,7 @@
 #include "tArray.h"
 #endif
 
+class cEventContext;
 class cHardwareBase;
 class cOrganism;
 class cWorld;
@@ -91,6 +92,8 @@ public:
   
   bool AddInstSet(const cString& filename, int id = 0);
   tArray< tArray<int> >* GetAllowedRedundancies() { return m_allowed_redundancies; }
+  static void ReplaceDeprecatedInstSet(cOrganism* org, cEventContext& ctx);
+  
 };
 
 

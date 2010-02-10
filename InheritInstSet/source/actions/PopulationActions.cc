@@ -1516,6 +1516,36 @@ class cActionAddInstSet : public cAction
 };
   
 
+
+
+class cActionApplyInstSetToPopulation : public cAction
+  {
+  private:
+    int     m_id;
+  public:
+    cActionApplyInstSetToPopulation(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_id       = (largs.GetSize()) ? largs.PopWord().AsInt() : 0;
+    }
+    
+    static void ApplyInstSet( cOrganism* org, cEventContext& state )
+    {
+      org->SetInstSetByID((*state["id"]).AsInt());
+    }
+    
+    static const cString GetDescription() { return "Arguments: <path> <id>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEventContext state(ctx);
+      state << cCntxEntry("id", m_id);
+      cPopulation::ForAllOrganisms(cActionApplyInstSetToPopulation::ApplyInstSet, m_world->GetPopulation(), state);
+    }
+  };
+
+
+
 void RegisterPopulationActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionInject>("Inject");

@@ -80,7 +80,7 @@ class cDemeActionPrintInstSetData : public cDemeAction
     cString m_filename;
     bool first_run;
     void PrintFormattingHeader(ofstream& fot)
-  {
+    {
       int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
       fot << "#format: update%d ";
       for (int k = 0; k < num_demes; k++)
@@ -99,7 +99,12 @@ class cDemeActionPrintInstSetData : public cDemeAction
     
     void Process(cAvidaContext& ctx)
     {
-      
+      cEventContext state(ctx, TRIGGER_UNKNOWN);
+      Process(state);
+    }
+  
+    void Process(cEventContext& ctx)
+    {
       ofstream& fot = m_world->GetDataFileManager().GetOFStream(m_filename);
       if (first_run){
         first_run = false;
@@ -116,13 +121,45 @@ class cDemeActionPrintInstSetData : public cDemeAction
       }
       fot << endl;
     }
-    
 };
+
+
+
+
+class cDemeActionSetAllDemesInstSetID : public cDemeAction
+  {
+  private:
+    int m_id;
+    
+  public:
+    cDemeActionSetAllDemesInstSetID(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+      cString largs(args);
+      m_id = largs.PopWord().AsInt();
+    }
+    
+    static const cString GetDescription() { return "Arguments: <path>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEventContext state(ctx, TRIGGER_UNKNOWN);
+      Process(state);
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      for (int k = 0; k < num_demes; k++)
+        m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(m_id);
+    }
+  };
 
 
 
 void RegisterDemeActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cDemeActionMutateInstSetID>("MutateDemeInstSetID");
+  action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
+  action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
   return;  
 }

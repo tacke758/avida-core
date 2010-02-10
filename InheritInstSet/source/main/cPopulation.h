@@ -68,6 +68,7 @@ class cAvidaContext;
 class cCodeLabel;
 class cChangeList;
 class cEnvironment;
+class cEventContext;
 class cGenome;
 class cGenotype;
 class cLineage;
@@ -76,6 +77,8 @@ class cPopulationCell;
 class cSchedule;
 class cSaleItem;
 
+
+typedef void (*tOrganismFunction)(cOrganism*, cEventContext&);
 
 class cPopulation
 {
@@ -154,6 +157,9 @@ public:
   ~cPopulation();
 
   void InitiatePop();
+  
+  static void ForAllOrganisms(tOrganismFunction func, cPopulation& pop, cEventContext& state);
+  
 
   // Activate the offspring of an organism in the population
   bool ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, cOrganism& parent_organism);

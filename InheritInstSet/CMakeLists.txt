@@ -110,6 +110,7 @@ SET(ALL_INC_DIRS
 SET(ACTIONS_DIR ${PROJECT_SOURCE_DIR}/source/actions)
 SET(ACTIONS_SOURCES
   ${ACTIONS_DIR}/cActionLibrary.cc
+  ${ACTIONS_DIR}/DemeActions.cc
   ${ACTIONS_DIR}/DriverActions.cc
   ${ACTIONS_DIR}/EnvironmentActions.cc
   ${ACTIONS_DIR}/LandscapeActions.cc
@@ -211,6 +212,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cDemeTriggers.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
+  ${MAIN_DIR}/cEventContext.cc
   ${MAIN_DIR}/cFitnessMatrix.cc
   ${MAIN_DIR}/cGenome.cc
   ${MAIN_DIR}/cGenomeUtil.cc
@@ -267,6 +269,8 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cDataFileManager.cc
   ${TOOLS_DIR}/cDataManager_Base.cc
   ${TOOLS_DIR}/cDefaultMessageDisplay.cc
+  ${TOOLS_DIR}/cDemeProbSchedule.cc
+  ${TOOLS_DIR}/cProbDemeProbSchedule.cc
   ${TOOLS_DIR}/cDoubleSum.cc
   ${TOOLS_DIR}/cFile.cc
   ${TOOLS_DIR}/cHelpAlias.cc

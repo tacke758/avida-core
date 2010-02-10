@@ -2546,3 +2546,12 @@ int cPopulation::GetNumDemes()
 {
   return GetDemeManager().GetNumDemes();
 }
+
+
+void cPopulation::ForAllOrganisms(tOrganismFunction func, cPopulation& pop, cEventContext& state)
+{
+  for (int k = 0; k < pop.GetSize(); k++)
+    if (pop.GetCell(k).IsOccupied())
+      func(pop.GetCell(k).GetOrganism(), state);
+}
+

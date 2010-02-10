@@ -47,7 +47,7 @@ class cDeme
 {
 private:
   cWorld* m_world;
-  cPopulation* m_population;
+  cPopulation& m_population;
   tArray<int> cell_ids;
   int width; //!< Width of this deme.
   int birth_count; //!< Number of organisms that have been born into this deme since reset.
@@ -69,7 +69,7 @@ private:
   tArray<cDemeCellEvent> cell_events;
   
 public:
-  cDeme() : width(0), birth_count(0), org_count(0), _age(0), m_instset_id(0), deme_resource_count(0) { ; }
+  cDeme(cPopulation& p) : m_population(p), width(0), birth_count(0), org_count(0), _age(0), m_instset_id(0), deme_resource_count(0){ ; }
   ~cDeme() { ; }
 
   void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);

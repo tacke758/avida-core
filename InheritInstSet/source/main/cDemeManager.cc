@@ -51,7 +51,7 @@ m_population(p)
       deme_cells[offset] = cell_id;
       m_population.GetCell(cell_id).SetDemeID(deme_id);
     }
-    m_demes[deme_id] = new cDeme();
+    m_demes[deme_id] = new cDeme(p);
     m_demes[deme_id]->Setup(deme_cells, m_deme_size_x, m_world);
   }
 }
@@ -77,6 +77,8 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
   assert(replication != NULL && selection != NULL && competition != NULL);
   
   competition(*this);
+  cEventContext state(m_world->GetDefaultContext(), TRIGGER_DEME_COMPETITION_POST);
+  m_world->TriggerEvent(state);
   tArray<int> deme_count = selection(*this);
   
   int num_demes = GetNumDemes();

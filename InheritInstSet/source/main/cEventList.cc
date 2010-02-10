@@ -103,6 +103,8 @@ eEventTrigger cEventList::ParseEventCode(cString event)
     return TRIGGER_DEME_REPLACEMENT_PRE;
   else if (event.ToUpper() == "DEMEREPLACEMENTPOST")
     return TRIGGER_DEME_REPLACEMENT_POST;
+  else if (event.ToUpper() == "DEMECOMPETITIONPOST")
+    return TRIGGER_DEME_COMPETITION_POST;
   else
     return TRIGGER_UNKNOWN;
 }
