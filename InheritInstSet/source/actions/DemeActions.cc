@@ -33,10 +33,7 @@ class cDemeActionMutateInstSetID : public cDemeAction
       double p = m_world->GetRandom().GetDouble(0,1);
       if (p < m_mutation_rate){
         p = m_world->GetRandom().GetDouble(0,1);
-        if (p < 0.5)
-          new_id = (old_id-1) % num_ids;
-        else
-          new_id = (old_id+1) % num_ids;
+        new_id = (p < 0.5) ? (num_ids+old_id-1) % num_ids : (num_ids+old_id+1) % num_ids;
       }
       return new_id;
     }
