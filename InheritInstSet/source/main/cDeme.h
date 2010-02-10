@@ -81,8 +81,8 @@ public:
   std::pair<int, int> GetCellPosition(int cellid) const;
 
   //@MRR
-  int GetInsetSetID() const { return m_instset_id; }
-  void SetInstSetID(int id)  { cDeme::ForEachDemeOrganism(cDeme::SynchInstSet); }
+  int GetInstSetID() const { return m_instset_id; }
+  void SetInstSetID(int id)  { m_instset_id = id; cDeme::ForEachDemeOrganism(cDeme::SynchInstSet); }
   static void SynchInstSet(cOrganism*, cDeme*);
   void ForEachDemeOrganism( void (*func)(cOrganism*, cDeme*) );
   

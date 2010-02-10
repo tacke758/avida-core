@@ -11,8 +11,13 @@
 
 #include "cAction.h"
 #include "cActionLibrary.h"
+#include "cDataFileManager.h"
 #include "cDeme.h"
 #include "cDemeManager.h"
+#include "cHardwareManager.h"
+#include "cPopulation.h"
+#include "cRandom.h"
+#include "cStats.h"
 #include "cString.h"
 
 #include <iostream>
@@ -20,14 +25,34 @@
 class cDemeActionMutateInstSetID : public cDemeAction
   {
   private:
-
+    double m_mutation_rate;
+    int DoInstSetMutation(int old_id)
+    {
+      int new_id = old_id;
+      int num_ids = m_world->GetHardwareManager().GetNumInstSets();
+      double p = m_world->GetRandom().GetDouble(0,1);
+      if (p < m_mutation_rate){
+        p = m_world->GetRandom().GetDouble(0,1);
+        if (p < 0.5)
+          new_id = (old_id-1) % num_ids;
+        else
+          new_id = (old_id+1) % num_ids;
+      }
+      return new_id;
+    }
+    
   public:
     cDemeActionMutateInstSetID(cWorld* world, const cString& args) : cDemeAction(world, args)
     {
       cString largs(args);
+      if (largs.GetSize()){
+        m_mutation_rate = largs.PopWord().AsDouble();
+      } else {
+        world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
+      }
     }
     
-    static const cString GetDescription() { return "Arguments: <path> <id>"; }
+    static const cString GetDescription() { return "Arguments: <mutation_rate>"; }
     
     void Process(cAvidaContext& ctx)
     {
@@ -36,13 +61,64 @@ class cDemeActionMutateInstSetID : public cDemeAction
     
     void Process(cEventContext& ctx)
     {
-      cerr << "Made it into process." << endl;
       int source_id = (*ctx["source_id"]).AsInt();
       int target_id = (*ctx["target_id"]).AsInt();
-      cerr << "Event Triggered " << source_id << " " << target_id << " " << endl;
+   
+      int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
+      int new_id = (source_id != target_id) ? DoInstSetMutation(old_id) : old_id;
+      m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
+    
     }
   
   };
+
+
+
+class cDemeActionPrintInstSetData : public cDemeAction
+{
+  private:
+    cString m_filename;
+    bool first_run;
+    void PrintFormattingHeader(ofstream& fot)
+  {
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      fot << "#format: update%d ";
+      for (int k = 0; k < num_demes; k++)
+        fot << "demeID_" << k << "%d fitness_" << k << "%f instset_" << k << "%d ";
+    }
+  
+  public:
+    cDemeActionPrintInstSetData(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize()) ? largs.PopWord() : "deme_instset_data.dat";
+      first_run = true;
+    }
+    
+    static const cString GetDescription() { return "Arguments: <path>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      
+      ofstream& fot = m_world->GetDataFileManager().GetOFStream(m_filename);
+      if (first_run){
+        first_run = false;
+        PrintFormattingHeader(fot);
+      }
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      int update = m_world->GetStats().GetUpdate();
+      
+      fot << update;
+      for (int id = 0; id < num_demes; id++){
+        double deme_fitness = m_world->GetPopulation().GetDemeManager().GetDemeFitness(id);
+        int    deme_instset = m_world->GetPopulation().GetDemeManager().GetDeme(id)->GetInstSetID();
+        fot << " " << id << " " << deme_fitness << " " << deme_instset;
+      }
+      fot << endl;
+    }
+    
+};
+
 
 
 void RegisterDemeActions(cActionLibrary* action_lib)

@@ -64,11 +64,14 @@ class cDemeManager{
     ~cDemeManager();
   
     int GetNumDemes() const { return m_demes.GetSize(); }
-    cDeme* GetDeme(int i) { return m_demes[i]; }
+    cDeme* GetDeme(int id) { return (id >=0 && id < GetNumDemes()) ? m_demes[id] : NULL; }
     int GetDemeSize() const {return m_deme_size;}
     int GetDemeSizeX() const {return m_deme_size_x;}
     int GetDemeSizeY() const {return m_deme_size_y;}
     cPopulation& GetPopulation() { return m_population;}
+  
+    double GetDemeFitness(int id) { return (id >=0 && id < GetNumDemes()) ? m_deme_fitness[id] : -1.0; }
+    double GetTotalDemeFitness() { return m_total_deme_fitness; }
     
     // Deme-related methods
     void CompeteDemes(const cString& fit_fun, const cString& sel_fun, const cString& repl_fun);
