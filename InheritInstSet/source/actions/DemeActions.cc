@@ -81,7 +81,7 @@ class cDemeActionPrintInstSetData : public cDemeAction
       int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
       fot << "#format: update%d ";
       for (int k = 0; k < num_demes; k++)
-        fot << "demeID_" << k << "%d fitness_" << k << "%f instset_" << k << "%d ";
+        fot << "fitness_" << k << "%f instset_" << k << "%d ";
       fot << endl;
     }
   
@@ -115,7 +115,7 @@ class cDemeActionPrintInstSetData : public cDemeAction
       for (int id = 0; id < num_demes; id++){
         double deme_fitness = m_world->GetPopulation().GetDemeManager().GetDemeFitness(id);
         int    deme_instset = m_world->GetPopulation().GetDemeManager().GetDeme(id)->GetInstSetID();
-        fot << " " << id << " " << deme_fitness << " " << deme_instset;
+        fot <<  " " << deme_fitness << " " << deme_instset;
       }
       fot << endl;
     }
