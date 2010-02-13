@@ -66,7 +66,7 @@ public:
   cIntegratedSchedule(int _item_count);
   ~cIntegratedSchedule();
 
-  void Adjust(int item_id, const cMerit & new_merit);
+  void Adjust(int item_id, const cMerit & new_merit, int deme_id=0);
   int GetNextID();
   double GetStatus(int id);
 

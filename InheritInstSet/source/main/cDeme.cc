@@ -38,11 +38,8 @@ void cDeme::Setup(const tArray<int> & in_cells, int in_width, cWorld* world)
   m_world = world;
   m_instset_id = -1;
 
-  // If width is negative, set it to the full number of cells.
   width = in_width;
   if (width < 1) width = cell_ids.GetSize();
-  
-  // drain spacial energy resources and place energy in cells
 }
 
 
@@ -67,7 +64,8 @@ std::pair<int, int> cDeme::GetCellPosition(int cellid) const
   return std::make_pair(cellid % GetWidth(), cellid / GetWidth());
 }
 
-void cDeme::ProcessUpdate() {
+void cDeme::ProcessUpdate() 
+{
   for(int i = 0; i < cell_events.GetSize(); i++) {
     cDemeCellEvent& event = cell_events[i];
     if(event.GetDelay() == _age) {
@@ -97,7 +95,7 @@ void cDeme::Reset()
 {
   birth_count = 0; 
   _age = 0;  
-  //clear cell energy
+  org_count = 0;
   
   deme_resource_count.ReinitializeResources();
 }

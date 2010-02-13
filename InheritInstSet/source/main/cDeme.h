@@ -69,7 +69,19 @@ private:
   tArray<cDemeCellEvent> cell_events;
   
 public:
-  cDeme(cPopulation& p) : m_population(p), width(0), birth_count(0), org_count(0), _age(0), m_instset_id(0), deme_resource_count(0){ ; }
+  cDeme(cPopulation& p) : 
+  m_population(p), 
+  width(0), 
+  birth_count(0), 
+  org_count(0), 
+  _age(0), 
+  time_used(0), 
+  cur_normalized_time_used(0.0),
+  last_normalized_time_used(0.0),
+  m_instset_id(0), 
+  deme_resource_count(0)
+  { ; }
+  
   ~cDeme() { ; }
 
   void Setup(const tArray<int>& in_cells, int in_width = -1, cWorld* world = NULL);

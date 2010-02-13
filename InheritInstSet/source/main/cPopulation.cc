@@ -69,6 +69,7 @@
 #include <cfloat>
 #include <cmath>
 #include <climits>
+#include <iostream>
 
 using namespace std;
 
@@ -256,6 +257,19 @@ cPopulation::~cPopulation()
 }
 
 
+inline void cPopulation::AdjustSchedule(int id, const cMerit& merit)
+{
+  AdjustSchedule(GetCell(id), merit);
+}
+
+
+inline void cPopulation::AdjustSchedule(const cPopulationCell& cell, const cMerit& merit)
+{
+  schedule->Adjust(cell.GetID(), merit, cell.GetDemeID());
+}
+
+
+
 // Activate the child, given information from the parent.
 // Return true if parent lives through this process.
 
@@ -336,7 +350,7 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
         delete test_cpu;
       }
     }
-    schedule->Adjust(parent_cell.GetID(), parent_phenotype.GetMerit());
+    AdjustSchedule(parent_cell.GetID(), parent_phenotype.GetMerit());
     
     // In a local run, face the child toward the parent. 
     const int birth_method = m_world->GetConfig().BIRTH_METHOD.Get();
@@ -471,7 +485,7 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   m_world->GetClassificationManager().AdjustGenotype(*in_genotype);
   
   // Initialize the time-slice for this new organism.
-  schedule->Adjust(target_cell.GetID(), in_organism->GetPhenotype().GetMerit());
+  AdjustSchedule(target_cell.GetID(), in_organism->GetPhenotype().GetMerit());
   
   // Special handling for certain birth methods.
   if (m_world->GetConfig().BIRTH_METHOD.Get() == POSITION_CHILD_FULL_SOUP_ELDEST) {
@@ -659,7 +673,7 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   else organism->GetPhenotype().SetToDelete();
   
   // Alert the scheduler that this cell has a 0 merit.
-  schedule->Adjust(in_cell.GetID(), cMerit(0));
+  AdjustSchedule(in_cell.GetID(), cMerit(0));
   
   // Update the archive (note: genotype adjustment may be defered)
   m_world->GetClassificationManager().AdjustGenotype(*genotype);
@@ -805,16 +819,16 @@ void cPopulation::SwapCells(cPopulationCell & cell1, cPopulationCell & cell2)
   //cout << "SwapCells: organism 2 is non-null, fix up source cell" << endl;
   if (org2 != NULL) {
     cell1.InsertOrganism(org2);
-    schedule->Adjust(cell1.GetID(), org2->GetPhenotype().GetMerit());
+    AdjustSchedule(cell1.GetID(), org2->GetPhenotype().GetMerit());
   } else {
-    schedule->Adjust(cell1.GetID(), cMerit(0));
+    AdjustSchedule(cell1.GetID(), cMerit(0));
   }
   //cout << "SwapCells: organism 1 is non-null, fix up dest cell" << endl;
   if (org1 != NULL) {
     cell2.InsertOrganism(org1);
-    schedule->Adjust(cell2.GetID(), org1->GetPhenotype().GetMerit());
+    AdjustSchedule(cell2.GetID(), org1->GetPhenotype().GetMerit());
   } else {
-    schedule->Adjust(cell2.GetID(), cMerit(0));
+    AdjustSchedule(cell2.GetID(), cMerit(0));
   }
   //cout << "SwapCells: Done." << endl;
 }
@@ -1679,7 +1693,7 @@ bool cPopulation::LoadDumpFile(cString filename, int update)
         InjectGenotype( current_cell, (*it).genotype );
         cPhenotype & phenotype = GetCell(current_cell).GetOrganism()->GetPhenotype();
         if ( (*it).merit > 0) phenotype.SetMerit( cMerit((*it).merit) );
-        schedule->Adjust(current_cell, phenotype.GetMerit());
+        AdjustSchedule(current_cell, phenotype.GetMerit());
         
         int lineage_label = 0;
         LineageSetupOrganism(GetCell(current_cell).GetOrganism(),
@@ -1772,7 +1786,7 @@ void cPopulation::Inject(const cGenome & genome, int cell_id, double merit, int 
   if (merit == 0){
     cPhenPlastGenotype(genome, -1, m_world, m_world->GetDefaultContext());
   }
-  schedule->Adjust(cell_id, phenotype.GetMerit());
+  AdjustSchedule(cell_id, phenotype.GetMerit());
   
   LineageSetupOrganism(GetCell(cell_id).GetOrganism(), 0, lineage_label);
   
@@ -2240,7 +2254,7 @@ bool cPopulation::UpdateMerit(int cell_id, double new_merit)
   if (new_merit <= old_merit) {
 	  phenotype.SetIsDonorCur(); }  
   else  { phenotype.SetIsReceiver(); } 
-  schedule->Adjust(cell_id, phenotype.GetMerit());
+  AdjustSchedule(cell_id, phenotype.GetMerit());
   
   return true;
 }

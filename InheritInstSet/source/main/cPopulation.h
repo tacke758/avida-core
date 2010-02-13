@@ -211,6 +211,8 @@ public:
   int GetWorldX() { return world_x; }
   int GetWorldY() { return world_y; }
 
+  void AdjustSchedule(int id, const cMerit& merit);
+  void AdjustSchedule(const cPopulationCell& cell, const cMerit& merit);
 
   cPopulationCell& GetCell(int in_num);
   const tArray<double>& GetResources() const { return resource_count.GetResources(); }

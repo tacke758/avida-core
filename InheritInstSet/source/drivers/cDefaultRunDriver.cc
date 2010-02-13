@@ -75,7 +75,7 @@ void cDefaultRunDriver::Run()
     }
     
     m_world->GetEvents(ctx);
-    if (m_done == true) break;
+    if (m_done == true && stats.GetUpdate() > 0) break;
     
     // Increment the Update.
     stats.IncCurrentUpdate();
@@ -119,13 +119,9 @@ void cDefaultRunDriver::Run()
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
       cout << "UD: " << setw(6) << stats.GetUpdate() << "  "
+        << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  "
         << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  "
         << "Fit: " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  "
-      //  << "Energy: " << setw(9) << setprecision(7) << stats.GetAveEnergy() << "  "
-//        << "Merit: " << setw(9) << setprecision(7) << stats.GetAveMerit() << "  "
-        << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  "
-        << "Thrd: " << setw(6) << stats.GetNumThreads() << "  "
-        << "Para: " << stats.GetNumParasites()
         << endl;
     }
     
@@ -140,7 +136,7 @@ void cDefaultRunDriver::Run()
     }
     
     // Exit conditons...
-    if (population.GetNumOrganisms() == 0) m_done = true;
+    if (population.GetNumOrganisms() == 0 && stats.GetUpdate() > 0) m_done = true;
   }
 }
 
