@@ -70,7 +70,7 @@ bool cInheritedInstSet::MutateAllInsts(double p)
 
 bool cInheritedInstSet::MutateSingleInst(double p)
 {
-  if (RandProceed(p) > p)
+  if (!RandProceed(p))
     return false;
   int id = m_world->GetRandom().GetUInt(0,m_lib_name_map.GetSize());
   m_lib_name_map[id].redundancy = GetRandomRedundancy(id);
