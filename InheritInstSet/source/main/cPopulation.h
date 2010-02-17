@@ -76,6 +76,7 @@ class cOrganism;
 class cPopulationCell;
 class cSchedule;
 class cSaleItem;
+class cDemeManager;
 
 
 typedef void (*tOrganismFunction)(cOrganism*, cEventContext&);
