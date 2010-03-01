@@ -72,6 +72,69 @@ class cDemeActionMutateInstSetID : public cDemeAction
 
 
 
+class cDemeActionMutateInstSetIDByNumDemes : public cDemeAction
+{
+  private:
+    int m_num_mut_demes;
+    
+    inline bool IsGoodInflow(const tArray<int>& states)
+    {
+      for (int k = 0; k < states.GetSize(); k++)
+        if (states[k] == 0) return false;
+      return true;
+    }
+    
+    tArray<int> GetValidInStates()
+    {
+      int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
+      tArray<int> states(m_num_mut_demes, 0);
+      int ndx = 0;
+      do{
+        states[ndx] = m_world->GetRandom().GetUInt(num_instsets);
+        ndx = (ndx+1) % m_num_mut_demes;
+      } while (ndx < m_num_mut_demes && !IsGoodInflow(states));
+      return states;
+    }
+    
+  public:
+    cDemeActionMutateInstSetIDByNumDemes(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+      cString largs(args);
+      if (largs.GetSize()){
+        m_num_mut_demes = largs.PopWord().AsInt();
+      } else {
+        world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
+      }
+      //Guarantee every state is represented at least once
+      int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
+      if (m_num_mut_demes < num_instsets)
+        m_world->GetDriver().RaiseFatalException(2,"cDemeActionMutateInstSetIDByNumDemes: Insufficient number of demes requested to guarantee every state has an inflow of at least 1 deme.");
+    }
+    
+    static const cString GetDescription() { return "Arguments: <mutation_rate>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEventContext state(ctx);
+      Process(state);
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      tArray<int> in_states = GetValidInStates();
+      for (int k = 0; k < m_num_mut_demes; k++){
+        int mutate_deme_id = ctx.GetRandom().GetUInt(num_demes);
+        m_world->GetPopulation().GetDemeManager().GetDeme(mutate_deme_id)->SetInstSetID(in_states[k]);
+      }
+      return;
+    }
+    
+};
+
+
+
+
 class cDemeActionPrintInstSetData : public cDemeAction
 {
   private:
@@ -126,7 +189,7 @@ class cDemeActionPrintInstSetData : public cDemeAction
 
 
 class cDemeActionSetAllDemesInstSetID : public cDemeAction
-  {
+{
   private:
     int m_id;
     
@@ -151,14 +214,49 @@ class cDemeActionSetAllDemesInstSetID : public cDemeAction
       for (int k = 0; k < num_demes; k++)
         m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(m_id);
     }
-  };
+};
+
+
+
+
+class cDemeActionSetAllDemesInstSetIDRandomly : public cDemeAction
+{
+  private:
+    int m_id;
+    
+  public:
+    cDemeActionSetAllDemesInstSetIDRandomly(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+      cString largs(args);
+    }
+    
+    static const cString GetDescription() { return "Arguments: none"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEventContext state(ctx, TRIGGER_UNKNOWN);
+      Process(state);
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
+      for (int k = 0; k < num_demes; k++){
+        int in_state = m_world->GetRandom().GetUInt(num_instsets);
+        m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(in_state);
+      }
+    }
+};
 
 
 
 void RegisterDemeActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cDemeActionMutateInstSetID>("MutateDemeInstSetID");
+  action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemes");
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
   action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
+  action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemeInstSetIDRandomly");
   return;  
 }

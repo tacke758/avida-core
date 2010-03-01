@@ -52,11 +52,7 @@ tArray<int> cDemeSelections::Tournament(cDemeManager& mgr)
   for (int id = 0; id < num_demes; id++)
     if (mgr.GetDeme(id)->GetBirthCount() > 0)
       deme_ids[valid++] = id;
-  
-  cerr << valid << endl;
-  for (int k = 0; k < num_demes; k++)
-    cerr << k << ": " << mgr.m_deme_fitness[k] << " " << mgr.GetDeme(k)->GetInstSetID() << endl;
-  
+   
   if (valid == 0){
     for (int k = 0; k < num_demes; k++)
       deme_count[k] = 1;
