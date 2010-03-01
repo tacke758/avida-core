@@ -44,6 +44,7 @@ class cDemeActionMutateInstSetID : public cDemeAction
       cString largs(args);
       if (largs.GetSize()){
         m_mutation_rate = largs.PopWord().AsDouble();
+        cerr << m_mutation_rate << endl;
       } else {
         world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
       }
