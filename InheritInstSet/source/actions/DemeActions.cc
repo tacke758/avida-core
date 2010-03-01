@@ -257,6 +257,6 @@ void RegisterDemeActions(cActionLibrary* action_lib)
   action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemes");
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
   action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
-  action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemeInstSetIDRandomly");
+  action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemesInstSetIDRandomly");
   return;  
 }
