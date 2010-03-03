@@ -27,9 +27,11 @@
 
 cGenotype_BirthData::cGenotype_BirthData(int in_update_born)
   : update_born(in_update_born)
+  , seed_distance(-1)
   , parent_distance(-1)
   , gene_depth(0)
   , update_deactivated(-1)
+  , seed_genome(NULL)
   , parent_genotype(NULL)
   , parent_species(NULL)
   , num_offspring_genotypes(0)

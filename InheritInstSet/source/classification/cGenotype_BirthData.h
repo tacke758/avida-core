@@ -33,6 +33,7 @@
 #include "tArray.h"
 #endif
 
+class cGenome;
 class cGenotype;
 class cSpecies;
 
@@ -48,11 +49,13 @@ public:
   cCountTracker breed_out_track;
 
   int update_born;      // Update genotype was first created
+  int seed_distance;    // Edit distance from seed genome
   int parent_distance;  // Genetic distance from parent genotype
   int gene_depth;       // depth in the phylogenetic tree from ancestor
   int lineage_label;    // Unique label for the lineage of this genotype.
 
   int update_deactivated;       // If not, when did it get deactivated?
+  cGenome* seed_genome;    //@MRR Pointer to seed genome
   cGenotype* parent_genotype;  // Pointer to parent genotype...
   cGenotype* parent2_genotype; // Pointer to secondary parent genotype...
   cSpecies* parent_species;

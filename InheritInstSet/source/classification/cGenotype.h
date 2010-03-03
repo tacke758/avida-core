@@ -195,6 +195,8 @@ public:
 
 
   // For tracking the genotype line back to the ancestor...
+  const cGenome* GetSeedGenome() {return birth_data.seed_genome;}
+  int GetSeedDistance() const { return birth_data.seed_distance; }
   cGenotype* GetParentGenotype() { return birth_data.parent_genotype; }
   cGenotype* GetParent2Genotype() { return birth_data.parent2_genotype; }
   int GetNumOffspringGenotypes() const

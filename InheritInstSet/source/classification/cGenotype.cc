@@ -142,9 +142,13 @@ void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
   birth_data.parent_genotype = parent;
   birth_data.parent2_genotype = parent2;
 
-  if (parent == NULL) return;
+  if (parent == NULL){
+    birth_data.seed_genome = new cGenome(genome);  //If both parents are NULL, then this is the first one.
+    return;
+  }
 
   // If we have a real parent genotype, collect other data about parent.
+  birth_data.seed_genome = parent->birth_data.seed_genome;
   birth_data.ancestor_ids[0] = parent->GetID();
   birth_data.ancestor_ids[2] = parent->GetAncestorID(0);
   birth_data.ancestor_ids[3] = parent->GetAncestorID(1);
@@ -155,6 +159,7 @@ void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
   }
 
   birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
+  birth_data.seed_distance   = cGenomeUtil::FindEditDistance(genome, *birth_data.seed_genome);
   birth_data.parent_species = parent->GetSpecies();
   birth_data.gene_depth = parent->GetDepth() + 1;
   birth_data.lineage_label = parent->GetLineageLabel();

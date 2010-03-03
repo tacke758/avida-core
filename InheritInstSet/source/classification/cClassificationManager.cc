@@ -69,6 +69,9 @@ cClassificationManager::~cClassificationManager()
   delete m_genotype_ctl;
   delete m_species_ctl;
   delete m_inject_ctl;
+  while (m_seed_genomes.GetSize() > 0)
+    delete m_seed_genomes.Pop();
+  
 }
 
 void cClassificationManager::UpdateReset()
@@ -172,6 +175,7 @@ cGenotype* cClassificationManager::GetGenotypeInjected(const cGenome& in_genome,
     found_genotype->SetParent(NULL, NULL);
     found_genotype->SetLineageLabel(lineage_label);
     AddGenotype(found_genotype, list_num);
+    m_seed_genomes.Push(new cGenome(in_genome));
   }
   
   return found_genotype;

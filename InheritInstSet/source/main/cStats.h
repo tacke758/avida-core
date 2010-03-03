@@ -239,6 +239,10 @@ private:
   int num_resamplings;
   int num_failedResamplings;
   
+  
+  // @MRR
+  cIntSum m_seed_distance;
+  
 
   
   
@@ -308,6 +312,10 @@ public:
   
   int GetSenseSize() const { return sense_size; }
 
+  //@MRR
+  void AddSeedDistance(int dist) {m_seed_distance.Add(dist);}
+  void SubtractSeedDistance(int dist) {m_seed_distance.Subtract(dist);}
+  
   // Settings...
   void SetDomGenotype(cGenotype * in_gen) { dom_genotype = in_gen; }
   void SetDomMerit(double in_merit) { dom_merit = in_merit; }
@@ -593,6 +601,10 @@ public:
   // i.e., when the maximum fitness in the population drops, this value will
   // still stay up.
   double GetMaxViableFitness() const { return max_viable_fitness; }
+  
+  
+//@MRR
+  cIntSum GetSeedDistance() {return m_seed_distance;}
 
   // User-defined datafile...
   void PrintDataFile(const cString& filename, const cString& format, char sep=' ');

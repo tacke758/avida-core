@@ -100,6 +100,7 @@ private:
 	
 	// CClade @MRR
 	std::set<int>  m_cclade_ids;
+  tList<cGenome> m_seed_genomes;
   
   
   // Private Helper Functions

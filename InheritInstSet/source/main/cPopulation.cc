@@ -497,6 +497,7 @@ void cPopulation::ActivateOrganism(cAvidaContext& ctx, cOrganism* in_organism, c
   if (GetDemeManager().GetNumDemes() > 0) {
     GetDemeManager().GetDeme(target_cell.GetDemeID())->IncOrgCount();
   }
+  m_world->GetStats().AddSeedDistance(in_organism->GetGenotype()->GetSeedDistance());  //@MRR
   
   // Statistics...
   m_world->GetStats().RecordBirth(target_cell.GetID(), in_genotype->GetID(),
@@ -624,6 +625,7 @@ void cPopulation::KillOrganism(cPopulationCell& in_cell)
   // Statistics...
   cOrganism* organism = in_cell.GetOrganism();
   cGenotype* genotype = organism->GetGenotype();
+  m_world->GetStats().SubtractSeedDistance(organism->GetGenotype()->GetSeedDistance());
   m_world->GetStats().RecordDeath(organism->GetInstSetID());
   
   int cellID = in_cell.GetID();
