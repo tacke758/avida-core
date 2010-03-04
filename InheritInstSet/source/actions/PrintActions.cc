@@ -2928,6 +2928,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintInstSetCounts>("PrintInstSetCounts");
   action_lib->Register<cActionPrintInstSetRedundancies>("PrintInstSetRedundancies");
   action_lib->Register<cActionDumpInstSetRedundancies>("DumpInstSetRedundancies");
+  action_lib->Register<cActionPrintSeedDistanceStats>("PrintSeedDistanceStats");
 
   // Print Settings
   action_lib->Register<cActionSetVerbose>("SetVerbose");
