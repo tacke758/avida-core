@@ -2830,6 +2830,7 @@ class cActionPrintSeedDistanceStats : public cAction
     fp.Write(m_world->GetStats().GetSeedDistance().Var(), "VarSeedDist");
     fp.Write(m_world->GetStats().GetSeedDistance().Kur(), "KurSeedDist");
     fp.Write(m_world->GetStats().GetSeedDistance().Skw(), "SkwSeedDist");
+    fp.Endl();
   }
 };
 
