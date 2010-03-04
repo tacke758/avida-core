@@ -2806,7 +2806,32 @@ class cActionDumpInstSetRedundancies : public cAction
     }
 };
 
-
+class cActionPrintSeedDistanceStats : public cAction
+{
+  private:
+    cString m_filename;
+  public:
+  cActionPrintSeedDistanceStats(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_filename = (largs.GetSize() > 0) ? largs.PopWord() : "seed_ancestor_dist.dat";
+    }
+  
+  static const cString GetDescription() { return "Arguments: [string filename='seed_ancestor_dist.dat']"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cDataFile& fp = m_world->GetDataFileManager().Get(m_filename);
+    if (!fp.Good())
+      m_world->GetDriver().RaiseFatalException(2, "cActionPrintSeedDistanceStats: unable to open file");
+    fp.Write(m_world->GetStats().GetUpdate(), "Update");
+    fp.Write(m_world->GetStats().GetGeneration(), "AvgGeneration");
+    fp.Write(m_world->GetStats().GetSeedDistance().Ave(), "AvgSeedDist");
+    fp.Write(m_world->GetStats().GetSeedDistance().Var(), "VarSeedDist");
+    fp.Write(m_world->GetStats().GetSeedDistance().Kur(), "KurSeedDist");
+    fp.Write(m_world->GetStats().GetSeedDistance().Skw(), "SkwSeedDist");
+  }
+};
 
 
 
