@@ -65,7 +65,7 @@ class cEventList
   tMemTrack<cEventList> mt;
 #endif
 public:
-  enum eTriggerType { UPDATE, GENERATION, IMMEDIATE, EVENT, UNDEFINED };
+  enum eTriggerType { UPDATE, GENERATION, IMMEDIATE, EVENT, SEED_DISTANCE, UNDEFINED };
   
   static const double TRIGGER_BEGIN;
   static const double TRIGGER_END;

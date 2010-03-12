@@ -120,8 +120,9 @@ void cDefaultRunDriver::Run()
       cout.setf(ios::showpoint);
       cout << "UD: " << setw(6) << stats.GetUpdate() << "  "
         << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  "
-        << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  "
-        << "Fit: " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  "
+        << "Gen: " << fixed << setw(9) << setprecision(3) << stats.SumGeneration().Average() << "  "
+        << "Fit: " << setw(9) << setprecision(3) << stats.GetAveFitness() << "  "
+        << "SDist: " << setw(9) << setprecision(3) << stats.GetSeedDistance().Average() << " " 
         << endl;
     }
     

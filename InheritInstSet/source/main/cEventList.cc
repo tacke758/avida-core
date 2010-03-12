@@ -160,6 +160,9 @@ double cEventList::GetTriggerValue(eTriggerType trigger) const
     break;
   case GENERATION:
     t_val = m_world->GetStats().SumGeneration().Average();
+      break;
+  case SEED_DISTANCE:
+    t_val = m_world->GetStats().GetSeedDistance().Average();
     break;
   case EVENT:
   case UNDEFINED:
@@ -280,6 +283,9 @@ void cEventList::PrintEventList(ostream& os)
       case GENERATION:
         os << "generation ";
         break;
+      case SEED_DISTANCE:
+        os << "seed_distance ";
+        break;
       case IMMEDIATE:
         os << "immediate ";
         break;
@@ -340,7 +346,10 @@ bool cEventList::AddEventFileFormat(const cString& in_line)
   } else if( cur_word == "g" || cur_word == "generation") {
     trigger = GENERATION;
     cur_word = cur_line.PopWord();
-  } else if (cur_word == "e" || cur_word == "event") {
+  } else if (cur_word == "seed_dist"){
+    trigger = SEED_DISTANCE;
+    cur_word = cur_line.PopWord();
+  }else if (cur_word == "e" || cur_word == "event") {
     trigger = EVENT;
     cur_word = cur_line.PopWord();
   }

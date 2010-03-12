@@ -144,6 +144,7 @@ void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
 
   if (parent == NULL){
     birth_data.seed_genome = new cGenome(genome);  //If both parents are NULL, then this is the first one.
+    birth_data.seed_distance = 0;
     return;
   }
 
