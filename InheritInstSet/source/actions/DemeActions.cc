@@ -77,12 +77,9 @@ class cDemeActionMutateInstSetIDByNumDemes : public cDemeAction
   private:
     int m_num_mut_demes;
     
-    inline bool IsGoodInflow(const tArray<int>& states, int num_instsets)
+    inline bool IsGoodInflow(const tArray<int>& counts)
     {
-      tArray<int> counts(num_instsets,0);
-      for (int k = 0; k < states.GetSize(); k++)
-        counts[states[k]]++;
-      for (int s = 0; s < num_instsets; s++)
+      for (int s = 0; s < counts.GetSize(); s++)
         if (counts[s] == 0)
           return false;
       return true;
@@ -92,11 +89,18 @@ class cDemeActionMutateInstSetIDByNumDemes : public cDemeAction
     {
       int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
       tArray<int> states(m_num_mut_demes, 0);
+      tArray<int> counts(num_instsets, 0);
       int ndx = 0;
       do{
-        states[ndx] = m_world->GetRandom().GetUInt(num_instsets);
-        ndx = (ndx+1) % m_num_mut_demes;
-      } while (ndx < m_num_mut_demes && !IsGoodInflow(states, num_instsets));
+        int in = m_world->GetRandom().GetUInt(num_instsets);
+        if (ndx >= m_num_mut_demes){
+          int out = states[ndx % m_num_mut_demes];
+          counts[out]--;
+        }
+        counts[in]++;
+        states[ndx % m_num_mut_demes] = in;
+        ndx++;
+      } while (ndx < m_num_mut_demes || !IsGoodInflow(counts));
       return states;
     }
     
