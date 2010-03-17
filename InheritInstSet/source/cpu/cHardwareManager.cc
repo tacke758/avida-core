@@ -133,7 +133,6 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
     m_world->GetDriver().RaiseFatalException(1, "Additional instruction set addition is incompatible.");
   }
   
-  cerr << "@MRR: " << GetNumInstSets() << endl;
   return true;
 }
 

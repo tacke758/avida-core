@@ -111,14 +111,7 @@ public:
   const cInstSet& GetInstSet() { return *m_inst_set; }
   cInstSet*& GetInstSetPtr() { return m_inst_set; } //Be Careful!
   
-  void SetInstSet(cInstSet* _in){ 
-    if (!m_inherited_instset)
-      m_inst_set = _in; 
-    else{
-      delete m_inst_set;
-      m_inst_set = _in;
-    }
-  }
+  void SetInstSet(cInstSet* _in);
   
   bool IsInheritedInstSet() const { return m_inherited_instset; } 
 

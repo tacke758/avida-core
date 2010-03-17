@@ -84,35 +84,38 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
   int num_demes = GetNumDemes();
   tArray<bool> is_init(num_demes, false); 
   
+  for (int k = 0; k < num_demes; k++)
+    cerr << k << "[" << GetDeme(k)->GetInstSetID() << "] =" << deme_count[k] << endl;
+  
   // Copy demes until all deme counts are 1.
   while (true) {
     // Find the next deme to copy...
-    int from_deme_id, to_deme_id;
-    for (from_deme_id = 0; from_deme_id < num_demes; from_deme_id++) {
-      if (deme_count[from_deme_id] > 1) break;
+    int source_id, target_id;
+    for (source_id = 0; source_id < num_demes; source_id++) {
+      if (deme_count[source_id] > 1) break;
     }
     
     // Stop If we didn't find another deme to copy
-    if (from_deme_id == num_demes) break;
+    if (source_id == num_demes) break;
     
-    for (to_deme_id = 0; to_deme_id < num_demes; to_deme_id++) { 
-      if (deme_count[to_deme_id] == 0) break;
+    for (target_id = 0; target_id < num_demes; target_id++) { 
+      if (deme_count[target_id] == 0) break;
     }
     
     // We now have both a from and a to deme....
-    deme_count[from_deme_id]--;
-    deme_count[to_deme_id]++;
+    deme_count[source_id]--;
+    deme_count[target_id]++;
     
     cEventContext state(m_world->GetDefaultContext(), TRIGGER_DEME_REPLACEMENT_PRE);
-    state << (cCntxEntry("target_id", from_deme_id)) << (cCntxEntry("source_id", to_deme_id));
+    state << (cCntxEntry("target_id", target_id)) << (cCntxEntry("source_id", source_id));
     m_world->TriggerEvent(state);
     
-    replication(*this, to_deme_id, from_deme_id);
+    replication(*this, source_id, target_id);
     
     state.SetEventTrigger(TRIGGER_DEME_REPLACEMENT_POST);
     m_world->TriggerEvent(state);
     
-    is_init[to_deme_id] = true;
+    is_init[target_id] = true;
   }
   
   for (int i = 0; i < GetNumDemes(); i++)

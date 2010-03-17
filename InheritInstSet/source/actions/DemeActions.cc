@@ -22,6 +22,39 @@
 
 #include <iostream>
 
+
+
+class cDemeActionInheritInstSetID : public cDemeAction
+{
+  public:
+    cDemeActionInheritInstSetID(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+    }
+    
+    static const cString GetDescription() { return "Arguments: None"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      return;
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      int source_id = (*ctx["source_id"]).AsInt();
+      int target_id = (*ctx["target_id"]).AsInt();
+      
+      int new_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
+      int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->GetInstSetID();
+      
+      cerr << target_id << ":" << source_id  << " (" << old_id << ") -->" << new_id << endl;
+      m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
+    }
+    
+};
+
+
+
+
 class cDemeActionMutateInstSetID : public cDemeAction
   {
   private:
@@ -261,6 +294,7 @@ class cDemeActionSetAllDemesInstSetIDRandomly : public cDemeAction
 
 void RegisterDemeActions(cActionLibrary* action_lib)
 {
+  action_lib->Register<cDemeActionInheritInstSetID>("InheritInstSetID");
   action_lib->Register<cDemeActionMutateInstSetID>("MutateDemeInstSetID");
   action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemes");
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");

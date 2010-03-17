@@ -54,6 +54,19 @@ cHardwareBase::~cHardwareBase(){
 }
 
 
+//@MRR
+void cHardwareBase::SetInstSet(cInstSet* _in)
+{ 
+  if (!m_inherited_instset)
+    m_inst_set = _in; 
+  else{
+    delete m_inst_set;
+    m_inst_set = _in;
+  }
+}
+
+
+
 int cHardwareBase::GetExecutedSize(const int parent_size)
 {
   int executed_size = 0;
