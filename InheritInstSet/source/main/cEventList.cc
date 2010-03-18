@@ -92,7 +92,6 @@ bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, co
   eEventTrigger event = ParseEventCode(trigger);
   cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
   m_trigger_events.Push(new cEventTriggerEntry(action, name, event));
-  cerr << "Trigger " << name << " " << trigger << " added." << endl;
   return true;
 }
 

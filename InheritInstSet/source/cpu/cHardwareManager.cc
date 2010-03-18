@@ -114,20 +114,17 @@ bool cHardwareManager::AddInstSet(const cString& filename, int id)
   if (m_inst_sets.GetSize() == 0 || (*m_inst_sets[0] == *new_inst_set) ){
     if (id <= m_inst_sets.GetSize() - 1){ //If our array is large enough
       if (m_inst_sets[id] != NULL){ //Old instruction set exists, migrate hardware and delete it
-        cerr << "Deprecating instruction set " << m_inst_sets[id] << " using id " << id << endl;
         cEventContext state(m_world->GetDefaultContext());
         state << cCntxEntry("id",id) << cCntxEntry("ptr", (int) new_inst_set);
         cPopulation::ForAllOrganisms(cHardwareManager::ReplaceDeprecatedInstSet, m_world->GetPopulation(), state);
         delete m_inst_sets[id];
       }
       m_inst_sets[id] = new_inst_set;
-      cerr << "Adding instruction set " << new_inst_set << " using id " << id << endl;
     } else{  //If we have to resize the array to accomodate the ID
       m_inst_sets.Resize(id+1, NULL);
       if (m_inst_sets.GetSize() > 1) //Update our stats object if more than one inst set is added.   Initial size is set in cStats constructor.
         m_world->GetStats().GetInstSetCounts().Resize(id+1,0);
       m_inst_sets[id] = new_inst_set;
-      cerr << "Created instruction set " << new_inst_set << " using id " << id << endl;
     }
   } else{ //Our instruction set is incompatible
     m_world->GetDriver().RaiseFatalException(1, "Additional instruction set addition is incompatible.");
