@@ -298,7 +298,6 @@ public:
   CONFIG_ADD_VAR(GERMLINE_COPY_MUT, double, 0.0075, "Prob. of copy mutations occuring during\ngermline replication.");
   CONFIG_ADD_VAR(GERMLINE_REPLACES_SOURCE, int, 0, "Whether the source germline is updated\non replication; 0=no.");
   CONFIG_ADD_VAR(MAX_DEME_AGE, int, 500, "The maximum age of a deme (in updates) to be\nused for age-based replication (default=500).");  
-  CONFIG_ADD_VAR(ISET_ID_MUTPROB, double, 0.10, "The probability of chainging an instruction set id +/- 1");
   CONFIG_ADD_VAR(NUM_DEME_TOURNAMENTS, int, 20, "The number of tournaments to hold during deme competition when using tournament selection.");
   
   
