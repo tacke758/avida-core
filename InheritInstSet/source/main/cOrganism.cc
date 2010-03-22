@@ -74,7 +74,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& in_genome
   , m_msg(0)
 {
   // Initialization of structures...
-  m_hardware = m_world->GetHardwareManager().Create(this, inst_set);
+   m_hardware = m_world->GetHardwareManager().Create(this, inst_set);
 //  m_cpu_stats.Setup();
 
   if (m_world->GetConfig().DEATH_METHOD.Get() > DEATH_METHOD_OFF) {
@@ -669,6 +669,9 @@ const cOrgMessage* cOrganism::RetrieveMessage()
 void cOrganism::SetInstSetByID(int id)
 {
   assert(m_hardware->IsInheritedInstSet() == false);
-  m_hardware->SetInstSet(&m_world->GetHardwareManager().GetInstSet(id));
+  cerr << " cOrg:SetByID (" << m_inst_set_id << "-->";
+  m_hardware->SetInstSet(&(m_world->GetHardwareManager().GetInstSet(id)));
+  m_inst_set_id = id;
+  cerr << " " << m_inst_set_id << ")";
 }
 

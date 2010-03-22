@@ -34,10 +34,13 @@ m_population(p)
   int world_y = m_world->GetConfig().WORLD_Y.Get();
   int num_demes = m_world->GetConfig().NUM_DEMES.Get();
   
+  
   // What are the sizes of the demes that we're creating?
   m_deme_size_x = world_x;
   m_deme_size_y = world_y / num_demes;
   m_deme_size = m_deme_size_x * m_deme_size_y;
+  
+  cerr << "(" << m_deme_size << ")" << endl;
   
   m_demes.Resize(num_demes);
   m_deme_fitness.Resize(num_demes, 0.0);
@@ -127,6 +130,9 @@ void cDemeManager::CompeteDemes(const cString& fit_fun, const cString& sel_fun, 
       state.SetEventTrigger(TRIGGER_DEME_REPLACEMENT_POST);
       m_world->TriggerEvent(state);
     }
+  ResetDemes();
+  cEventContext exitstate(m_world->GetDefaultContext(), TRIGGER_DEME_COMPETITION_FINAL);
+  m_world->TriggerEvent(exitstate);
 }
 
 
@@ -159,6 +165,7 @@ void cDemeManager::ReplicateDemes(const cString& trigger_fun, const cString& rep
     state << cCntxEntry("target_id", target_id) << cCntxEntry("source_id", source_id);
     m_world->TriggerEvent(state);
     replication(*this, source_id, target_id);
+    GetDeme(target_id)->Reset();
     state.SetEventTrigger(TRIGGER_DEME_REPLACEMENT_POST);
     m_world->TriggerEvent(state);
   }
@@ -724,7 +731,7 @@ cOrganism* cDemeManager::SampleRandomDemeOrganism(int deme_id){
       occupied[count++] = cell;
   }
   int selected = m_world->GetRandom().GetUInt(count);
-  return m_population.GetCell(selected).GetOrganism();
+  return m_population.GetCell(occupied[selected]).GetOrganism();
 }
 
 
@@ -745,6 +752,6 @@ const cGenome* cDemeManager::SampleRandomDemeGenome(int deme_id){
     return retval;
   int selected = occupied[m_world->GetRandom().GetUInt(count)];
   
-  retval = &m_population.GetCell(selected).GetOrganism()->GetGenome();
+  retval = &m_population.GetCell(occupied[selected]).GetOrganism()->GetGenome();
   return retval;
 }

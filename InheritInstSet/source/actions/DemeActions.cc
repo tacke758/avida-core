@@ -14,7 +14,9 @@
 #include "cDataFileManager.h"
 #include "cDeme.h"
 #include "cDemeManager.h"
+#include "cHardwareBase.h"
 #include "cHardwareManager.h"
+#include "cOrganism.h"
 #include "cPopulation.h"
 #include "cRandom.h"
 #include "cStats.h"
@@ -285,11 +287,51 @@ class cDemeActionSetAllDemesInstSetIDRandomly : public cDemeAction
       int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
       for (int k = 0; k < num_demes; k++){
         int in_state = m_world->GetRandom().GetUInt(num_instsets);
+        cerr << "!!!!!!!!!!!!!! " << in_state <<  " !!!!!!!!!!!!!!!!!!\n";
         m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(in_state);
       }
     }
 };
 
+
+class cDemeActionTestDemeInstIntegrity : public cDemeAction
+{
+  public:
+  cDemeActionTestDemeInstIntegrity(cWorld* world, const cString& args) : cDemeAction(world, args)
+  {
+  }
+  
+  static const cString GetDescription() { return "Arguments: none"; }
+  
+  void Process (cAvidaContext& ctx)
+  {
+    cEventContext state(ctx, TRIGGER_UNKNOWN);
+    Process(state);
+  }
+  
+  void Process(cEventContext& ctx)
+  {
+    cDemeManager& mgr = m_world->GetPopulation().GetDemeManager();
+    int num_demes = mgr.GetNumDemes();
+    for (int k = 0; k < num_demes; k++){
+      int inst_id = mgr.GetDeme(k)->GetInstSetID();
+      cOrganism* sample = mgr.SampleRandomDemeOrganism(k);
+      cerr << k << " *" << sample->GetID() << " @ " << mgr.GetDeme(k) << "*  " << " [" << inst_id << "] ";
+      if (sample != NULL){
+        cInstSet* from_sample  = sample->GetHardware().GetInstSetPtr();
+        cInstSet* from_manager = &m_world->GetHardwareManager().GetInstSet(inst_id);
+        cerr << sample->GetInstSetID() << " " << from_sample << " [" << from_manager << "]\n";
+        cerr << "\t";
+        for (int i = 0; i < from_sample->GetSize(); i++)
+          cerr << " " << from_sample->GetRedundancy(i);
+        cerr << "\n[\t";
+        for (int i = 0; i < from_manager->GetSize(); i++)
+          cerr << " " << from_manager->GetRedundancy(i);
+        cerr << "]" << endl;
+      }
+    }
+  }
+};
 
 
 void RegisterDemeActions(cActionLibrary* action_lib)
@@ -300,5 +342,6 @@ void RegisterDemeActions(cActionLibrary* action_lib)
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
   action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
   action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemesInstSetIDRandomly");
+  action_lib->Register<cDemeActionTestDemeInstIntegrity>("TestDemeInstIntegrity");
   return;  
 }

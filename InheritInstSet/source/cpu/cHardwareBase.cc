@@ -57,12 +57,14 @@ cHardwareBase::~cHardwareBase(){
 //@MRR
 void cHardwareBase::SetInstSet(cInstSet* _in)
 { 
+  cerr << "[" << m_inst_set << "-->";
   if (!m_inherited_instset)
     m_inst_set = _in; 
   else{
     delete m_inst_set;
     m_inst_set = _in;
   }
+  cerr << m_inst_set << "]";
 }
 
 

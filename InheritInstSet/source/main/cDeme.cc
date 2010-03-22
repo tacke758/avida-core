@@ -96,6 +96,8 @@ void cDeme::Reset()
   birth_count = 0; 
   _age = 0;  
   org_count = 0;
+  for (int k = 0; k < cell_ids.GetSize(); k++)
+    org_count += (m_world->GetPopulation().GetCell(cell_ids[k]).IsOccupied()) ? 1 : 0;
   
   deme_resource_count.ReinitializeResources();
 }
@@ -188,6 +190,8 @@ void cDeme::ForEachDemeOrganism( void (*func)(cOrganism*, cDeme*) )
 void cDeme::SynchInstSet(cOrganism* org, cDeme* deme)
 {
   assert(org != NULL && deme != NULL);
+  cerr << org->GetID() << "  *  " << deme << "* " <<  org->GetInstSetID() << "--->";
   org->SetInstSetByID(deme->m_instset_id);
+  cerr << org->GetInstSetID() << endl;
   return;
 }
