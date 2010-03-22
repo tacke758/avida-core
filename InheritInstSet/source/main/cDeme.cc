@@ -96,6 +96,9 @@ void cDeme::Reset()
   birth_count = 0; 
   _age = 0;  
   org_count = 0;
+  time_used = 0;
+  cur_normalized_time_used = 0;
+  last_normalized_time_used = 0;
   for (int k = 0; k < cell_ids.GetSize(); k++)
     org_count += (m_world->GetPopulation().GetCell(cell_ids[k]).IsOccupied()) ? 1 : 0;
   
