@@ -135,7 +135,7 @@ class cDemeActionMutateInstSetIDByNumDemes : public cDemeAction
         counts[in]++;
         states[ndx % m_num_mut_demes] = in;
         ndx++;
-      } while (ndx < m_num_mut_demes || !IsGoodInflow(counts));
+      } while (ndx < m_num_mut_demes && !IsGoodInflow(counts));
       return states;
     }
     
