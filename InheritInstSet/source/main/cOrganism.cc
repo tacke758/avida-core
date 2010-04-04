@@ -669,9 +669,9 @@ const cOrgMessage* cOrganism::RetrieveMessage()
 void cOrganism::SetInstSetByID(int id)
 {
   assert(m_hardware->IsInheritedInstSet() == false);
-  cerr << " cOrg:SetByID (" << m_inst_set_id << "-->";
+  //cerr << " cOrg:SetByID (" << m_inst_set_id << "-->";
   m_hardware->SetInstSet(&(m_world->GetHardwareManager().GetInstSet(id)));
   m_inst_set_id = id;
-  cerr << " " << m_inst_set_id << ")";
+  //cerr << " " << m_inst_set_id << ")";
 }
 

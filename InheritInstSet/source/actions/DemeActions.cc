@@ -46,9 +46,9 @@ class cDemeActionInheritInstSetID : public cDemeAction
       int target_id = (*ctx["target_id"]).AsInt();
       
       int new_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
-      int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->GetInstSetID();
+      //int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->GetInstSetID();
       
-      cerr << target_id << ":" << source_id  << " (" << old_id << ") -->" << new_id << endl;
+      //cerr << target_id << ":" << source_id  << " (" << old_id << ") -->" << new_id << endl;
       m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
     }
     
@@ -79,7 +79,7 @@ class cDemeActionMutateInstSetID : public cDemeAction
       cString largs(args);
       if (largs.GetSize()){
         m_mutation_rate = largs.PopWord().AsDouble();
-        cerr << m_mutation_rate << endl;
+        //cerr << m_mutation_rate << endl;
       } else {
         world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
       }
@@ -174,6 +174,64 @@ class cDemeActionMutateInstSetIDByNumDemes : public cDemeAction
     }
     
 };
+
+
+
+class cDemeActionMutateInstSetIDByNumDemesNoGuarantee : public cDemeAction
+{
+  private:
+    int m_num_mut_demes;
+    
+    tArray<int> GetValidInStates()
+    {
+      int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
+      tArray<int> states(m_num_mut_demes, 0);
+      tArray<int> counts(num_instsets, 0);
+      int ndx = 0;
+      do{
+        int in = m_world->GetRandom().GetUInt(num_instsets);
+        if (ndx >= m_num_mut_demes){
+          int out = states[ndx % m_num_mut_demes];
+          counts[out]--;
+        }
+        counts[in]++;
+        states[ndx % m_num_mut_demes] = in;
+        ndx++;
+      } while (ndx < m_num_mut_demes);
+      return states;
+    }
+    
+  public:
+    cDemeActionMutateInstSetIDByNumDemesNoGuarantee(cWorld* world, const cString& args) : cDemeAction(world, args)
+    {
+      cString largs(args);
+      if (largs.GetSize()){
+        m_num_mut_demes = largs.PopWord().AsInt();
+      } else {
+        world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
+      }
+    }
+    
+    static const cString GetDescription() { return "Arguments: <mutation_rate>"; }
+    
+    void Process(cAvidaContext& ctx)
+    {
+      cEventContext state(ctx);
+      Process(state);
+    }
+    
+    void Process(cEventContext& ctx)
+    {
+      int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+      tArray<int> in_states = GetValidInStates();
+      for (int k = 0; k < m_num_mut_demes; k++){
+        int mutate_deme_id = ctx.GetRandom().GetUInt(num_demes);
+        m_world->GetPopulation().GetDemeManager().GetDeme(mutate_deme_id)->SetInstSetID(in_states[k]);
+      }
+      return;
+    }
+};
+
 
 
 
@@ -287,7 +345,7 @@ class cDemeActionSetAllDemesInstSetIDRandomly : public cDemeAction
       int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
       for (int k = 0; k < num_demes; k++){
         int in_state = m_world->GetRandom().GetUInt(num_instsets);
-        cerr << "!!!!!!!!!!!!!! " << in_state <<  " !!!!!!!!!!!!!!!!!!\n";
+        //cerr << "!!!!!!!!!!!!!! " << in_state <<  " !!!!!!!!!!!!!!!!!!\n";
         m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(in_state);
       }
     }
@@ -339,6 +397,7 @@ void RegisterDemeActions(cActionLibrary* action_lib)
   action_lib->Register<cDemeActionInheritInstSetID>("InheritInstSetID");
   action_lib->Register<cDemeActionMutateInstSetID>("MutateDemeInstSetID");
   action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemes");
+  action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemesNoGuarantee");
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
   action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
   action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemesInstSetIDRandomly");

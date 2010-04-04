@@ -193,8 +193,8 @@ void cDeme::ForEachDemeOrganism( void (*func)(cOrganism*, cDeme*) )
 void cDeme::SynchInstSet(cOrganism* org, cDeme* deme)
 {
   assert(org != NULL && deme != NULL);
-  cerr << org->GetID() << "  *  " << deme << "* " <<  org->GetInstSetID() << "--->";
+  //cerr << org->GetID() << "  *  " << deme << "* " <<  org->GetInstSetID() << "--->";
   org->SetInstSetByID(deme->m_instset_id);
-  cerr << org->GetInstSetID() << endl;
+  //cerr << org->GetInstSetID() << endl;
   return;
 }
