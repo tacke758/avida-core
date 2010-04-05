@@ -59,6 +59,7 @@ class cEventContext : public cAvidaContext
     const cFlexVar* operator[](const cString& name);
     cEventContext& operator<<(const cCntxEntry& entry);
     void SetEventTrigger(eEventTrigger id) {m_trigger = id;}
+    bool HasEntry(const cString& name) {return m_state_info.HasEntry(name);}
     eEventTrigger GetEventTrigger() const {return m_trigger;}
 };
 

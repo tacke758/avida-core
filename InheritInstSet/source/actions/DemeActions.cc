@@ -79,7 +79,7 @@ class cDemeActionMutateInstSetID : public cDemeAction
       cString largs(args);
       if (largs.GetSize()){
         m_mutation_rate = largs.PopWord().AsDouble();
-        //cerr << m_mutation_rate << endl;
+        cerr << m_mutation_rate << endl;
       } else {
         world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
       }
@@ -89,20 +89,29 @@ class cDemeActionMutateInstSetID : public cDemeAction
     
     void Process(cAvidaContext& ctx)
     {
-      return;
+      cEventContext ectx(ctx);
+      Process(ectx);
     }
     
     void Process(cEventContext& ctx)
     {
-      int source_id = (*ctx["source_id"]).AsInt();
-      int target_id = (*ctx["target_id"]).AsInt();
-   
-      int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
-      int new_id = (source_id != target_id) ? DoInstSetMutation(old_id) : old_id;
-      m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
-    
+      int source_id, target_id;
+      if (ctx.HasEntry("source_id") && ctx.HasEntry("target_id")){  //If there is a source and target and they are different, change only the target
+        source_id = (*ctx["source_id"]).AsInt();
+        target_id = (*ctx["target_id"]).AsInt();
+        int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
+        int new_id = (source_id != target_id) ? DoInstSetMutation(old_id) : old_id;
+        m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
+      } else {  //Otherwise, apply to all demes
+        int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
+        for (int k = 0; k < num_demes; k++){
+          target_id = source_id = k;
+          int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
+          int new_id =  DoInstSetMutation(old_id);
+          m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
+        }
+      }
     }
-  
   };
 
 
