@@ -225,6 +225,7 @@ class cDemeActionMutateInstSetIDByNumDemesNoGuarantee : public cDemeAction
       int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
       tArray<int> in_states = GetValidInStates();
       for (int k = 0; k < m_num_mut_demes; k++){
+        cerr << in_states[k] << endl;
         int mutate_deme_id = ctx.GetRandom().GetUInt(num_demes);
         m_world->GetPopulation().GetDemeManager().GetDeme(mutate_deme_id)->SetInstSetID(in_states[k]);
       }
@@ -397,7 +398,7 @@ void RegisterDemeActions(cActionLibrary* action_lib)
   action_lib->Register<cDemeActionInheritInstSetID>("InheritInstSetID");
   action_lib->Register<cDemeActionMutateInstSetID>("MutateDemeInstSetID");
   action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemes");
-  action_lib->Register<cDemeActionMutateInstSetIDByNumDemes>("MutateDemeInstSetIDByNumDemesNoGuarantee");
+  action_lib->Register<cDemeActionMutateInstSetIDByNumDemesNoGuarantee>("MutateDemeInstSetIDByNumDemesNoGuarantee");
   action_lib->Register<cDemeActionPrintInstSetData>("PrintDemeInstSetData");
   action_lib->Register<cDemeActionSetAllDemesInstSetID>("SetAllDemesInstSetID");
   action_lib->Register<cDemeActionSetAllDemesInstSetIDRandomly>("SetAllDemesInstSetIDRandomly");
