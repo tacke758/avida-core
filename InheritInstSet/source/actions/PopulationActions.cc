@@ -223,6 +223,7 @@ public:
     cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
       m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
+    cerr << "Done" << endl;
   }
 };
 
