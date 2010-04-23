@@ -23,7 +23,7 @@ class cDemeAction : public cAction
   private:
   public:
     cDemeAction(cWorld* world, const cString& args) : cAction(world,args) {;};
-    virtual void Process(cEventContext&) = 0;
+  virtual void Process(cEventContext&) {;}
 };
 
 void RegisterDemeActions(cActionLibrary* action_lib);

@@ -33,6 +33,7 @@
 #include "cDataFile.h"
 #include "cDemeManager.h"
 #include "cDemeProbSchedule.h"
+#include "cEventContext.h"
 #include "cEnvironment.h"
 #include "functions.h"
 #include "cGenome.h"
@@ -370,8 +371,11 @@ bool cPopulation::ActivateOffspring(cAvidaContext& ctx, cGenome& child_genome, c
   parent_genotype->AddExecutedSize(  parent_phenotype.GetExecutedSize()  );
   
   
+  cEventContext state(ctx, TRIGGER_OFFSPRING_ACTIVATE);
   // Place all of the offspring...
   for (int i = 0; i < child_array.GetSize(); i++) {
+    state << cCntxEntry("organism", (int)child_array[i]);
+    m_world->TriggerEvent(state);
     ActivateOrganism(ctx, child_array[i], GetCell(target_cells[i]));
     cGenotype* child_genotype = child_array[i]->GetGenotype();
     child_genotype->DecDeferAdjust();

@@ -1520,7 +1520,7 @@ class cActionAddInstSet : public cAction
 
 
 class cActionApplyInstSetToPopulation : public cAction
-  {
+{
   private:
     int     m_id;
   public:
@@ -1543,8 +1543,57 @@ class cActionApplyInstSetToPopulation : public cAction
       state << cCntxEntry("id", m_id);
       cPopulation::ForAllOrganisms(cActionApplyInstSetToPopulation::ApplyInstSet, m_world->GetPopulation(), state);
     }
-  };
+};
 
+
+
+class cActionMutateOrganismInstSetID : public cAction
+{
+  private:
+    double m_mutation_rate;
+    bool   m_use_all;
+  
+    int DoInstSetMutation(int old_id)
+    {
+      int new_id = old_id;
+      int num_ids = m_world->GetHardwareManager().GetNumInstSets();
+      double p = m_world->GetRandom().GetDouble(0,1);
+      if (p < m_mutation_rate){  //We can use *any* instruction set ID
+        if (m_use_all == true){
+          new_id = m_world->GetRandom().GetUInt(num_ids);
+        } else{  //We can only use IDs immediately below or above the current one (wrapped)
+          p = m_world->GetRandom().GetDouble(0,1);
+          new_id = (p < 0.5) ? (num_ids+old_id-1) % num_ids : (num_ids+old_id+1) % num_ids;
+        }
+      }
+      return new_id;
+    }
+    
+  public:
+    cActionMutateOrganismInstSetID(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      m_mutation_rate = (largs.GetSize()) ? largs.PopWord().AsDouble() : 0.0;
+      m_use_all = (largs.GetSize()) ? largs.PopWord().AsInt() > 0 : false;
+    }
+    
+  static const cString GetDescription() { return "Arguments: <mut_prob=0.0> <use_all=false>"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    m_world->GetDriver().RaiseFatalException(2, "cActionMutateOrganismInstSetID: Action requires an event context.");
+  }
+  
+  void Process(cEventContext& ctx)
+  {
+    if (ctx.HasEntry("organism"))
+    { 
+      cOrganism* organism = (cOrganism*) (*ctx["organsim"]).AsInt();
+      int cur_id = organism->GetInstSetID();
+      organism->SetInstSetByID(DoInstSetMutation(cur_id));
+    }
+  }
+};
 
 
 void RegisterPopulationActions(cActionLibrary* action_lib)
@@ -1591,6 +1640,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSwapCells>("SwapCells");
 
   action_lib->Register<cActionAddInstSet>("AddInstSet");
+  action_lib->Register<cActionMutateOrganismInstSetID>("MutateOrganismInstSetID");
   
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
   action_lib->Register<cActionInject>("inject");

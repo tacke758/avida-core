@@ -61,14 +61,19 @@ class cDemeActionMutateInstSetID : public cDemeAction
   {
   private:
     double m_mutation_rate;
+    bool m_use_all;
     int DoInstSetMutation(int old_id)
     {
       int new_id = old_id;
       int num_ids = m_world->GetHardwareManager().GetNumInstSets();
       double p = m_world->GetRandom().GetDouble(0,1);
-      if (p < m_mutation_rate){
-        p = m_world->GetRandom().GetDouble(0,1);
-        new_id = (p < 0.5) ? (num_ids+old_id-1) % num_ids : (num_ids+old_id+1) % num_ids;
+      if (p < m_mutation_rate){  //We can use *any* instruction set ID
+        if (m_use_all == true){
+          new_id = m_world->GetRandom().GetUInt(num_ids);
+        } else{  //We can only use IDs immediately below or above the current one (wrapped)
+          p = m_world->GetRandom().GetDouble(0,1);
+          new_id = (p < 0.5) ? (num_ids+old_id-1) % num_ids : (num_ids+old_id+1) % num_ids;
+        }
       }
       return new_id;
     }
@@ -79,13 +84,13 @@ class cDemeActionMutateInstSetID : public cDemeAction
       cString largs(args);
       if (largs.GetSize()){
         m_mutation_rate = largs.PopWord().AsDouble();
-        cerr << m_mutation_rate << endl;
       } else {
         world->GetDriver().RaiseFatalException(2, "Unable to set instset mutation rate.");
       }
+      m_use_all = (largs.GetSize()) ? largs.PopWord().AsInt() != 0: false;
     }
     
-    static const cString GetDescription() { return "Arguments: <mutation_rate>"; }
+    static const cString GetDescription() { return "Arguments: <mutation_rate> <use_all=false>"; }
     
     void Process(cAvidaContext& ctx)
     {
@@ -113,6 +118,8 @@ class cDemeActionMutateInstSetID : public cDemeAction
       }
     }
   };
+
+
 
 
 

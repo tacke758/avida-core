@@ -106,6 +106,8 @@ eEventTrigger cEventList::ParseEventCode(cString event)
     return TRIGGER_DEME_COMPETITION_POST;
   else if (event.ToUpper() == "DEMECOMPETITIONFINAL")
     return TRIGGER_DEME_COMPETITION_FINAL;
+  else if (event.ToUpper() == "OFFSPRINGACTIVATE")
+    return TRIGGER_OFFSPRING_ACTIVATE;
   else
     return TRIGGER_UNKNOWN;
 }
