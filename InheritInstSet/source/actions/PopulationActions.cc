@@ -223,7 +223,6 @@ public:
     cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet(m_inst_set_id));
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
       m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric, m_inst_set_id);
-    cerr << "Done" << endl;
   }
 };
 
@@ -1511,20 +1510,18 @@ class cActionAddInstSet : public cAction
   {
     if (!m_world->GetHardwareManager().AddInstSet(m_filename, m_id))
       m_world->GetDriver().RaiseException("cAddInstSet has failed.");
-    else
-      cerr << "Added inst_set " << m_filename << " as " << m_id << endl;
   }
 };
   
 
 
 
-class cActionApplyInstSetToPopulation : public cAction
+class cActionSetAllOrganismsInstSetID : public cAction
 {
   private:
     int     m_id;
   public:
-    cActionApplyInstSetToPopulation(cWorld* world, const cString& args) : cAction(world, args)
+    cActionSetAllOrganismsInstSetID(cWorld* world, const cString& args) : cAction(world, args)
     {
       cString largs(args);
       m_id       = (largs.GetSize()) ? largs.PopWord().AsInt() : 0;
@@ -1532,7 +1529,10 @@ class cActionApplyInstSetToPopulation : public cAction
     
     static void ApplyInstSet( cOrganism* org, cEventContext& state )
     {
+      cStats* stats = (cStats*) (*state["stats"]).AsInt();
+      stats->DecInstSetCount(org->GetInstSetID());
       org->SetInstSetByID((*state["id"]).AsInt());
+      stats->IncInstSetCount(org->GetInstSetID());
     }
     
     static const cString GetDescription() { return "Arguments: <path> <id>"; }
@@ -1540,8 +1540,8 @@ class cActionApplyInstSetToPopulation : public cAction
     void Process(cAvidaContext& ctx)
     {
       cEventContext state(ctx);
-      state << cCntxEntry("id", m_id);
-      cPopulation::ForAllOrganisms(cActionApplyInstSetToPopulation::ApplyInstSet, m_world->GetPopulation(), state);
+      state << cCntxEntry("id",m_id) << cCntxEntry("stats", (int) &m_world->GetStats());
+      cPopulation::ForAllOrganisms(cActionSetAllOrganismsInstSetID::ApplyInstSet, m_world->GetPopulation(), state);
     }
 };
 
@@ -1588,7 +1588,7 @@ class cActionMutateOrganismInstSetID : public cAction
   {
     if (ctx.HasEntry("organism"))
     { 
-      cOrganism* organism = (cOrganism*) (*ctx["organsim"]).AsInt();
+      cOrganism* organism = (cOrganism*) ( (*ctx["organism"]).AsInt() ) ;
       int cur_id = organism->GetInstSetID();
       organism->SetInstSetByID(DoInstSetMutation(cur_id));
     }
@@ -1640,6 +1640,7 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSwapCells>("SwapCells");
 
   action_lib->Register<cActionAddInstSet>("AddInstSet");
+  action_lib->Register<cActionSetAllOrganismsInstSetID>("SetAllOrganismsInstSetID");
   action_lib->Register<cActionMutateOrganismInstSetID>("MutateOrganismInstSetID");
   
   // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.

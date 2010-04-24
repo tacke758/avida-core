@@ -436,6 +436,9 @@ public:
 
   void RecordBirth(int cell_id, int genotype_id, bool breed_true, int inst_set_id);
   void RecordDeath(int inst_set_id) { num_deaths++; inst_set_orgs[inst_set_id]--;}
+  void IncInstSetCount(int inst_set_id) { inst_set_orgs[inst_set_id]++; }
+  void DecInstSetCount(int inst_set_id) { inst_set_orgs[inst_set_id]--; }
+  
   void AddGenotype() { tot_genotypes++; }
   void RemoveGenotype(int id_num, int parent_id,
 			     int parent_distance, int depth, int max_abundance,

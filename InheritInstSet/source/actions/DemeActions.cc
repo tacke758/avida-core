@@ -46,9 +46,7 @@ class cDemeActionInheritInstSetID : public cDemeAction
       int target_id = (*ctx["target_id"]).AsInt();
       
       int new_id = m_world->GetPopulation().GetDemeManager().GetDeme(source_id)->GetInstSetID();
-      //int old_id = m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->GetInstSetID();
-      
-      //cerr << target_id << ":" << source_id  << " (" << old_id << ") -->" << new_id << endl;
+     
       m_world->GetPopulation().GetDemeManager().GetDeme(target_id)->SetInstSetID(new_id);
     }
     
@@ -241,7 +239,6 @@ class cDemeActionMutateInstSetIDByNumDemesNoGuarantee : public cDemeAction
       int num_demes = m_world->GetPopulation().GetDemeManager().GetNumDemes();
       tArray<int> in_states = GetValidInStates();
       for (int k = 0; k < m_num_mut_demes; k++){
-        cerr << in_states[k] << endl;
         int mutate_deme_id = ctx.GetRandom().GetUInt(num_demes);
         m_world->GetPopulation().GetDemeManager().GetDeme(mutate_deme_id)->SetInstSetID(in_states[k]);
       }
@@ -362,7 +359,6 @@ class cDemeActionSetAllDemesInstSetIDRandomly : public cDemeAction
       int num_instsets = m_world->GetHardwareManager().GetNumInstSets();
       for (int k = 0; k < num_demes; k++){
         int in_state = m_world->GetRandom().GetUInt(num_instsets);
-        //cerr << "!!!!!!!!!!!!!! " << in_state <<  " !!!!!!!!!!!!!!!!!!\n";
         m_world->GetPopulation().GetDemeManager().GetDeme(k)->SetInstSetID(in_state);
       }
     }
@@ -391,7 +387,6 @@ class cDemeActionTestDemeInstIntegrity : public cDemeAction
     for (int k = 0; k < num_demes; k++){
       int inst_id = mgr.GetDeme(k)->GetInstSetID();
       cOrganism* sample = mgr.SampleRandomDemeOrganism(k);
-      cerr << k << " *" << sample->GetID() << " @ " << mgr.GetDeme(k) << "*  " << " [" << inst_id << "] ";
       if (sample != NULL){
         cInstSet* from_sample  = sample->GetHardware().GetInstSetPtr();
         cInstSet* from_manager = &m_world->GetHardwareManager().GetInstSet(inst_id);
