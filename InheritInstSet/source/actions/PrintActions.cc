@@ -2630,8 +2630,7 @@ class cActionPrintInstSetRedundancies : public cAction
     cString m_filename;
     bool first_run;
     
-    typedef tArray< tArray<double> > VarMtx;
-    const VarMtx* allowed_redundancies;
+    const tInstRed* allowed_redundancies;
     
     void PrintHeader(ofstream& fot, const cInstSet iset)
     {
@@ -2651,9 +2650,9 @@ class cActionPrintInstSetRedundancies : public cAction
       fot << endl;
     }
     
-    VarMtx InitRedCounter(const VarMtx* orig)
+    tInstRed InitRedCounter(const tInstRed* orig)
     {
-      VarMtx empty = VarMtx(orig->GetSize());
+      tInstRed empty = tInstRed(orig->GetSize());
       for (int ndx = 0; ndx < orig->GetSize(); ndx++){
         empty[ndx] = tArray<double>( (*orig)[ndx].GetSize(), 0.0);
       }
@@ -2700,7 +2699,7 @@ class cActionPrintInstSetRedundancies : public cAction
 
 
       
-      VarMtx red_counter = InitRedCounter(allowed_redundancies);
+      tInstRed red_counter = InitRedCounter(allowed_redundancies);
       
       for (int i = 0; i < pop->GetWorldX(); i++){
         for (int j = 0; j < pop->GetWorldY(); j++){

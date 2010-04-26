@@ -20,12 +20,12 @@ cInheritedInstSet::cInheritedInstSet(const cInheritedInstSet* in) : cInstSet(*in
 }
 
 
-cInheritedInstSet::cInheritedInstSet(const cInstSet* in, tArray< tArray<double> >& allowed_redundancies) : cInstSet(*in)
+cInheritedInstSet::cInheritedInstSet(const cInstSet* in, tInstRed& allowed_redundancies) : cInstSet(*in)
 {
   m_allowed_redundancies = allowed_redundancies;
 }
 
-cInheritedInstSet::cInheritedInstSet(const cInstSet* in, int init_val, const tArray< tArray<double> >& allowed_redundancies) : cInstSet(*in)
+cInheritedInstSet::cInheritedInstSet(const cInstSet* in, int init_val, const tInstRed& allowed_redundancies) : cInstSet(*in)
 {
   m_allowed_redundancies = allowed_redundancies;
   if (init_val == 0)
@@ -78,16 +78,13 @@ bool cInheritedInstSet::MutateSingleInst(double p)
 }
 
 
-
-
-
 inline bool cInheritedInstSet::RandProceed(double p){
   return (m_world->GetRandom().GetDouble(0,1) < p);
 }
 
 
 
-inline int cInheritedInstSet::GetRandomRedundancy(int id){
+inline double cInheritedInstSet::GetRandomRedundancy(int id){
   return m_allowed_redundancies[id][m_world->GetRandom().GetUInt(0,m_allowed_redundancies[id].GetSize())];
 }
 
