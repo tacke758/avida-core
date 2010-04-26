@@ -22,7 +22,7 @@ class cWorld;
 class cInheritedInstSet : public cInstSet{
 
   private:
-    tArray< tArray<int> >  m_allowed_redundancies;
+    tArray< tArray<double> >  m_allowed_redundancies;
   
     void InitRedRandomly();
     void InitRedByBaseInstSet();
@@ -40,9 +40,9 @@ class cInheritedInstSet : public cInstSet{
   public:
     virtual ~cInheritedInstSet() {;}
     cInheritedInstSet(const cInheritedInstSet* in);
-    cInheritedInstSet(const cInstSet* in, tArray< tArray<int> >& allowed_redundancies);
+    cInheritedInstSet(const cInstSet* in, tArray< tArray<double> >& allowed_redundancies);
     cInheritedInstSet(const cInstSet* in, int init_val, 
-                      const tArray< tArray<int> >& allowed_redundancies);
+                      const tArray< tArray<double> >& allowed_redundancies);
     cInstSet* MakeInstSet();
     
     bool MutateAllInsts(double p);

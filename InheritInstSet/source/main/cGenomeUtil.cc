@@ -329,7 +329,7 @@ cGenome cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(cAvidaContext& c
   cGenome genome(length+1);
   for (int i = 0; i < length; i++) {
 	  cInstruction inst = inst_set.GetRandomInst(ctx);
-	  while (inst_set.GetRedundancy(inst)==0)
+	  while (inst_set.GetRedundancy(inst)==0.0)
 		  inst = inst_set.GetRandomInst(ctx);
     genome[i] = inst;
   }

@@ -1134,7 +1134,7 @@ void cZoomScreen::ViewInstruction()
   const int inst_id = inst_ptr.GetInst().GetOp();
   
   window->Print(4, 14, "%3d", inst_ptr.GetPosition());
-  window->Print(6, 14, "%3d", inst_set.GetRedundancy(cInstruction(inst_id)) );
+  window->Print(6, 14, "%0.1f", inst_set.GetRedundancy(cInstruction(inst_id)) );
   window->Print(7, 14, "%3d", inst_set.GetCost(cInstruction(inst_id)) );
   
   if (inst_ptr.GetMemory().FlagCopied(inst_ptr.GetPosition())) window->SetBoldColor(COLOR_CYAN);

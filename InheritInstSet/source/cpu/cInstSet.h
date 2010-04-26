@@ -57,6 +57,7 @@ using namespace std;
 class cAvidaContext;
 class cStringList;
 class cWorld;
+class cWeightedIndex;
 
 class cInstSet
 {
@@ -66,7 +67,7 @@ public:
   
   struct sInstEntry {
     int lib_fun_id;
-    int redundancy;           // Weight in instruction set (not impl.)
+    double redundancy;        // Weight in instruction set
     int cost;                 // additional time spent to exectute inst.
     int ft_cost;              // time spent first time exec (in add to cost)
     int energy_cost;          // energy required to execute.
@@ -76,22 +77,23 @@ public:
   };
   tSmartArray<sInstEntry> m_lib_name_map;
   
-  tArray<int> m_lib_nopmod_map;
-  tArray<int> m_mutation_chart;     // ID's represented by redundancy values.
+  tArray<int> m_lib_nopmod_map; 
+  cWeightedIndex* m_weight_ndx;  //Used to quickly get instructions weighted by redundancy
   
   
   void LoadWithStringList(const cStringList& sl);
+  void SynchRedundancyWeights();
 
   cInstSet(); // @not_implemented
 
 public:
-  inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib) { ; }
-  inline cInstSet(const cInstSet& is);
-  inline cInstSet(const cInstSet* is);
-  virtual ~cInstSet() { ; }
+  inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib), m_weight_ndx(NULL) { ; }
+  cInstSet(const cInstSet& is);
+  cInstSet(const cInstSet* is);
+  virtual ~cInstSet();
   
   inline bool operator==(const cInstSet& _in) const;
-  inline cInstSet& operator=(const cInstSet& _in);
+  cInstSet& operator=(const cInstSet& _in);
 
   bool OK() const;
 
@@ -99,8 +101,8 @@ public:
   const cString& GetName(int id) const { return m_inst_lib->GetName(m_lib_name_map[id].lib_fun_id); }
   const cString& GetName(const cInstruction& inst) const { return GetName(inst.GetOp()); }
   
-  int GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
-  int GetRedundancy(int index) const { return m_lib_name_map[index].redundancy; }
+  double GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
+  double GetRedundancy(int index) const { return m_lib_name_map[index].redundancy; }
   
   int GetCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].cost; }
   int GetFTCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].ft_cost; }
@@ -158,27 +160,7 @@ namespace nInstSet {
 #endif  
 
 
-inline cInstSet::cInstSet(const cInstSet& is)
-: m_world(is.m_world), m_inst_lib(is.m_inst_lib), m_lib_name_map(is.m_lib_name_map)
-,m_lib_nopmod_map(is.m_lib_nopmod_map), m_mutation_chart(is.m_mutation_chart)
-{
-}
 
-inline cInstSet::cInstSet(const cInstSet* is)
-: m_world(is->m_world), m_inst_lib(is->m_inst_lib), m_lib_name_map(is->m_lib_name_map)
-,m_lib_nopmod_map(is->m_lib_nopmod_map), m_mutation_chart(is->m_mutation_chart)
-{
-}
-
-
-inline cInstSet& cInstSet::operator=(const cInstSet& _in)
-{
-  m_inst_lib = _in.m_inst_lib;
-  m_lib_name_map = _in.m_lib_name_map;
-  m_lib_nopmod_map = _in.m_lib_nopmod_map;
-  m_mutation_chart = _in.m_mutation_chart;
-  return *this;
-}
 
 
 

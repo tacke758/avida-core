@@ -30,36 +30,55 @@
 #include "cAvidaContext.h"
 #include "cInitFile.h"
 #include "cStringUtil.h"
+#include "cWeightedIndex.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
 
 using namespace std;
 
+cInstSet::~cInstSet(){
+  if (m_weight_ndx != NULL) delete m_weight_ndx; 
+}
+
+cInstSet::cInstSet(const cInstSet& is)
+: m_world(is.m_world), m_inst_lib(is.m_inst_lib), m_lib_name_map(is.m_lib_name_map)
+,m_lib_nopmod_map(is.m_lib_nopmod_map)
+{
+  m_weight_ndx = new cWeightedIndex(*is.m_weight_ndx);
+}
+
+cInstSet::cInstSet(const cInstSet* is)
+: m_world(is->m_world)
+, m_inst_lib(is->m_inst_lib) 
+, m_lib_name_map(is->m_lib_name_map)
+, m_lib_nopmod_map(is->m_lib_nopmod_map)
+{
+  m_weight_ndx = new cWeightedIndex(*(*is).m_weight_ndx);
+}
+
+
+cInstSet& cInstSet::operator=(const cInstSet& _in)
+{
+  m_inst_lib = _in.m_inst_lib;
+  m_lib_name_map = _in.m_lib_name_map;
+  m_lib_nopmod_map = _in.m_lib_nopmod_map;
+  m_weight_ndx = new cWeightedIndex(*_in.m_weight_ndx);
+  return *this;
+}
+
+
 
 bool cInstSet::OK() const
 {
-  assert(m_lib_name_map.GetSize() < 256);
   assert(m_lib_nopmod_map.GetSize() < m_lib_name_map.GetSize());
-
-  // Make sure that all of the redundancies are represented the appropriate
-  // number of times.
-  tArray<int> test_redundancy2(m_lib_name_map.GetSize());
-  test_redundancy2.SetAll(0);
-  for (int i = 0; i < m_mutation_chart.GetSize(); i++) {
-    int test_id = m_mutation_chart[i];
-    test_redundancy2[test_id]++;
-  }
-  for (int i = 0; i < m_lib_name_map.GetSize(); i++) {
-    assert(m_lib_name_map[i].redundancy == test_redundancy2[i]);
-  }
-
   return true;
 }
 
 
 cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
 {
-  return cInstruction(m_mutation_chart[ctx.GetRandom().GetUInt(m_mutation_chart.GetSize())]);
+  int ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+  return cInstruction(ndx);
 }
 
 
@@ -149,13 +168,13 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
   cArgSchema schema;
   
   // Integer
-  schema.AddEntry("redundancy", 0, 1);
   schema.AddEntry("cost", 1, 0);
   schema.AddEntry("initial_cost", 2, 0);
   schema.AddEntry("energy_cost", 3, 0);
   schema.AddEntry("addl_time_cost", 4, 0);
   
   // Double
+  schema.AddEntry("redundancy", 0, 1.0);
   schema.AddEntry("prob_fail", 0, 0.0);
   
   // String  
@@ -202,16 +221,10 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
       continue;
     }
     
-    int redundancy = args->GetInt(0);
-    if (redundancy < 0) {
+    double redundancy = args->GetInt(0);
+    if (redundancy < 0.0) {
       m_world->GetDriver().NotifyWarning(cString("Instruction '") + inst_name + "' has negative redundancy, ignoring.");
       continue;
-    }
-    if (redundancy > 256) {
-      cString msg("Max redundancy is 256.  Resetting redundancy of \"");
-      msg += inst_name; msg += "\" from "; msg += redundancy; msg += " to 256.";
-      m_world->GetDriver().NotifyWarning(msg);
-      redundancy = 256;
     }
     
     
@@ -276,16 +289,11 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
       m_lib_nopmod_map[inst_id] = fun_id;
     }
     
-
-    const int total_redundancy = m_mutation_chart.GetSize();
-    m_mutation_chart.Resize(total_redundancy + redundancy);
-    for (int i = 0; i < redundancy; i++) {
-      m_mutation_chart[total_redundancy + i] = inst_id;
-    }
     
     // Clean up the argument container for this instruction
     delete args;
   }
+  
   
   if (!success) {
     cString* errstr = NULL;
@@ -295,6 +303,9 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
     }
     m_world->GetDriver().RaiseFatalException(1,"Failed to load instruction set due to previous errors.");
   }
+  
+  //Instruction set loaded okay.
+  SynchRedundancyWeights();  
 }
 
 
@@ -362,11 +373,6 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
     m_lib_name_map[inst_id].addl_time_cost = addl_time_cost;
     m_lib_name_map[inst_id].inst_code = 0;
     
-    const int total_redundancy = m_mutation_chart.GetSize();
-    m_mutation_chart.Resize(total_redundancy + redundancy);
-    for (int i = 0; i < redundancy; i++) {
-      m_mutation_chart[total_redundancy + i] = inst_id;
-    }
 
     if ((*m_inst_lib)[fun_id].IsNop()) {
       // Assert nops are at the _beginning_ of an inst_set.
@@ -377,4 +383,15 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
     }
   }
   
+  SynchRedundancyWeights();
+}
+
+
+void cInstSet::SynchRedundancyWeights()
+{
+  if (m_weight_ndx != NULL)
+    delete m_weight_ndx;
+  m_weight_ndx = new cWeightedIndex(GetSize());
+  for (int k = 0; k < GetSize(); k++)
+    m_weight_ndx->SetWeight(k, m_lib_name_map[k].redundancy);
 }

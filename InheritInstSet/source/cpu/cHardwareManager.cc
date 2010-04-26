@@ -153,14 +153,14 @@ void cHardwareManager::LoadRedundancyFile(cString path){
   if (file.GetNumLines() != m_inst_sets[0]->GetSize())
     m_world->GetDriver().RaiseFatalException(1, cString("Allowed instruction redundancies has an incorrect number of entries for the loaded instruction set."));
   
-  m_allowed_redundancies = new tArray< tArray<int> >( m_inst_sets[0]->GetSize(), tArray<int>(0));
+  m_allowed_redundancies = new tArray< tArray<double> >( m_inst_sets[0]->GetSize(), tArray<double>(0));
   for (int line_id = 0; line_id < file.GetNumLines(); line_id++) {
     cString cur_line = file.GetLine(line_id);
     cString inst_name = cur_line.PopWord();
     if (inst_name != m_inst_sets[0]->GetName(line_id))
       m_world->GetDriver().RaiseFatalException(1, cString("Allowed instruction redundancies are not in the same order as the loaded instruction set."));
     while (cur_line.GetSize())
-      (*m_allowed_redundancies)[line_id].Push( cur_line.PopWord().AsInt() );
+      (*m_allowed_redundancies)[line_id].Push( cur_line.PopWord().AsDouble() );
   }
   m_inherited_instset = true;
   m_init_redundancy = m_world->GetConfig().EIS_INIT_RED.Get();

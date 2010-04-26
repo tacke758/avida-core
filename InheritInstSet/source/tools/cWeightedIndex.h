@@ -51,6 +51,8 @@ protected:
   
 public:
   cWeightedIndex(int in_size);
+  cWeightedIndex(const cWeightedIndex& _in) : item_weight(_in.item_weight), subtree_weight(_in.subtree_weight) {;}
+  
   ~cWeightedIndex();
 
   void SetWeight(int id, double weight);
