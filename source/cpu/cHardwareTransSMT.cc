@@ -666,16 +666,25 @@ bool cHardwareTransSMT::ParasiteInfectHost(cBioUnit* bu)
   
   cCodeLabel label;
   label.ReadString(bu->GetUnitSourceArgs());
-  
+
   // Inject fails if the memory space is already in use
-  if (label.GetSize() == 0 || MemorySpaceExists(label)) return false;
+  if (label.GetSize() == 0 || MemorySpaceExists(label)) 
+  {
+  cout << "memspace already in use" << endl;
+  return false;
+  }
   
   int thread_id = m_threads.GetSize();
   
   // Check for existing thread
   int hash_key = label.AsInt(NUM_NOPS);
   if (m_thread_lbls.Find(hash_key, thread_id)) {
-    if (m_threads[thread_id].running) return false;  // Thread exists, and is running... call fails
+    if (m_threads[thread_id].running) 
+	{
+	cout << "memspace used by thread" << endl;
+	return false;  // Thread exists, and is running... call fails
+	}
+	
   } else {
     // Check for thread cap
     if (thread_id == m_world->GetConfig().MAX_CPU_THREADS.Get()) return false;
@@ -1137,6 +1146,17 @@ bool cHardwareTransSMT::Inst_SetMemory(cAvidaContext& ctx)
 {
   ReadLabel(MAX_MEMSPACE_LABEL);
   
+  if(ThreadGetOwner()->IsParasite())
+  {
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+    //cout << GetLabel().AsString() << endl;
+
+  }
+	
+
   if (GetLabel().GetSize() == 0) {
     GetHead(nHardware::HEAD_FLOW).Set(0, 0);
   } else {
@@ -1355,7 +1375,7 @@ bool cHardwareTransSMT::Inst_IO(cAvidaContext& ctx)
 	
   // Do the "put" component
   const int value_out = Stack(src).Top();
-  m_organism->DoOutput(ctx, value_out);  // Check for tasks compleated.
+  m_organism->DoOutput(ctx, value_out, ThreadGetOwner()->IsParasite());  // Check for tasks compleated.
 	
   // Do the "get" component
   const int value_in = m_organism->GetNextInput();
@@ -1412,6 +1432,17 @@ bool cHardwareTransSMT::Inst_Inject(cAvidaContext& ctx)
 {
   ReadLabel(MAX_MEMSPACE_LABEL);
   
+  if(ThreadGetOwner()->IsParasite())
+  {
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+	GetLabel().AddNop(1);
+
+    //cout << GetLabel().AsString() << endl;
+
+  }
+
   double mut_multiplier = 1.0;	
   return InjectParasite(ctx, mut_multiplier);
 }

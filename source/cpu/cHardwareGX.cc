@@ -2195,7 +2195,6 @@ bool cHardwareGX::Inst_TaskPutResetInputs(cAvidaContext& ctx)
 bool cHardwareGX::Inst_TaskIO(cAvidaContext& ctx)
 {
   const int reg_used = FindModifiedRegister(REG_BX);
-  
   // Do the "put" component
   const int value_out = GetRegister(reg_used);
   m_organism->DoOutput(ctx, m_current->m_input_buf, m_current->m_output_buf, value_out);  // Check for tasks completed.

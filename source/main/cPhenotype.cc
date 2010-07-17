@@ -46,6 +46,7 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation)
 , cur_task_count(m_world->GetEnvironment().GetNumTasks())
 , cur_internal_task_count(m_world->GetEnvironment().GetNumTasks())
 , eff_task_count(m_world->GetEnvironment().GetNumTasks())
+, cur_para_tasks(m_world->GetEnvironment().GetNumTasks())
 , cur_task_quality(m_world->GetEnvironment().GetNumTasks())  
 , cur_task_value(m_world->GetEnvironment().GetNumTasks())  
 , cur_internal_task_quality(m_world->GetEnvironment().GetNumTasks())
@@ -122,7 +123,8 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
   cur_energy_bonus         = in_phen.cur_energy_bonus;                   
   cur_num_errors           = in_phen.cur_num_errors;                         
   cur_num_donates          = in_phen.cur_num_donates;                       
-  cur_task_count           = in_phen.cur_task_count;                
+  cur_task_count           = in_phen.cur_task_count;  
+  cur_para_tasks				   = in_phen.cur_para_tasks;
   eff_task_count           = in_phen.eff_task_count;
   cur_internal_task_count  = in_phen.cur_internal_task_count;
   cur_task_quality         = in_phen.cur_task_quality;    
@@ -339,6 +341,7 @@ void cPhenotype::SetupOffspring(const cPhenotype& parent_phenotype, const cGenom
   cur_num_errors  = 0;
   cur_num_donates  = 0;
   cur_task_count.SetAll(0);
+	cur_para_tasks.SetAll(0);
   cur_internal_task_count.SetAll(0);
   eff_task_count.SetAll(0);
   cur_task_quality.SetAll(0);

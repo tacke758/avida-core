@@ -146,6 +146,8 @@ private:
   double last_child_germline_propensity;   // chance of child being a germline cell; @JEB
   
   cReactionResult* m_reaction_result;
+  tArray<int> cur_para_tasks;                 // Total times each task was performed by the parasite @LZ
+
   
 
   // 3. These mark the status of "in progess" variables at the last divide.

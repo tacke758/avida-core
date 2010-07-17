@@ -335,7 +335,7 @@ void cOrganism::DoInput(tBuffer<int>& input_buffer, tBuffer<int>& output_buffer,
 void cOrganism::DoOutput(cAvidaContext& ctx, const bool on_divide)
 {
   if (m_net) m_net->valid = false;
-  doOutput(ctx, m_input_buf, m_output_buf, on_divide);
+  doOutput(ctx, m_input_buf, m_output_buf, on_divide, false);
 }
 
 
@@ -343,7 +343,14 @@ void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
 {
   m_output_buf.Add(value);
   NetValidate(ctx, value);
-  doOutput(ctx, m_input_buf, m_output_buf, false);
+  doOutput(ctx, m_input_buf, m_output_buf, false, false);
+}
+
+void cOrganism::DoOutput(cAvidaContext& ctx, const int value, bool is_parasite)
+{
+  m_output_buf.Add(value);
+  NetValidate(ctx, value);
+  doOutput(ctx, m_input_buf, m_output_buf, false, (bool)is_parasite);
 }
 
 
@@ -351,15 +358,19 @@ void cOrganism::DoOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer
 {
   output_buffer.Add(value);
   NetValidate(ctx, value);
-  doOutput(ctx, input_buffer, output_buffer, false);
+  doOutput(ctx, input_buffer, output_buffer, false, false);
 }
 
 
 void cOrganism::doOutput(cAvidaContext& ctx, 
                          tBuffer<int>& input_buffer, 
                          tBuffer<int>& output_buffer,
-                         const bool on_divide)
+                         const bool on_divide,
+						 bool is_parasite)
 {
+
+  if(is_parasite)
+	cout << "YAY!" << endl;
   const int deme_id = m_interface->GetDemeID();
   const tArray<double> & global_resource_count = m_interface->GetResources();
   const tArray<double> & deme_resource_count = m_interface->GetDemeResources(deme_id);
