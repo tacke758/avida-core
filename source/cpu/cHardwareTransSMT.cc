@@ -1605,5 +1605,4 @@ bool cHardwareTransSMT::Inst_Divide_Erase(cAvidaContext& ctx)
   //for(int x = 0; x < NUM_LOCAL_STACKS; x++) Stack(x).Clear();
     
   return toReturn;
-  
 }

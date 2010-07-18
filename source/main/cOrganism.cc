@@ -366,11 +366,8 @@ void cOrganism::doOutput(cAvidaContext& ctx,
                          tBuffer<int>& input_buffer, 
                          tBuffer<int>& output_buffer,
                          const bool on_divide,
-						 bool is_parasite)
+                         bool is_parasite)
 {
-
-  if(is_parasite)
-	cout << "YAY!" << endl;
   const int deme_id = m_interface->GetDemeID();
   const tArray<double> & global_resource_count = m_interface->GetResources();
   const tArray<double> & deme_resource_count = m_interface->GetDemeResources(deme_id);
@@ -444,7 +441,7 @@ void cOrganism::doOutput(cAvidaContext& ctx,
 
   bool task_completed = m_phenotype.TestOutput(ctx, taskctx, globalAndDeme_resource_count, 
                                                m_phenotype.GetCurRBinsAvail(), globalAndDeme_res_change, 
-                                               insts_triggered);
+                                               insts_triggered, is_parasite);
 											   
   // Handle merit increases that take the organism above it's current population merit
   if (m_world->GetConfig().MERIT_INC_APPLY_IMMEDIATE.Get()) {

@@ -4786,8 +4786,8 @@ bool cPopulation::SaveStructuredPopulation(const cString& filename)
     
     int sumFailsForGenotype = 0;
     int sumSuccForGenotype = 0;
-    int divFailsForGenotype = sumDivideFailed.Find(genotype->GetID(), sumFailsForGenotype);
-    int divSuccForGenotype = sumDivideSucceeded.Find(genotype->GetID(), sumSuccForGenotype);
+    sumDivideFailed.Find(genotype->GetID(), sumFailsForGenotype);
+    sumDivideSucceeded.Find(genotype->GetID(), sumSuccForGenotype);
 
 
     df.Write(sumFailsForGenotype, "Total Division Failures");

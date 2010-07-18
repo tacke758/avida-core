@@ -146,7 +146,10 @@ private:
   double last_child_germline_propensity;   // chance of child being a germline cell; @JEB
   
   cReactionResult* m_reaction_result;
+  
   tArray<int> cur_para_tasks;                 // Total times each task was performed by the parasite @LZ
+  tArray<int> cur_host_tasks;                 // Total times each task was done by JUST the host @LZ
+  tArray<int> last_host_tasks;                // Last task counts from hosts only, before last divide @LZ
 
   
 
@@ -300,7 +303,7 @@ public:
   bool TestInput(tBuffer<int>& inputs, tBuffer<int>& outputs);
   bool TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
                   const tArray<double>& res_in, const tArray<double>& rbins_in, tArray<double>& res_change,
-                  tArray<int>& insts_triggered);
+                  tArray<int>& insts_triggered, bool is_parasite=false);
 
   // State saving and loading, and printing...
   void PrintStatus(std::ostream& fp) const;
