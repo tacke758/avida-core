@@ -145,6 +145,11 @@ cStats::cStats(cWorld* world)
   const cEnvironment& env = m_world->GetEnvironment();
   const int num_tasks = env.GetNumTasks();
     
+  tasks_host_current.Resize(num_tasks);
+  tasks_host_last.Resize(num_tasks);
+  tasks_parasite_current.Resize(num_tasks);
+  tasks_parasite_last.Resize(num_tasks);
+  
   task_cur_count.Resize(num_tasks);
   task_last_count.Resize(num_tasks);
   task_cur_quality.Resize(num_tasks);
@@ -383,6 +388,12 @@ void cStats::ZeroTasks()
   task_internal_last_count.SetAll(0);
   task_internal_last_quality.SetAll(0);
   task_internal_last_max_quality.SetAll(0);
+  
+  tasks_host_current.SetAll(0);
+  tasks_host_last.SetAll(0);
+  tasks_parasite_current.SetAll(0);
+  tasks_parasite_last.SetAll(0);
+  
 }
 
 void cStats::ZeroReactions()
@@ -928,6 +939,54 @@ void cStats::PrintTasksData(const cString& filename)
 	df.Write(m_update,   "Update");
 	for(int i = 0; i < task_last_count.GetSize(); i++) {
 		df.Write(task_last_count[i], task_names[i] );
+	}
+	df.Endl();
+}
+
+void cStats::PrintHostTasksData(const cString& filename)
+{
+	cString file = filename;
+  
+	// flag to print both tasks.dat and taskquality.dat
+	if (filename == "tasksq.dat")
+	{
+		file = "host_tasks.dat";
+	}
+  
+	// print tasks.dat
+	cDataFile& df = m_world->GetDataFile(file);
+	df.WriteComment("Avida Host Tasks data");
+	df.WriteTimeStamp();
+	df.WriteComment("First column gives the current update, next columns give the number");
+	df.WriteComment("of Hosts that have the particular task");
+  
+	df.Write(m_update,   "Update");
+	for(int i = 0; i < tasks_host_last.GetSize(); i++) {
+		df.Write(tasks_host_last[i], task_names[i] );
+	}
+	df.Endl();
+}
+
+void cStats::PrintParasiteTasksData(const cString& filename)
+{
+	cString file = filename;
+  
+	// flag to print both tasks.dat and taskquality.dat
+	if (filename == "tasksq.dat")
+	{
+		file = "parasite_tasks.dat";
+	}
+  
+	// print tasks.dat
+	cDataFile& df = m_world->GetDataFile(file);
+	df.WriteComment("Avida tasks data");
+	df.WriteTimeStamp();
+	df.WriteComment("First column gives the current update, next columns give the number");
+	df.WriteComment("of Parasites that have the particular task");
+  
+	df.Write(m_update,   "Update");
+	for(int i = 0; i < tasks_parasite_last.GetSize(); i++) {
+		df.Write(tasks_parasite_last[i], task_names[i] );
 	}
 	df.Endl();
 }

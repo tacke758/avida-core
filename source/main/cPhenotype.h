@@ -149,8 +149,8 @@ private:
   
   tArray<int> cur_para_tasks;                 // Total times each task was performed by the parasite @LZ
   tArray<int> cur_host_tasks;                 // Total times each task was done by JUST the host @LZ
+  tArray<int> last_para_tasks;
   tArray<int> last_host_tasks;                // Last task counts from hosts only, before last divide @LZ
-
   
 
   // 3. These mark the status of "in progess" variables at the last divide.
@@ -359,7 +359,11 @@ public:
   bool GetToDelete() const { assert(initialized == true); return to_delete; }
   int GetCurNumErrors() const { assert(initialized == true); return cur_num_errors; }
   int GetCurNumDonates() const { assert(initialized == true); return cur_num_donates; }
+  
   const tArray<int>& GetCurTaskCount() const { assert(initialized == true); return cur_task_count; }
+  const tArray<int>& GetCurHostTaskCount() const { assert(initialized == true); return cur_host_tasks; }
+  const tArray<int>& GetCurParasiteTaskCount() const { assert(initialized == true); return cur_para_tasks; }
+
   const tArray<int>& GetCurInternalTaskCount() const { assert(initialized == true); return cur_internal_task_count; }
   void ClearEffTaskCount() { assert(initialized == true); eff_task_count.SetAll(0); }
   const tArray<double> & GetCurTaskQuality() const { assert(initialized == true); return cur_task_quality; }
@@ -390,7 +394,11 @@ public:
   double GetLastMerit() const { assert(initialized == true); return last_merit_base*last_bonus; }
   int GetLastNumErrors() const { assert(initialized == true); return last_num_errors; }
   int GetLastNumDonates() const { assert(initialized == true); return last_num_donates; }
+  
   const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
+  const tArray<int>& GetLastHostTaskCount() const { assert(initialized == true); return last_host_tasks; }
+  const tArray<int>& GetLastParasiteTaskCount() const { assert(initialized == true); return last_para_tasks; }
+
   const tArray<int>& GetLastInternalTaskCount() const { assert(initialized == true); return last_internal_task_count; }
   const tArray<double>& GetLastTaskQuality() const { assert(initialized == true); return last_task_quality; }
   const tArray<double>& GetLastTaskValue() const { assert(initialized == true); return last_task_value; }

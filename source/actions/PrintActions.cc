@@ -79,7 +79,11 @@ STATS_OUT_FILE(PrintStatsData,              stats.dat           );
 STATS_OUT_FILE(PrintCountData,              count.dat           );
 STATS_OUT_FILE(PrintMessageData,            message.dat         );
 STATS_OUT_FILE(PrintTotalsData,             totals.dat          );
+
 STATS_OUT_FILE(PrintTasksData,              tasks.dat           );
+STATS_OUT_FILE(PrintHostTasksData,          host_tasks.dat      );
+STATS_OUT_FILE(PrintParasiteTasksData,      parasite_tasks.dat  );
+
 STATS_OUT_FILE(PrintTasksExeData,           tasks_exe.dat       );
 STATS_OUT_FILE(PrintNewTasksData,			newtasks.dat		);
 STATS_OUT_FILE(PrintNewReactionData,		newreactions.dat	);
@@ -3106,7 +3110,11 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionPrintCountData>("PrintCountData");
   action_lib->Register<cActionPrintMessageData>("PrintMessageData");
   action_lib->Register<cActionPrintTotalsData>("PrintTotalsData");
+  
   action_lib->Register<cActionPrintTasksData>("PrintTasksData");
+  action_lib->Register<cActionPrintHostTasksData>("PrintHostTasksData");
+  action_lib->Register<cActionPrintParasiteTasksData>("PrintParasiteTasksData");
+
   action_lib->Register<cActionPrintTasksExeData>("PrintTasksExeData");
   action_lib->Register<cActionPrintNewTasksData>("PrintNewTasksData");
   action_lib->Register<cActionPrintNewReactionData>("PrintNewReactionData");

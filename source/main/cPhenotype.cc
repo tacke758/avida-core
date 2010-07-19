@@ -60,6 +60,7 @@ cPhenotype::cPhenotype(cWorld* world, int parent_generation)
 , m_reaction_result(NULL)
 , cur_para_tasks(m_world->GetEnvironment().GetNumTasks())
 , cur_host_tasks(m_world->GetEnvironment().GetNumTasks())
+, last_para_tasks(m_world->GetEnvironment().GetNumTasks())
 , last_host_tasks(m_world->GetEnvironment().GetNumTasks())
 , last_task_count(m_world->GetEnvironment().GetNumTasks())
 , last_internal_task_count(m_world->GetEnvironment().GetNumTasks())
@@ -178,6 +179,8 @@ cPhenotype& cPhenotype::operator=(const cPhenotype& in_phen)
   last_fitness             = in_phen.last_fitness;        
   
   last_host_tasks          = in_phen.last_host_tasks;
+  last_para_tasks          = in_phen.last_para_tasks;
+  
   
   last_child_germline_propensity = in_phen.last_child_germline_propensity;
   total_energy_donated     = in_phen.total_energy_donated;
@@ -397,6 +400,7 @@ void cPhenotype::SetupOffspring(const cPhenotype& parent_phenotype, const cGenom
   last_child_germline_propensity = parent_phenotype.last_child_germline_propensity;   // chance of child being a germline cell; @JEB
   
   last_host_tasks           = parent_phenotype.last_host_tasks;
+  last_para_tasks           = parent_phenotype.last_para_tasks;
   
   // Setup other miscellaneous values...
   num_divides     = 0;
@@ -571,6 +575,7 @@ void cPhenotype::SetupInject(const cGenome & _genome)
   last_child_germline_propensity = m_world->GetConfig().DEMES_DEFAULT_GERMLINE_PROPENSITY.Get();
   
   last_host_tasks.SetAll(0);
+  last_para_tasks.SetAll(0);
   
   // Setup other miscellaneous values...
   num_divides     = 0;
@@ -737,7 +742,9 @@ void cPhenotype::DivideReset(const cGenome & _genome)
   last_child_germline_propensity = cur_child_germline_propensity;
   
   last_host_tasks           = cur_host_tasks;
-  
+  last_para_tasks = cur_para_tasks;
+
+    
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
   cpu_cycles_used = 0;
@@ -749,7 +756,10 @@ void cPhenotype::DivideReset(const cGenome & _genome)
   
   //TODO-LZ: figure out when and where to reset cur_para_tasks, depending on the divide method, and resonable assumptions
   if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT)
+  {     
+    last_para_tasks = cur_para_tasks;
     cur_para_tasks.SetAll(0);
+  }
   
   cur_task_count.SetAll(0);
   cur_internal_task_count.SetAll(0);
@@ -911,6 +921,8 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   last_child_germline_propensity = cur_child_germline_propensity;
   
   last_host_tasks           = cur_host_tasks;
+  last_para_tasks = cur_para_tasks;
+
   
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();
@@ -944,7 +956,10 @@ void cPhenotype::TestDivideReset(const cGenome & _genome)
   
   //TODO-LZ: figure out when and where to reset cur_para_tasks, depending on the divide method, and resonable assumptions
   if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT)
-    
+  {
+    last_para_tasks = cur_para_tasks;
+    cur_para_tasks.SetAll(0);
+  }
   // Setup other miscellaneous values...
   num_divides++;
   generation++;
@@ -1106,6 +1121,7 @@ void cPhenotype::SetupClone(const cPhenotype & clone_phenotype)
   last_child_germline_propensity = clone_phenotype.last_child_germline_propensity;
   
   last_host_tasks          = clone_phenotype.last_host_tasks;
+  last_para_tasks          = clone_phenotype.last_para_tasks;
   
   // Setup other miscellaneous values...
   num_divides     = 0;
@@ -1253,6 +1269,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
       eff_task_count[i]++;
       if(is_parasite)
       {
+        cout << "parasite did task: " << i << endl << endl;
         cur_para_tasks[i]++;
       }
       else
@@ -1679,7 +1696,7 @@ void cPhenotype::NewTrial()
   last_reaction_add_reward  = cur_reaction_add_reward;
   last_inst_count           = cur_inst_count;
   last_sense_count          = cur_sense_count;
-  last_host_tasks           = cur_host_tasks;
+  
   
   // Reset cur values.
   cur_bonus       = m_world->GetConfig().DEFAULT_BONUS.Get();

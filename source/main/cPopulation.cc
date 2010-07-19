@@ -4252,6 +4252,23 @@ void cPopulation::UpdateOrganismStats()
         stats.IncTaskExeCount(j, phenotype.GetLastTaskCount()[j]);
       }
       
+      if (phenotype.GetCurHostTaskCount()[j] > 0) {
+        stats.AddCurHostTask(j);
+      }
+      
+      if (phenotype.GetLastHostTaskCount()[j] > 0) {
+        stats.AddLastHostTask(j);
+      }
+      
+      if (phenotype.GetCurParasiteTaskCount()[j] > 0) {
+        stats.AddCurParasiteTask(j);
+      }
+      
+      if (phenotype.GetLastParasiteTaskCount()[j] > 0) {
+        stats.AddLastParasiteTask(j);
+      }
+      
+      
       if (phenotype.GetCurInternalTaskCount()[j] > 0) {
         stats.AddCurInternalTask(j);
         stats.AddCurInternalTaskQuality(j, phenotype.GetCurInternalTaskQuality()[j]);
