@@ -586,7 +586,7 @@
 		70447CAA0F83DBC100E1BF72 /* cBirthDemeHandler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cBirthDemeHandler.cc; sourceTree = "<group>"; };
 		7048A95E0EA417CD0087B7BD /* cASNativeObjectMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cASNativeObjectMethod.h; sourceTree = "<group>"; };
 		7048A9A40EA431140087B7BD /* cASCPPParameter_NativeObjectSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cASCPPParameter_NativeObjectSupport.h; sourceTree = "<group>"; };
-		7049F2D70A66859300640512 /* cHardwareTransSMT.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cHardwareTransSMT.cc; sourceTree = "<group>"; };
+		7049F2D70A66859300640512 /* cHardwareTransSMT.cc */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = cHardwareTransSMT.cc; sourceTree = "<group>"; tabWidth = 2; usesTabs = 1; };
 		7049F2D80A66859300640512 /* cHardwareTransSMT.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cHardwareTransSMT.h; sourceTree = "<group>"; };
 		7049F3540A66A8F500640512 /* instset-smt.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "instset-smt.cfg"; sourceTree = "<group>"; };
 		7049F3550A66A8F500640512 /* instset-transsmt.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "instset-transsmt.cfg"; sourceTree = "<group>"; };

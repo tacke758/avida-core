@@ -1148,12 +1148,14 @@ bool cHardwareTransSMT::Inst_SetMemory(cAvidaContext& ctx)
   
   if(ThreadGetOwner()->IsParasite())
   {
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-    //cout << GetLabel().AsString() << endl;
-
+		if(m_world->GetConfig().PARASITE_MEM_SPACES.Get())
+		{
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			//cout << GetLabel().AsString() << endl;
+		}
   }
 	
 
@@ -1434,13 +1436,14 @@ bool cHardwareTransSMT::Inst_Inject(cAvidaContext& ctx)
   
   if(ThreadGetOwner()->IsParasite())
   {
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-	GetLabel().AddNop(1);
-
-    //cout << GetLabel().AsString() << endl;
-
+		if(m_world->GetConfig().PARASITE_MEM_SPACES.Get())
+		{
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			GetLabel().AddNop(1);
+			//cout << GetLabel().AsString() << endl;
+		}
   }
 
   double mut_multiplier = 1.0;	
