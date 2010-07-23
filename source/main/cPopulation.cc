@@ -556,7 +556,38 @@ bool cPopulation::ActivateParasite(cOrganism* host, cBioUnit* parent, const cStr
       hw.GetInstSetID() != parent->GetMetaGenome().GetInstSetID() ||
       hw.GetNumThreads() == m_world->GetConfig().MAX_CPU_THREADS.Get()) return false;
   
+  //Handle host specific injection
+  if(m_world->GetConfig().INJECT_IS_TASK_SPECIFIC.Get())
+  {
+    bool noMatchingTasks = true;
+    cPhenotype & parentPhenotype = host->GetPhenotype();
+    
+    tArray<int> host_task_counts = target_organism->GetPhenotype().GetLastHostTaskCount();
+    tArray<int> parasite_task_counts = parentPhenotype.GetCurParasiteTaskCount();
+    
+    for (int i=1;i<host_task_counts.GetSize();i++)
+    {
+      if(host_task_counts[i] > 0 && parasite_task_counts[i] > 0)
+      {
+        //inject should succeed if there is a matching task
+        noMatchingTasks = false;
+      }
+    }
+    
+    if(noMatchingTasks)
+    {
+      double probSuccess = m_world->GetConfig().INJECT_DEFAULT_SUCCESS.Get();
+      double rand = m_world->GetRandom().GetDouble();
+      
+      cout << rand << endl;
+      
+      if (rand > probSuccess)
+        return false;
+    }
+  }
 
+
+  
   // Handle probabilistic inject failure
   if (m_world->GetConfig().INJECT_PROB_FROM_TASKS.Get()) {    
     tArray<int> task_counts = target_organism->GetPhenotype().GetCurTaskCount();

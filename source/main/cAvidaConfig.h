@@ -362,6 +362,8 @@ public:
   CONFIG_ADD_VAR(INJECT_PROB_SIGMOID, int, 1, "Inject Probs follow a psuedo-sigmoid path - only works if task probs are turned on");
   CONFIG_ADD_VAR(INHERIT_MERIT, int, 1, "Merit if inhereted from mother cell (only in asexual for now)");
   CONFIG_ADD_VAR(PARASITE_MEM_SPACES, int, 0, "Parasites use their own memory spaces instead of sharing them with the host");
+  CONFIG_ADD_VAR(INJECT_IS_TASK_SPECIFIC, int, 0, "Parasites inject based on matching task signitures");
+  CONFIG_ADD_VAR(INJECT_DEFAULT_SUCCESS, double, 0.5, "When host specificity is on, what is the probability of a non-matching parasite infecting");
 
 	
   CONFIG_ADD_GROUP(RECOMBINATION_GROUP, "Sexual Recombination and Modularity");
