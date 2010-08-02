@@ -206,13 +206,14 @@ bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
   for (int i = 0; i < num_inst_exec; i++) {
     // Setup the hardware for the next instruction to be executed.
     m_cur_thread++;
-    if (m_cur_thread >= m_threads.GetSize()) m_cur_thread = 0;
+    if (m_cur_thread >= m_threads.GetSize())
+		{
+			m_cur_thread = 0;			
+		}
 
     if(m_threads[m_cur_thread].skipExecution)
       m_cur_thread++;
-	
-    if (m_cur_thread >= m_threads.GetSize()) m_cur_thread = 0;
-    
+	    
     if (!ThreadIsRunning()) continue;
     
     AdvanceIP() = true;
@@ -634,6 +635,9 @@ bool cHardwareTransSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier
     m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: new size too small");
     return false; // (inject fails)
   }  
+	
+	//update the parasites tasks
+	m_organism->GetPhenotype().UpdateParasiteTasks();
   
   m_mem_array[mem_space_used].Resize(end_pos);
   cCPUMemory injected_code = m_mem_array[mem_space_used];
@@ -645,6 +649,8 @@ bool cHardwareTransSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier
     cBioUnit* parent = (m_threads[m_cur_thread].owner) ? m_threads[m_cur_thread].owner : m_organism;
     inject_signal = m_organism->InjectParasite(parent, GetLabel().AsString(), injected_code);
   }
+	
+
 	
   // reset the memory space that was injected
   m_mem_array[mem_space_used] = cGenome("a"); 
@@ -704,7 +710,7 @@ bool cHardwareTransSMT::ParasiteInfectHost(cBioUnit* bu)
   m_threads[thread_id].owner = bu;
   
   if(m_world->GetConfig().INJECT_IS_VIRULENT.Get())
-    m_threads[m_cur_thread].skipExecution = true;
+    m_threads[0].skipExecution = true;
   
   return true;
 }

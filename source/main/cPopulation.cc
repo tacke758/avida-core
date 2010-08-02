@@ -563,9 +563,14 @@ bool cPopulation::ActivateParasite(cOrganism* host, cBioUnit* parent, const cStr
     cPhenotype & parentPhenotype = host->GetPhenotype();
     
     tArray<int> host_task_counts = target_organism->GetPhenotype().GetLastHostTaskCount();
-    tArray<int> parasite_task_counts = parentPhenotype.GetCurParasiteTaskCount();
+    tArray<int> parasite_task_counts = parentPhenotype.GetLastParasiteTaskCount();
     
-    for (int i=1;i<host_task_counts.GetSize();i++)
+    int start = 0;
+    
+    if(m_world->GetConfig().INJECT_SKIP_FIRST.Get())
+      start += 1;
+    
+    for (int i=start;i<host_task_counts.GetSize();i++)
     {
       if(host_task_counts[i] > 0 && parasite_task_counts[i] > 0)
       {
@@ -578,9 +583,7 @@ bool cPopulation::ActivateParasite(cOrganism* host, cBioUnit* parent, const cStr
     {
       double probSuccess = m_world->GetConfig().INJECT_DEFAULT_SUCCESS.Get();
       double rand = m_world->GetRandom().GetDouble();
-      
-      cout << rand << endl;
-      
+            
       if (rand > probSuccess)
         return false;
     }
@@ -4882,7 +4885,7 @@ bool cPopulation::SaveStructuredPopulationBG(const cString& filename)
       for (int p = 0; p < parasites.GetSize(); p++) {
         cBioGroup* pg = parasites[p]->GetBioGroup("genotype");
         if (pg == NULL) continue;
-
+        
         sGroupInfo* map_entry = NULL;
         if (genotype_map.Find(pg->GetID(), map_entry)) {
           map_entry->orgs.Push(sOrgInfo(cell, 0));

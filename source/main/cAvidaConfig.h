@@ -364,7 +364,7 @@ public:
   CONFIG_ADD_VAR(PARASITE_MEM_SPACES, int, 0, "Parasites use their own memory spaces instead of sharing them with the host");
   CONFIG_ADD_VAR(INJECT_IS_TASK_SPECIFIC, int, 0, "Parasites inject based on matching task signitures");
   CONFIG_ADD_VAR(INJECT_DEFAULT_SUCCESS, double, 0.5, "When host specificity is on, what is the probability of a non-matching parasite infecting");
-
+  CONFIG_ADD_VAR(INJECT_SKIP_FIRST, int, 1, "skip the first task as an infectable one");
 	
   CONFIG_ADD_GROUP(RECOMBINATION_GROUP, "Sexual Recombination and Modularity");
   CONFIG_ADD_VAR(RECOMBINATION_PROB, double, 1.0, "probability of recombination in div-sex");

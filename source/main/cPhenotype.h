@@ -395,6 +395,8 @@ public:
   int GetLastNumErrors() const { assert(initialized == true); return last_num_errors; }
   int GetLastNumDonates() const { assert(initialized == true); return last_num_donates; }
   
+  void UpdateParasiteTasks() { last_para_tasks = cur_para_tasks; cur_para_tasks.SetAll(0); return; }
+  
   const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
   const tArray<int>& GetLastHostTaskCount() const { assert(initialized == true); return last_host_tasks; }
   const tArray<int>& GetLastParasiteTaskCount() const { assert(initialized == true); return last_para_tasks; }

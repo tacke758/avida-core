@@ -1243,7 +1243,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
   cReactionResult& result = *m_reaction_result;
   
   // Run everything through the environment.
-  bool found = env.TestOutput(ctx, result, taskctx, eff_task_count, cur_reaction_count, res_in, rbins_in); //NEED different eff_task_count and cur_reaction_count for deme resource
+  bool found = env.TestOutput(ctx, result, taskctx, eff_task_count, cur_reaction_count, res_in, rbins_in, is_parasite); //NEED different eff_task_count and cur_reaction_count for deme resource
   // If nothing was found, stop here.
   if (found == false) {
     result.Invalidate();
@@ -1273,7 +1273,9 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
         cur_para_tasks[i]++;
       }
       else
+      {
         cur_host_tasks[i]++;
+      }
       //cerr << "eff: " << eff_task_count[i] << endl;
       if(result.UsedEnvResource() == false) { cur_internal_task_count[i]++; }
     }
