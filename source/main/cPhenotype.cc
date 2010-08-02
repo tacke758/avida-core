@@ -1269,7 +1269,7 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
       eff_task_count[i]++;
       if(is_parasite)
       {
-        cout << "parasite did task: " << i << endl << endl;
+        //cout << "parasite did task: " << i << endl << endl;
         cur_para_tasks[i]++;
       }
       else
