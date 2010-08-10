@@ -793,7 +793,6 @@ bool cOrganism::Divide_CheckViable()
   
   if(single_reaction != 0)
   {
-    cout << "here" << endl;
     bool toFail = true;
     tArray<int> reactionCounts = m_phenotype.GetCurReactionCount();
     for (int i=0; i<reactionCounts.GetSize(); i++)
