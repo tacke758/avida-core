@@ -135,8 +135,7 @@ spatial resources)
 <tr>
   <td class="resall">energy</td>
   <td>
-    Is this an energy resource. Currently, only implemented for
-    spacial resources, and the energy model must be used.
+    Is this an energy resource. The energy model must be used.
     (<em>True</em> or <em>False</em>)
   </td>
   <td>
@@ -266,8 +265,8 @@ If you want a resource that exists spatially where the resource enters
 from the top and flows towards the bottom where it exits the system,
 you could use:
 <pre>
-  RESOURCE lactose:initial=100000:inflow=100:outflow=0.1:inflowx1=0:\
-  inflowx2=100:inflowy1=0:inflowy2=0:outflowx1=0:outflowx2=100:\
+  RESOURCE lactose:geometry=grid:initial=100000:inflow=100:outflow=0.1:\
+  inflowx1=0:inflowx2=100:inflowy1=0:inflowy2=0:outflowx1=0:outflowx2=100:\
   outflowy1=100:outflowy2=100:ygravity=0.5
 </pre>
 </p>
@@ -557,15 +556,16 @@ Default values are in brackets:
     Determines how to apply the bonus (i.e. the amount of the resource
     absorbed times the value of this process) to change the merit of the
     organism.
-    <br /><em>add</em>: Directly add the bonus to the current merit.
-    <br /><em>mult</em>: Multiply the current merit by the bonus (warning: if
+    <br />&nbsp;&nbsp;&nbsp;<em>add</em>: Directly add the bonus to the current merit.
+    <br />&nbsp;&nbsp;&nbsp;<em>mult</em>: Multiply the current merit by the bonus (warning: if
        the bonus is ever less than one, this will be detrimental!)
-    <br /><em>pow</em>: Multiply the current merit by 2<sup>bonus</sup>.
+    <br />&nbsp;&nbsp;&nbsp;<em>pow</em>: Multiply the current merit by 2<sup>bonus</sup>.
        this is effectively multiplicative, but positive bonuses are
        always beneficial, and negative bonuses are harmful.
-    <br /><em>enzyme</em>: Add bonus * resource / (resource + frac) to the current merit.
+    <br />&nbsp;&nbsp;&nbsp;<em>enzyme</em>: Add bonus * resource / (resource + ksubm) to the current merit.
     	This is gives a Michaelis-Menten enzyme type reward where bonus is the K<sub>cat</sub>
-    	and frac is the K<sub>m</sub>. Does not work with unlimited resources.
+    	and the K<sub>m</sub> is entered. Does not work with unlimited resources.
+    <br />&nbsp;&nbsp;&nbsp;<em>energy</em>: Add the bonus energy to the organism's energy waiting to be applied buffer.  Bonus energy can be applied on completion of a reaction, execution of the sleep/eat instruction, or when the organisms divides.  See <a href="energy_model.html">Energy Model</a> documentation for more information.
   </td>
   <td>add</td>
 </tr>
@@ -603,7 +603,7 @@ Default values are in brackets:
 <tr>
   <td class="resall">inst</td>
   <td>
-    The instruction that gets executed when this reaction gets preformed. If 
+    The instruction that gets executed when this reaction gets performed. If 
     you do not want an organism to be able to have the instruction in their
     genome, you still must put it in the instruction set file, but set its weight
     to zero. The instruction is executed at no cost to the organism.
@@ -621,6 +621,33 @@ Default values are in brackets:
     Whether this resource is consumed by reactions.
   </td>
   <td>true</td>
+</tr>
+<tr>
+  <td class="resall">phenplastbonus</td>
+  <td>
+    Specify how to handle phenotypic plasticity at run-time.
+    This option may significantly slow an Avida experiment.
+    When requested in many of the settings below (*), task
+    bonuses will be adjusted by the plasticity
+    of each organism's genotype.  Requisites will still be
+    honored, making true task completion information ambiguous.
+    <br />&nbsp;&nbsp;&nbsp;<em>default</em>: Do not attempt to use the genotype's task plasticity.
+    <br />&nbsp;&nbsp;&nbsp;*<em>nobonus</em>: Do not give a bonus to non-static tasks.
+    <br />&nbsp;&nbsp;&nbsp;*<em>fracbonus</em>: Scale the bonus by how static the task is.
+    <br />&nbsp;&nbsp;&nbsp;*<em>fullbonus</em>: Always reward a task when it is detected.
+  </td>
+  <td>
+    default
+  </td>
+</tr>
+<tr>
+  <td class="resall">ksubm</td>
+  <td>
+    K<sub>m</sub> for an enzyme reaction.
+  </td>
+  <td>
+    0.0
+  </td>
 </tr>
 </table>
 <p>&nbsp;</p>
@@ -700,6 +727,26 @@ following requisites (in any combination) are possible:
   <td>INT_MAX</td>
 </tr>
 <tr>
+  <td class="resall">min_tot_count</td>
+  <td>
+    This restriction requires that the total number of tasks performed by 
+    the organism must be at least this high before this reaction will trigger.  
+    This (along with max_tot_count) allows the user to provide different 
+    reactions depending on how many tasks an organism performs.
+  </td>
+  <td>0</td>
+</tr>
+<tr>
+  <td class="resall">max_tot_count</td>
+  <td>
+    This restriction places a cap on the number of tasks an organism can do 
+    and still trigger this reaction.  It allows the user to limit the number 
+    of tasks that will be rewarded, as well as (along with min_tot_count) provide 
+    different reactions depending on the number of tasks an organism performs.
+  </td>
+  <td>INT_MAX</td>
+</tr>
+<tr>
   <td class="resall">divide_only</td>
   <td>
     This command decides when a task will be checked, if the value is 0 the task
@@ -734,7 +781,7 @@ including only lines like:
 
 <p>
 No RESOURCE statements need be included since only the infinite resource is
-used (by default, since we don't specify another resources' name)
+used (by default, since we don't specify another resource's name)
 # To create an environment with two resources that are converted back and
 forth as tasks are performed, we might have:
 <pre>
@@ -842,7 +889,7 @@ used all reactions are active.
 </Blockquote>
 <p>
 <H3>MUTATION Command</H3>
-O.K. I don't know what the following commands does, but it is in the code:
+O.K. I don't know what the following command does, but it is in the code:
 </P>
 <pre>
   <a name="MUTATION">MUTATION</a> name trigger scope type rate

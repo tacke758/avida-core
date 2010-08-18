@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tArray.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -46,7 +46,7 @@ template <class T> class tArray
 private:
   T* m_data;  // Data Elements
   int m_size; // Number of Elements
-
+  
 public:
   typedef T* iterator; //!< STL-compatible iterator.
   typedef const T* const_iterator; //!< STL-compatible const_iterator.
@@ -167,6 +167,18 @@ public:
     m_data[new_pos] = value;
     return new_pos;
   }
+  
+  void Swap(int idx1, int idx2)
+  {
+    assert(idx1 >= 0);     // Lower Bounds Error
+    assert(idx1 < m_size); // Upper Bounds Error
+    assert(idx2 >= 0);     // Lower Bounds Error
+    assert(idx2 < m_size); // Upper Bounds Error
+
+    T v = m_data[idx1];
+    m_data[idx1] = m_data[idx2];
+    m_data[idx2] = v;
+  }
 
   void SetAll(const T& value)
   {
@@ -204,6 +216,64 @@ public:
   void serialize(Archive & a, const unsigned int version){
     a.SplitLoadSave(*this, version);
   } 
+
+  // wrapper for the c++ qsort routine
+  
+  void QSort(int ( * comparator ) ( const void *, const void * ))
+  {
+    qsort(m_data, m_size, sizeof(m_data[0]), comparator);
+  }
+  
+  
+  // @blw iterative mergesort, pretty much unoptimized
+  // exists so as not to depend on qsort (which may differ / break consistency)
+  // and because it is pretty easy to write for blw
+  void MergeSort(int ( * comparator ) ( const void *, const void * ))
+  {
+    /* Blocks of size blocksize are sorted: merge each pair into a sorted block */
+    for (int blocksize = 1; blocksize < m_size; blocksize *= 2) {
+      for (int block = 0; block < m_size / blocksize; block += 2) {
+        
+        // merge sorted blocks into sorted result block
+        int leftstart = block * blocksize;
+        const int leftend = (block + 1) * blocksize;
+        int rightstart = (block + 1) * blocksize;
+        const int rightend = m_size < (block + 2) * blocksize ? m_size : (block + 2) * blocksize;
+        int resultindex = 0;
+        tArray result(rightend - leftstart);
+        
+        while (leftstart < leftend && rightstart < rightend) {
+          if (comparator(&(m_data[leftstart]), &(m_data[rightstart])) <= 0) {
+            result[resultindex] = m_data[leftstart];
+            leftstart++;
+          }
+          else {
+            result[resultindex] = m_data[rightstart];
+            rightstart++;
+          }
+          resultindex++;
+        }
+        
+        while (leftstart < leftend) {
+          result[resultindex] = m_data[leftstart];
+          leftstart++;
+          resultindex++;
+        }  
+        
+        while (rightstart < rightend) {
+          result[resultindex] = m_data[rightstart];
+          rightstart++;
+          resultindex++;
+        }
+        
+        // replace blocks with result block
+        leftstart = block * blocksize;
+        for (int i = leftstart; i < rightend; i++) {
+          m_data[i] = result[i - leftstart];
+        }
+      }
+    }
+  }
 
 };
 

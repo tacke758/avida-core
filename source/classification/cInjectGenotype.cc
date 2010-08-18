@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "inject_genotype.cc" prior to 11/15/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -98,11 +98,7 @@ bool cInjectGenotype::OK()
 {
   bool ret_value = true;
 
-  // Check the components...
-
-  if (!genome.OK()) ret_value = false;
-
-  // And the statistics
+  // Check statistics
   assert( id_num >= 0 && num_injected >= 0 && total_injected >= 0 );
   assert( birth_data.update_born >= -1);
 

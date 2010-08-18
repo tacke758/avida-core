@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/2/07.
- *  Copyright 2007 Michigan State University. All rights reserved.
+ *  Copyright 2007-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -39,13 +39,27 @@
 # pragma warning( disable : 4355 )
 #endif
 
-#if defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__) || defined (__NetBSD__) || defined(_AIX)
+#if defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__) || defined (__NetBSD__) || defined(_AIX) || defined(__FreeBSD__)
 # define AVIDA_PLATFORM_UNIX 1
 # define AVIDA_PLATFORM_THREADS 1
 #endif
 
+#if defined(__FreeBSD__)
+# define AVIDA_PLATFORM_FREEBSD 1
+#endif
+
 #if defined(__APPLE__)
 # define AVIDA_PLATFORM_APPLE 1
+#endif
+
+#if defined(__hppa__) || defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+    (defined(__MIPS__) && defined(__MISPEB__)) || defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
+    defined(__sparc__)
+# define AVIDA_PLATFORM_BIG_ENDIAN 1
+# define AVIDA_PLATFORM_LITTLE_ENDIAN 0
+#else
+# define AVIDA_PLATFORM_BIG_ENDIAN 0
+# define AVIDA_PLATFORM_LITTLE_ENDIAN 1
 #endif
 
 

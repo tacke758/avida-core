@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "schedule.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -32,16 +32,15 @@
 # endif
 #endif
 
-
-/**
- * This class is the base object to handle time-slicing. All other schedulers
- * are derived from this class.  This is a pure virtual class.
- *
- **/
-
+class cDeme;
 class cMerit;
 class cChangeList;
 
+/**
+ * This class is the base object to handle time-slicing. All other schedulers
+ * are derived from this class.  This is a virtual class.
+ *
+ **/
 class cSchedule
 {
 #if USE_tMemTrack
@@ -61,7 +60,7 @@ public:
   virtual ~cSchedule();
 
   virtual bool OK() { return true; }
-  virtual void Adjust(int item_id, const cMerit & merit) { ; }
+  virtual void Adjust(int item_id, const cMerit& merit, int deme_id = 0) = 0;
   virtual int GetNextID() = 0;
   virtual double GetStatus(int id) { return 0.0; }
   void SetChangeList(cChangeList *change_list);

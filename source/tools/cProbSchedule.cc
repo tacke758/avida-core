@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "prob_schedule.cc" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -26,9 +26,10 @@
 #include "cProbSchedule.h"
 
 #include "cChangeList.h"
+#include "cDeme.h"
 #include "cMerit.h"
 
-// The larger merits cause problems here; things need to be re-thought out.
+// The larger merits cause problems here; avoid very large or very small merits
 
 int cProbSchedule::GetNextID()
 {
@@ -37,7 +38,8 @@ int cProbSchedule::GetNextID()
   return chart.FindPosition(position);
 }
 
-void cProbSchedule::Adjust(int item_id, const cMerit& item_merit)
+
+void cProbSchedule::Adjust(int item_id, const cMerit& item_merit, int deme_id)
 {
   if (cChangeList *change_list = GetChangeList()) {
     change_list->MarkChange(item_id);

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -74,6 +74,10 @@ public:
 
   // This method will modify the instruction triggered by this process
   bool ModifyInst(int inst_id, int process_num = 0); 
+
+  // These methods will modify the min/max count of the requisite for this process
+  bool SetMinTaskCount(int min_count, int requisite_num = 0); 
+  bool SetMaxTaskCount(int max_count, int requisite_num = 0); 
 
   double GetValue(int process_num = 0);
 };

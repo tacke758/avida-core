@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tDictionary.hh" prior to 10/11/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -65,18 +65,22 @@ public:
   inline tDictionary(int in_hash_size) : m_hash(in_hash_size) { ; }
   
   // The following methods just call the encapsulated tHashTable
-  inline bool OK() { return m_hash.OK(); }
-  inline int GetSize() { return m_hash.GetSize(); }
+  inline bool OK() const { return m_hash.OK(); }
+  inline int GetSize() const { return m_hash.GetSize(); }
   inline void Add(const cString& name, T data) { m_hash.Add(name, data); }
   inline void SetValue(const cString& name, T data) { m_hash.SetValue(name, data); }
   inline bool HasEntry(const cString& name) const { return m_hash.HasEntry(name); }
   inline bool Find(const cString& name, T& out_data) const { return m_hash.Find(name, out_data); }
-  inline T Remove(const cString& name) { return m_hash.Remove(name); }
+  inline void Remove(const cString& name) { m_hash.Remove(name); }
+  inline bool Remove(const cString& name, T& data) { return m_hash.Remove(name, data); }
   inline void SetHash(int _hash) { m_hash.SetTableSize(_hash); }
   inline void AsLists(tList<cString>& name_list, tList<T>& value_list) const {
     m_hash.AsLists(name_list, value_list);
   }
   inline void GetKeys(tList<cString>& names) const { m_hash.GetKeys(names); }
+  inline void GetKeys(tArray<cString>& names) const { m_hash.GetKeys(names); }
+  inline void GetValues(tList<T>& values) const { m_hash.GetValues(values); }
+  inline void GetValues(tArray<T>& values) const { m_hash.GetValues(values); }
   
   // This function will take an input string and load its value into the
   // dictionary; it will only work for types that cStringUtil can convert to.
@@ -148,7 +152,8 @@ public:
   inline bool Find(const cString& name, T& out_data) const {
     cString uname(name); uname.ToUpper(); return m_hash.Find(uname, out_data);
   }
-  inline T Remove(const cString& name) { cString uname(name); uname.ToUpper(); return m_hash.Remove(uname); }
+  inline void Remove(const cString& name) { cString uname(name); uname.ToUpper(); m_hash.Remove(uname); }
+  inline bool Remove(const cString& name, T& data) { cString uname(name); uname.ToUpper(); return m_hash.Remove(uname, data); }
   
 
   // Fast Accessor Methods - Calling method assumes responsibility for UCasing the key

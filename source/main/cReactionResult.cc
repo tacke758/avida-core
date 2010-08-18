@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_result.cc" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -32,16 +32,12 @@ cReactionResult::cReactionResult(const int num_resources,
   : resources_consumed(num_resources)
   , resources_produced(num_resources)
   , resources_detected(num_resources)
+  , internal_resources_consumed(num_resources)
   , tasks_done(num_tasks)
   , tasks_quality(num_tasks)
   , tasks_value(num_tasks)
   , reactions_triggered(num_reactions)
   , reaction_add_bonus(num_reactions)
-  , energy_add(0.0)
-  , bonus_add(0.0)
-  , bonus_mult(1.0)
-  , insts_triggered(0)
-  , lethal(false)
   , active_reaction(false)
 {
 }
@@ -55,21 +51,39 @@ void cReactionResult::ActivateReaction()
   resources_consumed.SetAll(0.0);
   resources_produced.SetAll(0.0);
   resources_detected.SetAll(-1.0);
+  internal_resources_consumed.SetAll(0.0);
   tasks_done.SetAll(false);
   tasks_quality.SetAll(0.0);
   tasks_value.SetAll(0.0);
   reactions_triggered.SetAll(false);
   reaction_add_bonus.SetAll(0.0);
+  task_plasticity.SetAll(0.0);
+  energy_add = 0.0;
+  bonus_add = 0.0;
+  bonus_mult = 1.0;
+  germline_add = 0.0;
+  germline_mult = 1.0;
+  insts_triggered.Resize(0);
+  lethal = false;
+  sterilize = false;
+  used_env_resource = true;
+  deme_add_bonus = 0.0;
+  deme_mult_bonus = 1.0;
+  active_deme_reaction = false;
 
   // And finally note that this is indeed already active.
   active_reaction = true;
 }
 
 
-void cReactionResult::Consume(int id, double num)
+void cReactionResult::Consume(int id, double num, bool is_env_resource)
 {
   ActivateReaction();
-  resources_consumed[id] += num;
+  if(is_env_resource) { resources_consumed[id] += num; }
+  else { 
+    used_env_resource = false; 
+    internal_resources_consumed[id] += num;
+  }
 }
 
 
@@ -91,6 +105,13 @@ void cReactionResult::Lethal(bool flag)
  ActivateReaction();
  lethal = flag;
 }
+
+void cReactionResult::Sterilize(bool flag)
+{
+  ActivateReaction();
+  sterilize = flag;
+}
+
 
 void cReactionResult::MarkTask(int id, const double quality, const double value)
 {
@@ -127,6 +148,33 @@ void cReactionResult::MultBonus(double value)
   bonus_mult *= value;
 }
 
+void cReactionResult::AddDemeBonus(double value)
+{
+  ActivateReaction();
+  active_deme_reaction = true;
+  deme_add_bonus += value;
+}
+
+void cReactionResult::MultDemeBonus(double value)
+{
+  ActivateReaction();
+  active_deme_reaction = true;
+  deme_mult_bonus *= value;
+}
+
+void cReactionResult::AddGermline(double value)
+{
+  ActivateReaction();
+  germline_add += value;
+}
+
+void cReactionResult::MultGermline(double value)
+{
+  ActivateReaction();
+  germline_mult *= value;
+}
+
+
 void cReactionResult::AddInst(int id)
 {
   insts_triggered.Push(id);
@@ -151,10 +199,22 @@ double cReactionResult::GetDetected(int id)
   return resources_detected[id];
 }
 
+double cReactionResult::GetInternalConsumed(int id)
+{
+  if (GetActive() == false) return 0.0;
+  return internal_resources_consumed[id];
+}
+
 bool cReactionResult::GetLethal()
 {
   if (GetActive() == false) return false;
   return lethal;
+}
+
+bool cReactionResult::GetSterilize()
+{
+  if (GetActive() == false) return false;
+  return sterilize;
 }
 
 bool cReactionResult::ReactionTriggered(int id)

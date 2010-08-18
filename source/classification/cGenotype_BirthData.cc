@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype_birth_data.cc" prior to 11/30/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -29,6 +29,10 @@ cGenotype_BirthData::cGenotype_BirthData(int in_update_born)
   : update_born(in_update_born)
   , parent_distance(-1)
   , gene_depth(0)
+  , exec_born(-1)
+  , generation_born(-1)
+  , birth_org_id(-1)
+  , death_org_id(-1)
   , update_deactivated(-1)
   , parent_genotype(NULL)
   , parent_species(NULL)

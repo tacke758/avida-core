@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "avida.hh" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -28,13 +28,16 @@
 
 class cAvidaConfig;
 class cString;
-
+class cStringList;
 
 namespace Avida
 {
+  void Initialize();
+  
   cString GetVersion();
   void PrintVersionBanner();
   
+  void ProcessArgs(cStringList &argv, cAvidaConfig* cfg);
   void ProcessCmdLineArgs(int argc, char* argv[], cAvidaConfig* cfg);
 
   //! This function properly shuts down the Avida program.

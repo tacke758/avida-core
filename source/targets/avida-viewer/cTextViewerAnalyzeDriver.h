@@ -2,7 +2,7 @@
  *  cTextViewerAnalyzeDriver.h
  *  Avida
  *
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -49,6 +49,7 @@ public:
   // Driver Actions
   void SignalBreakpoint() { return; }
   void SetDone() { m_done = true; }
+  void SetPause() { return; }
   
   void RaiseException(const cString& in_string);
   void RaiseFatalException(int exit_code, const cString& in_string);

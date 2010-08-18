@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "resource_count.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -41,6 +41,9 @@
 #ifndef defs_h
 #include "defs.h"
 #endif
+#ifndef nGeometry_h
+#include "nGeometry.h"
+#endif
 
 class cResourceCount
 {
@@ -57,6 +60,7 @@ private:
   mutable tArray<double> curr_grid_res_cnt;
   mutable tArray< tArray<double> > curr_spatial_res_cnt;
   int verbosity;
+  tArray< tArray<int> > cell_lists;	
 
   // Setup the update process to use lazy evaluation...
   mutable double update_time;     // Portion of an update compleated...
@@ -84,7 +88,12 @@ public:
              int in_inflowX1, int in_inflowX2, int in_inflowY1, int in_inflowY2,
              int in_outflowX1, int in_outflowX2, int in_outflowY1, 
              int in_outflowY, tArray<cCellResource> *in_cell_list_ptr,
-             int verbosity_level);
+             tArray<int> *in_cell_id_list_ptr, int verbosity_level);
+             
+  int GetResourceCountID(const cString& res_name);
+  void SetInflow(const cString& name, const double _inflow);
+  void SetDecay(const cString& name, const double _decay);
+  
   void Update(double in_time);
 
   int GetSize(void) const { return resource_count.GetSize(); }
@@ -92,7 +101,9 @@ public:
   const tArray<double>& GetResources() const;
   const tArray<double>& GetCellResources(int cell_id) const;
   const tArray<int>& GetResourcesGeometry() const;
+  int GetResourceGeometry(int res_id) const { return geometry[res_id]; }
   const tArray<tArray<double> >& GetSpatialRes();
+  const tArray<tArray<int> >& GetCellIdLists() const { return cell_lists; }
   void Modify(const tArray<double>& res_change);
   void Modify(int id, double change);
   void ModifyCell(const tArray<double> & res_change, int cell_id);
@@ -100,8 +111,12 @@ public:
   double Get(int id) const;
   void ResizeSpatialGrids(int in_x, int in_y);
   cSpatialResCount GetSpatialResource(int id) { return spatial_resource_count[id]; }
-  void ReinitializeResources();
-  cString GetResName(int id) { return resource_name[id]; }
+  const cSpatialResCount& GetSpatialResource(int id) const { return spatial_resource_count[id]; }
+  void ReinitializeResources(double additional_resource);
+  double GetInitialResourceValue(int resourceID) const { return resource_initial[resourceID]; }
+  const cString& GetResName(int id) const { return resource_name[id]; }
+  bool IsSpatial(int id) const { return ((geometry[id] != nGeometry::GLOBAL) && (geometry[id] != nGeometry::PARTIAL)); }
+  int GetResourceByName(cString name) const;
 };
 
 

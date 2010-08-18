@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "prob_schedule.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -36,13 +36,13 @@
 #include "cWeightedIndex.h"
 #endif
 
+class cDeme;
+class cMerit;
+
 /**
  * The Probiblistic Schedule has the chance for an item to
  * be scheduled proportional to the merit of that item.
  **/
-
-class cMerit;
-
 class cProbSchedule : public cSchedule
 {
 private:
@@ -57,7 +57,8 @@ public:
   cProbSchedule(int num_cells, int seed) : cSchedule(num_cells), m_rng(seed), chart(num_cells) { ; }
   ~cProbSchedule() { ; }
 
-  void Adjust(int item_id, const cMerit& merit);
+  virtual void Adjust(int item_id, const cMerit& merit, int deme_id = 0);
+
   int GetNextID();
 };
 

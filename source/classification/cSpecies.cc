@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "species.cc" prior to 11/30/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -155,7 +155,6 @@ int cSpecies::Compare(const cGenome & test_genome, int max_fail_count)
 bool cSpecies::OK()
 {
   assert(id_num >= 0);  // Species has negative ID value!
-  assert(genome.OK());  // Species genome not registering as OK!
 
   // Assert valid statistics in species.
   assert(total_organisms >= 0 && total_genotypes >= 0 &&

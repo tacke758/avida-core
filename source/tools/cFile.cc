@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "file.cc" prior to 12/7/05.
- *  Copyright 1999-1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -53,6 +53,7 @@ bool cFile::Open(cString _fname, ios::openmode flags)
     if (err_id == EACCES) error_desc = "Access denied";
     else if (err_id == EINVAL) error_desc = "Invalid open flag or access mode";
     else if (err_id == ENOENT) error_desc = "File or path not found";
+    else if (_fname.Find('~') != -1) error_desc = "Tildes do not get expanded";
 
     // Print the error.
     cerr << "Error: Unable to open file '" << _fname << "' : " << error_desc << endl;
@@ -79,12 +80,9 @@ bool cFile::Close()
 
 bool cFile::ReadLine(cString & in_string)
 {
-  char cur_line[MAX_STRING_LENGTH];
-  cur_line[0]='\0';
-  fp.getline(cur_line, MAX_STRING_LENGTH);
-  if( fp.bad() ){
-    return false;
-  }
-  in_string = cur_line;
+  std::string linebuf;
+  std::getline(fp, linebuf);
+  if (fp.bad()) return false;
+  in_string = linebuf.c_str();
   return true;
 }

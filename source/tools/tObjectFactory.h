@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 6/10/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -389,7 +389,8 @@ public:
   bool Unregister(const cString& key)
   {
     cMutexAutoLock lock(m_mutex);
-    CreateObjectFunction func = m_create_funcs.Remove(key);
+    CreateObjectFunction func = NULL;
+    m_create_funcs.Remove(key, func);
     return (func != NULL);
   }
   

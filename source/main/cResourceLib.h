@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "resource_lib.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -31,26 +31,29 @@
 #endif
 
 class cResource;
+class cResourceHistory;
 class cString;
 
 class cResourceLib
 {
 private:
-  tArray<cResource*> resource_array;
+  tArray<cResource*> m_resource_array;
+  mutable cResourceHistory* m_initial_levels;
   
   cResourceLib(const cResourceLib&); // @not_implemented
   cResourceLib& operator=(const cResourceLib&); // @not_implemented
   
 public:
-  cResourceLib() { ; }
+  cResourceLib() : m_initial_levels(NULL) { ; }
   ~cResourceLib();
 
-  int GetSize() const { return resource_array.GetSize(); }
+  int GetSize() const { return m_resource_array.GetSize(); }
 
   cResource* AddResource(const cString& res_name);
   cResource* GetResource(const cString& res_name) const;
-  cResource* GetResource(int id) const;
-  bool DoesResourceExist(const cString & res_name);
+  inline cResource* GetResource(int id) const { return m_resource_array[id]; }
+  const cResourceHistory& GetInitialResourceLevels() const;
+  bool DoesResourceExist(const cString& res_name);
 };
 
 

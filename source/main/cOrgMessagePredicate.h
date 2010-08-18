@@ -24,13 +24,35 @@
 #ifndef cOrgMessagePredicate_h
 #define cOrgMessagePredicate_h
 
+#include "cDeme.h"
+#include "cDemeCellEvent.h"
+#include "cOrganism.h"
+#include "cOrgMessage.h"
+#include "cPopulation.h"
+#include "cStats.h"
+
 #include <iostream>
 #include <functional>
 #include <set>
+#include <vector>
+#include <numeric>
 
-#include "cOrgMessage.h"
-#include "cOrganism.h"
 
+/*! An STL-compatible adaptable binary function to do fun things with maps. */
+template <typename InputIterator, typename BinaryFunction>
+struct apply2nd {
+	typedef typename InputIterator::value_type::second_type first_argument_type;
+	typedef typename InputIterator::value_type second_argument_type;
+	typedef typename BinaryFunction::result_type result_type;
+	
+	apply2nd() : _op(BinaryFunction()) { }
+	
+	result_type operator()(first_argument_type& x, second_argument_type& y) {
+		return _op(x, y.second);
+	}
+	
+	BinaryFunction _op;
+};
 
 /*! \brief An STL-compatible predicate on cOrgMessages.  The intent here is to
 provide a straightforward way to track arbitrary messages *wherever* they appear
@@ -40,10 +62,86 @@ struct cOrgMessagePredicate : public std::unary_function<cOrgMessage, bool>
 {
   virtual ~cOrgMessagePredicate() { }
   virtual bool operator()(const cOrgMessage& msg) = 0;
-  virtual void Print(std::ostream& out) { }
+  virtual void Print(int update, std::ostream& out) { }
   virtual void Reset() { }
+  virtual bool PreviouslySatisfied() = 0;
+  virtual cString GetName() = 0;
+  virtual void UpdateStats(cStats& stats) {}
+  virtual cDemeCellEvent* GetEvent() { return NULL; }
 };
 
+
+struct cOrgMessagePred_CountDemeMessages : public cOrgMessagePredicate {
+	typedef std::map<int, int> MessageCounts; //!< Typedef to track messages sent per-deme.
+	
+	cOrgMessagePred_CountDemeMessages() { }
+	~cOrgMessagePred_CountDemeMessages() { }
+	
+  virtual bool operator()(const cOrgMessage& msg) {
+		// Make sure we're not running in the test cpu (is that even possible here?):
+		cDeme* deme = msg.GetSender()->GetOrgInterface().GetDeme();
+		if(deme == 0) { return false; }
+		
+		// Now, we're just keeping a count of the messages being sent in each deme.
+		++m_msg_counts[deme->GetID()];		
+		return true;
+	}
+	
+  virtual void Print(int update, std::ostream& out) {
+		out << update << " COUNT " << 
+		std::accumulate(m_msg_counts.begin(), m_msg_counts.end(), 0, apply2nd<MessageCounts::iterator, plus<int> >()) << " ";
+		for(MessageCounts::iterator i=m_msg_counts.begin(); i!=m_msg_counts.end(); ++i) {
+			out << " " << i->second;
+		}
+		out << std::endl;
+	}
+  
+	virtual void Reset() { 
+		m_msg_counts.clear();
+	}
+	
+	// What do these do, and why are they in the base struct?
+  virtual bool PreviouslySatisfied() { return false; }
+  virtual cString GetName() { return "cOrgMessagePred_CountDemeMessages"; }
+  virtual void UpdateStats(cStats& stats) { }
+  virtual cDemeCellEvent* GetEvent() { return NULL; }
+	
+	int GetMessageCount(const cDeme& deme) {
+		return m_msg_counts[deme.GetID()];
+	}
+	
+	MessageCounts m_msg_counts; //!< Map of deme ID to message counts.
+};
+
+
+/*! A predicate that tracks all sent messages. */
+struct cOrgMessagePred_AllData : public cOrgMessagePredicate
+{
+	typedef std::vector<cOrgMessage> t_message_list;
+	
+	cOrgMessagePred_AllData(cWorld* world) : m_world(world) { }
+	virtual ~cOrgMessagePred_AllData() { }
+
+  virtual bool operator()(const cOrgMessage& msg) {
+		m_msgs.push_back(msg);
+		return true;
+	}
+  
+	virtual void Print(int update, std::ostream& out) {
+		for(t_message_list::iterator i=m_msgs.begin(); i!=m_msgs.end(); ++i) {
+			out << update << " ALL " << i->GetData() << " " << i->GetLabel() << endl;
+		}
+	}
+	
+  virtual void Reset() { m_msgs.clear(); }
+  virtual bool PreviouslySatisfied() { return false; }
+  virtual cString GetName() { return "cOrgMessagePred_All"; }
+  virtual void UpdateStats(cStats& stats) { }
+  virtual cDemeCellEvent* GetEvent() { return NULL; }
+	
+	cWorld* m_world;
+	t_message_list m_msgs;
+};
 
 /*! A predicate that returns true and tracks the sending cell_id for messages
 that contain the same data field as this predicate was constructed with.
@@ -59,7 +157,7 @@ struct cOrgMessagePred_DataEQU : public cOrgMessagePredicate
     return true;
   }
   
-  virtual void Print(std::ostream& out) { 
+  virtual void Print(int update, std::ostream& out) { 
     out << "data==" << m_data << ":{";
     for(std::set<int>::iterator i=m_cell_ids.begin(); i!=m_cell_ids.end(); ++i) {
       out << *i << ",";
@@ -94,7 +192,7 @@ struct cOrgMessagePred_SinkReceiverEQU : public cOrgMessagePredicate {
     return true;
   }
   
-  virtual void print(std::ostream& out) { 
+  virtual void print(int update, std::ostream& out) { 
 //    cPopulationCell::t_id_map& ids = cPopulationCell::GetRandomCellIDMap();
 //    int badMSGs = 0;
 //    
@@ -124,6 +222,188 @@ struct cOrgMessagePred_SinkReceiverEQU : public cOrgMessagePredicate {
   unsigned int m_data;
   std::set<int> m_cell_ids;
   std::set<int> m_cell_ids_total_good;
+};
+
+
+/*! A predicate that returns true if a demeCellEvent has been received but the base station
+*/
+struct cOrgMessagePred_EventReceivedCenter : public cOrgMessagePredicate {
+  cOrgMessagePred_EventReceivedCenter(cDemeCellEvent* event, int base_station, int times) : 
+  m_base_station(base_station)
+  , m_event_received(false)
+  , m_stats_updated(false)
+  , m_event(event)
+  , m_total_times(times)
+  , m_current_times(0) { }
+  
+  ~cOrgMessagePred_EventReceivedCenter() { }
+  
+  virtual bool operator()(const cOrgMessage& msg) {
+    int deme_id = msg.GetSender()->GetOrgInterface().GetDemeID();
+    
+    if(deme_id != m_event->GetDeme()->GetDemeID() || m_event->IsDead()) {
+      return false;
+    }
+    
+    unsigned int eventID = m_event->GetEventID();
+    
+    if(m_event->IsActive() && eventID != 0 &&
+       (eventID == msg.GetData() ||
+        eventID == msg.GetLabel())) {
+      m_cell_ids.insert(msg.GetSender()->GetCellID());
+
+      if(m_base_station == msg.GetReceiver()->GetCellID()) {
+        m_current_times++;
+        if(m_current_times >= m_total_times) {
+          m_event_received = true;
+        }
+      }
+    }
+    return m_event_received;
+  }
+  
+  //need to print update!!!
+  virtual void Print(int update, std::ostream& out) {
+    if(m_event->IsDead()) {
+      return;
+    }
+
+    out << m_event->GetEventID() << " [ ";
+    for(std::set<int>::iterator i=m_cell_ids.begin(); i!=m_cell_ids.end(); i++) {
+      out << *i << " ";
+    }
+    out << "]\n";
+    
+    m_cell_ids.clear();
+  }
+  
+  virtual void Reset() { 
+    m_event_received = false;
+    m_stats_updated = false;
+    m_current_times = 0;
+  }
+
+  virtual bool PreviouslySatisfied() {
+    return m_event_received;
+  }
+
+  virtual cString GetName() {
+    return "EventReceivedCenter";
+  }
+
+  virtual void UpdateStats(cStats& stats) {
+    if(m_event_received && !m_stats_updated) {
+      int eventCell = m_event->GetNextEventCellID();
+      while(eventCell != -1) {
+        stats.IncPredSat(eventCell);
+        eventCell = m_event->GetNextEventCellID();
+      }
+      m_stats_updated = true;
+    }
+  }
+  
+  cDemeCellEvent* GetEvent() { return m_event; }
+  
+  int m_base_station;
+  bool m_event_received;
+  bool m_stats_updated;
+  cDemeCellEvent* m_event;
+  std::set<int> m_cell_ids;
+  int m_total_times;
+  int m_current_times;
+};
+
+/*! A predicate that returns true if a demeCellEvent has been received but the base station
+*/
+struct cOrgMessagePred_EventReceivedLeftSide : public cOrgMessagePredicate {
+  cOrgMessagePred_EventReceivedLeftSide(cDemeCellEvent* event, cPopulation& population, int times) :
+  pop(population)
+  , m_event_received(false)
+  , m_stats_updated(false)
+  , m_event(event)
+  , m_total_times(times)
+  , m_current_times(0){ }
+  
+  ~cOrgMessagePred_EventReceivedLeftSide() { }
+  
+  virtual bool operator()(const cOrgMessage& msg) {
+    int deme_id = msg.GetSender()->GetOrgInterface().GetDemeID();
+    
+    if(deme_id != m_event->GetDeme()->GetDemeID() || m_event->IsDead()) {
+      return false;
+    }
+
+    if(m_event->IsActive() && 
+       ((unsigned int)m_event->GetEventID() == msg.GetData() ||
+        (unsigned int)m_event->GetEventID() == msg.GetLabel())) {
+      m_cell_ids.insert(msg.GetSender()->GetCellID());
+      
+      // find receiver coordinates
+      cOrganism* receiver = msg.GetReceiver();
+      int absolute_cell_ID = receiver->GetCellID();
+      int deme_id = receiver->GetOrgInterface().GetDemeID();
+      std::pair<int, int> pos = pop.GetDeme(deme_id).GetCellPosition(absolute_cell_ID);  
+
+      // does receiver have x cordinate of zero
+      if(pos.first == 0) {
+        m_current_times++;
+        if(m_current_times >= m_total_times) {
+          m_event_received = true;
+        }
+      }
+    }
+    return m_event_received;
+  }
+  
+  virtual void Print(int update, std::ostream& out) {
+    if(m_event->IsDead()) {
+      return;
+    }
+
+    out << m_event->GetEventID() << " [ ";
+    for(std::set<int>::iterator i=m_cell_ids.begin(); i!=m_cell_ids.end(); i++) {
+      out << *i << " ";
+    }
+    out << "]\n";
+    
+    m_cell_ids.clear();
+  }
+  
+  virtual void Reset() { 
+    m_event_received = false;
+    m_stats_updated = false;
+    m_current_times = 0;
+    m_cell_ids.clear();
+  }
+
+  virtual bool PreviouslySatisfied() {
+    return m_event_received;
+  }
+
+  virtual cString GetName() {
+    return "EventReceivedLeftSide";
+  }
+
+  virtual void UpdateStats(cStats& stats) {
+    if(m_event_received && !m_stats_updated) {
+      int eventCell = m_event->GetNextEventCellID();
+      while(eventCell != -1) {
+        stats.IncPredSat(eventCell);
+        eventCell = m_event->GetNextEventCellID();
+      }
+      m_stats_updated = true;
+    }
+  }
+  
+  cDemeCellEvent* GetEvent() { return m_event; }
+  
+  cPopulation& pop;
+  bool m_event_received;
+  bool m_stats_updated;
+  cDemeCellEvent* m_event;
+  std::set<int> m_cell_ids;
+  int m_total_times;
+  int m_current_times;
 };
 
 

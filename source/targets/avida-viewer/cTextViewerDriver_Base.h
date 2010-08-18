@@ -2,7 +2,7 @@
  *  cTextViewerDriver_Base.h
  *  Avida
  *
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -43,6 +43,7 @@ protected:
   cWorld* m_world;
   cView_Base* m_view;
   bool m_done;  // This is set to true when run should finish.
+  bool m_pause;
 
   std::stringstream out_stream;
   std::stringstream err_stream;

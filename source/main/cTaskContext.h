@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/29/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -37,8 +37,8 @@
 #ifndef tHashTable_h
 #include "tHashTable.h"
 #endif
-#ifndef cOrganism_h
-#include "cOrganism.h"
+#ifndef tSmartArray_h
+#include "tSmartArray.h"
 #endif
 
 class cTaskEntry;
@@ -48,13 +48,12 @@ class cTaskState;
 class cTaskContext
 {
 private:
-  cOrgInterface* m_interface;
+  cOrganism* m_organism;
   const tBuffer<int>& m_input_buffer;
   const tBuffer<int>& m_output_buffer;
   const tList<tBuffer<int> >& m_other_input_buffers;
   const tList<tBuffer<int> >& m_other_output_buffers;
-  bool m_net_valid;
-  int m_net_completed;
+  const tSmartArray<int>& m_ext_mem;
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
@@ -65,38 +64,34 @@ private:
 
   cTaskEntry* m_task_entry;
   tHashTable<void*, cTaskState*>* m_task_states;
-
-  cOrganism* m_organism;
+  
   
 public:
-  cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
+  cTaskContext(cOrganism* organism, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
-               bool in_net_valid, int in_net_completed, bool in_on_divide = false,
-               tBuffer<int>* in_received_messages = NULL, cOrganism* org=0)
-    : m_interface(interface)
+               const tSmartArray<int>& ext_mem, bool in_on_divide = false,
+               tBuffer<int>* in_received_messages = NULL)
+    : m_organism(organism)
     , m_input_buffer(inputs)
     , m_output_buffer(outputs)
     , m_other_input_buffers(other_inputs)
     , m_other_output_buffers(other_outputs)
-    , m_net_valid(in_net_valid)
-    , m_net_completed(in_net_completed)
+    , m_ext_mem(ext_mem)
     , m_received_messages(in_received_messages)
     , m_logic_id(0)
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
-    , m_organism(org)
   {
 	  m_task_value = 0;
   }
   
-  inline int GetInputAt(int index) { return m_interface->GetInputAt(index); }
+  inline cOrganism* GetOrganism() { return m_organism; }
   inline const tBuffer<int>& GetInputBuffer() { return m_input_buffer; }
   inline const tBuffer<int>& GetOutputBuffer() { return m_output_buffer; }
   inline const tList<tBuffer<int> >& GetNeighborhoodInputBuffers() { return m_other_input_buffers; }
   inline const tList<tBuffer<int> >& GetNeighborhoodOutputBuffers() { return m_other_output_buffers; }
-  inline bool NetIsValid() const { return m_net_valid; }
-  inline int GetNetCompleted() const { return m_net_completed; }
+  inline const tSmartArray<int>& GetExtendedMemory() const { return m_ext_mem; }
   inline tBuffer<int>* GetReceivedMessages() { return m_received_messages; }
   inline int GetLogicId() const { return m_logic_id; }
   inline void SetLogicId(int v) { m_logic_id = v; }
@@ -106,10 +101,8 @@ public:
   
   inline void SetTaskEntry(cTaskEntry* in_entry) { m_task_entry = in_entry; }
   inline cTaskEntry* GetTaskEntry() { return m_task_entry; }
-  
+    
   inline void SetTaskStates(tHashTable<void*, cTaskState*>* states) { m_task_states = states; }
-
-  inline cOrganism* GetOrganism() { return m_organism; }
   
   inline cTaskState* GetTaskState()
   {

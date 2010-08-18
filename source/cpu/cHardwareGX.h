@@ -2,7 +2,7 @@
  *  cHardwareGX.h
  *  Avida
  *
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -100,7 +100,7 @@ public:
   //! Enums for the different supported registers.
   enum tRegisters { REG_AX=0, REG_BX, REG_CX };
   
-  struct cProgramid; // pre-declaration.
+  class cProgramid; // pre-declaration.
   typedef cProgramid* programid_ptr; //!< It would be nice to change this to boost::shared_ptr.
   typedef std::vector<programid_ptr> programid_list; //!< Type for the list of cProgramids.
   
@@ -187,7 +187,7 @@ public:
     const cCPUMemory& GetMemory() const { return m_memory; }
     
     //! Append this programid's genome to the passed-in genome in linear format (includes tags).
-    void AppendLinearGenome(cCPUMemory& genome);
+    void AppendLinearGenome(cGenome& genome);
 
     //! Print this programid's genome, in linear format.
     void PrintGenome(std::ostream& out);
@@ -294,8 +294,12 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(cAvidaContext& ctx, const int allocated_size);
   
-  int GetExecutedSize(const int parent_size);
-  int GetCopiedSize(const int parent_size, const int child_size);
+
+  void internalReset();
+  
+    
+  int calcExecutedSize(const int parent_size);
+  int calcCopiedSize(const int parent_size, const int child_size);
   bool Divide_Main(cAvidaContext& ctx);
   void InjectCode(const cGenome& injection, const int line_num);
   bool HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction);
@@ -303,19 +307,19 @@ protected:
 
 public:
   //! Main constructor for cHardwareGX; called from cHardwareManager for every organism.
-  cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, int inst_set_id);
   virtual ~cHardwareGX(); //!< Destructor; removes all cProgramids.
     
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-gx.cfg"; }
 
-  void Reset();
-  void SingleProcess(cAvidaContext& ctx);
+  bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 
   
   // --------  Helper methods  --------
   int GetType() const { return HARDWARE_TYPE_CPU_GX; }  
+  bool SupportsSpeculative() const { return false; }
   bool OK();
   void PrintStatus(std::ostream& fp);
 
@@ -342,8 +346,10 @@ public:
   // so be careful to fix these when changing the programid list.
   const cCPUMemory& GetMemory() const { assert(m_current); return m_current->m_memory; }
   cCPUMemory& GetMemory() { assert(m_current); return m_current->m_memory; }
+  int GetMemSize() const { assert(m_current); return m_current->m_memory.GetSize(); }
   const cCPUMemory& GetMemory(int value) const { return m_programids[value]->m_memory; }
   cCPUMemory& GetMemory(int value) { return m_programids[value]->m_memory; }
+  int GetMemSize(int value) const { return m_programids[value]->m_memory.GetSize(); }
   int GetNumMemSpaces() const { return m_programids.size(); }
   
   
@@ -365,8 +371,13 @@ public:
   virtual int GetCurThread() const { return -1; }
   virtual int GetCurThreadID() const { return -1; }
  
+  // interrupt current thread
+  bool InterruptThread(int interruptType) { return false; }
+  int GetThreadMessageTriggerType(int _index) { return -1; }
+
    // --------  Parasite Stuff  --------
   bool InjectHost(const cCodeLabel& in_label, const cGenome& injection);
+
 
   // --------  Input/Output Buffers  --------
   virtual tBuffer<int>& GetInputBuf() { return m_current->GetInputBuf(); }

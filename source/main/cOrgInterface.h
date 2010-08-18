@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -36,7 +36,9 @@
 
 class cAvidaContext;
 class cCodeLabel;
+class cDeme;
 class cGenome;
+class cMetaGenome;
 class cOrganism;
 class cOrgMessage;
 class cOrgSinkMessage;
@@ -55,21 +57,41 @@ public:
 
   virtual int GetCellID() = 0;
   virtual int GetDemeID() = 0;
+  virtual cDeme* GetDeme() = 0;
   virtual void SetCellID(int in_id) = 0;
   virtual void SetDemeID(int in_id) = 0;
+  
+  virtual int GetCellData() = 0;
+  virtual void SetCellData(const int newData) = 0;
+  virtual int GetFacedCellData() = 0;
 
-  virtual bool Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome) = 0;
+  virtual int GetPrevSeenCellID() = 0;
+  virtual int GetPrevTaskCellID() = 0;
+  virtual int GetNumTaskCellsReached() = 0;
+  virtual void AddReachedTaskCell() = 0;
+  virtual void SetPrevSeenCellID(int in_id) = 0;
+  virtual void SetPrevTaskCellID(int in_id) = 0;
+
+  virtual bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome) = 0;
+  
   virtual cOrganism* GetNeighbor() = 0;
+  virtual bool IsNeighborCellOccupied() = 0;
   virtual int GetNumNeighbors() = 0;
+  virtual void GetNeighborhoodCellIDs(tArray<int>& list) = 0;
   virtual int GetFacing() = 0; //!< Returns the facing of this organism.
+  virtual int GetFacedCellID() = 0;
+  virtual int GetNeighborCellContents() = 0;
   virtual void Rotate(int direction = 1) = 0;
+  
   virtual void Breakpoint() = 0;
+  
   virtual int GetInputAt(int& input_pointer) = 0;
   virtual void ResetInputs(cAvidaContext& ctx) = 0;
   virtual const tArray<int>& GetInputs() const = 0;
   virtual int Debug() = 0;
   virtual const tArray<double>& GetResources() = 0;
   virtual const tArray<double>& GetDemeResources(int deme_id) = 0;  
+  virtual const tArray< tArray<int> >& GetCellIdLists() = 0; 
   virtual void UpdateResources(const tArray<double>& res_change) = 0;
   virtual void UpdateDemeResources(const tArray<double>& res_change) = 0;
   virtual void Die() = 0;
@@ -84,6 +106,25 @@ public:
   virtual bool UpdateMerit(double new_merit) = 0;
   virtual bool TestOnDivide() = 0;
   virtual bool SendMessage(cOrgMessage& msg) = 0;
+	virtual bool BroadcastMessage(cOrgMessage& msg, int depth) = 0;
+  virtual bool BcastAlarm(int jump_jabel, int bcast_range) = 0;
+  virtual void DivideOrgTestamentAmongDeme(double value) = 0;
+	virtual void SendFlash() = 0;
+  
+  virtual int GetStateGridID(cAvidaContext& ctx) = 0;
+	virtual void RotateToGreatestReputation() =0;
+	virtual void RotateToGreatestReputationWithDifferentTag(int tag) =0;
+	virtual void RotateToGreatestReputationWithDifferentLineage(int line) =0;	
+
+	virtual void CreateLinkByFacing(double weight=1.0) = 0;
+	virtual void CreateLinkByXY(int x, int y, double weight=1.0) = 0;
+	virtual void CreateLinkByIndex(int idx, double weight=1.0) = 0;
+	virtual void DoHGTDonation(cAvidaContext& ctx) = 0;
+	virtual void DoHGTConjugation(cAvidaContext& ctx) = 0;
+	virtual void DoHGTMutation(cAvidaContext& ctx, cGenome& offspring) = 0;
+	virtual void ReceiveHGTDonation(const cGenome& fragment) = 0;
+  
+  virtual void Move(cAvidaContext& ctx, int src_id, int dest_id) = 0;
 };
 
 #endif

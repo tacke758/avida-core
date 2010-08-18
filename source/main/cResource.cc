@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "resource.cc" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -67,6 +67,7 @@ cResource::cResource(const cString & _name, int _id)
   , ygravity(0.0)
   , deme_resource(false)
   , energy_resource(false)
+  , hgt_metabolize(false)
 {
 }
 
@@ -85,9 +86,18 @@ bool cResource::SetGeometry(cString _geometry)
      } else if (_geometry == "torus") {
           geometry = nGeometry::TORUS;
           return true;
-     } else {
+     } 
+	 else if (_geometry == "partial") {
+          geometry = nGeometry::PARTIAL;
+          return true;
+	 }
+	 else {
           return false;
      }
+}
+void cResource::SetCellIdList(tArray<int>& id_list) {
+	cell_id_list.ResizeClear(id_list.GetSize());
+	cell_id_list=id_list;
 }
 
 /* Set if the resource is going to be accessable by demes */
@@ -114,4 +124,29 @@ bool cResource::SetEnergyResource(cString _energy_resource) {
     return true;
   }
   return false;
+}
+
+/* Return a pointer to cell resource with a given cell id, if there is no 
+   cell resource with that id return NULL */
+cCellResource *cResource::GetCellResourcePtr(int _id) {
+
+  bool found = false;
+  int cell_index = 0;
+  while (cell_index < cell_list.GetSize() && !found) {
+    if (cell_list[cell_index].GetId() == _id) {
+      return(&cell_list[cell_index]);
+      found = true;
+    } else {
+      cell_index++;
+    }
+  }
+  return(NULL);
+}
+
+/* Update the values of given cell resource */
+void cResource::UpdateCellResource(cCellResource *_CellResourcePtr, double _initial, 
+                        double _inflow, double _outflow) {
+  _CellResourcePtr->SetInitial(_initial);
+  _CellResourcePtr->SetInflow(_inflow);
+  _CellResourcePtr->SetOutflow(_outflow);
 }

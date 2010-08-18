@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "analyze_genotype.hh" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -37,11 +37,20 @@
 #ifndef cGenome_h
 #include "cGenome.h"
 #endif
+#ifndef cGenotypeData_h
+#include "cGenotypeData.h"
+#endif
+#ifndef cInstSet_h
+#include "cInstSet.h"
+#endif
 #ifndef cLandscape_h
 #include "cLandscape.h"
 #endif
 #ifndef cPhenPlastGenotype_h
 #include "cPhenPlastGenotype.h"
+#endif
+#ifndef cRWLock_h
+#include "cRWLock.h"
 #endif
 #ifndef cString_h
 #include "cString.h"
@@ -55,6 +64,15 @@
 #ifndef tArray_h
 #include "tArray.h"
 #endif
+#ifndef tArrayMap_h
+#include "tArrayMap.h"
+#endif
+#ifndef tRCPtr_h
+#include "tRCPtr.h"
+#endif
+#ifndef cPhenPlastSummary_h
+#include "cPhenPlastSummary.h"
+#endif
 
 // cAnalyzeGenotype    : Collection of information about loaded genotypes
 
@@ -62,51 +80,55 @@ class cAvidaContext;
 class cInstSet;
 class cTestCPU;
 class cWorld;
-
+template<class T> class tDataCommandManager;
 
 class cAnalyzeGenotype;
-class cAnalyzeGenotypeLink {
+
+
+class cAnalyzeGenotypeLink
+{
 private:
   cAnalyzeGenotype *m_parent;
   tList<cAnalyzeGenotype> m_child_list;
+  
 public:
-  cAnalyzeGenotypeLink(){
-    SetParent(0);
-    m_child_list.Clear();
-  }
-  void SetParent(cAnalyzeGenotype *parent){
-    m_parent = parent;
-  }
-  cAnalyzeGenotype *GetParent(){
-    return m_parent;
-  }
-  tList<cAnalyzeGenotype> &GetChildList(){
-    return m_child_list;
-  }
-  cAnalyzeGenotype *FindChild(cAnalyzeGenotype *child){
-    return GetChildList().FindPtr(child);
-  }
-  cAnalyzeGenotype *RemoveChild(cAnalyzeGenotype *child){
-    return GetChildList().Remove(child);
-  }
-  void AddChild(cAnalyzeGenotype *child){
-    if(!FindChild(child)){
-      GetChildList().PushRear(child);
-    }
-  }
+  cAnalyzeGenotypeLink() : m_parent(NULL) { m_child_list.Clear(); }
+  
+  void SetParent(cAnalyzeGenotype* parent) { m_parent = parent; }
+  cAnalyzeGenotype* GetParent() { return m_parent; }
+  tList<cAnalyzeGenotype>& GetChildList() { return m_child_list; }
+  cAnalyzeGenotype* FindChild(cAnalyzeGenotype* child) { return GetChildList().FindPtr(child); }
+  cAnalyzeGenotype* RemoveChild(cAnalyzeGenotype* child) { return GetChildList().Remove(child); }
+  void AddChild(cAnalyzeGenotype* child) { if(!FindChild(child)) GetChildList().PushRear(child); }
 };
 
 
-class cAnalyzeGenotype {
-private:
-  cAnalyzeGenotypeLink m_link;
+class cAnalyzeGenotype
+{
+  friend class ReadToken;
 private:
   cWorld* m_world;
   cGenome genome;            // Full Genome
-  cInstSet& inst_set;       // Instruction set used in this genome
+  cInstSet& m_inst_set;      // Instruction set used in this genome
   cString name;              // Name, if one was provided in loading
+  cCPUTestInfo m_cpu_test_info; // Use this test info
+  
+  struct sGenotypeDatastore : public cRCObject
+  {
+    cRWLock rwlock;
+    mutable tArrayMap<int, cGenotypeData*> dmap;
+    
+    sGenotypeDatastore() { ; }
+    sGenotypeDatastore(const sGenotypeDatastore& ds) : cRCObject(ds) { ; } // Note that data objects are not copied right now
+    
+    ~sGenotypeDatastore();
+  };
+  tRCPtr<sGenotypeDatastore> m_data;
+  
   cString aligned_sequence;  // Sequence (in ASCII) after alignment
   cString tag;               // All genotypes in a batch can be tagged
+
+  cAnalyzeGenotypeLink m_link;
 
   bool viable;
 
@@ -131,8 +153,14 @@ private:
   double div_type;
   int mate_id;
   cString executed_flags; // converted into a string
+  tArray<int> inst_executed_counts;
   tArray<int> task_counts;
   tArray<double> task_qualities;
+  tArray<int> internal_task_counts;
+  tArray<double> internal_task_qualities;
+  tArray<double> rbins_total;
+  tArray<double> rbins_avail;
+  tArray<int> collect_spec_counts;
   tArray<int> m_env_inputs;
 
   // Group 3 : Stats requiring parental genotype (Also from test CPUs)
@@ -181,7 +209,7 @@ private:
     
     cAnalyzeKnockouts() { Reset(); }
   };
-  mutable cAnalyzeKnockouts * knockout_stats;
+  mutable cAnalyzeKnockouts* knockout_stats;
 
   mutable cLandscape* m_land;
 
@@ -190,23 +218,8 @@ private:
 
   
   // Group 6: Phenotypic Plasticity
-  class cAnalyzePhenPlast{
-  public:
-      int     m_recalculate_trials;  
-      int     m_num_phenotypes;
-      double  m_min_fitness;
-      double  m_max_fitness;
-      double  m_avg_fitness;
-      double  m_likely_fitness;
-      double  m_phenotypic_entropy;
-      double  m_likely_frequency;
-      double  m_min_fit_frequency;
-      double  m_max_fit_frequency;
-  };
-  mutable cAnalyzePhenPlast* m_phenplast_stats;
+  mutable cPhenPlastSummary* m_phenplast_stats;
   
-  cStringList special_args; // These are args placed after a ':' in details...
-
   int NumCompare(double new_val, double old_val) const {
     if (new_val == old_val) return  0;
     else if (new_val == 0)       return -2;
@@ -221,28 +234,41 @@ private:
   void CheckLand() const;
   void CheckPhenPlast() const;
   void SummarizePhenotypicPlasticity(const cPhenPlastGenotype& pp) const;
+  
+  static tDataCommandManager<cAnalyzeGenotype>* buildDataCommandManager();
 
 
 
 public:
-  cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSet & in_inst_set);
-  cAnalyzeGenotype(cWorld* world, const cGenome & _genome, cInstSet & in_inst_set);
-  cAnalyzeGenotype(const cAnalyzeGenotype & _gen);
+  cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSet& in_inst_set);
+  cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstSet& in_inst_set);
+  cAnalyzeGenotype(const cAnalyzeGenotype& _gen);
   ~cAnalyzeGenotype();
+  
+  static void Initialize();
+  static tDataCommandManager<cAnalyzeGenotype>& GetDataCommandManager();
+  
+  class ReadToken;
+  ReadToken* GetReadToken() const { m_data->rwlock.ReadLock(); return new ReadToken(this); }
 
-  const cStringList & GetSpecialArgs() { return special_args; }
-  void SetSpecialArgs(const cStringList & _args) { special_args = _args; }
-
-  void Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype = NULL, cCPUTestInfo* test_info = NULL, int num_trials = 1);
+  void SetGenotypeData(int data_id, cGenotypeData* data);
+  cGenotypeData* GetGenotypeData(ReadToken* tk, int data_id) const { tk->Validate(this); return m_data->dmap.GetWithDefault(data_id, NULL); }
+  
+  void SetCPUTestInfo(cCPUTestInfo& in_cpu_test_info) { m_cpu_test_info = in_cpu_test_info; }
+  
+  void Recalculate(cAvidaContext& ctx, cCPUTestInfo* test_info = NULL, cAnalyzeGenotype* parent_genotype = NULL, int num_trials = 1);
   void PrintTasks(std::ofstream& fp, int min_task = 0, int max_task = -1);
   void PrintTasksQuality(std::ofstream& fp, int min_task = 0, int max_task = -1);
+  void PrintInternalTasks(std::ofstream& fp, int min_task = 0, int max_task = -1);
+  void PrintInternalTasksQuality(std::ofstream& fp, int min_task = 0, int max_task = -1);
   void CalcLandscape(cAvidaContext& ctx);
 
   // Set...
   void SetSequence(cString _sequence);
-  void SetName(const cString & _name) { name = _name; }
+  void SetName(const cString& _name) { name = _name; }
+  void SetInstructionSet(cInstSet& _inst_set) { m_inst_set = _inst_set; }
   void SetAlignedSequence(const cString & _seq) { aligned_sequence = _seq; }
-  void SetTag(const cString & _tag) { tag = _tag; }
+  void SetTag(const cString& _tag) { tag = _tag; }
 
   void SetViable(bool _viable) { viable = _viable; }
 
@@ -268,14 +294,12 @@ public:
   void SetLineageLabel(int _label) { lineage_label = _label; }
 
   void SetParentMuts(const cString & in_muts) { parent_muts = in_muts; }
+  void SetMutSteps(const cString in_muts) { genome.GetMutationSteps().Set(in_muts); }
+  
   void SetTaskOrder(const cString & in_order) { task_order = in_order; }
 
-//    void SetFracDead(double in_frac);
-//    void SetFracNeg(double in_frac);
-//    void SetFracNeut(double in_frac);
-//    void SetFracPos(double in_frac);
-
   // A set of NULL accessors to simplyfy automated accesses.
+  void SetNULL(int idx, int dummy) { (void) dummy; }
   void SetNULL(int dummy) { (void) dummy; }
   void SetNULL(char dummy) { (void) dummy; }
   void SetNULL(double dummy) { (void) dummy; }
@@ -283,11 +307,17 @@ public:
   void SetNULL(cString dummy) { (void) dummy; }
 
   // Accessors...
+  cWorld* GetWorld() { return m_world; }
+  
   const cGenome & GetGenome() const { return genome; }
-  const cString & GetName() const { return name; }
-  const cString & GetAlignedSequence() const { return aligned_sequence; }
+  const cString& GetName() const { return name; }
+  const cInstSet& GetInstructionSet() const { return m_inst_set; }
+  const cString& GetAlignedSequence() const { return aligned_sequence; }
   cString GetExecutedFlags() const { return executed_flags; }
   cString GetAlignmentExecutedFlags() const;
+  const tArray<int>& GetInstExecutedCounts() const { return inst_executed_counts; }
+  int GetInstExecutedCount(int _inst_num) const;
+  cString DescInstExe(int _inst_id) const;
   const cString & GetTag() const { return tag; }
 
   bool GetViable() const { return viable; }
@@ -307,8 +337,7 @@ public:
   double GetMerit() const { return merit; }
   double GetCompMerit() const { return merit / (double) GetMinLength(); }
   int GetGestTime() const { return gest_time; }
-  double GetEfficiency() const
-    { return ((double) GetMinLength()) / (double) gest_time; }
+  double GetEfficiency() const { return ((double) GetMinLength()) / (double) gest_time; }
   double GetFitness() const { return fitness; }
   double GetDivType() const { return div_type; }
   int GetMateID() const { return mate_id; }
@@ -317,6 +346,7 @@ public:
   int GetDepth() const { return depth; }
 
   const cString& GetParentMuts() const { return parent_muts; }
+  const cString GetMutSteps() const { const cMutationSteps& ms = genome.GetMutationSteps(); return ms.AsString(); }
 
   // Knockout accessors
   int GetKO_DeadCount() const;
@@ -351,7 +381,15 @@ public:
   double GetLikelyFrequency()  const { CheckPhenPlast(); return m_phenplast_stats->m_likely_frequency; }
   double GetLikelyFitness()     const { CheckPhenPlast(); return m_phenplast_stats->m_likely_fitness; }
   int    GetNumTrials()         const { CheckPhenPlast(); return m_phenplast_stats->m_recalculate_trials; }
-  
+  double GetViableProbability()  const { CheckPhenPlast(); return m_phenplast_stats->m_viable_probability; }
+  double GetTaskProbability(int task_id) const { 
+    if (task_id >= m_world->GetEnvironment().GetNumTasks()) return 0.0;
+    CheckPhenPlast();
+    return m_phenplast_stats->m_task_probabilities[task_id];
+  }
+  cString DescTaskProb(int task_id) const;
+  tArray<double> GetTaskProbabilities() const { CheckPhenPlast(); return m_phenplast_stats->m_task_probabilities; }  
+    
   
   double GetFitnessRatio() const { return fitness_ratio; }
   double GetEfficiencyRatio() const { return efficiency_ratio; }
@@ -370,20 +408,22 @@ public:
   int GetNumTasks() const { return task_counts.GetSize(); }
   int GetTaskCount(int task_id) const {
     if (task_id >= task_counts.GetSize()) return 0;
-    if (special_args.HasString("binary")) return (task_counts[task_id] > 0);
     return task_counts[task_id];
   }
-  const tArray<int> & GetTaskCounts() const {
-    return task_counts;
+  int GetTaskCount(int task_id, const cStringList& args) const {
+    if (task_id >= task_counts.GetSize()) return 0;
+    if (args.HasString("binary")) return (task_counts[task_id] > 0);
+    return task_counts[task_id];
   }
+  const tArray<int>& GetTaskCounts() const { return task_counts; }
+  cString DescTask(int task_id) const;
   
   double GetTaskQuality(int task_id) const {
 	  if (task_id >= task_counts.GetSize()) return 0;
 	  return task_qualities[task_id];
   }
-  const tArray<double> & GetTaskQualities() const {
-	  return task_qualities;
-  }
+  const tArray<double>& GetTaskQualities() const { return task_qualities; }
+  
   
   // number of different tasks performed
   int GetTotalTaskCount() const {
@@ -408,6 +448,25 @@ public:
   const tArray<int>& GetEnvInputs() const{
     return m_env_inputs;
   }
+  cString DescEnvInput(int input_id) const { return cStringUtil::Stringf("task.%d", input_id); }
+  
+  double GetRBinTotal(int resource_id) const {
+    if (resource_id >= rbins_total.GetSize()) return -1;
+    return rbins_total[resource_id];
+  }
+  cString DescRTot(int resource_id) const { return cStringUtil::Stringf("Resource %d Total", resource_id);}
+  
+  double GetRBinAvail(int resource_id) const {
+    if (resource_id >= rbins_avail.GetSize()) return -1;
+    return rbins_avail[resource_id];
+  }
+  cString DescRAvail(int resource_id) const { return cStringUtil::Stringf("Resource %d Available", resource_id);}
+  
+  int GetRSpec(int spec_id) const {
+    if (spec_id >= collect_spec_counts.GetSize() || spec_id < 0) return -1;
+    return collect_spec_counts[spec_id];
+  }
+  cString DescRSpec(int spec_id) const { return cStringUtil::Stringf("# times specification %d used", spec_id);}
 
   // Comparisons...  Compares a genotype to the "previous" one, which is
   // passed in, in one specified phenotype.
@@ -417,84 +476,96 @@ public:
   //    0 : Identical in phenotype
   //   +1 : Improvement in phenotype
   //   +2 : Toggle; phenotype now present that wasn't.
-  int CompareNULL(cAnalyzeGenotype * prev) const { (void) prev; return 0; }
-  int CompareArgNULL(cAnalyzeGenotype * prev, int i) const
-    { (void) prev; (void) i;  return 0; }
-  int CompareLength(cAnalyzeGenotype * prev) const {
-    if (GetLength() < MIN_CREATURE_SIZE &&
-	prev->GetLength() > MIN_CREATURE_SIZE) return -2;
-    if (GetLength() > MIN_CREATURE_SIZE &&
-	prev->GetLength() < MIN_CREATURE_SIZE) return 2;
+  int CompareNULL(cAnalyzeGenotype* prev) const { (void) prev; return 0; }
+  int CompareArgNULL(cAnalyzeGenotype* prev, int i) const { (void) prev; (void) i; return 0; }
+  int CompareLength(cAnalyzeGenotype* prev) const
+  {
+    if (GetLength() < MIN_CREATURE_SIZE && prev->GetLength() > MIN_CREATURE_SIZE) return -2;
+    if (GetLength() > MIN_CREATURE_SIZE && prev->GetLength() < MIN_CREATURE_SIZE) return 2;
     return 0;
   }
-  int CompareMerit(cAnalyzeGenotype * prev) const
-    { return NumCompare(GetMerit(), prev->GetMerit()); }
-  int CompareCompMerit(cAnalyzeGenotype * prev) const
-    { return NumCompare(GetCompMerit(), prev->GetCompMerit()); }
-  int CompareGestTime(cAnalyzeGenotype * prev) const {
+  int CompareMerit(cAnalyzeGenotype * prev) const { return NumCompare(GetMerit(), prev->GetMerit()); }
+  int CompareCompMerit(cAnalyzeGenotype * prev) const { return NumCompare(GetCompMerit(), prev->GetCompMerit()); }
+  int CompareGestTime(cAnalyzeGenotype * prev) const
+  {
     const int max_time = CalcMaxGestation();
     const int cur_time = max_time - GetGestTime();
     const int prev_time = max_time - prev->GetGestTime();
     return NumCompare(cur_time, prev_time);
   }
-  int CompareEfficiency(cAnalyzeGenotype * prev) const
-    { return NumCompare(GetEfficiency(), prev->GetEfficiency()); }
-  int CompareFitness(cAnalyzeGenotype * prev) const
-    { return NumCompare(GetFitness(), prev->GetFitness()); }
+  int CompareEfficiency(cAnalyzeGenotype * prev) const { return NumCompare(GetEfficiency(), prev->GetEfficiency()); }
+  int CompareFitness(cAnalyzeGenotype * prev) const { return NumCompare(GetFitness(), prev->GetFitness()); }
   int CompareTaskCount(cAnalyzeGenotype * prev, int task_id) const
-    { return NumCompare(GetTaskCount(task_id), prev->GetTaskCount(task_id)); }
+  {
+    return NumCompare(GetTaskCount(task_id), prev->GetTaskCount(task_id));
+  }
 
   /*
   added to satisfy Boost.Python; the semantics are fairly useless --
   equality of two references means that they refer to the same object.
   */
-  bool operator==(const cAnalyzeGenotype &in) const { return &in == this; }
+  bool operator==(const cAnalyzeGenotype& in) const { return &in == this; }
 
-  cAnalyzeGenotypeLink &GetLink(){
-    return m_link;
-  }
-  cAnalyzeGenotype *GetParent(){
-    return GetLink().GetParent();
-  }
-  void LinkParent(cAnalyzeGenotype *parent){
-    if(GetParent() && GetParent() != parent){
-      GetParent()->GetLink().RemoveChild(this);
-    }
+  
+  cAnalyzeGenotypeLink& GetLink() { return m_link; }  
+  cAnalyzeGenotype* GetParent() { return GetLink().GetParent(); }
+  
+  void LinkParent(cAnalyzeGenotype *parent) {
+    if (GetParent() && GetParent() != parent) GetParent()->GetLink().RemoveChild(this);
     GetLink().SetParent(parent);
-    if(parent){
-      parent->GetLink().AddChild(this);
-    }
+    if (parent) parent->GetLink().AddChild(this);
   }
-  void LinkChild(cAnalyzeGenotype &child){
-    child.LinkParent(this);
-  }
-  void UnlinkParent(){
-    LinkParent(0);
-  }
-  tList<cAnalyzeGenotype> &GetChildList(){
-    return GetLink().GetChildList();
-  }
-  void UnlinkChildren(){
+  
+  void LinkChild(cAnalyzeGenotype &child) { child.LinkParent(this); }
+  
+  void UnlinkParent() { LinkParent(0); }
+  
+  tList<cAnalyzeGenotype>& GetChildList() { return GetLink().GetChildList(); }
+  
+  void UnlinkChildren()
+  {
     tListIterator<cAnalyzeGenotype> it(GetChildList());
     while (it.Next() != NULL) {
       it.Get()->UnlinkParent();
     }
   }
-  void Unlink(){
+  
+  void Unlink()
+  {
     UnlinkParent();
     UnlinkChildren();
   }
-  bool HasChild(cAnalyzeGenotype &child){
-    return GetLink().FindChild(&child);
-  }
-  bool UnlinkChild(cAnalyzeGenotype &child){
-    if(HasChild(child)){
+  
+  bool HasChild(cAnalyzeGenotype &child) { return GetLink().FindChild(&child); }
+  
+  bool UnlinkChild(cAnalyzeGenotype &child)
+  {
+    if(HasChild(child)) {
       child.UnlinkParent();
       return true;
     } else {
       return false;
     }
   }
+  
+  
+  class ReadToken
+  {
+    friend class cAnalyzeGenotype;
+  private:
+    const cAnalyzeGenotype* m_ptr;
+
+    ReadToken(const ReadToken&); // @not_implemented
+    ReadToken& operator=(const ReadToken&); // @not_implemented
+
+    inline ReadToken(const cAnalyzeGenotype* ptr) : m_ptr(ptr) { ; }
+    
+    inline void Validate(const cAnalyzeGenotype* ptr) { assert(ptr == m_ptr); }
+    
+  public:
+    ~ReadToken() { m_ptr->m_data->rwlock.ReadUnlock(); }
+  };
+    
 };
 
 #endif

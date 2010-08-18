@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_process.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -42,6 +42,8 @@ using namespace std;
 
 class cResource;
 
+
+
 class cReactionProcess {
 private:
   cResource* resource;  // Resource consumed.
@@ -50,14 +52,19 @@ private:
   double max_number;     // Max quantity of resource usable.
   double min_number;     // Minimum quantity of resource needed (otherwise 0)
   double max_fraction;   // Max fraction of avaiable resources useable.
-  cResource* product;   // Output resource.
+  double k_sub_m;        // k sub m variable needed for enzyme reaction
+  cResource* product;    // Output resource.
   double conversion;     // Conversion factor.
   bool lethal;		 // Lethality of reaction
+  bool sterilize; //!< Whether performance of this reaction sterilizes the organism.
+  double deme_fraction; //!< Fraction of process reward that is applied to the organism's deme.
+  bool is_germline;         // Apply reward to germline propensity instead of bonus?
   cString match_string;	 // Bit string to match if this is a match string reaction
   int inst_id;           // Instruction to be triggered if reaction successful.
   bool depletable;       // Does completing consume resource?
                          // (This is not quite redundant with an infinite resource
                          // because it allows the resource level to be sensed @JEB)
+  ePHENPLAST_BONUS_METHOD m_ppmethod;  //@MRR How does one handle phenotypically plastic tasks?
 
   // Resource detection
   cResource * detect;    // Resource Measured
@@ -76,11 +83,16 @@ public:
     , max_number(1.0)
     , min_number(0.0)
     , max_fraction(1.0)
+    , k_sub_m(0.0)
     , product(NULL)
     , conversion(1.0)
     , lethal(0)
+    , sterilize(false)
+    , deme_fraction(0.0)
+    , is_germline(false)
     , inst_id(-1)
     , depletable(true)
+    , m_ppmethod(DEFAULT)
     , detect(NULL)
     , detection_threshold(0.0)
     , detection_error(0.0)
@@ -94,11 +106,16 @@ public:
   double GetMaxNumber() const { return max_number; }
   double GetMinNumber() const { return min_number; }
   double GetMaxFraction() const { return max_fraction; }
+  double GetKsubM() const { return k_sub_m; }
   cResource* GetProduct() const { return product; }
   double GetConversion() const { return conversion; }
   int GetInstID() const { return inst_id; }
   bool GetDepletable() const { return depletable; }
   bool GetLethal() const { return lethal; }
+  bool GetSterilize() const { return sterilize; }
+  double GetDemeFraction() const { return deme_fraction; }
+  ePHENPLAST_BONUS_METHOD GetPhenPlastBonusMethod() const { return m_ppmethod; }
+  bool GetIsGermline() const { return is_germline; }
   cResource* GetDetect() const { return detect; }
   double GetDetectionThreshold() const { return detection_threshold; }
   double GetDetectionError() const { return detection_error; }
@@ -110,11 +127,16 @@ public:
   void SetMaxNumber(double _in) { max_number = _in; }
   void SetMinNumber(double _in) { min_number = _in; }
   void SetMaxFraction(double _in) { max_fraction = _in; }
+  void SetKsubM(double _in) { k_sub_m = _in; }
   void SetProduct(cResource* _in) { product = _in; }
   void SetConversion(double _in) { conversion = _in; }
   void SetInstID(int _in) { inst_id = _in; }
   void SetDepletable(bool _in) { depletable = _in; }
   void SetLethal(int _in) { lethal = _in; }
+  void SetSterile(int _in) { sterilize = _in; }
+  void SetDemeFraction(double _in) { assert(_in>=0.0); assert(_in<=1.0); deme_fraction = _in; }
+  void SetIsGermline(bool _in) { is_germline = _in; }
+  void SetPhenPlastBonusMethod(ePHENPLAST_BONUS_METHOD _in) { m_ppmethod = _in; }
   void SetDetect(cResource* _in) { detect = _in; }
   void SetDetectionThreshold(double _in) { detection_threshold = _in; }
   void SetDetectionError(double _in) { detection_error = _in; }

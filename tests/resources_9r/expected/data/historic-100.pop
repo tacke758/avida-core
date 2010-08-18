@@ -4,7 +4,7 @@
 #  1: ID
 #  2: parent ID
 #  3: parent distance
-#  4: number of orgranisms currently alive
+#  4: number of organisms currently alive
 #  5: total number of organisms that ever existed
 #  6: length of genome
 #  7: merit
@@ -15,23 +15,24 @@
 # 12: depth in phylogentic tree
 # 13: genome of organism
 
-166 106 2 0 1 67 4717.74 285 16.5535 83 99 2 azrzavcsuqcmptqcecihpcyfpcqagclbhftpcqttpgqqcttttltycyvatpeattttfts 
-106 1 1 0 3 67 26329.4 220 119.679 71 99 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvatptattttfts 
-219 17 2 0 1 67 1803.27 147 12.2671 93 99 2 acrzavcsuqcmptqcecshpcyfpcqagclbtftpcqttpgqqctttlltycyvathtattttfts 
-141 1 1 0 1 67 26775.5 220 121.707 78 98 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtaitttfts 
-43 1 1 0 1 66 41090.6 898 45.7579 53 97 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqctttttycyvathtattttfts 
-59 1 1 0 1 67 32266.2 220 146.665 58 97 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtatttafts 
-91 48 13 0 1 79 2559.39 186 13.7601 68 94 2 azrzavcsuqcmptqcesihpcyfpcqagclbtftpcqmtpgqqcttttltycyvathtattttftsazrzavcsuqcm 
-160 1 1 0 1 67 1417.15 216 6.56088 82 94 1 azrzavcsulcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtattttfts 
-32 1 1 0 4 67 17818.4 225 79.1928 49 93 1 azrzavcsuqcmptqcecihpcyfpcqagcabtftpcqttpgqqcttttltycyvathtattttfts 
-167 63 13 0 1 79 11175.4 203 55.0513 83 92 2 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqtgpgqqctsttltycyvathtattttftsazrzavcyuqcm 
-76 1 1 0 1 67 30853.3 220 140.242 63 91 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtatttcfts 
-168 106 1 0 1 67 4644.39 226 20.5504 83 90 2 azrzavcsuqcmptqcecihpcyfpcqagclbtfthcqttpgqqcttttltycyvatptattttfts 
-108 1 1 0 1 67 25782.5 287 89.8345 71 89 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqctbttltycyvathtattttfts 
-60 46 1 0 1 67 3245.91 217 14.9581 58 87 2 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqncttttftycyvathtattttfts 
-86 1 1 0 1 67 27881.6 287 97.1484 66 83 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqctrttltycyvathtattttfts 
-4 2 20 0 1 67 1035.16 224 4.62123 20 82 2 htattttftsazrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttatycyvat 
-90 1 3 0 1 67 6101.2 295 20.682 68 79 1 azrzavcsuqcmptqhecihpcyfpcqadclbtfgpcqttpgqqcttttltycyvathtattttfts 
-46 1 1 0 1 67 7804.83 220 35.4765 53 69 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttftycyvathtattttfts 
-69 1 1 0 1 67 31199.3 219 142.463 62 67 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathqattttfts 
-19 1 1 0 1 67 29753.5 212 140.347 43 48 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathsattttfts 
+172 1 -1 0 1 67 3453.32 226 15.2802 89 100 1 azrzavcsuqcmptqcecihplyfpcqagclbtftpcqttpgqqcttttltycyvathtatbttfts 
+69 1 -1 0 1 67 6874.57 217 31.68 69 100 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgrqcttttltycyvathtattttfts 
+91 34 -1 0 1 67 67 287 0.233449 75 99 3 azrzavcuuqcmptqcecihpcyfpcqagclbgftpcqttpgqqcttttltycyvatutatbttfts 
+173 79 -1 0 1 79 5376.25 286 18.7981 89 99 2 azrzavcsuqcmptqcecihpcyfpcqagclbtfrpcqttpeqqcttttltycyvathtattttftsazrzavcsuqcm 
+103 72 -1 0 1 67 1966.84 127 15.487 77 98 3 azrzavcuuqcmptqcegihpcyfpcqagclbtftpcqttpgqqcttttltccyvathtattttfts 
+153 1 -1 0 1 67 658.113 292 2.25381 86 98 1 azrzavcsuqcmptqcecihpcyfpcqagclgeftpcqttpgqqcttttltycyvathtattttfts 
+95 1 -1 0 1 67 25031.2 287 87.2166 76 96 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttdtltycyvathtattttfts 
+72 11 -1 0 1 67 7997.95 227 35.2332 70 95 2 azrzavcuuqcmptqcegihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtattttfts 
+116 1 -1 0 1 67 2584.1 220 11.7459 79 94 1 azrzavcsuqckptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtattttfts 
+127 11 -1 0 1 67 1452.88 226 6.42868 81 94 2 azrzavcuuqcmptqcecihpcyfpcqagclftftpcqttpgqqcttttltycyvathtattntfts 
+60 1 -1 0 1 67 28473.7 219 130.017 68 93 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtattttfss 
+79 1 -1 0 1 67 26228.7 287 91.3892 73 89 1 azrzavcsuqcmptqcecihpcyfpcqagclbtfrpcqttpgqqcttttltycyvathtattttfts 
+67 51 -1 0 1 67 7726.22 287 26.9206 69 87 2 azrzavcsuqcmptqcecihpcyfpcqagclbbftpcqttpgqqcttttmtycyvathtattttfts 
+68 1 -1 0 1 67 2584.3 220 11.7468 69 83 1 azrzavcsuqcmptqcecixpcyfpcqajclbtftpcqttpgqqcttttltycyvathtattttfps 
+16 1 -1 0 1 68 95579.3 835 110.805 47 81 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathotattttfts 
+24 1 -1 0 1 67 33839.5 223.75 151.306 53 79 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtadtttfts 
+77 1 -1 0 1 67 6856.12 159 43.1202 73 79 1 azrzavcsuqcmptqcecihpcyfpcqagcsbtftpcqttpgqqcttttltycyvathtattttfts 
+53 1 -1 0 2 67 32900.4 220 149.547 64 77 1 awrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttltycyvathtattttfts 
+64 1 -1 0 1 67 5531.64 226 24.4763 69 76 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqnttttltycyvathtattttfts 
+51 1 -1 0 1 67 34587.6 220 157.217 62 74 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcqttpgqqcttttmtycyvathtattttfts 
+32 1 -1 0 1 67 67 217 0.308756 54 73 1 azrzavcsuqcmptqcecihpcyfpcqagclbtftpcxttpgqqcttttltycyvathtattttfts 

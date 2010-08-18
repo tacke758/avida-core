@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "analyze_genotype.cc" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -27,6 +27,8 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
+#include "cDriverManager.h"
+#include "cDriverStatusConduit.h"
 #include "cHardwareBase.h"
 #include "cHardwareManager.h"
 #include "cInstSet.h"
@@ -40,14 +42,22 @@
 #include "cWorld.h"
 #include "cWorldDriver.h"
 
+#include "tArray.h"
+#include "tAutoRelease.h"
+#include "tDataCommandManager.h"
+#include "tDMSingleton.h"
+
+
 #include <cmath>
 using namespace std;
 
 cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSet& in_inst_set)
   : m_world(world)
   , genome(symbol_string)
-  , inst_set(in_inst_set)
+  , m_inst_set(in_inst_set)
   , name("")
+  , m_cpu_test_info()
+  , m_data(new sGenotypeDatastore)
   , aligned_sequence("")
   , tag("")
   , viable(false)
@@ -66,8 +76,14 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSe
   , gest_time(INT_MAX)
   , fitness(0.0)
   , errors(0)
+  , inst_executed_counts(0)
   , task_counts(0)
   , task_qualities(0)
+  , internal_task_counts(0)
+  , internal_task_qualities(0)
+  , rbins_total(0)
+  , rbins_avail(0)
+  , collect_spec_counts(0)
   , fitness_ratio(0.0)
   , efficiency_ratio(0.0)
   , comp_merit_ratio(0.0)
@@ -81,11 +97,11 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSe
     
   // Make sure that the sequences jive with the inst_set
   for (int i = 0; i < genome.GetSize(); i++) {
-    if (genome[i].GetOp() >= inst_set.GetSize()) {
+    if (genome[i].GetOp() >= m_inst_set.GetSize()) {
       cString msg("Trying to load instruction ");
       msg += genome[i].GetOp();
       msg += ".  Max in set is";
-      msg += (inst_set.GetSize() - 1);
+      msg += (m_inst_set.GetSize() - 1);
       m_world->GetDriver().RaiseException(msg);
     }
   }
@@ -94,8 +110,10 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSe
 cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstSet& in_inst_set)
   : m_world(world)
   , genome(_genome)
-  , inst_set(in_inst_set)
+  , m_inst_set(in_inst_set)
   , name("")
+  , m_cpu_test_info() 
+  , m_data(new sGenotypeDatastore)
   , aligned_sequence("")
   , tag("")
   , viable(false)
@@ -114,8 +132,14 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstS
   , gest_time(INT_MAX)
   , fitness(0.0)
   , errors(0)
+  , inst_executed_counts(0)
   , task_counts(0)
   , task_qualities(0)
+  , internal_task_counts(0)
+  , internal_task_qualities(0)
+  , rbins_total(0)
+  , rbins_avail(0)
+  , collect_spec_counts(0)
   , fitness_ratio(0.0)
   , efficiency_ratio(0.0)
   , comp_merit_ratio(0.0)
@@ -131,8 +155,10 @@ cAnalyzeGenotype::cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstS
 cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
   : m_world(_gen.m_world)
   , genome(_gen.genome)
-  , inst_set(_gen.inst_set)
+  , m_inst_set(_gen.m_inst_set)
   , name(_gen.name)
+  , m_cpu_test_info(_gen.m_cpu_test_info)  
+  , m_data(_gen.m_data)
   , aligned_sequence(_gen.aligned_sequence)
   , tag(_gen.tag)
   , viable(_gen.viable)
@@ -151,8 +177,14 @@ cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
   , gest_time(_gen.gest_time)
   , fitness(_gen.fitness)
   , errors(_gen.errors)
+  , inst_executed_counts(_gen.inst_executed_counts)
   , task_counts(_gen.task_counts)
   , task_qualities(_gen.task_qualities)
+  , internal_task_counts(_gen.internal_task_counts)
+  , internal_task_qualities(_gen.internal_task_qualities)
+  , rbins_total(_gen.rbins_total)
+  , rbins_avail(_gen.rbins_avail)
+  , collect_spec_counts(_gen.collect_spec_counts)
   , fitness_ratio(_gen.fitness_ratio)
   , efficiency_ratio(_gen.efficiency_ratio)
   , comp_merit_ratio(_gen.comp_merit_ratio)
@@ -167,10 +199,8 @@ cAnalyzeGenotype::cAnalyzeGenotype(const cAnalyzeGenotype& _gen)
     knockout_stats = new cAnalyzeKnockouts;
     *knockout_stats = *(_gen.knockout_stats);
   }
-  if (_gen.m_phenplast_stats != NULL){
-    m_phenplast_stats = new cAnalyzePhenPlast;
-    *m_phenplast_stats = *(_gen.m_phenplast_stats);
-  }
+  if (_gen.m_phenplast_stats != NULL)
+    m_phenplast_stats = new cPhenPlastSummary(*_gen.m_phenplast_stats);
 }
 
 cAnalyzeGenotype::~cAnalyzeGenotype()
@@ -178,6 +208,183 @@ cAnalyzeGenotype::~cAnalyzeGenotype()
   if (knockout_stats != NULL) delete knockout_stats;
   if (m_phenplast_stats != NULL) delete m_phenplast_stats;
   Unlink();
+}
+
+
+void cAnalyzeGenotype::Initialize()
+{
+  tDMSingleton<tDataCommandManager<cAnalyzeGenotype> >::Initialize(&cAnalyzeGenotype::buildDataCommandManager);
+}
+
+
+tDataCommandManager<cAnalyzeGenotype>* cAnalyzeGenotype::buildDataCommandManager()
+{
+  tDataCommandManager<cAnalyzeGenotype>* dcm = new tDataCommandManager<cAnalyzeGenotype>;
+  
+  // A basic macro to link a keyword to a description and Get and Set methods in cAnalyzeGenotype.
+#define ADD_GDATA(TYPE, KEYWORD, DESC, GET, SET, COMP, NSTR, HSTR)                                \
+  {                                                                                               \
+    cString nstr_str(#NSTR), hstr_str(#HSTR);                                                     \
+    cString null_str = "0";                                                                       \
+    if (nstr_str != "0") null_str = NSTR;                                                         \
+    cString html_str = "align=center";                                                            \
+    if (hstr_str != "0") html_str = HSTR;                                                         \
+                                                                                                  \
+    dcm->Add(KEYWORD, new tDataEntryOfType<cAnalyzeGenotype, TYPE>                              \
+      (KEYWORD, DESC, &cAnalyzeGenotype::GET, &cAnalyzeGenotype::SET, COMP, null_str, html_str)); \
+  }
+
+  // To add a new keyword connected to a stat in cAnalyzeGenotype, you need to connect all of the pieces here.
+  // The ADD_GDATA macro takes eight arguments:
+  //  type              : The type of the variables being linked in.
+  //  keyword           : The short word used to reference this variable from analyze mode.
+  //  description       : A slightly fuller description of what this variable is; used in data legends.
+  //  "get" accessor    : The accessor method to retrieve the value of this variable from cAnalyzeGenotype
+  //  "set" accessor    : The method to set this variable in cAnalyzeGenotype (use SetNULL if none exists).
+  //  comparison method : A method that will take two genotypes and compare this value bewtween them (or CompareNULL)
+  //  null keyword      : A string to represent what should be printed if this stat is zero. (0 for default)
+  //  html flags        : A string to be included in the <td> when stat is printed in HTML table (0 for "align=center")
+  
+  // As a reminder about the compare types:
+  //   FLEX_COMPARE_NONE   = 0  -- No comparisons should be done at all.
+  //   FLEX_COMPARE_DIFF   = 1  -- Only track if a stat has changed, don't worry about direction.
+  //   FLEX_COMPARE_MAX    = 2  -- Color higher values as beneficial, lower as harmful.
+  //   FLEX_COMPARE_MIN    = 3  -- Color lower values as beneficial, higher as harmful.
+  //   FLEX_COMPARE_DIFF2  = 4  -- Same as FLEX_COMPARE_DIFF, but 0 indicates trait is off.
+  //   FLEX_COMPARE_MAX2   = 5  -- Same as FLEX_COMPARE_MAX, and 0 indicates trait is off.
+  //   FLEX_COMPARE_MIN2   = 6  -- Same as FLEX_COMPARE_MIN, BUT 0 still indicates off.
+  
+  ADD_GDATA(const cString& (), "name",         "Genotype Name",                 GetName,           SetName,       0, 0, 0);
+  ADD_GDATA(bool (),           "viable",       "Is Viable (0/1)",               GetViable,         SetViable,     5, 0, 0);
+  ADD_GDATA(int (),            "id",           "Genotype ID",                   GetID,             SetID,         0, 0, 0);
+  ADD_GDATA(const cString& (), "tag",          "Genotype Tag",                  GetTag,            SetTag,        0, "(none)","");
+  ADD_GDATA(int (),            "parent_id",    "Parent ID",                     GetParentID,       SetParentID,   0, 0, 0);
+  ADD_GDATA(int (),            "parent2_id",   "Second Parent ID (sexual orgs)",GetParent2ID,      SetParent2ID,  0, 0, 0);
+  ADD_GDATA(int (),            "parent_dist",  "Parent Distance",               GetParentDist,     SetParentDist, 0, 0, 0);
+  ADD_GDATA(int (),            "ancestor_dist","Ancestor Distance",             GetAncestorDist,   SetAncestorDist, 0, 0, 0);
+  ADD_GDATA(int (),            "lineage",      "Unique Lineage Label",          GetLineageLabel,   SetLineageLabel, 0, 0, 0);
+  ADD_GDATA(int (),            "num_cpus",     "Number of CPUs",                GetNumCPUs,        SetNumCPUs,    0, 0, 0);
+  ADD_GDATA(int (),            "total_cpus",   "Total CPUs Ever",               GetTotalCPUs,      SetTotalCPUs,  0, 0, 0);
+  ADD_GDATA(int (),            "length",       "Genome Length",                 GetLength,         SetLength,     4, 0, 0);
+  ADD_GDATA(int (),            "copy_length",  "Copied Length",                 GetCopyLength,     SetCopyLength, 0, 0, 0);
+  ADD_GDATA(int (),            "exe_length",   "Executed Length",               GetExeLength,      SetExeLength,  0, 0, 0);
+  ADD_GDATA(double (),         "merit",        "Merit",                         GetMerit,          SetMerit,      5, 0, 0);
+  ADD_GDATA(double (),         "comp_merit",   "Computational Merit",           GetCompMerit,      SetNULL,       5, 0, 0);
+  ADD_GDATA(double (),         "comp_merit_ratio", "Computational Merit Ratio", GetCompMeritRatio, SetNULL,       5, 0, 0);
+  ADD_GDATA(int (),            "gest_time",    "Gestation Time",                GetGestTime,       SetGestTime,   6, "Inf", 0);
+  ADD_GDATA(double (),         "efficiency",   "Rep. Efficiency",               GetEfficiency,     SetNULL,       5, 0, 0);
+  ADD_GDATA(double (),         "efficiency_ratio", "Rep. Efficiency Ratio",     GetEfficiencyRatio,SetNULL,       5, 0, 0);
+  ADD_GDATA(double (),         "fitness",      "Fitness",                       GetFitness,        SetFitness,    5, 0, 0);
+  ADD_GDATA(double (),         "div_type",     "Divide Type",                   GetDivType,        SetDivType,    0, 0, 0);
+  ADD_GDATA(int (),            "mate_id",      "Mate Selection ID Number",      GetMateID,         SetMateID,     0, 0, 0);
+  ADD_GDATA(double (),         "fitness_ratio","Fitness Ratio",                 GetFitnessRatio,   SetNULL,       5, 0, 0);
+  ADD_GDATA(int (),            "update_born",  "Update Born",                   GetUpdateBorn,     SetUpdateBorn, 0, 0, 0);
+  ADD_GDATA(int (),            "update_dead",  "Update Dead",                   GetUpdateDead,     SetUpdateDead, 0, 0, 0);
+  ADD_GDATA(int (),            "depth",        "Tree Depth",                    GetDepth,          SetDepth,      0, 0, 0);
+  ADD_GDATA(double (),         "frac_dead",    "Fraction Mutations Lethal",     GetFracDead,       SetNULL,       0, 0, 0);
+  ADD_GDATA(double (),         "frac_neg",     "Fraction Mutations Detrimental",GetFracNeg,        SetNULL,       0, 0, 0);
+  ADD_GDATA(double (),         "frac_neut",    "Fraction Mutations Neutral",    GetFracNeut,       SetNULL,       0, 0, 0);
+  ADD_GDATA(double (),         "frac_pos",     "Fraction Mutations Beneficial", GetFracPos,        SetNULL,       0, 0, 0);
+  ADD_GDATA(double (),         "complexity",   "Basic Complexity (beneficial muts are neutral)", GetComplexity, SetNULL, 0, 0, 0);
+  ADD_GDATA(double (),         "land_fitness", "Average Lanscape Fitness",      GetLandscapeFitness, SetNULL,     0, 0, 0);
+  
+  ADD_GDATA(int (),    "num_phen",           "Number of Plastic Phenotypes",          GetNumPhenotypes,          SetNULL, 0, 0, 0);
+  ADD_GDATA(int (),    "num_trials",         "Number of Recalculation Trials",        GetNumTrials,              SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_entropy",       "Phenotpyic Entropy",                    GetPhenotypicEntropy,      SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_max_fitness",   "Phen Plast Maximum Fitness",            GetMaximumFitness,         SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_max_fit_freq",  "Phen Plast Maximum Fitness Frequency",  GetMaximumFitnessFrequency,SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_min_fitness",   "Phen Plast Minimum Fitness",            GetMinimumFitness,         SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_min_freq",      "Phen Plast Minimum Fitness Frequency",  GetMinimumFitnessFrequency,SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_avg_fitness",   "Phen Plast Wtd Avg Fitness",            GetAverageFitness,         SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_likely_freq",   "Freq of Most Likely Phenotype",         GetLikelyFrequency,        SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "phen_likely_fitness","Fitness of Most Likely Phenotype",      GetLikelyFitness,          SetNULL, 0, 0, 0);
+  ADD_GDATA(double (), "prob_viable",        "Probability Viable",                    GetViableProbability,      SetNULL, 0, 0, 0);
+  
+  
+  // @JEB There is a difference between these two. parent_muts is based on an alignment. mut_steps is based on recorded mutations during run.
+  ADD_GDATA(const cString& (), "parent_muts", "Mutations from Parent", GetParentMuts,   SetParentMuts, 0, "(none)", "");
+  ADD_GDATA(const cString (), "mut_steps", "Mutation Steps from Parent", GetMutSteps,   SetMutSteps,   0, "", "");
+
+  ADD_GDATA(const cString& (), "task_order", "Task Performance Order", GetTaskOrder,    SetTaskOrder,  0, "(none)", "");
+  ADD_GDATA(cString (),        "sequence", "Genome Sequence",               GetSequence,     SetSequence,   0, "(N/A)", "");
+  ADD_GDATA(const cString& (), "alignment", "Aligned Sequence",        GetAlignedSequence, SetAlignedSequence, 0, "(N/A)", "");
+  
+  ADD_GDATA(cString (), "executed_flags", "Executed Flags",             GetExecutedFlags, SetNULL, 0, "(N/A)", "");
+  ADD_GDATA(cString (), "alignment_executed_flags", "Alignment Executed Flags", GetAlignmentExecutedFlags, SetNULL, 0, "(N/A)", "");
+  ADD_GDATA(cString (), "task_list", "List of all tasks performed",     GetTaskList,     SetNULL, 0, "(N/A)", "");
+  
+  // @TODO - the following were link.tasksites and html.sequence, respectively.  The period character is now separated as
+  //         an argument passed into the function, thus they are matched as the component before the period.  For now
+  //         I have simply removed the argument part, since there are not any existing name clashes.  However,  in future
+  //         versions we should rename these.
+  ADD_GDATA(cString (), "link", "Phenotype Map",              GetMapLink,      SetNULL, 0, 0,       0);
+  ADD_GDATA(cString (), "html",  "Genome Sequence",            GetHTMLSequence, SetNULL, 0, "(N/A)", "");
+    
+  // coarse-grained task stats
+  ADD_GDATA(int (), 		"total_task_count","# Different Tasks", 		GetTotalTaskCount, SetNULL, 1, 0, 0);
+  ADD_GDATA(int (), 		"total_task_performance_count", "Total Tasks Performed",	GetTotalTaskPerformanceCount, SetNULL, 1, 0, 0);
+  
+  
+  dcm->Add("task", new tDataEntryOfType<cAnalyzeGenotype, int (int, const cStringList&)>
+           ("task", &cAnalyzeGenotype::DescTask, &cAnalyzeGenotype::GetTaskCount, 5));
+  dcm->Add("env_input", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
+           ("env_input", &cAnalyzeGenotype::DescEnvInput, &cAnalyzeGenotype::GetEnvInput));
+  dcm->Add("inst", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
+           ("inst", &cAnalyzeGenotype::DescInstExe, &cAnalyzeGenotype::GetInstExecutedCount));
+  dcm->Add("r_tot", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("r_tot", &cAnalyzeGenotype::DescRTot, &cAnalyzeGenotype::GetRBinTotal));
+  dcm->Add("r_avail", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("r_avail", &cAnalyzeGenotype::DescRAvail, &cAnalyzeGenotype::GetRBinAvail));
+  dcm->Add("prob_task", new tDataEntryOfType<cAnalyzeGenotype, double (int)>
+           ("prob_task", &cAnalyzeGenotype::DescTaskProb, &cAnalyzeGenotype::GetTaskProbability, 5));
+  dcm->Add("r_spec", new tDataEntryOfType<cAnalyzeGenotype, int (int)>
+           ("r_spec", &cAnalyzeGenotype::DescRSpec, &cAnalyzeGenotype::GetRSpec));
+  
+  
+  // The remaining values should actually go in a separate list called
+  // "population_data_list", but for the moment we're going to put them
+  // here so that we only need to worry about a single system to load and
+  // save genotype information.
+  ADD_GDATA(int (),     "update",       "Update Output",                   GetUpdateDead, SetUpdateDead, 0, 0, 0);
+  ADD_GDATA(int (),     "dom_num_cpus", "Number of Dominant Organisms",    GetNumCPUs,    SetNumCPUs,    0, 0, 0);
+  ADD_GDATA(int (),     "dom_depth",    "Tree Depth of Dominant Genotype", GetDepth,      SetDepth,      0, 0, 0);
+  ADD_GDATA(int (),     "dom_id",       "Dominant Genotype ID",            GetID,         SetID,         0, 0, 0);
+  ADD_GDATA(cString (), "dom_sequence", "Dominant Genotype Sequence",      GetSequence,   SetSequence,   0, "(N/A)", "");
+
+  
+  return dcm;
+#undef ADD_GDATA
+}
+
+tDataCommandManager<cAnalyzeGenotype>& cAnalyzeGenotype::GetDataCommandManager()
+{
+  return tDMSingleton<tDataCommandManager<cAnalyzeGenotype> >::GetInstance();
+}
+
+
+cString cAnalyzeGenotype::DescTask(int task_id) const
+{
+  if (task_id > m_world->GetEnvironment().GetNumTasks()) return "";
+  return m_world->GetEnvironment().GetTask(task_id).GetDesc();
+}
+
+cString cAnalyzeGenotype::DescTaskProb(int task_id) const
+{
+  if (task_id > m_world->GetEnvironment().GetNumTasks()) return "";
+  return DescTask(task_id) + " (Probability)";
+}
+
+
+cAnalyzeGenotype::sGenotypeDatastore::~sGenotypeDatastore()
+{
+  for (tArrayMap<int, cGenotypeData*>::iterator it = dmap.begin(); it != dmap.end(); it++) delete it->Value();
+}
+
+void cAnalyzeGenotype::SetGenotypeData(int data_id, cGenotypeData* data)
+{
+  m_data->rwlock.WriteLock();
+  m_data->dmap.Set(data_id, data);
+  m_data->rwlock.WriteUnlock();
 }
 
 
@@ -212,8 +419,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
   // Calculate the base fitness for the genotype we're working with...
   // (This may not have been run already, and cost negligiably more time
   // considering the number of knockouts we need to do.
-  cAnalyzeGenotype base_genotype(m_world, genome, inst_set);
-  base_genotype.Recalculate(ctx, testcpu);
+  cAnalyzeGenotype base_genotype(m_world, genome, m_inst_set);
+  base_genotype.Recalculate(ctx);
   double base_fitness = base_genotype.GetFitness();
   const tArray<int> base_task_counts( base_genotype.GetTaskCounts() );
   
@@ -227,7 +434,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
   cGenome mod_genome(genome);
   
   // Setup a NULL instruction in a special inst set.
-  cInstSet ko_inst_set(inst_set);
+  cInstSet ko_inst_set(m_inst_set);
   const cInstruction null_inst = ko_inst_set.ActivateNullInst();
   
   // If we are keeping track of the specific effects on tasks from the
@@ -245,7 +452,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
     int cur_inst = mod_genome[line_num].GetOp();
     mod_genome[line_num] = null_inst;
     cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
-    ko_genotype.Recalculate(ctx, testcpu);
+    ko_genotype.Recalculate(ctx);
     if (check_chart == true) {
       const tArray<int> ko_task_counts( ko_genotype.GetTaskCounts() );
       knockout_stats->task_counts[line_num] = ko_task_counts;
@@ -305,7 +512,7 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
       mod_genome[line1] = null_inst;
       mod_genome[line2] = null_inst;
       cAnalyzeGenotype ko_genotype(m_world, mod_genome, ko_inst_set);
-      ko_genotype.Recalculate(ctx, testcpu);
+      ko_genotype.Recalculate(ctx);
       
       double ko_fitness = ko_genotype.GetFitness();
       
@@ -347,7 +554,8 @@ void cAnalyzeGenotype::CalcKnockouts(bool check_pairs, bool check_chart) const
 void cAnalyzeGenotype::CheckLand() const
 {
   if (m_land == NULL) {
-    m_land = new cLandscape(m_world, genome, inst_set);
+    m_land = new cLandscape(m_world, genome, m_inst_set);
+    m_land->SetCPUTestInfo(m_cpu_test_info);
     m_land->SetDistance(1);
     m_land->Process(m_world->GetDefaultContext());
   }
@@ -356,94 +564,81 @@ void cAnalyzeGenotype::CheckLand() const
 void cAnalyzeGenotype::CheckPhenPlast() const
 {
   // Implicit genotype recalculation if required
-  if (m_phenplast_stats == NULL){
-    cPhenPlastGenotype pp(genome, 1000, m_world, m_world->GetDefaultContext());
-    SummarizePhenotypicPlasticity(pp);
+  if (m_phenplast_stats == NULL) {
+    cCPUTestInfo test_info;
+    test_info.SetInstSet(&m_inst_set);
+    
+    cPhenPlastGenotype pp(genome, 1000, test_info, m_world, m_world->GetDefaultContext());
+    m_phenplast_stats = new cPhenPlastSummary(pp);
   }
 }
 
-void cAnalyzeGenotype::SummarizePhenotypicPlasticity(const cPhenPlastGenotype& pp) const
-{
 
-  if (m_phenplast_stats == NULL)
-    m_phenplast_stats = new cAnalyzePhenPlast;
-  m_phenplast_stats->m_recalculate_trials = pp.GetNumTrials();
-  m_phenplast_stats->m_max_fitness = pp.GetMaximumFitness();
-  m_phenplast_stats->m_avg_fitness = pp.GetAverageFitness();
-  m_phenplast_stats->m_min_fitness = pp.GetMinimumFitness();
-  m_phenplast_stats->m_phenotypic_entropy = pp.GetPhenotypicEntropy();
-  m_phenplast_stats->m_likely_frequency  = pp.GetMaximumFrequency();
-  m_phenplast_stats->m_max_fit_frequency = pp.GetMaximumFitnessFrequency();
-  m_phenplast_stats->m_min_fit_frequency = pp.GetMinimumFitnessFrequency();
-  m_phenplast_stats->m_likely_fitness = pp.GetLikelyFitness();
-  m_phenplast_stats->m_num_phenotypes = pp.GetNumPhenotypes();
-}
 
 void cAnalyzeGenotype::CalcLandscape(cAvidaContext& ctx)
 {
-  if (m_land == NULL) m_land = new cLandscape(m_world, genome, inst_set);
+  if (m_land == NULL) m_land = new cLandscape(m_world, genome, m_inst_set);
+  m_land->SetCPUTestInfo(m_cpu_test_info);
   m_land->SetDistance(1);
   m_land->Process(ctx);
 }
 
-void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cTestCPU* testcpu, cAnalyzeGenotype* parent_genotype, cCPUTestInfo* test_info, int num_trials)
-{
-  
-  //Allocate our own test info if it wasn't provided
-  cCPUTestInfo* temp_test_info = NULL;
+
+void cAnalyzeGenotype::Recalculate(cAvidaContext& ctx, cCPUTestInfo* test_info, cAnalyzeGenotype* parent_genotype, int num_trials)
+{  
+  // Allocate our own test info if it wasn't provided
+  tAutoRelease<cCPUTestInfo> local_test_info;
   if (!test_info)
   {
-      temp_test_info = new cCPUTestInfo();
-      test_info = temp_test_info;
+    test_info = new cCPUTestInfo();
+    local_test_info.Set(test_info);
   }
 
-  // @DMB - This does some 'interesting' things with the instruction set
-  // Use the inst lib for this genotype... and syncrhonize environment
-  
-  // Backup old instruction set, update with new
-  cInstSet env_inst_set_backup = m_world->GetHardwareManager().GetInstSet();
-  m_world->GetHardwareManager().GetInstSet() = inst_set;
+  test_info->SetInstSet(&m_inst_set);
 
   // Handling recalculation here
   cPhenPlastGenotype recalc_data(genome, num_trials, *test_info, m_world, ctx);
  
-  // Restore the instruction set
-  m_world->GetHardwareManager().GetInstSet() = env_inst_set_backup;
-  
   // The most likely phenotype will be assigned to the phenotype stats
   const cPlasticPhenotype* likely_phenotype = recalc_data.GetMostLikelyPhenotype();
   
-  viable         = likely_phenotype->IsViable();
-  m_env_inputs   = likely_phenotype->GetEnvInputs();
-  executed_flags = likely_phenotype->GetExecutedFlags();
-  length         = likely_phenotype->GetGenomeLength();
-  copy_length    = likely_phenotype->GetCopiedSize();
-  exe_length     = likely_phenotype->GetExecutedSize();
-  merit          = likely_phenotype->GetMerit().GetDouble();
-  gest_time      = likely_phenotype->GetGestationTime();
-  fitness        = likely_phenotype->GetFitness();
-  errors         = likely_phenotype->GetLastNumErrors();
-  div_type       = likely_phenotype->GetDivType();
-  mate_id        = likely_phenotype->MateSelectID();
-  task_counts    = likely_phenotype->GetLastTaskCount();
-  task_qualities = likely_phenotype->GetLastTaskQuality();
-  
+  viable                = likely_phenotype->IsViable();
+  m_env_inputs          = likely_phenotype->GetEnvInputs();
+  executed_flags        = likely_phenotype->GetExecutedFlags();
+  inst_executed_counts  = likely_phenotype->GetLastInstCount();
+  length                = likely_phenotype->GetGenomeLength();
+  copy_length           = likely_phenotype->GetCopiedSize();
+  exe_length            = likely_phenotype->GetExecutedSize();
+  merit                 = likely_phenotype->GetMerit().GetDouble();
+  gest_time             = likely_phenotype->GetGestationTime();
+  fitness               = likely_phenotype->GetFitness();
+  errors                = likely_phenotype->GetLastNumErrors();
+  div_type              = likely_phenotype->GetDivType();
+  mate_id               = likely_phenotype->MateSelectID();
+  task_counts           = likely_phenotype->GetLastTaskCount();
+  task_qualities        = likely_phenotype->GetLastTaskQuality();
+  internal_task_counts  = likely_phenotype->GetLastInternalTaskCount();
+  internal_task_qualities = likely_phenotype->GetLastInternalTaskQuality();
+  rbins_total           = likely_phenotype->GetLastRBinsTotal();
+  rbins_avail           = likely_phenotype->GetLastRBinsAvail();
+  collect_spec_counts   = likely_phenotype->GetLastCollectSpecCounts();
+
   // Setup a new parent stats if we have a parent to work with.
   if (parent_genotype != NULL) {
     fitness_ratio = GetFitness() / parent_genotype->GetFitness();
     efficiency_ratio = GetEfficiency() / parent_genotype->GetEfficiency();
     comp_merit_ratio = GetCompMerit() / parent_genotype->GetCompMerit();
-    parent_dist = cStringUtil::EditDistance(genome.AsString(),
-        parent_genotype->GetGenome().AsString(), parent_muts);
+    parent_dist = cStringUtil::EditDistance(genome.AsString(), parent_genotype->GetGenome().AsString(), parent_muts);
+ 
     ancestor_dist = parent_genotype->GetAncestorDist() + parent_dist;
   }
 
   // Summarize plasticity information if multiple recalculations performed
-  if (num_trials > 1)
-    SummarizePhenotypicPlasticity(recalc_data);
-  
-  //Deallocate if we created
-  if (temp_test_info) delete temp_test_info;
+  if (num_trials > 1){
+    if (m_phenplast_stats != NULL)
+      delete m_phenplast_stats;
+    m_phenplast_stats = new cPhenPlastSummary(recalc_data);
+  }
 }
 
 
@@ -462,6 +657,24 @@ void cAnalyzeGenotype::PrintTasksQuality(ofstream& fp, int min_task, int max_tas
 
   for (int i = min_task; i < max_task; i++) {
     fp << task_qualities[i] << " ";
+  }
+}
+
+void cAnalyzeGenotype::PrintInternalTasks(ofstream& fp, int min_task, int max_task)
+{
+  if (max_task == -1) max_task = internal_task_counts.GetSize();
+
+  for (int i = min_task; i < max_task; i++) {
+    fp << internal_task_counts[i] << " ";
+  }
+}
+
+void cAnalyzeGenotype::PrintInternalTasksQuality(ofstream& fp, int min_task, int max_task)
+{
+  if (max_task == -1) max_task = internal_task_counts.GetSize();
+
+  for (int i = min_task; i < max_task; i++) {
+    fp << internal_task_qualities[i] << " ";
   }
 }
 
@@ -485,6 +698,25 @@ cString cAnalyzeGenotype::GetAlignmentExecutedFlags() const
   }
 
   return aligned_executed_flags;
+}
+
+int cAnalyzeGenotype::GetInstExecutedCount(int _inst_num) const
+{
+  if(_inst_num < inst_executed_counts.GetSize() && _inst_num > 0)
+  { return inst_executed_counts[_inst_num]; }
+  
+  // If the instruction is not valid, clearly it has never been executed!
+  return 0;
+}
+
+cString cAnalyzeGenotype::DescInstExe(int _inst_id) const
+{
+  if(_inst_id > inst_executed_counts.GetSize() || _inst_id < 0) return "";
+  
+  cString desc("# Times ");
+  desc += GetInstructionSet().GetName(_inst_id);
+  desc += " Executed";
+  return desc;
 }
 
 int cAnalyzeGenotype::GetKO_DeadCount() const

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/10/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ public:
   
   void Run(cAnalyze* analyze, const cString& args, cAnalyzeCommand& command) const
   {
-    cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
+    cAction* action = cActionLibrary::GetInstance().Create(name, m_world, args);
     cAvidaContext& ctx = m_world->GetDefaultContext();
     action->Process(ctx);
   }

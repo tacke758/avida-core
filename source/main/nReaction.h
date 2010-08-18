@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/6/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ namespace nReaction {
     PROCTYPE_POW,
     PROCTYPE_LIN,
     PROCTYPE_ENERGY,
-    PROCTYPE_ENZYME
+    PROCTYPE_ENZYME,
+    PROCTYPE_EXP
   };
 }
 

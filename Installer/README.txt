@@ -1,16 +1,7 @@
-Avida 2.8
+Avida 2.10  http://avida.devosoft.org
 ----------------------------------------------------------------------
 Digital Evolution Laboratory at Michigan State University
-
-
-
-This is the text-based GUI version of avida.  All of Avida's in
-experiment functionality is available.  Note that Analyze mode within
-the viewer is currently under development and may not function as
-expected.  The command line package contains all experiment and
-analysis tools.
-
-
+(http://devolab.msu.edu)
 
 
 Copyright 1999-2007 Michigan State University. All rights reserved.

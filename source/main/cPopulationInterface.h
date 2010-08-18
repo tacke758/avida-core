@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_interface.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -35,10 +35,15 @@
 #ifndef cWorldDriver_h
 #include "cWorldDriver.h"
 #endif
+#include "cGenomeUtil.h"
+#include "cPopulationCell.h"
 
+class cAvidaContext;
+class cDeme;
+class cGenome;
 class cPopulation;
 class cOrgMessage;
-
+class cOrganism;
 
 class cPopulationInterface : public cOrgInterface
 {
@@ -47,23 +52,51 @@ private:
   int m_cell_id;
   int m_deme_id;
 
+  int m_prevseen_cell_id;	// Previously-seen cell's ID
+  int m_prev_task_cell;		// Cell ID of previous task
+  int m_num_task_cells;		// Number of task cells seen
+
   cPopulationInterface(); // @not_implemented
   cPopulationInterface(const cPopulationInterface&); // @not_implemented
   cPopulationInterface operator=(const cPopulationInterface&); // @not_implemented
   
 public:
-  cPopulationInterface(cWorld* world) : m_world(world), m_cell_id(-1), m_deme_id(-1) { ; }
-  virtual ~cPopulationInterface() { ; }
+  cPopulationInterface(cWorld* world);
+  virtual ~cPopulationInterface();
 
+	//! Retrieve this organism.
+	cOrganism* GetOrganism();
+	//! Retrieve the ID of this cell.
   int GetCellID() { return m_cell_id; }
+	//! Retrieve the cell in which this organism lives.
+	cPopulationCell* GetCell();
+	//! Retrieve the cell currently faced by this organism.
+	cPopulationCell* GetCellFaced();
   int GetDemeID() { return m_deme_id; }
+	//! Retrieve the deme in which this organism lives.
+  cDeme* GetDeme();
   void SetCellID(int in_id) { m_cell_id = in_id; }
   void SetDemeID(int in_id) { m_deme_id = in_id; }
+  
+  int GetCellData();
+  void SetCellData(const int newData);
+  int GetFacedCellData();
 
-  bool Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome);
+  int GetPrevSeenCellID() { return m_prevseen_cell_id; }
+  int GetPrevTaskCellID() { return m_prev_task_cell; }
+  int GetNumTaskCellsReached() { return m_num_task_cells; }
+  void AddReachedTaskCell() { m_num_task_cells++; }
+  void SetPrevSeenCellID(int in_id) { m_prevseen_cell_id = in_id; }
+  void SetPrevTaskCellID(int in_id) { m_prev_task_cell = in_id; }
+
+  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome);
   cOrganism* GetNeighbor();
+  bool IsNeighborCellOccupied();
   int GetNumNeighbors();
+  void GetNeighborhoodCellIDs(tArray<int>& list);
   int GetFacing(); // Returns the facing of this organism.
+  int GetFacedCellID();
+  int GetNeighborCellContents();
   void Rotate(int direction = 1);
   void Breakpoint() { m_world->GetDriver().SignalBreakpoint(); }
   int GetInputAt(int& input_pointer);
@@ -72,6 +105,7 @@ public:
   int Debug();
   const tArray<double>& GetResources();
   const tArray<double>& GetDemeResources(int deme_id);
+  const tArray< tArray<int> >& GetCellIdLists();
   void UpdateResources(const tArray<double>& res_change);
   void UpdateDemeResources(const tArray<double>& res_change);
   void Die();
@@ -87,6 +121,69 @@ public:
   bool TestOnDivide();
   //! Send a message to the faced organism.
   bool SendMessage(cOrgMessage& msg);
+  bool BroadcastMessage(cOrgMessage& msg, int depth);
+  bool BcastAlarm(int jump_label, int bcast_range);  
+  void DivideOrgTestamentAmongDeme(double value);
+	//! Send a flash to all neighboring organisms.
+  void SendFlash();
+
+  int GetStateGridID(cAvidaContext& ctx);
+	
+	// Reputation
+	void RotateToGreatestReputation();
+	void RotateToGreatestReputationWithDifferentTag(int tag);
+	void RotateToGreatestReputationWithDifferentLineage(int line);
+	
+	// -------- Network creation support --------
+	//! Link this organism's cell to the cell it is currently facing.
+	void CreateLinkByFacing(double weight=1.0);
+	//! Link this organism's cell to the cell with coordinates (x,y).
+	void CreateLinkByXY(int x, int y, double weight=1.0);
+	//! Link this organism's cell to the cell with index idx.
+	void CreateLinkByIndex(int idx, double weight=1.0);
+
+  void Move(cAvidaContext& ctx, int src_id, int dest_id);
+
+
+protected:
+	//! Internal-use method to consolidate message-sending code.
+	bool SendMessage(cOrgMessage& msg, cPopulationCell& rcell);
+	
+	// -------- HGT support --------
+public:
+	//! Container type for fragments used during HGT.
+	typedef cPopulationCell::fragment_list_type fragment_list_type;
+	//! Match record, used to indicate the region within a genome that should be mutated.
+	typedef cGenomeUtil::substring_match substring_match;
+	//! Called when this organism is the donor during conjugation.
+	void DoHGTDonation(cAvidaContext& ctx);
+	//! Called when this organism "requests" an HGT conjugation.
+	void DoHGTConjugation(cAvidaContext& ctx);
+	//! Perform an HGT mutation on this offspring.
+	void DoHGTMutation(cAvidaContext& ctx, cGenome& offspring);
+	
+protected:
+	//! Place the fragment at the location of best match.
+	void HGTMatchPlacement(cAvidaContext& ctx, const cGenome& offspring,
+												 fragment_list_type::iterator& selected,
+												 substring_match& location);
+	//! Place the fragment at the location of best match, with redundant instructions trimmed.
+	void HGTTrimmedPlacement(cAvidaContext& ctx, const cGenome& offspring,
+													 fragment_list_type::iterator& selected,
+													 substring_match& location);	
+	//! Place the fragment at a random location.
+	void HGTRandomPlacement(cAvidaContext& ctx, const cGenome& offspring,
+													fragment_list_type::iterator& selected,
+													substring_match& location);
+	//! Support for stateful HGT mutations.
+	struct HGTSupport {
+		fragment_list_type _pending; //!< HGT fragments that are awaiting an offspring.
+	};
+	HGTSupport* m_hgt_support; //!< Lazily-initialized pointer to HGT data.
+	//! Initialize HGT support.
+	inline void InitHGTSupport() { if(!m_hgt_support) { m_hgt_support = new HGTSupport(); } }
+	//! Called when this organism is the receiver of an HGT donation.
+	void ReceiveHGTDonation(const cGenome& fragment);
 };
 
 

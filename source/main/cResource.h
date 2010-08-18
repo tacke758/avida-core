@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "resource.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -53,6 +53,9 @@ public:
   double GetInitial() const { return initial; }
   double GetInflow() const { return inflow; }
   double GetOutflow() const { return outflow; }
+  void SetInitial(double _initial) { initial = _initial; }
+  void SetInflow(double _inflow) { inflow = _inflow; }
+  void SetOutflow(double _outflow) { outflow = _outflow; }
 };
 
 /* class to hold all information for a single resource */
@@ -81,7 +84,8 @@ private:
   bool deme_resource;
   bool energy_resource;  // only implemented for spacial resource
   tArray<cCellResource> cell_list;
- 
+  tArray<int> cell_id_list;  
+	bool hgt_metabolize;
   
   cResource(); // @not_implemented
   
@@ -110,7 +114,8 @@ public:
   bool GetDemeResource() const { return deme_resource; }
   bool GetEnergyResource() const { return energy_resource; }
   tArray<cCellResource> *GetCellListPtr() { return &cell_list; }
-
+  tArray<int> *GetCellIdListPtr() { return &cell_id_list; }
+	bool GetHGTMetabolize() const { return hgt_metabolize; }
 
   void SetInitial(double _initial) { initial = _initial; }
   void SetInflow (double _inflow ) { inflow  = _inflow; }
@@ -131,6 +136,11 @@ public:
   bool SetDemeResource(cString _deme_resource);
   bool SetEnergyResource(cString _energy_resource);
   void AddCellResource(cCellResource new_cell) { cell_list.Push(new_cell); }
+  cCellResource *GetCellResourcePtr(int _id);
+  void UpdateCellResource(cCellResource *_CellResoucePtr, double _initial, 
+                          double _inflow, double _outflow);
+  void SetCellIdList(tArray<int>& id_list); //SLG partial resources
+	void SetHGTMetabolize(int _in) { hgt_metabolize = _in; }
 };
 
 

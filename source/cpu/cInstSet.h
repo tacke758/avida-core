@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "inst_set.hh" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -79,13 +79,18 @@ public:
   tArray<int> m_lib_nopmod_map;
   tArray<int> m_mutation_chart;     // ID's represented by redundancy values.
   
+  bool m_has_costs;
+  bool m_has_ft_costs;
+  bool m_has_energy_costs;
+  
   
   void LoadWithStringList(const cStringList& sl);
 
   cInstSet(); // @not_implemented
 
 public:
-  inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib) { ; }
+  inline cInstSet(cWorld* world, cInstLib* inst_lib)
+    : m_world(world), m_inst_lib(inst_lib), m_has_costs(false), m_has_ft_costs(false), m_has_energy_costs(false) { ; }
   inline cInstSet(const cInstSet& is);
   inline ~cInstSet() { ; }
 
@@ -118,13 +123,24 @@ public:
 
   int GetSize() const { return m_lib_name_map.GetSize(); }
   int GetNumNops() const { return m_lib_nopmod_map.GetSize(); }
+  
+  bool HasCosts() const { return m_has_costs; }
+  bool HasFTCosts() const { return m_has_ft_costs; }
+  bool HasEnergyCosts() const { return m_has_energy_costs; }
 
   // Instruction Analysis.
   int IsNop(const cInstruction& inst) const { return (inst.GetOp() < m_lib_nopmod_map.GetSize()); }
-  int IsLabel(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsLabel(); }
+  bool IsLabel(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsLabel(); }
+  bool IsPromoter(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsPromoter(); }
+  bool ShouldStall(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).ShouldStall(); }
+  
+  unsigned int GetFlags(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).GetFlags(); }
 
   // Insertion of new instructions...
   cInstruction ActivateNullInst();
+  
+  // Modification of instructions during run.
+  void SetProbFail(const cInstruction& inst, double _prob_fail) { m_lib_name_map[inst.GetOp()].prob_fail = _prob_fail; }
 
   // accessors for instruction library
   cInstLib* GetInstLib() { return m_inst_lib; }
@@ -133,8 +149,8 @@ public:
   cString FindBestMatch(const cString& in_name) const;
   bool InstInSet(const cString& in_name) const;
 
-  cInstruction GetInstDefault() const { return m_inst_lib->GetInstDefault(); }
-  cInstruction GetInstError() const { return m_inst_lib->GetInstError(); }
+  cInstruction GetInstDefault() const { return cInstruction(m_inst_lib->GetInstDefault()); }
+  cInstruction GetInstError() const { return cInstruction(255); }
   
   void LoadFromConfig();
   void LoadFromFile(const cString& filename);
@@ -156,7 +172,8 @@ namespace nInstSet {
 
 inline cInstSet::cInstSet(const cInstSet& is)
 : m_world(is.m_world), m_inst_lib(is.m_inst_lib), m_lib_name_map(is.m_lib_name_map)
-,m_lib_nopmod_map(is.m_lib_nopmod_map), m_mutation_chart(is.m_mutation_chart)
+, m_lib_nopmod_map(is.m_lib_nopmod_map), m_mutation_chart(is.m_mutation_chart)
+, m_has_costs(is.m_has_costs), m_has_ft_costs(is.m_has_ft_costs), m_has_energy_costs(is.m_has_energy_costs)
 {
 }
 
@@ -166,6 +183,9 @@ inline cInstSet& cInstSet::operator=(const cInstSet& _in)
   m_lib_name_map = _in.m_lib_name_map;
   m_lib_nopmod_map = _in.m_lib_nopmod_map;
   m_mutation_chart = _in.m_mutation_chart;
+  m_has_costs = _in.m_has_costs;
+  m_has_ft_costs = _in.m_has_ft_costs;
+  m_has_energy_costs = _in.m_has_energy_costs;
   return *this;
 }
 
@@ -183,12 +203,7 @@ inline cInstruction cInstSet::GetInst(const cString & in_name) const
 
 
   // Adding default answer if nothing is found...
-  /*
-  FIXME:  this return value is supposed to be cInstSet::GetInstError
-  which should be the same as m_inst_lib->GetInstError().
-  -- kgn
-  */
-  return cInstruction(0);
+  return cInstruction(255);
 }
 
 #endif

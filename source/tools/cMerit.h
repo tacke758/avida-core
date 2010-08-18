@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "merit.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -62,12 +62,17 @@ public:
   }
 
   void operator=(double _merit) { UpdateValue(_merit); }
-  void operator+=(const cMerit & _m){ UpdateValue(value + _m.GetDouble()); }
+  
+  void operator+=(const cMerit & _m) { UpdateValue(value + _m.GetDouble()); }
+  void operator+=(double _merit) { UpdateValue(value + _merit); }
+  
+  cMerit operator*(const cMerit& _m) const { return cMerit(value * _m.GetDouble()); }
+  void operator*=(const cMerit& _m) { UpdateValue(value * _m.GetDouble()); }
 
-  int  operator>(const cMerit & _m)  const { return value >  _m.GetDouble(); }
-  int  operator<(const cMerit & _m)  const { return value <  _m.GetDouble(); }
-  int  operator>=(const cMerit & _m) const { return value >= _m.GetDouble(); }
-  int  operator<=(const cMerit & _m) const { return value <= _m.GetDouble(); }
+  int  operator>(const cMerit& _m)  const { return value >  _m.GetDouble(); }
+  int  operator<(const cMerit& _m)  const { return value <  _m.GetDouble(); }
+  int  operator>=(const cMerit& _m) const { return value >= _m.GetDouble(); }
+  int  operator<=(const cMerit& _m) const { return value <= _m.GetDouble(); }
 
   int  operator==(const cMerit & _m) const { return value == _m.GetDouble(); }
   int  operator==(const double _m) const { return value == _m; }
@@ -93,25 +98,11 @@ public:
 
   int GetNumBits() const { return bits; }
 
-  double CalcFitness(int gestation_time) const {
-    return ( gestation_time != 0 ) ? value / ((double) gestation_time) : 0; }
-
-  static double EnergyToMerit(const double orgEnergy, cWorld* m_world);
+  double CalcFitness(int gestation_time) const { return ( gestation_time != 0 ) ? value / ((double) gestation_time) : 0; }
 
   std::ostream& BinaryPrint(std::ostream& os = std::cout) const;
 };
 
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nMerit {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 std::ostream& operator<<(std::ostream& os, const cMerit & merit);
 

@@ -1,9 +1,9 @@
 /*
- *  cIntegratedSchedule.h
+ *  Cintegratedschedule.h
  *  Avida
  *
  *  Called "integrated_schedule.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -33,8 +33,12 @@
 #include "tArray.h"
 #endif
 
+class cDeme;
+class cIntegratedScheduleNode;
+class cMerit;
+
 /**
- * The cIntegratedSchedule method relies on breaking up all merits into
+* The cIntegratedSchedule method relies on breaking up all merits into
  * sums of powers of 2 (i.e. using the binary representation of the merit).
  * All items with merits in the highest power of two will get the most
  * time, and subsequent merit components will have time divided,
@@ -43,10 +47,6 @@
  * the best, and everything else (where in everything else we again alternate
  * with the best of this sub-list recursively).
  **/
-
-class cIntegratedScheduleNode;
-class cMerit;
-
 class cIntegratedSchedule : public cSchedule
 {
 private:
@@ -66,7 +66,8 @@ public:
   cIntegratedSchedule(int _item_count);
   ~cIntegratedSchedule();
 
-  void Adjust(int item_id, const cMerit & new_merit);
+  virtual void Adjust(int item_id, const cMerit& merit, int deme_id);
+  
   int GetNextID();
   double GetStatus(int id);
 

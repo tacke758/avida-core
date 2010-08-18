@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/10/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,7 +28,6 @@
 #include "cActionLibrary.h"
 #include "cAnalyze.h"
 #include "cAnalyzeGenotype.h"
-#include "tAnalyzeJob.h"
 #include "cClassificationManager.h"
 #include "cGenotype.h"
 #include "cGenotypeBatch.h"
@@ -45,7 +44,10 @@
 #include "cString.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
+#include "tAnalyzeJob.h"
+#include "tAnalyzeJobBatch.h"
 #include "tSmartArray.h"
+
 #include "defs.h"
 
 
@@ -163,12 +165,21 @@ private:
  * Precalculates landscape data for use in detail files.  The primary
  * advantage of this is that it supports multithreaded execution, whereas
  * lazy evaluation during detailing will be serialized.
+ * @JEB: This also now supports setting some test CPU info, just manual inputs for now,
+ * (BEWARE: resource settings that are passed are NOT HONORED yet).
 */
 
 class cActionPrecalcLandscape : public cAction  // @parallelized
 {
+private:
+  cCPUTestInfo m_cpu_test_info;
+
 public:
-  cActionPrecalcLandscape(cWorld* world, const cString& args) : cAction(world, args) { ; }
+  cActionPrecalcLandscape(cWorld* world, const cString& in_args) : cAction(world, in_args), m_cpu_test_info() 
+  { 
+    cString args(in_args); 
+    cAnalyze::PopCommonCPUTestParameters(world, args, m_cpu_test_info);
+  }
   
   static const cString GetDescription()
   {
@@ -186,12 +197,13 @@ public:
         m_world->GetDriver().NotifyComment("Precalculating landscape...");
       }
       
-      cAnalyzeJobQueue& jobqueue = m_world->GetAnalyze().GetJobQueue();      
+      tAnalyzeJobBatch<cAnalyzeGenotype> jobbatch(m_world->GetAnalyze().GetJobQueue());
       tListIterator<cAnalyzeGenotype> batch_it(m_world->GetAnalyze().GetCurrentBatch().List());
       for (cAnalyzeGenotype* cur_genotype = batch_it.Next(); cur_genotype; cur_genotype = batch_it.Next()) {
-        jobqueue.AddJob(new tAnalyzeJob<cAnalyzeGenotype>(cur_genotype, &cAnalyzeGenotype::CalcLandscape));
+        cur_genotype->SetCPUTestInfo(m_cpu_test_info);
+        jobbatch.AddJob(cur_genotype, &cAnalyzeGenotype::CalcLandscape);
       }
-      jobqueue.Execute();
+      jobbatch.RunBatch();
     }
   }
 };
@@ -226,6 +238,11 @@ public:
   {
     int update = -1;
     cLandscape* land = NULL;
+    
+    if (m_dist < 1) {
+      m_world->GetDriver().RaiseException("landscape distance must be >= 1");
+      return;
+    }
     
     if (ctx.GetAnalyzeMode()) {
       if (m_world->GetVerbosity() >= VERBOSE_ON) {

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file_manager.cc" prior to 10/18/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2005 California Institute of Technology
  *
  */
@@ -70,12 +70,13 @@ cDataFile& cDataFileManager::Get(const cString& name)
   
   // Determine directory prefix, default being the current data directory
   cString dir_prefix(m_target_dir);
-  if (target[0] == '.' &&             // Must start with '.' to trigger further testing
-      (target.GetSize() == 1 ||       // If string is exactly "."
-       (target.GetSize() > 1 &&       //   or if it ".." or "./" or ".\"
-        (target[1] == '.' || target[1] == '/' || target[1] == '\\')
+  if ((target[0] == '.' &&             // Must start with '.' to trigger further testing
+       (target.GetSize() == 1 ||       // If string is exactly "."
+        (target.GetSize() > 1 &&       //   or if it ".." or "./" or ".\"
+         (target[1] == '.' || target[1] == '/' || target[1] == '\\')
+        )
        )
-      )
+      ) || target[0] == '/'           // If it is an absolute path, ignore prefix as well
      )
   {
     // Treat path as current working directory relative
@@ -95,7 +96,11 @@ cDataFile& cDataFileManager::Get(const cString& name)
     if (d == -1) break;
     
     // If directory name is not null
-    if (d - i > 0) cTools::MkDir(dir_prefix + target.Substring(0, d - i), false);
+    if (d - i > 0) {
+      cString dir = target.Substring(i, d - i);
+      // Create if  that this directory is not a relative path component
+      if (dir.GetSize() > 2 || (dir != "." && dir != "..")) cTools::MkDir(dir_prefix + target.Substring(0, d), false);
+    }
     
     // Adjust next directory name starting point
     i = d + 1;
@@ -119,7 +124,8 @@ void cDataFileManager::FlushAll()
 
 bool cDataFileManager::Remove(const cString& name)
 {
-  cDataFile* found_file = m_datafiles.Remove(name);
+  cDataFile* found_file = NULL;
+  m_datafiles.Remove(name, found_file);
   if (found_file == NULL) return false;
 
   delete found_file;

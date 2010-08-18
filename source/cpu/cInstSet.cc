@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "inst_set.cc" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -38,7 +38,7 @@ using namespace std;
 
 bool cInstSet::OK() const
 {
-  assert(m_lib_name_map.GetSize() < 256);
+  assert(m_lib_name_map.GetSize() < 255);
   assert(m_lib_nopmod_map.GetSize() < m_lib_name_map.GetSize());
 
   // Make sure that all of the redundancies are represented the appropriate
@@ -67,7 +67,7 @@ cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
 cInstruction cInstSet::ActivateNullInst()
 {  
   const int inst_id = m_lib_name_map.GetSize();
-  const int null_fun_id = m_inst_lib->GetInstNull().GetOp();
+  const int null_fun_id = m_inst_lib->GetInstNull();
   
   assert(inst_id < 255);
   
@@ -196,7 +196,7 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
     }
     
     // Check to make sure we are not inserting the special NULL instruction
-    if (fun_id == m_inst_lib->GetInstNull().GetOp()) {
+    if (fun_id == m_inst_lib->GetInstNull()) {
       errors.PushRear(new cString("Invalid use of NULL instruction"));
       success = false;
       continue;
@@ -231,6 +231,10 @@ void cInstSet::LoadWithStringList(const cStringList& sl)
     m_lib_name_map[inst_id].energy_cost = args->GetInt(3);
     m_lib_name_map[inst_id].prob_fail = args->GetDouble(0);
     m_lib_name_map[inst_id].addl_time_cost = args->GetInt(4);
+    
+    if (m_lib_name_map[inst_id].cost > 1) m_has_costs = true;
+    if (m_lib_name_map[inst_id].ft_cost) m_has_ft_costs = true;
+    if (m_lib_name_map[inst_id].energy_cost) m_has_energy_costs = true;
     
     
     // Parse the instruction code
@@ -342,7 +346,7 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
 
     
     
-    if (fun_id == m_inst_lib->GetInstNull().GetOp())
+    if (fun_id == m_inst_lib->GetInstNull())
       m_world->GetDriver().RaiseFatalException(1,"Invalid use of NULL instruction");
     
     const int inst_id = m_lib_name_map.GetSize();
@@ -361,6 +365,10 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
     m_lib_name_map[inst_id].prob_fail = prob_fail;
     m_lib_name_map[inst_id].addl_time_cost = addl_time_cost;
     m_lib_name_map[inst_id].inst_code = 0;
+
+    if (m_lib_name_map[inst_id].cost > 1) m_has_costs = true;
+    if (m_lib_name_map[inst_id].ft_cost) m_has_ft_costs = true;
+    if (m_lib_name_map[inst_id].energy_cost) m_has_energy_costs = true;
     
     const int total_redundancy = m_mutation_chart.GetSize();
     m_mutation_chart.Resize(total_redundancy + redundancy);
@@ -370,8 +378,9 @@ void cInstSet::LoadFromLegacyFile(const cString& filename)
 
     if ((*m_inst_lib)[fun_id].IsNop()) {
       // Assert nops are at the _beginning_ of an inst_set.
-      assert(m_lib_name_map.GetSize() == (m_lib_nopmod_map.GetSize() + 1));
-      
+      if (m_lib_name_map.GetSize() != (m_lib_nopmod_map.GetSize() + 1)) {
+        m_world->GetDriver().RaiseFatalException(1, "No operation instructions (nop-A, nop-B, ...) must be the first instructions in an instruction set file.");
+      }
       m_lib_nopmod_map.Resize(inst_id + 1);
       m_lib_nopmod_map[inst_id] = fun_id;
     }

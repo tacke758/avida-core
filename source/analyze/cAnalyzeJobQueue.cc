@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 2/18/06.
- *  Copyright 2006-2007 Michigan State University. All rights reserved.
+ *  Copyright 2006-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -135,3 +135,4 @@ void cAnalyzeJobQueue::singleThreadedJobExecution(cAnalyzeJob* job)
   job->Run(ctx);
   delete job;
 }
+

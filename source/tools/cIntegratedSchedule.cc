@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "integrated_schedule.cc" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,6 +25,7 @@
 
 #include "cIntegratedSchedule.h"
 
+#include "cDeme.h"
 #include "cChangeList.h"
 #include "functions.h"
 #include "cIntegratedScheduleNode.h"
@@ -75,8 +76,7 @@ bool cIntegratedSchedule::OK()
   return true;
 }
 
-
-void cIntegratedSchedule::Adjust(int item_id, const cMerit & new_merit)
+void cIntegratedSchedule::Adjust(int item_id, const cMerit& new_merit, int deme_id)
 {
   if (cChangeList *change_list = GetChangeList()) {
     change_list->MarkChange(item_id);

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 5/20/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -97,14 +97,14 @@ public:
 
 /*
  Sets up a population based on a dump file such as written out by
- detail_pop. It is also possible to append a history file to the dump
+ SavePopulation. It is also possible to append a history file to the dump
  file, in order to preserve the history of a previous run.
  
  Parameters:
    filename (string)
      The name of the file to open.
    update (int) *optional*
-     ??
+     The update to change to in the running program
  */
 class cActionLoadPopulation : public cAction
 {
@@ -124,7 +124,86 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    m_world->GetPopulation().LoadDumpFile(m_filename, m_update);
+    // Last parameter (false)  tells LoadDumpFile that this is an asexual population dump
+    m_world->GetPopulation().LoadDumpFile(m_filename, m_update, false);
+  }
+};
+
+/*
+ Sets up a sexual population based on a dump file such as written out by
+ SaveSexPopulation. It is also possible to append a history file to the dump
+ file, in order to preserve the history of a previous run.
+
+ Parameters:
+   filename (string)
+     The name of the file to open.
+   update (int) *optional*
+     The update to change to in the running program
+ */
+class cActionLoadSexPopulation : public cAction
+{
+private:
+  cString m_filename;
+  int m_update;
+ 
+public:
+  cActionLoadSexPopulation(cWorld* world, const cString& args) : cAction(world, args), m_filename(""), m_update(-1)
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();
+    if (largs.GetSize()) m_update = largs.PopWord().AsInt();
+  }
+ 
+  static const cString GetDescription() { return "Arguments: <cString fname> [int update=-1]"; }
+ 
+  void Process(cAvidaContext& ctx)
+  {
+    // Last parameter (true) tells LoadDumpFile that this is a sexual population dump
+    m_world->GetPopulation().LoadDumpFile(m_filename, m_update, true);
+  }
+};
+
+
+
+/*
+ Sets up a population based on a dump file such as written out by
+ detail_pop. It is also possible to append a history file to the dump
+ file, in order to preserve the history of a previous run.
+ 
+ Parameters:
+   filename (string)
+     The name of the file to open.
+   update (int) *optional*
+     ??
+ */
+class cActionLoadStructuredPopulation : public cAction
+{
+private:
+  cString m_filename;
+  int m_update;
+  int m_cellid_offset;
+  int m_lineage_offset;
+  
+public:
+  cActionLoadStructuredPopulation(cWorld* world, const cString& args) : cAction(world, args), m_filename(""), m_update(-1), m_cellid_offset(0), m_lineage_offset(0)
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();
+    if (largs.GetSize()) m_update = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_cellid_offset = largs.PopWord().AsInt();
+    if (largs.GetSize()) m_lineage_offset = largs.PopWord().AsInt();
+  }
+  
+  static const cString GetDescription() { return "Arguments: <cString fname> [int update=-1] [int cellid_offset=0] [int lineage_offset=0]"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    // set the update if requested
+    if (m_update >= 0) m_world->GetStats().SetCurrentUpdate(m_update);
+    
+    if (!m_world->GetPopulation().LoadStructuredPopulation(m_filename, m_cellid_offset, m_lineage_offset)) {
+      m_world->GetDriver().RaiseFatalException(-1, "failed to load structured population");
+    }
   }
 };
 
@@ -171,10 +250,40 @@ public:
 class cActionSavePopulation : public cAction
 {
 private:
+  bool m_print_mut_steps;
   cString m_filename;
   
 public:
-  cActionSavePopulation(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+  cActionSavePopulation(cWorld* world, const cString& args) : cAction(world, args), m_print_mut_steps(0), m_filename("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();
+    if (m_filename == "mut_steps") {
+      m_print_mut_steps = 1;
+      m_filename = "";    
+      if (largs.GetSize()) m_filename = largs.PopWord();
+    }
+  }
+  
+  static const cString GetDescription() { return "Arguments: [string fname='']"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    cString filename(m_filename);
+    if (filename == "") filename.Set("detail-%d.pop", m_world->GetStats().GetUpdate());
+    m_world->GetClassificationManager().DumpDetailedSummary(m_world->GetDataFileOFStream(filename), m_print_mut_steps);
+    m_world->GetDataFileManager().Remove(filename);
+  }
+};
+
+
+class cActionSaveStructuredPopulation : public cAction
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionSaveStructuredPopulation(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
   {
     cString largs(args);
     if (largs.GetSize()) m_filename = largs.PopWord();
@@ -185,9 +294,8 @@ public:
   void Process(cAvidaContext& ctx)
   {
     cString filename(m_filename);
-    if (filename == "") filename.Set("detail-%d.pop", m_world->GetStats().GetUpdate());
-    m_world->GetClassificationManager().DumpDetailedSummary(m_world->GetDataFileOFStream(filename));
-    m_world->GetDataFileManager().Remove(filename);
+    if (filename == "") filename.Set("detail-%d.spop", m_world->GetStats().GetUpdate());
+    m_world->GetPopulation().SaveStructuredPopulation(filename);
   }
 };
 
@@ -264,15 +372,23 @@ class cActionSaveHistoricPopulation : public cAction
 {
 private:
   int m_backdist;
+  bool m_print_mut_steps;
   cString m_filename;
+  
   
 public:
   cActionSaveHistoricPopulation(cWorld* world, const cString& args)
-    : cAction(world, args), m_backdist(-1), m_filename("")
+    : cAction(world, args), m_backdist(-1), m_print_mut_steps(0), m_filename("")
   {
     cString largs(args);
     if (largs.GetSize()) m_backdist = largs.PopWord().AsInt();
     if (largs.GetSize()) m_filename = largs.PopWord();
+    if (m_filename == "mut_steps") {
+      m_print_mut_steps = 1;    
+      m_filename = "";    
+      if (largs.GetSize()) m_filename = largs.PopWord();
+    }
+
   }
   
   static const cString GetDescription() { return "Arguments: [int back_dist=-1] [string fname='']"; }
@@ -281,7 +397,7 @@ public:
   {
     cString filename(m_filename);
     if (filename == "") filename.Set("historic-%d.pop", m_world->GetStats().GetUpdate());
-    m_world->GetClassificationManager().DumpHistoricSummary(m_world->GetDataFileOFStream(filename), m_backdist);
+    m_world->GetClassificationManager().DumpHistoricSummary(m_world->GetDataFileOFStream(filename), m_backdist, m_print_mut_steps);
     m_world->GetDataFileManager().Remove(filename);
   }
 };
@@ -325,9 +441,12 @@ void RegisterSaveLoadActions(cActionLibrary* action_lib)
   action_lib->Register<cActionLoadClone>("LoadClone");
 
   action_lib->Register<cActionLoadPopulation>("LoadPopulation");
+  action_lib->Register<cActionLoadSexPopulation>("LoadSexPopulation");
+  action_lib->Register<cActionLoadStructuredPopulation>("LoadStructuredPopulation");
 
   action_lib->Register<cActionDumpPopulation>("DumpPopulation");
   action_lib->Register<cActionSavePopulation>("SavePopulation");
+  action_lib->Register<cActionSaveStructuredPopulation>("SaveStructuredPopulation");
   action_lib->Register<cActionSaveSexPopulation>("SaveSexPopulation");
   action_lib->Register<cActionSaveParasitePopulation>("SaveParasitePopulation");
   action_lib->Register<cActionSaveHistoricPopulation>("SaveHistoricPopulation");

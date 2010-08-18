@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "string_list.cc" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -91,7 +91,7 @@ cString cStringList::PopLine(int line_num)
 {
   tListIterator<cString> string_it(string_list);
   string_it.Next();
-  for (int k = 0; k < line_num && string_it.Next(); k++);
+  for (int k = 0; k < line_num && string_it.Next(); k++) ;
   return ReturnString(string_list.Remove(string_it));
 }
 

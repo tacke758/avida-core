@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype.hh" prior to 11/30/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -26,6 +26,7 @@
 #ifndef cGenotype_h
 #define cGenotype_h
 
+#include <cassert>
 #include <fstream>
 #ifndef cDoubleSum_h
 #include "cDoubleSum.h"
@@ -39,9 +40,13 @@
 #ifndef cGenotype_TestData_h
 #include "cGenotype_TestData.h"
 #endif
+#ifndef cPhenPlastSummary_h
+#include "cPhenPlastSummary.h"
+#endif
 #ifndef cString_h
 #include "cString.h"
 #endif
+
 
 class cAvidaContext;
 class cMerit;
@@ -55,8 +60,12 @@ private:
   cWorld* m_world;
   cGenome genome;
   cString name;
-  bool flag_threshold;
-  bool is_active;      // Is this genotype still alive?
+  
+  struct {
+    bool m_flag_threshold:1;
+    bool m_is_active:1;      // Is this genotype still alive?
+    bool m_track_parent_dist:1;
+  };
   int defer_adjust;    // Don't adjust in the archive until all are cleared.
 
   int id_num;
@@ -65,7 +74,8 @@ private:
 
   mutable cGenotype_TestData test_data;
   cGenotype_BirthData birth_data;
-
+  mutable cPhenPlastSummary* m_phenplast_stats;
+  
   // Statistical info
 
   int num_organisms;
@@ -104,6 +114,7 @@ private:
   cDoubleSum tmp_sum_fitness;
 
   
+  
   void CalcTestStats(cAvidaContext& ctx) const;
   
   cGenotype(cWorld* world, int in_update_born, int in_id);
@@ -123,6 +134,7 @@ public:
   void SetGenome(const cGenome & in_genome);
   void SetSpecies(cSpecies * in_species) { species = in_species; }
 
+ 
   // Test CPU info -- only used with limited options on.
   inline bool GetTestViable(cAvidaContext& ctx) const;
   inline double GetTestFitness(cAvidaContext& ctx) const;
@@ -132,6 +144,22 @@ public:
   inline int GetTestCopiedSize(cAvidaContext& ctx) const;
   inline double GetTestColonyFitness(cAvidaContext& ctx) const;
   inline int GetTestGenerations(cAvidaContext& ctx) const;
+  
+  inline void CheckPhenPlast(cAvidaContext& ctx) const{ if (m_phenplast_stats == NULL) TestPlasticity(ctx);}
+  int    GetNumPhenotypes(cAvidaContext& ctx)     const { CheckPhenPlast(ctx); return m_phenplast_stats->m_num_phenotypes; }
+  double GetPhenotypicEntropy(cAvidaContext& ctx) const { CheckPhenPlast(ctx); return m_phenplast_stats->m_phenotypic_entropy; }
+  double GetMaximumFitness(cAvidaContext& ctx)    const { CheckPhenPlast(ctx); return m_phenplast_stats->m_max_fitness; }
+  double GetMaximumFitnessFrequency(cAvidaContext& ctx) const {CheckPhenPlast(ctx); return m_phenplast_stats->m_min_fit_frequency;}
+  double GetMinimumFitness(cAvidaContext& ctx)     const { CheckPhenPlast(ctx); return m_phenplast_stats->m_min_fitness; }
+  double GetMinimumFitnessFrequency(cAvidaContext& ctx) const {CheckPhenPlast(ctx); return m_phenplast_stats->m_min_fit_frequency;}
+  double GetAverageFitness(cAvidaContext& ctx)     const { CheckPhenPlast(ctx); return m_phenplast_stats->m_avg_fitness; }
+  double GetLikelyFrequency(cAvidaContext& ctx)    const { CheckPhenPlast(ctx); return m_phenplast_stats->m_likely_frequency; }
+  double GetLikelyFitness(cAvidaContext& ctx)      const { CheckPhenPlast(ctx); return m_phenplast_stats->m_likely_fitness; }
+  int    GetNumTrials(cAvidaContext& ctx)          const { CheckPhenPlast(ctx); return m_phenplast_stats->m_recalculate_trials; }
+  double GetViableProbability(cAvidaContext& ctx)  const { CheckPhenPlast(ctx); return m_phenplast_stats->m_viable_probability; }
+  double GetTaskProbability(cAvidaContext& ctx, int task_id) const;
+  tArray<double> GetTaskProbabilities(cAvidaContext& ctx) const;
+  void TestPlasticity(cAvidaContext& ctx) const;
 
   void SetParent(cGenotype* parent, cGenotype* parent2);
   void SetName(cString in_name)     { name = in_name; }
@@ -140,9 +168,14 @@ public:
   void SetSymbol(char in_symbol) { symbol = in_symbol; }
   void SetMapColor(int in_id) { map_color_id = in_id; }
   inline void SetThreshold();
+  inline void ClearThreshold();
   void IncDeferAdjust() { defer_adjust++; }
   void DecDeferAdjust() { defer_adjust--; assert(defer_adjust >= 0); }
   void SetLineageLabel(int in_label) { birth_data.lineage_label = in_label; }
+  void SetExecTimeBorn(int in_exec_born) { birth_data.exec_born = in_exec_born;}  //@MRR
+  void SetGenerationBorn(int in_gen_born) {birth_data.generation_born = in_gen_born;} //@MRR
+  void SetOrganismIDAtBirth(int org_id)  {birth_data.birth_org_id = org_id;} //@MRR
+  void SetOrganismIDAtDeath(int org_id)  {birth_data.death_org_id = org_id;} //@MRR
 
   // Setting New Stats
   void AddCopiedSize(int in) { sum_copied_size.Add(in); }
@@ -201,10 +234,10 @@ public:
     { return birth_data.num_offspring_genotypes; }
   void AddOffspringGenotype() { birth_data.num_offspring_genotypes++; }
   void RemoveOffspringGenotype() { birth_data.num_offspring_genotypes--; }
-  bool GetActive() const { return is_active; }
+  bool GetActive() const { return m_is_active; }
   bool GetDeferAdjust() const { return defer_adjust > 0; }
   int GetUpdateDeactivated() { return birth_data.update_deactivated; }
-  void Deactivate(int update);
+  void Deactivate(int update, int org_id = -1);
 
   int GetUpdateBorn() const     { return birth_data.update_born; }
   int GetParentID() const       { return birth_data.ancestor_ids[0]; }
@@ -217,10 +250,14 @@ public:
   cSpecies* GetParentSpecies()  { return birth_data.parent_species; }
   cGenotype* GetNext()          { return next; }
   cGenotype* GetPrev()          { return prev; }
-  bool GetThreshold() const     { return flag_threshold; }
+  bool GetThreshold() const     { return m_flag_threshold; }
   int GetID() const             { return id_num; }
   char GetSymbol() const        { return symbol; }
-  int GetMapColor() const          { return map_color_id; }
+  int GetMapColor() const       { return map_color_id; }
+  int GetExecTimeBorn() const   { return birth_data.exec_born; }  //@MRR
+  int GetGenerationBorn() const { return birth_data.generation_born; } //@MRR
+  int GetOrgIDAtBirth() const   { return birth_data.birth_org_id; } //@MRR
+  int GetOrgIDAtDeath() const   { return birth_data.death_org_id; } //@MRR
 
   // Calculate a crude phylogentic distance based off of tracking parents
   // and grand-parents, including sexual tracking.
@@ -262,10 +299,18 @@ inline int cGenotype::RemoveOrganism()
 
 inline void cGenotype::SetThreshold()
 {
-  flag_threshold = true;
+  m_flag_threshold = true;
   if (symbol == '.') symbol = '+';
   if (map_color_id == -2) map_color_id = -1;
 }
+
+inline void cGenotype::ClearThreshold()
+{
+  m_flag_threshold = false;
+  if (symbol == '+') symbol = ',';
+  if (map_color_id == -1) map_color_id = -2;
+}
+
 
 inline void cGenotype::SetBreedStats(cGenotype & daughter)
 {
@@ -325,10 +370,11 @@ inline int cGenotype::GetTestGenerations(cAvidaContext& ctx) const {
   return test_data.generations;
 }
 
-inline void cGenotype::Deactivate(int update)
+inline void cGenotype::Deactivate(int update, int org_id)
 {
-  is_active = false;
+  m_is_active = false;
   birth_data.update_deactivated = update;
+  birth_data.death_org_id = org_id;
 }
 
 

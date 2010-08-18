@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -35,8 +35,10 @@
 # endif
 #endif
 
+class cAvidaContext;
 class cHardwareBase;
 class cInstSet;
+class cMetaGenome;
 class cOrganism;
 class cWorld;
 
@@ -49,8 +51,8 @@ class cHardwareManager
 private:
   cWorld* m_world;
   cInstSet* m_inst_set;
-  int m_type;
-//  cTestResources m_testres;
+  int m_cpu_count;
+  
   
   cHardwareManager(); // @not_implemented
   cHardwareManager(const cHardwareManager&); // @not_implemented
@@ -61,8 +63,8 @@ public:
   cHardwareManager(cWorld* world);
   ~cHardwareManager() { ; }
   
-  cHardwareBase* Create(cOrganism* in_org);
-  cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
+  cHardwareBase* Create(cAvidaContext& ctx, cOrganism* org, const cMetaGenome& mg, cInstSet* is = NULL);
+  inline cTestCPU* CreateTestCPU() { return new cTestCPU(m_world); }
 
   const cInstSet& GetInstSet() const { return *m_inst_set; }
   cInstSet& GetInstSet() { return *m_inst_set; }

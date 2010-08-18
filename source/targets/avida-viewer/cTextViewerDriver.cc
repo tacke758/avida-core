@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -43,18 +43,18 @@ using namespace std;
 
 
 cTextViewerDriver::cTextViewerDriver(cWorld* world)
-  : cTextViewerDriver_Base(world)
+  : cTextViewerDriver_Base(world), m_pause(false), m_firstupdate(true)
 {
   m_view = new cView(world);
   m_view->SetViewMode(world->GetConfig().VIEW_MODE.Get());
 
-  cDriverManager::Register(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Register(this);
   world->SetDriver(this);
 }
 
 cTextViewerDriver::~cTextViewerDriver()
 {
-  cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
+  cDriverManager::Unregister(this);
   
   if (m_view != NULL) EndProg(0);
 }
@@ -70,6 +70,7 @@ void cTextViewerDriver::Run()
   const double point_mut_prob = m_world->GetConfig().POINT_MUT_PROB.Get();
   
   cAvidaContext ctx(m_world->GetRandom());
+  ctx.EnableOrgFaultReporting();
   
   while (!m_done) {
     if (cChangeList* change_list = population.GetChangeList()) {
@@ -100,7 +101,17 @@ void cTextViewerDriver::Run()
     const int UD_size = ave_time_slice * population.GetNumOrganisms();
     const double step_size = 1.0 / (double) UD_size;
     
-
+    if (m_pause) {
+      m_view->Pause();
+      m_pause = false;
+      
+      // This is needed to have the top bar drawn properly; I'm not sure why...
+      if (m_firstupdate) {
+        m_view->Refresh();
+        m_firstupdate = false;
+      }
+    }
+    
     // Are we stepping through an organism?
     if (m_view->GetStepOrganism() != -1) {  // Yes we are!
                                             // Keep the viewer informed about the organism we are stepping through...
@@ -111,32 +122,30 @@ void cTextViewerDriver::Run()
           m_view->NewUpdate();
           
           // This is needed to have the top bar drawn properly; I'm not sure why...
-          static bool first_update = true;
-          if (first_update) {
+          if (m_firstupdate) {
             m_view->Refresh();
-            first_update = false;
+            m_firstupdate = false;
           }
         }
         population.ProcessStep(ctx, step_size, next_id);
       }
     }
     else {
-      for (int i = 0; i < UD_size; i++) population.ProcessStep(ctx, step_size);
+      for (int i = 0; i < UD_size; i++) population.ProcessStep(ctx, step_size, population.ScheduleOrganism());
     }
     
     
     // end of update stats...
-    population.CalcUpdateStats();
+    population.ProcessPostUpdate(ctx);
     
     // Setup the viewer for the new update.
     if (m_view->GetStepOrganism() == -1) {
       m_view->NewUpdate();
  
       // This is needed to have the top bar drawn properly; I'm not sure why...
-      static bool first_update = true;
-      if (first_update) {
+      if (m_firstupdate) {
         m_view->Refresh();
-        first_update = false;
+        m_firstupdate = false;
       }
     }
     

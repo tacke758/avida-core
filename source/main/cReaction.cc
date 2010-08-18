@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction.cc" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -78,6 +78,20 @@ bool cReaction::ModifyInst(int inst_id, int process_num)
 {
   if (process_num >= process_list.GetSize() || process_num < 0) return false;
   process_list.GetPos(process_num)->SetInstID(inst_id);
+  return true;
+}
+
+bool cReaction::SetMinTaskCount(int min_count, int requisite_num) 
+{
+  if (requisite_num >= requisite_list.GetSize() || requisite_num < 0) return false;
+  requisite_list.GetPos(requisite_num)->SetMinTaskCount(min_count);
+  return true;
+}
+
+bool cReaction::SetMaxTaskCount(int max_count, int requisite_num) 
+{
+  if (requisite_num >= requisite_list.GetSize() || requisite_num < 0) return false;
+  requisite_list.GetPos(requisite_num)->SetMaxTaskCount(max_count);
   return true;
 }
 

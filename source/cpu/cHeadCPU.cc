@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "head_cpu.cc" prior to 11/30/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -25,30 +25,33 @@
 
 #include "cHeadCPU.h"
 
-#include "cCodeLabel.h"
-#include "cGenome.h"
-#include "cInstruction.h"
-#include "cStringUtil.h"
-
 #include <cassert>
 
 
-void cHeadCPU::Adjust()
+void cHeadCPU::fullAdjust(int mem_size)
 {
   assert(m_mem_space >= 0);
   // Ensure that m_mem_space is valid
-  if (m_mem_space >= m_hardware->GetNumMemSpaces()) m_mem_space %= m_hardware->GetNumMemSpaces();
+  if (m_mem_space != m_cached_ms) {
+    if (m_mem_space >= m_hardware->GetNumMemSpaces()) m_mem_space %= m_hardware->GetNumMemSpaces();
+    m_cached_ms = m_mem_space;
+    m_memory = &m_hardware->GetMemory(m_mem_space);
+  }
   
-  const int mem_size = GetMemory().GetSize();
+  if (mem_size < 0) mem_size = GetMemSize();
   
   // If we are still in range, stop here!
   if (m_position >= 0 && m_position < mem_size) return;
   
   // If the memory is gone, just stick it at the begining of its parent.
   // @DMB - note: this violates the circularity of memory spaces.  You can loop forward, but not backward.
-  if (mem_size == 0 || m_position < 0) m_position = 0;
+  if (mem_size == 0 || m_position < 0) {
+    m_position = 0;
+    return;
+  }
   
   // position back at the begining of the creature as necessary.
-  m_position %= GetMemory().GetSize();
+  if (m_position < (2 * mem_size)) m_position -= mem_size;
+  else m_position %= mem_size;
 }
 

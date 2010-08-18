@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -47,17 +47,20 @@
 
 #include <cassert>
 
-class cActionLibrary;
 class cAnalyze;
+class cAnalyzeGenotype;
 class cAvidaDriver;
 class cClassificationManager;
 class cEnvironment;
 class cEventList;
 class cHardwareManager;
+class cOrganism;
 class cPopulation;
 class cStats;
 class cTestCPU;
 class cWorldDriver;
+template<class T> class tDataEntry;
+template<class T> class tDictionary;
 
 class cWorld
 {
@@ -65,7 +68,6 @@ class cWorld
   tMemTrack<cWorld> mt;
 #endif
 protected:
-  cActionLibrary* m_actlib;
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
   cAvidaContext m_ctx;
@@ -88,18 +90,17 @@ protected:
   // Internal Methods
   void Setup();
   
+  
   cWorld(const cWorld&); // @not_implemented
   cWorld& operator=(const cWorld&); // @not_implemented
   
 public:
   cWorld(cAvidaConfig* cfg) : m_analyze(NULL), m_conf(cfg), m_ctx(m_rng) { Setup(); }
-  ~cWorld();
+  virtual ~cWorld();
   
-  void SetConfig(cAvidaConfig* cfg) { delete m_conf; m_conf = cfg; }
   void SetDriver(cWorldDriver* driver, bool take_ownership = false);
   
   // General Object Accessors
-  cActionLibrary& GetActionLibrary() { return *m_actlib; }
   cAnalyze& GetAnalyze();
   cAvidaConfig& GetConfig() { return *m_conf; }
   cAvidaContext& GetDefaultContext() { return m_ctx; }
@@ -122,18 +123,25 @@ public:
   
   // Convenience Accessors
   int GetNumInstructions();
-  int GetNumReactions();
   int GetNumResources();
+  int GetNumResourceSpecs();
   inline int GetVerbosity() { return m_conf->VERBOSITY.Get(); }
   inline void SetVerbosity(int v) { m_conf->VERBOSITY.Set(v); }
 
   // @DMB - Inherited from cAvidaDriver heritage
   void GetEvents(cAvidaContext& ctx);
-
+	
+	cEventList* GetEventsList() { return m_event_list; }
+	
+	//! Migrate this organism to a different world (does nothing here; see cMultiProcessWorld).
+	virtual void MigrateOrganism(cOrganism* org) { }
+	
+	//! Process post-update events.
+	virtual void ProcessPostUpdate(cAvidaContext& ctx) { }
+	
   // Save to archive 
   template<class Archive>
   void save(Archive & a, const unsigned int version) const {
-    a.ArkvObj("m_actlib", m_actlib);
     a.ArkvObj("m_analyze", m_analyze);
     a.ArkvObj("m_conf", m_conf);
     a.ArkvObj("m_ctx", m_ctx);
@@ -157,7 +165,6 @@ public:
   // Load from archive 
   template<class Archive>
   void load(Archive & a, const unsigned int version){
-    a.ArkvObj("m_actlib", m_actlib);
     a.ArkvObj("m_analyze", m_analyze);
     a.ArkvObj("m_conf", m_conf);
     a.ArkvObj("m_ctx", m_ctx);
@@ -186,7 +193,6 @@ public:
   void serialize(Archive & a, const unsigned int version){
     a.SplitLoadSave(*this, version);
   }
-
 };
 
 

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "cstringh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -32,6 +32,9 @@
 #include <cstring>
 #include <cassert>
 
+#include "cRCObject.h"
+#include "tRCPtr.h"
+
 #if USE_tMemTrack
 # ifndef tMemTrack_h
 #  include "tMemTrack.h"
@@ -39,7 +42,6 @@
 #endif
 
 #define MAX_STRING_LENGTH 4096
-#define MAX_STRING_REF_COUNT 32767
 #define CONTINUE_LINE_CHAR '\\'
 
 /**
@@ -65,10 +67,10 @@ private:
   {
   private:
     cString& string;
-    short index;
+    int index;
 
   public:
-    cCharProxy(cString& _string, short _index) : string(_string), index(_index) { ; }
+    cCharProxy(cString& _string, int _index) : string(_string), index(_index) { ; }
 
     inline cCharProxy& operator=(char c);     // lvalue
     inline cCharProxy& operator+=(char c);    // lvalue
@@ -82,107 +84,86 @@ private:
   friend class cCharProxy;  // Telling rvalue vs lvalue ....
 
   // cStringData -- Holds the actual data and is reference count --
-  class cStringData
+  class cStringData : public cRCObject
   {
     // NOTE: Terminating NULL is always there (you can't assign!!)
   private:
-    short refs;   // Number of references
-    short size;   // size of data (NOT INCLUDING TRAILING NULL)
-    char* data;
-    
+    int m_size;   // size of data (NOT INCLUDING TRAILING NULL)
+    char* m_data;
     
     cStringData(); // @not_implemented
 
   public:
-    explicit cStringData(short in_size);
-    cStringData(short in_size, const char* in);
+    explicit cStringData(int in_size);
+    cStringData(int in_size, const char* in);
     cStringData(const cStringData& in);
 
-    ~cStringData(){
-      assert(refs == 0);  // Deleting cStringData with References!!
-      delete [] data;
+    ~cStringData()
+    {
+      delete [] m_data;
     }
 
     cStringData& operator=(const cStringData& in)
     {
-      delete [] data;
-      size = in.GetSize();
-      data = new char [size+1];
-      assert(data != NULL);   // Memory Allocation Error: Out of Memory
-      for( short i=0; i<size; ++i )  data[i]=in[i];
-      data[size] = '\0';
+      delete [] m_data;
+      m_size = in.GetSize();
+      m_data = new char [m_size + 1];
+      assert(m_data != NULL);   // Memory Allocation Error: Out of Memory
+      for(int i = 0; i < m_size; ++i)  m_data[i] = in[i];
+      m_data[m_size] = '\0';
       return (*this);
     }
 
-    short GetSize() const { return size; }
-    const char* GetData() const { return data; }
+    int GetSize() const { return m_size; }
+    const char* GetData() const { return m_data; }
 
     char operator[] (int index) const
     {
       assert(index >= 0);    // Lower Bounds Error
-      assert(index <= size); // Upper Bounds Error
-      return data[index];
+      assert(index <= m_size); // Upper Bounds Error
+      return m_data[index];
     }
 
     char& operator[](int index)
     {
       assert(index >= 0);     // Lower Bounds Error
-      assert(index <= size);  // Upper Bounds Error
-      assert(index != size);  // Cannot Change Terminating NULL
-      return data[index];
+      assert(index <= m_size);  // Upper Bounds Error
+      assert(index != m_size);  // Cannot Change Terminating NULL
+      return m_data[index];
     }
-
-    bool IsShared() { return (refs > 1); }
-    bool AtMaxRefs() { return (refs >= MAX_STRING_REF_COUNT); }
-
-    short RemoveRef()
-    {
-      assert( refs > 0 );  // Reference count corrupted
-      return (--refs);
-    }
-
-    cStringData* NewRef() { ++refs; return this; }
   };
 
 public:
-  static const int MAX_LENGTH;
-
-  cString(const char* in = "") : value(new cStringData(strlen(in), in))
+  cString(const char* in_str = "") : value(new cStringData(strlen(in_str), in_str))
   {
-    assert( in != NULL );     // NULL input string
-    assert( value != NULL );  // Memory Allocation Error: Out of Memory
+    assert( in_str != NULL );     // NULL input string
+    assert( value );  // Memory Allocation Error: Out of Memory
   }
   cString(const char* in, int in_size) : value(new cStringData(in_size, in))
   {
     assert(in_size >= 0);
     assert( in != NULL );     // NULL input string
-    assert( value != NULL );  // Memory Allocation Error: Out of Memory
+    assert( value );  // Memory Allocation Error: Out of Memory
   }
   explicit cString(const int size) : value(new cStringData(size))
   {
-    assert( value != NULL );    // Memory Allocation Error: Out of Memory
+    assert( value );    // Memory Allocation Error: Out of Memory
   }
-  cString(const cString& in) { CopyString(in); }
+  cString(const cString& in_str) :value(in_str.value) { ; }
 
-  virtual ~cString() { if (value->RemoveRef() == 0) delete value; }
+  ~cString() { ; }
 
 
   // Cast to const char *
   operator const char* () const { return value->GetData(); }
 
   // Assignment Operators
-  cString& operator=(const cString & in)
-  {
-    if( value->RemoveRef() == 0 ) delete value;
-    CopyString(in);
-    return *this; 
-  }
+  cString& operator=(const cString& in_str) { value = in_str.value; return *this; }
   cString& operator=(const char* in)
   {
     assert( in != NULL ); // NULL input string
-    if( value->RemoveRef() == 0 ) delete value;
     value = new cStringData(strlen(in),in);
-    assert(value != NULL);  // Memory Allocation Error: Out of Memory
+    assert(value);  // Memory Allocation Error: Out of Memory
     return *this;
   }
   
@@ -191,6 +172,11 @@ public:
    * Get the size of the string (not including the terminating '\0').
    **/
   int GetSize() const { return value->GetSize(); }
+
+	/**
+	 *  Get the string
+	 **/
+	const char* GetData() const { return value->GetData(); }
 
 
   // Comparisons
@@ -213,24 +199,18 @@ public:
 
 
   // Additional modifiers
-  cString & Set(const char * fmt, ...);
+  cString& Set(const char * fmt, ...);
 
-  cString & Insert(const char in, int pos=0, int excise=0){
-    return InsertStr(1, &in, pos, excise); }
-  cString & Insert(const char * in, int pos=0, int excise=0){
-    return InsertStr(strlen(in), in, pos, excise); }
-  cString & Insert(const cString & in, int pos=0, int excise=0){
-    return InsertStr(in.GetSize(), in, pos, excise); }
+  cString& Insert(const char in, int pos = 0, int excise = 0) { return InsertStr(1, &in, pos, excise); }
+  cString& Insert(const char* in, int pos = 0, int excise = 0) { return InsertStr(strlen(in), in, pos, excise); }
+  cString& Insert(const cString& in, int pos = 0, int excise = 0) { return InsertStr(in.GetSize(), in, pos, excise); }
 
 
   // Removes 'size' characters from 'pos' (default size = to end of string)
-  cString & Clip(int pos, int size = -1 /*end of string*/ ){
-    if( size < 0 ) size = GetSize()-pos;
-    return InsertStr(0, NULL, pos, size); }
-  cString & ClipFront(int size){  // Clip off first 'clip_size' chars
-    return InsertStr(0, NULL, 0, size); }
-  cString & ClipEnd(int size){    // Clip off last 'clip_size' chars
-    return InsertStr(0, NULL, GetSize()-size, size); }
+  cString& Clip(int pos, int size = -1 /*end of string*/ )
+    { if( size < 0 ) size = GetSize() - pos; return InsertStr(0, NULL, pos, size); }
+  cString& ClipFront(int size) { /* Clip off first 'clip_size' chars */ return InsertStr(0, NULL, 0, size); }
+  cString& ClipEnd(int size) { /* Clip off last 'clip_size' chars */ return InsertStr(0, NULL, GetSize() - size, size); }
   
   /**
    * Find and replace a substring in the string with a different substring.
@@ -241,7 +221,7 @@ public:
    * @param new_string The replacement.
    * @param pos The position at which the search should start.
    **/
-  int Replace(const cString & old_st, const cString & new_st, int pos=0);
+  int Replace(const cString& old_st, const cString& new_st, int pos = 0);
 
   cString Pop(const char delim);  // Remove and return up to delim char
   
@@ -257,7 +237,7 @@ public:
    *
    * @return The removed line.
    **/
-  cString PopLine(){ return Pop('\n'); } 
+  cString PopLine() { return Pop('\n'); } 
   
   /**
    * Remove begining whitespace.
@@ -318,11 +298,14 @@ public:
    * Get rid of one character at a specific location
    **/
   void RemovePos(int pos);
+  
+  
+  // Parse for and replace escape sequences within the string
+  cString& ParseEscapeSequences();
+  
 
   // Individal Char Access
-  inline char operator[] (int index) const {
-    return static_cast<char>((*value)[index]);
-  }
+  inline char operator[] (int index) const { return static_cast<char>((*value)[index]); }
   cCharProxy operator[] (int index) { return cCharProxy(*this,index); }
 
 
@@ -331,8 +314,8 @@ public:
    *
    * @return The integer value corresponding to the string.
    **/
-  int AsInt() const { return static_cast<int>(strtol(*this, NULL, 10)); }
-  
+  int AsInt() const { return static_cast<int>(strtol(*this, NULL, 0)); }
+
   /**
    * Convert string to double.
    *
@@ -590,21 +573,6 @@ public:
 protected:
   // -- Internal Functions --
 
-  void CopyString(const cString & in) {
-    if (in.value->AtMaxRefs() == true) {
-      cStringData * old_data = in.value;
-      old_data->RemoveRef();  // remove our reference count
-      // Copy the _value_ of the old reference. (we need to const-cast here...)
-      ( (cString &) in ).value = new cStringData(*old_data);
-    }
-    value = in.value->NewRef();
-  }
-
-  void TakeValue(cStringData * new_ref){     // If you made new_value!
-    if( value->RemoveRef() == 0 ) delete value;
-    value = new_ref;
-  }
-
   // Methods that take input string size (unsafe to call from outside)
   cString & AppendStr(const int in_size, const char * in);  // Optimized
   cString & InsertStr(const int in_size, const char * in,
@@ -613,7 +581,7 @@ protected:
 
   // -- Internal Data --
 protected:
-  cStringData * value;
+  tRCPtr<cStringData> value;
 
 // }}} End Internals
 };
@@ -631,8 +599,7 @@ std::ostream& operator << (std::ostream& out, const cString & string);
 
 void cString::CopyOnWrite()
 {
-  if (value->IsShared()) {  // if it is shared
-    value->RemoveRef();     // remove our reference count
+  if (!value->SetExclusive()) {  // if it is shared
     value = new cStringData(*value);  // make own copy of value
   }
 }

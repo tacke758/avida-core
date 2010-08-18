@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "init_file.cc" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -32,7 +32,7 @@
 using namespace std;
 
 
-cInitFile::cInitFile(const cString& filename) : m_filename(filename), m_ftype("unknown")
+cInitFile::cInitFile(const cString& filename) : m_filename(filename), m_found(false), m_opened(false), m_ftype("unknown")
 {
   tSmartArray<sLine*> lines;
   m_opened = LoadFile(filename, lines);
@@ -40,7 +40,7 @@ cInitFile::cInitFile(const cString& filename) : m_filename(filename), m_ftype("u
 }
 
 cInitFile::cInitFile(const cString& filename, const tDictionary<cString>& mappings)
-  : m_filename(filename), m_ftype("unknown")
+  : m_filename(filename), m_found(false), m_opened(false), m_ftype("unknown")
 {
   InitMappings(mappings);
   tSmartArray<sLine*> lines;
@@ -49,7 +49,7 @@ cInitFile::cInitFile(const cString& filename, const tDictionary<cString>& mappin
 }
 
 
-cInitFile::cInitFile(istream& in_stream) : m_filename("(stream)"), m_ftype("unknown")
+cInitFile::cInitFile(istream& in_stream) : m_filename("(stream)"), m_found(false), m_opened(false), m_ftype("unknown")
 {
   if (in_stream.good() == false) {
     m_errors.PushRear(new cString("Bad stream, unable to process."));
@@ -59,17 +59,12 @@ cInitFile::cInitFile(istream& in_stream) : m_filename("(stream)"), m_ftype("unkn
   
   tSmartArray<sLine*> lines;
   
-  char cur_line[MAX_STRING_LENGTH];
-  in_stream.getline(cur_line, MAX_STRING_LENGTH);
-  
-  if (!in_stream && !strlen(cur_line)) return;
-  
   int linenum = 1;
-  while (in_stream) {
+  std::string linebuf;
+  while (std::getline(in_stream, linebuf)) {
+    cString cur_line(linebuf.c_str());
     if (cur_line[0] == '#' && cur_line[1] == '!') ProcessCommand(cur_line, lines, m_filename, linenum);
-    else lines.Push(new sLine(cur_line, m_filename, linenum));
-    
-    in_stream.getline(cur_line, MAX_STRING_LENGTH);
+    else lines.Push(new sLine(cur_line, m_filename, linenum));    
     linenum++;
   }
   
@@ -98,6 +93,8 @@ bool cInitFile::LoadFile(const cString& filename, tSmartArray<sLine*>& lines)
     m_errors.PushRear(new cString(cStringUtil::Stringf("Unable to open file '%s'.", (const char*)filename)));
     return false;   // The file must be opened!
   }
+  
+  m_found = true;
   
   cStringList line_list;   // Create a list to load all of the lines into.
 
@@ -252,7 +249,7 @@ bool cInitFile::Find(cString& in_string, const cString& keyword, int col) const
 }
 
 
-cString cInitFile::ReadString(const cString& name, cString def) const
+cString cInitFile::ReadString(const cString& name, cString def, bool warn_default) const
 {
   // See if we definately can't find the keyword.
   if (name == "") return def;
@@ -260,8 +257,10 @@ cString cInitFile::ReadString(const cString& name, cString def) const
   // Search for the keyword.
   cString cur_line;
   if (Find(cur_line, name, 0) == false) {
-    m_errors.PushRear(new cString(cStringUtil::Stringf("%s not in '%s', defaulting to: %s",
-                                                       (const char*)name, (const char*)m_filename, (const char*)def)));
+    if (warn_default) {
+      m_errors.PushRear(new cString(cStringUtil::Stringf("%s not in '%s', defaulting to: %s",
+                                                         (const char*)name, (const char*)m_filename, (const char*)def)));
+    }
     return def;
   }
 

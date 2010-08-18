@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file.hh" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -27,6 +27,7 @@
 #define cDataFile_h
 
 #include <fstream>
+#include <sstream>
 
 #ifndef cString_h
 #include "cString.h"
@@ -50,7 +51,7 @@ class cDataFile
 #endif
 private:
   cString m_name;
-  cString m_data;
+  std::ostringstream m_data;
   cString m_descr;
   int num_cols;
   
@@ -108,6 +109,7 @@ public:
   void Write(double x, const char* descr);
   void Write(int i, const char* descr);
   void Write(long i, const char* descr);
+	void Write(unsigned int i, const char* descr);
   void Write(const char* data_str, const char* descr);
   inline void WriteAnonymous(double x) { m_fp << x << " "; }
   inline void WriteAnonymous(int i) { m_fp << i << " "; }

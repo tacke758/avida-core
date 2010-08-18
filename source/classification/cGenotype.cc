@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "genotype.cc" prior to 11/30/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -34,20 +34,26 @@
 #include "cTestCPU.h"
 #include "cTools.h"
 #include "cWorld.h"
+#include "cPhenPlastGenotype.h"
+#include "cPhenPlastSummary.h"
+#include "cAvidaConfig.h"
 
 using namespace std;
+
 
 cGenotype::cGenotype(cWorld* world, int in_update_born, int in_id)
   : m_world(world)
   , genome(1)
   , name("001-no_name")
-  , flag_threshold(false)
-  , is_active(true)
+  , m_flag_threshold(false)
+  , m_is_active(true)
+  , m_track_parent_dist(m_world->GetConfig().TRACK_PARENT_DIST.Get())
   , defer_adjust(0)
   , id_num(in_id)
   , symbol(0)
   , map_color_id(-2)
   , birth_data(in_update_born)
+  , m_phenplast_stats(NULL)
   , num_organisms(0)
   , last_num_organisms(0)
   , total_organisms(0)
@@ -70,6 +76,9 @@ cGenotype::~cGenotype()
 
   next = NULL;
   prev = NULL;
+  
+  if (m_phenplast_stats != NULL)
+    delete m_phenplast_stats;
 }
 
 bool cGenotype::SaveClone(ofstream& fp)
@@ -108,13 +117,7 @@ cGenotype* cGenotype::LoadClone(cWorld* world, ifstream& fp)
 
 bool cGenotype::OK()
 {
-  bool ret_value = true;
-
-  // Check the components...
-
-  if (!genome.OK()) ret_value = false;
-
-  // And the statistics
+  // Check statistics
   assert( id_num >= 0 && num_organisms >= 0 && total_organisms >= 0 );
   assert( birth_data.update_born >= -1 && birth_data.parent_distance >= -1 );
   assert( sum_copied_size.Sum() >= 0 && sum_exe_size.Sum() >= 0 );
@@ -124,7 +127,7 @@ bool cGenotype::OK()
   assert( tmp_sum_gestation_time.Sum() >= 0 && tmp_sum_repro_rate.Sum() >= 0 );
   assert( tmp_sum_merit.Sum() >= 0 && tmp_sum_fitness.Sum() >= 0 );
 
-  return ret_value;
+  return true;
 }
 
 void cGenotype::AddMerit(const cMerit & in)
@@ -154,7 +157,7 @@ void cGenotype::SetParent(cGenotype* parent, cGenotype* parent2)
     birth_data.ancestor_ids[5] = parent2->GetAncestorID(1);    
   }
 
-  birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
+  if (m_track_parent_dist) birth_data.parent_distance = cGenomeUtil::FindEditDistance(genome, parent->genome);
   birth_data.parent_species = parent->GetSpecies();
   birth_data.gene_depth = parent->GetDepth() + 1;
   birth_data.lineage_label = parent->GetLineageLabel();
@@ -220,6 +223,29 @@ void cGenotype::CalcTestStats(cAvidaContext& ctx) const
   test_data.copied_size = phenotype.GetCopiedSize();
   test_data.colony_fitness = test_info.GetColonyFitness();
   test_data.generations = test_info.GetMaxDepth();
+}
+
+
+
+double cGenotype::GetTaskProbability(cAvidaContext& ctx, int task_id) const{
+  CheckPhenPlast(ctx);
+  assert(task_id >= 0 && task_id < m_phenplast_stats->m_task_probabilities.GetSize());
+  return m_phenplast_stats->m_task_probabilities[task_id];
+} 
+
+tArray<double> cGenotype::GetTaskProbabilities(cAvidaContext& ctx) const{
+  CheckPhenPlast(ctx);
+  if (m_phenplast_stats == NULL)
+    TestPlasticity(ctx);
+  return m_phenplast_stats->m_task_probabilities;
+} 
+
+void cGenotype::TestPlasticity(cAvidaContext& ctx) const{
+  cCPUTestInfo test_info;
+  if (m_phenplast_stats != NULL)
+    delete m_phenplast_stats; 
+  cPhenPlastGenotype pp(genome, m_world->GetConfig().GENOTYPE_PHENPLAST_CALC.Get(), test_info, m_world, ctx);
+  m_phenplast_stats = new cPhenPlastSummary(pp);
 }
 
 

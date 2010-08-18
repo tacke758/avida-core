@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "init_file.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -53,6 +53,7 @@ class cInitFile
 {
 private:
   cString m_filename;
+  bool m_found;
   bool m_opened;
   mutable tList<cString> m_errors;
   
@@ -94,6 +95,7 @@ public:
     while ((errstr = m_errors.Pop())) delete errstr;
   }
   
+  bool WasFound() const { return m_found; }
   bool WasOpened() const { return m_opened; }
   const tList<cString>& GetErrors() const { return m_errors; }
   
@@ -131,7 +133,7 @@ public:
    * one to set standard values that are used if the user does not override
    * them.
    **/
-  cString ReadString(const cString& name, cString def = "") const;
+  cString ReadString(const cString& name, cString def = "", bool warn_default = true) const;
   
   /**
    * Looks over all lines loaded into the file, and warns if any of them

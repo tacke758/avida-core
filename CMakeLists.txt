@@ -2,6 +2,7 @@ PROJECT(AVIDA)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
+
 IF(COMMAND cmake_policy)
   CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
@@ -38,14 +39,14 @@ SET(LIBRARY_OUTPUT_PATH
 IF(UNIX)
   IF (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
     SET(COMPILER_WARNING_FLAGS "")
-    SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -fno-rtti -funroll-loops -fstrict-aliasing -OPT:Olimit=0")
+    SET(COMPILER_OPTIMIZATION_FLAGS "-funroll-loops -fstrict-aliasing -OPT:Olimit=0")
   ELSE (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
     IF (CMAKE_CXX_COMPILER MATCHES ".*icpc.*")
       SET(COMPILER_WARNING_FLAGS "")
-      SET(COMPILER_OPTIMIZATION_FLAGS "")
+      SET(COMPILER_OPTIMIZATION_FLAGS "-funroll-loops -mp1 -pc64")
     ELSE (CMAKE_CXX_COMPILER MATCHES ".*icpc.*")
-      SET(COMPILER_WARNING_FLAGS "-Wextra -Wno-unknown-pragmas -Wconversion -Wno-trigraphs")
-      SET(COMPILER_OPTIMIZATION_FLAGS "-ffast-math -fno-rtti -funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
+      SET(COMPILER_WARNING_FLAGS "-Wextra -Wno-unknown-pragmas -Wno-trigraphs")
+      SET(COMPILER_OPTIMIZATION_FLAGS "-funroll-loops -fstrict-aliasing -ftree-vectorize -fvisibility-inlines-hidden")
     ENDIF (CMAKE_CXX_COMPILER MATCHES ".*icpc.*")
   ENDIF (CMAKE_CXX_COMPILER MATCHES ".*pathCC.*")
 
@@ -127,10 +128,15 @@ SET(ANALYZE_DIR ${PROJECT_SOURCE_DIR}/source/analyze)
 SET(ANALYZE_SOURCES
   ${ANALYZE_DIR}/cAnalyze.cc
   ${ANALYZE_DIR}/cAnalyzeGenotype.cc
-  ${ANALYZE_DIR}/cAnalyzeGenotypeTreeStats.cc
+  ${ANALYZE_DIR}/cAnalyzeTreeStats_CumulativeStemminess.cc
+  ${ANALYZE_DIR}/cAnalyzeTreeStats_Gamma.cc
   ${ANALYZE_DIR}/cAnalyzeJobQueue.cc
   ${ANALYZE_DIR}/cAnalyzeJobWorker.cc
+  ${ANALYZE_DIR}/cGenotypeBatch.cc
+  ${ANALYZE_DIR}/cGenotypeData.cc
+  ${ANALYZE_DIR}/cModularityAnalysis.cc
   ${ANALYZE_DIR}/cMutationalNeighborhood.cc
+  ${ANALYZE_DIR}/cPhenPlastSummary.h
 )
 SOURCE_GROUP(analyze FILES ${ANALYZE_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${ANALYZE_SOURCES})
@@ -148,6 +154,7 @@ SET(CLASSIFICATION_SOURCES
   ${CLASSIFICATION_DIR}/cInjectGenotypeControl.cc
   ${CLASSIFICATION_DIR}/cInjectGenotypeQueue.cc
   ${CLASSIFICATION_DIR}/cLineage.cc
+  ${CLASSIFICATION_DIR}/cMutationSteps.cc
   ${CLASSIFICATION_DIR}/cSpecies.cc
   ${CLASSIFICATION_DIR}/cSpeciesControl.cc
   ${CLASSIFICATION_DIR}/cSpeciesQueue.cc
@@ -155,6 +162,28 @@ SET(CLASSIFICATION_SOURCES
 SOURCE_GROUP(classification FILES ${CLASSIFICATION_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${CLASSIFICATION_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${CLASSIFICATION_DIR})
+
+
+# The core viewer directory
+SET(COREVIEW_DIR ${PROJECT_SOURCE_DIR}/source/viewer-core)
+SET(COREVIEW_SOURCES
+  ${COREVIEW_DIR}/cCoreView_Info.cc
+  ${COREVIEW_DIR}/cCoreView_Map.cc
+)
+SOURCE_GROUP(coreview FILES ${COREVIEW_SOURCES})
+LIST(APPEND AVIDA_CORE_SOURCES ${COREVIEW_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${COREVIEW_DIR})
+
+
+# The core GUI  directory
+SET(COREGUI_DIR ${PROJECT_SOURCE_DIR}/source/viewer-coreGUI)
+SET(COREGUI_SOURCES
+  ${COREGUI_DIR}/cColor.cc
+  ${COREGUI_DIR}/cGUIWidget.cc
+)
+SOURCE_GROUP(coregui FILES ${COREGUI_SOURCES})
+LIST(APPEND AVIDA_CORE_SOURCES ${COREGUI_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${COREGUI_DIR})
 
 
 # The cpu directory
@@ -188,6 +217,7 @@ SET(DRIVERS_SOURCES
   ${DRIVERS_DIR}/cDefaultAnalyzeDriver.cc
   ${DRIVERS_DIR}/cDefaultRunDriver.cc
   ${DRIVERS_DIR}/cDriverManager.cc
+  ${DRIVERS_DIR}/cDriverStatusConduit.cc
   ${DRIVERS_DIR}/cFallbackWorldDriver.cc
 )
 SOURCE_GROUP(drivers FILES ${DRIVERS_SOURCES})
@@ -201,7 +231,16 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/avida.cc
   ${MAIN_DIR}/cAvidaConfig.cc
   ${MAIN_DIR}/cBirthChamber.cc
+  ${MAIN_DIR}/cBirthDemeHandler.cc
+  ${MAIN_DIR}/cBirthGenomeSizeHandler.cc
+  ${MAIN_DIR}/cBirthGlobalHandler.cc
+  ${MAIN_DIR}/cBirthGridLocalHandler.cc
+  ${MAIN_DIR}/cBirthMateSelectHandler.cc
+  ${MAIN_DIR}/cBirthNeighborhoodHandler.cc
+  ${MAIN_DIR}/cBirthSelectionHandler.cc
   ${MAIN_DIR}/cDeme.cc
+  ${MAIN_DIR}/cDemeNetwork.cc
+  ${MAIN_DIR}/cDemeTopologyNetwork.cc
   ${MAIN_DIR}/cDemeCellEvent.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
@@ -215,6 +254,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cMutationRates.cc
   ${MAIN_DIR}/cMxCodeArray.cc
   ${MAIN_DIR}/cOrganism.cc
+  ${MAIN_DIR}/cOrgMessage.cc
   ${MAIN_DIR}/cPhenotype.cc
   ${MAIN_DIR}/cPhenPlastGenotype.cc
   ${MAIN_DIR}/cPlasticPhenotype.cc
@@ -226,6 +266,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cReactionResult.cc
   ${MAIN_DIR}/cResource.cc
   ${MAIN_DIR}/cResourceCount.cc
+  ${MAIN_DIR}/cResourceHistory.cc
   ${MAIN_DIR}/cResourceLib.cc
   ${MAIN_DIR}/cSpatialCountElem.cc
   ${MAIN_DIR}/cSpatialResCount.cc
@@ -253,14 +294,15 @@ SET(TOOLS_DIR ${PROJECT_SOURCE_DIR}/source/tools)
 SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cArgContainer.cc
   ${TOOLS_DIR}/cArgSchema.cc
+  ${TOOLS_DIR}/cBitArray.cc
   ${TOOLS_DIR}/cChangeList.cc
+  ${TOOLS_DIR}/cConstBurstSchedule.cc
   ${TOOLS_DIR}/cConstSchedule.cc
-  ${TOOLS_DIR}/cDataEntry.cc
   ${TOOLS_DIR}/cDataFile.cc
   ${TOOLS_DIR}/cDataFileManager.cc
   ${TOOLS_DIR}/cDataManager_Base.cc
   ${TOOLS_DIR}/cDefaultMessageDisplay.cc
-  ${TOOLS_DIR}/cDoubleSum.cc
+  ${TOOLS_DIR}/cDemeProbSchedule.cc
   ${TOOLS_DIR}/cFile.cc
   ${TOOLS_DIR}/cHelpAlias.cc
   ${TOOLS_DIR}/cHelpManager.cc
@@ -271,8 +313,10 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cIntegratedSchedule.cc
   ${TOOLS_DIR}/cIntegratedScheduleNode.cc
   ${TOOLS_DIR}/cMerit.cc
+  ${TOOLS_DIR}/cProbDemeProbSchedule.cc
   ${TOOLS_DIR}/cProbSchedule.cc
   ${TOOLS_DIR}/cRandom.cc
+  ${TOOLS_DIR}/cRCObject.cc
   ${TOOLS_DIR}/cRunningAverage.cc
   ${TOOLS_DIR}/cSchedule.cc
   ${TOOLS_DIR}/cString.cc
@@ -305,11 +349,21 @@ ELSE(UNIX)
   SET(AVD_ENABLE_TCMALLOC FALSE)
 ENDIF(UNIX)
 IF(AVD_ENABLE_TCMALLOC)
-  SET(TCMALLOC_DIR source/platform/tcmalloc)
+  SET(TCMALLOC_DIR source/platform/tcmalloc-1.4)
   SET(TCMALLOC_SOURCES
+    ${TCMALLOC_DIR}/atomicops-internals-x86.cc
+    ${TCMALLOC_DIR}/central_freelist.cc
+    ${TCMALLOC_DIR}/common.cc
+    ${TCMALLOC_DIR}/internal_logging.cc
+    ${TCMALLOC_DIR}/malloc_extension.cc
+    ${TCMALLOC_DIR}/page_heap.cc
+    ${TCMALLOC_DIR}/span.cc
+    ${TCMALLOC_DIR}/spinlock.cc
+    ${TCMALLOC_DIR}/static_vars.cc
+    ${TCMALLOC_DIR}/sysinfo.cc
     ${TCMALLOC_DIR}/system-alloc.cc
-    ${TCMALLOC_DIR}/tcmalloc-logging.cc
     ${TCMALLOC_DIR}/tcmalloc.cc
+    ${TCMALLOC_DIR}/thread_cache.cc
   )
   ADD_LIBRARY(tcmalloc ${TCMALLOC_SOURCES})
 ENDIF(AVD_ENABLE_TCMALLOC)
@@ -346,7 +400,7 @@ ENDIF(AVD_CMDLINE)
 # By default, do not build the console interface to Avida.
 OPTION(AVD_GUI_NCURSES
   "Enable building Avida console interface."
-  ON
+  OFF
 )
 # Make sure requisites are present for build of console interface.  Give
 # user feedback if they're missing.
@@ -406,6 +460,114 @@ ENDIF(AVD_GUI_NCURSES)
 
 
 
+# By default, do not build the console interface to Avida.
+OPTION(AVD_GUI_PROTO_TEXT
+  "Enable building new Avida text interface."
+  OFF
+)
+# Make sure requisites are present for build of console interface.  Give
+# user feedback if they're missing.
+IF(AVD_GUI_PROTO_TEXT)
+  # Locate the ncurses screen handling package (for Avida's console
+  # interface) and the Qt graphics API (for Avida's graphic interface).
+  INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/FindNcurses.cmake)
+  IF(NOT NCURSES_INCLUDE_PATH)
+    MESSAGE("Unable to locate header files for the ncurses CRT screen handling package.  Please set the advanced variable NCURSES_INCLUDE_PATH to their location.")
+  ENDIF(NOT NCURSES_INCLUDE_PATH)
+  IF(NOT NCURSES_LIBRARY)
+    MESSAGE("Unable to locate 'libncurses'.  Please set the advanced variable NCURSES_LIBRARY to its location.")
+  ENDIF(NOT NCURSES_LIBRARY)
+
+  IF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
+
+    INCLUDE_DIRECTORIES(${NCURSES_INCLUDE_PATH})
+    
+    SET(AVIDA_TEXT_VIEWER_DIR source/targets/viewer-text)
+    SET(AVIDA_TEXT_VIEWER_SOURCES
+#      ${AVIDA_TEXT_VIEWER_DIR}/cAnalyzeScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cEnvironmentScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cHistScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cMenuWindow.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cOptionsScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cStatsScreen.cc
+#      ${AVIDA_TEXT_VIEWER_DIR}/cZoomScreen.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/cScreen_Map.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/cTextWindow.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/cDriver_TextViewer.cc
+      ${AVIDA_TEXT_VIEWER_DIR}/viewer-text.cc
+    )
+    SOURCE_GROUP(targets\\viewer-text FILES ${AVIDA_TEXT_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-textview ${AVIDA_TEXT_VIEWER_SOURCES})
+    
+    SET(AVIDA_TEXT_VIEWER_LIBS avidacore ${NCURSES_LIBRARY})
+    IF(NOT MSVC)
+      LIST(APPEND AVIDA_TEXT_VIEWER_LIBS pthread)
+    ENDIF(NOT MSVC)
+    IF(AVD_ENABLE_TCMALLOC)
+      LIST(APPEND AVIDA_TEXT_VIEWER_LIBS tcmalloc)
+    ENDIF(AVD_ENABLE_TCMALLOC)
+    TARGET_LINK_LIBRARIES(avida-textview ${AVIDA_TEXT_VIEWER_LIBS})
+    
+    INSTALL_TARGETS(/work avida-textview)
+
+  ENDIF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
+ENDIF(AVD_GUI_PROTO_TEXT)
+
+
+
+# By default, do not build the console interface to Avida.
+OPTION(AVD_GUI_PROTO_FLTK
+  "Enable building new Avida FLTK graphical interface."
+  OFF
+)
+# Make sure requisites are present for build of console interface.  Give
+# user feedback if they're missing.
+IF(AVD_GUI_PROTO_FLTK)
+  # Locate the fltk GUI package 
+  INCLUDE(${PROJECT_SOURCE_DIR}/CMakeModules/FindFLTK.cmake)
+  IF(NOT FLTK_INCLUDE_PATH)
+    MESSAGE("Unable to locate header files for the FLTK graphics package.  Please set the advanced variable FLTK_INCLUDE_PATH to their location.")
+  ENDIF(NOT FLTK_INCLUDE_PATH)
+  IF(NOT FLTK_BASE_LIBRARY)
+    MESSAGE("Unable to locate 'fltk.lib'.  Please set the advanced variable FLTK_BASE_LIBRARY to its location.")
+  ENDIF(NOT FLTK_BASE_LIBRARY)
+
+  IF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
+
+    INCLUDE_DIRECTORIES(${FLTK_INCLUDE_PATH})
+    
+    SET(AVIDA_FLTK_VIEWER_DIR source/targets/viewer-fltk)
+    SET(AVIDA_FLTK_VIEWER_SOURCES
+      ${AVIDA_FLTK_VIEWER_DIR}/cDriver_FLTKViewer.cc
+      ${AVIDA_FLTK_VIEWER_DIR}/viewer-fltk.cc
+      ${AVIDA_FLTK_VIEWER_DIR}/fltk-defs.cc
+      ${AVIDA_FLTK_VIEWER_DIR}/cFLTKGridView.cc
+      ${AVIDA_FLTK_VIEWER_DIR}/cFLTKLegend.cc
+    )
+    SOURCE_GROUP(targets\\viewer-fltk FILES ${AVIDA_FLTK_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-fltkview ${AVIDA_FLTK_VIEWER_SOURCES})
+    
+    SET(AVIDA_FLTK_VIEWER_LIBS avidacore ${FLTK_BASE_LIBRARY} ${FLTK_IMAGE_LIBRARY} $(FLTK_JPEG_LIBRARY))
+    IF(NOT MSVC)
+      LIST(APPEND AVIDA_FLTK_VIEWER_LIBS pthread)
+    ENDIF(NOT MSVC)
+    IF(AVD_ENABLE_TCMALLOC)
+      LIST(APPEND AVIDA_FLTK_VIEWER_LIBS tcmalloc)
+    ENDIF(AVD_ENABLE_TCMALLOC)
+    TARGET_LINK_LIBRARIES(avida-fltkview ${AVIDA_FLTK_VIEWER_LIBS})
+    SET_TARGET_PROPERTIES(avida-fltkview PROPERTIES LINK_FLAGS ${FLTK_PLATFORM_DEPENDENT_LIBS})
+
+    IF(APPLE AND NOT FLTK_APPLE_X11)
+       SET( LINK_FLAGS_avida_fltkview ${LINK_FLAGS} "-framework Carbon -framework Cocoa -framework ApplicationServices -lz")
+    ENDIF(APPLE AND NOT FLTK_APPLE_X11)
+
+    INSTALL_TARGETS(/work avida-fltkview)
+
+  ENDIF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
+ENDIF(AVD_GUI_PROTO_FLTK)
+
+
+
 OPTION(AVD_TASK_EVENT_GEN
   "Enable building the task_event_gen utility"
   OFF
@@ -434,6 +596,7 @@ IF(AVD_UNIT_TESTS)
   SET(UNIT_TESTS_DIR source/targets/unit-tests)
   SET(UNIT_TESTS_SOURCES
     ${UNIT_TESTS_DIR}/main.cc
+    ${TOOLS_DIR}/cBitArray.cc
   )
   ADD_EXECUTABLE(unit-tests ${UNIT_TESTS_SOURCES})
   INSTALL_TARGETS(/work unit-tests)
@@ -449,14 +612,11 @@ SET(CFG_FILES
   ${CFG_FILES_DIR}/avida.cfg
   ${CFG_FILES_DIR}/environment.cfg
   ${CFG_FILES_DIR}/events.cfg
-  ${CFG_FILES_DIR}/instset-classic.cfg
-  ${CFG_FILES_DIR}/instset-sex-classic.cfg
-  ${CFG_FILES_DIR}/instset-smt.cfg
+  ${CFG_FILES_DIR}/instset-heads.cfg
+  ${CFG_FILES_DIR}/instset-heads-sex.cfg
   ${CFG_FILES_DIR}/instset-transsmt.cfg
-  ${CFG_FILES_DIR}/default-classic.org
-  ${CFG_FILES_DIR}/default-sex-classic.org
-  ${CFG_FILES_DIR}/default-smt.org
+  ${CFG_FILES_DIR}/default-heads.org
+  ${CFG_FILES_DIR}/default-heads-sex.org
   ${CFG_FILES_DIR}/default-transsmt.org 
 )
 INSTALL_FILES(/work FILES ${CFG_FILES})
-

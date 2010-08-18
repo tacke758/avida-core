@@ -145,7 +145,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				Version="2.8.1"
+				Version="2.6.2"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="1"
@@ -253,6 +253,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cAnalyzeTreeStats_CumulativeStemminess.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\analyze\cAnalyzeTreeStats_Gamma.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\targets\avida-viewer\cAnalyzeView.h"
 				>
 			</File>
@@ -289,6 +297,38 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cBirthDemeHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGenomeSizeHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGlobalHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGridLocalHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthMateSelectHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthNeighborhoodHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthSelectionHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cBitArray.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cBlockStruct.h"
 				>
 			</File>
@@ -306,6 +346,10 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\cConditionVariable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cConstBurstSchedule.h"
 				>
 			</File>
 			<File
@@ -330,10 +374,6 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\cCycleCheck.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cDataEntry.h"
 				>
 			</File>
 			<File
@@ -365,11 +405,39 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cDemeCellEvent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemeNetwork.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemeNetworkUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemePredicate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cDemeProbSchedule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemeTopologyNetwork.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cDoubleSum.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\drivers\cDriverManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\drivers\cDriverStatusConduit.h"
 				>
 			</File>
 			<File
@@ -437,6 +505,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cGenotypeData.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\cpu\cHardwareBase.h"
 				>
 			</File>
@@ -446,10 +518,6 @@
 			</File>
 			<File
 				RelativePath=".\source\cpu\cHardwareExperimental.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\cpu\cHardwareGX.cc"
 				>
 			</File>
 			<File
@@ -593,6 +661,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cModularityAnalysis.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cMutation.h"
 				>
 			</File>
@@ -610,6 +682,10 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cMutationRates.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cMutationSteps.h"
 				>
 			</File>
 			<File
@@ -633,6 +709,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cOrgMessage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cOrgMessagePredicate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cOrgMovementPredicate.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cOrgSeqMessage.h"
 				>
 			</File>
@@ -649,6 +737,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cPhenPlastGenotype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\analyze\cPhenPlastSummary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cPlasticPhenotype.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cPopulation.h"
 				>
 			</File>
@@ -661,11 +761,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\tools\cProbDemeProbSchedule.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cProbSchedule.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\tools\cRandom.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cRCObject.h"
 				>
 			</File>
 			<File
@@ -698,6 +806,10 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cResourceCount.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cResourceHistory.h"
 				>
 			</File>
 			<File
@@ -821,7 +933,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cThread.h"
+				RelativePath=".\source\platform\cThread.h"
 				>
 			</File>
 			<File
@@ -925,6 +1037,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\platform\PlatformExpert.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\actions\PopulationActions.h"
 				>
 			</File>
@@ -945,11 +1061,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\tAnalyzeJobBatch.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\tArgDataEntry.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\tools\tArray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tArrayMap.h"
 				>
 			</File>
 			<File
@@ -989,6 +1113,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\tools\tKVPair.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\tList.h"
 				>
 			</File>
@@ -1006,6 +1134,10 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\tObjectFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\platform\tRLockPtr.h"
 				>
 			</File>
 			<File
@@ -1045,10 +1177,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\analyze\cAnalyzeGenotypeTreeStats.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\analyze\cAnalyzeJobQueue.cc"
 				>
 			</File>
@@ -1058,6 +1186,14 @@
 			</File>
 			<File
 				RelativePath=".\source\targets\avida-viewer\cAnalyzeScreen.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\analyze\cAnalyzeTreeStats_CumulativeStemminess.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\analyze\cAnalyzeTreeStats_Gamma.cc"
 				>
 			</File>
 			<File
@@ -1085,6 +1221,38 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cBirthDemeHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGenomeSizeHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGlobalHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthGridLocalHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthMateSelectHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthNeighborhoodHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthSelectionHandler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cBitArray.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cBlockStruct.cc"
 				>
 			</File>
@@ -1098,6 +1266,10 @@
 			</File>
 			<File
 				RelativePath=".\source\cpu\cCodeLabel.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cConstBurstSchedule.cc"
 				>
 			</File>
 			<File
@@ -1118,10 +1290,6 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\cCycleCheck.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cDataEntry.cc"
 				>
 			</File>
 			<File
@@ -1157,11 +1325,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cDoubleSum.cc"
+				RelativePath=".\source\main\cDemeNetwork.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cDemeProbSchedule.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cDemeTopologyNetwork.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\source\drivers\cDriverManager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\drivers\cDriverStatusConduit.cc"
 				>
 			</File>
 			<File
@@ -1213,7 +1393,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cGenotypeBatch.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\classification\cGenotypeControl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\analyze\cGenotypeData.cc"
 				>
 			</File>
 			<File
@@ -1226,6 +1414,10 @@
 			</File>
 			<File
 				RelativePath=".\source\cpu\cHardwareExperimental.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\cpu\cHardwareGX.cc"
 				>
 			</File>
 			<File
@@ -1333,6 +1525,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\analyze\cModularityAnalysis.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\analyze\cMutationalNeighborhood.cc"
 				>
 			</File>
@@ -1345,6 +1541,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\classification\cMutationSteps.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cMxCodeArray.cc"
 				>
 			</File>
@@ -1354,6 +1554,10 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cOrganism.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cOrgMessage.cc"
 				>
 			</File>
 			<File
@@ -1381,11 +1585,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\tools\cProbDemeProbSchedule.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cProbSchedule.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\source\tools\cRandom.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cRCObject.cc"
 				>
 			</File>
 			<File
@@ -1406,6 +1618,10 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cResourceCount.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cResourceHistory.cc"
 				>
 			</File>
 			<File
@@ -1560,6 +1776,10 @@
 				RelativePath=".\source\targets\avida-viewer\viewer.cc"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="source"
+			>
 		</Filter>
 		<File
 			RelativePath=".\source\platform\msvc2005\pdcurses\pdcurses.lib"

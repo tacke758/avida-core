@@ -45,6 +45,9 @@
 #ifndef cWorld_h
 #include "cWorld.h"
 #endif
+#ifndef cEnvironment_h
+#include "cEnvironment.h"
+#endif
 #ifndef cWorldDriver_h
 #include "cWorldDriver.h"
 #endif
@@ -52,6 +55,7 @@
 class cAvidaContext;
 class cTestCPU;
 class cWorld;
+class cEnvironment;
 
 /**
  * This class examines a genotype for evidence of phenotypic plasticity. 
@@ -62,8 +66,10 @@ class cPhenPlastGenotype
 {
   private:
 
-  typedef set<cPhenotype*, cPhenotype::lt_phenotype  > UniquePhenotypes;  //Actually, these are cPlatsicPhenotypes*
+    typedef set<cPhenotype*, cPhenotype::lt_phenotype  > UniquePhenotypes;  //Actually, these are cPlasticPhenotypes*
+    tList<cPlasticPhenotype> m_plastic_phenotypes;  //This will store a list of our unique plastic phenotype pointers  
     cGenome m_genome;
+
     int m_num_trials;  
     UniquePhenotypes m_unique;
     cWorld* m_world;
@@ -76,12 +82,15 @@ class cPhenPlastGenotype
     double m_max_fit_freq;
     double m_min_fit_freq;
     double m_min_fitness;
+    double m_viable_probability;
+    tArray<double> m_task_probabilities;
+    
+    
     
     void Process(cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx);
 
   public:
-      cPhenPlastGenotype(const cGenome& in_genome, int num_trials, cWorld* world, cAvidaContext& ctx);
-    cPhenPlastGenotype(const cGenome& in_genome, int num_trails, cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx);
+    cPhenPlastGenotype(const cGenome& in_genome, int num_trails, cCPUTestInfo& test_info,  cWorld* world, cAvidaContext& ctx);
     ~cPhenPlastGenotype();
     
     // Accessors
@@ -98,8 +107,8 @@ class cPhenPlastGenotype
     const cPlasticPhenotype* GetPlasticPhenotype(int num) const;
     const cPlasticPhenotype* GetMostLikelyPhenotype() const;
     const cPlasticPhenotype* GetHighestFitnessPhenotype() const;
-    
-    
+    tArray<double> GetTaskProbabilities() const { return m_task_probabilities; }
+    double GetViableProbability() const { return m_viable_probability; }
 };
 
 #endif

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/10/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
 #ifndef cFallbackWorldDriver_h
 #define cFallbackWorldDriver_h
 
-#ifndef cDriverManager_h
 #include "cDriverManager.h"
-#endif
-#ifndef cWorldDriver_h
 #include "cWorldDriver.h"
-#endif
+
 
 class cFallbackWorldDriver : public cWorldDriver
 {
@@ -45,6 +42,7 @@ public:
   // Driver Actions
   void SignalBreakpoint() { return; }
   void SetDone() { return; }
+  void SetPause() { return; }
   
   void RaiseException(const cString& in_string);
   void RaiseFatalException(int exit_code, const cString& in_string);

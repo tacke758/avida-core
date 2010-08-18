@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "const_schedule.cc" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -35,7 +35,7 @@ bool cConstSchedule::OK()
   return true;
 }
 
-void cConstSchedule::Adjust(int item_id, const cMerit & merit)
+void cConstSchedule::Adjust(int item_id, const cMerit& merit, int deme_id)
 {
   if (cChangeList *change_list = GetChangeList()) {
     change_list->MarkChange(item_id);

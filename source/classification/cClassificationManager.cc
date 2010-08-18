@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 11/14/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -133,6 +133,7 @@ void cClassificationManager::AddGenotype(cGenotype* in_genotype, int list_num)
   
   in_genotype->SetSpecies(parent_species);
   if (parent_species != NULL) parent_species->AddGenotype();
+  
 }
 
 
@@ -177,8 +178,6 @@ cGenotype* cClassificationManager::GetGenotypeInjected(const cGenome& in_genome,
   return found_genotype;
 }
 
-// Add a new genotype that has been injected from the outside to the archive.
-//  Take in a lineage label to track clades.
 cGenotype* cClassificationManager::GetGenotypeLoaded(const cGenome& in_genome, int update_born, int id_num)
 {
   if (id_num >= 0) m_genotype_next_id = id_num;
@@ -252,11 +251,34 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
     int list_num = FindCRC(in_genotype.GetGenome());
     m_active_genotypes[list_num].Remove(&in_genotype);
     m_genotype_ctl->Remove(in_genotype);
-    in_genotype.Deactivate(m_world->GetStats().GetUpdate());
+    in_genotype.Deactivate(m_world->GetStats().GetUpdate(), m_world->GetStats().GetTotCreatures());
     if (m_world->GetConfig().TRACK_MAIN_LINEAGE.Get()) {
       m_genotype_ctl->InsertHistoric(in_genotype);
     }
   }
+  
+
+  cSpecies* cur_species = in_genotype.GetSpecies();
+
+  // If this is a threshold genotype we must clean up some threshold stats
+  // right now, since the actual genotype may persist under track main lineage
+  if (in_genotype.GetThreshold()) {
+    m_world->GetStats().RemoveThreshold();
+    in_genotype.ClearThreshold();
+
+    if (cur_species) {
+      cur_species->RemoveThreshold(in_genotype);
+      
+      // If we are out of thresholds, move this species to the inactive
+      // list for now.  Otherwise, just adjust it.
+      if (cur_species->GetNumThreshold() == 0) {
+        m_species_ctl->SetInactive(*cur_species);
+      } else {
+        m_species_ctl->Adjust(*cur_species);
+      }      
+    }
+  }
+  
   
   // If we are tracking the main lineage, we only want to delete a
   // genotype when all of its decendents have also died out.
@@ -317,28 +339,11 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
   // threshold genotype, then the species will only be effected if this was
   // the last genotype of that species.
   
-  cSpecies * cur_species = in_genotype.GetSpecies();
   if (cur_species) {
     
     // First, re-adjust the species.
     
     cur_species->RemoveGenotype();
-    
-    // Then, check to see how this species changes if it is a threshold.
-    
-    if (in_genotype.GetThreshold()) {
-      cur_species->RemoveThreshold(in_genotype);
-      
-      // If we are out of thresholds, move this species to the inactive
-      // list for now.  Otherwise, just adjust it.
-      
-      if (cur_species->GetNumThreshold() == 0) {
-        m_species_ctl->SetInactive(*cur_species);
-      }
-      else {
-        m_species_ctl->Adjust(*cur_species);
-      }
-    }
     
     // Finally, remove the species completely if it has no genotypes left.
     
@@ -511,45 +516,30 @@ bool cClassificationManager::DumpTextSummary(ofstream& fp)
 bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
                                int historic)
 {
-  bool print_id = false;
-  bool print_parent_id = false;
-  bool print_parent2_id = false;
-  bool print_parent_dist = false;
-  bool print_num_cpus = false;
-  bool print_total_cpus = false;
-  bool print_length = false;
-  bool print_merit = false;
-  bool print_gest_time = false;
-  bool print_fitness = false;
-  bool print_update_born = false;
-  bool print_update_dead = false;
-  bool print_depth = false;
-  bool print_lineage = false;
-  bool print_sequence = false;
   
   cStringList fields(data_fields, ',');
-  if (fields.HasString("id") == true) print_id = true;
-  if (fields.HasString("parent_id") == true) print_parent_id = true;
-  if (fields.HasString("parent2_id") == true) print_parent2_id = true;
-  if (fields.HasString("parent_dist") == true) print_parent_dist = true;
-  if (fields.HasString("num_cpus") == true) print_num_cpus = true;
-  if (fields.HasString("total_cpus") == true) print_total_cpus = true;
-  if (fields.HasString("length") == true) print_length = true;
-  if (fields.HasString("merit") == true) print_merit = true;
-  if (fields.HasString("gest_time") == true) print_gest_time = true;
-  if (fields.HasString("fitness") == true) print_fitness = true;
-  if (fields.HasString("update_born") == true) print_update_born = true;
-  if (fields.HasString("update_dead") == true) print_update_dead = true;
-  if (fields.HasString("depth") == true) print_depth = true;
-  if (fields.HasString("lineage") == true) print_lineage = true;
-  if (fields.HasString("sequence") == true) print_sequence = true;
-  if (fields.HasString("all") == true) {
-    print_id = print_parent_id = print_parent2_id = print_parent_dist = true;
-    print_num_cpus = print_total_cpus = print_length = print_merit = true;
-    print_gest_time = print_fitness = print_update_born = true;
-    print_update_dead = print_depth = print_lineage = print_sequence = true;
-  }
+  bool print_all         = fields.HasString("all");
+  bool print_id          = print_all || fields.HasString("id");
+  bool print_parent_id   = print_all || fields.HasString("parent_id");
+  bool print_parent2_id  = print_all || fields.HasString("parent2_id");
+  bool print_parent_dist = print_all || fields.HasString("parent_dist");
+  bool print_num_cpus    = print_all || fields.HasString("num_cpus");
+  bool print_total_cpus  = print_all || fields.HasString("total_cpus");
+  bool print_length      = print_all || fields.HasString("length");
+  bool print_merit       = print_all || fields.HasString("merit");
+  bool print_gest_time   = print_all || fields.HasString("gest_time");
+  bool print_fitness     = print_all || fields.HasString("fitness");
+  bool print_update_born = print_all || fields.HasString("update_born");
+  bool print_update_dead = print_all || fields.HasString("update_dead");
+  bool print_depth       = print_all || fields.HasString("depth");
+  bool print_lineage     = print_all || fields.HasString("lineage");
+  bool print_sequence    = print_all || fields.HasString("sequence");
+  bool print_exec_time_born  = print_all || fields.HasString("exec_time_born") ;
+  bool print_generation_born = print_all || fields.HasString("generation_born");
+  bool print_orgid_born      = print_all || fields.HasString("org_id_born");
+  bool print_orgid_dead      = print_all || fields.HasString("org_id_dead");
   
+ 
   // Print all of the header information...
   fp << "#filetype genotype_data" << endl
     << "#format ";
@@ -569,6 +559,10 @@ bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
   if (print_depth == true) fp << "depth ";
   if (print_lineage == true) fp << "lineage ";
   if (print_sequence == true) fp << "sequence ";  
+  if (print_exec_time_born == true) fp << "exec_time_born ";
+  if (print_generation_born == true) fp << "generation_born ";
+  if (print_orgid_born == true) fp << "org_id_born";
+  if (print_orgid_dead == true) fp << "org_id_dead";
   fp << endl;
   
   // Print extra information about what data is in this file...
@@ -595,7 +589,13 @@ bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
   if (print_depth) fp << "# " << cur_col++ << ": depth in phylogentic tree" << endl;
   if (print_lineage) fp << "# " << cur_col++ << ": lineage label of genotype" << endl;
   if (print_sequence) fp << "# " << cur_col++ << ": genome of genotype" << endl;
+  if (print_exec_time_born)  fp << "# "  << cur_col++ << ": number of instructions executed at birth since ancestor injection" << endl;
+  if (print_generation_born) fp << "# " << cur_col++ << ": first generation number of genotype" << endl;
+  if (print_orgid_born) fp << "# " << cur_col++ << ": organism id at time of birth" << endl;
+  if (print_orgid_dead) fp << "# " << cur_col++ << ": population's maximum organism id at time of death" << endl;
   fp << endl;
+  
+  cerr << m_genotype_ctl->GetSize() << " " << print_id << " " << print_generation_born << endl;
   
   // Print the current population....
   m_genotype_ctl->Reset(0);
@@ -617,6 +617,11 @@ bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
     if (print_depth)       fp << genotype->GetDepth() << " ";
     if (print_lineage)     fp << genotype->GetLineageLabel() << " "; 
     if (print_sequence)    fp << genotype->GetGenome().AsString() << " ";
+    if (print_exec_time_born)  fp << genotype->GetExecTimeBorn() << " ";
+    if (print_generation_born) fp << genotype->GetGenerationBorn() << " ";
+    if (print_orgid_born)      fp << genotype->GetOrgIDAtBirth() << " ";
+    if (print_orgid_dead)      fp << genotype->GetOrgIDAtDeath() << " ";
+    
     fp << endl;
     m_genotype_ctl->Next(0);
   }
@@ -653,6 +658,11 @@ bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
     if (print_depth)       fp << genotype->GetDepth() << " ";
     if (print_lineage)     fp << genotype->GetLineageLabel() << " "; 
     if (print_sequence)    fp << genotype->GetGenome().AsString() << " ";
+    if (print_exec_time_born)  fp << genotype->GetExecTimeBorn() << " ";
+    if (print_generation_born) fp << genotype->GetGenerationBorn() << " ";
+    if (print_orgid_born)      fp << genotype->GetOrgIDAtBirth() << " ";
+    if (print_orgid_dead)      fp << genotype->GetOrgIDAtDeath() << " ";
+    if (print_orgid_dead)      fp << genotype->GetOrgIDAtDeath() << " ";
     fp << endl;
     
     // Move to the next genotype...
@@ -663,26 +673,26 @@ bool cClassificationManager::PrintGenotypes(ofstream& fp, cString & data_fields,
   return true;
 }
 
-bool cClassificationManager::DumpDetailedSummary(ofstream& fp)
+bool cClassificationManager::DumpDetailedSummary(ofstream& fp, bool print_mut_steps)
 {
   m_genotype_ctl->Reset(0);
-  DumpDetailHeading(fp);
+  DumpDetailHeading(fp, print_mut_steps);
   for (int i = 0; i < m_genotype_ctl->GetSize(); i++) {
-    DumpDetailedEntry(m_genotype_ctl->Get(0), fp);
+    DumpDetailedEntry(m_genotype_ctl->Get(0), fp, print_mut_steps);
     m_genotype_ctl->Next(0);
   }
   
   return true;
 }
 
-bool cClassificationManager::DumpHistoricSummary(ofstream& fp, int back_dist)
+bool cClassificationManager::DumpHistoricSummary(ofstream& fp, int back_dist, bool print_mut_steps)
 {
   // Calculate the update we should start printing from...
   int start_update = 0;
   if (back_dist > 0) start_update = m_world->GetStats().GetUpdate() - back_dist;
   
   // Loop through all defunct genotypes that we're saving.
-  DumpDetailHeading(fp);
+  DumpDetailHeading(fp, print_mut_steps);
   m_genotype_ctl->ResetHistoric(0);
   for (int i = 0; i < m_genotype_ctl->GetHistoricCount(); i++) {
     // Get the next genotype.  Only print it if its in range...
@@ -691,7 +701,7 @@ bool cClassificationManager::DumpHistoricSummary(ofstream& fp, int back_dist)
       m_genotype_ctl->Next(0);
       continue;
     }
-    DumpDetailedEntry(cur_genotype, fp);
+    DumpDetailedEntry(cur_genotype, fp, print_mut_steps);
     
     // Move to the next genotype...
     m_genotype_ctl->Next(0);
@@ -712,10 +722,10 @@ bool cClassificationManager::DumpDetailedSexSummary(ofstream& fp)
   return true;
 }
 
-bool cClassificationManager::DumpHistoricSexSummary(ofstream& fp)
+bool cClassificationManager::DumpHistoricSexSummary(ofstream& fp, bool header)
 {
   m_genotype_ctl->ResetHistoric(0);
-  DumpDetailSexHeading(fp);
+  if (header) DumpDetailSexHeading(fp);
   for (int i = 0; i < m_genotype_ctl->GetHistoricCount(); i++) {
     DumpDetailedSexEntry(m_genotype_ctl->Get(0), fp);
     m_genotype_ctl->Next(0);
@@ -724,15 +734,16 @@ bool cClassificationManager::DumpHistoricSexSummary(ofstream& fp)
   return true;
 }
 
-void cClassificationManager::DumpDetailHeading (ofstream& fp)
+void cClassificationManager::DumpDetailHeading (ofstream& fp, bool print_mut_steps)
 {
   fp << "#filetype genotype_data" << endl
-  << "#format id parent_id parent_dist num_cpus total_cpus length merit gest_time fitness update_born update_dead depth sequence" << endl
-  << endl
+  << "#format id parent_id parent_dist num_cpus total_cpus length merit gest_time fitness update_born update_dead depth sequence";
+  if (print_mut_steps) { fp << " mut_steps"; }
+  fp << endl << endl
   << "#  1: ID" << endl
   << "#  2: parent ID" << endl
   << "#  3: parent distance" << endl
-  << "#  4: number of orgranisms currently alive" << endl
+  << "#  4: number of organisms currently alive" << endl
   << "#  5: total number of organisms that ever existed" << endl
   << "#  6: length of genome" << endl
   << "#  7: merit" << endl
@@ -741,7 +752,9 @@ void cClassificationManager::DumpDetailHeading (ofstream& fp)
   << "# 10: update born" << endl
   << "# 11: update deactivated" << endl
   << "# 12: depth in phylogentic tree" << endl
-  << "# 13: genome of organism" << endl << endl;
+  << "# 13: genome of organism" << endl;
+  if (print_mut_steps) { fp << "# 14: mutation steps from parent" << endl; }
+  fp << endl;  
 }
 
 void cClassificationManager::DumpDetailSexHeading (ofstream& fp)
@@ -765,7 +778,7 @@ void cClassificationManager::DumpDetailSexHeading (ofstream& fp)
   << "# 14: genome of organism" << endl << endl;
 }
 
-void cClassificationManager::DumpDetailedEntry(cGenotype* genotype, ofstream& fp)
+void cClassificationManager::DumpDetailedEntry(cGenotype* genotype, ofstream& fp, bool print_mut_steps)
 {
   fp << genotype->GetID() << " "                //  1
   << genotype->GetParentID() << " "          //  2
@@ -780,8 +793,9 @@ void cClassificationManager::DumpDetailedEntry(cGenotype* genotype, ofstream& fp
   << genotype->GetUpdateBorn() << " "        // 10
   << genotype->GetUpdateDeactivated() << " " // 11
   << genotype->GetDepth() << " "             // 12
-  << genotype->GetGenome().AsString() << " " // 13
-  << endl;
+  << genotype->GetGenome().AsString() << " "; // 13
+  if (print_mut_steps) { fp << genotype->GetGenome().GetMutationSteps().AsString() << " "; } // 14
+  fp << endl;
 }
 
 void cClassificationManager::DumpDetailedSexEntry(cGenotype * genotype, ofstream& fp)

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "const_schedule.hh" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -33,12 +33,11 @@
 #include "tArray.h"
 #endif
 
+class cMerit;
+
 /**
  * This class rotates between all items to schedule, giving each equal time.
  **/
-
-class cMerit;
-
 class cConstSchedule : public cSchedule
 {
 private:
@@ -58,7 +57,8 @@ public:
   ~cConstSchedule() { ; }
 
   bool OK();
-  void Adjust(int item_id, const cMerit& merit);
+
+  virtual void Adjust(int item_id, const cMerit& merit, int deme_id = 0);
 
   int GetNextID();
 };

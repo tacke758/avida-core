@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "code_label.cc" prior to 11/22/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -140,12 +140,36 @@ int cCodeLabel::AsIntGreyCode(const int base) const
 int cCodeLabel::AsIntDirect(const int base) const
 {
   int value = 0;
-
+  
   for (int i = 0; i < m_size; i++) {
     value *= base;
     value += m_nops[i];
   }
 
+  return value;
+}
+
+/* Translates a code label into a unique integer (given a base >= the number of nop types)
+ * Example: nops A, B, C with base 3
+ *   no nops = 0
+ *   A       = 1
+ *   B       = 2
+ *   AA      = 4
+ *   AC      = 6
+ *   BB      = 8
+ *   CA      = 12
+ *
+ * N.B.: Uniqueness will NOT be true if base < # of nop types
+ */
+int cCodeLabel::AsIntUnique(const int base) const
+{
+  int value = 0;
+  
+  for (int i = 0; i < m_size; i++) {
+    value *= base;
+    value += m_nops[i] + 1;
+  }
+  
   return value;
 }
 

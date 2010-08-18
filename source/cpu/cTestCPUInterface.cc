@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -29,10 +29,10 @@
 #include "cTestCPU.h"
 
 
-bool cTestCPUInterface::Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome)
+bool cTestCPUInterface::Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome)
 {
   parent->GetPhenotype().TestDivideReset(parent->GetGenome());
-  // @CAO in the future, we probably want to pass this child the test_cpu!
+  // @CAO in the future, we probably want to pass this offspring the test_cpu!
   return true;
 }
 
@@ -41,9 +41,18 @@ cOrganism* cTestCPUInterface::GetNeighbor()
   return NULL;
 }
 
+bool cTestCPUInterface::IsNeighborCellOccupied() {
+  return false;
+}
+
 int cTestCPUInterface::GetNumNeighbors()
 {
   return 0;
+}
+
+void cTestCPUInterface::GetNeighborhoodCellIDs(tArray<int>& list)
+{
+  
 }
 
 void cTestCPUInterface::Rotate(int direction)
@@ -77,6 +86,11 @@ const tArray<double>& cTestCPUInterface::GetResources()
 
 const tArray<double>& cTestCPUInterface::GetDemeResources(int deme_id) {
   return m_testcpu->GetDemeResources(deme_id);
+}
+
+const tArray< tArray<int> >& cTestCPUInterface::GetCellIdLists()
+{
+	return m_testcpu->GetCellIdLists();
 }
 
 void cTestCPUInterface::UpdateResources(const tArray<double>& res_change)
@@ -121,5 +135,11 @@ bool cTestCPUInterface::InjectParasite(cOrganism* parent, const cCodeLabel& labe
 
 bool cTestCPUInterface::UpdateMerit(double new_merit)
 {
-  return false;
+  m_test_info.GetTestPhenotype(m_cur_depth).SetMerit(cMerit(new_merit));
+  return true;
+}
+
+int cTestCPUInterface::GetStateGridID(cAvidaContext& ctx)
+{
+  return m_test_info.GetStateGridID();
 }

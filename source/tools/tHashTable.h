@@ -2,7 +2,7 @@
  *  tHashTable.h
  *  Avida
  *
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -73,6 +73,9 @@
 #ifndef tList_h
 #include "tList.h"
 #endif
+#ifndef BIT_ARRAY_H
+#include "cBitArray.h"
+#endif
 
 #include <cstdlib>
 
@@ -89,6 +92,57 @@
 
 template <class DATA_TYPE> class tList; // access
 template <class DATA_TYPE> class tListIterator; // aggregate
+
+namespace nHashTable {
+  
+  // HASH_TYPE = basic object
+  // Casts the pointer to an int, shift right last two bit positions, mod by
+  // the size of the hash table and hope for the best.  The shift is to account
+  // for typical 4-byte alignment of pointer values.  Depending on architecture
+  // this may not be true and could result in suboptimal hashing at higher
+  // order alignments.
+  template<typename HASH_TYPE> inline int HashKey(const HASH_TYPE& key, int table_size)
+  {
+    // Cast/Dereference of key as an int* tells the compiler that we really want
+    // to truncate the value to an integer, even if a pointer is larger.
+    return abs((*((int*)&key) >> 2) % table_size);    
+  }
+  
+  // HASH_TYPE = int
+  // Simply mod the into by the size of the hash table and hope for the best
+  template<> inline int HashKey<int>(const int& key, int table_size)
+  {
+    return abs(key % table_size);
+  }
+  
+  // HASH_TYPE = cString
+  // We hash a string simply by adding up the individual character values in
+  // that string and modding by the hash size.  For most applications this
+  // will work fine (and reasonably fast!) but some patterns will cause all
+  // strings to go into the same cell.  For example, "ABC"=="CBA"=="BBB".
+  template<> inline int HashKey<cString>(const cString& key, int table_size)
+  {
+    unsigned int out_hash = 0;
+    for (int i = 0; i < key.GetSize(); i++)
+      out_hash += (unsigned int) key[i];
+    return out_hash % table_size;
+  }
+  
+  // HASH_TYPE = cBitArray
+  // We hash a bit array by calculating the sum of the squared values of the
+  // positions where bits are on, then modding this number by the size of 
+  // the hash table
+  template<> inline int HashKey<cBitArray>(const cBitArray& key, int table_size)
+  {
+    unsigned int out_hash = 0;
+    for (int i = 0; i < key.GetSize(); i++) {
+      if (key.Get(i)) { out_hash += i*i; }
+    }
+    return out_hash % table_size;
+  }
+  
+}
+
 
 template <class HASH_TYPE, class DATA_TYPE> class tHashTable {
 #if USE_tMemTrack
@@ -126,45 +180,10 @@ private:
   // Create an iterator for entry_list
   mutable tListIterator< tHashEntry<HASH_TYPE, DATA_TYPE> > list_it;
   
-  // Create a set of HashKey methods for each of the basic data types that
-  // we allow:
-  
-  // HASH_TYPE = int
-  // Simply mod the into by the size of the hash table and hope for the best
-  int HashKey(const int& key) const
-  {
-    return abs(key % table_size);
-  }
-
-  // HASH_TYPE = void*
-  // Casts the pointer to an int, shift right last two bit positions, mod by
-  // the size of the hash table and hope for the best.  The shift is to account
-  // for typical 4-byte alignment of pointer values.  Depending on architecture
-  // this may not be true and could result in suboptimal hashing at higher
-  // order alignments.
-  int HashKey(const void* const& key) const
-  {
-    // Cast/Dereference of key as an int* tells the compiler that we really want
-    // to truncate the value to an integer, even if a pointer is larger.
-    return abs((*((int*)&key) >> 2) % table_size);
-  }
-  
-  // HASH_TYPE = cString
-  // We hash a string simply by adding up the individual character values in
-  // that string and modding by the hash size.  For most applications this
-  // will work fine (and reasonably fast!) but some patterns will cause all
-  // strings to go into the same cell.  For example, "ABC"=="CBA"=="BBB".
-  int HashKey(const cString& key) const {
-    unsigned int out_hash = 0;
-    for (int i = 0; i < key.GetSize(); i++)
-      out_hash += (unsigned int) key[i];
-    return out_hash % table_size;
-  }
-  
   // Function to find the appropriate tHashEntry for a key that is passed
   // in and return it.
   tHashEntry<HASH_TYPE, DATA_TYPE> * FindEntry(const HASH_TYPE& key) const {
-    const int bin = HashKey(key);
+    const int bin = nHashTable::HashKey<HASH_TYPE>(key, table_size);
     if (cell_array[bin] == NULL) return NULL;
     
     // Set the list iterator to the first entry of this bin.
@@ -245,7 +264,7 @@ public:
     tHashEntry<HASH_TYPE, DATA_TYPE> * new_entry = new tHashEntry<HASH_TYPE, DATA_TYPE>;
     new_entry->key = key;
     new_entry->data = data;
-    const int bin = HashKey(key);
+    const int bin = nHashTable::HashKey<HASH_TYPE>(key, table_size);
     new_entry->id = bin;
     
     
@@ -289,17 +308,18 @@ public:
     return false;
   }
   
-  DATA_TYPE Remove(const HASH_TYPE & key) {
+  bool Remove(const HASH_TYPE& key, DATA_TYPE& out_data) {
     // Determine the bin that we are going to be using.
-    const int bin = HashKey(key);
+    const int bin = nHashTable::HashKey<HASH_TYPE>(key, table_size);
     
-    DATA_TYPE out_data;
+    bool found = false;
     assert(cell_array[bin] != NULL);
     list_it.Set(cell_array[bin]);
     
     // If we are deleting the first entry in this bin we must clean up...
     if (list_it.Get()->key == key) {
       out_data = list_it.Get()->data;
+      found = true;
       delete list_it.Remove();
       list_it.Next();
       entry_count--;
@@ -316,6 +336,7 @@ public:
       while (list_it.Next() != NULL && list_it.Get()->id == bin) {
         if (list_it.Get()->key == key) {
           out_data = list_it.Get()->data;
+          found = true;
           delete list_it.Remove();
           entry_count--;
           break;
@@ -323,8 +344,41 @@ public:
       }
     }
     
-    return out_data;
+    return found;
   }
+  
+  void Remove(const HASH_TYPE& key) {
+    // Determine the bin that we are going to be using.
+    const int bin = nHashTable::HashKey<HASH_TYPE>(key, table_size);
+    
+    assert(cell_array[bin] != NULL);
+    list_it.Set(cell_array[bin]);
+    
+    // If we are deleting the first entry in this bin we must clean up...
+    if (list_it.Get()->key == key) {
+      delete list_it.Remove();
+      list_it.Next();
+      entry_count--;
+      // See if the next entry is still part of this cell.
+      if (list_it.AtRoot() == false && list_it.Get()->id == bin) {
+        cell_array[bin] = list_it.GetPos();
+      } else {
+        cell_array[bin] = NULL;
+      }
+    }
+    
+    // If it was not the first entry in this cell, keep looking!
+    else {
+      while (list_it.Next() != NULL && list_it.Get()->id == bin) {
+        if (list_it.Get()->key == key) {
+          delete list_it.Remove();
+          entry_count--;
+          break;
+        }
+      }
+    }
+  }
+
   
   void SetTableSize(int _hash) {
     // Create the new table...
@@ -340,7 +394,7 @@ public:
       tHashEntry<HASH_TYPE, DATA_TYPE> * cur_entry = backup_list.Pop();
       
       // determine the new bin for this entry.
-      int bin = HashKey(cur_entry->key);
+      int bin = nHashTable::HashKey<HASH_TYPE>(cur_entry->key, table_size);
       cur_entry->id = bin;
       
       if (cell_array[bin] == NULL) { list_it.Reset(); } // Reset to list start
@@ -384,10 +438,35 @@ public:
   }
   
   
+  // The following method allows the user to convert the hash table contents into lists.
+  // Empty lists show be passed in as arguments and the method will fill in their contents.
+  void AsListsUnsorted(tList<HASH_TYPE>& key_list, tList<DATA_TYPE>& value_list) const
+  {
+    assert(key_list.GetSize() == 0);
+    assert(value_list.GetSize() == 0);
+    
+    // Loop through the current entries and included them into the output list one at a time.
+    list_it.Reset();
+    while (list_it.Next() != NULL) {
+      key_list.Push(&list_it.Get()->key);
+      value_list.Push(&list_it.Get()->data);
+    }
+  }
+  
+  
   void GetKeys(tList<HASH_TYPE>& key_list) const
   {
     list_it.Reset();
     while (list_it.Next() != NULL) key_list.Push(&list_it.Get()->key);
+  }
+  
+  void GetKeys(tArray<DATA_TYPE>& value_array) const
+  {
+    value_array.Resize(entry_count);
+    int idx = 0;
+    
+    list_it.Reset();
+    while (list_it.Next() != NULL) value_array[idx++] = list_it.Get()->key;
   }
   
   

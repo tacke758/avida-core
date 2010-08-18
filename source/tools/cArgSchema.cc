@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 9/14/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -76,6 +76,30 @@ bool cArgSchema::AddEntry(cString in_name, int in_idx, int def)
   return true;
 }
 
+bool cArgSchema::AddEntry(cString in_name, int in_idx, int lower, int upper)
+{
+  if (AddEntry(in_name, in_idx, SCHEMA_INT)) {
+    m_ints[in_idx]->has_range_limits = true;
+    m_ints[in_idx]->r_l_int = lower;
+    m_ints[in_idx]->r_u_int = upper;
+    return true;
+  }
+  
+  return false;
+}
+
+bool cArgSchema::AddEntry(cString in_name, int in_idx, int lower, int upper, int def)
+{
+  if (AddEntry(in_name, in_idx, def)) {
+    m_ints[in_idx]->has_range_limits = true;
+    m_ints[in_idx]->r_l_int = lower;
+    m_ints[in_idx]->r_u_int = upper;
+    return true;
+  }
+  
+  return false;
+}
+
 bool cArgSchema::AddEntry(cString in_name, int in_idx, double def)
 {
   AdjustArgName(in_name);
@@ -88,6 +112,30 @@ bool cArgSchema::AddEntry(cString in_name, int in_idx, double def)
   m_doubles[in_idx] = entry;
   
   return true;
+}
+
+bool cArgSchema::AddEntry(cString in_name, int in_idx, double lower, double upper)
+{
+  if (AddEntry(in_name, in_idx, SCHEMA_DOUBLE)) {
+    m_ints[in_idx]->has_range_limits = true;
+    m_ints[in_idx]->r_l_double = lower;
+    m_ints[in_idx]->r_u_double = upper;
+    return true;
+  }
+  
+  return false;
+}
+
+bool cArgSchema::AddEntry(cString in_name, int in_idx, double lower, double upper, double def)
+{
+  if (AddEntry(in_name, in_idx, def)) {
+    m_ints[in_idx]->has_range_limits = true;
+    m_ints[in_idx]->r_l_double = lower;
+    m_ints[in_idx]->r_u_double = upper;
+    return true;
+  }
+  
+  return false;
 }
 
 bool cArgSchema::AddEntry(cString in_name, int in_idx, const cString& def)

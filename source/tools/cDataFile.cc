@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file.cc" prior to 12/2/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -44,7 +44,7 @@ cDataFile::cDataFile(cString& name) : m_name(name), num_cols(0), m_descr_written
 void cDataFile::Write( double x, const char* descr )
 {
   if (!m_descr_written) {
-    m_data += cStringUtil::Stringf("%f ", x);
+    m_data << x << " ";
     WriteColumnDesc(descr);
   } else
     m_fp << x << " ";
@@ -54,7 +54,7 @@ void cDataFile::Write( double x, const char* descr )
 void cDataFile::Write(int i, const char* descr)
 {
   if (!m_descr_written) {
-    m_data += cStringUtil::Stringf("%i ", i);
+    m_data << i << " ";
     WriteColumnDesc(descr);
   } else
     m_fp << i << " ";
@@ -64,7 +64,16 @@ void cDataFile::Write(int i, const char* descr)
 void cDataFile::Write(long i, const char* descr)
 {
   if (!m_descr_written) {
-    m_data += cStringUtil::Stringf("%i ", i);
+    m_data << i << " ";
+    WriteColumnDesc(descr);
+  } else
+    m_fp << i << " ";
+}
+
+void cDataFile::Write(unsigned int i, const char* descr)
+{
+  if (!m_descr_written) {
+    m_data << i << " ";
     WriteColumnDesc(descr);
   } else
     m_fp << i << " ";
@@ -74,7 +83,7 @@ void cDataFile::Write(long i, const char* descr)
 void cDataFile::Write(const char* data_str, const char* descr)
 {
   if (!m_descr_written) {
-    m_data += cStringUtil::Stringf("%s ", data_str);
+    m_data << data_str << " ";
     WriteColumnDesc(descr);
   } else
     m_fp << data_str << " ";
@@ -136,7 +145,10 @@ void cDataFile::FlushComments()
 {
   if ( !m_descr_written ){
     m_fp << m_descr;
+    m_descr = "";
+    
     m_descr_written = true;
+    assert(m_data.str().size() == 0);
   }
 }
 
@@ -145,7 +157,12 @@ void cDataFile::Endl()
 {
   if ( !m_descr_written ){
     m_fp << m_descr << endl;
-    m_fp << m_data << endl;
+    m_descr = "";
+    
+    m_fp << m_data.str() << endl;
+    m_data.clear();
+    m_data.str("");
+    
     m_descr_written = true;
   }
   else m_fp << endl;

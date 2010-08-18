@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tVector.hh" prior to 12/7/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -113,8 +113,8 @@ public:
 
   void Remove(T data) {
     int i, j;
-    for(i = 0; _data[i] != data && i < Size(); i++);
-    if(i < Size()) {
+    for (i = 0; _data[i] != data && i < Size(); i++) ;
+    if (i < Size()) {
       T *newdata = new T[Capacity()];
       for(j = 0; j < i; j++) {
 	newdata[j] = _data[j];

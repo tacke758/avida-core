@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -32,6 +32,9 @@
 class cTextViewerDriver : public cTextViewerDriver_Base
 {
 private:
+  bool m_pause;
+  bool m_firstupdate;
+  
   cTextViewerDriver();  // not implemented
   
 public:
@@ -40,6 +43,8 @@ public:
   
   void Run();
   
+  void SetPause() { m_pause = true; }
+
   // Driver Actions
   void SignalBreakpoint();
   void SetDone() { m_done = true; }

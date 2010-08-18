@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "tInstLib.hh" prior to 6/4/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -47,8 +47,8 @@ private:
 
 public:
   tInstLib(int size, const tInstLibEntry<MethodType>* entries, cString* nopmod_names, const int* nopmods,
-           const MethodType* functions, const cInstruction error, const cInstruction def, const cInstruction null_inst)
-  : cInstLib(size, error, def, null_inst), m_entries(entries), 
+           const MethodType* functions, int def, int null_inst)
+  : cInstLib(size, def, null_inst), m_entries(entries), 
     m_nopmod_names(nopmod_names),
     m_nopmods(nopmods),
     m_functions(functions)

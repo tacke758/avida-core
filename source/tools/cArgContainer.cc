@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 9/12/06.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -59,10 +59,30 @@ cArgContainer* cArgContainer::Load(cString args, const cArgSchema& schema, tList
         case cArgSchema::SCHEMA_INT:
           set_ints[index] = true;
           ret->m_ints[index] = arg_ent.AsInt();
+          if (!schema.ValidateInt(index, ret->m_ints[index])) {
+            cString* err_str = new cString();
+            cString name;
+            if (schema.GetIntName(index, name)) {
+              err_str->Set("Value of '%s' exceeds its defined range", static_cast<const char*>(name));
+            } else {
+              err_str->Set("Invalid int schema entry at index %d.", index);
+            }
+            errors->PushRear(err_str);
+          }
           break;
         case cArgSchema::SCHEMA_DOUBLE:
           set_doubles[index] = true;
           ret->m_doubles[index] = arg_ent.AsDouble();
+          if (!schema.ValidateDouble(index, ret->m_doubles[index])) {
+            cString* err_str = new cString();
+            cString name;
+            if (schema.GetDoubleName(index, name)) {
+              err_str->Set("Value of '%s' exceeds its defined range", static_cast<const char*>(name));
+            } else {
+              err_str->Set("Invalid double schema entry at index %d.", index);
+            }
+            errors->PushRear(err_str);
+          }
           break;
         case cArgSchema::SCHEMA_STRING:
           set_strings[index] = true;

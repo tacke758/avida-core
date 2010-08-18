@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "spatial_res_count.cc" prior to 12/5/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -32,12 +32,10 @@ using namespace std;
 
 /* Setup a single spatial resource with known flows */
 
-cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, 
-                  int ingeometry, 
-                  double inxdiffuse, double inydiffuse, double inxgravity, 
-                  double inygravity)
-                 : grid(inworld_x * inworld_y) {
-
+cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, int ingeometry, double inxdiffuse, double inydiffuse,
+                                   double inxgravity, double inygravity)
+  : grid(inworld_x * inworld_y), m_initial(0.0)
+{
   int i;
  
   xdiffuse = inxdiffuse;
@@ -58,7 +56,8 @@ cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y,
 /* Setup a single spatial resource using default flow amounts  */
 
 cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, int ingeometry)
-                 : grid(inworld_x * inworld_y) {
+  : grid(inworld_x * inworld_y), m_initial(0.0)
+{
   int i;
  
   xdiffuse = 1.0;
@@ -76,17 +75,14 @@ cSpatialResCount::cSpatialResCount(int inworld_x, int inworld_y, int ingeometry)
    SetPointers();
 }
 
-cSpatialResCount::cSpatialResCount() {
- 
-  xdiffuse = 1.0;
-  ydiffuse = 1.0;
-  xgravity = 0.0;
-  ygravity = 0.0;
+cSpatialResCount::cSpatialResCount() : m_initial(0.0), xdiffuse(1.0), ydiffuse(1.0), xgravity(0.0), ygravity(0.0)
+{
   geometry = nGeometry::GLOBAL;
 }
 
-void cSpatialResCount::ResizeClear(int inworld_x, int inworld_y, 
-                                   int ingeometry) {
+
+void cSpatialResCount::ResizeClear(int inworld_x, int inworld_y, int ingeometry)
+{
   int i;
  
   grid.ResizeClear(inworld_x * inworld_y); 
@@ -101,8 +97,8 @@ void cSpatialResCount::ResizeClear(int inworld_x, int inworld_y,
    SetPointers();
 }
 
-void cSpatialResCount::SetPointers() {
-
+void cSpatialResCount::SetPointers()
+{
   /* Pointer 0 will point to the cell above and to the left the current cell
      and will go clockwise around the cell.                               */
 
@@ -152,7 +148,9 @@ void cSpatialResCount::SetPointers() {
   }
 }
 
-void cSpatialResCount::CheckRanges() {
+
+void cSpatialResCount::CheckRanges()
+{
 
   // Check that the x, y ranges of the inflow and outflow rectangles 
   // are valid
@@ -184,6 +182,7 @@ void cSpatialResCount::CheckRanges() {
 
   if (inflowX2 < inflowX1) { inflowX2 += world_x; }
   if (inflowY2 < inflowY1) { inflowY2 += world_y; }
+
   if (outflowX1 < 0) { 
     outflowX1 = 0; 
   } else if (outflowX1 > world_x) { 
@@ -213,8 +212,8 @@ void cSpatialResCount::CheckRanges() {
 }
 
 /* Set all the individual cells to their initial values */
-
-void cSpatialResCount::SetCellList(tArray<cCellResource> *in_cell_list_ptr) {
+void cSpatialResCount::SetCellList(tArray<cCellResource>* in_cell_list_ptr)
+{
   cell_list_ptr = in_cell_list_ptr;
   for (int i = 0; i < cell_list_ptr->GetSize(); i++) {
     int cell_id = (*cell_list_ptr)[i].GetId();
@@ -225,6 +224,7 @@ void cSpatialResCount::SetCellList(tArray<cCellResource> *in_cell_list_ptr) {
     if (cell_id >= 0 && cell_id <= grid.GetSize()) {
       Rate((*cell_list_ptr)[i].GetId(), (*cell_list_ptr)[i].GetInitial());
       State((*cell_list_ptr)[i].GetId());
+      Element(cell_id).SetInitial((*cell_list_ptr)[i].GetInitial());
     }
   }
 }
@@ -313,6 +313,9 @@ void cSpatialResCount::StateAll() {
 }
 
 void cSpatialResCount::FlowAll() {
+
+  // @JEB save time if diffusion and gravity off...
+  if ((xdiffuse == 0.0) && (ydiffuse == 0.0) && (xgravity == 0.0) && (ygravity == 0.0)) return;
 
   int     i,k,ii,xdist,ydist;
   double  dist;
@@ -424,4 +427,10 @@ void cSpatialResCount::SetCellAmount(int cell_id, double res)
   {
     Element(cell_id).SetAmount(res);
   }
+}
+
+
+void cSpatialResCount::ResetResourceCounts()
+{
+  for (int i = 0; i < grid.GetSize(); i++) grid[i].ResetResourceCount(m_initial);
 }

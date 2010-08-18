@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 
 #include "avida.h"
 #include "cAnalyze.h"
+#include "cAnalyzeGenotype.h"
 #include "cClassificationManager.h"
 #include "cEnvironment.h"
 #include "cEventList.h"
@@ -57,7 +58,7 @@ cWorld::~cWorld()
   // Delete after all classes that may be logging items
   if (m_data_mgr) { m_data_mgr->FlushAll(); }
   delete m_data_mgr; m_data_mgr = NULL;
-
+  
   // Delete Last
   delete m_conf; m_conf = NULL;
 
@@ -78,8 +79,6 @@ void cWorld::Setup()
   if (rand_seed != m_rng.GetSeed()) cout << " -> " << m_rng.GetSeed();
   cout << endl;
   
-  m_actlib = cDriverManager::GetActionLibrary();
-  
   m_data_mgr = new cDataFileManager(m_conf->DATA_DIR.Get(), (m_conf->VERBOSITY.Get() > VERBOSE_ON));
   if (m_conf->VERBOSITY.Get() > VERBOSE_NORMAL)
     cout << "Data Directory: " << m_data_mgr->GetTargetDir() << endl;
@@ -91,7 +90,7 @@ void cWorld::Setup()
   // Initialize the default environment...
   // This must be after the HardwareManager in case REACTIONS that trigger instructions are used.
   if (!m_env->Load(m_conf->ENVIRONMENT_FILE.Get())) {
-    cerr << "Error: Unable to load environment" << endl;
+    cerr << "error: unable to load environment" << endl;
     Avida::Exit(-1);
   }
   
@@ -107,29 +106,30 @@ void cWorld::Setup()
 		m_class_mgr->LoadCCladeFounders(m_conf->TRACK_CCLADES_IDS.Get());
   
 	m_pop = new cPopulation(this);
-        m_pop->InitiatePop();
+  m_pop->InitiatePop();
   
   // Setup Event List
   m_event_list = new cEventList(this);
   if (!m_event_list->LoadEventFile(m_conf->EVENT_FILE.Get())) {
-    cerr << "Error: Unable to load events" << endl;
+    cerr << "error: unable to load events" << endl;
     Avida::Exit(-1);
   }
-  
 	
   
   const bool revert_fatal = m_conf->REVERT_FATAL.Get() > 0.0;
   const bool revert_neg = m_conf->REVERT_DETRIMENTAL.Get() > 0.0;
   const bool revert_neut = m_conf->REVERT_NEUTRAL.Get() > 0.0;
   const bool revert_pos = m_conf->REVERT_BENEFICIAL.Get() > 0.0;
+  const bool revert_taskloss = m_conf->REVERT_TASKLOSS.Get() > 0.0;
   const bool fail_implicit = m_conf->FAIL_IMPLICIT.Get() > 0;
-  m_test_on_div = (revert_fatal || revert_neg || revert_neut || revert_pos || fail_implicit);
+  m_test_on_div = (revert_fatal || revert_neg || revert_neut || revert_pos || revert_taskloss || fail_implicit);
   
   const bool sterilize_fatal = m_conf->STERILIZE_FATAL.Get() > 0.0;
   const bool sterilize_neg = m_conf->STERILIZE_DETRIMENTAL.Get() > 0.0;
   const bool sterilize_neut = m_conf->STERILIZE_NEUTRAL.Get() > 0.0;
   const bool sterilize_pos = m_conf->STERILIZE_BENEFICIAL.Get() > 0.0;
-  m_test_sterilize = (sterilize_fatal || sterilize_neg || sterilize_neut || sterilize_pos);
+  const bool sterilize_taskloss = m_conf->STERILIZE_TASKLOSS.Get() > 0.0;
+  m_test_sterilize = (sterilize_fatal || sterilize_neg || sterilize_neut || sterilize_pos || sterilize_taskloss);
 }
 
 cAnalyze& cWorld::GetAnalyze()
@@ -152,14 +152,24 @@ int cWorld::GetNumInstructions()
   return m_hw_mgr->GetInstSet().GetSize();
 }
 
-int cWorld::GetNumReactions()
-{
-  return m_env->GetReactionLib().GetSize();
-}
-
 int cWorld::GetNumResources()
 {
   return m_env->GetResourceLib().GetSize();
+}
+
+// Given number of resources and number of nops, how many possible collect-type resource specifications exist?
+// If no nops or no resources, return 0
+int cWorld::GetNumResourceSpecs()
+{
+  int num_resources = GetEnvironment().GetResourceLib().GetSize();
+  int num_nops = GetHardwareManager().GetInstSet().GetNumNops();
+  
+  if (num_resources <= 0 || num_nops <= 0) { return 0; }
+  
+  double most_nops_needed = ceil(log((double)num_resources)/log((double)num_nops));
+  double numerator = pow((double)num_nops, most_nops_needed + 1) - 1;
+  double denominator = (double)(num_nops - 1);
+  return (int)(numerator / denominator);
 }
 
 void cWorld::SetDriver(cWorldDriver* driver, bool take_ownership)

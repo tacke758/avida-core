@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 11/14/05.
- *  Copyright 1999-2007 Michigan State University. All rights reserved.
+ *  Copyright 1999-2009 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -105,7 +105,7 @@ private:
   // Private Helper Functions
   void AddGenotype(cGenotype* in_genotype, int list_num = -1);
   void AddInjectGenotype(cInjectGenotype* in_inject_genotype, int in_list_num = -1);
-  void DumpDetailHeading(std::ofstream& fp);
+  void DumpDetailHeading(std::ofstream& fp, bool print_mut_steps = false);
   void DumpDetailSexHeading (std::ofstream& fp);
   unsigned int FindCRC(const cGenome& in_genome) const;
   unsigned int FindInjectCRC(const cGenome& in_genome) const;
@@ -132,6 +132,8 @@ public:
   cGenotype* GetGenotypeLoaded(const cGenome& in_genome, int update_born = 0, int id_num = -1);
   const cGenotype* FindGenotype(const cGenome& in_genome, int lineage_label, int list_num = -1) const;
   cGenotype* FindGenotype(const cGenome& in_genome, int lineage_label, int list_num = -1);
+  cGenotype* FindGenotype(const int _in_genotype_id) { return m_genotype_ctl->Find(_in_genotype_id); }
+
   void RemoveGenotype(cGenotype& in_genotype);
   void ThresholdGenotype(cGenotype& in_genotype);
   bool AdjustGenotype(cGenotype& in_genotype);
@@ -153,11 +155,11 @@ public:
   // Genotype Output
   bool DumpTextSummary(std::ofstream& fp);
   bool PrintGenotypes(std::ofstream& fp, cString & data_fields, int historic);
-  bool DumpDetailedSummary(std::ofstream& fp);
+  bool DumpDetailedSummary(std::ofstream& fp, bool print_mut_steps = false);
   bool DumpDetailedSexSummary(std::ofstream& fp);
-  bool DumpHistoricSummary(std::ofstream& fp, int back_dist);
-  bool DumpHistoricSexSummary(std::ofstream& fp);
-  void DumpDetailedEntry(cGenotype* genotype, std::ofstream& fp);
+  bool DumpHistoricSummary(std::ofstream& fp, int back_dist, bool print_mut_steps = false);
+  bool DumpHistoricSexSummary(std::ofstream& fp, bool header = true);
+  void DumpDetailedEntry(cGenotype* genotype, std::ofstream& fp, bool print_mut_steps = false);
   void DumpDetailedSexEntry(cGenotype* genotype, std::ofstream& fp);
   
   
