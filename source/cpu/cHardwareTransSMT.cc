@@ -1196,15 +1196,13 @@ bool cHardwareTransSMT::Inst_HeadRead(cAvidaContext& ctx)
   
 	
 	//TODO: LHZ - Add config option for this, this turns off copy mutations from parasite genomes
-	if(!(ThreadGetOwner()->IsParasite()))
-	{
-		if (m_organism->TestCopyMut(ctx)) {
-			read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
-		} else {
-			read_inst = GetHead(head_id).GetInst().GetOp();
-		}
+	bool to_mut = m_organism->TestCopyMut(ctx);
+	
+	if(to_mut && !ThreadGetOwner()->IsParasite()){
+		read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
+	} else {
+		read_inst = GetHead(head_id).GetInst().GetOp();
 	}
-
   
   //read_inst = GetHead(head_id).GetInst().GetOp();
   Stack(dst).Push(read_inst);

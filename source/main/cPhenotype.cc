@@ -1935,3 +1935,13 @@ double cPhenotype::ConvertEnergyToMerit(double energy) const
   
   return 100 * energy / m_world->GetConfig().NUM_CYCLES_EXC_BEFORE_0_ENERGY.Get();
 }
+
+void cPhenotype::SetLastParasiteTaskCount(tArray<int> oldParaPhenotype)
+{
+  assert(initialized == true);
+  
+  for(int i=0;i<oldParaPhenotype.GetSize();i++)
+  {
+    last_para_tasks[i] = oldParaPhenotype[i];
+  }
+}

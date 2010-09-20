@@ -400,7 +400,8 @@ public:
   const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
   const tArray<int>& GetLastHostTaskCount() const { assert(initialized == true); return last_host_tasks; }
   const tArray<int>& GetLastParasiteTaskCount() const { assert(initialized == true); return last_para_tasks; }
-
+  void  SetLastParasiteTaskCount(tArray<int>  oldParaPhenotype);
+  
   const tArray<int>& GetLastInternalTaskCount() const { assert(initialized == true); return last_internal_task_count; }
   const tArray<double>& GetLastTaskQuality() const { assert(initialized == true); return last_task_quality; }
   const tArray<double>& GetLastTaskValue() const { assert(initialized == true); return last_task_value; }

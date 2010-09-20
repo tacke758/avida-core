@@ -180,7 +180,10 @@ public:                                                                         
   void Process(cAvidaContext& ctx) { m_world->GetPopulation().METHOD(m_filename); }       /* 12 */ \
 }                                                                                         /* 13 */ \
 
-POP_OUT_FILE(PrintPhenotypeData,       phenotype_count.dat );
+POP_OUT_FILE(PrintPhenotypeData,          phenotype_count.dat );
+POP_OUT_FILE(PrintHostPhenotypeData,      host_phenotype_count.dat );
+POP_OUT_FILE(PrintParasitePhenotypeData,  parasite_phenotype_count.dat );
+
 POP_OUT_FILE(PrintPhenotypeStatus,     phenotype_status.dat);
 POP_OUT_FILE(PrintDemeTestamentStats,  deme_testament.dat  );
 POP_OUT_FILE(PrintCurrentMeanDemeDensity,  deme_currentMeanDensity.dat  );
@@ -2812,6 +2815,99 @@ public:
   }
 };
 
+class cActionDumpHostTaskGrid : public cAction
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionDumpHostTaskGrid(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();  
+  }
+  static const cString GetDescription() { return "Arguments: [string fname='']"; }
+  void Process(cAvidaContext& ctx)
+  {
+    cString filename(m_filename);
+    if (filename == "") filename.Set("grid_task_hosts.%d.dat", m_world->GetStats().GetUpdate());
+    ofstream& fp = m_world->GetDataFileOFStream(filename);
+    
+    cPopulation* pop = &m_world->GetPopulation();
+    
+    const int num_tasks = m_world->GetEnvironment().GetNumTasks();
+    
+    for (int i = 0; i < pop->GetWorldX(); i++) {
+      for (int j = 0; j < pop->GetWorldY(); j++) {
+        int task_sum = 0;
+        int cell_num = i * pop->GetWorldX() + j;
+        if (pop->GetCell(cell_num).IsOccupied() == true) {
+          cOrganism* organism = pop->GetCell(cell_num).GetOrganism();
+          cPhenotype& test_phenotype = organism->GetPhenotype();
+          
+          for (int k = 0; k < num_tasks; k++) {
+            if (test_phenotype.GetLastHostTaskCount()[k] > 0) task_sum += static_cast<int>(pow(2.0, k)); 
+          }
+        }
+        else { task_sum = -1; }
+        fp << task_sum << " ";
+      }
+      fp << endl;
+    }
+    
+    m_world->GetDataFileManager().Remove(filename);
+  }
+};
+
+class cActionDumpParasiteTaskGrid : public cAction
+{
+private:
+  cString m_filename;
+  
+public:
+  cActionDumpParasiteTaskGrid(cWorld* world, const cString& args) : cAction(world, args), m_filename("")
+  {
+    cString largs(args);
+    if (largs.GetSize()) m_filename = largs.PopWord();  
+  }
+  static const cString GetDescription() { return "Arguments: [string fname='']"; }
+  void Process(cAvidaContext& ctx)
+  {
+    cString filename(m_filename);
+    if (filename == "") filename.Set("grid_task_parasite.%d.dat", m_world->GetStats().GetUpdate());
+    ofstream& fp = m_world->GetDataFileOFStream(filename);
+    
+    cPopulation* pop = &m_world->GetPopulation();
+    
+    const int num_tasks = m_world->GetEnvironment().GetNumTasks();
+    
+    for (int i = 0; i < pop->GetWorldX(); i++) {
+      for (int j = 0; j < pop->GetWorldY(); j++) {
+        int task_sum = 0;
+        int cell_num = i * pop->GetWorldX() + j;
+        if (pop->GetCell(cell_num).IsOccupied() == true) {
+          cOrganism* organism = pop->GetCell(cell_num).GetOrganism();
+          if(organism->GetNumParasites() > 0)
+          {
+            cPhenotype& test_phenotype = organism->GetPhenotype();
+            
+            for (int k = 0; k < num_tasks; k++) {
+              if (test_phenotype.GetLastParasiteTaskCount()[k] > 0) task_sum += static_cast<int>(pow(2.0, k)); 
+            }
+            
+          }
+          else { task_sum = -1; }
+        }
+        else { task_sum = -1; }
+        fp << task_sum << " ";
+      }
+      fp << endl;
+    }
+    
+    m_world->GetDataFileManager().Remove(filename);
+  }
+};
+
 
 class cActionDumpDonorGrid : public cAction
 {
@@ -3147,6 +3243,9 @@ void RegisterPrintActions(cActionLibrary* action_lib)
 
   // Population Out Files
   action_lib->Register<cActionPrintPhenotypeData>("PrintPhenotypeData");
+  action_lib->Register<cActionPrintParasitePhenotypeData>("PrintParasitePhenotypeData");
+  action_lib->Register<cActionPrintHostPhenotypeData>("PrintHostPhenotypeData");
+
   action_lib->Register<cActionPrintPhenotypeStatus>("PrintPhenotypeStatus");
   
   action_lib->Register<cActionPrintDemeTestamentStats>("PrintDemeTestamentStats");
@@ -3244,6 +3343,10 @@ void RegisterPrintActions(cActionLibrary* action_lib)
   action_lib->Register<cActionDumpPhenotypeIDGrid>("DumpPhenotypeIDGrid");
   action_lib->Register<cActionDumpLineageGrid>("DumpLineageGrid");
   action_lib->Register<cActionDumpTaskGrid>("DumpTaskGrid");
+
+  action_lib->Register<cActionDumpHostTaskGrid>("DumpHostTaskGrid");
+  action_lib->Register<cActionDumpParasiteTaskGrid>("DumpParasiteTaskGrid");
+
   action_lib->Register<cActionDumpDonorGrid>("DumpDonorGrid");
   action_lib->Register<cActionDumpReceiverGrid>("DumpReceiverGrid");
   action_lib->Register<cActionDumpEnergyGrid>("DumpEnergyGrid");
