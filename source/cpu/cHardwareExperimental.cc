@@ -106,6 +106,8 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
     tInstLibEntry<tMethod>("if-n-equ", &cHardwareExperimental::Inst_IfNEqu, nInstFlag::DEFAULT, "Execute next instruction if ?BX?!=?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-less", &cHardwareExperimental::Inst_IfLess, nInstFlag::DEFAULT, "Execute next instruction if ?BX? < ?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-gtr-0", &cHardwareExperimental::Inst_IfGreaterThanZero, nInstFlag::DEFAULT, "Execute next instruction if ?BX? > 0, else skip it"),
+    tInstLibEntry<tMethod>("if-gtr-X", &cHardwareExperimental::Inst_IfGtrX),
+    tInstLibEntry<tMethod>("if-equ-X", &cHardwareExperimental::Inst_IfEquX),
 
     tInstLibEntry<tMethod>("if-cons", &cHardwareExperimental::Inst_IfConsensus, 0, "Execute next instruction if ?BX? in consensus, else skip it"),
     tInstLibEntry<tMethod>("if-cons-24", &cHardwareExperimental::Inst_IfConsensus24, 0, "Execute next instruction if ?BX[0:23]? in consensus , else skip it"),
@@ -803,6 +805,7 @@ cHeadCPU cHardwareExperimental::FindNopSequenceForward(bool mark_executed)
 }
 
 
+
 bool cHardwareExperimental::InjectHost(const cCodeLabel & in_label, const cGenome & injection)
 {
   // Make sure the genome will be below max size after injection.
@@ -1189,6 +1192,61 @@ bool cHardwareExperimental::Inst_IfGreaterThanZero(cAvidaContext& ctx)  // Execu
   if (GetRegister(op1) <= 0)  getIP().Advance();
   return true;
 }
+
+
+bool cHardwareExperimental::Inst_IfGtrX(cAvidaContext& ctx)       // Execute next if BX > X; X value set according to NOP label
+{
+  // Compares value in BX to a specific value.  The value to compare to is determined by the nop label as follows:
+  //    no nop label (default): valueToCompare = 1;
+  //    nop-A: toggles valueToCompare sign-bit 
+  //    nop-B: valueToCompare left-shift by 1-bit
+  //    nop-C: valueToCompare left-shift by 2-bits
+  //    nop-D: valueToCompare left-shift by 3-bits, etc.
+  
+  int valueToCompare = 1;
+  
+  ReadLabel();
+  const cCodeLabel& shift_label = GetLabel();
+  for (int i = 0; i < shift_label.GetSize(); i++) {
+    if (shift_label[i] == REG_AX) {
+      valueToCompare *= -1;
+    } else {
+      valueToCompare <<= shift_label[i];
+    }
+  }
+  
+  if (GetRegister(REG_BX) <= valueToCompare)  getIP().Advance();
+  
+  return true;
+}
+
+bool cHardwareExperimental::Inst_IfEquX(cAvidaContext& ctx)       // Execute next if BX == X; X value set according to NOP label
+{
+  // Compares value in BX to a specific value.  The value to compare to is determined by the nop label as follows:
+  //    no nop label (default): valueToCompare = 1;
+  //    nop-A: toggles valueToCompare sign-bit 
+  //    nop-B: valueToCompare left-shift by 1-bit
+  //    nop-C: valueToCompare left-shift by 2-bits
+  //    nop-D: valueToCompare left-shift by 3-bits, etc.
+  
+  int valueToCompare = 1;
+  
+  ReadLabel();
+  const cCodeLabel& shift_label = GetLabel();
+  for (int i = 0; i < shift_label.GetSize(); i++) {
+    if (shift_label[i] == REG_AX) {
+      valueToCompare *= -1;
+    } else {
+      valueToCompare <<= shift_label[i];
+    }
+  }
+  
+  if (GetRegister(REG_BX) != valueToCompare)  getIP().Advance();
+  
+  return true;
+}
+
+
 
 bool cHardwareExperimental::Inst_IfConsensus(cAvidaContext& ctx)
 {

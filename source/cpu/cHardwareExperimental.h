@@ -400,6 +400,8 @@ private:
   bool Inst_IfNEqu(cAvidaContext& ctx);
   bool Inst_IfLess(cAvidaContext& ctx);
   bool Inst_IfGreaterThanZero(cAvidaContext& ctx);
+  bool Inst_IfGtrX(cAvidaContext& ctx);
+  bool Inst_IfEquX(cAvidaContext& ctx);
   bool Inst_IfConsensus(cAvidaContext& ctx);
   bool Inst_IfConsensus24(cAvidaContext& ctx);
   bool Inst_IfLessConsensus(cAvidaContext& ctx);
