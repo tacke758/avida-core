@@ -155,6 +155,14 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
     tInstLibEntry<tMethod>("search-b-direct", &cHardwareExperimental::Inst_SearchB_Direct, 0, "Find direct template backward and move the flow head"),
 
     tInstLibEntry<tMethod>("mov-head", &cHardwareExperimental::Inst_MoveHead, nInstFlag::DEFAULT, "Move head ?IP? to the flow head"),
+    tInstLibEntry<tMethod>("mov-head-if-n-equ", &cHardwareExperimental::Inst_MoveHeadIfNEqu, nInstFlag::DEFAULT, "Move head ?IP? to the flow head if ?BX? != ?CX?"),
+    tInstLibEntry<tMethod>("mov-head-if-less", &cHardwareExperimental::Inst_MoveHeadIfLess, nInstFlag::DEFAULT, "Move head ?IP? to the flow head if ?BX? != ?CX?"),
+
+    tInstLibEntry<tMethod>("goto", &cHardwareExperimental::Inst_Goto, 0, "Move IP to labeled position matching the label that follows"),
+    tInstLibEntry<tMethod>("goto-if-n-equ", &cHardwareExperimental::Inst_GotoIfNEqu, 0, "Move IP to labeled position if BX != CX"),
+    tInstLibEntry<tMethod>("goto-if-less", &cHardwareExperimental::Inst_GotoIfLess, 0, "Move IP to labeled position if BX < CX"),
+    tInstLibEntry<tMethod>("goto-if-cons", &cHardwareExperimental::Inst_GotoConsensus, 0, "Move IP to the labeled position if BX consensus"), 
+    tInstLibEntry<tMethod>("goto-if-cons-24", &cHardwareExperimental::Inst_GotoConsensus24, 0, "Move IP to the labeled position if BX consensus"),
     
     tInstLibEntry<tMethod>("jmp-head", &cHardwareExperimental::Inst_JumpHead, nInstFlag::DEFAULT, "Move head ?Flow? by amount in ?CX? register"),
     tInstLibEntry<tMethod>("get-head", &cHardwareExperimental::Inst_GetHead, nInstFlag::DEFAULT, "Copy the position of the ?IP? head into ?CX?"),
@@ -177,11 +185,6 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
 
     tInstLibEntry<tMethod>("die", &cHardwareExperimental::Inst_Die, nInstFlag::STALL, "Instantly kills the organism"),
 
-    
-    // Goto Variants
-    tInstLibEntry<tMethod>("goto", &cHardwareExperimental::Inst_Goto, 0, "Move IP to labeled position matching the label that follows"),
-    tInstLibEntry<tMethod>("goto-if-cons", &cHardwareExperimental::Inst_GotoConsensus, 0, "Move IP to the labeled position if BX consensus"), 
-    tInstLibEntry<tMethod>("goto-if-cons-24", &cHardwareExperimental::Inst_GotoConsensus24, 0, "Move IP to the labeled position if BX consensus"), 
     
     
     // Promoter Model
@@ -1567,6 +1570,89 @@ bool cHardwareExperimental::Inst_MoveHead(cAvidaContext& ctx)
   return true;
 }
 
+bool cHardwareExperimental::Inst_MoveHeadIfNEqu(cAvidaContext& ctx)
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  const int op2 = FindModifiedNextRegister(op1);
+  const int head_used = FindModifiedHead(nHardware::HEAD_IP);
+  const int target = FindModifiedHead(nHardware::HEAD_FLOW);
+  if (m_threads[m_cur_thread].reg[op1].value != m_threads[m_cur_thread].reg[op2].value) {
+    getHead(head_used).Set(getHead(target));
+    if (head_used == nHardware::HEAD_IP) m_advance_ip = false;
+  }
+  return true;
+}
+
+bool cHardwareExperimental::Inst_MoveHeadIfLess(cAvidaContext& ctx)
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  const int op2 = FindModifiedNextRegister(op1);
+  const int head_used = FindModifiedHead(nHardware::HEAD_IP);
+  const int target = FindModifiedHead(nHardware::HEAD_FLOW);
+  if (m_threads[m_cur_thread].reg[op1].value < m_threads[m_cur_thread].reg[op2].value) {
+    getHead(head_used).Set(getHead(target));
+    if (head_used == nHardware::HEAD_IP) m_advance_ip = false;
+  }
+  return true;
+}
+
+
+bool cHardwareExperimental::Inst_Goto(cAvidaContext& ctx)
+{
+  ReadLabel();
+  cHeadCPU found_pos = FindLabelForward(true);
+  getIP().Set(found_pos);
+  return true;
+}
+
+bool cHardwareExperimental::Inst_GotoIfNEqu(cAvidaContext& ctx)
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  const int op2 = FindModifiedNextRegister(op1);
+  ReadLabel();
+  if (m_threads[m_cur_thread].reg[op1].value != m_threads[m_cur_thread].reg[op2].value) {
+    cHeadCPU found_pos = FindLabelForward(true);
+    getIP().Set(found_pos);
+  }
+  return true;
+}
+
+bool cHardwareExperimental::Inst_GotoIfLess(cAvidaContext& ctx)
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  const int op2 = FindModifiedNextRegister(op1);
+  ReadLabel();
+  if (m_threads[m_cur_thread].reg[op1].value < m_threads[m_cur_thread].reg[op2].value) {
+    cHeadCPU found_pos = FindLabelForward(true);
+    getIP().Set(found_pos);
+  }
+  return true;
+}
+
+
+bool cHardwareExperimental::Inst_GotoConsensus(cAvidaContext& ctx)
+{
+  if (BitCount(GetRegister(REG_BX)) < CONSENSUS) return true;
+  
+  ReadLabel();
+  GetLabel().Rotate(1, NUM_NOPS);
+  cHeadCPU found_pos = FindLabelForward(true);
+  getIP().Set(found_pos);
+  return true;
+}
+
+bool cHardwareExperimental::Inst_GotoConsensus24(cAvidaContext& ctx)
+{
+  if (BitCount(GetRegister(REG_BX) & MASK24) < CONSENSUS24) return true;
+  
+  ReadLabel();
+  GetLabel().Rotate(1, NUM_NOPS);
+  cHeadCPU found_pos = FindLabelForward(true);
+  getIP().Set(found_pos);
+  return true;
+}
+
+
 bool cHardwareExperimental::Inst_JumpHead(cAvidaContext& ctx)
 {
   const int head_used = FindModifiedHead(nHardware::HEAD_IP);
@@ -1821,37 +1907,6 @@ bool cHardwareExperimental::Inst_SetFlow(cAvidaContext& ctx)
   getHead(nHardware::HEAD_FLOW).Set(GetRegister(reg_used));
   return true; 
 }
-
-bool cHardwareExperimental::Inst_Goto(cAvidaContext& ctx)
-{
-  ReadLabel();
-  cHeadCPU found_pos = FindLabelForward(true);
-  getIP().Set(found_pos);
-  return true;
-}
-
-bool cHardwareExperimental::Inst_GotoConsensus(cAvidaContext& ctx)
-{
-  if (BitCount(GetRegister(REG_BX)) < CONSENSUS) return true;
-  
-  ReadLabel();
-  GetLabel().Rotate(1, NUM_NOPS);
-  cHeadCPU found_pos = FindLabelForward(true);
-  getIP().Set(found_pos);
-  return true;
-}
-
-bool cHardwareExperimental::Inst_GotoConsensus24(cAvidaContext& ctx)
-{
-  if (BitCount(GetRegister(REG_BX) & MASK24) < CONSENSUS24) return true;
-  
-  ReadLabel();
-  GetLabel().Rotate(1, NUM_NOPS);
-  cHeadCPU found_pos = FindLabelForward(true);
-  getIP().Set(found_pos);
-  return true;
-}
-
 
 
 

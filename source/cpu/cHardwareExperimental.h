@@ -441,6 +441,13 @@ private:
   // Head-based Instructions
   bool Inst_HeadAlloc(cAvidaContext& ctx);
   bool Inst_MoveHead(cAvidaContext& ctx);
+  bool Inst_MoveHeadIfNEqu(cAvidaContext& ctx);
+  bool Inst_MoveHeadIfLess(cAvidaContext& ctx);
+  bool Inst_Goto(cAvidaContext& ctx);
+  bool Inst_GotoIfNEqu(cAvidaContext& ctx);
+  bool Inst_GotoIfLess(cAvidaContext& ctx);
+  bool Inst_GotoConsensus(cAvidaContext& ctx);
+  bool Inst_GotoConsensus24(cAvidaContext& ctx);
   bool Inst_JumpHead(cAvidaContext& ctx);
   bool Inst_GetHead(cAvidaContext& ctx);
   bool Inst_IfLabel(cAvidaContext& ctx);
@@ -459,11 +466,6 @@ private:
   bool Inst_SearchB_Direct(cAvidaContext& ctx);
   bool Inst_SetFlow(cAvidaContext& ctx);
   
-  // Goto Variants
-  bool Inst_Goto(cAvidaContext& ctx);
-  bool Inst_GotoConsensus(cAvidaContext& ctx);
-  bool Inst_GotoConsensus24(cAvidaContext& ctx);
-
   // Promoter Model
   bool Inst_Promoter(cAvidaContext& ctx);
   bool Inst_Terminate(cAvidaContext& ctx);
