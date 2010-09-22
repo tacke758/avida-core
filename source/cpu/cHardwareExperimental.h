@@ -399,7 +399,10 @@ private:
   // Flow Control
   bool Inst_IfNEqu(cAvidaContext& ctx);
   bool Inst_IfLess(cAvidaContext& ctx);
+  bool Inst_IfNotZero(cAvidaContext& ctx);
+  bool Inst_IfEqualZero(cAvidaContext& ctx);
   bool Inst_IfGreaterThanZero(cAvidaContext& ctx);
+  bool Inst_IfLessThanZero(cAvidaContext& ctx);
   bool Inst_IfGtrX(cAvidaContext& ctx);
   bool Inst_IfEquX(cAvidaContext& ctx);
   bool Inst_IfConsensus(cAvidaContext& ctx);

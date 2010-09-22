@@ -105,7 +105,10 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
     // Standard Conditionals
     tInstLibEntry<tMethod>("if-n-equ", &cHardwareExperimental::Inst_IfNEqu, nInstFlag::DEFAULT, "Execute next instruction if ?BX?!=?CX?, else skip it"),
     tInstLibEntry<tMethod>("if-less", &cHardwareExperimental::Inst_IfLess, nInstFlag::DEFAULT, "Execute next instruction if ?BX? < ?CX?, else skip it"),
-    tInstLibEntry<tMethod>("if-gtr-0", &cHardwareExperimental::Inst_IfGreaterThanZero, nInstFlag::DEFAULT, "Execute next instruction if ?BX? > 0, else skip it"),
+    tInstLibEntry<tMethod>("if-not-0", &cHardwareExperimental::Inst_IfNotZero, 0, "Execute next instruction if ?BX? != 0, else skip it"),
+    tInstLibEntry<tMethod>("if-equ-0", &cHardwareExperimental::Inst_IfEqualZero, 0, "Execute next instruction if ?BX? == 0, else skip it"),
+    tInstLibEntry<tMethod>("if-gtr-0", &cHardwareExperimental::Inst_IfGreaterThanZero, 0, "Execute next instruction if ?BX? > 0, else skip it"),
+    tInstLibEntry<tMethod>("if-less-0", &cHardwareExperimental::Inst_IfLessThanZero, 0, "Execute next instruction if ?BX? < 0, else skip it"),
     tInstLibEntry<tMethod>("if-gtr-X", &cHardwareExperimental::Inst_IfGtrX),
     tInstLibEntry<tMethod>("if-equ-X", &cHardwareExperimental::Inst_IfEquX),
 
@@ -1189,10 +1192,29 @@ bool cHardwareExperimental::Inst_IfLess(cAvidaContext& ctx) // Execute next if ?
   return true;
 }
 
+bool cHardwareExperimental::Inst_IfNotZero(cAvidaContext& ctx)  // Execute next if ?bx? != 0
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  if (GetRegister(op1) == 0)  getIP().Advance();
+  return true;
+}
+bool cHardwareExperimental::Inst_IfEqualZero(cAvidaContext& ctx)  // Execute next if ?bx? == 0
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  if (GetRegister(op1) != 0)  getIP().Advance();
+  return true;
+}
 bool cHardwareExperimental::Inst_IfGreaterThanZero(cAvidaContext& ctx)  // Execute next if ?bx? > 0
 {
   const int op1 = FindModifiedRegister(REG_BX);
   if (GetRegister(op1) <= 0)  getIP().Advance();
+  return true;
+}
+
+bool cHardwareExperimental::Inst_IfLessThanZero(cAvidaContext& ctx)  // Execute next if ?bx? < 0
+{
+  const int op1 = FindModifiedRegister(REG_BX);
+  if (GetRegister(op1) >= 0)  getIP().Advance();
   return true;
 }
 
