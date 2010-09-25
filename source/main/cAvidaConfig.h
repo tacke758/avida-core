@@ -359,6 +359,8 @@ public:
   CONFIG_ADD_VAR(INJECT_PROB_FROM_TASKS, int, 1, "Inject occurs based on probability from performing tasks");
   CONFIG_ADD_VAR(INJECT_STERILIZES_HOST, int, 0, "Infection causes host steralization");
   CONFIG_ADD_VAR(INJECT_IS_VIRULENT, int, 0, "Infection causes host steralization and takes all cpu cycles");
+  
+  CONFIG_ADD_VAR(INJECT_VIRULENCE, double, 0.5, "Inject's probability of taking a cpu cycle from the host");
   CONFIG_ADD_VAR(INJECT_PROB_SIGMOID, int, 1, "Inject Probs follow a psuedo-sigmoid path - only works if task probs are turned on");
   CONFIG_ADD_VAR(INHERIT_MERIT, int, 1, "Merit if inhereted from mother cell (only in asexual for now)");
   CONFIG_ADD_VAR(PARASITE_MEM_SPACES, int, 0, "Parasites use their own memory spaces instead of sharing them with the host");

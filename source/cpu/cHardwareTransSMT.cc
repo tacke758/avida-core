@@ -206,14 +206,32 @@ bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
   for (int i = 0; i < num_inst_exec; i++) {
     // Setup the hardware for the next instruction to be executed.
     m_cur_thread++;
+		
+		//Ignore incremeting the thread, set it to be the parasite, unless we draw something lower thean 0.8
+		//Then set it to the parasite
+		double injectionProb = m_world->GetConfig().INJECT_VIRULENCE.Get();
+		if (injectionProb != -1) {
+
+			double pThread = ctx.GetRandom().GetDouble();
+
+			m_cur_thread = 0;
+			if (pThread < injectionProb)
+			{
+				m_cur_thread = 1;
+			}
+		};
+		
+		//If we don't have a parasite, this will fix it. 
     if (m_cur_thread >= m_threads.GetSize())
 		{
 			m_cur_thread = 0;			
 		}
 
+		
     if(m_threads[m_cur_thread].skipExecution)
       m_cur_thread++;
-	    
+				
+
     if (!ThreadIsRunning()) continue;
     
     AdvanceIP() = true;
