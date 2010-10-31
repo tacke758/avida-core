@@ -30,6 +30,7 @@
 #include "cGenotype.h"
 #include "cWorld.h"
 
+
 cGenotypeControl::cGenotypeControl(cWorld* world) : m_world(world)
 {
   size = 0;
@@ -279,4 +280,13 @@ cGenotype * cGenotypeControl::Next(int thread)
 cGenotype * cGenotypeControl::Prev(int thread)
 {
   return threads[thread] = threads[thread]->GetPrev();
+}
+
+
+cGenotype* cGenotypeControl::FindGenotypeByOrgCount(int pos)
+{
+	cGenotype* retval = GetBest();
+	for (int k = retval->GetNumOrganisms(); k < pos; k+=retval->GetNumOrganisms())
+		retval = retval->GetNext();
+	return retval;
 }

@@ -73,7 +73,8 @@ public:
 
   cGenotype * Find(const cGenome & in_genome) const;
   int FindPos(cGenotype & in_genotype, int max_depth = -1);
-
+	cGenotype* FindRandomViableGenotype();
+	
   inline cGenotype * Get(int thread) const { return threads[thread]; }
   inline cGenotype * Reset(int thread)
     { return threads[thread] = best; }
@@ -81,6 +82,7 @@ public:
     { return threads[thread] = historic_list; }
   cGenotype * Next(int thread);
   cGenotype * Prev(int thread);
+	cGenotype*  FindGenotypeByOrgCount(int pos);
 };
 
 

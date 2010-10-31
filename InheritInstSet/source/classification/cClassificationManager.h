@@ -151,6 +151,9 @@ public:
 
   int FindPos(cGenotype& in_genotype, int max_depth = -1) { return m_genotype_ctl->FindPos(in_genotype, max_depth); }
   
+	//@MRR
+	cGenotype* GetRandomViableGenotype();
+		
   // Genotype Output
   bool DumpTextSummary(std::ofstream& fp);
   bool PrintGenotypes(std::ofstream& fp, cString & data_fields, int historic);

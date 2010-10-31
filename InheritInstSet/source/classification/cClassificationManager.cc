@@ -32,6 +32,7 @@
 #include "cInjectGenotype.h"
 #include "cLineage.h"
 #include "cOrganism.h"
+#include "cPopulation.h"
 #include "cSpecies.h"
 #include "cStats.h"
 #include "cStringList.h"
@@ -354,6 +355,22 @@ void cClassificationManager::RemoveGenotype(cGenotype & in_genotype)
   
   delete &in_genotype;
 }
+
+
+
+//@MRR
+cGenotype* cClassificationManager::GetRandomViableGenotype()
+{
+	cGenotype* retval = NULL;
+	do{
+		int pop_size = m_world->GetPopulation().GetNumOrganisms();
+		int rand_org = m_world->GetRandom().GetInt(pop_size);
+		retval = m_genotype_ctl->FindGenotypeByOrgCount(rand_org);
+	} while(retval->GetBirths() <= 0);
+	return retval;
+}
+
+
 
 void cClassificationManager::ThresholdGenotype(cGenotype & in_genotype)
 {

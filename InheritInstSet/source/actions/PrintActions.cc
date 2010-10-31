@@ -2835,8 +2835,44 @@ class cActionPrintSeedDistanceStats : public cAction
 
 
 
+class cActionPrintRandomViableGenotype : public cAction
+{
+	private:
+		cString m_filename;
+		bool first_run;
+	public:
+		cActionPrintRandomViableGenotype(cWorld* world, const cString& args) : cAction(world, args)
+		{
+			cString largs(args);
+			m_filename = (largs.GetSize() > 0) ? largs.PopWord() : "random-viable.dat";
+			first_run = true;
+		}
 
+	static const cString GetDescription() { return "Arguments: [string filename_prefix='random-viable.dat']"; }
+	
+	void Process(cAvidaContext& ctx)
+	{
+		if (ctx.GetAnalyzeMode())
+			m_world->GetDriver().RaiseFatalException(1, "PrintRandomViableGenotype cannot be run in analyze mode.");
+		
+		cDataFile& fp = m_world->GetDataFileManager().Get(m_filename);
+		if (!fp.Good())
+			m_world->GetDriver().RaiseFatalException(2, "cActionPrintRandomViableGenotype: unable to open file");
 
+		cGenotype* rand_gen = m_world->GetClassificationManager().GetRandomViableGenotype();
+		fp.Write(m_world->GetStats().GetUpdate(), "update");
+		fp.Write(rand_gen->GetID(), "id");
+		fp.Write(rand_gen->GetMerit(), "merit");
+		fp.Write(rand_gen->GetGestationTime(), "gest_time");
+		fp.Write(rand_gen->GetFitness(), "fitness");
+		fp.Write(rand_gen->GetDepth(), "depth");
+		fp.Write(rand_gen->GetUpdateBorn(), "born");
+		fp.Write(rand_gen->GetNumOrganisms(), "num_cpus");
+		fp.Write(rand_gen->GetBirths(), "births");
+		fp.Write(rand_gen->GetGenome().AsString(), "sequence");
+		fp.Endl();		
+	}
+};
 
 void RegisterPrintActions(cActionLibrary* action_lib)
 {
@@ -2902,6 +2938,7 @@ void RegisterPrintActions(cActionLibrary* action_lib)
 
   action_lib->Register<cActionPrintGenotypes>("PrintGenotypes");
   action_lib->Register<cActionPrintPhenotypicPlasticity>("PrintPhenotypicPlasticity");
+	action_lib->Register<cActionPrintRandomViableGenotype>("PrintRandomViableGenotype");
   
   action_lib->Register<cActionTestDominant>("TestDominant");
   action_lib->Register<cActionPrintTaskSnapshot>("PrintTaskSnapshot");
