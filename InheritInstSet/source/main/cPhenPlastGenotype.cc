@@ -80,6 +80,18 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
   m_max_fitness     =  -1.0;
   m_avg_fitness     =   0.0;
   m_likely_fitness  =  -1.0;
+  
+  m_min_merit       = (*uit)->GetMerit().GetDouble();
+  m_max_merit       = -1.0;
+  m_avg_merit       = 0.0;
+  m_likely_merit    = -1.0;
+  
+  m_min_gest_time      = (*uit)->GetGestationTime();
+  m_max_gest_time      = -1.0;
+  m_avg_gest_time      = 0.0;
+  m_likely_gest_time   = -1.0;
+  
+  
   m_max_freq        =   0.0;
   m_max_fit_freq    =   0.0;
   m_min_fit_freq    =   0.0;
@@ -89,6 +101,9 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
     cPlasticPhenotype* this_phen = static_cast<cPlasticPhenotype*>(*uit);
     double fit = this_phen->GetFitness();
     double freq = this_phen->GetFrequency();
+    double m = this_phen->GetMerit().GetDouble();
+    double g = this_phen->GetGestationTime();
+    
     if (fit > m_max_fitness){
       m_max_fitness = fit;
       m_max_fit_freq = freq;
@@ -97,11 +112,33 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
       m_min_fitness = fit;
       m_min_fit_freq = freq;
     }
+    
+    
+    
+    if (m > m_max_merit){
+      m_max_merit = m;
+    } 
+    if (m < m_min_merit){
+      m_max_merit = m;
+    }
+    
+    if (g > m_max_gest_time){
+      m_max_gest_time = g;
+    }
+    if (g < m_min_gest_time){
+      m_min_gest_time = g;
+    }
+    
     if (freq > m_max_freq){
       m_max_freq = freq;
       m_likely_fitness = fit;
-    }
-    m_avg_fitness += freq * fit;
+      m_likely_gest_time = g;
+      m_likely_merit = m;
+    } 
+    
+    m_avg_fitness   += freq * fit;
+    m_avg_merit     += freq * m;
+    m_avg_gest_time += freq*g;
     m_phenotypic_entropy -= freq * log(freq) / log(2.0);
     ++uit;
   }

@@ -7925,6 +7925,109 @@ void cAnalyze::CommandForRange(cString cur_string,
 }
 
 
+
+
+/* ====================================================================================== 
+ * @MRR
+ * Ocotober 2008
+ * This function will go through a batch andperform 1-NN lanscaping around each genotype
+ *  Output will be one file per genotype that lists the fitnesses of each genotype.
+ *
+ * Arguments
+ *    directory   [= "1NN"]  The directory to store each file
+ *    num_trials  [= 1] default number of trials for plasticity
+ *    flag_muts   [= 0] attempt to flag mutations between parent and child
+ *     
+ * ===================================================================================*/
+void cAnalyze::LandscapeNeighbors(cString cur_string)
+{
+  cString directory;       //What directory should the runs be written to
+  int     num_trials;      //How many plasticity measures should be run?
+  double  zero = 0.0;
+  double  xnan = 0.0/zero;  //Generate a nan
+  
+  // Defaults
+  directory      = (cur_string.GetSize()  == 0) ? "1NN" : cur_string.PopWord();
+  num_trials     = (cur_string.GetSize()  == 0) ? 1     : cur_string.PopWord().AsInt();
+  
+  tListIterator<cAnalyzeGenotype> batch_it(batch[cur_batch].List());
+  
+  const cAnalyzeGenotype* genotype_A  = NULL;       //Mutant A
+  
+  //For each genotype in the current batch
+  while ( (genotype_A = batch_it.Next()) != NULL)
+	{
+    
+    //Create a file for output
+    cString filename = cStringUtil::Stringf("%s/%d-1NN.dat", static_cast<const char*>(directory), genotype_A->GetID());
+    cDataFile& df = m_world->GetDataFile(filename);
+    if (!df.Good())
+      m_world->GetDriver().RaiseFatalException(2, "LandscapeBackground: Unable to open requested file for output.");
+    
+    //Write our header
+    df.WriteAnonymous("# Nearest Neighbor\n");
+    df.WriteAnonymous("# Site\n");
+    df.WriteAnonymous("# Character\n");
+    df.WriteAnonymous("# Average Fitness\n");
+    df.WriteAnonymous("# Average Merit\n");
+    df.WriteAnonymous("# Average Gestation Time\n");
+    df.WriteAnonymous("# Phenotypic Entorpy\n");
+    df.WriteAnonymous("# Minimum Fitness\n");
+    df.WriteAnonymous("# Minimum Fitness Freq\n");
+    df.WriteAnonymous("# Maximum Fitness\n");
+    df.WriteAnonymous("# Maximum Fitness Freq\n");
+    df.WriteAnonymous("# Likely Fitness\n");
+    df.WriteAnonymous("# Likely Fitness Freq\n");
+    df.Endl();
+    
+    //Write our initial fitness to the top line
+    cPhenPlastGenotype pA(genotype_A->GetGenome(), num_trials, m_world, m_ctx);
+    cString Line;
+    Line.Set("%d %c %g %g %g %g %g %g %g %g %g %g", 
+             -1, '-', pA.GetAverageFitness(), pA.GetAverageMerit(), pA.GetAverageGestTime(),
+             pA.GetPhenotypicEntropy(), 
+             pA.GetMinimumFitness(), pA.GetMinimumFitnessFrequency(),
+             pA.GetMaximumFitness(), pA.GetMaximumFitnessFrequency(),
+             pA.GetLikelyFitness(), pA.GetMaximumFrequency());
+    df.WriteAnonymous(Line);
+    df.Endl();
+    
+    cString cur_genome    = genotype_A->GetGenome().AsString();
+    cString new_genome    = genotype_A->GetGenome().AsString();
+    
+    
+		//For each site in the genome
+		for (int k = 0; k < cur_genome.GetSize(); k++){        
+			for (int c = 0; c < inst_set.GetSize(); c++){    //Mutate it to everything it can be
+				
+				if (cInstruction(c).GetSymbol() == cur_genome[k])  //If the "change" is the same as old, write nans
+				{
+					Line.Set("%d %c %g %g %g %g %g %g %g %g %g %g", k, cInstruction(c).GetSymbol(), 
+									 xnan, xnan, xnan, xnan, xnan, xnan, xnan, xnan, xnan, xnan);
+				} else {
+					new_genome = cur_genome;
+					new_genome[k] = cInstruction(c).GetSymbol();
+					cPhenPlastGenotype pp(new_genome, num_trials, m_world, m_ctx);
+					Line.Set("%d %c %g %g %g %g %g %g %g %g %g %g", k, cInstruction(c).GetSymbol(), 
+									 pp.GetAverageFitness(), pp.GetAverageMerit(),  pp.GetAverageGestTime(),
+									 pp.GetPhenotypicEntropy(),
+									 pp.GetMinimumFitness(), pp.GetMinimumFitnessFrequency(),
+									 pp.GetMaximumFitness(), pp.GetMaximumFitnessFrequency(),
+									 pp.GetLikelyFitness(),  pp.GetMaximumFrequency());
+				}
+				df.WriteAnonymous(Line);
+				df.Endl();
+			}//End genotype mutation loop
+		} //End child landscape loop
+		
+		//Clean up
+		m_world->GetDataFileManager().Remove(filename); 
+	}//End parent/child pairing loop
+	
+} //End cAnalyze::LandscapeNeighbors
+
+
+
 ///////////////////  Private Methods ///////////////////////////
 
 cString cAnalyze::PopDirectory(cString in_string, const cString default_dir)
@@ -8423,6 +8526,10 @@ void cAnalyze::LoadGenotypeDataList(cStringList arg_list,
 
 
 
+
+
+
+
 void cAnalyze::AddLibraryDef(const cString & name,
                              void (cAnalyze::*_fun)(cString))
 {
@@ -8516,6 +8623,10 @@ void cAnalyze::SetupCommandDefLibrary()
                 &cAnalyze::AnalyzeMutationTraceback);
   AddLibraryDef("ANALYZE_MATE_SELECTION", &cAnalyze::AnalyzeMateSelection);
   AddLibraryDef("ANALYZE_COMPLEXITY_DELTA", &cAnalyze::AnalyzeComplexityDelta);
+	
+	//@MRR
+	AddLibraryDef("LANDSCAPE_NEIGHBORS", &cAnalyze::LandscapeNeighbors);
+	
   
   // Environment manipulation
   AddLibraryDef("ENVIRONMENT", &cAnalyze::EnvironmentSetup);

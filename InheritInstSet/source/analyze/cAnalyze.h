@@ -297,6 +297,9 @@ private:
   void AnalyzeMateSelection(cString cur_string);
   void AnalyzeComplexityDelta(cString cur_string);
   
+	//@MRR
+	void LandscapeNeighbors(cString cur_string);
+	
   // Environment Manipulation
   void EnvironmentSetup(cString cur_string);
   
