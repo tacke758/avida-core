@@ -2050,6 +2050,8 @@ public:
         delete testcpu;
       }
       
+      df.Endl();
+      
       // ...and advance to the next genotype...
       cur_genotype = cur_genotype->GetNext();
     }
