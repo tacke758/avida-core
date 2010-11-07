@@ -119,6 +119,7 @@ private:
   int update_born;
   int update_dead;
   int depth;
+	int num_offspring;
 
   // Group 2 : Basic Execution Stats (Obtained from test CPUs)
   int length;
@@ -254,6 +255,7 @@ public:
   void SetUpdateBorn(int _born) { update_born = _born; }
   void SetUpdateDead(int _dead) { update_dead = _dead; }
   void SetDepth(int _depth) { depth = _depth; }
+	void SetNumOffspring(int _offspring) { num_offspring = _offspring; }
 
   void SetLength(int _length) { length = _length; }
   void SetCopyLength(int _length) { copy_length = _length; }
@@ -315,6 +317,7 @@ public:
   int GetUpdateBorn() const { return update_born; }
   int GetUpdateDead() const { return update_dead; }
   int GetDepth() const { return depth; }
+	int GetNumOffspring() const {return num_offspring;}
 
   const cString& GetParentMuts() const { return parent_muts; }
 

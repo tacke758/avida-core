@@ -8378,6 +8378,9 @@ void cAnalyze::SetupGenotypeDataList()
   ADD_GDATA(double, "complexity",   "Basic Complexity (beneficial muts are neutral)", GetComplexity, SetNULL, 0, 0, 0);
   ADD_GDATA(double, "land_fitness", "Average Lanscape Fitness",      GetLandscapeFitness, SetNULL,     0, 0, 0);
   
+	//@MRR November 2010 for random sample
+	ADD_GDATA(int,    "num_offspring",      "Number of offspring",                   GetNumOffspring,           SetNumOffspring, 0, 0, 0); 
+	
   ADD_GDATA(int,    "num_phen",           "Number of Plastic Phenotypes",          GetNumPhenotypes,          SetNULL, 0, 0, 0);
   ADD_GDATA(int,    "num_trials",         "Number of Recalculation Trials",        GetNumTrials,              SetNULL, 0, 0, 0);
   ADD_GDATA(double, "phen_entropy",       "Phenotpyic Entropy",                    GetPhenotypicEntropy,      SetNULL, 0, 0, 0);
