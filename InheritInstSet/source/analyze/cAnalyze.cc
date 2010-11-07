@@ -8485,7 +8485,6 @@ void cAnalyze::LoadGenotypeDataList(cStringList arg_list,
       cString cur_args = arg_list.Pop();
       cString cur_entry = cur_args.Pop(':');
       bool found_entry = false;
-			cerr << cur_entry << endl;
       
       // Scan the genotype data list for the current entry
       tListIterator< tDataEntryBase<cAnalyzeGenotype> >
