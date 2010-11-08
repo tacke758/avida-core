@@ -7954,6 +7954,8 @@ void cAnalyze::LandscapeNeighbors(cString cur_string)
   
   const cAnalyzeGenotype* genotype_A  = NULL;       //Mutant A
   
+	if (m_world->GetVerbosity() == VERBOSE_ON)
+		m_world->GetDriver().NotifyComment("Landscaping Neighbors");
   //For each genotype in the current batch
   while ( (genotype_A = batch_it.Next()) != NULL)
 	{
