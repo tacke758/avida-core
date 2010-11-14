@@ -222,7 +222,7 @@ protected:
   
 public:
   cPhenotype(cWorld* world);
-  ~cPhenotype();
+  virtual ~cPhenotype();
 
   bool OK();
 

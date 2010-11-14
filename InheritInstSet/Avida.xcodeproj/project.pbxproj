@@ -128,7 +128,6 @@
 		7023EC9F0C0A431B00362B9C /* PopulationActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70C054C90A4F6E19002703C1 /* PopulationActions.cc */; };
 		7023ECA00C0A431B00362B9C /* PrintActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 705ACD4D0A13FED4002D5BA0 /* PrintActions.cc */; };
 		7023ECA10C0A431B00362B9C /* SaveLoadActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 708051A80A1F65FE00CBB8B6 /* SaveLoadActions.cc */; };
-		7023ECA80C0A437200362B9C /* libavida-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7023EC330C0A426900362B9C /* libavida-core.a */; };
 		7023ECBA0C0A441300362B9C /* cEnvironmentScreen.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC5C097AF730002F8733 /* cEnvironmentScreen.cc */; };
 		7023ECBB0C0A441500362B9C /* cBarScreen.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC59097AF730002F8733 /* cBarScreen.cc */; };
 		7023ECBC0C0A441800362B9C /* cAnalyzeView.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7099EF490B2FBC85001269F6 /* cAnalyzeView.cc */; };
@@ -148,8 +147,6 @@
 		7023ECCC0C0A444200362B9C /* cViewInfo.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC73097AF730002F8733 /* cViewInfo.cc */; };
 		7023ECCD0C0A444600362B9C /* cZoomScreen.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC75097AF730002F8733 /* cZoomScreen.cc */; };
 		7023ECCE0C0A444800362B9C /* viewer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC78097AF730002F8733 /* viewer.cc */; };
-		7023ECD30C0A447700362B9C /* libavida-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7023EC330C0A426900362B9C /* libavida-core.a */; };
-		7023ECD40C0A447800362B9C /* libtcmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70AA941909D486AE006A24C8 /* libtcmalloc.a */; };
 		7039884D09F00D020052ACE7 /* analyze.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D309EE8501001AEA89 /* analyze.cfg */; };
 		7039884E09F00D030052ACE7 /* avida.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D509EE8501001AEA89 /* avida.cfg */; };
 		7039884F09F00D060052ACE7 /* environment.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D709EE8501001AEA89 /* environment.cfg */; };
@@ -164,7 +161,6 @@
 		7049F3710A66AD7E00640512 /* default-sex-classic.org in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7049F36D0A66AD7E00640512 /* default-sex-classic.org */; };
 		7049F3720A66AD7E00640512 /* default-smt.org in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7049F36E0A66AD7E00640512 /* default-smt.org */; };
 		7049F3730A66AD7E00640512 /* default-transsmt.org in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7049F36F0A66AD7E00640512 /* default-transsmt.org */; };
-		704C21DC0C28C3980038F1A5 /* libtcmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70AA941909D486AE006A24C8 /* libtcmalloc.a */; };
 		70658C5A085DF67D00486BED /* libncurses.5.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70658C59085DF67D00486BED /* libncurses.5.4.dylib */; };
 		70AA941A09D486CA006A24C8 /* system-alloc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCF50209CFB0B400924128 /* system-alloc.cc */; };
 		70AA941B09D486CB006A24C8 /* tcmalloc-logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCF57F09CFBD3D00924128 /* tcmalloc-logging.cc */; };
@@ -180,6 +176,17 @@
 		B41FB87B1114C5D300DFC986 /* cProbDemeProbSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = B41FB8771114C5D300DFC986 /* cProbDemeProbSchedule.h */; };
 		B41FB941111792A400DFC986 /* DemeActions.h in Headers */ = {isa = PBXBuildFile; fileRef = B41FB93F111792A400DFC986 /* DemeActions.h */; };
 		B41FB942111792A400DFC986 /* DemeActions.cc in Sources */ = {isa = PBXBuildFile; fileRef = B41FB940111792A400DFC986 /* DemeActions.cc */; };
+		B420FE96128DCCED00DEFF2A /* primitive.cc in Sources */ = {isa = PBXBuildFile; fileRef = 70DCAC9B097AF7C0002F8733 /* primitive.cc */; };
+		B420FEA3128DCEB800DEFF2A /* libavida-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B420FE9F128DCE8100DEFF2A /* libavida-core.a */; };
+		B420FEA6128DCEC900DEFF2A /* libavida-core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B420FE9F128DCE8100DEFF2A /* libavida-core.a */; };
+		B420FEA9128DCF3500DEFF2A /* analyze.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D309EE8501001AEA89 /* analyze.cfg */; };
+		B420FEAA128DCF3500DEFF2A /* avida.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D509EE8501001AEA89 /* avida.cfg */; };
+		B420FEAB128DCF3500DEFF2A /* default-classic.org in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7049F36C0A66AD7E00640512 /* default-classic.org */; };
+		B420FEAC128DCF3500DEFF2A /* environment.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D709EE8501001AEA89 /* environment.cfg */; };
+		B420FEAD128DCF3500DEFF2A /* events.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 707AF2D809EE8501001AEA89 /* events.cfg */; };
+		B420FEAE128DCF3500DEFF2A /* instset-classic.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7049F3520A66A8F500640512 /* instset-classic.cfg */; };
+		B420FEEB128DD8F900DEFF2A /* libMallocDebug.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B420FEEA128DD8F900DEFF2A /* libMallocDebug.A.dylib */; };
+		B420FF00128DDA6400DEFF2A /* avida-notcmalloc in CopyFiles */ = {isa = PBXBuildFile; fileRef = B420FE89128DCC1A00DEFF2A /* avida-notcmalloc */; };
 		B42A6878110DFC75007896C0 /* cDemeMethodsLib.h in Headers */ = {isa = PBXBuildFile; fileRef = B42A6876110DFC75007896C0 /* cDemeMethodsLib.h */; };
 		B42A6893110E030F007896C0 /* cDemeSelections.h in Headers */ = {isa = PBXBuildFile; fileRef = B42A6891110E030F007896C0 /* cDemeSelections.h */; };
 		B437A74B110630C7002BD0EF /* cDemeTriggers.h in Headers */ = {isa = PBXBuildFile; fileRef = B437A749110630C7002BD0EF /* cDemeTriggers.h */; };
@@ -252,6 +259,13 @@
 			remoteGlobalIDString = 70AA941809D486AE006A24C8;
 			remoteInfo = tcmalloc;
 		};
+		B420FE94128DCC3C00DEFF2A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DCC30C4D0762532C008F7A48 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7023EC320C0A426900362B9C;
+			remoteInfo = "avida-core";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -299,6 +313,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B420FEA8128DCF0700DEFF2A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = debug;
+			dstSubfolderSpec = 7;
+			files = (
+				B420FF00128DDA6400DEFF2A /* avida-notcmalloc in CopyFiles */,
+				B420FEA9128DCF3500DEFF2A /* analyze.cfg in CopyFiles */,
+				B420FEAA128DCF3500DEFF2A /* avida.cfg in CopyFiles */,
+				B420FEAB128DCF3500DEFF2A /* default-classic.org in CopyFiles */,
+				B420FEAC128DCF3500DEFF2A /* environment.cfg in CopyFiles */,
+				B420FEAD128DCF3500DEFF2A /* events.cfg in CopyFiles */,
+				B420FEAE128DCF3500DEFF2A /* instset-classic.cfg in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -333,7 +363,6 @@
 		701D93E6094CBF71008B845F /* cDefaultAnalyzeDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDefaultAnalyzeDriver.h; sourceTree = "<group>"; };
 		701D93E7094CBF71008B845F /* cDefaultAnalyzeDriver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cDefaultAnalyzeDriver.cc; sourceTree = "<group>"; };
 		701EF27E0BEA5D2300DAE168 /* main.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = main.cc; sourceTree = "<group>"; };
-		7023EC330C0A426900362B9C /* libavida-core.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libavida-core.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7027621909D73E5900741717 /* cOrgSourceMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrgSourceMessage.h; sourceTree = "<group>"; };
 		7027621A09D73E7700741717 /* cOrgSinkMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cOrgSinkMessage.h; sourceTree = "<group>"; };
 		702D4EF508DA5328007BA469 /* cEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cEnvironment.h; sourceTree = "<group>"; };
@@ -494,7 +523,6 @@
 		709D92490A5D94FD00D6A163 /* cMutationalNeighborhood.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMutationalNeighborhood.h; sourceTree = "<group>"; };
 		709D924A0A5D94FD00D6A163 /* cMutationalNeighborhoodResults.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMutationalNeighborhoodResults.h; sourceTree = "<group>"; };
 		709D924B0A5D950D00D6A163 /* cMutationalNeighborhood.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = cMutationalNeighborhood.cc; sourceTree = "<group>"; };
-		70AA941909D486AE006A24C8 /* libtcmalloc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libtcmalloc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		70B0864808F4972600FC65FE /* cLandscape.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cLandscape.h; sourceTree = "<group>"; };
 		70B0864B08F4972600FC65FE /* cLocalMutations.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cLocalMutations.h; sourceTree = "<group>"; };
 		70B0864C08F4972600FC65FE /* cMutation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cMutation.h; sourceTree = "<group>"; };
@@ -741,6 +769,10 @@
 		B41FB8771114C5D300DFC986 /* cProbDemeProbSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cProbDemeProbSchedule.h; sourceTree = "<group>"; };
 		B41FB93F111792A400DFC986 /* DemeActions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemeActions.h; sourceTree = "<group>"; };
 		B41FB940111792A400DFC986 /* DemeActions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemeActions.cc; sourceTree = "<group>"; };
+		B420FE89128DCC1A00DEFF2A /* avida-notcmalloc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "avida-notcmalloc"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B420FE9F128DCE8100DEFF2A /* libavida-core.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libavida-core.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B420FEA0128DCE8100DEFF2A /* libtcmalloc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libtcmalloc.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B420FEEA128DD8F900DEFF2A /* libMallocDebug.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libMallocDebug.A.dylib; path = usr/lib/libMallocDebug.A.dylib; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		B42A6876110DFC75007896C0 /* cDemeMethodsLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeMethodsLib.h; sourceTree = "<group>"; };
 		B42A6891110E030F007896C0 /* cDemeSelections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeSelections.h; sourceTree = "<group>"; };
 		B437A749110630C7002BD0EF /* cDemeTriggers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cDemeTriggers.h; sourceTree = "<group>"; };
@@ -792,8 +824,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				70658C5A085DF67D00486BED /* libncurses.5.4.dylib in Frameworks */,
-				7023ECD30C0A447700362B9C /* libavida-core.a in Frameworks */,
-				7023ECD40C0A447800362B9C /* libtcmalloc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -818,12 +848,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B420FE87128DCC1A00DEFF2A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B420FEA6128DCEC900DEFF2A /* libavida-core.a in Frameworks */,
+				B420FEEB128DD8F900DEFF2A /* libMallocDebug.A.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC3164B07626CF3008F7A48 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7023ECA80C0A437200362B9C /* libavida-core.a in Frameworks */,
-				704C21DC0C28C3980038F1A5 /* libtcmalloc.a in Frameworks */,
+				B420FEA3128DCEB800DEFF2A /* libavida-core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1160,6 +1198,7 @@
 				DCC3164E07626CF3008F7A48 /* Products */,
 				70FB86A908BFAFEC00BDF589 /* CMakeLists.txt */,
 				70658C59085DF67D00486BED /* libncurses.5.4.dylib */,
+				B420FEEA128DD8F900DEFF2A /* libMallocDebug.A.dylib */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1499,9 +1538,10 @@
 			children = (
 				DCC3164D07626CF3008F7A48 /* avida */,
 				700E2B83085DE50C00CF158A /* avida-viewer */,
-				70AA941909D486AE006A24C8 /* libtcmalloc.a */,
 				70B6514C0BEA6FAD002472ED /* unit-tests */,
-				7023EC330C0A426900362B9C /* libavida-core.a */,
+				B420FE89128DCC1A00DEFF2A /* avida-notcmalloc */,
+				B420FE9F128DCE8100DEFF2A /* libavida-core.a */,
+				B420FEA0128DCE8100DEFF2A /* libtcmalloc.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1571,7 +1611,7 @@
 			);
 			name = "avida-core";
 			productName = "avida-core";
-			productReference = 7023EC330C0A426900362B9C /* libavida-core.a */;
+			productReference = B420FE9F128DCE8100DEFF2A /* libavida-core.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		70AA941809D486AE006A24C8 /* tcmalloc */ = {
@@ -1588,7 +1628,7 @@
 			);
 			name = tcmalloc;
 			productName = tcmalloc;
-			productReference = 70AA941909D486AE006A24C8 /* libtcmalloc.a */;
+			productReference = B420FEA0128DCE8100DEFF2A /* libtcmalloc.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		70B6514B0BEA6FAD002472ED /* unit-tests */ = {
@@ -1606,6 +1646,24 @@
 			name = "unit-tests";
 			productName = "unit-tests";
 			productReference = 70B6514C0BEA6FAD002472ED /* unit-tests */;
+			productType = "com.apple.product-type.tool";
+		};
+		B420FE88128DCC1A00DEFF2A /* avida-notcmalloc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B420FE91128DCC3900DEFF2A /* Build configuration list for PBXNativeTarget "avida-notcmalloc" */;
+			buildPhases = (
+				B420FE86128DCC1A00DEFF2A /* Sources */,
+				B420FE87128DCC1A00DEFF2A /* Frameworks */,
+				B420FEA8128DCF0700DEFF2A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B420FE95128DCC3C00DEFF2A /* PBXTargetDependency */,
+			);
+			name = "avida-notcmalloc";
+			productName = "avida-notcmalloc";
+			productReference = B420FE89128DCC1A00DEFF2A /* avida-notcmalloc */;
 			productType = "com.apple.product-type.tool";
 		};
 		DCC3164C07626CF3008F7A48 /* avida */ = {
@@ -1653,6 +1711,7 @@
 				7023EC320C0A426900362B9C /* avida-core */,
 				70AA941809D486AE006A24C8 /* tcmalloc */,
 				70B6514B0BEA6FAD002472ED /* unit-tests */,
+				B420FE88128DCC1A00DEFF2A /* avida-notcmalloc */,
 			);
 		};
 /* End PBXProject section */
@@ -1845,6 +1904,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B420FE86128DCC1A00DEFF2A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B420FE96128DCCED00DEFF2A /* primitive.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC3164A07626CF3008F7A48 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1890,6 +1957,11 @@
 			isa = PBXTargetDependency;
 			target = 70AA941809D486AE006A24C8 /* tcmalloc */;
 			targetProxy = 70DCF67509D4E10500924128 /* PBXContainerItemProxy */;
+		};
+		B420FE95128DCC3C00DEFF2A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7023EC320C0A426900362B9C /* avida-core */;
+			targetProxy = B420FE94128DCC3C00DEFF2A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2006,6 +2078,11 @@
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
 				HEADER_SEARCH_PATHS = /usr/local/boost;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2018,6 +2095,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2116,6 +2198,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2128,6 +2215,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2325,6 +2417,249 @@
 			};
 			name = Profile;
 		};
+		B420FE79128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_ALTIVEC_EXTENSIONS = YES;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					REVISION_SUPPORT,
+				);
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				PREBINDING = NO;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused-parameter",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+					"-Wconversion",
+				);
+			};
+			name = Debug;
+		};
+		B420FE7A128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "full-suite";
+			};
+			name = Debug;
+		};
+		B420FE7B128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_MODEL_CPU = G4;
+				HEADER_SEARCH_PATHS = /usr/local/boost;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					suppress,
+				);
+				PRODUCT_NAME = avida;
+			};
+			name = Debug;
+		};
+		B420FE7C128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "avida-viewer";
+			};
+			name = Debug;
+		};
+		B420FE7D128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "avida-core";
+			};
+			name = Debug;
+		};
+		B420FE7E128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_DYNAMIC_NO_PIC = NO;
+				PRODUCT_NAME = tcmalloc;
+			};
+			name = Debug;
+		};
+		B420FE7F128DCB0400DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = "unit-tests";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		B420FE8B128DCC1B00DEFF2A /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "avida-notcmalloc";
+			};
+			name = Development;
+		};
+		B420FE8C128DCC1B00DEFF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = /usr/local/boost;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/build/Debug",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					surpress,
+				);
+				PRODUCT_NAME = "avida-notcmalloc";
+			};
+			name = Debug;
+		};
+		B420FE8D128DCC1B00DEFF2A /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "avida-notcmalloc";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		B420FE8E128DCC1B00DEFF2A /* Deployment-G5 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "avida-notcmalloc";
+			};
+			name = "Deployment-G5";
+		};
+		B420FE8F128DCC1B00DEFF2A /* Deployment-Universal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "avida-notcmalloc";
+			};
+			name = "Deployment-Universal";
+		};
+		B420FE90128DCC1B00DEFF2A /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(DEVELOPER_DIR)/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "avida-notcmalloc";
+			};
+			name = Profile;
+		};
 		E62620990A372B9900C07685 /* Deployment-Universal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2337,6 +2672,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_MODEL_CPU = G4;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					suppress,
@@ -2409,6 +2749,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				700E2B7F085DE50C00CF158A /* Development */,
+				B420FE7C128DCB0400DEFF2A /* Debug */,
 				700E2B80085DE50C00CF158A /* Deployment */,
 				70B393DE0944CA6F0018F09D /* Deployment-G5 */,
 				E626209C0A372B9900C07685 /* Deployment-Universal */,
@@ -2421,6 +2762,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7023EC350C0A42BC00362B9C /* Development */,
+				B420FE7D128DCB0400DEFF2A /* Debug */,
 				7023EC360C0A42BC00362B9C /* Deployment */,
 				7023EC370C0A42BC00362B9C /* Deployment-G5 */,
 				7023EC380C0A42BC00362B9C /* Deployment-Universal */,
@@ -2433,6 +2775,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7023ED5A0C0A594300362B9C /* Development */,
+				B420FE7A128DCB0400DEFF2A /* Debug */,
 				7023ED5B0C0A594300362B9C /* Deployment */,
 				7023ED5C0C0A594300362B9C /* Deployment-G5 */,
 				7023ED5D0C0A594300362B9C /* Deployment-Universal */,
@@ -2445,6 +2788,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				702442D30859E0B00059BD9B /* Development */,
+				B420FE7B128DCB0400DEFF2A /* Debug */,
 				702442D40859E0B00059BD9B /* Deployment */,
 				70B393DC0944CA6F0018F09D /* Deployment-G5 */,
 				E626209A0A372B9900C07685 /* Deployment-Universal */,
@@ -2457,6 +2801,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				702442D80859E0B00059BD9B /* Development */,
+				B420FE79128DCB0400DEFF2A /* Debug */,
 				702442D90859E0B00059BD9B /* Deployment */,
 				70B393E00944CA6F0018F09D /* Deployment-G5 */,
 				E626209D0A372B9900C07685 /* Deployment-Universal */,
@@ -2469,6 +2814,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				70AA942609D48715006A24C8 /* Development */,
+				B420FE7E128DCB0400DEFF2A /* Debug */,
 				70AA942709D48715006A24C8 /* Deployment */,
 				70AA942809D48715006A24C8 /* Deployment-G5 */,
 				E62620990A372B9900C07685 /* Deployment-Universal */,
@@ -2481,10 +2827,24 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				70B651580BEA700B002472ED /* Development */,
+				B420FE7F128DCB0400DEFF2A /* Debug */,
 				70B651590BEA700B002472ED /* Deployment */,
 				70B6515A0BEA700B002472ED /* Deployment-G5 */,
 				70B6515B0BEA700B002472ED /* Deployment-Universal */,
 				70B6515C0BEA700B002472ED /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Deployment;
+		};
+		B420FE91128DCC3900DEFF2A /* Build configuration list for PBXNativeTarget "avida-notcmalloc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B420FE8B128DCC1B00DEFF2A /* Development */,
+				B420FE8C128DCC1B00DEFF2A /* Debug */,
+				B420FE8D128DCC1B00DEFF2A /* Deployment */,
+				B420FE8E128DCC1B00DEFF2A /* Deployment-G5 */,
+				B420FE8F128DCC1B00DEFF2A /* Deployment-Universal */,
+				B420FE90128DCC1B00DEFF2A /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Deployment;

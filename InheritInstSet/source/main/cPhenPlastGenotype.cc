@@ -47,7 +47,8 @@ cPhenPlastGenotype::~cPhenPlastGenotype()
 {
   UniquePhenotypes::iterator it = m_unique.begin();
   while (it != m_unique.end()){
-    delete *it;
+		cerr << "delete" << static_cast<cPlasticPhenotype*>(*it) << endl;
+    delete static_cast<cPlasticPhenotype*>(*it);
     ++it;
   }
 }
@@ -67,7 +68,7 @@ void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaC
     UniquePhenotypes::iterator uit = m_unique.find(&test_info.GetTestPhenotype());
     if (uit == m_unique.end()){  // Yes, make a new entry for it
       cPlasticPhenotype* new_phen = new cPlasticPhenotype(test_info, m_num_trials);
-      m_unique.insert( static_cast<cPhenotype*>(new_phen) );
+	      m_unique.insert( static_cast<cPhenotype*>(new_phen) );
     } else{   // No, add an observation to existing entry, make sure it is equivalent
       if (!static_cast<cPlasticPhenotype*>((*uit))->AddObservation(test_info)){
         cerr << "Error with this plastic phenotype. Abort." << endl;
