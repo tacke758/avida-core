@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "string_util.cc" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,13 +25,15 @@
 
 #include "cStringUtil.h"
 
-#include "functions.h"
 #include "tMatrix.h"
+
+#include "AvidaTools.h"
 
 #include <cstdarg>
 #include <cstdio>
 
 using namespace std;
+using namespace AvidaTools;
 
 
 cString cStringUtil::Stringf(const char * fmt, ...) {

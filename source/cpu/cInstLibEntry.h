@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 2/17/07.
- *  Copyright 2007-2009 Michigan State University. All rights reserved.
+ *  Copyright 2007-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@ namespace nInstFlag {
   const unsigned int LABEL = 0x4;
   const unsigned int PROMOTER = 0x8;
   const unsigned int STALL = 0x10;
+  const unsigned int SLEEP = 0x20;
 }
 
 class cInstLibEntry
@@ -55,6 +56,7 @@ public:
   inline bool IsLabel() const { return (m_flags & nInstFlag::LABEL); }
   inline bool IsPromoter() const { return (m_flags & nInstFlag::PROMOTER); }
   inline bool ShouldStall() const { return (m_flags & nInstFlag::STALL); }
+  inline bool ShouldSleep() const { return (m_flags & nInstFlag::SLEEP); }
 };
 
 #endif

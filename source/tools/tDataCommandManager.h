@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/31/08.
- *  Copyright 2008-2009 Michigan State University. All rights reserved.
+ *  Copyright 2008-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 #define tDataCommandManager_h
 
 #include "cStringUtil.h"
+#include "cUserFeedback.h"
 #include "tDataEntry.h"
 #include "tDataEntryCommand.h"
 #include "tDictionary.h"
@@ -36,40 +37,46 @@ template <class TargetType> class tDataCommandManager
 {
 private:
   tDictionary<tDataEntry<TargetType>*> m_entry_dict;  
+  tArray<cString> m_entry_names;
   
 public:
   tDataCommandManager() { ; }
   ~tDataCommandManager()
   {
-    tArray<tDataEntry<cAnalyzeGenotype>*> entries;
+    tArray<tDataEntry<TargetType>*> entries;
     m_entry_dict.GetValues(entries);
     for (int i = 0; i < entries.GetSize(); i++) delete entries[i];
   }
   
-  void Add(const cString& name, tDataEntry<TargetType>* entry) { m_entry_dict.Add(name, entry); }
+  void Add(const cString& name, tDataEntry<TargetType>* entry)
+  {
+    m_entry_dict.Set(name, entry);
+    m_entry_names.Push(name);
+  }
   
+  const tArray<cString>& GetEntryNames() const { return m_entry_names; }
 
-  tDataEntryCommand<cAnalyzeGenotype>* GetDataCommand(const cString& cmd, cString** error_str = NULL) const
+  tDataEntryCommand<TargetType>* GetDataCommand(const cString& cmd, cString* error_str = NULL) const
   {
     cString arg_list = cmd;
     cString idx = arg_list.Pop(':');
     cString entry_name = idx.Pop('.');
     
-    tDataEntry<cAnalyzeGenotype>* data_entry;
+    tDataEntry<TargetType>* data_entry;
     if (m_entry_dict.Find(entry_name, data_entry)) {
-      return new tDataEntryCommand<cAnalyzeGenotype>(data_entry, idx, arg_list);
+      return new tDataEntryCommand<TargetType>(data_entry, idx, arg_list);
     }
     
     if (error_str) {
-      (*error_str) = new cString(cStringUtil::Stringf("data entry '%s' not found, best match is '%s'", *entry_name,
-                                                      *(m_entry_dict.NearMatch(entry_name))));
+      (*error_str) = cStringUtil::Stringf("data entry '%s' not found, best match is '%s'", *entry_name,
+                                                      *(m_entry_dict.NearMatch(entry_name)));
     }
     
     return NULL;
   }
   
   void LoadCommandList(cStringList arg_list, tList<tDataEntryCommand<TargetType> >& output_list,
-                       tList<cString>* errors = NULL) const
+                       cUserFeedback* feedback = NULL) const
   {
     if (arg_list.GetSize() == 0) {
       // If no args were given, load all of the stats.
@@ -81,10 +88,10 @@ public:
         output_list.PushRear(new tDataEntryCommand<TargetType>(data_entries[i]));
     } else {
       while (arg_list.GetSize() != 0) {
-        cString* error_str = NULL;
-        tDataEntryCommand<TargetType>* cur_command = GetDataCommand(arg_list.Pop());
+        cString error_str;
+        tDataEntryCommand<TargetType>* cur_command = GetDataCommand(arg_list.Pop(), &error_str);
         if (cur_command) output_list.PushRear(cur_command);
-        if (errors && error_str) errors->PushRear(error_str);
+        if (feedback && error_str != "") feedback->Error(error_str);
       }
     }
   }

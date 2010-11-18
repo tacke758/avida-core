@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by Matthew Rupp on 7/29/07.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -47,10 +47,10 @@ cPhenPlastGenotype::~cPhenPlastGenotype()
 
 void cPhenPlastGenotype::Process(cCPUTestInfo& test_info, cWorld* world, cAvidaContext& ctx)
 {
-  cTestCPU * test_cpu = m_world->GetHardwareManager().CreateTestCPU();
+  cTestCPU* test_cpu = m_world->GetHardwareManager().CreateTestCPU();
 
-  if (m_num_trials > 1)
-    test_info.UseRandomInputs(true);
+  if (m_num_trials > 1) test_info.UseRandomInputs(true);
+  
   for (int k = 0; k < m_num_trials; k++){
     test_cpu->TestGenome(ctx, test_info, m_genome);
     //Is this a new phenotype?

@@ -27,7 +27,7 @@ private:
   void CenterActiveCPU();
   void CenterXCoord();
   void CenterYCoord();
-  void PlaceCursor();
+  void PlaceCursor(cAvidaContext& ctx);
 
 public:
   cMapScreen(int y_size, int x_size, int y_start, int x_start,
@@ -35,25 +35,12 @@ public:
   ~cMapScreen();
 
   // Virtual in base screen!
-  void Draw();
-  void Update();
-  void DoInput(int in_char);
+  void Draw(cAvidaContext& ctx);
+  void Update(cAvidaContext& ctx);
+  void DoInput(cAvidaContext& ctx, int in_char);
 
   // Virtual in map screen.
-  void Navigate();
+  void Navigate(cAvidaContext& ctx);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nMapScreen {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
-
 
 #endif

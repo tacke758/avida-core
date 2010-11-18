@@ -24,10 +24,12 @@
 
 #include <csignal>
 
-#include "avida.h"
+#include "Avida.h"
+#include "AvidaTools.h"
+
 #include "cAvidaConfig.h"
 #include "cDriverManager.h"
-#include "PlatformExpert.h"
+#include "cUserFeedback.h"
 #include "cWorld.h"
 
 #include "cDriver_FLTKViewer.h"
@@ -38,7 +40,7 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-  PlatformExpert::Initialize();
+  Avida::Initialize();
   
   Avida::PrintVersionBanner();
   
@@ -46,18 +48,28 @@ int main(int argc, char * argv[])
   cAvidaConfig* cfg = new cAvidaConfig();
   Avida::ProcessCmdLineArgs(argc, argv, cfg);
 
-  cWorld* world = new cWorld(cfg);
+  cUserFeedback feedback;
+  cWorld* world = cWorld::Initialize(cfg, AvidaTools::FileSystem::GetCWD(), &feedback);
+  
+  for (int i = 0; i < feedback.GetNumMessages(); i++) {
+    switch (feedback.GetMessageType(i)) {
+      case cUserFeedback::ERROR:    cerr << "error: "; break;
+      case cUserFeedback::WARNING:  cerr << "warning: "; break;
+      default: break;
+    };
+    cerr << feedback.GetMessage(i) << endl;
+  }
+  
+  if (!world) return -1;
+  
   cAvidaDriver* driver = NULL;
   
   // Test to see if we should be in analyze mode only...
-  if (world->GetConfig().ANALYZE_MODE.Get() > 0); // @CAO Do something here...
+//  if (world->GetConfig().ANALYZE_MODE.Get() > 0); // @CAO Do something here...
 
   // Turn control over to the driver!
   driver = new cDriver_FLTKViewer(world);
   driver->Run();
-  
-  // Exit Nicely
-  Avida::Exit(0);
   
   return 0;
 }

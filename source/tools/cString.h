@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "cstringh" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -28,18 +28,13 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cstdarg>
 #include <string>
 #include <cstring>
 #include <cassert>
 
 #include "cRCObject.h"
 #include "tRCPtr.h"
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
 
 #define MAX_STRING_LENGTH 4096
 #define CONTINUE_LINE_CHAR '\\'
@@ -51,9 +46,6 @@
 
 class cString
 {
-#if USE_tMemTrack
-  tMemTrack<cString> mt;
-#endif
 protected:
   inline void CopyOnWrite();
 
@@ -199,7 +191,8 @@ public:
 
 
   // Additional modifiers
-  cString& Set(const char * fmt, ...);
+  cString& Set(const char* fmt, ...);
+  cString& Set(const char* fmt, va_list args);
 
   cString& Insert(const char in, int pos = 0, int excise = 0) { return InsertStr(1, &in, pos, excise); }
   cString& Insert(const char* in, int pos = 0, int excise = 0) { return InsertStr(strlen(in), in, pos, excise); }
@@ -547,37 +540,15 @@ public:
    **/
   cString EjectStr(int pos, int excise);
 
-  /*
-  We have decided to not serialize information about data-sharing
-  between cStrings (via cStringData). This leads to plausible memory
-  bloat when formerly shared strings are reloaded (and are no longer
-  shared), but in the case of Avida, there shouldn't be much bloat. @kgn
-  */
-  template<class Archive>
-  void save(Archive & a, const unsigned int version) const {
-    std::string s(value->GetData());
-    a.ArkvObj("value", s);
-  }
-  template<class Archive>
-  void load(Archive & a, const unsigned int version){
-    std::string s;
-    a.ArkvObj("value", s);
-    (*this)=s.c_str();
-  }
-  template<class Archive>
-  void serialize(Archive & a, const unsigned int version){
-    a.SplitLoadSave(*this, version);
-  }
 
   // {{{ -- INTERNALS -------------------------------------------------------
 protected:
   // -- Internal Functions --
 
   // Methods that take input string size (unsafe to call from outside)
-  cString & AppendStr(const int in_size, const char * in);  // Optimized
-  cString & InsertStr(const int in_size, const char * in,
-		      int pos, int excise=0);
-  int FindStr(const char * in_string, const int in_size, int pos) const;
+  cString& AppendStr(const int in_size, const char* in);  // Optimized
+  cString& InsertStr(const int in_size, const char* in, int pos, int excise=0);
+  int FindStr(const char* in_string, const int in_size, int pos) const;
 
   // -- Internal Data --
 protected:
@@ -590,8 +561,8 @@ protected:
 // {{{ ** External cString Functions **
 
 // iostream input
-std::istream & operator >> (std::istream & in, cString & string);
-std::ostream& operator << (std::ostream& out, const cString & string);
+std::istream& operator >> (std::istream& in, cString& string);
+std::ostream& operator << (std::ostream& out, const cString& string);
 
 // }}}
 

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -38,12 +38,6 @@
 #include "cRandom.h"
 #endif
 
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
-
 
 #include <cassert>
 
@@ -56,18 +50,20 @@ class cEventList;
 class cHardwareManager;
 class cOrganism;
 class cPopulation;
+class cMerit;
+class cPopulationCell;
 class cStats;
 class cTestCPU;
+class cUserFeedback;
 class cWorldDriver;
 template<class T> class tDataEntry;
 template<class T> class tDictionary;
 
 class cWorld
 {
-#if USE_tMemTrack
-  tMemTrack<cWorld> mt;
-#endif
 protected:
+  cString m_working_dir;
+  
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
   cAvidaContext m_ctx;
@@ -87,18 +83,21 @@ protected:
   
   bool m_own_driver;      // specifies whether this world object should manage its driver object
 
-  // Internal Methods
-  void Setup();
+  cWorld(cAvidaConfig* cfg, const cString& wd) : m_working_dir(wd), m_analyze(NULL), m_conf(cfg), m_ctx(this, m_rng) { ; }
   
-  
+private:
+  cWorld(); // @not_implemented
   cWorld(const cWorld&); // @not_implemented
-  cWorld& operator=(const cWorld&); // @not_implemented
+  cWorld& operator=(const cWorld&); // @not_implemented  
+  
   
 public:
-  cWorld(cAvidaConfig* cfg) : m_analyze(NULL), m_conf(cfg), m_ctx(m_rng) { Setup(); }
+  static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, cUserFeedback* feedback = NULL);
   virtual ~cWorld();
   
   void SetDriver(cWorldDriver* driver, bool take_ownership = false);
+  
+  const cString& GetWorkingDir() const { return m_working_dir; }
   
   // General Object Accessors
   cAnalyze& GetAnalyze();
@@ -122,9 +121,7 @@ public:
   bool GetTestSterilize() const { return m_test_sterilize; }
   
   // Convenience Accessors
-  int GetNumInstructions();
   int GetNumResources();
-  int GetNumResourceSpecs();
   inline int GetVerbosity() { return m_conf->VERBOSITY.Get(); }
   inline void SetVerbosity(int v) { m_conf->VERBOSITY.Set(v); }
 
@@ -132,79 +129,28 @@ public:
   void GetEvents(cAvidaContext& ctx);
 	
 	cEventList* GetEventsList() { return m_event_list; }
-	
+
 	//! Migrate this organism to a different world (does nothing here; see cMultiProcessWorld).
-	virtual void MigrateOrganism(cOrganism* org) { }
+	virtual void MigrateOrganism(cOrganism* org, const cPopulationCell& cell, const cMerit& merit, int lineage) { }
+
+	//! Returns true if an organism should be migrated to a different world.
+	virtual bool TestForMigration() { return false; }
+		
+	//! Returns true if the given cell is on the boundary of the world, false otherwise.
+	virtual bool IsWorldBoundary(const cPopulationCell& cell) { return false; }
 	
 	//! Process post-update events.
 	virtual void ProcessPostUpdate(cAvidaContext& ctx) { }
 	
-  // Save to archive 
-  template<class Archive>
-  void save(Archive & a, const unsigned int version) const {
-    a.ArkvObj("m_analyze", m_analyze);
-    a.ArkvObj("m_conf", m_conf);
-    a.ArkvObj("m_ctx", m_ctx);
-    a.ArkvObj("m_class_mgr", m_class_mgr);
-    a.ArkvObj("m_data_mgr", m_data_mgr);
-    a.ArkvObj("m_env", m_env);
-    a.ArkvObj("m_event_list", m_event_list);
-    a.ArkvObj("m_hw_mgr", m_hw_mgr);
-    a.ArkvObj("m_pop", m_pop);
-    a.ArkvObj("m_stats", m_stats);
-    a.ArkvObj("m_driver", m_driver);
-    a.ArkvObj("m_rng", m_rng);
-    int __m_test_on_div = (m_test_on_div == false)?(0):(1);
-    int __m_test_sterilize = (m_test_sterilize == false)?(0):(1);
-    int __m_own_driver = (m_own_driver == false)?(0):(1);
-    a.ArkvObj("m_test_on_div", __m_test_on_div);
-    a.ArkvObj("m_test_sterilize", __m_test_sterilize);
-    a.ArkvObj("m_own_driver", __m_own_driver);
-  }
+	//! Returns true if this world allows early exits, e.g., when the population reaches 0.
+	virtual bool AllowsEarlyExit() const { return true; }
+	
+	//! Calculate the size (in virtual CPU cycles) of the current update.
+	virtual int CalculateUpdateSize();
   
-  // Load from archive 
-  template<class Archive>
-  void load(Archive & a, const unsigned int version){
-    a.ArkvObj("m_analyze", m_analyze);
-    a.ArkvObj("m_conf", m_conf);
-    a.ArkvObj("m_ctx", m_ctx);
-    a.ArkvObj("m_class_mgr", m_class_mgr);
-    a.ArkvObj("m_data_mgr", m_data_mgr);
-    a.ArkvObj("m_env", m_env);
-    a.ArkvObj("m_event_list", m_event_list);
-    a.ArkvObj("m_hw_mgr", m_hw_mgr);
-    a.ArkvObj("m_pop", m_pop);
-    a.ArkvObj("m_stats", m_stats);
-    a.ArkvObj("m_driver", m_driver);
-    a.ArkvObj("m_rng", m_rng);
-    int __m_test_on_div;
-    int __m_test_sterilize;
-    int __m_own_driver;
-    a.ArkvObj("m_test_on_div", __m_test_on_div);
-    a.ArkvObj("m_test_sterilize", __m_test_sterilize);
-    a.ArkvObj("m_own_driver", __m_own_driver);
-    m_test_on_div = (__m_test_on_div == 0)?(false):(true);
-    m_test_sterilize = (__m_test_sterilize == 0)?(false):(true);
-    m_own_driver = (__m_own_driver == 0)?(false):(true);
-  } 
-    
-  // Ask archive to handle loads and saves separately
-  template<class Archive>
-  void serialize(Archive & a, const unsigned int version){
-    a.SplitLoadSave(*this, version);
-  }
+protected:
+  // Internal Methods
+  bool setup(cUserFeedback* errors);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nWorld {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 7/19/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -196,6 +196,37 @@ protected:
   int m_then; //!< Time at which this object was constructed (the 'start' of Avida).
 };
 
+/*! Exit Avida when a certain number of deme replications has occurred.
+ */
+class cActionExitDemeReplications : public cAction {
+public:
+  /*! Constructor; parse out the number of replications.
+	 */
+  cActionExitDemeReplications(cWorld* world, const cString& args) : cAction(world, args) {
+    cString largs(args);
+    if(largs.GetSize()) {
+      m_deme_rep = largs.PopWord().AsInt();
+    } else {
+      // error; no default value for elapsed time.
+      m_world->GetDriver().RaiseFatalException(-1, "ExitDemeReplications event requires a number of deme replications.");
+    }
+	}
+  
+  static const cString GetDescription() { return "Arguments: <int number of deme replications>"; }
+  
+  /*! Check to see if we should exit Avida based on the number of deme replications. 
+	 This method is called based on the events file.
+	 */
+  void Process(cAvidaContext& ctx) {
+    if(m_world->GetStats().GetNumDemeReplications() >= m_deme_rep) {
+      m_world->GetDriver().SetDone();
+    }
+  }
+  
+protected:
+  int m_deme_rep; //!< Number of deme replications after which Avida should exit.
+};
+
 
 void RegisterDriverActions(cActionLibrary* action_lib)
 {
@@ -205,10 +236,6 @@ void RegisterDriverActions(cActionLibrary* action_lib)
   action_lib->Register<cActionExitAveGeneration>("ExitAveGeneration");
   action_lib->Register<cActionExitElapsedTime>("ExitElapsedTime");
   action_lib->Register<cActionStopFastForward>("StopFastForward");
+	action_lib->Register<cActionExitDemeReplications>("ExitDemeReplications");
   action_lib->Register<cActionPause>("Pause");
-
-  // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
-  action_lib->Register<cActionExit>("exit");
-  action_lib->Register<cActionExitAveLineageLabelGreater>("exit_if_ave_lineage_label_larger");
-  action_lib->Register<cActionExitAveLineageLabelLess>("exit_if_ave_lineage_label_smaller");
 }

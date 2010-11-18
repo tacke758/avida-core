@@ -12,17 +12,15 @@
 #include "cAnalyzeCommandDefBase.h"
 #include "cAnalyzeFlowCommand.h"
 #include "cEnvironment.h"
-#include "cGenotype.h"
 #include "cPopulation.h"
 #include "cReaction.h"
 #include "cReactionProcess.h"
 #include "cResource.h"
-#include "cSpecies.h"
 #include "cStats.h"
 #include "cPopulationCell.h"
 #include "cOrganism.h"
 
-#include "platform.h"
+#include "Platform.h"
 
 #include <csignal>
 
@@ -40,14 +38,14 @@ void cAnalyzeScreen::Notify(const cString & in_string)
   screen_hist.PushRear(in_string);
 }
 
-void cAnalyzeScreen::Draw()
+void cAnalyzeScreen::Draw(cAvidaContext& ctx)
 {
   if (mode == ANALYZE_MODE_COMMAND_LINE) {
     DrawCommandLine();
   } else {
-    DrawMenu();
+    DrawMenu(ctx);
   }
-  Update();
+  Update(ctx);
 }
 
 void cAnalyzeScreen::DrawCommandLine()
@@ -62,21 +60,21 @@ void cAnalyzeScreen::DrawCommandLine()
   Box(Height() - 4, 0, 3, Width(), true);
 }
 
-void cAnalyzeScreen::DrawMenu()
+void cAnalyzeScreen::DrawMenu(cAvidaContext& ctx)
 {
   // Bottom-right corner gives current mode.
   PrintOption(Height() - 1, 1, "Use [TAB] and [SHIFT-TAB] to cycle through tabs.");
   PrintOption(Height() - 1, Width() - 25, "[<] Analyze Menu [>]");
-  UpdateMenu();
+  UpdateMenu(ctx);
 }
 
 
-void cAnalyzeScreen::Update()
+void cAnalyzeScreen::Update(cAvidaContext& ctx)
 {
   if (mode == ANALYZE_MODE_COMMAND_LINE) {
-    UpdateCommandLine();
+    UpdateCommandLine(ctx);
   } else {
-    UpdateMenu();
+    UpdateMenu(ctx);
   }
   // Refresh();
 }
@@ -121,11 +119,11 @@ void cAnalyzeScreen::UpdateCommandLine_Body()
   Refresh();
 }
 
-void cAnalyzeScreen::UpdateCommandLine()
+void cAnalyzeScreen::UpdateCommandLine(cAvidaContext& ctx)
 {
   // Draw user input.
   UpdateCommandLine_Body();
-  DoInput_CommandLine();
+  DoInput_CommandLine(ctx);
 }
 
 void cAnalyzeScreen::UpdateMenu_Body()
@@ -215,13 +213,13 @@ void cAnalyzeScreen::UpdateMenu_Functions()
 }
 
 
-void cAnalyzeScreen::UpdateMenu()
+void cAnalyzeScreen::UpdateMenu(cAvidaContext& ctx)
 {
   UpdateMenu_Body();
-  DoInput_Menu();
+  DoInput_Menu(ctx);
 }
 
-void cAnalyzeScreen::DoInput_CommandLine()
+void cAnalyzeScreen::DoInput_CommandLine(cAvidaContext& ctx)
 {
   // Do not let go of input until told to.
   NoDelay(false);
@@ -332,7 +330,7 @@ void cAnalyzeScreen::DoInput_CommandLine()
     case '.':
       mode = ANALYZE_MODE_MENU;
       Clear();
-      Draw();
+      Draw(ctx);
       finished = true;
       break;
 
@@ -385,7 +383,7 @@ void cAnalyzeScreen::DoInput_CommandLine()
 }
 
 
-void cAnalyzeScreen::DoInput_Menu()
+void cAnalyzeScreen::DoInput_Menu(cAvidaContext& ctx)
 {
   // Do not let go of input until told to.
   NoDelay(false);
@@ -415,7 +413,7 @@ void cAnalyzeScreen::DoInput_Menu()
     case '.':
       mode = ANALYZE_MODE_COMMAND_LINE;
       Clear();
-      Draw();
+      Draw(ctx);
       finished = true;
       break;
 
@@ -551,10 +549,10 @@ void cAnalyzeScreen::ProcessCommandLine()
   m_world->GetDriver().Flush();
 }
 
-void cAnalyzeScreen::DoInput(int in_char)
+void cAnalyzeScreen::DoInput(cAvidaContext& ctx, int in_char)
 {
   // For the moment, redirect to update!
-  Update();
+  Update(ctx);
 
 
   SetBoldColor(COLOR_CYAN);
@@ -571,7 +569,7 @@ void cAnalyzeScreen::DoInput(int in_char)
       mode = ANALYZE_MODE_COMMAND_LINE;
     }
     Clear();
-    Draw();
+    Draw(ctx);
     break;
   }
   
@@ -579,10 +577,10 @@ void cAnalyzeScreen::DoInput(int in_char)
     switch (in_char) {
     case KEY_DOWN:
       // Scroll down through previous selections.
-      Update();
+      Update(ctx);
       break;
     case KEY_UP:
-      Update();
+      Update(ctx);
       break;
     }
   }
@@ -590,10 +588,10 @@ void cAnalyzeScreen::DoInput(int in_char)
     switch (in_char) {
     case KEY_DOWN:
       // Scroll down through previous selections.
-      Update();
+      Update(ctx);
       break;
     case KEY_UP:
-      Update();
+      Update(ctx);
       break;
     }
   }

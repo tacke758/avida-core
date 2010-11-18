@@ -22,7 +22,7 @@
 #include "cBaseTextWindow.h"
 #endif
 #ifndef platform_h
-#include "platform.h"
+#include "Platform.h"
 #endif
 
 #include <csignal>
@@ -147,17 +147,5 @@ public:
     wattrset(win_id, COLOR_PAIR(color) | A_BOLD);
   }
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nTextWindow {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

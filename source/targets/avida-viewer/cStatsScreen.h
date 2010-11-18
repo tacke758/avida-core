@@ -29,21 +29,9 @@ public:
   virtual ~cStatsScreen() { ; }
 
   // Virtual in base screen...
-  void Draw();
-  void Update();
-  void DoInput(int in_char);
+  void Draw(cAvidaContext& ctx);
+  void Update(cAvidaContext& ctx);
+  void DoInput(cAvidaContext& ctx, int in_char);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nStatsScreen {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif
 
 #endif

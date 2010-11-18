@@ -2,8 +2,7 @@
  *  cEnvironment.cc
  *  Avida
  *
- *  Called "environment.cc" prior to 12/2/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -23,20 +22,16 @@
  *
  */
 
-/*!  *  Routines to read the environment files that contains information
- about resources and reactions (which allow rewards or punishments
- to organisms doing certain tasks).  */
-
 #include "cEnvironment.h"
 
-#include "defs.h"
+#include "Avida.h"
+
 #include "cArgSchema.h"
 #include "cAvidaContext.h"
 #include "cEnvReqs.h"
-#include "cHardwareManager.h"
 #include "cInitFile.h"
-#include "cInstSet.h"
-#include "nMutation.h"
+#include "cOrganism.h"
+#include "cPhenPlastUtil.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cRandom.h"
@@ -49,21 +44,10 @@
 #include "cStateGrid.h"
 #include "cStringUtil.h"
 #include "cTaskEntry.h"
-#include "cTools.h"
+#include "cUserFeedback.h"
 #include "cWorld.h"
-#include "tAutoRelease.h"
-
-#include "cOrganism.h"
-#include "cGenotype.h"
-
-#include <iostream>
-#include <algorithm>
-
-#ifndef tArray_h
 #include "tArray.h"
-#endif
-
-using namespace std;
+#include "tAutoRelease.h"
 
 
 cEnvironment::cEnvironment(cWorld* world) : m_world(world) , m_tasklib(world),
@@ -71,6 +55,7 @@ m_input_size(INPUT_SIZE_DEFAULT), m_output_size(OUTPUT_SIZE_DEFAULT), m_true_ran
 m_use_specific_inputs(false), m_specific_inputs(), m_mask(0)
 {
   mut_rates.Setup(world);
+  if (m_world->GetConfig().DEFAULT_GROUP.Get() != -1) possible_group_ids.insert(m_world->GetConfig().DEFAULT_GROUP.Get());
 }
 
 cEnvironment::~cEnvironment()
@@ -79,11 +64,12 @@ cEnvironment::~cEnvironment()
 }
 
 
-bool cEnvironment::ParseSetting(cString entry, cString& var_name, cString& var_value, const cString& var_type)
+bool cEnvironment::ParseSetting(cString entry, cString& var_name, cString& var_value, const cString& var_type,
+                                cUserFeedback* feedback)
 {
   // Make sure we have an actual entry to parse.
   if (entry.GetSize() == 0) {
-    cerr << "Error: Empty setting to parse in " << var_type << endl;
+    if (feedback) feedback->Error("empty setting to parse in %s", (const char*)var_type);
     return false;
   }
   
@@ -93,12 +79,12 @@ bool cEnvironment::ParseSetting(cString entry, cString& var_name, cString& var_v
   
   // Make sure we have both a name and a value...
   if (var_name.GetSize() == 0) {
-    cerr << "Error: No variable povided to set to '" << var_value << "' in " << var_type << endl;
+    if (feedback) feedback->Error("no variable povided to set to '%s' in '%s'", (const char*)var_value, (const char*)var_type);
     return false;
   }
   
   if (var_value.GetSize() == 0) {
-    cerr << "Error: No value given for '" << var_name << "' in " << var_type << endl;
+    if (feedback) feedback->Error("no value given for '%s' in %s", (const char*)var_name, (const char*)var_type);
     return false;
   }
   
@@ -108,42 +94,44 @@ bool cEnvironment::ParseSetting(cString entry, cString& var_name, cString& var_v
   return true;
 }
 
-bool cEnvironment::AssertInputInt(const cString& input, const cString& name, const cString& type)
+bool cEnvironment::AssertInputInt(const cString& input, const cString& name, const cString& type, cUserFeedback* feedback)
 {
   if (input.IsNumeric() == false) {
-    cerr << "Error: In " << type << "," << name << " set to non-integer." << endl;
+    if (feedback) feedback->Error("in %s, %s set to non-integer", (const char*)type, (const char*)name);
     return false;
   }
   return true;
 }
 
-bool cEnvironment::AssertInputDouble(const cString& input, const cString& name, const cString& type)
+bool cEnvironment::AssertInputDouble(const cString& input, const cString& name, const cString& type, cUserFeedback* feedback)
 {
   if (input.IsNumber() == false) {
-    cerr << "Error: In " << type << "," << name << " set to non-number." << endl;
+    if (feedback) feedback->Error("in %s, %s set to non-number", (const char*)type, (const char*)name);
     return false;
   }
   return true;
 }
 
-bool cEnvironment::AssertInputBool(const cString& input, const cString& name, const cString& type)
+bool cEnvironment::AssertInputBool(const cString& input, const cString& name, const cString& type, cUserFeedback* feedback)
 {
   if (input.IsNumber() == false) {
-    cerr << "Error: In " << type << "," << name << " set to non-number." << endl;
+    if (feedback) feedback->Error("in %s, %s set to non-number", (const char*)type, (const char*)name);
     return false;
   }
   int value = input.AsInt();
   if ((value != 1) && (value != 0))  {
-    cerr << "Error: In " << type << "," << name << " set to non-bool." << endl;
+    if (feedback) feedback->Error("in %s, %s set to non-bool", (const char*)type, (const char*)name);
     return false;
   }
   return true;
 }
 
-bool cEnvironment::AssertInputValid(void* input, const cString& name, const cString& type, const cString& value)
+bool cEnvironment::AssertInputValid(void* input, const cString& name, const cString& type, const cString& value,
+                                    cUserFeedback* feedback)
 {
   if (input == NULL) {
-    cerr << "Error: In " << type << ", '" << name << "' setting of '" << value << "' not found." << endl;
+    if (feedback) feedback->Error("in %s, '%s' setting of '%s' not found",
+                                  (const char*)type, (const char*)name, (const char*)value);
     return false;
   }
   return true;
@@ -151,7 +139,7 @@ bool cEnvironment::AssertInputValid(void* input, const cString& name, const cStr
 
 
 
-bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
+bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc, cUserFeedback* feedback)
 {
   cReactionProcess* new_process = reaction->AddProcess();
   
@@ -164,18 +152,18 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
     const cString var_type = cStringUtil::Stringf("reaction '%s' process", static_cast<const char*>(reaction->GetName()));
     
     // Parse this entry.
-    if (!ParseSetting(var_entry, var_name, var_value, var_type)) return false;
+    if (!ParseSetting(var_entry, var_name, var_value, var_type, feedback)) return false;
     
     // Now that we know we have a variable name and its value, set it!
     if (var_name == "resource") {
       cResource* test_resource = resource_lib.GetResource(var_value);
-      if (!AssertInputValid(test_resource, "resource", var_type, var_value)) {
+      if (!AssertInputValid(test_resource, "resource", var_type, var_value, feedback)) {
         return false;
       }
       new_process->SetResource(test_resource);
     }
     else if (var_name == "value") {
-      if (!AssertInputDouble(var_value, "value", var_type)) return false;
+      if (!AssertInputDouble(var_value, "value", var_type, feedback)) return false;
       new_process->SetValue(var_value.AsDouble());
     }
     else if (var_name == "type") {
@@ -187,78 +175,78 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
       else if (var_value=="enzyme") new_process->SetType(nReaction::PROCTYPE_ENZYME);
       else if (var_value=="exp") new_process->SetType(nReaction::PROCTYPE_EXP);
       else {
-        cerr << "Unknown reaction process type '" << var_value
-        << "' found in '" << reaction->GetName() << "'." << endl;
+        if (feedback) feedback->Error("unknown reaction process type '%s' found in '%s'",
+                                      (const char*)var_value, (const char*)reaction->GetName());
         return false;
       }
     }
     else if (var_name == "max") {
-      if (!AssertInputDouble(var_value, "max", var_type)) return false;
+      if (!AssertInputDouble(var_value, "max", var_type, feedback)) return false;
       new_process->SetMaxNumber(var_value.AsDouble());
     }
     else if (var_name == "min") {
-      if (!AssertInputDouble(var_value, "min", var_type)) return false;
+      if (!AssertInputDouble(var_value, "min", var_type, feedback)) return false;
       new_process->SetMinNumber(var_value.AsDouble());
     }
     else if (var_name == "frac") {
-      if (!AssertInputDouble(var_value, "frac", var_type)) return false;
+      if (!AssertInputDouble(var_value, "frac", var_type, feedback)) return false;
       double in_frac = var_value.AsDouble();
       if (in_frac > 1.0) in_frac = 1.0;
       new_process->SetMaxFraction(in_frac);
     }
     else if (var_name == "ksubm") {
-      if (!AssertInputDouble(var_value, "ksubm", var_type)) return false;
+      if (!AssertInputDouble(var_value, "ksubm", var_type, feedback)) return false;
       double in_k_sub_m = var_value.AsDouble();
       new_process->SetKsubM(in_k_sub_m);
     }
     else if (var_name == "product") {
       cResource* test_resource = resource_lib.GetResource(var_value);
-      if (!AssertInputValid(test_resource, "product", var_type, var_value)) {
+      if (!AssertInputValid(test_resource, "product", var_type, var_value, feedback)) {
         return false;
       }
       new_process->SetProduct(test_resource);
     }
     else if (var_name == "conversion") {
-      if (!AssertInputDouble(var_value, "conversion", var_type)) return false;
+      if (!AssertInputDouble(var_value, "conversion", var_type, feedback)) return false;
       new_process->SetConversion(var_value.AsDouble());
     }
     else if (var_name == "inst") {
-      new_process->SetInstID( m_world->GetHardwareManager().GetInstSet().GetInst(var_value).GetOp() );
+      new_process->SetInst(var_value);
     }
     else if (var_name == "lethal") {
-      if (!AssertInputBool(var_value, "lethal", var_type)) 
+      if (!AssertInputDouble(var_value, "lethal", var_type, feedback)) 
         return false;
-      new_process->SetLethal(var_value.AsInt());
+      new_process->SetLethal(var_value.AsDouble());
     }
     else if (var_name == "sterilize") {
-      if (!AssertInputBool(var_value, "sterilize", var_type))
+      if (!AssertInputBool(var_value, "sterilize", var_type, feedback))
         return false;
       new_process->SetSterile(var_value.AsInt());
     }
     else if (var_name == "deme") {
-      if (!AssertInputDouble(var_value, "demefrac", var_type))
+      if (!AssertInputDouble(var_value, "demefrac", var_type, feedback))
         return false;
       new_process->SetDemeFraction(var_value.AsDouble());
     }
     else if (var_name == "germline") {
-      if (!AssertInputBool(var_value, "germline", var_type))
+      if (!AssertInputBool(var_value, "germline", var_type, feedback))
         return false;
       new_process->SetIsGermline(var_value.AsInt());
     }
     else if (var_name == "detect") {
       cResource* test_resource = resource_lib.GetResource(var_value);
-      if (!AssertInputValid(test_resource, "product", var_type, var_value)) {
+      if (!AssertInputValid(test_resource, "product", var_type, var_value, feedback)) {
         return false;
       }
       new_process->SetDetect(test_resource);
     }
     else if (var_name == "threshold") {
-      if (!AssertInputDouble(var_value, "threshold", var_type))
+      if (!AssertInputDouble(var_value, "threshold", var_type, feedback))
         return false;
       new_process->SetDetectionThreshold(var_value.AsDouble());
     }
     else if (var_name == "detectionerror") {
-      if (!AssertInputDouble(var_value, "detectionerror", var_type)) 
+      if (!AssertInputDouble(var_value, "detectionerror", var_type, feedback)) 
         return false;
       new_process->SetDetectionError(var_value.AsDouble());
     }
@@ -266,7 +254,7 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
       new_process->SetMatchString(var_value);
     }
     else if (var_name == "depletable") {
-      if (!AssertInputBool(var_value, "depletable", var_type))
+      if (!AssertInputBool(var_value, "depletable", var_type, feedback))
         return false;
       new_process->SetDepletable(var_value.AsInt());  
     }
@@ -279,13 +267,14 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
         new_process->SetPhenPlastBonusMethod(FULL_BONUS);
       else if (var_value == "default")
         new_process->SetPhenPlastBonusMethod(DEFAULT);
-      else
-        cerr << "Error: invalid setting for phenplastbonus "
-         << "in reaction '" << reaction->GetName() << "'" << endl;
+      else {
+        if (feedback) feedback->Error("invalid setting for phenplastbonus in reaction '%s'", (const char*)reaction->GetName());
+        return false;
+      }
     }
     else {
-      cerr << "Error: Unknown process variable '" << var_name
-      << "' in reaction '" << reaction->GetName() << "'" << endl;
+      if (feedback) feedback->Error("unknown process variable '%s' in reaction '%s'",
+                                    (const char*)var_name, (const char*)reaction->GetName());
       return false;
     }
   }
@@ -293,7 +282,7 @@ bool cEnvironment::LoadReactionProcess(cReaction* reaction, cString desc)
   return true;
 }
 
-bool cEnvironment::LoadReactionRequisite(cReaction* reaction, cString desc)
+bool cEnvironment::LoadReactionRequisite(cReaction* reaction, cString desc, cUserFeedback* feedback)
 {
   cReactionRequisite* new_requisite = reaction->AddRequisite();
   
@@ -306,46 +295,46 @@ bool cEnvironment::LoadReactionRequisite(cReaction* reaction, cString desc)
     const cString var_type = cStringUtil::Stringf("reaction '%s' requisite", static_cast<const char*>(reaction->GetName()));
     
     // Parse this entry.
-    if (!ParseSetting(var_entry, var_name, var_value, var_type)) return false;
+    if (!ParseSetting(var_entry, var_name, var_value, var_type, feedback)) return false;
     
     // Now that we know we have a variable name and its value, set it!
     if (var_name == "reaction") {
       cReaction* test_reaction = reaction_lib.GetReaction(var_value);
-      if (!AssertInputValid(test_reaction, "reaction", var_type, var_value)) {
+      if (!AssertInputValid(test_reaction, "reaction", var_type, var_value, feedback)) {
         return false;
       }
       new_requisite->AddReaction(test_reaction);
     }
     else if (var_name == "noreaction") {
       cReaction* test_reaction = reaction_lib.GetReaction(var_value);
-      if (!AssertInputValid(test_reaction,"noreaction",var_type, var_value)) {
+      if (!AssertInputValid(test_reaction,"noreaction",var_type, var_value, feedback)) {
         return false;
       }
       new_requisite->AddNoReaction(test_reaction);
     }
     else if (var_name == "min_count") {
-      if (!AssertInputInt(var_value, "min_count", var_type)) return false;
+      if (!AssertInputInt(var_value, "min_count", var_type, feedback)) return false;
       new_requisite->SetMinTaskCount(var_value.AsInt());
     }
     else if (var_name == "max_count") {
-      if (!AssertInputInt(var_value, "max_count", var_type)) return false;
+      if (!AssertInputInt(var_value, "max_count", var_type, feedback)) return false;
       new_requisite->SetMaxTaskCount(var_value.AsInt());
     }
     else if (var_name == "divide_only") {
-      if (!AssertInputInt(var_value, "divide_only", var_type)) return false;
+      if (!AssertInputInt(var_value, "divide_only", var_type, feedback)) return false;
       new_requisite->SetDivideOnly(var_value.AsInt());
     }
 	else if (var_name == "min_tot_count") {
-	  if (!AssertInputInt(var_value, "min_tot_count", var_type)) return false;
+	  if (!AssertInputInt(var_value, "min_tot_count", var_type, feedback)) return false;
 	  new_requisite->SetMinTotReactionCount(var_value.AsInt());
     }
 	else if (var_name == "max_tot_count") {
-	  if (!AssertInputInt(var_value, "max_tot_count", var_type)) return false;
+	  if (!AssertInputInt(var_value, "max_tot_count", var_type, feedback)) return false;
 	  new_requisite->SetMaxTotReactionCount(var_value.AsInt());
     }
     else {
-      cerr << "Error: Unknown requisite variable '" << var_name
-      << "' in reaction '" << reaction->GetName() << "'" << endl;
+      if (feedback) feedback->Error("unknown requisite variable '%s' in reaction '%s'",
+                                    (const char*)var_name, (const char*)reaction->GetName());
       return false;
     }
   }
@@ -354,10 +343,10 @@ bool cEnvironment::LoadReactionRequisite(cReaction* reaction, cString desc)
 }
 
 
-bool cEnvironment::LoadResource(cString desc)
+bool cEnvironment::LoadResource(cString desc, cUserFeedback* feedback)
 {
   if (desc.GetSize() == 0) {
-    cerr << "Warning: Resource line with no resources listed." << endl;
+    if (feedback) feedback->Warning("resource line with no resources listed");
     return false;
   }
   
@@ -383,26 +372,25 @@ bool cEnvironment::LoadResource(cString desc)
       const cString var_type = cStringUtil::Stringf("resource '%s'", static_cast<const char*>(name));
       
       // Parse this entry.
-      if (!ParseSetting(var_entry, var_name, var_value, var_type)) {
+      if (!ParseSetting(var_entry, var_name, var_value, var_type, feedback)) {
         return false;
       }
       
       if (var_name == "inflow") {
-        if (!AssertInputDouble(var_value, "inflow", var_type)) return false;
+        if (!AssertInputDouble(var_value, "inflow", var_type, feedback)) return false;
         new_resource->SetInflow( var_value.AsDouble() );
       }
       else if (var_name == "outflow") {
-        if (!AssertInputDouble(var_value, "outflow", var_type)) return false;
+        if (!AssertInputDouble(var_value, "outflow", var_type, feedback)) return false;
         new_resource->SetOutflow( var_value.AsDouble() );
       }
       else if (var_name == "initial") {
-        if (!AssertInputDouble(var_value, "initial", var_type)) return false;
+        if (!AssertInputDouble(var_value, "initial", var_type, feedback)) return false;
         new_resource->SetInitial( var_value.AsDouble() );
       }
       else if (var_name == "geometry") {
         if (!new_resource->SetGeometry( var_value )) {
-          cerr << "Error: In " << var_type << "," << var_value << 
-          " unknown geometry" << endl;
+          if (feedback) feedback->Error("in %s, %s unknown geometry", (const char*)var_type, (const char*)var_value);
           return false;
         }
       }
@@ -412,77 +400,75 @@ bool cEnvironment::LoadResource(cString desc)
         new_resource->SetCellIdList(cell_list);
       }
       else if (var_name == "inflowx1" || var_name == "inflowx") {
-        if (!AssertInputInt(var_value, "inflowX1", var_type)) return false;
+        if (!AssertInputInt(var_value, "inflowX1", var_type, feedback)) return false;
         new_resource->SetInflowX1( var_value.AsInt() );
       }
       else if (var_name == "inflowx2") {
-        if (!AssertInputInt(var_value, "inflowX2", var_type)) return false;
+        if (!AssertInputInt(var_value, "inflowX2", var_type, feedback)) return false;
         new_resource->SetInflowX2( var_value.AsInt() );
       }
       else if (var_name == "inflowy1" || var_name == "inflowy") {
-        if (!AssertInputInt(var_value, "inflowY1", var_type)) return false;
+        if (!AssertInputInt(var_value, "inflowY1", var_type, feedback)) return false;
         new_resource->SetInflowY1( var_value.AsInt() );
       }
       else if (var_name == "inflowy2") {
-        if (!AssertInputInt(var_value, "inflowY2", var_type)) return false;
+        if (!AssertInputInt(var_value, "inflowY2", var_type, feedback)) return false;
         new_resource->SetInflowY2( var_value.AsInt() );
       }
       else if (var_name == "outflowx1" || var_name == "outflowx") {
-        if (!AssertInputInt(var_value, "outflowX1", var_type)) return false;
+        if (!AssertInputInt(var_value, "outflowX1", var_type, feedback)) return false;
         new_resource->SetOutflowX1( var_value.AsInt() );
       }
       else if (var_name == "outflowx2") {
-        if (!AssertInputInt(var_value, "outflowX2", var_type)) return false;
+        if (!AssertInputInt(var_value, "outflowX2", var_type, feedback)) return false;
         new_resource->SetOutflowX2( var_value.AsInt() );
       }
       else if (var_name == "outflowy1" || var_name == "outflowy") {
-        if (!AssertInputInt(var_value, "outflowY1", var_type)) return false;
+        if (!AssertInputInt(var_value, "outflowY1", var_type, feedback)) return false;
         new_resource->SetOutflowY1( var_value.AsInt() );
       }
       else if (var_name == "outflowy2") {
-        if (!AssertInputInt(var_value, "outflowY2", var_type)) return false;
+        if (!AssertInputInt(var_value, "outflowY2", var_type, feedback)) return false;
         new_resource->SetOutflowY2( var_value.AsInt() );
       }
       else if (var_name == "xdiffuse") {
-        if (!AssertInputDouble(var_value, "xdiffuse", var_type)) return false;
+        if (!AssertInputDouble(var_value, "xdiffuse", var_type, feedback)) return false;
         new_resource->SetXDiffuse( var_value.AsDouble() );
       }
       else if (var_name == "xgravity") {
-        if (!AssertInputDouble(var_value, "xgravity", var_type)) return false;
+        if (!AssertInputDouble(var_value, "xgravity", var_type, feedback)) return false;
         new_resource->SetXGravity( var_value.AsDouble() );
       }
       else if (var_name == "ydiffuse") {
-        if (!AssertInputDouble(var_value, "ydiffuse", var_type)) return false;
+        if (!AssertInputDouble(var_value, "ydiffuse", var_type, feedback)) return false;
         new_resource->SetYDiffuse( var_value.AsDouble() );
       }
       else if (var_name == "ygravity") {
-        if (!AssertInputDouble(var_value, "ygravity", var_type)) return false;
+        if (!AssertInputDouble(var_value, "ygravity", var_type, feedback)) return false;
         new_resource->SetYGravity( var_value.AsDouble() );
       }
       else if (var_name == "deme") {
         if (!new_resource->SetDemeResource( var_value )) {
-          cerr << "Error: In " << var_type << "," << var_value <<
-          " must be true or false" << endl;
+          if (feedback) feedback->Error("in %s, %s must be true or false", (const char*)var_type, (const char*)var_value);
           return false;
         }
       }
       else if (var_name == "energy") {
         if (!new_resource->SetEnergyResource( var_value )) {
-          cerr << "Error: In " << var_type << "," << var_value <<
-          " must be true or false" << endl;
+          if (feedback) feedback->Error("in %s, %s must be true or false", (const char*)var_type, (const char*)var_value);
           return false;
-        } else if(m_world->GetConfig().ENERGY_ENABLED.Get() == 0) {
-          cerr <<"Error: Energy resources can not be used without the energy model.\n";
+        } else if (m_world->GetConfig().ENERGY_ENABLED.Get() == 0) {
+          if (feedback) feedback->Error("energy resources can not be used without the energy model");
+          return false;
         }
       }
 			else if (var_name == "hgt") {
 				// this resource is for HGT -- corresponds to genome fragments present in cells.
-				if(!AssertInputBool(var_value, "hgt", var_type)) return false;
+				if(!AssertInputBool(var_value, "hgt", var_type, feedback)) return false;
 				new_resource->SetHGTMetabolize(var_value.AsInt());
 			}
       else {
-        cerr << "Error: Unknown variable '" << var_name
-        << "' in resource '" << name << "'" << endl;
+        if (feedback) feedback->Error("unknown variable '%s' in resource '%s'", (const char*)var_name, (const char*)name);
         return false;
       }
     }
@@ -502,11 +488,11 @@ bool cEnvironment::LoadResource(cString desc)
 				|| (new_resource->GetYDiffuse() != 1.0)
 				|| (new_resource->GetYGravity() != 0.0)
 				|| (new_resource->GetDemeResource() != false))) {
-			cerr << "Error: misconfigured HGT resource: " << name << endl;
+			if (feedback) feedback->Error("misconfigured HGT resource: %s", (const char*)name);
 			return false;
 		}		
 		if(new_resource->GetHGTMetabolize() && !m_world->GetConfig().ENABLE_HGT.Get()) {
-			cerr << "Error: resource configured to use HGT, but HGT not enabled." << endl;
+			if (feedback) feedback->Error("resource configured to use HGT, but HGT not enabled");
 			return false;
 		}
 
@@ -531,7 +517,7 @@ bool cEnvironment::LoadResource(cString desc)
   return true;
 }
 
-bool cEnvironment::LoadCell(cString desc)
+bool cEnvironment::LoadCell(cString desc, cUserFeedback* feedback)
 
 /*****************************************************************************
  Routine to read in spatial resources loaded in one cell at a time. Syntax:
@@ -543,7 +529,7 @@ bool cEnvironment::LoadCell(cString desc)
 
 {
   if (desc.GetSize() == 0) {
-    cerr << "Warning: CELL line with no resources listed." << endl;
+    if (feedback) feedback->Warning("CELL line with no resources listed");
     return false;
   }
   
@@ -590,36 +576,32 @@ bool cEnvironment::LoadCell(cString desc)
       cStringUtil::Stringf("resource '%s'", static_cast<const char*>(name));
       
       // Parse this entry.
-      if (!ParseSetting(var_entry, var_name, var_value, var_type)) {
+      if (!ParseSetting(var_entry, var_name, var_value, var_type, feedback)) {
         return false;
       }
       
       if (var_name == "inflow") {
-        if (!AssertInputDouble(var_value, "inflow", var_type)) return false;
+        if (!AssertInputDouble(var_value, "inflow", var_type, feedback)) return false;
         tmp_inflow = var_value.AsDouble();
       }
       else if (var_name == "outflow") {
-        if (!AssertInputDouble(var_value, "outflow", var_type)) return false;
+        if (!AssertInputDouble(var_value, "outflow", var_type, feedback)) return false;
         tmp_outflow = var_value.AsDouble();
       }
       else if (var_name == "initial") {
-        if (!AssertInputDouble(var_value, "initial", var_type)) return false;
+        if (!AssertInputDouble(var_value, "initial", var_type, feedback)) return false;
         tmp_initial = var_value.AsDouble();
       }
       else {
-        cerr << "Error: Unknown variable '" << var_name
-        << "' in resource '" << name << "'" << endl;
+        if (feedback) feedback->Error("unknown variable '%s' in resource '%s'", (const char*)var_name, (const char*)name);
         return false;
       }
     }
-    for (int i=0; i < cell_list.GetSize(); i++) {
-      if (cCellResource *CellResourcePtr = 
-          this_resource->GetCellResourcePtr(cell_list[i])) {
-        this_resource->UpdateCellResource(CellResourcePtr,tmp_initial,
-                                          tmp_inflow, tmp_outflow);
+    for (int i = 0; i < cell_list.GetSize(); i++) {
+      if (cCellResource *CellResourcePtr = this_resource->GetCellResourcePtr(cell_list[i])) {
+        this_resource->UpdateCellResource(CellResourcePtr,tmp_initial, tmp_inflow, tmp_outflow);
       } else {
-        cCellResource tmp_cell_resource(cell_list[i],tmp_initial,
-                                        tmp_inflow, tmp_outflow);
+        cCellResource tmp_cell_resource(cell_list[i],tmp_initial, tmp_inflow, tmp_outflow);
         this_resource->AddCellResource(tmp_cell_resource);
       }
     }
@@ -629,11 +611,11 @@ bool cEnvironment::LoadCell(cString desc)
   return true;
 }
 
-bool cEnvironment::LoadReaction(cString desc)
+bool cEnvironment::LoadReaction(cString desc, cUserFeedback* feedback)
 {
   // Make sure this reaction has a description...
   if (desc.GetSize() == 0) {
-    cerr << "Error: Each reaction must include a name and trigger." << endl;
+    if (feedback) feedback->Error("each reaction must include a name and trigger");
     return false;
   }
   
@@ -649,8 +631,7 @@ bool cEnvironment::LoadReaction(cString desc)
   // Make sure this reaction hasn't already been loaded with a different
   // definition.
   if (new_reaction->GetTask() != NULL) {
-    cerr << "Warning: Re-defining reaction '" << name << "'." << endl;
-    // return false;
+    if (feedback) feedback->Warning("re-defining reaction '%s'", (const char*)name);
   }
   
   // Finish loading in this reaction.
@@ -659,16 +640,8 @@ bool cEnvironment::LoadReaction(cString desc)
   
   // Load the task trigger
   cEnvReqs envreqs;
-  tList<cString> errors;
-  cTaskEntry* cur_task = m_tasklib.AddTask(trigger, trigger_info, envreqs, &errors);
-  if (cur_task == NULL || errors.GetSize() > 0) {
-    cString* err_str;
-    while ((err_str = errors.Pop()) != NULL) {
-      cerr << *err_str << endl;
-      delete err_str;
-    }
-    return false;
-  }
+  cTaskEntry* cur_task = m_tasklib.AddTask(trigger, trigger_info, envreqs, feedback);
+  if (cur_task == NULL || (feedback && feedback->GetNumErrors())) return false;
   new_reaction->SetTask(cur_task);      // Attack task to reaction.
   
   while (desc.GetSize()) {
@@ -678,21 +651,18 @@ bool cEnvironment::LoadReaction(cString desc)
     
     // Determine the type of each argument and process it.
     if (entry_type == "process") {
-      if (LoadReactionProcess(new_reaction, desc_entry) == false) {
-        cerr << "...failed in loading reaction-process..." << endl;
+      if (LoadReactionProcess(new_reaction, desc_entry, feedback) == false) {
+        if (feedback) feedback->Error("failed in loading reaction-process...");
         return false;
       }
     }
     else if (entry_type == "requisite") {
-      if (LoadReactionRequisite(new_reaction, desc_entry) == false) {
-        cerr << "...failed in loading reaction-requisite..." << endl;
+      if (LoadReactionRequisite(new_reaction, desc_entry, feedback) == false) {
+        if (feedback) feedback->Error("failed in loading reaction-requisite...");
         return false;
       }
-    }
-    else {
-      cerr << "Unknown entry type '" << entry_type
-      << "' in reaction '" << name << "'"
-      << endl;
+    }else {
+      if (feedback) feedback->Error("unknown entry type '%s' in reaction '%s'", (const char*)entry_type, (const char*)name);
       return false;
     }
   }
@@ -705,105 +675,8 @@ bool cEnvironment::LoadReaction(cString desc)
   return true;
 }
 
-bool cEnvironment::LoadMutation(cString desc)
-{
-  // Make sure this mutation has a description...
-  if (desc.CountNumWords() < 5) {
-    cerr << "Error: Each mutation must include a name, trigger, scope, type, and rate." << endl;
-    return false;
-  }
-  
-  // Load in the mutation info
-  const cString name = desc.PopWord().ToLower();
-  const cString trigger = desc.PopWord().ToLower();
-  const cString scope = desc.PopWord().ToLower();
-  const cString type = desc.PopWord().ToLower();
-  const double rate = desc.PopWord().AsDouble();
-  
-  int trig_id = -1;
-  int scope_id = -1;
-  int type_id = -1;
-  
-  if (trigger == "none") trig_id = nMutation::TRIGGER_NONE;
-  else if (trigger == "update") trig_id = nMutation::TRIGGER_UPDATE;
-  else if (trigger == "divide") trig_id = nMutation::TRIGGER_DIVIDE;
-  else if (trigger == "parent") trig_id = nMutation::TRIGGER_PARENT;
-  else if (trigger == "write") trig_id = nMutation::TRIGGER_WRITE;
-  else if (trigger == "read") trig_id = nMutation::TRIGGER_READ;
-  else if (trigger == "exec") trig_id = nMutation::TRIGGER_EXEC;
-  else {
-    cerr << "Error: Unknown mutation trigger '" << trigger << "'." << endl;
-    return false;
-  }
-  
-  if (scope == "genome") scope_id = nMutation::SCOPE_GENOME;
-  else if (scope == "local") scope_id = nMutation::SCOPE_LOCAL;
-  else if (scope == "prop") scope_id = nMutation::SCOPE_PROP;
-  else if (scope == "global") scope_id = nMutation::SCOPE_GLOBAL;
-  else if (scope == "spread") scope_id = nMutation::SCOPE_SPREAD;
-  else {
-    cerr << "Error: Unknown mutation scope '" << scope << "'." << endl;
-    return false;
-  }
-  
-  if (type == "point") type_id = nMutation::TYPE_POINT;
-  else if (type == "insert") type_id = nMutation::TYPE_INSERT;
-  else if (type == "delete") type_id = nMutation::TYPE_DELETE;
-  else if (type == "head_inc") type_id = nMutation::TYPE_HEAD_INC;
-  else if (type == "head_dec") type_id = nMutation::TYPE_HEAD_DEC;
-  else if (type == "temp") type_id = nMutation::TYPE_TEMP;
-  else if (type == "kill") type_id = nMutation::TYPE_KILL;
-  else {
-    cerr << "Error: Unknown mutation type '" << type << "'." << endl;
-    return false;
-  }
-  
-  // Lets do a few checks for legal combinations...
-  if (trig_id == nMutation::TRIGGER_NONE) {
-    cerr << "Warning: Mutations with trigger 'none' will never occur." << endl;
-  }
-  
-  if (scope_id == nMutation::SCOPE_LOCAL || scope_id == nMutation::SCOPE_PROP) {
-    if (trig_id == nMutation::TRIGGER_DIVIDE) {
-      cerr << "Error: Offspring after divide have no " << scope
-      << " for mutations." << endl;
-      return false;
-    }
-    if (trig_id == nMutation::TRIGGER_UPDATE ||
-        trig_id == nMutation::TRIGGER_PARENT) {
-      cerr << "Warning: Mutation trigger " << trigger
-      << "has no natural positions; IP used." << endl;
-    }
-  }
-  else {  // Genome-wide scope
-    if (type_id == nMutation::TYPE_HEAD_INC ||
-        type_id == nMutation::TYPE_HEAD_DEC ||
-        type_id == nMutation::TYPE_TEMP) {
-      cerr << "Error: " << scope << " scope not compatible with type "
-      << type << "." << endl;
-      return false;
-    }
-  }
-  
-  if (type_id == nMutation::TYPE_TEMP) {
-    if (trig_id == nMutation::TRIGGER_UPDATE ||
-        trig_id == nMutation::TRIGGER_DIVIDE ||
-        trig_id == nMutation::TRIGGER_PARENT ||
-        trig_id == nMutation::TRIGGER_WRITE) {
-      cerr << "Error: " << trigger << " trigger not meaningful with type "
-      << type << "." << endl;
-      return false;
-    }
-  }
-  
-  // If we made it this far, it should be safe to build the mutation.
-  mutation_lib.AddMutation(name, trig_id, scope_id, type_id, rate);
-  
-  return true;
-}
 
-
-bool cEnvironment::LoadStateGrid(cString desc)
+bool cEnvironment::LoadStateGrid(cString desc, cUserFeedback* feedback)
 {
   // First component is the name
   cString name = desc.Pop(':');
@@ -822,18 +695,10 @@ bool cEnvironment::LoadStateGrid(cString desc)
   schema.AddEntry("grid", 1, cArgSchema::SCHEMA_STRING);
   
   // Load the Arguments
-  tList<cString> errors;
-  tAutoRelease<cArgContainer> args(cArgContainer::Load(desc, schema, &errors));
+  tAutoRelease<cArgContainer> args(cArgContainer::Load(desc, schema, feedback));
   
   // Check for errors loading the arguments
-  if (args.IsNull() || errors.GetSize() > 0) {
-    cString* err_str;
-    while ((err_str = errors.Pop()) != NULL) {
-      cerr << "error: " << *err_str << endl;
-      delete err_str;
-    }
-    return false;
-  }
+  if (args.IsNull() || (feedback && feedback->GetNumErrors())) return false;
   
   // Extract and validate the arguments
   int width = args->GetInt(0);
@@ -843,7 +708,7 @@ bool cEnvironment::LoadStateGrid(cString desc)
   int initfacing = args->GetInt(4);
   
   if (initx >= width || inity >= height) {
-    cerr << "error: initx and inity must not exceed (width - 1) and (height - 1)" << endl;
+    if (feedback) feedback->Error("initx and inity must not exceed (width - 1) and (height - 1)");
     return false;
   }
   
@@ -864,7 +729,7 @@ bool cEnvironment::LoadStateGrid(cString desc)
     // Check for duplicate state definition
     for (int i = 0; i < states.GetSize(); i++) {
       if (statename == states[i]) {
-        cerr << "error: duplicate state identifier for state grid " << name << endl;
+        if (feedback) feedback->Error("duplicate state identifier for state grid %s", (const char*)name);
         return false;
       }
     }
@@ -878,7 +743,7 @@ bool cEnvironment::LoadStateGrid(cString desc)
     state_sense.Push(state_sense_value);
   }
   if (states.GetSize() == 0) {
-    cerr << "error: no states defined for state grid " << name << endl;
+    if (feedback) feedback->Error("no states defined for state grid %s", (const char*)name);
     return false;
   }
   
@@ -898,13 +763,13 @@ bool cEnvironment::LoadStateGrid(cString desc)
       }
     }
     if (!found) {
-      cerr << "error: state identifier undefined for cell (" << (cell / width) << ", "
-      << (cell % width) << ") in state grid " << name << endl;
+      if (feedback) feedback->Error("state identifier undefined for cell (%d, %d) in state grid %s",
+                                    (cell / width), (cell % width), (const char*)name);
       return false;
     }
   }
   if (cell != lgrid.GetSize() || gridstr.GetSize() > 0) {
-    cerr << "error: grid definition size mismatch for state grid " << name << endl;
+    if (feedback) feedback->Error("grid definition size mismatch for state grid %s", (const char*)name);
     return false;
   }
   
@@ -927,7 +792,7 @@ bool cEnvironment::LoadStateGrid(cString desc)
 }
 
 
-bool cEnvironment::LoadSetActive(cString desc)
+bool cEnvironment::LoadSetActive(cString desc, cUserFeedback* feedback)
 {
   cString item_type = desc.PopWord(); 
   item_type.ToUpper();
@@ -943,21 +808,21 @@ bool cEnvironment::LoadSetActive(cString desc)
   if (item_type == "REACTION") {
     cReaction* cur_reaction = reaction_lib.GetReaction(item_name);
     if (cur_reaction == NULL) {
-      cerr << "Unknown REACTION: '" << item_name << "'" << endl;
+      if (feedback) feedback->Error("unknown REACTION: '%s'", (const char*)item_name);
       return false;
     }
     cur_reaction->SetActive(new_active);
   } else if (item_type == "") {
-    cerr << "Format: SET_ACTIVE <type> <name> <new_status=true>" << endl;
+    if (feedback) feedback->Notify("format: SET_ACTIVE <type> <name> <new_status=true>");
   } else {
-    cerr << "Error: Cannot deactivate items of type " << item_type << endl;
+    if (feedback) feedback->Error("cannot deactivate items of type %s", (const char*)item_type);
     return false;
   }
   
   return true;
 }
 
-bool cEnvironment::LoadLine(cString line) 
+bool cEnvironment::LoadLine(cString line, cUserFeedback* feedback) 
 
 /* Routine to read in a line from the enviroment file and hand that line
  line to the approprate routine to process it.                         */ 
@@ -966,47 +831,44 @@ bool cEnvironment::LoadLine(cString line)
   type.ToUpper();                     // Make type case insensitive.
   
   bool load_ok = true;
-  if (type == "RESOURCE") load_ok = LoadResource(line);
-  else if (type == "REACTION") load_ok = LoadReaction(line);
-  else if (type == "MUTATION") load_ok = LoadMutation(line);
-  else if (type == "SET_ACTIVE") load_ok = LoadSetActive(line);
-  else if (type == "CELL") load_ok = LoadCell(line);
-  else if (type == "GRID") load_ok = LoadStateGrid(line);
+  if (type == "RESOURCE") load_ok = LoadResource(line, feedback);
+  else if (type == "REACTION") load_ok = LoadReaction(line, feedback);
+  else if (type == "SET_ACTIVE") load_ok = LoadSetActive(line, feedback);
+  else if (type == "CELL") load_ok = LoadCell(line, feedback);
+  else if (type == "GRID") load_ok = LoadStateGrid(line, feedback);
   else {
-    cerr << "Error: Unknown environment keyword '" << type << "." << endl;
+    if (feedback) feedback->Error("unknown environment keyword '%s'", (const char*)type);
     return false;
   }
   
   if (load_ok == false) {
-    cerr << "...failed in loading '" << type << "'..." << endl;
+    if (feedback) feedback->Error("failed in loading '%s'", (const char*)type);
     return false;
   }
   
   return true;
 }
 
-bool cEnvironment::Load(const cString& filename)
+bool cEnvironment::Load(const cString& filename, const cString& working_dir, cUserFeedback* feedback)
 {
-  cInitFile infile(filename);
+  cInitFile infile(filename, working_dir);
   if (!infile.WasOpened()) {
-    tConstListIterator<cString> err_it(infile.GetErrors());
-    const cString* errstr = NULL;
-    while ((errstr = err_it.Next())) cerr << "Error: " << *errstr << endl;
-    cerr << "Error: Failed to load environment '" << filename << "'." << endl;
+    if (feedback) feedback->Append(infile.GetFeedback());
+    if (feedback) feedback->Error("failed to load environment '%s'", (const char*)filename);
     return false;
   }
   
   for (int line_id = 0; line_id < infile.GetNumLines(); line_id++) {
     // Load the next line from the file.
-    bool load_ok = LoadLine(infile.GetLine(line_id));
+    bool load_ok = LoadLine(infile.GetLine(line_id), feedback);
     if (load_ok == false) return false;
   }
   
   // Make sure that all pre-declared reactions have been loaded correctly.
   for (int i = 0; i < reaction_lib.GetSize(); i++) {
     if (reaction_lib.GetReaction(i)->GetTask() == NULL) {
-      cerr << "Error: Pre-declared reaction '"
-      << reaction_lib.GetReaction(i)->GetName() << "' never defined." << endl;
+      if (feedback) feedback->Error("pre-declared reaction '%s' never defined",
+                                    (const char*)reaction_lib.GetReaction(i)->GetName());
       return false;
     }
   }
@@ -1082,8 +944,12 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
                               cTaskContext& taskctx, const tArray<int>& task_count,
 															tArray<int>& reaction_count, 
                               const tArray<double>& resource_count, 
-                              const tArray<double>& rbins_count) const
-{
+                              const tArray<double>& rbins_count,
+                              bool is_parasite) const
+{  
+  //flag to skip processing of parasite tasks
+  bool skipProcessing = false;
+
   // Do setup for reaction tests...
   m_tasklib.SetupTests(taskctx);
   
@@ -1107,7 +973,12 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
     
     // Examine requisites on this reaction
     if (TestRequisites(cur_reaction->GetRequisites(), task_cnt, reaction_count, on_divide) == false) {
-      continue;
+      if(is_parasite && m_world->GetConfig().PARASITE_SKIP_REACTIONS.Get()){
+        skipProcessing = true;
+      }
+      else {
+        continue;
+      }
     }
     
     
@@ -1126,13 +997,16 @@ bool cEnvironment::TestOutput(cAvidaContext& ctx, cReactionResult& result,
     // Mark this task as performed...
     result.MarkTask(task_id, task_quality, taskctx.GetTaskValue());
     
-    // And let's process it!
-    DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, rbins_count, 
-                task_quality, task_probability, task_cnt, i, result, taskctx);
+    if(!skipProcessing)
+    {
+      // And let's process it!
+      DoProcesses(ctx, cur_reaction->GetProcesses(), resource_count, rbins_count, 
+                  task_quality, task_probability, task_cnt, i, result, taskctx);
     
-    if (result.ReactionTriggered(i) == true) reaction_count[i]++;
+      if (result.ReactionTriggered(i) == true) reaction_count[i]++;
 
-    // Note: the reaction is actually marked as being performed inside DoProcesses.
+      // Note: the reaction is actually marked as being performed inside DoProcesses.
+    }
   }  
   
   return result.GetActive();
@@ -1231,7 +1105,7 @@ double cEnvironment::GetTaskProbability(cAvidaContext& ctx, cTaskContext& taskct
   }
   if (test_plasticity){  //We have to test for plasticity, so try to get it
     int task_id = taskctx.GetTaskEntry()->GetID();
-    task_prob = taskctx.GetOrganism()->GetGenotype()->GetTaskProbability(ctx,task_id);
+    task_prob = cPhenPlastUtil::GetTaskProbability(ctx, m_world, taskctx.GetOrganism()->GetBioGroup("genotype"), task_id);
   }
   force_mark_task = force_mark_task && (task_prob > 0.0);  //If the task isn't demonstrated, we don't need to worry about marking it.
   return task_prob;
@@ -1285,7 +1159,7 @@ void cEnvironment::DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>
 			if(cellid != -1) { // can't do this in the test cpu
 				cPopulationCell& cell = m_world->GetPopulation().GetCell(cellid);
 				if(cell.CountGenomeFragments() > 0) {
-					cGenome fragment = cell.PopGenomeFragment();
+					cSequence fragment = cell.PopGenomeFragment();
 					consumed = local_task_quality * fragment.GetSize();
 					result.Consume(in_resource->GetID(), fragment.GetSize(), true);
 					m_world->GetStats().GenomeFragmentMetabolized(taskctx.GetOrganism(), fragment);
@@ -1457,13 +1331,22 @@ void cEnvironment::DoProcesses(cAvidaContext& ctx, const tList<cReactionProcess>
     }
     
     // Determine what instructions should be run...
-    const int inst_id = cur_process->GetInstID();
-    if (inst_id >= 0) {
-      result.AddInst(inst_id);
-    }
+    const cString& inst = cur_process->GetInst();
+    if (inst != "") result.AddInst(inst);
     
-    result.Lethal(cur_process->GetLethal());
-    result.Sterilize(cur_process->GetSterilize());
+		double prob_lethal = cur_process->GetLethal();
+		bool lethal = false;
+		
+		if (prob_lethal != 0 && prob_lethal != 1) {
+			// hjg
+			double x = ctx.GetRandom().GetDouble();
+			if (x < prob_lethal) {
+				lethal = true;
+			}
+		} 
+		
+    result.Lethal(lethal);    
+		result.Sterilize(cur_process->GetSterilize());
 	} 
 }
 
@@ -1532,7 +1415,7 @@ bool cEnvironment::SetReactionInst(const cString& name, cString inst_name)
 {
   cReaction* found_reaction = reaction_lib.GetReaction(name);
   if (found_reaction == NULL) return false;
-  found_reaction->ModifyInst( m_world->GetHardwareManager().GetInstSet().GetInst(inst_name).GetOp() );
+  found_reaction->ModifyInst(inst_name);
   return true;
 }
 
@@ -1563,32 +1446,6 @@ bool cEnvironment::SetReactionTask(const cString& name, const cString& task)
       return true;
     }
   }
-  
-  // If we didn't find the task, then we need to make a new one
-  // @JEB currently, this messes up stat tracking to add a task
-  // in the middle of a run.
-  /*  
-   // Finish loading in this reaction.
-   cString trigger_info = task;
-   cString trigger = trigger_info.Pop(':');
-   
-   // Load the task trigger
-   cEnvReqs envreqs;
-   tList<cString> errors;
-   
-   cTaskEntry* cur_task = m_tasklib.AddTask(trigger, trigger_info, envreqs, &errors);
-   if (cur_task == NULL || errors.GetSize() > 0) {
-   cString* err_str;
-   while ((err_str = errors.Pop()) != NULL) {
-   cerr << *err_str << endl;
-   delete err_str;
-   }
-   return false;
-   }
-   
-   found_reaction->SetTask(cur_task);      // Attack task to reaction.  
-   return true;
-   */
   
   return false;
 }

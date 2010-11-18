@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "spatial_res_count.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -25,10 +25,13 @@
 
 #include "cSpatialResCount.h"
 
-#include "functions.h"
+#include "AvidaTools.h"
 #include "nGeometry.h"
 
+#include <cmath>
+
 using namespace std;
+using namespace AvidaTools;
 
 /* Setup a single spatial resource with known flows */
 

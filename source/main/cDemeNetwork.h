@@ -2,7 +2,7 @@
  *  cDemeNetwork.h
  *  Avida
  *
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,9 +24,13 @@
 #ifndef cDemeNetwork_h
 #define cDemeNetwork_h
 
+#include "cStats.h"
+
 class cDeme;
+class cDataFile;
 class cWorld;
 class cPopulationCell;
+class cPopulationInterface;
 
 /*! Provides the organisms in a deme with a shared network object.
  
@@ -67,18 +71,41 @@ public:
 	//! Connect u->v with weight w.
 	virtual void Connect(cPopulationCell& u, cPopulationCell& v, double w=1.0) = 0;
 	
+	//! Broadcast a message to connected cells.
+	virtual void BroadcastToNeighbors(cPopulationCell& s, cOrgMessage& msg, cPopulationInterface* pop_interface) { }
+
+	//! Unicast a message to the currently selected neighbor.
+	virtual void Unicast(cPopulationCell& s, cOrgMessage& msg, cPopulationInterface* pop_interface) { }
+	
+	//! Rotate the selected link from among the current neighbors.
+	virtual void Rotate(cPopulationCell& s, int x) { }
+	
+	//! Select the current link from among the neighbors.
+	virtual void Select(cPopulationCell& s, int x) { }
+
 	//! Called when the organism living in cell u dies.
 	virtual void OrganismDeath(cPopulationCell& u) = 0;
 	
 	//! Returns a network-defined fitness.
-	virtual double Fitness() const = 0;
-
+	virtual double Fitness(bool record_stats=true) const = 0;
+	
+	//! Measure statistics of this network.
+	virtual cStats::network_stats_t Measure() const = 0;
+	
+	//! Print this network's topology.
+	virtual void PrintTopology(cDataFile& df) const = 0;
+	
 protected:
 	//! Constructor, called by derived classes only.
 	cDemeNetwork(cWorld* world, cDeme& deme);
 	
 	cWorld* m_world; //!< The world.
 	cDeme& m_deme; //!< The owning deme.
+
+private:
+	cDemeNetwork();
+	cDemeNetwork(const cDemeNetwork&);
+	cDemeNetwork& operator=(const cDemeNetwork&);	
 };
 
 #endif

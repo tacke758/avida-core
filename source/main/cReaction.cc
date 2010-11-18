@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -74,10 +74,10 @@ bool cReaction::MultiplyValue(double value_mult, int process_num)
   return true;
 }
 
-bool cReaction::ModifyInst(int inst_id, int process_num) 
+bool cReaction::ModifyInst(const cString& inst, int process_num) 
 {
   if (process_num >= process_list.GetSize() || process_num < 0) return false;
-  process_list.GetPos(process_num)->SetInstID(inst_id);
+  process_list.GetPos(process_num)->SetInst(inst);
   return true;
 }
 

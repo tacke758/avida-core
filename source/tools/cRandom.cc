@@ -3,14 +3,14 @@
  *  Avida
  *
  *  Called "random.cc" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2000 California Institute of Technology
  *
  */
 
 #include "cRandom.h"
 
-#include "../platform/platform.h"
+#include "Platform.h"
 #include "tArray.h"
 
 #if AVIDA_PLATFORM(WINDOWS)

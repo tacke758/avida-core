@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 5/3/07
- *  Copyright 2007-2009 Michigan State University. All rights reserved.
+ *  Copyright 2007-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include "functions.h"
 
 using namespace std;
 
@@ -112,6 +111,14 @@ protected:
     for(int i = 0; i < test3.GetSize() - 1; i++) if (test3[i] > test3[i+1]) result = false;
     ReportTestResult("MergeSort", result);
   }
+  
+  static int IntCompareFunction(const void * a, const void * b)
+  {
+    if( *((int*)a) > *((int*)b) ) return 1;
+    if( *((int*)a) < *((int*)b) ) return -1;
+    return 0;
+  }
+  
 };
 
 

@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)source\tools&quot;;&quot;$(ProjectDir)source\targets\avida-viewer&quot;;&quot;$(ProjectDir)source\platform\msvc2005&quot;;&quot;$(ProjectDir)source\platform\msvc2005\pdcurses&quot;;&quot;$(ProjectDir)source\main&quot;;&quot;$(ProjectDir)source\drivers&quot;;&quot;$(ProjectDir)source\cpu&quot;;&quot;$(ProjectDir)source\classification&quot;;&quot;$(ProjectDir)source\analyze&quot;;&quot;$(ProjectDir)source\actions&quot;;&quot;$(ProjectDir)source&quot;;&quot;$(ProjectDir)source\platform&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)source\tools\platform&quot;;&quot;$(ProjectDir)source\tools&quot;;&quot;$(ProjectDir)source\targets\avida-viewer&quot;;&quot;$(ProjectDir)source\platform\msvc2005&quot;;&quot;$(ProjectDir)source\platform\msvc2005\pdcurses&quot;;&quot;$(ProjectDir)source\main&quot;;&quot;$(ProjectDir)source\drivers&quot;;&quot;$(ProjectDir)source\cpu&quot;;&quot;$(ProjectDir)source\classification&quot;;&quot;$(ProjectDir)source\analyze&quot;;&quot;$(ProjectDir)source\actions&quot;;&quot;$(ProjectDir)source&quot;"
 				PreprocessorDefinitions="NOMACROS;DEBUG;WIN32;_WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -121,7 +121,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)source\tools&quot;;&quot;$(ProjectDir)source\targets\avida-viewer&quot;;&quot;$(ProjectDir)source\platform\msvc2005&quot;;&quot;$(ProjectDir)source\platform\msvc2005\pdcurses&quot;;&quot;$(ProjectDir)source\main&quot;;&quot;$(ProjectDir)source\drivers&quot;;&quot;$(ProjectDir)source\cpu&quot;;&quot;$(ProjectDir)source\classification&quot;;&quot;$(ProjectDir)source\analyze&quot;;&quot;$(ProjectDir)source\actions&quot;;&quot;$(ProjectDir)source&quot;;&quot;$(ProjectDir)source\platform&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)source\tools\platform&quot;;&quot;$(ProjectDir)source\tools&quot;;&quot;$(ProjectDir)source\targets\avida-viewer&quot;;&quot;$(ProjectDir)source\platform\msvc2005&quot;;&quot;$(ProjectDir)source\platform\msvc2005\pdcurses&quot;;&quot;$(ProjectDir)source\main&quot;;&quot;$(ProjectDir)source\drivers&quot;;&quot;$(ProjectDir)source\cpu&quot;;&quot;$(ProjectDir)source\classification&quot;;&quot;$(ProjectDir)source\analyze&quot;;&quot;$(ProjectDir)source\actions&quot;;&quot;$(ProjectDir)source&quot;"
 				PreprocessorDefinitions="NOMACROS;NDEBUG;WIN32;_WIN32"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -190,6 +190,10 @@
 			>
 			<File
 				RelativePath=".\source\main\avida.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\AvidaTools.h"
 				>
 			</File>
 			<File
@@ -293,11 +297,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\classification\cBGGenotype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBGGenotypeManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroupData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroupListener.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroupManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioUnit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cBirthChamber.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\main\cBirthDemeHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cBirthEntry.h"
 				>
 			</File>
 			<File
@@ -329,10 +365,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cBlockStruct.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cChangeList.h"
 				>
 			</File>
@@ -345,7 +377,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cConditionVariable.h"
+				RelativePath=".\source\tools\platform\cConditionVariable.h"
 				>
 			</File>
 			<File
@@ -354,6 +386,10 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\cConstSchedule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cCoords.h"
 				>
 			</File>
 			<File
@@ -373,10 +409,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cCycleCheck.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cDataFile.h"
 				>
 			</File>
@@ -390,10 +422,6 @@
 			</File>
 			<File
 				RelativePath=".\source\drivers\cDefaultAnalyzeDriver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cDefaultMessageDisplay.h"
 				>
 			</File>
 			<File
@@ -417,6 +445,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cDemePlaceholderUnit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cDemePredicate.h"
 				>
 			</File>
@@ -429,6 +461,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\drivers\cDMObject.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\cDoubleSum.h"
 				>
 			</File>
@@ -438,6 +474,10 @@
 			</File>
 			<File
 				RelativePath=".\source\drivers\cDriverStatusConduit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cEntryHandle.h"
 				>
 			</File>
 			<File
@@ -465,15 +505,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\main\cFitnessMatrix.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cFixedBlock.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cFixedCoords.h"
+				RelativePath=".\source\tools\cFlexVar.h"
 				>
 			</File>
 			<File
@@ -481,19 +513,11 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\classification\cGenomeTestMetrics.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cGenomeUtil.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cGenotype.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cGenotype_BirthData.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cGenotype_TestData.h"
 				>
 			</File>
 			<File
@@ -501,11 +525,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\cGenotypeControl.h"
+				RelativePath=".\source\analyze\cGenotypeData.h"
 				>
 			</File>
 			<File
-				RelativePath=".\source\analyze\cGenotypeData.h"
+				RelativePath=".\source\main\cGermline.h"
 				>
 			</File>
 			<File
@@ -577,35 +601,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cID.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cIndexedBlockStruct.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cInitFile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotype.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotype_BirthData.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotypeControl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotypeElement.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotypeQueue.h"
 				>
 			</File>
 			<File
@@ -641,14 +637,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\cLineage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\cLocalMutations.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\targets\avida-viewer\cMapScreen.h"
 				>
 			</File>
@@ -665,19 +653,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\main\cMutation.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\analyze\cMutationalNeighborhood.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\analyze\cMutationalNeighborhoodResults.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\cMutationLib.h"
 				>
 			</File>
 			<File
@@ -689,11 +669,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cMutex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\cMxCodeArray.h"
+				RelativePath=".\source\tools\platform\cMutex.h"
 				>
 			</File>
 			<File
@@ -733,6 +709,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cParasite.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cPhenotype.h"
 				>
 			</File>
@@ -742,6 +722,10 @@
 			</File>
 			<File
 				RelativePath=".\source\analyze\cPhenPlastSummary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cPhenPlastUtil.h"
 				>
 			</File>
 			<File
@@ -797,10 +781,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cRefBlock.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\main\cResource.h"
 				>
 			</File>
@@ -821,15 +801,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cRWLock.h"
+				RelativePath=".\source\tools\cRunningStats.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\platform\cRWLock.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\main\cSaleItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cScaledBlock.h"
 				>
 			</File>
 			<File
@@ -841,6 +821,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cSequence.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cSexualAncestry.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cSpatialCountElem.h"
 				>
 			</File>
@@ -849,15 +837,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\cSpecies.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cSpeciesControl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cSpeciesQueue.h"
+				RelativePath=".\source\main\cStateGrid.h"
 				>
 			</File>
 			<File
@@ -933,19 +913,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\platform\cThread.h"
+				RelativePath=".\source\tools\platform\cThread.h"
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cTools.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cUInt.h"
+				RelativePath=".\source\tools\cTopology.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\platform\msvc2005\pdcurses\curses.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\cUserFeedback.h"
 				>
 			</File>
 			<File
@@ -977,10 +957,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\defs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\actions\DriverActions.h"
 				>
 			</File>
@@ -989,23 +965,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\platform\FloatingPoint.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\functions.h"
+				RelativePath=".\source\tools\platform\FloatingPoint.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\actions\LandscapeActions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\MyCodeArrayLessThan.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\nGenotype.h"
 				>
 			</File>
 			<File
@@ -1017,11 +981,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\nInjectGenotype.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\nMutation.h"
+				RelativePath=".\source\tools\nHashTable.h"
 				>
 			</File>
 			<File
@@ -1029,15 +989,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\nSpecies.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\platform.h"
-				>
-			</File>
-			<File
-				RelativePath=".\source\platform\PlatformExpert.h"
+				RelativePath=".\source\tools\platform\Platform.h"
 				>
 			</File>
 			<File
@@ -1065,10 +1017,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\tArgDataEntry.h"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\tArray.h"
 				>
 			</File>
@@ -1077,15 +1025,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\tools\tArraySet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tArrayUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tAutoRelease.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\tools\tBuffer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\tDataEntry.h"
+				RelativePath=".\source\tools\tBufferedList.h"
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\tDataEntryBase.h"
+				RelativePath=".\source\tools\tDataCommandManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tDataEntry.h"
 				>
 			</File>
 			<File
@@ -1101,7 +1065,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\tHashTable.h"
+				RelativePath=".\source\drivers\tDMSingleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tHashMap.h"
 				>
 			</File>
 			<File
@@ -1110,6 +1078,10 @@
 			</File>
 			<File
 				RelativePath=".\source\cpu\tInstLibEntry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tIterator.h"
 				>
 			</File>
 			<File
@@ -1137,11 +1109,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\platform\tRLockPtr.h"
+				RelativePath=".\source\tools\tRCPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\platform\tRLockPtr.h"
 				>
 			</File>
 			<File
 				RelativePath=".\source\tools\tSmartArray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\tSparseVectorList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\platform\tThreadSpecific.h"
 				>
 			</File>
 			<File
@@ -1162,6 +1146,10 @@
 			>
 			<File
 				RelativePath=".\source\main\avida.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\tools\AvidaTools.cc"
 				>
 			</File>
 			<File
@@ -1217,6 +1205,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\classification\cBGGenotype.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBGGenotypeManager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroup.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroupListener.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioGroupManager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cBioUnit.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cBirthChamber.cc"
 				>
 			</File>
@@ -1253,10 +1265,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cBlockStruct.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cChangeList.cc"
 				>
 			</File>
@@ -1289,10 +1297,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cCycleCheck.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cDataFile.cc"
 				>
 			</File>
@@ -1306,10 +1310,6 @@
 			</File>
 			<File
 				RelativePath=".\source\drivers\cDefaultAnalyzeDriver.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cDefaultMessageDisplay.cc"
 				>
 			</File>
 			<File
@@ -1365,19 +1365,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\main\cFitnessMatrix.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cFixedBlock.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cFixedCoords.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\main\cGenome.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cGenomeTestMetrics.cc"
 				>
 			</File>
 			<File
@@ -1385,19 +1377,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\cGenotype.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cGenotype_BirthData.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\analyze\cGenotypeBatch.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cGenotypeControl.cc"
 				>
 			</File>
 			<File
@@ -1461,23 +1441,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\tools\cIndexedBlockStruct.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\tools\cInitFile.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotype.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotypeControl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cInjectGenotypeQueue.cc"
 				>
 			</File>
 			<File
@@ -1505,14 +1469,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\classification\cLineage.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\cLocalMutations.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\targets\avida-viewer\cMapScreen.cc"
 				>
 			</File>
@@ -1533,19 +1489,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\main\cMutationLib.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\source\main\cMutationRates.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\source\classification\cMutationSteps.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\main\cMxCodeArray.cc"
 				>
 			</File>
 			<File
@@ -1561,11 +1509,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\main\cParasite.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main\cPhenotype.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\source\main\cPhenPlastGenotype.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\main\cPhenPlastUtil.cc"
 				>
 			</File>
 			<File
@@ -1594,10 +1550,6 @@
 			</File>
 			<File
 				RelativePath=".\source\tools\cRandom.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cRCObject.cc"
 				>
 			</File>
 			<File
@@ -1637,7 +1589,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\targets\avida-viewer\cScreen.cc"
+				RelativePath=".\source\main\cSequence.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\source\classification\cSexualAncestry.cc"
 				>
 			</File>
 			<File
@@ -1646,18 +1602,6 @@
 			</File>
 			<File
 				RelativePath=".\source\main\cSpatialResCount.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cSpecies.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cSpeciesControl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\source\classification\cSpeciesQueue.cc"
 				>
 			</File>
 			<File
@@ -1717,12 +1661,26 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\platform\cThread.cc"
+				RelativePath=".\source\tools\platform\cThread.cc"
 				>
-			</File>
-			<File
-				RelativePath=".\source\tools\cTools.cc"
-				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\source\targets\avida-viewer\cView.cc"
@@ -1757,7 +1715,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\source\platform\PlatformExpert.cc"
+				RelativePath=".\source\tools\platform\Platform.cc"
 				>
 			</File>
 			<File
@@ -1776,10 +1734,6 @@
 				RelativePath=".\source\targets\avida-viewer\viewer.cc"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="source"
-			>
 		</Filter>
 		<File
 			RelativePath=".\source\platform\msvc2005\pdcurses\pdcurses.lib"

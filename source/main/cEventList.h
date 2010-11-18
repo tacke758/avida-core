@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "event_list.hh" prior to 12/2/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -30,12 +30,6 @@
 #include "cAction.h"
 #endif
 
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
-
 #include "tList.h"
 
 
@@ -50,9 +44,6 @@ class cWorld;
 
 class cEventList
 {
-#if USE_tMemTrack
-  tMemTrack<cEventList> mt;
-#endif
 public:
 
   // Event Trigger Type ====================================================================
@@ -189,7 +180,7 @@ public:
   bool AddEventFileFormat(const cString& line);
 
 
-  bool LoadEventFile(const cString& filename);
+  bool LoadEventFile(const cString& filename, const cString& working_dir);
 
   void Process(cAvidaContext& ctx);   // Go through list executing appropriate events.
   void Sync(); // Get all events caught up.
@@ -217,17 +208,5 @@ public:
 	//! Check to see if an event with the given name is upcoming at some point in the future.
 	bool IsEventUpcoming(const cString& event_name);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nEventList {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

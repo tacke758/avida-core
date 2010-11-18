@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "code_label.hh" prior to 11/22/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -26,21 +26,11 @@
 #ifndef cCodeLabel_h
 #define cCodeLabel_h
 
-#ifndef nHardware_h
-#include "nHardware.h"
-#endif
-#ifndef defs_h
-#include "defs.h"
-#endif
-#ifndef cString_h
+#include "Avida.h"
+
 #include "cString.h"
-#endif
-#ifndef tArray_h
+#include "nHardware.h"
 #include "tArray.h"
-#endif
-#ifndef cTools_h
-#include "cTools.h"
-#endif
 
 /**
  * The cCodeLabel class is used to identify a label within the genotype of
@@ -88,17 +78,6 @@ public:
   int AsIntPolynomialCoefficent(const int base) const;
 };
 
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nCodeLabel {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 void cCodeLabel::AddNop(int nop_num) {
   assert (nop_num < nHardware::MAX_NOPS);

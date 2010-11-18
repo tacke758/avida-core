@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/8/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,9 +25,7 @@
 #ifndef cAction_h
 #define cAction_h
 
-#ifndef cString_h
 #include "cString.h"
-#endif
 
 class cAvidaContext;
 class cWorld;

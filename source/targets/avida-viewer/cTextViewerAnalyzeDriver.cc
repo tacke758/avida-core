@@ -29,7 +29,6 @@
 #include "cChangeList.h"
 #include "cClassificationManager.h"
 #include "cDriverManager.h"
-#include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cOrganism.h"
 #include "cPopulation.h"
@@ -63,11 +62,10 @@ cTextViewerAnalyzeDriver::~cTextViewerAnalyzeDriver()
 void cTextViewerAnalyzeDriver::Run()
 {
   // cAnalyze& analyze = m_world->GetAnalyze();
-  // cAvidaContext ctx(m_world->GetRandom());
 
   while (!m_done) {
     // Setup the viewer for the new update.
-    m_view->NotifyUpdate();
+    m_view->NotifyUpdate(m_world->GetDefaultContext());
   }
 }
 

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@
 #include "cDefaultRunDriver.h"
 
 #include "cAvidaContext.h"
+#include "cBGGenotype.h"
 #include "cChangeList.h"
 #include "cClassificationManager.h"
 #include "cDriverManager.h"
-#include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cHardwareManager.h"
 #include "cOrganism.h"
@@ -39,6 +39,7 @@
 #include "cWorld.h"
 
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <iomanip>
 
@@ -46,7 +47,7 @@ using namespace std;
 
 
 cDefaultRunDriver::cDefaultRunDriver(cWorld* world) : m_world(world), m_done(false), 
-      m_fastforward(false),m_last_generation(0),  m_generation_same_update_count(0) 
+m_fastforward(false),m_last_generation(0),  m_generation_same_update_count(0) 
 {
   cDriverManager::Register(this);
   world->SetDriver(this);
@@ -65,11 +66,9 @@ cDefaultRunDriver::~cDefaultRunDriver()
 
 void cDefaultRunDriver::Run()
 {
-  cClassificationManager& classmgr = m_world->GetClassificationManager();
   cPopulation& population = m_world->GetPopulation();
   cStats& stats = m_world->GetStats();
   
-  const int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
   const double point_mut_prob = m_world->GetConfig().POINT_MUT_PROB.Get();
   
   void (cPopulation::*ActiveProcessStep)(cAvidaContext& ctx, double step_size, int cell_id) = &cPopulation::ProcessStep;
@@ -86,7 +85,7 @@ void cDefaultRunDriver::Run()
     }
     
     m_world->GetEvents(ctx);
-    if (m_done == true) break;
+    if(m_done == true) break;
     
     // Increment the Update.
     stats.IncCurrentUpdate();
@@ -95,25 +94,17 @@ void cDefaultRunDriver::Run()
     if (stats.GetUpdate() > 0) {
       // Tell the stats object to do update calculations and printing.
       stats.ProcessUpdate();
-      
-      // Update all the genotypes for the end of this update.
-      for (cGenotype * cur_genotype = classmgr.ResetThread(0);
-           cur_genotype != NULL && cur_genotype->GetThreshold();
-           cur_genotype = classmgr.NextGenotype(0)) {
-        cur_genotype->UpdateReset();
-      }
     }
     
     // don't process organisms if we are in fast-forward mode. -- @JEB
-    if (!GetFastForward())
-    {
+    if (!GetFastForward()) {
       // Process the update.
-      const int UD_size = ave_time_slice * population.GetNumOrganisms();
+			// query the world to calculate the exact size of this update:
+      const int UD_size = m_world->CalculateUpdateSize();
       const double step_size = 1.0 / (double) UD_size;
-    
+      
       for (int i = 0; i < UD_size; i++) {
-        if (population.GetNumOrganisms() == 0) {
-          m_done = true;
+        if(population.GetNumOrganisms() == 0) {
           break;
         }
         (population.*ActiveProcessStep)(ctx, step_size, population.ScheduleOrganism());
@@ -122,23 +113,30 @@ void cDefaultRunDriver::Run()
     
     // end of update stats...
     population.ProcessPostUpdate(ctx);
+
 		m_world->ProcessPostUpdate(ctx);
         
     // No viewer; print out status for this update....
     if (m_world->GetVerbosity() > VERBOSE_SILENT) {
       cout.setf(ios::left);
       cout.setf(ios::showpoint);
-      cout << "UD: " << setw(6) << stats.GetUpdate() << "  "
-        << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  "
-        << "Fit: " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  "
-      //  << "Energy: " << setw(9) << setprecision(7) << stats.GetAveEnergy() << "  "
-//        << "Merit: " << setw(9) << setprecision(7) << stats.GetAveMerit() << "  "
-        << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  ";
-//        << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  "
-//        << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)UD_size) * 100.0) << "%"
-//        << "Thrd: " << setw(6) << stats.GetNumThreads() << "  "
-//        << "Para: " << stats.GetNumParasites()
+      cout << "UD: " << setw(6) << stats.GetUpdate() << "  ";
+      cout << "Gen: " << setw(9) << setprecision(7) << stats.SumGeneration().Average() << "  ";
+      cout << "Fit: " << setw(9) << setprecision(7) << stats.GetAveFitness() << "  ";
+      cout << "Orgs: " << setw(6) << population.GetNumOrganisms() << "  ";
       if (m_world->GetPopulation().GetNumDemes() > 1) cout << "Demes: " << setw(4) << stats.GetNumOccupiedDemes() << " ";
+      if (m_world->GetVerbosity() == VERBOSE_ON || m_world->GetVerbosity() == VERBOSE_DETAILS) {
+        cout << "Merit: " << setw(9) << setprecision(7) << stats.GetAveMerit() << "  ";
+        cout << "Thrd: " << setw(6) << stats.GetNumThreads() << "  ";
+        cout << "Para: " << stats.GetNumParasites() << "  ";
+        cout << "GenEntr: " << stats.GetEntropy() << "  ";
+      }
+      if (m_world->GetVerbosity() >= VERBOSE_DEBUG) {
+        cout << "Spec: " << setw(6) << setprecision(4) << stats.GetAveSpeculative() << "  ";
+        cout << "SWst: " << setw(6) << setprecision(4) << (((double)stats.GetSpeculativeWaste() / (double)m_world->CalculateUpdateSize()) * 100.0) << "%  ";
+        cout << "GSz: " << setw(4) << setprecision(3) << (double)((stats.GetNumGenotypes() + stats.GetNumGenotypesHistoric()) * sizeof(cBGGenotype)) / 1048576.0 << "m";
+      }
+
       cout << endl;
     }
     
@@ -154,9 +152,11 @@ void cDefaultRunDriver::Run()
     
     // Keep track of changes in generation for fast-forward purposes
     UpdateFastForward(stats.GetGeneration(),stats.GetNumCreatures());
-      
+    
     // Exit conditons...
-    if (population.GetNumOrganisms() == 0) m_done = true;
+    if((population.GetNumOrganisms()==0) && m_world->AllowsEarlyExit()) {
+			m_done = true;
+		}
   }
 }
 
@@ -185,11 +185,11 @@ void cDefaultRunDriver::UpdateFastForward (double inGeneration, int population)
 {
   if (bool(m_population_fastforward_threshold))
   {
-	if (population >= m_population_fastforward_threshold) m_fastforward = true;
-	else m_fastforward = false;
+    if (population >= m_population_fastforward_threshold) m_fastforward = true;
+    else m_fastforward = false;
   }
   if (!m_generation_update_fastforward_threshold) return;
-
+  
   if (inGeneration == m_last_generation)
   {
     m_generation_same_update_count++;

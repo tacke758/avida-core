@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "event_list.cc" prior to 12/2/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,7 +25,8 @@
 
 #include "cEventList.h"
 
-#include "defs.h"
+#include "Avida.h"
+
 #include "cActionLibrary.h"
 #include "cInitFile.h"
 #include "cStats.h"
@@ -89,9 +90,9 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
   return false;
 }
 
-bool cEventList::LoadEventFile(const cString& filename)
+bool cEventList::LoadEventFile(const cString& filename, const cString& working_dir)
 {
-  cInitFile event_file(filename);
+  cInitFile event_file(filename, working_dir);
   
   if (!event_file.WasOpened()) return false;
 

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_result.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -26,9 +26,8 @@
 #ifndef cReactionResult_h
 #define cReactionResult_h
 
-#ifndef tArray_h
 #include "tArray.h"
-#endif
+#include "cString.h"
 
 class cReactionResult {
 private:
@@ -47,7 +46,7 @@ private:
   double bonus_mult;
   double germline_add;
   double germline_mult;
-  tArray<int> insts_triggered;
+  tArray<cString> insts_triggered;
   bool lethal;
   bool sterilize;
   bool active_reaction;
@@ -88,7 +87,7 @@ public:
   void AddGermline(double value);
   void MultGermline(double value);
 
-  void AddInst(int id);
+  void AddInst(const cString& inst);
   
   double GetConsumed(int id);
   double GetProduced(int id);
@@ -104,26 +103,13 @@ public:
   double GetAddBonus() { return bonus_add; }
   double GetReactionAddBonus(const int i) { return reaction_add_bonus[i]; }
   double GetMultBonus() { return bonus_mult; }
-  tArray<int>& GetInstArray() { return insts_triggered; }
+  tArray<cString>& GetInstArray() { return insts_triggered; }
   bool UsedEnvResource() { return used_env_resource; }
   bool IsEnvResource() { return used_env_resource; }
   double GetAddDemeBonus() { return deme_add_bonus; }
   double GetMultDemeBonus() { return deme_mult_bonus; }
   double GetAddGermline() { return germline_add; }
   double GetMultGermline() { return germline_mult; }
-
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nReactionResult {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

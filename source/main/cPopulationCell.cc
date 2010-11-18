@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_cell.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -28,8 +28,6 @@
 #include "cDoubleSum.h"
 #include "nHardware.h"
 #include "cOrganism.h"
-#include "cTools.h"
-#include "cTools.h"
 #include "cWorld.h"
 #include "cEnvironment.h"
 #include "cPopulation.h"
@@ -230,7 +228,6 @@ void cPopulationCell::ResetInputs(cAvidaContext& ctx)
 void cPopulationCell::InsertOrganism(cOrganism* new_org)
 {
   assert(new_org != NULL);
-  assert(new_org->GetGenotype() != NULL);
   assert(m_organism == NULL);
 	
   // Adjust this cell's attributes to account for the new organism.
@@ -324,13 +321,13 @@ void cPopulationCell::DiffuseGenomeFragments() {
  As a safety measure, we also remove old fragments to conserve memory.  Specifically, we
  remove old fragments until at most HGT_MAX_FRAGMENTS_PER_CELL fragments remain.
  */
-void cPopulationCell::AddGenomeFragments(const cGenome& genome) {
+void cPopulationCell::AddGenomeFragments(const cSequence& genome) {
 	assert(genome.GetSize()>0); // oh, sweet sanity.
 	InitHGTSupport();
 	
 	m_world->GetPopulation().AdjustHGTResource(genome.GetSize());
 	
-	cAvidaContext ctx(m_world->GetRandom());
+	cAvidaContext ctx(m_world, m_world->GetRandom());
 	cGenomeUtil::RandomSplit(ctx, 
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_MEAN.Get(),
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_VARIANCE.Get(),
@@ -356,11 +353,11 @@ unsigned int cPopulationCell::CountGenomeFragments() const {
 
 /*! Remove and return a random genome fragment.
  */
-cGenome cPopulationCell::PopGenomeFragment() {
+cSequence cPopulationCell::PopGenomeFragment() {
 	assert(m_hgt!=0);
 	fragment_list_type::iterator i = m_hgt->fragments.begin();
 	std::advance(i, m_world->GetRandom().GetUInt(0, m_hgt->fragments.size()));	
-	cGenome tmp = *i;
+	cSequence tmp = *i;
 	m_hgt->fragments.erase(i);
 	return tmp;
 }

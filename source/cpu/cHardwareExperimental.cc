@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 2/10/07 based on cHardwareCPU.cc
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -28,15 +28,9 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
-#include "functions.h"
-#include "cGenomeUtil.h"
-#include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cHardwareTracer.h"
 #include "cInstSet.h"
-#include "cMutation.h"
-#include "cMutationLib.h"
-#include "nMutation.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cStateGrid.h"
@@ -50,6 +44,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace AvidaTools;
 
 
 static const unsigned int CONSENSUS = (sizeof(int) * 8) / 2;
@@ -237,9 +232,8 @@ tInstLib<cHardwareExperimental::tMethod>* cHardwareExperimental::initInstLib(voi
   return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, def, null_inst);
 }
 
-cHardwareExperimental::cHardwareExperimental(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism,
-                                             cInstSet* in_inst_set, int inst_set_id)
-: cHardwareBase(world, in_organism, in_inst_set, inst_set_id)
+cHardwareExperimental::cHardwareExperimental(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set)
+  : cHardwareBase(world, in_organism, in_inst_set)
 {
   m_functions = s_inst_slib->GetFunctions();
   
@@ -256,7 +250,7 @@ cHardwareExperimental::cHardwareExperimental(cAvidaContext& ctx, cWorld* world, 
   
   m_slip_read_head = !m_world->GetConfig().SLIP_COPY_MODE.Get();
   
-  m_memory = in_organism->GetGenome();  // Initialize memory...
+  m_memory = in_organism->GetGenome().GetSequence();  // Initialize memory...
   Reset(ctx);                            // Setup the rest of the hardware...
 }
 
@@ -294,6 +288,12 @@ void cHardwareExperimental::internalReset()
   }
   
   m_io_expire = m_world->GetConfig().IO_EXPIRE.Get();
+}
+
+
+void cHardwareExperimental::internalResetOnFailedDivide()
+{
+	internalReset();
 }
 
 void cHardwareExperimental::cLocalThread::Reset(cHardwareExperimental* in_hardware, int in_id)
@@ -381,7 +381,7 @@ bool cHardwareExperimental::SingleProcess(cAvidaContext& ctx, bool speculative)
     
     // Test if costs have been paid and it is okay to execute this now...
     bool exec = true;
-    if (m_has_any_costs) exec = SingleProcess_PayCosts(ctx, cur_inst);
+    if (m_has_any_costs) exec = SingleProcess_PayPreCosts(ctx, cur_inst);
 
     if (m_promoters_enabled) {
       // Constitutive regulation applied here
@@ -407,7 +407,7 @@ bool cHardwareExperimental::SingleProcess(cAvidaContext& ctx, bool speculative)
       //Add to the promoter inst executed count before executing the inst (in case it is a terminator)
       if (m_promoters_enabled) m_threads[m_cur_thread].IncPromoterInstExecuted();
       
-      if (exec == true) SingleProcess_ExecuteInst(ctx, cur_inst);
+      if (exec == true) if (SingleProcess_ExecuteInst(ctx, cur_inst)) SingleProcess_PayPostCosts(ctx, cur_inst);
       
       // Some instruction (such as jump) may turn m_advance_ip off.  Usually
       // we now want to move to the next instruction in the memory.
@@ -811,48 +811,6 @@ cHeadCPU cHardwareExperimental::FindNopSequenceForward(bool mark_executed)
 }
 
 
-
-bool cHardwareExperimental::InjectHost(const cCodeLabel & in_label, const cGenome & injection)
-{
-  // Make sure the genome will be below max size after injection.
-  
-  const int new_size = injection.GetSize() + m_memory.GetSize();
-  if (new_size > MAX_CREATURE_SIZE) return false; // (inject fails)
-  
-  const int inject_line = FindLabelFull(in_label).GetPosition();
-  
-  // Abort if no compliment is found.
-  if (inject_line == -1) return false; // (inject fails)
-  
-  // Inject the code!
-  InjectCode(injection, inject_line+1);
-  
-  return true; // (inject succeeds!)
-}
-
-void cHardwareExperimental::InjectCode(const cGenome & inject_code, const int line_num)
-{
-  assert(line_num >= 0);
-  assert(line_num <= m_memory.GetSize());
-  assert(m_memory.GetSize() + inject_code.GetSize() < MAX_CREATURE_SIZE);
-  
-  // Inject the new code.
-  const int inject_size = inject_code.GetSize();
-  m_memory.Insert(line_num, inject_code);
-  
-  // Set instruction flags on the injected code
-  for (int i = line_num; i < line_num + inject_size; i++) {
-    m_memory.SetFlagInjected(i);
-  }
-  m_organism->GetPhenotype().IsModified() = true;
-  
-  // Adjust all of the heads to take into account the new mem size.  
-  for (int i = 0; i < NUM_HEADS; i++) {    
-    if (getHead(i).GetPosition() > line_num) getHead(i).Jump(inject_size);
-  }
-}
-
-
 void cHardwareExperimental::ReadInst(const int in_inst)
 {
   if (m_inst_set->IsLabel(cInstruction(in_inst))) {
@@ -1070,14 +1028,14 @@ bool cHardwareExperimental::Allocate_Main(cAvidaContext& ctx, const int allocate
   const int new_size = old_size + allocated_size;
   
   // Make sure that the new size is in range.
-  if (new_size > MAX_CREATURE_SIZE  ||  new_size < MIN_CREATURE_SIZE) {
+  if (new_size > MAX_GENOME_LENGTH  ||  new_size < MIN_GENOME_LENGTH) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Invalid post-allocate size (%d)",
                                new_size));
     return false;
   }
   
-  const int max_alloc_size = (int) (old_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+  const int max_alloc_size = (int) (old_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (allocated_size > max_alloc_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too large (%d > %d)",
@@ -1086,7 +1044,7 @@ bool cHardwareExperimental::Allocate_Main(cAvidaContext& ctx, const int allocate
   }
   
   const int max_old_size =
-    (int) (allocated_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+    (int) (allocated_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (old_size > max_old_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too small (%d > %d)",
@@ -1121,8 +1079,7 @@ int cHardwareExperimental::calcCopiedSize(const int parent_size, const int child
 }  
 
 
-bool cHardwareExperimental::Divide_Main(cAvidaContext& ctx, const int div_point,
-                               const int extra_lines, double mut_multiplier)
+bool cHardwareExperimental::Divide_Main(cAvidaContext& ctx, const int div_point, const int extra_lines, double mut_multiplier)
 {
   const int child_size = m_memory.GetSize() - div_point - extra_lines;
   
@@ -1132,9 +1089,9 @@ bool cHardwareExperimental::Divide_Main(cAvidaContext& ctx, const int div_point,
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  m_organism->OffspringGenome().SetGenome(cGenomeUtil::Crop(m_memory, div_point, div_point+child_size));
+  m_organism->OffspringGenome().SetSequence(m_memory.Crop(div_point, div_point+child_size));
   m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
   
   // Cut off everything in this memory past the divide point.
   m_memory.Resize(div_point);
@@ -1480,8 +1437,8 @@ bool cHardwareExperimental::Inst_HeadAlloc(cAvidaContext& ctx)   // Allocate max
 {
   const int dst = FindModifiedRegister(REG_AX);
   const int cur_size = m_memory.GetSize();
-  const int alloc_size = Min((int) (m_world->GetConfig().CHILD_SIZE_RANGE.Get() * cur_size),
-                             MAX_CREATURE_SIZE - cur_size);
+  const int alloc_size = Min((int) (m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get() * cur_size),
+                             MAX_GENOME_LENGTH - cur_size);
   sInternalValue& reg = m_threads[m_cur_thread].reg[dst];
   if (Allocate_Main(ctx, alloc_size)) {
     setInternalValue(reg, cur_size);
@@ -2243,9 +2200,9 @@ bool cHardwareExperimental::Inst_Repro(cAvidaContext& ctx)
   
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  m_organism->OffspringGenome().SetGenome(m_memory);
+  m_organism->OffspringGenome().SetSequence(m_memory);
   m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
   m_organism->GetPhenotype().SetLinesCopied(m_memory.GetSize());
 
   int lines_executed = 0;
@@ -2256,7 +2213,7 @@ bool cHardwareExperimental::Inst_Repro(cAvidaContext& ctx)
   // Perform Copy Mutations...
   if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
-      if (m_organism->TestCopyMut(ctx)) m_organism->OffspringGenome().GetGenome()[i] = m_inst_set->GetRandomInst(ctx);
+      if (m_organism->TestCopyMut(ctx)) m_organism->OffspringGenome().GetSequence()[i] = m_inst_set->GetRandomInst(ctx);
     }
   }
   

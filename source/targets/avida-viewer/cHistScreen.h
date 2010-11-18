@@ -12,8 +12,8 @@
 #include "cScreen.h"
 #endif
 
-class cGenotype;
-class cSpecies;
+class cBioGroup;
+class cWorld;
 
 #define HIST_GENOTYPE  0
 #define HIST_SPECIES   1
@@ -25,34 +25,19 @@ class cSpecies;
 
 class cHistScreen : public cScreen {
 protected:
-  cPopulation & population;
+  cWorld* m_world;
   int mode;
 
-  void PrintGenotype(cGenotype * in_gen, int in_pos, int max_stars, int star_size);
-  void PrintSpecies(cSpecies * in_species, int in_pos, int max_num);
+  void PrintGenotype(cBioGroup* in_gen, int in_pos, int max_stars, int star_size);
 public:
-  cHistScreen(int y_size, int x_size, int y_start, int x_start,
-	      cViewInfo & in_info, cPopulation & in_pop)
-    : cScreen(y_size, x_size, y_start, x_start, in_info), population(in_pop)
-  { mode = HIST_GENOTYPE; }
+  cHistScreen(cWorld* world, int y_size, int x_size, int y_start, int x_start, cViewInfo& in_info)
+  : cScreen(y_size, x_size, y_start, x_start, in_info), m_world(world), mode(HIST_GENOTYPE) { ; }
   virtual ~cHistScreen() { ; }
 
   // Virtual in base screen...
-  void Draw();
-  void Update();
-  void DoInput(int in_char);
+  void Draw(cAvidaContext& ctx);
+  void Update(cAvidaContext& ctx);
+  void DoInput(cAvidaContext& ctx, int in_char);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nHistScreen {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

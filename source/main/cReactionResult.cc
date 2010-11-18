@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_result.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -175,9 +175,9 @@ void cReactionResult::MultGermline(double value)
 }
 
 
-void cReactionResult::AddInst(int id)
+void cReactionResult::AddInst(const cString& inst)
 {
-  insts_triggered.Push(id);
+  insts_triggered.Push(inst);
 }
 
 double cReactionResult::GetConsumed(int id)

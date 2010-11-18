@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,10 +25,18 @@
 #include "cBirthGenomeSizeHandler.h"
 
 #include "cBirthChamber.h"
-#include "cMetaGenome.h"
+#include "cGenome.h"
 
 
-cBirthEntry* cBirthGenomeSizeHandler::SelectOffspring(cAvidaContext& ctx, const cMetaGenome& offspring, cOrganism* parent)
+cBirthGenomeSizeHandler::~cBirthGenomeSizeHandler()
+{
+  for (int i = 0; i < m_entries.GetSize(); i++) {
+    m_bc->ClearEntry(m_entries[i]);
+  }
+}
+
+
+cBirthEntry* cBirthGenomeSizeHandler::SelectOffspring(cAvidaContext& ctx, const cGenome& offspring, cOrganism* parent)
 {
   int offspring_length = offspring.GetSize();
   

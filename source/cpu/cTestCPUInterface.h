@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ public:
   void SetPrevSeenCellID(int in_id) { ; }
   void SetPrevTaskCellID(int in_id) { ; }
 
-  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome);
+  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cGenome& offspring_genome);
   cOrganism* GetNeighbor();
   bool IsNeighborCellOccupied();
   int GetNumNeighbors();
@@ -80,7 +80,6 @@ public:
   int GetInputAt(int& input_pointer);
   void ResetInputs(cAvidaContext& ctx);
   const tArray<int>& GetInputs() const;
-  int Debug();
   const tArray<double>& GetResources();
   const tArray<double>& GetDemeResources(int deme_id);
   const tArray< tArray<int> >& GetCellIdLists();  
@@ -94,7 +93,7 @@ public:
   int ReceiveValue();
   void SellValue(const int data, const int label, const int sell_price, const int org_id);
   int BuyValue(const int label, const int buy_price);
-  bool InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code);
+  bool InjectParasite(cOrganism* host, cBioUnit* parent, const cString& label, const cSequence& injected_code);
   bool UpdateMerit(double new_merit);
   bool TestOnDivide() { return false; }
   int GetFacing() { return 0; }
@@ -118,7 +117,15 @@ public:
 	void CreateLinkByXY(int x, int y, double weight=1.0) { }
 	//! Link this organism's cell to the cell with index idx.
 	void CreateLinkByIndex(int idx, double weight=1.0) { }
-	
+	//! Broadcast a message to all organisms that are connected by this network.
+	bool NetworkBroadcast(cOrgMessage& msg) { return false; }
+	//! Unicast a message to the current selected organism.
+	bool NetworkUnicast(cOrgMessage& msg) { return false; }
+	//! Rotate to select a new network link.
+	bool NetworkRotate(int x) { return false; }
+	//! Select a new network link.
+	bool NetworkSelect(int x) { return false; }	
+
 	//! HGT donation (does nothing).
 	void DoHGTDonation(cAvidaContext& ctx) { }
 	//! HGT conjugation (does nothing).
@@ -126,21 +133,15 @@ public:
 	//! HGT mutation (does nothing).
 	void DoHGTMutation(cAvidaContext& ctx, cGenome& offspring) { }
 	//! Receive HGT donation (does nothing).
-	void ReceiveHGTDonation(const cGenome& fragment) { }
+	void ReceiveHGTDonation(const cSequence& fragment) { }
   
   void Move(cAvidaContext& ctx, int src_id, int dest_id) { ; }
+  
+  void JoinGroup(int group_id) { ; }
+  void LeaveGroup(int group_id) { ; }
+  
+  void BeginSleep() { ; }
+  void EndSleep() { ; }
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nTestCPUInterface {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

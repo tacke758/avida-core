@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/8/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,36 +25,21 @@
 #ifndef cActionLibrary_h
 #define cActionLibrary_h
 
-#ifndef cAction_h
 #include "cAction.h"
-#endif
-#ifndef tObjectFactory_h
 #include "tObjectFactory.h"
-#endif
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
-
 
 class cWorld;
 class cString;
 
+
 class cActionLibrary
 {
-#if USE_tMemTrack
-  tMemTrack<cActionLibrary> mt;
-#endif
 private:
   typedef const cString (*ClassDescFunction)();
   
   tObjectFactoryNoCase<cAction* (cWorld*, const cString&)> m_factory;
   tDictionary<ClassDescFunction> m_desc_funcs;
   
-  static cActionLibrary* buildDefaultActionLibrary();
-
   cActionLibrary() { ; }
 
   
@@ -68,7 +53,7 @@ public:
   {
     ClassDescFunction func;
     if (m_desc_funcs.Find(key, func)) return false;
-    m_desc_funcs.Add(key, &ClassType::GetDescription);
+    m_desc_funcs.Set(key, &ClassType::GetDescription);
     return m_factory.Register<ClassType>(key);
   }
   bool Unregister(const cString& key)
@@ -87,18 +72,11 @@ public:
     return "(Not Available)";
   }  
   const cString DescribeAll() const;
+  
+  
+private:
+  static cActionLibrary* buildDefaultActionLibrary();
 };
 
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nActionLibrary {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

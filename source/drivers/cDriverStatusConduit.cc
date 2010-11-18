@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/14/08.
- *  Copyright 2008-2009 Michigan State University. All rights reserved.
+ *  Copyright 2008-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,8 +24,6 @@
 
 #include "cDriverStatusConduit.h"
 
-#include "avida.h"
-
 #include "cString.h"
 
 #include <iostream>
@@ -38,7 +36,7 @@ void cDriverStatusConduit::SignalError(const cString& msg, int exit_code)
   cerr << "error: " << msg << endl;
   if (exit_code) {
     cerr << "exiting..." << endl;
-    Avida::Exit(exit_code);
+    exit(exit_code);
   }
 }
 

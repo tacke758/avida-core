@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "analyze.hh" prior to 12/1/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -28,42 +28,16 @@
 
 #include <iostream>
 
-#ifndef cAnalyzeJobQueue_h
 #include "cAnalyzeJobQueue.h"
-#endif
-#ifndef cAvidaContext_h
 #include "cAvidaContext.h"
-#endif
-#ifndef cGenotypeBatch_h
 #include "cGenotypeBatch.h"
-#endif
-#ifndef cFlexVar_h
 #include "cFlexVar.h"
-#endif
-#ifndef cRandom_h
 #include "cRandom.h"
-#endif
-#ifndef cString_h
 #include "cString.h"
-#endif
-#ifndef cStringList_h
 #include "cStringList.h"
-#endif
-#ifndef tList_h
 #include "tList.h"
-#endif
-#ifndef tMatrix_h
 #include "tMatrix.h"
-#endif
-#ifndef tHashTable_h
-#include "tHashTable.h"
-#endif
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
+#include "tHashMap.h"
 
 
 const int MAX_BATCHES = 2000;
@@ -86,9 +60,6 @@ template <class T> class tDataEntryCommand;
 
 class cAnalyze {
   friend class cAnalyzeScreen;
-#if USE_tMemTrack
-  tMemTrack<cAnalyze> mt;
-#endif
 
 private:
   int cur_batch;
@@ -116,7 +87,6 @@ private:
   bool exit_on_error;
 
   cWorld* m_world;
-  cInstSet& inst_set;
   cAvidaContext& m_ctx;
   cAnalyzeJobQueue m_jobqueue;
 
@@ -229,9 +199,6 @@ private:
   
   // Loading methods...
   void LoadOrganism(cString cur_string);
-  void LoadBasicDump(cString cur_string);
-  void LoadDetailDump(cString cur_string);
-  void LoadMultiDetail(cString cur_string);
   void LoadSequence(cString cur_string);
   // Clears the current time oriented list of resources and loads in a new one
   // from a file specified by the user, or resource.dat by default.

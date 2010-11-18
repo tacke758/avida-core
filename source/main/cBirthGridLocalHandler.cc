@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -27,7 +27,11 @@
 #include "cBirthChamber.h"
 #include "cOrganism.h"
 #include "cWorld.h"
-#include "functions.h"
+
+#include "AvidaTools.h"
+
+
+using namespace AvidaTools;
 
 
 cBirthGridLocalHandler::cBirthGridLocalHandler(cWorld* world, cBirthChamber* bc)
@@ -36,8 +40,15 @@ cBirthGridLocalHandler::cBirthGridLocalHandler(cWorld* world, cBirthChamber* bc)
   m_entries.Resize(m_world_x * m_world_y);
 }
 
+cBirthGridLocalHandler::~cBirthGridLocalHandler()
+{
+  for (int i = 0; i < m_entries.GetSize(); i++) {
+    m_bc->ClearEntry(m_entries[i]);
+  }
+}
 
-cBirthEntry* cBirthGridLocalHandler::SelectOffspring(cAvidaContext& ctx, const cMetaGenome& offspring, cOrganism* parent)
+
+cBirthEntry* cBirthGridLocalHandler::SelectOffspring(cAvidaContext& ctx, const cGenome& offspring, cOrganism* parent)
 {
   int parent_id = parent->GetOrgInterface().GetCellID();
   

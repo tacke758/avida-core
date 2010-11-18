@@ -2,7 +2,7 @@
  *  cHardwareGX.cc
  *  Avida
  *
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -20,22 +20,14 @@
  *
  */
 
-#include <climits>
-#include <fstream>
-#include <algorithm>
 #include "cHardwareGX.h"
+
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
 #include "cEnvironment.h"
-#include "functions.h"
-#include "cGenomeUtil.h"
-#include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cHardwareTracer.h"
 #include "cInstSet.h"
-#include "cMutation.h"
-#include "cMutationLib.h"
-#include "nMutation.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cStringUtil.h"
@@ -44,7 +36,12 @@
 #include "cWorld.h"
 #include "tInstLibEntry.h"
 
+#include <climits>
+#include <fstream>
+#include <algorithm>
+
 using namespace std;
+using namespace AvidaTools;
 
 //! A small helper struct to make deleting a little easier.
 struct delete_functor {
@@ -173,8 +170,6 @@ tInstLib<cHardwareGX::tMethod>* cHardwareGX::initInstLib(void)
     tInstLibEntry<tMethod>("if-n-cpy", &cHardwareGX::Inst_IfNCpy),
     tInstLibEntry<tMethod>("allocate", &cHardwareGX::Inst_Allocate),
     tInstLibEntry<tMethod>("c-alloc", &cHardwareGX::Inst_CAlloc),
-    tInstLibEntry<tMethod>("inject", &cHardwareGX::Inst_Inject),
-    tInstLibEntry<tMethod>("inject-r", &cHardwareGX::Inst_InjectRand),
     tInstLibEntry<tMethod>("search-f", &cHardwareGX::Inst_SearchF),
     tInstLibEntry<tMethod>("search-b", &cHardwareGX::Inst_SearchB),
     tInstLibEntry<tMethod>("mem-size", &cHardwareGX::Inst_MemSize),
@@ -198,7 +193,6 @@ tInstLib<cHardwareGX::tMethod>* cHardwareGX::initInstLib(void)
     tInstLibEntry<tMethod>("sense-m100", &cHardwareGX::Inst_SenseMult100),
     
     tInstLibEntry<tMethod>("donate-rnd", &cHardwareGX::Inst_DonateRandom),
-    tInstLibEntry<tMethod>("donate-kin", &cHardwareGX::Inst_DonateKin),
     tInstLibEntry<tMethod>("donate-edt", &cHardwareGX::Inst_DonateEditDist),
     tInstLibEntry<tMethod>("donate-gbg",  &cHardwareGX::Inst_DonateGreenBeardGene),
     tInstLibEntry<tMethod>("donate-tgb",  &cHardwareGX::Inst_DonateTrueGreenBeard),
@@ -311,9 +305,8 @@ tInstLib<cHardwareGX::tMethod>* cHardwareGX::initInstLib(void)
 /*! Construct a cHardwareGX instance from the passed-in cOrganism.  This amounts to
 creating an initial cProgramid from in_organism's genome.
 */
-cHardwareGX::cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism,
-                         cInstSet* in_inst_set, int inst_set_id)
-: cHardwareBase(world, in_organism, in_inst_set, inst_set_id)
+cHardwareGX::cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set)
+: cHardwareBase(world, in_organism, in_inst_set)
 {
   m_last_unique_id_assigned = 0;
   m_functions = s_inst_slib->GetFunctions();
@@ -342,20 +335,21 @@ void cHardwareGX::internalReset()
   {
  
     // And add any programids specified by the "genome."
-    cGenome genome = m_organism->GetGenome();
+    cSequence genome = m_organism->GetGenome().GetSequence();
     
     // These specify the range of instructions that will be used to create a new
     // programid.  The range of instructions used to create a programid is:
     // [begin, end), that is, the instruction pointed to by end is *not* copied.
-    cInstruction* begin=&genome[0];
-    cInstruction* end=&begin[genome.GetSize()];
-    cInstruction* i=0;
     // Find the first instance of a PROGRAMID instruction.
-    begin = std::find_if(begin, end, bind2nd(equal_to<cInstruction>(), GetInstSet().GetInst("PROGRAMID")));
-    while(begin!=end) {
+    int begin = genome.FindInst(GetInstSet().GetInst("PROGRAMID"));
+    while (true) {
       // Find the boundary of this programid.
-      i = std::find_if(begin+1, end, bind2nd(equal_to<cInstruction>(), GetInstSet().GetInst("PROGRAMID")));
-      AddProgramid(new cProgramid(cGenome(begin, i), this));
+      int i = genome.FindInst(GetInstSet().GetInst("PROGRAMID"), begin + 1);
+      if (i == -1) {
+        if (begin != -1) AddProgramid(new cProgramid(genome.Crop(begin, genome.GetSize()), this));
+        break;
+      }
+      AddProgramid(new cProgramid(genome.Crop(begin, i), this));
       begin = i;
     }
     
@@ -375,7 +369,7 @@ void cHardwareGX::internalReset()
     m_recycle_state = 0.0;
     // Optimization -- don't actually need a programid for the genome in the double implicit model.
     // In the implicit model, we create one genome programid as the first memory space
-    programid_ptr p = new cProgramid(m_organism->GetGenome(), this);
+    programid_ptr p = new cProgramid(m_organism->GetGenome().GetSequence(), this);
     p->SetReadable(true);
     AddProgramid(p);
   
@@ -407,6 +401,12 @@ void cHardwareGX::internalReset()
   m_mal_active = false;
   m_executedmatchstrings = false;
   
+}
+
+
+void cHardwareGX::internalResetOnFailedDivide()
+{
+	internalReset();
 }
 
 /*! In cHardwareGX, SingleProcess is something of a misnomer.  Each time this method
@@ -740,7 +740,7 @@ cHeadCPU cHardwareGX::FindLabel(int direction)
 // to find search label's match inside another label.
 
 int cHardwareGX::FindLabel_Forward(const cCodeLabel & search_label,
-                                    const cGenome & search_genome, int pos)
+                                    const cSequence & search_genome, int pos)
 {
   assert (pos < search_genome.GetSize() && pos >= 0);
   
@@ -822,7 +822,7 @@ int cHardwareGX::FindLabel_Forward(const cCodeLabel & search_label,
 // to find search label's match inside another label.
 
 int cHardwareGX::FindLabel_Backward(const cCodeLabel & search_label,
-                                     const cGenome & search_genome, int pos)
+                                     const cSequence & search_genome, int pos)
 {
   assert (pos < search_genome.GetSize());
   
@@ -933,33 +933,7 @@ cHeadCPU cHardwareGX::FindLabel(const cCodeLabel & in_label, int direction)
 }
 
 
-/*! Inject a genome fragment into this CPU.  This works a little differently in
-cHardwareGX, in that we don't insert a genome fragment into a preexisting genome,
-but instead ust create a new cProgramid with the genome-to-be-injected.
-*/
-bool cHardwareGX::InjectHost(const cCodeLabel & in_label, const cGenome & injection)
-{
-  InjectCode(injection, -1);
-  return true;
-}
 
-
-/*! Inject a genome fragment into this CPU.  This works differently in 
-cHardwareGX -- We just insert a new cProgramid.
-*/
-void cHardwareGX::InjectCode(const cGenome & inject_code, const int line_num)
-{
-  programid_ptr injected = new cProgramid(inject_code, this);
-
-  // Set instruction flags on the injected code
-  for(int i=0; i<injected->m_memory.GetSize(); ++i) {
-    injected->m_memory.SetFlagInjected(i);
-  }
-
-  AddProgramid(injected);
-  
-  m_organism->GetPhenotype().IsModified() = true;
-}
 
 
 void cHardwareGX::ReadInst(const int in_inst)
@@ -1162,14 +1136,14 @@ bool cHardwareGX::Allocate_Main(cAvidaContext& ctx, const int allocated_size)
   const int new_size = old_size + allocated_size;
   
   // Make sure that the new size is in range.
-  if (new_size > MAX_CREATURE_SIZE  ||  new_size < MIN_CREATURE_SIZE) {
+  if (new_size > MAX_GENOME_LENGTH  ||  new_size < MIN_GENOME_LENGTH) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Invalid post-allocate size (%d)",
                                new_size));
     return false;
   }
   
-  const int max_alloc_size = (int) (old_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+  const int max_alloc_size = (int) (old_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (allocated_size > max_alloc_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too large (%d > %d)",
@@ -1178,7 +1152,7 @@ bool cHardwareGX::Allocate_Main(cAvidaContext& ctx, const int allocated_size)
   }
   
   const int max_old_size =
-    (int) (allocated_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+    (int) (allocated_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (old_size > max_old_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too small (%d > %d)",
@@ -1240,48 +1214,6 @@ we have two genomes!
 */
 bool cHardwareGX::Divide_Main(cAvidaContext& ctx)
 {
-//  const int child_size = GetMemory().GetSize() - div_point - extra_lines;
-//  
-//  // Make sure this divide will produce a viable offspring.
-//  const bool viable = Divide_CheckViable(ctx, div_point, child_size);
-//  if (viable == false) return false;
-//  
-//  // Since the divide will now succeed, set up the information to be sent
-//  // to the new organism
-//  cGenome & child_genome = m_organism->OffspringGenome();
-//  child_genome = cGenomeUtil::Crop(m_memory, div_point, div_point+child_size);
-//  
-//  // Cut off everything in this memory past the divide point.
-//  GetMemory().Resize(div_point);
-//  
-//  // Handle Divide Mutations...
-//  Divide_DoMutations(ctx, mut_multiplier);
-//  
-//  // Many tests will require us to run the offspring through a test CPU;
-//  // this is, for example, to see if mutations need to be reverted or if
-//  // lineages need to be updated.
-//  Divide_TestFitnessMeasures(ctx);
-//  
-//#if INSTRUCTION_COSTS
-//  // reset first time instruction costs
-//  for (int i = 0; i < m_inst_ft_cost.GetSize(); i++) {
-//    m_inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
-//  }
-//#endif
-//  
-//  m_mal_active = false;
-//  if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) {
-//    m_advance_ip = false;
-//  }
-//  
-//  // Activate the child
-//  bool parent_alive = m_organism->ActivateDivide(ctx);
-//
-//  // Do more work if the parent lives through the birth of the offspring
-//  if (parent_alive) {
-//    if (m_world->GetConfig().DIVIDE_METHOD.Get() == DIVIDE_METHOD_SPLIT) Reset(ctx);
-//  }
-//  
   return true;
 }
 
@@ -1614,21 +1546,21 @@ bool cHardwareGX::Inst_Swap(cAvidaContext& ctx)
 {
   const int op1 = FindModifiedRegister(REG_BX);
   const int op2 = FindNextRegister(op1);
-  nFunctions::Swap(GetRegister(op1), GetRegister(op2));
+  Swap(GetRegister(op1), GetRegister(op2));
   return true;
 }
 
 bool cHardwareGX::Inst_SwapAB(cAvidaContext& ctx)\
 {
-  nFunctions::Swap(GetRegister(REG_AX), GetRegister(REG_BX)); return true;
+  Swap(GetRegister(REG_AX), GetRegister(REG_BX)); return true;
 }
 bool cHardwareGX::Inst_SwapBC(cAvidaContext& ctx)
 {
-  nFunctions::Swap(GetRegister(REG_BX), GetRegister(REG_CX)); return true;
+  Swap(GetRegister(REG_BX), GetRegister(REG_CX)); return true;
 }
 bool cHardwareGX::Inst_SwapAC(cAvidaContext& ctx)
 {
-  nFunctions::Swap(GetRegister(REG_AX), GetRegister(REG_CX)); return true;
+  Swap(GetRegister(REG_AX), GetRegister(REG_CX)); return true;
 }
 
 bool cHardwareGX::Inst_CopyReg(cAvidaContext& ctx)
@@ -1906,7 +1838,7 @@ bool cHardwareGX::Inst_Order(cAvidaContext& ctx)
   const int op1 = REG_BX;
   const int op2 = REG_CX;
   if (GetRegister(op1) > GetRegister(op2)) {
-    nFunctions::Swap(GetRegister(op1), GetRegister(op2));
+    Swap(GetRegister(op1), GetRegister(op2));
   }
   return true;
 }
@@ -2068,8 +2000,8 @@ bool cHardwareGX::Inst_MaxAlloc(cAvidaContext& ctx)   // Allocate maximal more
 {
   const int dst = REG_AX;
   const int cur_size = GetMemory().GetSize();
-  const int alloc_size = Min((int) (m_world->GetConfig().CHILD_SIZE_RANGE.Get() * cur_size),
-                             MAX_CREATURE_SIZE - cur_size);
+  const int alloc_size = Min((int) (m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get() * cur_size),
+                             MAX_GENOME_LENGTH - cur_size);
   if (Allocate_Main(ctx, alloc_size)) {
     GetRegister(dst) = cur_size;
     return true;
@@ -2079,10 +2011,10 @@ bool cHardwareGX::Inst_MaxAlloc(cAvidaContext& ctx)   // Allocate maximal more
 bool cHardwareGX::Inst_Repro(cAvidaContext& ctx)
 {
   // Setup child
-  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
-  child_genome = m_organism->GetGenome();
+  cSequence& child_genome = m_organism->OffspringGenome().GetSequence();
+  child_genome = m_organism->GetGenome().GetSequence();
   m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
   m_organism->GetPhenotype().SetLinesCopied(m_organism->GetGenome().GetSize());
   
   Divide_DoMutations(ctx);
@@ -2145,73 +2077,6 @@ bool cHardwareGX::Inst_Die(cAvidaContext& ctx)
 {
   m_organism->Die();
   return true; 
-}
-
-// The inject instruction can be used instead of a divide command, paired
-// with an allocate.  Note that for an inject to work, one needs to have a
-// broad range for sizes allowed to be allocated.
-//
-// This command will cut out from read-head to write-head.
-// It will then look at the template that follows the command and inject it
-// into the complement template found in a neighboring organism.
-
-bool cHardwareGX::Inst_Inject(cAvidaContext& ctx)
-{
-  AdjustHeads();
-  const int start_pos = GetHead(nHardware::HEAD_READ).GetPosition();
-  const int end_pos = GetHead(nHardware::HEAD_WRITE).GetPosition();
-  const int inject_size = end_pos - start_pos;
-  
-  // Make sure the creature will still be above the minimum size,
-  if (inject_size <= 0) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: no code to inject");
-    return false; // (inject fails)
-  }
-  if (start_pos < MIN_CREATURE_SIZE) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: new size too small");
-    return false; // (inject fails)
-  }
-  
-  // Since its legal to cut out the injected piece, do so.
-  cGenome inject_code( cGenomeUtil::Crop(GetMemory(), start_pos, end_pos) );
-  GetMemory().Remove(start_pos, inject_size);
-  
-  // If we don't have a host, stop here.
-  cOrganism * host_organism = m_organism->GetNeighbor();
-  if (host_organism == NULL) return false;
-  
-  // Scan for the label to match...
-  ReadLabel();
-  
-  // If there is no label, abort.
-  if (GetLabel().GetSize() == 0) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: label required");
-    return false; // (inject fails)
-  }
-  
-  // Search for the label in the host...
-  GetLabel().Rotate(1, NUM_NOPS);
-  
-  const bool inject_signal = host_organism->GetHardware().InjectHost(GetLabel(), inject_code);
-  if (inject_signal) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_WARNING, "inject: host too large.");
-    return false; // Inject failed.
-  }
-  
-  // Set the relevent flags.
-  m_organism->GetPhenotype().IsModifier() = true;
-  
-  return inject_signal;
-}
-
-
-bool cHardwareGX::Inst_InjectRand(cAvidaContext& ctx)
-{
-  // Rotate to a random facing and then run the normal inject instruction
-  const int num_neighbors = m_organism->GetNeighborhoodSize();
-  m_organism->Rotate(ctx.GetRandom().GetUInt(num_neighbors));
-  Inst_Inject(ctx);
-  return true;
 }
 
 
@@ -2541,16 +2406,6 @@ bool cHardwareGX::Inst_DonateRandom(cAvidaContext& ctx)
   // Donate only if we have found a neighbor.
   if (neighbor != NULL) {
     DoDonate(neighbor);
-    
-    //print out how often random donations go to kin
-    /*
-    static ofstream kinDistanceFile("kinDistance.dat");
-    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=1) << " ";
-    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=2) << " ";
-    kinDistanceFile << (genotype->GetPhyloDistance(neighbor->GetGenotype())<=3) << " ";
-    kinDistanceFile << genotype->GetPhyloDistance(neighbor->GetGenotype());
-    kinDistanceFile << endl; 
-    */
     neighbor->GetPhenotype().SetIsReceiverRand();
   }
 
@@ -2558,53 +2413,6 @@ bool cHardwareGX::Inst_DonateRandom(cAvidaContext& ctx)
 }
 
 
-bool cHardwareGX::Inst_DonateKin(cAvidaContext& ctx)
-{
-  if (m_organism->GetPhenotype().GetCurNumDonates() > m_world->GetConfig().MAX_DONATES.Get()) {
-    return false;
-  }
-  
-  m_organism->GetPhenotype().IncDonates();
-  m_organism->GetPhenotype().SetIsDonorKin();
-
-
-  // Find the target as the first Kin found in the neighborhood.
-  const int num_neighbors = m_organism->GetNeighborhoodSize();
-  
-  // Turn to face a random neighbor
-  int neighbor_id = ctx.GetRandom().GetInt(num_neighbors);
-  for (int i = 0; i < neighbor_id; i++) m_organism->Rotate(1);
-  cOrganism * neighbor = m_organism->GetNeighbor();
-  
-  // If there is no max distance, just take the random neighbor we're facing.
-  const int max_dist = m_world->GetConfig().MAX_DONATE_KIN_DIST.Get();
-  if (max_dist != -1) {
-    int max_id = neighbor_id + num_neighbors;
-    bool found = false;
-    cGenotype* genotype = m_organism->GetGenotype();
-    while (neighbor_id < max_id) {
-      neighbor = m_organism->GetNeighbor();
-      if (neighbor != NULL &&
-          genotype->GetPhyloDistance(neighbor->GetGenotype()) <= max_dist) {
-        found = true;
-        break;
-      }
-      m_organism->Rotate(1);
-      neighbor_id++;
-    }
-    if (found == false) neighbor = NULL;
-  }
-  
-  // Put the facing back where it was.
-  for (int i = 0; i < neighbor_id; i++) m_organism->Rotate(-1);
-  
-  // Donate only if we have found a close enough relative...
-  if (neighbor != NULL){
-    DoDonate(neighbor);
-    neighbor->GetPhenotype().SetIsReceiverKin();
-  }
-  return true;
-}
 
 bool cHardwareGX::Inst_DonateEditDist(cAvidaContext& ctx)
 {
@@ -2632,8 +2440,8 @@ bool cHardwareGX::Inst_DonateEditDist(cAvidaContext& ctx)
       neighbor = m_organism->GetNeighbor();
       int edit_dist = max_dist + 1;
       if (neighbor != NULL) {
-        edit_dist = cGenomeUtil::FindEditDistance(m_organism->GetGenome(),
-                                                  neighbor->GetGenome());
+        edit_dist = cSequence::FindEditDistance(m_organism->GetGenome().GetSequence(),
+                                                  neighbor->GetGenome().GetSequence());
       }
       if (edit_dist <= max_dist) {
         found = true;
@@ -2691,7 +2499,7 @@ bool cHardwareGX::Inst_DonateGreenBeardGene(cAvidaContext& ctx)
 
       //if neighbor exists, do they have the green beard gene?
       if (neighbor != NULL) {
-          const cGenome & neighbor_genome = neighbor->GetGenome();
+          const cSequence & neighbor_genome = neighbor->GetGenome().GetSequence();
 
           // for each instruction in the genome...
           for(int i=0;i<neighbor_genome.GetSize();i++){
@@ -2763,7 +2571,7 @@ bool cHardwareGX::Inst_DonateTrueGreenBeard(cAvidaContext& ctx)
       neighbor = m_organism->GetNeighbor();
       //if neighbor exists, AND if their parent attempted to donate,
       if (neighbor != NULL && neighbor->GetPhenotype().IsDonorTrueGbLast()) {
-          const cGenome & neighbor_genome = neighbor->GetGenome();
+          const cSequence& neighbor_genome = neighbor->GetGenome().GetSequence();
 
           // for each instruction in the genome...
           for(int i=0;i<neighbor_genome.GetSize();i++){
@@ -2838,7 +2646,7 @@ bool cHardwareGX::Inst_DonateThreshGreenBeard(cAvidaContext& ctx)
       neighbor = m_organism->GetNeighbor();
       //if neighbor exists, AND if their parent attempted to donate >= threshhold,
       if (neighbor != NULL && neighbor->GetPhenotype().GetNumThreshGbDonationsLast()>= m_world->GetConfig().MIN_GB_DONATE_THRESHOLD.Get() ) {
-          const cGenome & neighbor_genome = neighbor->GetGenome();
+          const cSequence & neighbor_genome = neighbor->GetGenome().GetSequence();
 
           // for each instruction in the genome...
           for(int i=0;i<neighbor_genome.GetSize();i++){
@@ -2879,16 +2687,15 @@ bool cHardwareGX::Inst_DonateThreshGreenBeard(cAvidaContext& ctx)
 
 bool cHardwareGX::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
 {
-  // this donates to organisms that have this instruction anywhere
-  // in their genome AND their parents excuted it more than a
-  // THRESHOLD number of times where that threshold depend on the
-  // number of times the individual's parents attempted to donate
-  // using this instruction.  The threshold levels are multiples of
-  // the quanta value set in genesis, and the highest level that
-  // the donor qualifies for is the one used.
+  // this donates to organisms that have this instruction anywhere in their
+  // genome AND their parents excuted it more than a THRESHOLD number of times
+  // where that threshold depend on the number of times the individual's
+  // parents attempted to donate using this instruction.  The threshold levels
+  // are multiples of the quanta value set in avida.cfg, and the highest level
+  // that the donor qualifies for is the one used.
 
-  // (see Dawkins 1976, The Selfish Gene, for 
-  // the history of the theory and the name 'green beard'
+  // (see Dawkins 1976, The Selfish Gene, for the history of the theory and
+  // the name 'green beard'
   //  cout << "i am about to donate to a green beard" << endl;
   cPhenotype & phenotype = m_organism->GetPhenotype();
 
@@ -2933,7 +2740,7 @@ bool cHardwareGX::Inst_DonateQuantaThreshGreenBeard(cAvidaContext& ctx)
       if (neighbor != NULL &&
 	  neighbor->GetPhenotype().GetNumQuantaThreshGbDonationsLast() >= quanta_donate_thresh) {
 
-          const cGenome & neighbor_genome = neighbor->GetGenome();
+          const cSequence & neighbor_genome = neighbor->GetGenome().GetSequence();
 
           // for each instruction in the genome...
           for(int i=0;i<neighbor_genome.GetSize();i++){
@@ -3356,7 +3163,7 @@ bool cHardwareGX::Inst_NewProgramid(cAvidaContext& ctx, bool executable, bool bi
   }
   
   // Create the new programid and add it to the list
-  cGenome new_genome(1);
+  cSequence new_genome(1);
   programid_ptr new_programid = new cProgramid(new_genome, this);
   new_programid->m_executable = executable;
   new_programid->m_bindable = bindable;
@@ -3771,10 +3578,10 @@ bool cHardwareGX::Inst_ProgramidDivide(cAvidaContext& ctx)
   
   // Ok, we're good to go.  We have to create the offspring's genome and delete the
   // offspring's programids from m_programids.
-  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
+  cSequence& child_genome = m_organism->OffspringGenome().GetSequence();
   child_genome.Resize(1);
   m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
   if (m_world->GetVerbosity() >= VERBOSE_DETAILS) std::cout << "-=OFFSPRING=-" << endl;
   for(programid_list::iterator i=offspring.begin(); i!=offspring.end(); ++i) {
     (*i)->AppendLinearGenome(child_genome);
@@ -3812,7 +3619,7 @@ bool cHardwareGX::Inst_ProgramidImplicitAllocate(cAvidaContext& ctx)
   const int dst = REG_BX;
   const int cur_size = m_programids[0]->GetMemory().GetSize();
   const int old_size = cur_size;
-  const int allocated_size = Min((int) (m_world->GetConfig().CHILD_SIZE_RANGE.Get() * cur_size), MAX_CREATURE_SIZE);
+  const int allocated_size = Min((int) (m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get() * cur_size), MAX_GENOME_LENGTH);
   
   // Modified Allocate_Main()
     // must do divide before second allocate & must allocate positive amount...
@@ -3827,7 +3634,7 @@ bool cHardwareGX::Inst_ProgramidImplicitAllocate(cAvidaContext& ctx)
   }
   
   
-  const int max_alloc_size = (int) (old_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+  const int max_alloc_size = (int) (old_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (allocated_size > max_alloc_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too large (%d > %d)",
@@ -3836,7 +3643,7 @@ bool cHardwareGX::Inst_ProgramidImplicitAllocate(cAvidaContext& ctx)
   }
 
   const int max_old_size =
-    (int) (allocated_size * m_world->GetConfig().CHILD_SIZE_RANGE.Get());
+    (int) (allocated_size * m_world->GetConfig().OFFSPRING_SIZE_RANGE.Get());
   if (old_size > max_old_size) {
     m_organism->Fault(FAULT_LOC_ALLOC, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Allocate too small (%d > %d)",
@@ -3844,7 +3651,7 @@ bool cHardwareGX::Inst_ProgramidImplicitAllocate(cAvidaContext& ctx)
     return false;
   }
   
-  cGenome new_genome(allocated_size);
+  cSequence new_genome(allocated_size);
   programid_ptr new_programid = new cProgramid(new_genome, this);
   new_programid->SetBindable(true);
   new_programid->SetReadable(true);
@@ -3883,16 +3690,16 @@ bool cHardwareGX::Inst_ProgramidImplicitDivide(cAvidaContext& ctx)
   int child_end =  GetHead(nHardware::HEAD_WRITE).GetPosition();
 
   // Make sure this divide will produce a viable offspring.
-  const bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSize(), child_end);
+  const bool viable = Divide_CheckViable(ctx, m_organism->GetGenome().GetSequence().GetSize(), child_end);
   if (viable == false) return false;
 
   // Since the divide will now succeed, set up the information to be sent
   // to the new organism
-  cGenome& child_genome = m_organism->OffspringGenome().GetGenome();
+  cSequence& child_genome = m_organism->OffspringGenome().GetSequence();
   child_genome = m_programids[write_head.GetMemSpace()]->GetMemory();
-  child_genome = cGenomeUtil::Crop(child_genome, 0, child_end);
+  child_genome = child_genome.Crop(0, child_end);
   m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSetID(GetInstSetID());
+  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
 
 
   // Handle Divide Mutations...
@@ -4159,7 +3966,7 @@ void cHardwareGX::ProcessImplicitGeneExpression(int in_limit)
     m_promoter_states[m_promoter_update_head.GetPosition()] -= 1.0;
     
     // Create new programid
-    cGenome new_genome(m_world->GetConfig().IMPLICIT_MAX_PROGRAMID_LENGTH.Get());
+    cSequence new_genome(m_world->GetConfig().IMPLICIT_MAX_PROGRAMID_LENGTH.Get());
     programid_ptr new_programid = new cProgramid(new_genome, this);
     new_programid->SetExecutable(true);
     AddProgramid(new_programid);
@@ -4273,7 +4080,7 @@ int cHardwareGX::FindRegulatoryMatch(const cCodeLabel& label)
 
 /*! Construct this cProgramid, and initialize hardware resources.
 */
-cHardwareGX::cProgramid::cProgramid(const cGenome& genome, cHardwareGX* hardware)
+cHardwareGX::cProgramid::cProgramid(const cSequence& genome, cHardwareGX* hardware)
 : m_gx_hardware(hardware)
 , m_unique_id(hardware->m_last_unique_id_assigned++)
 , m_executable(false)
@@ -4342,7 +4149,7 @@ void cHardwareGX::cProgramid::Reset()
 /*! Append this programid's genome to the passed in genome.  Include the tags
 that specify what this programid is capable of.
 */
-void cHardwareGX::cProgramid::AppendLinearGenome(cGenome& genome) {
+void cHardwareGX::cProgramid::AppendLinearGenome(cSequence& genome) {
   genome.Append(GetInst("PROGRAMID"));
   if(GetExecutable()) { genome.Append(GetInst("EXECUTABLE")); }
   if(GetBindable()) { genome.Append(GetInst("BINDABLE")); }

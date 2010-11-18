@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_cell.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -39,7 +39,7 @@
 #ifndef tList_h
 #include "tList.h"
 #endif
-#include "cGenome.h"
+#include "cSequence.h"
 #include "cGenomeUtil.h"
 
 class cHardwareBase;
@@ -113,7 +113,8 @@ public:
   void GetOccupiedNeighboringCells(std::set<cPopulationCell*>& occupied_cell_set, int depth) const;
   inline cPopulationCell& GetCellFaced() { return *(m_connections.GetFirst()); }
   int GetFacing();  // Returns the facing of this cell.
-  inline void GetPosition(int& x, int& y) { x = m_x; y = m_y; } // Retrieves the position (x,y) coordinates of this cell.
+  inline void GetPosition(int& x, int& y) const { x = m_x; y = m_y; } // Retrieves the position (x,y) coordinates of this cell.
+	inline std::pair<int,int> GetPosition() const { return std::make_pair(m_x,m_y); }
   inline int GetVisits() { return m_visits; } // @WRE: Retrieves the number of visits for this cell.
   inline void IncVisits() { m_visits++; } // @WRE: Increments the visit count for a cell
   inline const cMutationRates& MutationRates() const { assert(m_mut_rates); return *m_mut_rates; }
@@ -148,11 +149,11 @@ public:
 	//! Diffuse genome fragments from this cell to its neighbors.
 	void DiffuseGenomeFragments();
 	//! Add fragments from the passed-in genome to the HGT fragments contained in this cell.
-	void AddGenomeFragments(const cGenome& genome);
+	void AddGenomeFragments(const cSequence& genome);
 	//! Retrieve the number of genome fragments currently found in this cell.
 	unsigned int CountGenomeFragments() const;
 	//! Remove and return the front genome fragment.
-	cGenome PopGenomeFragment();
+	cSequence PopGenomeFragment();
 	//! Retrieve the list of fragments from this cell.
 	fragment_list_type& GetFragments();
 	//! Clear all fragments from this cell, adjust resources as required.

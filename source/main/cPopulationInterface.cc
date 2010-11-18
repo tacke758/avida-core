@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_interface.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -27,7 +27,6 @@
 
 #include "cDeme.h"
 #include "cEnvironment.h"
-#include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cOrganism.h"
 #include "cOrgSinkMessage.h"
@@ -37,6 +36,7 @@
 #include "cTestCPU.h"
 #include "cRandom.h"
 #include "cInstSet.h"
+#include "Platform.h"
 
 #include <cassert>
 #include <algorithm>
@@ -46,12 +46,23 @@
 #define NULL 0
 #endif
 
+#if AVIDA_PLATFORM(WINDOWS)
+namespace std
+{
+  inline __int64  abs(__int64 i) { return _abs64(i); }
+}
+#endif
+
 
 cPopulationInterface::cPopulationInterface(cWorld* world) 
 : m_world(world)
 , m_cell_id(-1)
 , m_deme_id(-1)
-, m_hgt_support(0) {
+, m_prevseen_cell_id(-1)
+, m_prev_task_cell(-1)
+, m_num_task_cells(0)
+, m_hgt_support(NULL)
+{
 }
 
 cPopulationInterface::~cPopulationInterface() {
@@ -105,7 +116,7 @@ void cPopulationInterface::SetCellData(const int newData) {
   cell.SetCellData(cell.GetOrganism()->GetID(), newData);
 }
 
-bool cPopulationInterface::Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome)
+bool cPopulationInterface::Divide(cAvidaContext& ctx, cOrganism* parent, const cGenome& offspring_genome)
 {
   assert(parent != NULL);
   assert(m_world->GetPopulation().GetCell(m_cell_id).GetOrganism() == parent);
@@ -154,7 +165,6 @@ int cPopulationInterface::GetFacing()
 int cPopulationInterface::GetFacedCellID()
 {
 	cPopulationCell& cell = m_world->GetPopulation().GetCell(m_cell_id).GetCellFaced();
-	assert(cell.IsOccupied());
 	return cell.GetID();
 }
 
@@ -187,13 +197,6 @@ void cPopulationInterface::ResetInputs(cAvidaContext& ctx)
 const tArray<int>& cPopulationInterface::GetInputs() const
 {
   return m_world->GetPopulation().GetCell(m_cell_id).GetInputs();
-}
-
-int cPopulationInterface::Debug()
-{
-  cPopulationCell & cell = m_world->GetPopulation().GetCell(m_cell_id);
-  assert(cell.IsOccupied());
-  return cell.GetOrganism()->GetGenotype()->GetID();
 }
 
 const tArray<double> & cPopulationInterface::GetResources()
@@ -313,12 +316,12 @@ int cPopulationInterface::BuyValue(const int label, const int buy_price)
 	return value;
 }
 
-bool cPopulationInterface::InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code)
+bool cPopulationInterface::InjectParasite(cOrganism* host, cBioUnit* parent, const cString& label, const cSequence& injected_code)
 {
   assert(parent != NULL);
-  assert(m_world->GetPopulation().GetCell(m_cell_id).GetOrganism() == parent);
+  assert(m_world->GetPopulation().GetCell(m_cell_id).GetOrganism() == host);
   
-  return m_world->GetPopulation().ActivateParasite(*parent, label, injected_code);
+  return m_world->GetPopulation().ActivateParasite(host, parent, label, injected_code);
 }
 
 bool cPopulationInterface::UpdateMerit(double new_merit)
@@ -335,18 +338,31 @@ bool cPopulationInterface::TestOnDivide()
 /*! Internal-use method to consolidate message-sending code.
  */
 bool cPopulationInterface::SendMessage(cOrgMessage& msg, cPopulationCell& rcell) {
+	
+	bool dropped=false;
+	bool lost=false;
+	
 	static const double drop_prob = m_world->GetConfig().NET_DROP_PROB.Get();
   if((drop_prob > 0.0) && m_world->GetRandom().P(drop_prob)) {
 		// message dropped
 		GetDeme()->messageDropped();
 		GetDeme()->messageSendFailed();
-		return false;
+		dropped = true;
 	}
 	
-  // Fail if the cell we're facing is not occupied.
+	// Fail if the cell we're facing is not occupied.
   if(!rcell.IsOccupied()) {
 		GetDeme()->messageSendFailed();
-    return false;
+		lost = true;
+	}
+	
+	// record this message, regardless of whether it's actually received.
+	if(m_world->GetConfig().NET_LOG_MESSAGES.Get()) {
+		m_world->GetStats().LogMessage(msg, dropped, lost);
+	}
+	
+	if(dropped || lost) {
+		return false;
 	}
 	
 	cOrganism* recvr = rcell.GetOrganism();
@@ -356,6 +372,11 @@ bool cPopulationInterface::SendMessage(cOrgMessage& msg, cPopulationCell& rcell)
 	GetDeme()->IncMessageSent();
 	GetDeme()->MessageSuccessfullySent(); // No idea what the difference is here...
   return true;
+}
+
+bool cPopulationInterface::SendMessage(cOrgMessage& msg, int cellid) {
+  cPopulationCell& cell = m_world->GetPopulation().GetCell(cellid);
+	return SendMessage(msg, cell);	
 }
 
 
@@ -656,8 +677,17 @@ void cPopulationInterface::CreateLinkByFacing(double weight) {
 void cPopulationInterface::CreateLinkByXY(int x, int y, double weight) {
 	cDeme* deme = GetDeme(); assert(deme);
 	cPopulationCell* this_cell = GetCell(); assert(this_cell);
-	cPopulationCell& that_cell = deme->GetCell(x % deme->GetWidth(), y % deme->GetHeight());
-	deme->GetNetwork().Connect(*this_cell, that_cell, weight);
+	// the static casts here are to fix a problem with -2^31 being sent in as a 
+	// cell coordinate.  the problem is that a 2s-complement int can hold a negative
+	// number whose absolute value is too large for the int to hold.  when this happens,
+	// abs returns the value unmodified.
+	int cellx = std::abs(static_cast<long long int>(x)) % deme->GetWidth();
+	int celly = std::abs(static_cast<long long int>(y)) % deme->GetHeight();
+	assert(cellx >= 0);
+	assert(cellx < deme->GetWidth());
+	assert(celly >= 0);
+	assert(celly < deme->GetHeight());
+	deme->GetNetwork().Connect(*this_cell, deme->GetCell(cellx, celly), weight);
 }
 
 /*! Link this organism's cell to the cell with index idx.
@@ -665,10 +695,51 @@ void cPopulationInterface::CreateLinkByXY(int x, int y, double weight) {
 void cPopulationInterface::CreateLinkByIndex(int idx, double weight) {
 	cDeme* deme = GetDeme(); assert(deme);
 	cPopulationCell* this_cell = GetCell(); assert(this_cell);
-	cPopulationCell& that_cell = deme->GetCell(idx % deme->GetSize());
-	deme->GetNetwork().Connect(*this_cell, that_cell, weight);
+	// the static casts here are to fix a problem with -2^31 being sent in as a 
+	// cell coordinate.  the problem is that a 2s-complement int can hold a negative
+	// number whose absolute value is too large for the int to hold.  when this happens,
+	// abs returns the value unmodified.
+	int that_cell = std::abs(static_cast<long long int>(idx)) % deme->GetSize();
+	assert(that_cell >= 0);
+	assert(that_cell < deme->GetSize());
+	deme->GetNetwork().Connect(*this_cell, deme->GetCell(that_cell), weight);
 }
 
+/*! Broadcast a message to all organisms that are connected by this network.
+ */
+bool cPopulationInterface::NetworkBroadcast(cOrgMessage& msg) {	
+	cDeme* deme = GetDeme(); assert(deme);
+	cPopulationCell* this_cell = GetCell(); assert(this_cell);
+	deme->GetNetwork().BroadcastToNeighbors(*this_cell, msg, this);
+	return true;
+}
+
+/*! Unicast a message to the current selected organism.
+ */
+bool cPopulationInterface::NetworkUnicast(cOrgMessage& msg) {
+	cDeme* deme = GetDeme(); assert(deme);
+	cPopulationCell* this_cell = GetCell(); assert(this_cell);
+	deme->GetNetwork().Unicast(*this_cell, msg, this);
+	return true;
+}
+
+/*! Rotate to select a new network link.
+ */
+bool cPopulationInterface::NetworkRotate(int x) {
+	cDeme* deme = GetDeme(); assert(deme);
+	cPopulationCell* this_cell = GetCell(); assert(this_cell);
+	deme->GetNetwork().Rotate(*this_cell, x);
+	return true;
+}
+
+/*! Select a new network link.
+ */
+bool cPopulationInterface::NetworkSelect(int x) {
+	cDeme* deme = GetDeme(); assert(deme);
+	cPopulationCell* this_cell = GetCell(); assert(this_cell);
+	deme->GetNetwork().Select(*this_cell, x);
+	return true;
+}
 
 /*! Called when this individual is the donor organism during conjugation.
  
@@ -709,7 +780,7 @@ void cPopulationInterface::DoHGTDonation(cAvidaContext& ctx) {
 	cGenomeUtil::RandomSplit(ctx, 
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_MEAN.Get(),
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_VARIANCE.Get(),
-													 GetOrganism()->GetGenome(),
+													 GetOrganism()->GetGenome().GetSequence(),
 													 fragments);
 	target->GetOrganism()->GetOrgInterface().ReceiveHGTDonation(fragments[ctx.GetRandom().GetInt(fragments.size())]);
 }
@@ -759,7 +830,7 @@ void cPopulationInterface::DoHGTConjugation(cAvidaContext& ctx) {
 	cGenomeUtil::RandomSplit(ctx, 
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_MEAN.Get(),
 													 m_world->GetConfig().HGT_FRAGMENT_SIZE_VARIANCE.Get(),
-													 source->GetOrganism()->GetGenome(),
+													 source->GetOrganism()->GetGenome().GetSequence(),
 													 fragments);
 	ReceiveHGTDonation(fragments[ctx.GetRandom().GetInt(fragments.size())]);	
 }
@@ -803,7 +874,7 @@ void cPopulationInterface::DoHGTMutation(cAvidaContext& ctx, cGenome& offspring)
 				// this is a little hackish, but this is the cleanest way to make sure
 				// that all downstream stuff works right.
 				cell.ClearFragments();
-				cell.AddGenomeFragments(cell.GetOrganism()->GetGenome());
+				cell.AddGenomeFragments(cell.GetOrganism()->GetGenome().GetSequence());
 				break;
 			}
 			default: { // error
@@ -829,15 +900,15 @@ void cPopulationInterface::DoHGTMutation(cAvidaContext& ctx, cGenome& offspring)
 		cGenomeUtil::substring_match location;
 		switch(m_world->GetConfig().HGT_FRAGMENT_SELECTION.Get()) {
 			case 0: { // random selection
-				HGTMatchPlacement(ctx, offspring, i, location);
+				HGTMatchPlacement(ctx, offspring.GetSequence(), i, location);
 				break;
 			}
 			case 1: { // random selection with redundant instruction trimming
-				HGTTrimmedPlacement(ctx, offspring, i, location);
+				HGTTrimmedPlacement(ctx, offspring.GetSequence(), i, location);
 				break;
 			}
 			case 2: { // random selection and random placement
-				HGTRandomPlacement(ctx, offspring, i, location);
+				HGTRandomPlacement(ctx, offspring.GetSequence(), i, location);
 				break;
 			}
 			default: { // error
@@ -858,7 +929,7 @@ void cPopulationInterface::DoHGTMutation(cAvidaContext& ctx, cGenome& offspring)
 				break;
 			}
 			case 2: { // replace the instructions in the fragment with random instructions.
-				const cInstSet& instset = m_world->GetHardwareManager().GetInstSet();
+				const cInstSet& instset = m_world->GetHardwareManager().GetInstSet(offspring.GetInstSet());
 				for(int j=0; j<i->GetSize(); ++j) {
 					(*i)[j] = instset.GetRandomInst(ctx);
 				}
@@ -874,11 +945,11 @@ void cPopulationInterface::DoHGTMutation(cAvidaContext& ctx, cGenome& offspring)
 		// be extended in the same way as fragment selection if need be.
 		if(ctx.GetRandom().P(m_world->GetConfig().HGT_INSERTION_MUT_P.Get())) {
 			// insert the fragment just after the final location:
-			offspring.Insert(location.end, *i);
+			offspring.GetSequence().Insert(location.end, *i);
 		} else {
 			// replacement: replace [begin,end) instructions in the genome with the fragment,
 			// respecting circularity.
-			offspring.Replace(*i, location.begin, location.end);
+			offspring.GetSequence().Replace(*i, location.begin, location.end);
 		}
 		
 		// stats tracking:
@@ -893,7 +964,7 @@ void cPopulationInterface::DoHGTMutation(cAvidaContext& ctx, cGenome& offspring)
 
 /*! Place the fragment at the location of best match.
  */
-void cPopulationInterface::HGTMatchPlacement(cAvidaContext& ctx, const cGenome& offspring,
+void cPopulationInterface::HGTMatchPlacement(cAvidaContext& ctx, const cSequence& offspring,
 																						 fragment_list_type::iterator& selected,
 																						 substring_match& location) {
 	// find the location within the offspring's genome that best matches the selected fragment:
@@ -910,11 +981,11 @@ void cPopulationInterface::HGTMatchPlacement(cAvidaContext& ctx, const cGenome& 
  Mutations to the offspring are still performed using the entire fragment, so this effectively
  increases the insertion rate.  E.g., hgt(abcde, abcccc) -> abccccde.
  */
-void cPopulationInterface::HGTTrimmedPlacement(cAvidaContext& ctx, const cGenome& offspring,
+void cPopulationInterface::HGTTrimmedPlacement(cAvidaContext& ctx, const cSequence& offspring,
 																											 fragment_list_type::iterator& selected,
 																											 substring_match& location) {
 	// copy the selected fragment, trimming redundant instructions at the end:
-	cGenome trimmed(*selected);
+	cSequence trimmed(*selected);
 	while((trimmed.GetSize() >= 2) && (trimmed[trimmed.GetSize()-1] == trimmed[trimmed.GetSize()-2])) {
 		trimmed.Remove(trimmed.GetSize()-1);
 	}
@@ -930,7 +1001,7 @@ void cPopulationInterface::HGTTrimmedPlacement(cAvidaContext& ctx, const cGenome
  The beginning of the fragment location is selected at random, while the end is selected a
  random distance (up to the length of the selected fragment * 2) instructions away.
  */
-void cPopulationInterface::HGTRandomPlacement(cAvidaContext& ctx, const cGenome& offspring,
+void cPopulationInterface::HGTRandomPlacement(cAvidaContext& ctx, const cSequence& offspring,
 																											fragment_list_type::iterator& selected,
 																											substring_match& location) {
 	// select a random location within the offspring's genome for this fragment to be
@@ -943,7 +1014,7 @@ void cPopulationInterface::HGTRandomPlacement(cAvidaContext& ctx, const cGenome&
 
 /*! Called when this organism is the receiver of an HGT donation.
  */
-void cPopulationInterface::ReceiveHGTDonation(const cGenome& fragment) {
+void cPopulationInterface::ReceiveHGTDonation(const cSequence& fragment) {
 	InitHGTSupport();
 	m_hgt_support->_pending.push_back(fragment);
 }
@@ -954,3 +1025,28 @@ void cPopulationInterface::Move(cAvidaContext& ctx, int src_id, int dest_id)
   m_world->GetPopulation().MoveOrganisms(ctx, src_id, dest_id);
 }
 
+
+void cPopulationInterface::JoinGroup(int group_id)
+{
+  m_world->GetPopulation().JoinGroup(group_id);
+}
+
+void cPopulationInterface::LeaveGroup(int group_id)
+{
+  m_world->GetPopulation().LeaveGroup(group_id);
+}
+
+
+void cPopulationInterface::BeginSleep()
+{
+  if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1)
+    m_world->GetPopulation().AddBeginSleep(m_cell_id, m_world->GetStats().GetUpdate());
+  GetDeme()->IncSleepingCount();
+}
+
+void cPopulationInterface::EndSleep()
+{
+  if(m_world->GetConfig().LOG_SLEEP_TIMES.Get() == 1)
+    m_world->GetPopulation().AddEndSleep(m_cell_id, m_world->GetStats().GetUpdate());
+  GetDeme()->DecSleepingCount();
+}

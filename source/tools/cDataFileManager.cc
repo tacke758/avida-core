@@ -3,45 +3,29 @@
  *  Avida
  *
  *  Called "data_file_manager.cc" prior to 10/18/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2005 California Institute of Technology
  *
  */
 
 #include "cDataFileManager.h"
 
-#include "cTools.h"
-#include "platform.h"
-
-#if AVIDA_PLATFORM(WINDOWS)
-# include <direct.h>
-#else
-# include <unistd.h>
-#endif
-
-#define MAXIMUM_DIRECTORY_LENGTH 2048
+#include "AvidaTools.h"
 
 using namespace std;
+using namespace AvidaTools;
 
 
 cDataFileManager::cDataFileManager(const cString& target_dir, bool verbose) : m_target_dir(target_dir)
 {
   m_target_dir.Trim();
   
-  // If 
-  if (m_target_dir.GetSize() == 0 || (m_target_dir[0] != '/' && m_target_dir[0] != '\\')) {
-    char* dirbuf = new char[MAXIMUM_DIRECTORY_LENGTH];    
-    char* cwd = getcwd(dirbuf, MAXIMUM_DIRECTORY_LENGTH);
-    if (cwd != NULL) {
-      m_target_dir = cString(cwd) + "/" + m_target_dir;
-    }
-    delete dirbuf;
-  }
+  m_target_dir = FileSystem::GetAbsolutePath(m_target_dir);
   
   if (m_target_dir.GetSize() > 0) {
     char dir_tail = m_target_dir[m_target_dir.GetSize() - 1];
     if (dir_tail != '\\' && dir_tail != '/') m_target_dir += "/";
-    cTools::MkDir(m_target_dir, verbose);
+    FileSystem::MkDir(m_target_dir, verbose);
   }
 }
 
@@ -99,7 +83,7 @@ cDataFile& cDataFileManager::Get(const cString& name)
     if (d - i > 0) {
       cString dir = target.Substring(i, d - i);
       // Create if  that this directory is not a relative path component
-      if (dir.GetSize() > 2 || (dir != "." && dir != "..")) cTools::MkDir(dir_prefix + target.Substring(0, d), false);
+      if (dir.GetSize() > 2 || (dir != "." && dir != "..")) FileSystem::MkDir(dir_prefix + target.Substring(0, d), false);
     }
     
     // Adjust next directory name starting point
@@ -108,7 +92,7 @@ cDataFile& cDataFileManager::Get(const cString& name)
 
   target = dir_prefix + target;
   found_file = new cDataFile(target);
-  m_datafiles.Add(name, found_file);
+  m_datafiles.Set(name, found_file);
 
   return *found_file;
 }

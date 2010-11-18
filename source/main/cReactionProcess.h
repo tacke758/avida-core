@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "reaction_process.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
@@ -26,15 +26,10 @@
 #ifndef cReactionProcess_h
 #define cReactionProcess_h
 
-#ifndef defs_h
-#include "defs.h"
-#endif
-#ifndef nReaction_h
-#include "nReaction.h"
-#endif
-#ifndef STRING_HH
+#include "Avida.h"
+
 #include "cString.h"
-#endif
+#include "nReaction.h"
 
 #include <iostream>
 
@@ -55,12 +50,12 @@ private:
   double k_sub_m;        // k sub m variable needed for enzyme reaction
   cResource* product;    // Output resource.
   double conversion;     // Conversion factor.
-  bool lethal;		 // Lethality of reaction
+  double lethal;		 // Lethality of reaction
   bool sterilize; //!< Whether performance of this reaction sterilizes the organism.
   double deme_fraction; //!< Fraction of process reward that is applied to the organism's deme.
   bool is_germline;         // Apply reward to germline propensity instead of bonus?
   cString match_string;	 // Bit string to match if this is a match string reaction
-  int inst_id;           // Instruction to be triggered if reaction successful.
+  cString inst;           // Instruction to be triggered if reaction successful.
   bool depletable;       // Does completing consume resource?
                          // (This is not quite redundant with an infinite resource
                          // because it allows the resource level to be sensed @JEB)
@@ -90,7 +85,6 @@ public:
     , sterilize(false)
     , deme_fraction(0.0)
     , is_germline(false)
-    , inst_id(-1)
     , depletable(true)
     , m_ppmethod(DEFAULT)
     , detect(NULL)
@@ -109,9 +103,9 @@ public:
   double GetKsubM() const { return k_sub_m; }
   cResource* GetProduct() const { return product; }
   double GetConversion() const { return conversion; }
-  int GetInstID() const { return inst_id; }
+  const cString& GetInst() const { return inst; }
   bool GetDepletable() const { return depletable; }
-  bool GetLethal() const { return lethal; }
+  double GetLethal() const { return lethal; }
   bool GetSterilize() const { return sterilize; }
   double GetDemeFraction() const { return deme_fraction; }
   ePHENPLAST_BONUS_METHOD GetPhenPlastBonusMethod() const { return m_ppmethod; }
@@ -130,9 +124,9 @@ public:
   void SetKsubM(double _in) { k_sub_m = _in; }
   void SetProduct(cResource* _in) { product = _in; }
   void SetConversion(double _in) { conversion = _in; }
-  void SetInstID(int _in) { inst_id = _in; }
+  void SetInst(const cString& _in) { inst = _in; }
   void SetDepletable(bool _in) { depletable = _in; }
-  void SetLethal(int _in) { lethal = _in; }
+  void SetLethal(double _in) { lethal = _in; }
   void SetSterile(int _in) { sterilize = _in; }
   void SetDemeFraction(double _in) { assert(_in>=0.0); assert(_in<=1.0); deme_fraction = _in; }
   void SetIsGermline(bool _in) { is_germline = _in; }
@@ -142,17 +136,5 @@ public:
   void SetDetectionError(double _in) { detection_error = _in; }
   void SetMatchString(cString _in) { match_string = _in; }
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nReactionProcess {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

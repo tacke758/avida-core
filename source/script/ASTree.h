@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 4/7/07.
- *  Copyright 2007-2009 Michigan State University. All rights reserved.
+ *  Copyright 2007-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,11 +25,10 @@
 #ifndef ASTree_h
 #define ASTree_h
 
+#include "Avida.h"
 #include "AvidaScript.h"
 
 #include "cString.h"
-
-#include "defs.h"
 
 #include "tList.h"
 #include "tManagedPointerArray.h"

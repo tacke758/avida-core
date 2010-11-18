@@ -2,7 +2,7 @@
  *  cDemeNetworkUtils.h
  *  Avida
  *
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 #ifndef cDemeNetworkUtils_h
 #define cDemeNetworkUtils_h
 
+/* THIS HEADER REQUIRES BOOST */
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/visitors.hpp>
@@ -127,6 +128,39 @@ size_t diameter(const Network& network) {
 }
 
 
+/*! Calculate the Euclidean distance between two vertices in a network.
+ 
+ Vertices must define the following method:
+   std::pair<double,double> location(),
+ which returns the vertex's X-Y coordinates.
+ */
+template <typename Network>
+double distance(typename Network::vertex_descriptor u, 
+								typename Network::vertex_descriptor v, const Network& network) {
+	std::pair<double,double> s,d;
+	s = network[u].location();
+	d = network[v].location();
+	return sqrt(pow(s.first-d.first,2.0) + pow(s.second-d.second,2.0));
+}
+
+
+/*! Calculate the sum of all link lengths in the given network.
+ 
+ See the distance() function above for requirements.
+ */
+template <typename Network>
+double link_length_sum(const Network& network) {
+	typename Network::edge_iterator ei,ei_end;
+	double sum=0.0;
+	
+	for(tie(ei,ei_end)=edges(network); ei!=ei_end; ++ei) {
+		sum += distance(source(*ei,network), target(*ei,network), network);
+	}
+	
+	return sum;
+}
+
+
 /*! Calculate the clustering coefficient of the passed-in network.  Clustering coefficient
  is roughly a measure of "how many of my friends are themselves friends?"
  */
@@ -135,7 +169,7 @@ double clustering_coefficient(const Network& network) {
   // For each vertex in the graph, calculate the number of edges between vertices in the neighborhood.
   typename Network::vertex_iterator vi, vi_end;
   std::vector<double> cluster_coeffs;
-  for(tie(vi,vi_end)=vertices(network); vi!=vi_end; ++vi) {
+  for(boost::tie(vi,vi_end)=vertices(network); vi!=vi_end; ++vi) {
     // Get the list of vertices which are in the neighborhood of vi.
     typedef typename Network::adjacency_iterator adjacency_iterator;
     std::pair<adjacency_iterator, adjacency_iterator> adjacent = boost::adjacent_vertices(*vi, network);

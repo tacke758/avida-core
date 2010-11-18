@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "random.hh" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2000 California Institute of Technology
  *
  */
@@ -11,15 +11,7 @@
 #ifndef cRandom_h
 #define cRandom_h
 
-#ifndef cMutex_h
-#include "../platform/cMutex.h"
-#endif
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
+#include "cMutex.h"
 
 #include <algorithm>
 #include <ctime>
@@ -36,9 +28,6 @@ template <class T> class tArray;
 
 class cRandom
 {
-#if USE_tMemTrack
-  tMemTrack<cRandom> mt;
-#endif
 protected:
   // Internal members
   int seed;
@@ -228,19 +217,6 @@ public:
    * @see cRandom::GetFullRandBinomial
    **/  
   unsigned int GetRandBinomial(const double n, const double p); // Approx
-
-  /**
-   * Serialization to or from an archive.
-   **/  
-  template<class Archive>
-  void serialize(Archive & a, const unsigned int version){
-    a.ArkvObj("seed", seed);
-    a.ArkvObj("original_seed", original_seed);
-    a.ArkvObj("inext", inext);
-    a.ArkvObj("inextp", inextp);
-    a.ArkvObj("ma", ma);
-    a.ArkvObj("expRV", expRV);
-  }
 };
 
 
@@ -324,17 +300,6 @@ ForwardIterator choose(ForwardIterator first, ForwardIterator last, RNG rng) {
 	std::size_t range = std::distance(first, last);
 	return first+rng(range);
 }
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nRandom {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 
 class cRandomMT : public cRandom

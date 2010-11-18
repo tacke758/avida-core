@@ -24,13 +24,16 @@
 #ifndef cMultiProcessWorld_h
 #define cMultiProcessWorld_h
 
+/* THIS HEADER REQUIRES BOOST */
 #include <boost/mpi.hpp>
 #include <boost/mpi/environment.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/timer.hpp>
 #include <vector>
 
 #include "cWorld.h"
 #include "cAvidaConfig.h"
+#include "cStats.h"
 
 /*! Multi-process Avida world.
  
@@ -43,6 +46,7 @@
 class cMultiProcessWorld : public cWorld
 	{
 	private:
+		cMultiProcessWorld(); // @not_implemented
 		cMultiProcessWorld(const cMultiProcessWorld&); // @not_implemented
 		cMultiProcessWorld& operator=(const cMultiProcessWorld&); // @not_implemented
 		
@@ -50,86 +54,44 @@ class cMultiProcessWorld : public cWorld
 		boost::mpi::environment& m_mpi_env; //!< MPI environment.
 		boost::mpi::communicator& m_mpi_world; //!< World-wide MPI communicator.
 		std::vector<boost::mpi::request> m_reqs; //!< Requests outstanding since the last ProcessPostUpdate.
+		int m_universe_dim; //!< Dimension (x & y) of the universe (number of worlds along the side of a grid of worlds).
+		int m_universe_x; //!< X coordinate of this world.
+		int m_universe_y; //!< Y coordinate of this world.
+		int m_universe_popsize; //!< Total size of the universe, delayed one update.
 		
+		boost::timer m_update_timer; //!< Tracks the clock-time of updates.
+		boost::timer m_post_update_timer; //!< Tracks the clock-time of post-update processing.
+		boost::timer m_calc_update_timer; //!< Tracks the clock-time of calculating the update size.
+		cStats::profiling_stats_t m_pf; //!< Buffers profiling stats until the post-update step.
+		
+		//! Constructor (prefer Initialize).
+		cMultiProcessWorld(cAvidaConfig* cfg, const cString& cwd, boost::mpi::environment& env, boost::mpi::communicator& worldcomm);
+
 	public:
-		//! Constructor.
-		cMultiProcessWorld(cAvidaConfig* cfg, boost::mpi::environment& env, boost::mpi::communicator& world);
+		//! Create and initialize a cMultiProcessWorld.
+		static cMultiProcessWorld* Initialize(cAvidaConfig* cfg, const cString& cwd, boost::mpi::environment& env, boost::mpi::communicator& worldcomm);
 		
 		//! Destructor.
 		virtual ~cMultiProcessWorld() { }
 		
 		//! Migrate this organism to a different world.
-		virtual void MigrateOrganism(cOrganism* org);
+		virtual void MigrateOrganism(cOrganism* org, const cPopulationCell& cell,
+																 const cMerit& merit, int lineage);
+
+		//! Returns true if an organism should be migrated to a different world, false otherwise.
+		virtual bool TestForMigration();
+		
+		//! Returns true if the given cell is on the boundary of the world, false otherwise.
+		virtual bool IsWorldBoundary(const cPopulationCell& cell);
 		
 		//! Process post-update events.
 		virtual void ProcessPostUpdate(cAvidaContext& ctx);
 		
-		// Save to archive 
-		template<class Archive>
-		void save(Archive & a, const unsigned int version) const {
-			a.ArkvObj("m_analyze", m_analyze);
-			a.ArkvObj("m_conf", m_conf);
-			a.ArkvObj("m_ctx", m_ctx);
-			a.ArkvObj("m_class_mgr", m_class_mgr);
-			a.ArkvObj("m_data_mgr", m_data_mgr);
-			a.ArkvObj("m_env", m_env);
-			a.ArkvObj("m_event_list", m_event_list);
-			a.ArkvObj("m_hw_mgr", m_hw_mgr);
-			a.ArkvObj("m_pop", m_pop);
-			a.ArkvObj("m_stats", m_stats);
-			a.ArkvObj("m_driver", m_driver);
-			a.ArkvObj("m_rng", m_rng);
-			int __m_test_on_div = (m_test_on_div == false)?(0):(1);
-			int __m_test_sterilize = (m_test_sterilize == false)?(0):(1);
-			int __m_own_driver = (m_own_driver == false)?(0):(1);
-			a.ArkvObj("m_test_on_div", __m_test_on_div);
-			a.ArkvObj("m_test_sterilize", __m_test_sterilize);
-			a.ArkvObj("m_own_driver", __m_own_driver);
-		}
+		//! Returns true if this world allows early exits, e.g., when the population reaches 0.
+		virtual bool AllowsEarlyExit() const;
 		
-		// Load from archive 
-		template<class Archive>
-		void load(Archive & a, const unsigned int version){
-			a.ArkvObj("m_analyze", m_analyze);
-			a.ArkvObj("m_conf", m_conf);
-			a.ArkvObj("m_ctx", m_ctx);
-			a.ArkvObj("m_class_mgr", m_class_mgr);
-			a.ArkvObj("m_data_mgr", m_data_mgr);
-			a.ArkvObj("m_env", m_env);
-			a.ArkvObj("m_event_list", m_event_list);
-			a.ArkvObj("m_hw_mgr", m_hw_mgr);
-			a.ArkvObj("m_pop", m_pop);
-			a.ArkvObj("m_stats", m_stats);
-			a.ArkvObj("m_driver", m_driver);
-			a.ArkvObj("m_rng", m_rng);
-			int __m_test_on_div;
-			int __m_test_sterilize;
-			int __m_own_driver;
-			a.ArkvObj("m_test_on_div", __m_test_on_div);
-			a.ArkvObj("m_test_sterilize", __m_test_sterilize);
-			a.ArkvObj("m_own_driver", __m_own_driver);
-			m_test_on_div = (__m_test_on_div == 0)?(false):(true);
-			m_test_sterilize = (__m_test_sterilize == 0)?(false):(true);
-			m_own_driver = (__m_own_driver == 0)?(false):(true);
-		} 
-    
-		// Ask archive to handle loads and saves separately
-		template<class Archive>
-		void serialize(Archive & a, const unsigned int version){
-			a.SplitLoadSave(*this, version);
-		}
+		//! Calculate the size (in virtual CPU cycles) of the current update.
+		virtual int CalculateUpdateSize();
 	};
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nMultiProcessWorld {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

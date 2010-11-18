@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,23 +28,23 @@
 #ifndef cMerit_h
 #include "cMerit.h"
 #endif
-#ifndef cMetaGenome_h
-#include "cMetaGenome.h"
+#ifndef cGenome_h
+#include "cGenome.h"
 #endif
 
-class cGenotype;
+class cBioGroup;
 
 
 class cBirthEntry
 {
 public:
-  cMetaGenome genome;
+  cGenome genome;
   double energy4Offspring;
   cMerit merit;
-  cGenotype* parent_genotype;
   int timestamp; // -1 if empty
+  tArray<cBioGroup*> groups;
   
-  inline cBirthEntry() : parent_genotype(NULL), timestamp(-1) { ; }
+  inline cBirthEntry() : timestamp(-1) { ; }
 };
 
 #endif

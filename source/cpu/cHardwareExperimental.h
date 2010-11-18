@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 2/10/07 based on cHardwareCPU.h
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -26,42 +26,21 @@
 #ifndef cHardwareExperimental_h
 #define cHardwareExperimental_h
 
+#include "Avida.h"
+
+#include "cCodeLabel.h"
+#include "nHardware.h"
+#include "cHeadCPU.h"
+#include "cCPUMemory.h"
+#include "cHardwareBase.h"
+#include "cStats.h"
+#include "cString.h"
+#include "tArray.h"
+#include "tInstLib.h"
+#include "tManagedPointerArray.h"
+
 #include <cstring>
 #include <iomanip>
-
-#ifndef defs_h
-#include "defs.h"
-#endif
-#ifndef cCodeLabel_h
-#include "cCodeLabel.h"
-#endif
-#ifndef nHardware_h
-#include "nHardware.h"
-#endif
-#ifndef cHeadCPU_h
-#include "cHeadCPU.h"
-#endif
-#ifndef cCPUMemory_h
-#include "cCPUMemory.h"
-#endif
-#ifndef cHardwareBase_h
-#include "cHardwareBase.h"
-#endif
-#ifndef cStats_h
-#include "cStats.h"
-#endif
-#ifndef cString_h
-#include "cString.h"
-#endif
-#ifndef tArray_h
-#include "tArray.h"
-#endif
-#ifndef tManagedPointerArray_h
-#include "tManagedPointerArray.h"
-#endif
-#ifndef tInstLib_h
-#include "tInstLib.h"
-#endif
 
 /**
  * Each organism may have a cHardwareExperimental structure which keeps track of the
@@ -70,7 +49,6 @@
  * @see cCPUMemory, cInstSet
  **/
 
-class cInjectGenotype;
 class cInstLib;
 class cInstSet;
 class cMutation;
@@ -231,7 +209,7 @@ private:
 
   
 public:
-  cHardwareExperimental(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, int inst_set_id);
+  cHardwareExperimental(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareExperimental() { ; }
   
   static tInstLib<cHardwareExperimental::tMethod>* GetInstLib() { return s_inst_slib; }
@@ -288,8 +266,7 @@ public:
   bool ThreadSelect(const cCodeLabel& in_label) { return false; } // Labeled threads not supported
   inline void ThreadPrev(); // Shift the current thread in use.
   inline void ThreadNext();
-  cInjectGenotype* ThreadGetOwner() { return NULL; } // @DMB - cHardwareExperimental does not really implement cInjectGenotype yet
-  void ThreadSetOwner(cInjectGenotype* in_genotype) { return; }
+  cBioUnit* ThreadGetOwner() { return m_organism; }
   
   int GetNumThreads() const     { return m_threads.GetSize(); }
   int GetCurThread() const      { return m_cur_thread; }
@@ -300,7 +277,7 @@ public:
   int GetThreadMessageTriggerType(int _index) { return -1; }
 
   // --------  Parasite Stuff  --------
-  bool InjectHost(const cCodeLabel& in_label, const cGenome& injection);
+  bool ParasiteInfectHost(cBioUnit* bu) { return false; }
 
   
   // --------  Non-Standard Methods  --------  
@@ -313,6 +290,7 @@ private:
   // --------  Core Execution Methods  --------
   bool SingleProcess_ExecuteInst(cAvidaContext& ctx, const cInstruction& cur_inst);
   void internalReset();
+	void internalResetOnFailedDivide();
   
   
   // --------  Stack Manipulation  --------
@@ -374,10 +352,6 @@ private:
   bool Divide_Main(cAvidaContext& ctx, const int divide_point, const int extra_lines=0, double mut_multiplier=1);
   
 
-  // --------  Parasite Stuff  --------
-  void InjectCode(const cGenome& injection, const int line_num);
-  
-  
   // ---------- Utility Functions -----------
   inline unsigned int BitCount(unsigned int value) const;
   inline void setInternalValue(sInternalValue& dest, int value, bool from_env = false);

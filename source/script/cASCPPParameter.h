@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 9/14/08.
- *  Copyright 2008-2009 Michigan State University. All rights reserved.
+ *  Copyright 2008-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 #ifndef cASCPPParameter_h
 #define cASCPPParameter_h
 
-#include "avida.h"
+#include "Avida.h"
 #include "AvidaScript.h"
 
 #include "cString.h"

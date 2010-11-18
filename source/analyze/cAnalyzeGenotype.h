@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "analyze_genotype.hh" prior to 12/2/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -28,9 +28,6 @@
 
 #include <fstream>
 
-#ifndef functions_h
-#include "functions.h"
-#endif
 #ifndef cCPUMemory_h
 #include "cCPUMemory.h"
 #endif
@@ -108,8 +105,7 @@ class cAnalyzeGenotype
   friend class ReadToken;
 private:
   cWorld* m_world;
-  cGenome genome;            // Full Genome
-  cInstSet& m_inst_set;      // Instruction set used in this genome
+  cGenome m_genome;        // Full Genome
   cString name;              // Name, if one was provided in loading
   cCPUTestInfo m_cpu_test_info; // Use this test info
   
@@ -240,8 +236,7 @@ private:
 
 
 public:
-  cAnalyzeGenotype(cWorld* world, cString symbol_string, cInstSet& in_inst_set);
-  cAnalyzeGenotype(cWorld* world, const cGenome& _genome, cInstSet& in_inst_set);
+  cAnalyzeGenotype(cWorld* world, const cGenome& genome);
   cAnalyzeGenotype(const cAnalyzeGenotype& _gen);
   ~cAnalyzeGenotype();
   
@@ -266,7 +261,6 @@ public:
   // Set...
   void SetSequence(cString _sequence);
   void SetName(const cString& _name) { name = _name; }
-  void SetInstructionSet(cInstSet& _inst_set) { m_inst_set = _inst_set; }
   void SetAlignedSequence(const cString & _seq) { aligned_sequence = _seq; }
   void SetTag(const cString& _tag) { tag = _tag; }
 
@@ -294,7 +288,7 @@ public:
   void SetLineageLabel(int _label) { lineage_label = _label; }
 
   void SetParentMuts(const cString & in_muts) { parent_muts = in_muts; }
-  void SetMutSteps(const cString in_muts) { genome.GetMutationSteps().Set(in_muts); }
+  void SetMutSteps(const cString in_muts) { m_genome.GetSequence().GetMutationSteps().Set(in_muts); }
   
   void SetTaskOrder(const cString & in_order) { task_order = in_order; }
 
@@ -308,10 +302,10 @@ public:
 
   // Accessors...
   cWorld* GetWorld() { return m_world; }
-  
-  const cGenome & GetGenome() const { return genome; }
+
+  cGenome& GetGenome() { return m_genome; }
+  const cGenome& GetGenome() const { return m_genome; }
   const cString& GetName() const { return name; }
-  const cInstSet& GetInstructionSet() const { return m_inst_set; }
   const cString& GetAlignedSequence() const { return aligned_sequence; }
   cString GetExecutedFlags() const { return executed_flags; }
   cString GetAlignmentExecutedFlags() const;
@@ -323,6 +317,7 @@ public:
   bool GetViable() const { return viable; }
 
   int GetID() const { return id_num; }
+  cString GetParents() const { return cStringUtil::Stringf("%d,%d", parent_id, parent2_id); }
   int GetParentID() const { return parent_id; }
   int GetParent2ID() const { return parent2_id; }
   int GetParentDist() const { return parent_dist; }
@@ -333,7 +328,7 @@ public:
   int GetLength() const { return length; }
   int GetCopyLength() const { return copy_length; }
   int GetExeLength() const { return exe_length; }
-  int GetMinLength() const { return Min(exe_length, copy_length); }
+  int GetMinLength() const { return AvidaTools::Min(exe_length, copy_length); }
   double GetMerit() const { return merit; }
   double GetCompMerit() const { return merit / (double) GetMinLength(); }
   int GetGestTime() const { return gest_time; }
@@ -346,7 +341,7 @@ public:
   int GetDepth() const { return depth; }
 
   const cString& GetParentMuts() const { return parent_muts; }
-  const cString GetMutSteps() const { const cMutationSteps& ms = genome.GetMutationSteps(); return ms.AsString(); }
+  const cString GetMutSteps() const { const cMutationSteps& ms = m_genome.GetSequence().GetMutationSteps(); return ms.AsString(); }
 
   // Knockout accessors
   int GetKO_DeadCount() const;
@@ -398,7 +393,7 @@ public:
   const cString & GetTaskOrder() const { return task_order; }
   cString GetTaskList() const;
 
-  cString GetSequence() const { return genome.AsString(); }
+  cString GetSequence() const { return m_genome.GetSequence().AsString(); }
   cString GetHTMLSequence() const;
 
   cString GetMapLink() const {
@@ -480,8 +475,8 @@ public:
   int CompareArgNULL(cAnalyzeGenotype* prev, int i) const { (void) prev; (void) i; return 0; }
   int CompareLength(cAnalyzeGenotype* prev) const
   {
-    if (GetLength() < MIN_CREATURE_SIZE && prev->GetLength() > MIN_CREATURE_SIZE) return -2;
-    if (GetLength() > MIN_CREATURE_SIZE && prev->GetLength() < MIN_CREATURE_SIZE) return 2;
+    if (GetLength() < MIN_GENOME_LENGTH && prev->GetLength() > MIN_GENOME_LENGTH) return -2;
+    if (GetLength() > MIN_GENOME_LENGTH && prev->GetLength() < MIN_GENOME_LENGTH) return 2;
     return 0;
   }
   int CompareMerit(cAnalyzeGenotype * prev) const { return NumCompare(GetMerit(), prev->GetMerit()); }

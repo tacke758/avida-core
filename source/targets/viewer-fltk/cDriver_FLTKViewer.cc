@@ -27,7 +27,6 @@
 #include "cAnalyze.h"
 #include "cChangeList.h"
 #include "cClassificationManager.h"
-#include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cOrganism.h"
 #include "cPopulation.h"
@@ -84,9 +83,6 @@ cDriver_FLTKViewer::cDriver_FLTKViewer(cWorld* world)
   , m_pause_button(m_main_window,     400, FLTK_MENU2_Y, 30, 30, "@||")
   , m_quit_button(m_main_window,      440, FLTK_MENU2_Y, 30, 30, "@square")
 {
-  // Setup the initial view mode (loaded from avida.cfg)
-  m_info.SetViewMode(world->GetConfig().VIEW_MODE.Get());
-    
   cDriverManager::Register(static_cast<cAvidaDriver*>(this));
   world->SetDriver(this);
 
@@ -149,14 +145,13 @@ cDriver_FLTKViewer::~cDriver_FLTKViewer()
 
 void cDriver_FLTKViewer::Run()
 {
-  cClassificationManager& classmgr = m_world->GetClassificationManager();
   cPopulation& population = m_world->GetPopulation();
   cStats& stats = m_world->GetStats();
   
   const int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
   const double point_mut_prob = m_world->GetConfig().POINT_MUT_PROB.Get();
   
-  cAvidaContext ctx(m_world->GetRandom());
+  cAvidaContext ctx(m_world, m_world->GetRandom());
   
   while (!m_done) {
     if (cChangeList* change_list = population.GetChangeList()) {
@@ -173,13 +168,6 @@ void cDriver_FLTKViewer::Run()
     if (stats.GetUpdate() > 0) {
       // Tell the stats object to do update calculations and printing.
       stats.ProcessUpdate();
-      
-      // Update all the genotypes for the end of this update.
-      for (cGenotype * cur_genotype = classmgr.ResetThread(0);
-           cur_genotype != NULL && cur_genotype->GetThreshold();
-           cur_genotype = classmgr.NextGenotype(0)) {
-        cur_genotype->UpdateReset();
-      }
     }
     
     
@@ -205,7 +193,7 @@ void cDriver_FLTKViewer::Run()
     
     
     // end of update stats...
-    population.CalcUpdateStats();
+    population.ProcessPostUpdate(ctx);
     
     
     // Setup the viewer for the new update.
@@ -401,7 +389,6 @@ void cDriver_FLTKViewer::DoUpdate()
   }
 
   // If we are paused, keep checking the interface until we are done.
-  int cur_char = 0;
   while (m_info.GetPauseLevel() == cCoreView_Info::PAUSE_ON) {
     error = Fl::check();
   }
@@ -442,7 +429,6 @@ void cDriver_FLTKViewer::Notify(const cString& in_string)
 
 int cDriver_FLTKViewer::Confirm(const cString & message)
 {
-  const int mess_length = message.GetSize();
   return 0;
 }
 

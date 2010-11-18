@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -35,13 +35,14 @@
 #define cOrgInterface_h
 
 class cAvidaContext;
-class cCodeLabel;
+class cBioUnit;
 class cDeme;
+class cSequence;
 class cGenome;
-class cMetaGenome;
 class cOrganism;
 class cOrgMessage;
 class cOrgSinkMessage;
+class cString;
 template <class T> class tArray;
 
 
@@ -76,7 +77,7 @@ public:
   virtual void SetPrevSeenCellID(int in_id) = 0;
   virtual void SetPrevTaskCellID(int in_id) = 0;
 
-  virtual bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome) = 0;
+  virtual bool Divide(cAvidaContext& ctx, cOrganism* parent, const cGenome& offspring_genome) = 0;
   
   virtual cOrganism* GetNeighbor() = 0;
   virtual bool IsNeighborCellOccupied() = 0;
@@ -92,7 +93,6 @@ public:
   virtual int GetInputAt(int& input_pointer) = 0;
   virtual void ResetInputs(cAvidaContext& ctx) = 0;
   virtual const tArray<int>& GetInputs() const = 0;
-  virtual int Debug() = 0;
   virtual const tArray<double>& GetResources() = 0;
   virtual const tArray<double>& GetDemeResources(int deme_id) = 0;  
   virtual const tArray< tArray<int> >& GetCellIdLists() = 0; 
@@ -106,7 +106,7 @@ public:
   virtual int ReceiveValue() = 0;
   virtual void SellValue(const int data, const int label, const int sell_price, const int org_id) = 0;
   virtual int BuyValue(const int label, const int buy_price) = 0;
-  virtual bool InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code) = 0;
+  virtual bool InjectParasite(cOrganism* host, cBioUnit* parent, const cString& label, const cSequence& injected_code) = 0;
   virtual bool UpdateMerit(double new_merit) = 0;
   virtual bool TestOnDivide() = 0;
   virtual bool SendMessage(cOrgMessage& msg) = 0;
@@ -123,12 +123,23 @@ public:
 	virtual void CreateLinkByFacing(double weight=1.0) = 0;
 	virtual void CreateLinkByXY(int x, int y, double weight=1.0) = 0;
 	virtual void CreateLinkByIndex(int idx, double weight=1.0) = 0;
+	virtual bool NetworkBroadcast(cOrgMessage& msg) = 0;
+	virtual bool NetworkUnicast(cOrgMessage& msg) = 0;
+	virtual bool NetworkRotate(int x) = 0;
+	virtual bool NetworkSelect(int x) = 0;
+	
 	virtual void DoHGTDonation(cAvidaContext& ctx) = 0;
 	virtual void DoHGTConjugation(cAvidaContext& ctx) = 0;
 	virtual void DoHGTMutation(cAvidaContext& ctx, cGenome& offspring) = 0;
-	virtual void ReceiveHGTDonation(const cGenome& fragment) = 0;
+	virtual void ReceiveHGTDonation(const cSequence& fragment) = 0;
   
   virtual void Move(cAvidaContext& ctx, int src_id, int dest_id) = 0;
+
+  virtual void JoinGroup(int group_id) = 0;
+  virtual void LeaveGroup(int group_id) = 0;
+  
+  virtual void BeginSleep() = 0;
+  virtual void EndSleep() = 0;
 };
 
 #endif

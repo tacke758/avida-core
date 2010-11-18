@@ -146,18 +146,16 @@ LIST(APPEND ALL_INC_DIRS ${ANALYZE_DIR})
 # The classification directory
 SET(CLASSIFICATION_DIR ${PROJECT_SOURCE_DIR}/source/classification)
 SET(CLASSIFICATION_SOURCES
+  ${CLASSIFICATION_DIR}/cBGGenotype.cc
+  ${CLASSIFICATION_DIR}/cBGGenotypeManager.cc
+  ${CLASSIFICATION_DIR}/cBioGroup.cc
+  ${CLASSIFICATION_DIR}/cBioGroupListener.cc
+  ${CLASSIFICATION_DIR}/cBioGroupManager.cc
+  ${CLASSIFICATION_DIR}/cBioUnit.cc
   ${CLASSIFICATION_DIR}/cClassificationManager.cc
-  ${CLASSIFICATION_DIR}/cGenotype.cc
-  ${CLASSIFICATION_DIR}/cGenotype_BirthData.cc
-  ${CLASSIFICATION_DIR}/cGenotypeControl.cc
-  ${CLASSIFICATION_DIR}/cInjectGenotype.cc
-  ${CLASSIFICATION_DIR}/cInjectGenotypeControl.cc
-  ${CLASSIFICATION_DIR}/cInjectGenotypeQueue.cc
-  ${CLASSIFICATION_DIR}/cLineage.cc
+  ${CLASSIFICATION_DIR}/cGenomeTestMetrics.cc
   ${CLASSIFICATION_DIR}/cMutationSteps.cc
-  ${CLASSIFICATION_DIR}/cSpecies.cc
-  ${CLASSIFICATION_DIR}/cSpeciesControl.cc
-  ${CLASSIFICATION_DIR}/cSpeciesQueue.cc
+  ${CLASSIFICATION_DIR}/cSexualAncestry.cc
 )
 SOURCE_GROUP(classification FILES ${CLASSIFICATION_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${CLASSIFICATION_SOURCES})
@@ -171,7 +169,6 @@ SET(COREVIEW_SOURCES
   ${COREVIEW_DIR}/cCoreView_Map.cc
 )
 SOURCE_GROUP(coreview FILES ${COREVIEW_SOURCES})
-LIST(APPEND AVIDA_CORE_SOURCES ${COREVIEW_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${COREVIEW_DIR})
 
 
@@ -182,7 +179,6 @@ SET(COREGUI_SOURCES
   ${COREGUI_DIR}/cGUIWidget.cc
 )
 SOURCE_GROUP(coregui FILES ${COREGUI_SOURCES})
-LIST(APPEND AVIDA_CORE_SOURCES ${COREGUI_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${COREGUI_DIR})
 
 
@@ -228,7 +224,7 @@ LIST(APPEND ALL_INC_DIRS ${DRIVERS_DIR})
 # The main directory
 SET(MAIN_DIR ${PROJECT_SOURCE_DIR}/source/main)
 SET(MAIN_SOURCES
-  ${MAIN_DIR}/avida.cc
+  ${MAIN_DIR}/Avida.cc
   ${MAIN_DIR}/cAvidaConfig.cc
   ${MAIN_DIR}/cBirthChamber.cc
   ${MAIN_DIR}/cBirthDemeHandler.cc
@@ -244,19 +240,17 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cDemeCellEvent.cc
   ${MAIN_DIR}/cEnvironment.cc
   ${MAIN_DIR}/cEventList.cc
-  ${MAIN_DIR}/cFitnessMatrix.cc
   ${MAIN_DIR}/cGenome.cc
   ${MAIN_DIR}/cGenomeUtil.cc
   ${MAIN_DIR}/cInstruction.cc
   ${MAIN_DIR}/cLandscape.cc
-  ${MAIN_DIR}/cLocalMutations.cc
-  ${MAIN_DIR}/cMutationLib.cc
   ${MAIN_DIR}/cMutationRates.cc
-  ${MAIN_DIR}/cMxCodeArray.cc
   ${MAIN_DIR}/cOrganism.cc
   ${MAIN_DIR}/cOrgMessage.cc
+  ${MAIN_DIR}/cParasite.cc
   ${MAIN_DIR}/cPhenotype.cc
   ${MAIN_DIR}/cPhenPlastGenotype.cc
+  ${MAIN_DIR}/cPhenPlastUtil.cc
   ${MAIN_DIR}/cPlasticPhenotype.cc
   ${MAIN_DIR}/cPopulation.cc
   ${MAIN_DIR}/cPopulationCell.cc
@@ -268,6 +262,7 @@ SET(MAIN_SOURCES
   ${MAIN_DIR}/cResourceCount.cc
   ${MAIN_DIR}/cResourceHistory.cc
   ${MAIN_DIR}/cResourceLib.cc
+  ${MAIN_DIR}/cSequence.cc
   ${MAIN_DIR}/cSpatialCountElem.cc
   ${MAIN_DIR}/cSpatialResCount.cc
   ${MAIN_DIR}/cStats.cc
@@ -279,19 +274,10 @@ LIST(APPEND AVIDA_CORE_SOURCES ${MAIN_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${MAIN_DIR})
 
 
-# The platform directory
-SET(PLATFORM_DIR ${PROJECT_SOURCE_DIR}/source/platform)
-SET(PLATFORM_SOURCES
-  ${PLATFORM_DIR}/cThread.cc
-  ${PLATFORM_DIR}/PlatformExpert.cc
-)
-LIST(APPEND AVIDA_CORE_SOURCES ${PLATFORM_SOURCES})
-LIST(APPEND ALL_INC_DIRS ${PLATFORM_DIR})
-
-
 # The tools directory
 SET(TOOLS_DIR ${PROJECT_SOURCE_DIR}/source/tools)
 SET(TOOLS_SOURCES
+  ${TOOLS_DIR}/AvidaTools.cc
   ${TOOLS_DIR}/cArgContainer.cc
   ${TOOLS_DIR}/cArgSchema.cc
   ${TOOLS_DIR}/cBitArray.cc
@@ -301,7 +287,6 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cDataFile.cc
   ${TOOLS_DIR}/cDataFileManager.cc
   ${TOOLS_DIR}/cDataManager_Base.cc
-  ${TOOLS_DIR}/cDefaultMessageDisplay.cc
   ${TOOLS_DIR}/cDemeProbSchedule.cc
   ${TOOLS_DIR}/cFile.cc
   ${TOOLS_DIR}/cHelpAlias.cc
@@ -316,19 +301,28 @@ SET(TOOLS_SOURCES
   ${TOOLS_DIR}/cProbDemeProbSchedule.cc
   ${TOOLS_DIR}/cProbSchedule.cc
   ${TOOLS_DIR}/cRandom.cc
-  ${TOOLS_DIR}/cRCObject.cc
   ${TOOLS_DIR}/cRunningAverage.cc
   ${TOOLS_DIR}/cSchedule.cc
   ${TOOLS_DIR}/cString.cc
   ${TOOLS_DIR}/cStringIterator.cc
   ${TOOLS_DIR}/cStringList.cc
   ${TOOLS_DIR}/cStringUtil.cc
-  ${TOOLS_DIR}/cTools.cc
   ${TOOLS_DIR}/cWeightedIndex.cc
 )
 SOURCE_GROUP(tools FILES ${TOOLS_SOURCES})
 LIST(APPEND AVIDA_CORE_SOURCES ${TOOLS_SOURCES})
 LIST(APPEND ALL_INC_DIRS ${TOOLS_DIR})
+
+# The platform directory
+SET(PLATFORM_DIR ${PROJECT_SOURCE_DIR}/source/tools/platform)
+SET(PLATFORM_SOURCES
+  ${PLATFORM_DIR}/cThread.cc
+  ${PLATFORM_DIR}/Platform.cc
+)
+LIST(APPEND AVIDA_CORE_SOURCES ${PLATFORM_SOURCES})
+LIST(APPEND ALL_INC_DIRS ${PLATFORM_DIR})
+
+
 
 
 # Create the static library from the master source list
@@ -429,7 +423,6 @@ IF(AVD_GUI_NCURSES)
       ${AVIDA_VIEWER_DIR}/cMapScreen.cc
       ${AVIDA_VIEWER_DIR}/cMenuWindow.cc
       ${AVIDA_VIEWER_DIR}/cOptionsScreen.cc
-      ${AVIDA_VIEWER_DIR}/cScreen.cc
       ${AVIDA_VIEWER_DIR}/cStatsScreen.cc
       ${AVIDA_VIEWER_DIR}/cSymbolUtil.cc
       ${AVIDA_VIEWER_DIR}/cTextViewerAnalyzeDriver.cc
@@ -484,20 +477,13 @@ IF(AVD_GUI_PROTO_TEXT)
     
     SET(AVIDA_TEXT_VIEWER_DIR source/targets/viewer-text)
     SET(AVIDA_TEXT_VIEWER_SOURCES
-#      ${AVIDA_TEXT_VIEWER_DIR}/cAnalyzeScreen.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cEnvironmentScreen.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cHistScreen.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cMenuWindow.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cOptionsScreen.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cStatsScreen.cc
-#      ${AVIDA_TEXT_VIEWER_DIR}/cZoomScreen.cc
       ${AVIDA_TEXT_VIEWER_DIR}/cScreen_Map.cc
       ${AVIDA_TEXT_VIEWER_DIR}/cTextWindow.cc
       ${AVIDA_TEXT_VIEWER_DIR}/cDriver_TextViewer.cc
       ${AVIDA_TEXT_VIEWER_DIR}/viewer-text.cc
     )
     SOURCE_GROUP(targets\\viewer-text FILES ${AVIDA_TEXT_VIEWER_SOURCES})
-    ADD_EXECUTABLE(avida-textview ${AVIDA_TEXT_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-text ${AVIDA_TEXT_VIEWER_SOURCES} ${COREVIEW_SOURCES} ${COREGUI_SOURCES})
     
     SET(AVIDA_TEXT_VIEWER_LIBS avidacore ${NCURSES_LIBRARY})
     IF(NOT MSVC)
@@ -506,9 +492,9 @@ IF(AVD_GUI_PROTO_TEXT)
     IF(AVD_ENABLE_TCMALLOC)
       LIST(APPEND AVIDA_TEXT_VIEWER_LIBS tcmalloc)
     ENDIF(AVD_ENABLE_TCMALLOC)
-    TARGET_LINK_LIBRARIES(avida-textview ${AVIDA_TEXT_VIEWER_LIBS})
+    TARGET_LINK_LIBRARIES(avida-text ${AVIDA_TEXT_VIEWER_LIBS})
     
-    INSTALL_TARGETS(/work avida-textview)
+    INSTALL_TARGETS(/work avida-text)
 
   ENDIF(NCURSES_LIBRARY AND NCURSES_INCLUDE_PATH)
 ENDIF(AVD_GUI_PROTO_TEXT)
@@ -534,7 +520,7 @@ IF(AVD_GUI_PROTO_FLTK)
 
   IF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
 
-    INCLUDE_DIRECTORIES(${FLTK_INCLUDE_PATH})
+    INCLUDE_DIRECTORIES(${FLTK_INCLUDE_PATH} source/targets/viewer-fltk)
     
     SET(AVIDA_FLTK_VIEWER_DIR source/targets/viewer-fltk)
     SET(AVIDA_FLTK_VIEWER_SOURCES
@@ -545,23 +531,20 @@ IF(AVD_GUI_PROTO_FLTK)
       ${AVIDA_FLTK_VIEWER_DIR}/cFLTKLegend.cc
     )
     SOURCE_GROUP(targets\\viewer-fltk FILES ${AVIDA_FLTK_VIEWER_SOURCES})
-    ADD_EXECUTABLE(avida-fltkview ${AVIDA_FLTK_VIEWER_SOURCES})
+    ADD_EXECUTABLE(avida-fltk ${AVIDA_FLTK_VIEWER_SOURCES} ${COREVIEW_SOURCES} ${COREGUI_SOURCES})
     
-    SET(AVIDA_FLTK_VIEWER_LIBS avidacore ${FLTK_BASE_LIBRARY} ${FLTK_IMAGE_LIBRARY} $(FLTK_JPEG_LIBRARY))
+    SET(AVIDA_FLTK_VIEWER_LIBS avidacore ${FLTK_BASE_LIBRARY} ${FLTK_IMAGE_LIBRARY} ${FLTK_JPEG_LIBRARY})
     IF(NOT MSVC)
       LIST(APPEND AVIDA_FLTK_VIEWER_LIBS pthread)
     ENDIF(NOT MSVC)
-    IF(AVD_ENABLE_TCMALLOC)
-      LIST(APPEND AVIDA_FLTK_VIEWER_LIBS tcmalloc)
-    ENDIF(AVD_ENABLE_TCMALLOC)
-    TARGET_LINK_LIBRARIES(avida-fltkview ${AVIDA_FLTK_VIEWER_LIBS})
-    SET_TARGET_PROPERTIES(avida-fltkview PROPERTIES LINK_FLAGS ${FLTK_PLATFORM_DEPENDENT_LIBS})
+    TARGET_LINK_LIBRARIES(avida-fltk ${AVIDA_FLTK_VIEWER_LIBS})
+    SET_TARGET_PROPERTIES(avida-fltk PROPERTIES LINK_FLAGS ${FLTK_PLATFORM_DEPENDENT_LIBS})
 
     IF(APPLE AND NOT FLTK_APPLE_X11)
-       SET( LINK_FLAGS_avida_fltkview ${LINK_FLAGS} "-framework Carbon -framework Cocoa -framework ApplicationServices -lz")
+       SET( LINK_FLAGS_avida_fltk ${LINK_FLAGS} "-framework Carbon -framework Cocoa -framework ApplicationServices -lz")
     ENDIF(APPLE AND NOT FLTK_APPLE_X11)
 
-    INSTALL_TARGETS(/work avida-fltkview)
+    INSTALL_TARGETS(/work avida-fltk)
 
   ENDIF(FLTK_BASE_LIBRARY AND FLTK_INCLUDE_PATH)
 ENDIF(AVD_GUI_PROTO_FLTK)

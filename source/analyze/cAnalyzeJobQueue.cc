@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 2/18/06.
- *  Copyright 2006-2009 Michigan State University. All rights reserved.
+ *  Copyright 2006-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,16 +24,16 @@
 
 #include "cAnalyzeJobQueue.h"
 
+#include "Avida.h"
+
 #include "cAnalyzeJobWorker.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
-#include "PlatformExpert.h"
-
-#include "defs.h"
+#include "Platform.h"
 
 
 cAnalyzeJobQueue::cAnalyzeJobQueue(cWorld* world)
-: m_world(world), m_last_jobid(0), m_jobs(0), m_pending(0), m_workers(PlatformExpert::AvailableCPUs())
+: m_world(world), m_last_jobid(0), m_jobs(0), m_pending(0), m_workers(AvidaTools::Platform::AvailableCPUs())
 {
   const int max_workers = world->GetConfig().MAX_CONCURRENCY.Get();
   if (max_workers > 0 && max_workers < m_workers.GetSize()) m_workers.Resize(max_workers);
@@ -130,7 +130,7 @@ void cAnalyzeJobQueue::Execute()
 
 void cAnalyzeJobQueue::singleThreadedJobExecution(cAnalyzeJob* job)
 {
-  cAvidaContext ctx(NULL);
+  cAvidaContext ctx(m_world, NULL);
   ctx.SetRandom(GetRandom(job->GetID()));
   job->Run(ctx);
   delete job;

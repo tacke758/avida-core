@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "hardware_base.hh" prior to 11/17/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
@@ -39,16 +39,16 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
-#include "cGenome.h"
+#include "cSequence.h"
 
 using namespace std;
 
 class cAvidaContext;
+class cBioUnit;
 class cCodeLabel;
 class cCPUMemory;
 class cHardwareTracer;
 class cHeadCPU;
-class cInjectGenotype;
 class cInstruction;
 class cMutation;
 class cOrganism;
@@ -60,7 +60,6 @@ class cHardwareBase
 protected:
   cWorld* m_world;
   cOrganism* m_organism;     // Organism using this hardware.
-  int m_inst_set_id;
   cInstSet* m_inst_set;      // Instruction set being used.
   cHardwareTracer* m_tracer; // Set this if you want execution traced.
 
@@ -72,12 +71,14 @@ protected:
   bool m_has_costs;
   bool m_has_ft_costs;
   bool m_has_energy_costs;
+	int m_task_switching_cost;
+
   
   // --------  Base Hardware Feature Support  ---------
   tSmartArray<int> m_ext_mem;
   bool m_implicit_repro_active;
   
-	// -------- Bit masks ---------------
+	// --------  Bit masks  ---------
 	static const unsigned int MASK_SIGNBIT = 0x7FFFFFFF;	
 	static const unsigned int MASK24       = 0xFFFFFF;
 
@@ -94,17 +95,15 @@ protected:
   cHardwareBase& operator=(const cHardwareBase&); // @not_implemented
 
 public:
-  cHardwareBase(cWorld* world, cOrganism* in_organism, cInstSet* inst_set, int inst_set_id);
+  cHardwareBase(cWorld* world, cOrganism* in_organism, cInstSet* inst_set);
   virtual ~cHardwareBase() { ; }
   
   // interrupt types
   enum interruptTypes {MSG_INTERRUPT = 0, MOVE_INTERRUPT};
-
-  int GetInstSetID() const { return m_inst_set_id; }
   
   // --------  Organism  ---------
   cOrganism* GetOrganism() { return m_organism; }
-  const cInstSet& GetInstSet() { return *m_inst_set; }
+  const cInstSet& GetInstSet() const { return *m_inst_set; }
 
 
   // --------  Core Functionality  --------
@@ -118,7 +117,6 @@ public:
   // --------  Helper methods  --------
   virtual int GetType() const = 0;
   virtual bool SupportsSpeculative() const = 0;
-  virtual bool OK() = 0;
   virtual void PrintStatus(std::ostream& fp) = 0;
   void SetTrace(cHardwareTracer* tracer) { m_tracer = tracer; }
   void SetupExtendedMemory(const tArray<int>& ext_mem) { m_ext_mem = ext_mem; }
@@ -166,8 +164,7 @@ public:
   virtual bool ThreadSelect(const cCodeLabel& in_label) = 0;
   virtual void ThreadNext() = 0;
   virtual void ThreadPrev() = 0;
-  virtual cInjectGenotype* ThreadGetOwner() = 0;
-  virtual void ThreadSetOwner(cInjectGenotype* in_genotype) = 0;
+  virtual cBioUnit* ThreadGetOwner() = 0;
 
   virtual int GetNumThreads() const = 0;
   virtual int GetCurThread() const = 0;
@@ -179,13 +176,11 @@ public:
   
   
   // --------  Parasite Stuff  --------
-  virtual bool InjectHost(const cCodeLabel& in_label, const cGenome& injection) = 0;
+  virtual bool ParasiteInfectHost(cBioUnit* bu) = 0;
   
     
   // --------  Mutation  --------
   virtual int PointMutate(cAvidaContext& ctx, const double mut_rate);
-  virtual bool TriggerMutations(cAvidaContext& ctx, int trigger);
-  virtual bool TriggerMutations(cAvidaContext& ctx, int trigger, cHeadCPU& cur_head);
 
   
   // --------  Input/Output Buffers  --------
@@ -194,7 +189,7 @@ public:
   
   
   // --------  State Transfer  --------
-  virtual void InheritState(cHardwareBase& in_hardware){ ; }
+  virtual void InheritState(cHardwareBase& in_hardware) { ; }
   
   
   // --------  Alarm  --------
@@ -207,14 +202,16 @@ public:
 	
 	// -------- HGT --------
 	//! Retrieve a genome fragment extending downstream from the read head.
-	virtual cGenome GetGenomeFragment(unsigned int downstream);
+	virtual cSequence GetGenomeFragment(unsigned int downstream);
 	//! Insert a genome fragment at the current write head.
-	virtual void InsertGenomeFragment(const cGenome& fragment);
+	virtual void InsertGenomeFragment(const cSequence& fragment);
   
 protected:
   // --------  Core Execution Methods  --------
-  bool SingleProcess_PayCosts(cAvidaContext& ctx, const cInstruction& cur_inst);
+  bool SingleProcess_PayPreCosts(cAvidaContext& ctx, const cInstruction& cur_inst);
+  void SingleProcess_PayPostCosts(cAvidaContext& ctx, const cInstruction& cur_inst);
   virtual void internalReset() = 0;
+	virtual void internalResetOnFailedDivide() = 0;
   
   
   // --------  No-Operation Instruction  --------
@@ -235,9 +232,9 @@ protected:
 
   
   // --------  Mutation Helper Methods  --------
-  bool doUniformMutation(cAvidaContext& ctx, cGenome& genome);
+  bool doUniformMutation(cAvidaContext& ctx, cSequence& genome);
   void doUniformCopyMutation(cAvidaContext& ctx, cHeadCPU& head);
-  void doSlipMutation(cAvidaContext& ctx, cGenome& genome, int from = -1);
+  void doSlipMutation(cAvidaContext& ctx, cSequence& genome, int from = -1);
   
 
   // --------  Organism Execution Property Calculation  --------
@@ -250,15 +247,6 @@ protected:
   unsigned Divide_DoExactMutations(cAvidaContext& ctx, double mut_multiplier = 1.0, const int pointmut = INT_MAX);
   bool Divide_TestFitnessMeasures1(cAvidaContext& ctx);
   
-
-  // --------  Mutation Triggers  --------
-  void TriggerMutations_Body(cAvidaContext& ctx, int type, cGenome& target_memory, cHeadCPU& cur_head);
-  bool TriggerMutations_ScopeGenome(cAvidaContext& ctx, const cMutation* cur_mut,
-																		cGenome& target_memory, cHeadCPU& cur_head, const double rate);
-  bool TriggerMutations_ScopeLocal(cAvidaContext& ctx, const cMutation* cur_mut,
-																	 cGenome& target_memory, cHeadCPU& cur_head, const double rate);
-  int TriggerMutations_ScopeGlobal(cAvidaContext& ctx, const cMutation* cur_mut,
-																	 cGenome& target_memory, cHeadCPU& cur_head, const double rate);  
 
 private:
   void checkImplicitRepro(cAvidaContext& ctx, bool exec_last_inst = false);

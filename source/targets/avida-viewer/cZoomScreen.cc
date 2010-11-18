@@ -8,17 +8,14 @@
 #include "cZoomScreen.h"
 
 #include "cEnvironment.h"
-#include "functions.h"
-
-#include "cGenotype.h"
+#include "cHardwareBase.h"
+#include "cHardwareCPU.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 #include "cStringUtil.h"
 
-#include "cHardwareBase.h"
-#include "cHardwareCPU.h"
 #include "nHardware.h"
 
 #include "cView.h"
@@ -56,7 +53,7 @@ cZoomScreen::cZoomScreen(int y_size, int x_size, int y_start, int x_start, cView
 
 
 
-void cZoomScreen::Draw()
+void cZoomScreen::Draw(cAvidaContext& ctx)
 {
   // Draw the options block which is on all screens.
   
@@ -73,7 +70,7 @@ void cZoomScreen::Draw()
   }
   
   // Redirect to the proper Draw() method.
-    if (mode == ZOOM_MODE_CPU)
+  if (mode == ZOOM_MODE_CPU)
   {
     if(info.GetConfig().HARDWARE_TYPE.Get() == HARDWARE_TYPE_CPU_ORIGINAL) 
       DrawCPU_Original();
@@ -83,7 +80,7 @@ void cZoomScreen::Draw()
   else if (mode == ZOOM_MODE_STATS) DrawStats();
   else if (mode == ZOOM_MODE_GENOTYPE) DrawGenotype();
   
-  Update();
+  Update(ctx);
   Refresh();
 }
 
@@ -359,7 +356,6 @@ void cZoomScreen::DrawGenotype()
   
   Print(1, 0, "GenotypeID:");
   Print(2, 0, "Geno Name.:");
-  Print(3, 0, "Species ID:");
   
   Print(5, 0, "Abundance.:");
   Print(6, 0, "Length....:");
@@ -372,8 +368,7 @@ void cZoomScreen::DrawGenotype()
   Print(13, 0, "ReproRate.:");
   
   Print(1, 27, "Update Born:");
-  Print(2, 27, "Parent ID..:");
-  Print(3, 27, "Parent Dist:");
+  Print(2, 27, "Parents....:");
   Print(4, 27, "Gene Depth.:");
   
   Print(6, 27,  "-- This Update --");
@@ -391,7 +386,7 @@ void cZoomScreen::DrawGenotype()
   Print(18, 27, "Breed Out..:");
 }
 
-void cZoomScreen::Update()
+void cZoomScreen::Update(cAvidaContext& ctx)
 {
   if (info.GetActiveCell() == NULL ||
       info.GetActiveCell()->IsOccupied() == false) return;
@@ -399,7 +394,7 @@ void cZoomScreen::Update()
   cHardwareBase& hardware = info.GetActiveCell()->GetOrganism()->GetHardware();
   if(mode == ZOOM_MODE_CPU) UpdateCPU(hardware);
   else if (mode == ZOOM_MODE_STATS) UpdateStats(hardware);
-  else if (mode == ZOOM_MODE_GENOTYPE) UpdateGenotype();
+  else if (mode == ZOOM_MODE_GENOTYPE) UpdateGenotype(ctx);
   
   Refresh();
 }
@@ -409,7 +404,7 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   if (info.GetActiveCell() == NULL ||
       info.GetActiveCell()->IsOccupied() == false) return;
   
-  cGenotype* genotype = info.GetActiveGenotype();
+  cBioGroup* genotype = info.GetActiveGenotype();
   cOrganism* organism = info.GetActiveCell()->GetOrganism();
   cPhenotype& phenotype = organism->GetPhenotype();
   
@@ -419,11 +414,6 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   Print(1, 12, "%9d", info.GetActiveGenotypeID());
   Print(2, 12, "%s", static_cast<const char*>(info.GetActiveName()));
   
-  if (info.GetActiveSpecies())
-    Print(3, 12, "%9d", info.GetActiveSpeciesID());
-  else
-    Print(3, 15, "(none) ");
-  
   const cMerit cur_merit(phenotype.GetCurBonus());
   
   PrintDouble(5, 14, phenotype.GetFitness());
@@ -432,7 +422,7 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   PrintDouble(8, 14, phenotype.GetEnergyBonus());
   PrintDouble(9, 14, phenotype.GetMerit().GetDouble());
   PrintDouble(10, 14, cur_merit.GetDouble());
-  Print(11, 15, "%6d ", genotype ? genotype->GetLength() : 0);
+  Print(11, 15, "%6d ", genotype ? cGenome(genotype->GetProperty("genome").AsString()).GetSize() : 0);
   Print(12, 15, "%6d ", hardware.GetMemory().GetSize());
   
   Print(13, 15, "%6d ", phenotype.GetCurNumErrors());
@@ -472,12 +462,12 @@ void cZoomScreen::UpdateStats(cHardwareBase& hardware)
   Print(CPU_FLAGS_Y + 6, CPU_FLAGS_X + 1, "Modified");
   
   SetColor(COLOR_WHITE);
-
-//  @DMB - This needs to be reworked for current parasite implementation
-//  if (info.GetPauseLevel() && info.GetActiveCell() && phenotype.IsParasite()) {
-//    if (parasite_zoom == true) Print(17, 12, "[X] Host Code    ");
-//    else Print(17, 12, "[X] Parasite Code");
-//  }
+  
+  //  @DMB - This needs to be reworked for current parasite implementation
+  //  if (info.GetPauseLevel() && info.GetActiveCell() && phenotype.IsParasite()) {
+  //    if (parasite_zoom == true) Print(17, 12, "[X] Host Code    ");
+  //    else Print(17, 12, "[X] Parasite Code");
+  //  }
   
   // Place the task information onto the screen.
   SetColor(COLOR_CYAN);
@@ -545,8 +535,8 @@ void cZoomScreen::UpdateStats_CPU(cHardwareBase& hardware)
   }
   
   // Flags...
-//  if (hardware.GetMalActive()) SetBoldColor(COLOR_CYAN);
-//  else SetColor(COLOR_CYAN);
+  //  if (hardware.GetMalActive()) SetBoldColor(COLOR_CYAN);
+  //  else SetColor(COLOR_CYAN);
   SetColor(COLOR_CYAN);
   Print(CPU_FLAGS_Y + 1, CPU_FLAGS_X + 1, "Mem Allocated");
   
@@ -556,8 +546,8 @@ void cZoomScreen::UpdateStats_CPU(cHardwareBase& hardware)
   int cur_id = info.GetActiveCell()->GetID();
   //active_inst_ptr.GetCurHardware()->GetOrganism()->GetEnvironment()->GetID();
   Print(11, 36, "%12s", static_cast<const char*>(cStringUtil::Stringf("[%2d,%2d] : %2d",
-                                             cur_id % population.GetWorldX(), cur_id / population.GetWorldX(),
-                                             active_inst_ptr.GetPosition())) );
+                                                                      cur_id % population.GetWorldX(), cur_id / population.GetWorldX(),
+                                                                      active_inst_ptr.GetPosition())) );
 }
 
 void cZoomScreen::UpdateStats_SMT(cHardwareBase& hardware)
@@ -605,11 +595,11 @@ void cZoomScreen::UpdateCPU(cHardwareBase& hardware)
   
   Print(14, 69, "%10d", info.GetActiveGenotypeID());
   Print(15, 69, "%10s", static_cast<const char*>(info.GetActiveName()));
-
+  
   cPhenotype& phenotype = info.GetActiveCell()->GetOrganism()->GetPhenotype();
   PrintDouble(16, 69, phenotype.GetStoredEnergy());
   PrintDouble(17, 69, phenotype.GetEnergyBonus());
-
+  
   Print(18, 69, "%10d", phenotype.GetCurNumErrors());
   Print(19, 69, "%10d", phenotype.GetNumDivides());
   if (info.GetThreadLock() != -1) Print(20, 67, "LOCKED");
@@ -800,7 +790,7 @@ void cZoomScreen::UpdateCPU_SMT(cHardwareBase& hardware)
     cur_view_thread = 0;
     cur_mem_space = hardware.IP(cur_view_thread).GetMemSpace();
   }
-
+  
   cHeadCPU& cur_ip = hardware.IP(cur_view_thread);
   
   // Place the stacks onto the screen.
@@ -933,43 +923,42 @@ void cZoomScreen::UpdateCPU_SMT(cHardwareBase& hardware)
   DrawMiniMap();
 }
 
-void cZoomScreen::UpdateGenotype()
+void cZoomScreen::UpdateGenotype(cAvidaContext& ctx)
 {
   SetBoldColor(COLOR_CYAN);
   
   Print(1, 12, "%9d", info.GetActiveGenotypeID());
   Print(2, 12, "%9s", static_cast<const char*>(info.GetActiveName()));
-  Print(3, 12, "%9d", info.GetActiveSpeciesID());
   
   if (info.GetActiveGenotype() != NULL) {
-    cGenotype& genotype = *(info.GetActiveGenotype());
-    Print(5, 12, "%9d", genotype.GetNumOrganisms());
-    Print(6, 12, "%9d", genotype.GetLength());
-    PrintDouble(7, 14, genotype.GetCopiedSize());
-    PrintDouble(8, 14, genotype.GetExecutedSize());
+    cBioGroup* genotype = info.GetActiveGenotype();
+    cGenomeTestMetrics* metrics = cGenomeTestMetrics::GetMetrics(ctx, genotype);
+    Print(5, 12, "%9d", genotype->GetNumUnits());
+    Print(6, 12, "%9d", cGenome(genotype->GetProperty("genome").AsString()).GetSize());
+    PrintDouble(7, 14, metrics->GetLinesCopied());
+    PrintDouble(8, 14, metrics->GetLinesExecuted());
     
-    PrintDouble(10, 14, genotype.GetFitness());
-    PrintDouble(11, 14, genotype.GetGestationTime());
-    PrintDouble(12, 14, genotype.GetMerit());
-    PrintDouble(13, 14, genotype.GetReproRate());
+    PrintDouble(10, 14, metrics->GetFitness());
+    PrintDouble(11, 14, metrics->GetGestationTime());
+    PrintDouble(12, 14, metrics->GetMerit());
+    PrintDouble(13, 14, genotype->GetProperty("repro_rate").AsDouble());
     
     // Column 2
-    Print(1, 40, "%9d", genotype.GetUpdateBorn());
-    Print(2, 40, "%9d", genotype.GetParentID());
-    Print(3, 40, "%9d", genotype.GetParentDistance());
-    Print(4, 40, "%9d", genotype.GetDepth());
+    Print(1, 40, "%9d", genotype->GetProperty("update_born").AsInt());
+    Print(2, 40, "%9s", (const char*)(genotype->GetProperty("parents").AsString()));
+    Print(3, 40, "%9d", genotype->GetDepth());
     
-    Print(7, 40,  "%9d", genotype.GetThisDeaths());
-    Print(8, 40,  "%9d", genotype.GetThisBirths());
-    Print(9, 40,  "%9d", genotype.GetThisBreedTrue());
-    Print(10, 40, "%9d", genotype.GetThisBreedIn());
-    Print(11, 40, "%9d", genotype.GetThisBirths() - genotype.GetThisBreedTrue());
+    Print(7, 40,  "%9d", genotype->GetProperty("recent_deaths").AsInt());
+    Print(8, 40,  "%9d", genotype->GetProperty("recent_births").AsInt());
+    Print(9, 40,  "%9d", genotype->GetProperty("recent_breed_true").AsInt());
+    Print(10, 40, "%9d", genotype->GetProperty("recent_breed_in").AsInt());
+    Print(11, 40, "%9d", genotype->GetProperty("recent_births").AsInt() - genotype->GetProperty("recent_breed_true").AsInt());
     
-    Print(14, 40, "%9d", genotype.GetTotalOrganisms());
-    Print(15, 40, "%9d", genotype.GetBirths());
-    Print(16, 40, "%9d", genotype.GetBreedTrue());
-    Print(17, 40, "%9d", genotype.GetBreedIn());
-    Print(18, 40, "%9d", genotype.GetBirths() - genotype.GetBreedTrue());
+    Print(14, 40, "%9d", genotype->GetProperty("total_organisms").AsInt());
+    Print(15, 40, "%9d", genotype->GetProperty("last_births").AsInt());
+    Print(16, 40, "%9d", genotype->GetProperty("last_breed_true").AsInt());
+    Print(17, 40, "%9d", genotype->GetProperty("last_breed_in").AsInt());
+    Print(18, 40, "%9d", genotype->GetProperty("last_births").AsInt() - genotype->GetProperty("last_breed_true").AsInt());
   }
   else {
     Print(5, 12, "  -------");
@@ -1002,7 +991,7 @@ void cZoomScreen::UpdateGenotype()
   }
 }
 
-void cZoomScreen::EditMemory()
+void cZoomScreen::EditMemory(cAvidaContext& ctx)
 {
   // Collect all of the needed variables.
   cHardwareBase& hardware = info.GetActiveCell()->GetOrganism()->GetHardware();
@@ -1068,10 +1057,10 @@ void cZoomScreen::EditMemory()
       break;
   }
   
-  Update();
+  Update(ctx);
 }
 
-void cZoomScreen::ThreadOptions()
+void cZoomScreen::ThreadOptions(cAvidaContext& ctx)
 {
   int thread_method = THREAD_OPTIONS_VIEW;
   
@@ -1095,13 +1084,13 @@ void cZoomScreen::ThreadOptions()
         cHardwareBase& hardware = info.GetActiveCell()->GetOrganism()->GetHardware();
         info.SetThreadLock( hardware.GetCurThread() );
       }
-        
-        break;
+      
+      break;
     default:
       break;
   }
   
-  Update();
+  Update(ctx);
 }
 
 void cZoomScreen::ViewInstruction()
@@ -1430,22 +1419,22 @@ void cZoomScreen::SetActiveSection(int in_section)
   SetColor(COLOR_WHITE);
 }
 
-void cZoomScreen::DoInput(int in_char)
+void cZoomScreen::DoInput(cAvidaContext& ctx, int in_char)
 {
   cHardwareBase* hardware = NULL;
   if (info.GetActiveCell()->IsOccupied()) {
     hardware = &(info.GetActiveCell()->GetOrganism()->GetHardware());
   }
-
+  
   // First do the Mode specific io...
   
-  if (mode == ZOOM_MODE_CPU      && DoInputCPU(in_char)) return;
-  if (mode == ZOOM_MODE_STATS    && DoInputStats(in_char)) return;
+  if (mode == ZOOM_MODE_CPU      && DoInputCPU(ctx, in_char)) return;
+  if (mode == ZOOM_MODE_STATS    && DoInputStats(ctx, in_char)) return;
   if (mode == ZOOM_MODE_GENOTYPE && DoInputGenotype(in_char)) return;
   
   int num_threads = 0;
   if (hardware != NULL)  num_threads = hardware->GetNumThreads();
-
+  
   switch(in_char) {
     case 't':
     case 'T':
@@ -1453,9 +1442,9 @@ void cZoomScreen::DoInput(int in_char)
         memory_offset=0;
         ++cur_view_thread%=num_threads;
         if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL){
-	  cur_mem_space = hardware->IP(cur_view_thread).GetMemSpace();
+          cur_mem_space = hardware->IP(cur_view_thread).GetMemSpace();
         }
-        Update();
+        Update(ctx);
       }
       break;
     case ' ':
@@ -1469,16 +1458,16 @@ void cZoomScreen::DoInput(int in_char)
     case '.':
       mode++;
       if (mode == NUM_ZOOM_MODES) mode = 0;
-        Clear();
-      Draw();
+      Clear();
+      Draw(ctx);
       break;
     case '<':
     case ',':
       mode--;
       if (mode == -1) mode = NUM_ZOOM_MODES - 1;
-        
-        Clear();
-      Draw();
+      
+      Clear();
+      Draw(ctx);
       break;
       
     default:
@@ -1489,7 +1478,7 @@ void cZoomScreen::DoInput(int in_char)
 }
 
 
-bool cZoomScreen::DoInputCPU(int in_char)
+bool cZoomScreen::DoInputCPU(cAvidaContext& ctx, int in_char)
 {
   switch(in_char) {
     case '2':
@@ -1502,10 +1491,10 @@ bool cZoomScreen::DoInputCPU(int in_char)
           memory_offset = 0;
           info.SetActiveCell(&(population.GetCell(mini_center_id)));
         }
-        Update();
+        Update(ctx);
       } else if (active_section == ZOOM_SECTION_MEMORY) {
         memory_offset++;
-        Update();
+        Update(ctx);
       }
       break;
     case '8':
@@ -1518,10 +1507,10 @@ bool cZoomScreen::DoInputCPU(int in_char)
           memory_offset = 0;
           info.SetActiveCell(&(population.GetCell(mini_center_id)));
         }
-        Update();
+        Update(ctx);
       } else if (active_section == ZOOM_SECTION_MEMORY) {
         memory_offset--;
-        Update();
+        Update(ctx);
       }
       break;
     case '6':
@@ -1541,7 +1530,7 @@ bool cZoomScreen::DoInputCPU(int in_char)
           cur_mem_space %= 1;
         }
       }
-      Update(); 
+      Update(ctx); 
       break;
     case '4':
     case KEY_LEFT:
@@ -1560,47 +1549,47 @@ bool cZoomScreen::DoInputCPU(int in_char)
           if (cur_mem_space < 0) cur_mem_space = 0;
         }
       }
-      Update();
+      Update(ctx);
       break;
     case 'K':
     case 'k':
       if(info.GetConfig().HARDWARE_TYPE.Get() != HARDWARE_TYPE_CPU_ORIGINAL) {
         ++cur_stack%=4;
       }
-      Update();
+      Update(ctx);
       break;
     case '+':
     case '=':
       info.IncMapMode();
-      Update();
+      Update(ctx);
       break;
     case '-':
     case '_':
       info.DecMapMode();
-      Update();
+      Update(ctx);
       break;
     case '\n':
     case '\r':
       switch (active_section) {
-      case ZOOM_SECTION_MEMORY:
-	EditMemory();
-	break;
-      case ZOOM_SECTION_MAP:
-        memory_offset = 0;
-        info.SetActiveCell(&(population.GetCell(mini_center_id)));
-	break;
-      case ZOOM_SECTION_REGISTERS:
-	ViewRegisters();
-	break;
-      case ZOOM_SECTION_STACK:
-	ViewStack();
-	break;
-      case ZOOM_SECTION_INPUTS:
-	ViewInputs();
-	break;
+        case ZOOM_SECTION_MEMORY:
+          EditMemory(ctx);
+          break;
+        case ZOOM_SECTION_MAP:
+          memory_offset = 0;
+          info.SetActiveCell(&(population.GetCell(mini_center_id)));
+          break;
+        case ZOOM_SECTION_REGISTERS:
+          ViewRegisters();
+          break;
+        case ZOOM_SECTION_STACK:
+          ViewStack();
+          break;
+        case ZOOM_SECTION_INPUTS:
+          ViewInputs();
+          break;
       }
       
-      Update();
+      Update(ctx);
       break;
     case '\t':
     {
@@ -1611,15 +1600,15 @@ bool cZoomScreen::DoInputCPU(int in_char)
       Refresh();
       break;
       
-        
+      
     default:
       return false;
   };
-
-return true;
+  
+  return true;
 }
 
-bool cZoomScreen::DoInputStats(int in_char)
+bool cZoomScreen::DoInputStats(cAvidaContext& ctx, int in_char)
 {
   switch(in_char) {
     case '6':
@@ -1628,7 +1617,7 @@ bool cZoomScreen::DoInputStats(int in_char)
       const int new_task_offset = task_offset + Height() - TASK_Y - 2;
       if (new_task_offset < info.GetWorld().GetEnvironment().GetNumTasks()) {
         task_offset = new_task_offset;
-        Draw();
+        Draw(ctx);
       }
     }
       break;
@@ -1638,7 +1627,7 @@ bool cZoomScreen::DoInputStats(int in_char)
       const int new_task_offset = task_offset - Height() + TASK_Y + 2;
       if (new_task_offset >= 0) {
         task_offset = new_task_offset;
-        Draw();
+        Draw(ctx);
       }
     }
       break;
@@ -1667,7 +1656,6 @@ void cZoomScreen::DrawMiniMap()
   const int name_x = MINI_MAP_X + 4;
   const int name_y = MINI_MAP_Y + 11;
   if (info.GetMapMode() == MAP_BASIC)           Print(name_y, name_x, "Genotypes");
-  else if (info.GetMapMode() == MAP_SPECIES)    Print(name_y, name_x, " Species ");
   else if (info.GetMapMode() == MAP_COMBO)      Print(name_y, name_x, "  Combo  ");
   else if (info.GetMapMode() == MAP_INJECT)     Print(name_y, name_x, "Modified ");
   else if (info.GetMapMode() == MAP_RESOURCE)   Print(name_y, name_x, "Resources");

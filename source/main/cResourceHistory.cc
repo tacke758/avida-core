@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 10/27/08.
- *  Copyright 2008-2009 Michigan State University. All rights reserved.
+ *  Copyright 2008-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -92,9 +92,9 @@ void cResourceHistory::AddEntry(int update, const tArray<double>& values)
   m_entries[new_entry].values = values;
 }
 
-bool cResourceHistory::LoadFile(const cString& filename)
+bool cResourceHistory::LoadFile(const cString& filename, const cString& working_dir)
 {
-  cInitFile file(filename);
+  cInitFile file(filename, working_dir);
   
   if (!file.WasOpened()) {
 //    tConstListIterator<cString> err_it(file.GetErrors());

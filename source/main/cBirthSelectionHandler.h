@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@
 class cAvidaContext;
 class cBirthChamber;
 class cBirthEntry;
-class cMetaGenome;
+class cGenome;
 class cOrganism;
 
 
@@ -38,7 +38,7 @@ public:
   cBirthSelectionHandler() { ; }
   virtual ~cBirthSelectionHandler() = 0;
   
-  virtual cBirthEntry* SelectOffspring(cAvidaContext& ctx, const cMetaGenome& offspring, cOrganism* parent) = 0;
+  virtual cBirthEntry* SelectOffspring(cAvidaContext& ctx, const cGenome& offspring, cOrganism* parent) = 0;
 };
 
 #endif

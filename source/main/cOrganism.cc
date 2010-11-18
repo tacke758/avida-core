@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "organism.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -26,26 +26,22 @@
 #include "cOrganism.h"
 
 #include "cAvidaContext.h"
-#include "cHeadCPU.h"
-#include "nHardware.h"
+#include "cBioGroup.h"
+#include "cDeme.h"
 #include "cEnvironment.h"
-#include "functions.h"
-#include "cGenome.h"
-#include "cGenomeUtil.h"
-#include "cGenotype.h"
+#include "cSequence.h"
 #include "cHardwareBase.h"
 #include "cHardwareManager.h"
-#include "cInjectGenotype.h"
 #include "cInstSet.h"
 #include "cOrgSinkMessage.h"
 #include "cPopulationCell.h"
-#include "cPopulation.h"
 #include "cStateGrid.h"
 #include "cStringUtil.h"
 #include "cTaskContext.h"
-#include "cTools.h"
 #include "cWorld.h"
+#include "cWorldDriver.h"
 #include "cStats.h"
+#include "nHardware.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -54,12 +50,13 @@
 using namespace std;
 
 
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome)
+cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& genome, int parent_generation, eBioUnitSource src,
+                     const cString& src_args)
   : m_world(world)
-  , m_genotype(NULL)
-  , m_phenotype(world)
+  , m_phenotype(world, parent_generation, world->GetHardwareManager().GetInstSet(genome.GetInstSet()).GetNumNops())
+  , m_src(src)
+  , m_src_args(src_args)
   , m_initial_genome(genome)
-  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
   , m_interface(NULL)
   , m_lineage_label(-1)
   , m_lineage(NULL)
@@ -96,81 +93,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genom
   
   initialize(ctx);
 }
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, int hw_type, int inst_set_id, const cGenome& genome)
-  : m_world(world)
-  , m_genotype(NULL)
-  , m_phenotype(world)
-  , m_initial_genome(hw_type, inst_set_id, genome)
-  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
-  , m_interface(NULL)
-  , m_lineage_label(-1)
-  , m_lineage(NULL)
-  , m_input_pointer(0)
-  , m_input_buf(world->GetEnvironment().GetInputSize())
-  , m_output_buf(world->GetEnvironment().GetOutputSize())
-  , m_received_messages(RECEIVED_MESSAGES_SIZE)
-  , m_cur_sg(0)
-  , m_sent_value(0)
-  , m_sent_active(false)
-  , m_test_receive_pos(0)
-  , m_pher_drop(false)
-  , frac_energy_donating(m_world->GetConfig().ENERGY_SHARING_PCT.Get())
-  , m_max_executed(-1)
-  , m_is_running(false)
-  , m_is_sleeping(false)
-  , m_is_dead(false)
-  , killed_event(false)
-  , m_net(NULL)
-  , m_msg(0)
-  , m_opinion(0)
-  , m_neighborhood(0)
-  , m_self_raw_materials(world->GetConfig().RAW_MATERIAL_AMOUNT.Get())
-  , m_other_raw_materials(0)
-  , m_num_donate(0)
-  , m_num_donate_received(0)
-  , m_amount_donate_received(0)
-  , m_num_reciprocate(0)
-  , m_failed_reputation_increases(0)
-  , m_tag(make_pair(-1, 0))
-{
-  m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome);
 
-  initialize(ctx);
-}
-
-cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome, cInstSet* inst_set)
-  : m_world(world)
-  , m_genotype(NULL)
-  , m_phenotype(world)
-  , m_initial_genome(genome)
-  , m_mut_info(world->GetEnvironment().GetMutationLib(), genome.GetSize())
-  , m_interface(NULL)
-  , m_lineage_label(-1)
-  , m_lineage(NULL)
-  , m_input_pointer(0)
-  , m_input_buf(world->GetEnvironment().GetInputSize())
-  , m_output_buf(world->GetEnvironment().GetOutputSize())
-  , m_received_messages(RECEIVED_MESSAGES_SIZE)
-  , m_cur_sg(0)
-  , m_sent_value(0)
-  , m_sent_active(false)
-  , m_test_receive_pos(0)
-  , m_pher_drop(false)
-  , frac_energy_donating(m_world->GetConfig().ENERGY_SHARING_PCT.Get())
-  , m_max_executed(-1)
-  , m_is_running(false)
-  , m_is_sleeping(false)
-  , m_is_dead(false)
-  , killed_event(false)
-  , m_net(NULL)
-  , m_msg(0)
-  , m_opinion(0)
-  , m_neighborhood(0)
-{
-  m_hardware = m_world->GetHardwareManager().Create(ctx, this, m_initial_genome, inst_set);
-  
-  initialize(ctx);
-}
 
 
 void cOrganism::initialize(cAvidaContext& ctx)
@@ -210,7 +133,8 @@ cOrganism::~cOrganism()
   delete m_interface;
   if(m_net) delete m_net;
   if(m_msg) delete m_msg;
-  if(m_opinion) delete m_opinion;
+  if(m_opinion) delete m_opinion;  
+  for (int i = 0; i < m_parasites.GetSize(); i++) delete m_parasites[i];
   if(m_neighborhood) delete m_neighborhood;
 }
 
@@ -282,12 +206,8 @@ void cOrganism::IncCollectSpecCount(const int spec_id)
   m_phenotype.SetCurCollectSpecCount(spec_id, current_count + 1);
 }
 
-double cOrganism::GetTestFitness(cAvidaContext& ctx)
-{
-  assert(m_interface);
-  return m_genotype->GetTestFitness(ctx);
-}
-  
+
+
 int cOrganism::ReceiveValue()
 {
   assert(m_interface);
@@ -339,7 +259,7 @@ void cOrganism::DoInput(tBuffer<int>& input_buffer, tBuffer<int>& output_buffer,
 void cOrganism::DoOutput(cAvidaContext& ctx, const bool on_divide)
 {
   if (m_net) m_net->valid = false;
-  doOutput(ctx, m_input_buf, m_output_buf, on_divide);
+  doOutput(ctx, m_input_buf, m_output_buf, on_divide, false);
 }
 
 
@@ -347,23 +267,30 @@ void cOrganism::DoOutput(cAvidaContext& ctx, const int value)
 {
   m_output_buf.Add(value);
   NetValidate(ctx, value);
-  doOutput(ctx, m_input_buf, m_output_buf, false);
+  doOutput(ctx, m_input_buf, m_output_buf, false, false);
 }
 
+void cOrganism::DoOutput(cAvidaContext& ctx, const int value, bool is_parasite)
+{
+  m_output_buf.Add(value);
+  NetValidate(ctx, value);  
+  doOutput(ctx, m_input_buf, m_output_buf, false, (bool)is_parasite);
+}
 
 void cOrganism::DoOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const int value)
 {
   output_buffer.Add(value);
   NetValidate(ctx, value);
-  doOutput(ctx, input_buffer, output_buffer, false);
+  doOutput(ctx, input_buffer, output_buffer, false, false);
 }
 
 
 void cOrganism::doOutput(cAvidaContext& ctx, 
                          tBuffer<int>& input_buffer, 
                          tBuffer<int>& output_buffer,
-                         const bool on_divide)
-{
+                         const bool on_divide,
+                         bool is_parasite)
+{  
   const int deme_id = m_interface->GetDemeID();
   const tArray<double> & global_resource_count = m_interface->GetResources();
   const tArray<double> & deme_resource_count = m_interface->GetDemeResources(deme_id);
@@ -398,11 +325,12 @@ void cOrganism::doOutput(cAvidaContext& ctx,
   
   // Do the testing of tasks performed...
   
+  
   tArray<double> global_res_change(global_resource_count.GetSize());
   global_res_change.SetAll(0.0);
   tArray<double> deme_res_change(deme_resource_count.GetSize());
   deme_res_change.SetAll(0.0);
-  tArray<int> insts_triggered;
+  tArray<cString> insts_triggered;
   
   tBuffer<int>* received_messages_point = &m_received_messages;
   if (!m_world->GetConfig().SAVE_RECEIVED.Get()) received_messages_point = NULL;
@@ -436,8 +364,8 @@ void cOrganism::doOutput(cAvidaContext& ctx,
 
   bool task_completed = m_phenotype.TestOutput(ctx, taskctx, globalAndDeme_resource_count, 
                                                m_phenotype.GetCurRBinsAvail(), globalAndDeme_res_change, 
-                                               insts_triggered);
-  
+                                               insts_triggered, is_parasite);
+											   
   // Handle merit increases that take the organism above it's current population merit
   if (m_world->GetConfig().MERIT_INC_APPLY_IMMEDIATE.Get()) {
     double cur_merit = m_phenotype.CalcCurrentMerit();
@@ -462,10 +390,8 @@ void cOrganism::doOutput(cAvidaContext& ctx,
   //update deme resources
   m_interface->UpdateDemeResources(deme_res_change);  
 
-  for (int i = 0; i < insts_triggered.GetSize(); i++) {
-    const int cur_inst = insts_triggered[i];
-    m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst));
-  }
+  for (int i = 0; i < insts_triggered.GetSize(); i++) 
+    m_hardware->ProcessBonusInst(ctx, m_hardware->GetInstSet().GetInst(insts_triggered[i]));
 }
 
 void cOrganism::NetGet(cAvidaContext& ctx, int& value, int& seq)
@@ -620,18 +546,16 @@ bool cOrganism::NetRemoteValidate(cAvidaContext& ctx, int value)
     // Do the testing of tasks performed...
     m_output_buf.Add(value);
     tArray<double> res_change(resource_count.GetSize());
-    tArray<int> insts_triggered;
+    tArray<cString> insts_triggered;
 
     cTaskContext taskctx(this, m_input_buf, m_output_buf, other_input_list, other_output_list,
                          m_hardware->GetExtendedMemory());
     m_phenotype.TestOutput(ctx, taskctx, resource_count, m_phenotype.GetCurRBinsAvail(), res_change, insts_triggered);
     m_interface->UpdateResources(res_change);
     
-    for (int i = 0; i < insts_triggered.GetSize(); i++) {
-      const int cur_inst = insts_triggered[i];
-      m_hardware->ProcessBonusInst(ctx, cInstruction(cur_inst) );
-    }
-}
+    for (int i = 0; i < insts_triggered.GetSize(); i++)
+      m_hardware->ProcessBonusInst(ctx, m_hardware->GetInstSet().GetInst(insts_triggered[i]));
+  }
   
   return true;
 }
@@ -661,21 +585,42 @@ void cOrganism::HardwareReset(cAvidaContext& ctx)
   }
 }
 
-
-bool cOrganism::InjectParasite(const cCodeLabel& label, const cGenome& injected_code)
+void cOrganism::NotifyDeath()
 {
-  assert(m_interface);
-  return m_interface->InjectParasite(this, label, injected_code);
+  // Update Sleeping State
+  if (m_is_sleeping) {
+    m_is_sleeping = false;
+    GetDeme()->DecSleepingCount();
+  }
+
+  // Return currently stored internal resources to the world
+  if (m_world->GetConfig().USE_RESOURCE_BINS.Get() && m_world->GetConfig().RETURN_STORED_ON_DEATH.Get()) {
+  	m_interface->UpdateResources(GetRBins());
+  }
+  
+	// Make sure the group composition is updated.
+	if (m_world->GetConfig().USE_FORM_GROUPS.Get() && HasOpinion()) m_interface->LeaveGroup(GetOpinion().first);  
 }
 
-bool cOrganism::InjectHost(const cCodeLabel& label, const cGenome& injected_code)
+
+
+bool cOrganism::InjectParasite(cBioUnit* parent, const cString& label, const cSequence& injected_code)
 {
-  return m_hardware->InjectHost(label, injected_code);
+  assert(m_interface);
+  return m_interface->InjectParasite(this, parent, label, injected_code);
+}
+
+bool cOrganism::ParasiteInfectHost(cBioUnit* parasite)
+{
+  if (!m_hardware->ParasiteInfectHost(parasite)) return false;
+  
+  m_parasites.Push(parasite);
+  return true;
 }
 
 void cOrganism::ClearParasites()
 {
-  for (int i = 0; i < m_parasites.GetSize(); i++) m_parasites[i]->RemoveParasite();
+  for (int i = 0; i < m_parasites.GetSize(); i++) delete m_parasites[i];
   m_parasites.Resize(0);
 }
 
@@ -689,7 +634,7 @@ double cOrganism::CalcMeritRatio()
 
 
 bool cOrganism::GetTestOnDivide() const { return m_interface->TestOnDivide(); }
-int cOrganism::GetFailImplicit() const { return m_world->GetConfig().FAIL_IMPLICIT.Get(); }
+int cOrganism::GetSterilizeUnstable() const { return m_world->GetConfig().STERILIZE_UNSTABLE.Get(); }
 
 bool cOrganism::GetRevertFatal() const { return m_world->GetConfig().REVERT_FATAL.Get(); }
 bool cOrganism::GetRevertNeg() const { return m_world->GetConfig().REVERT_DETRIMENTAL.Get(); }
@@ -750,7 +695,7 @@ void cOrganism::PrintFinalStatus(ostream& fp, int time_used, int time_allocated)
   } else {
     fp << endl;
     fp << "# Final Memory: " << m_hardware->GetMemory().AsString() << endl;
-    fp << "# Child Memory: " << m_offspring_genome.GetGenome().AsString() << endl;
+    fp << "# Child Memory: " << m_offspring_genome.GetSequence().AsString() << endl;
   }
 }
 
@@ -762,7 +707,7 @@ bool cOrganism::Divide_CheckViable()
   const int immunity_task = m_world->GetConfig().IMMUNITY_TASK.Get();
 
   if (required_task != -1 && m_phenotype.GetCurTaskCount()[required_task] == 0) { 
-    if (immunity_task==-1 || m_phenotype.GetCurTaskCount()[immunity_task] == 0) {
+    if (immunity_task ==-1 || m_phenotype.GetCurTaskCount()[immunity_task] == 0) {
       Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
             cStringUtil::Stringf("Lacks required task (%d)", required_task));
       return false; //  (divide fails)
@@ -773,13 +718,33 @@ bool cOrganism::Divide_CheckViable()
   
   const int required_reaction = m_world->GetConfig().REQUIRED_REACTION.Get();
   const int immunity_reaction = m_world->GetConfig().IMMUNITY_REACTION.Get();
-  if (required_reaction != -1 && m_phenotype.GetCurReactionCount()[required_reaction] == 0)   {
+  const int single_reaction = m_world->GetConfig().REQUIRE_SINGLE_REACTION.Get();
+
+  if (single_reaction == 0 && required_reaction != -1 && m_phenotype.GetCurReactionCount()[required_reaction] == 0)   {
     if (immunity_reaction == -1 || m_phenotype.GetCurReactionCount()[immunity_reaction] == 0) {  
       Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
           cStringUtil::Stringf("Lacks required reaction (%d)", required_reaction));
       return false; //  (divide fails)
     }
   }
+  
+  if(single_reaction != 0)
+  {
+    bool toFail = true;
+    tArray<int> reactionCounts = m_phenotype.GetCurReactionCount();
+    for (int i=0; i<reactionCounts.GetSize(); i++)
+    {
+      if (reactionCounts[i] > 0) toFail = false;
+    }
+    
+    if(toFail)
+    {
+      Fault(FAULT_LOC_DIVIDE, FAULT_TYPE_ERROR,
+            cStringUtil::Stringf("Lacks any reaction required for divide"));
+      return false; //  (divide fails)
+    }
+  }
+  
   
   // Test for required resource availability (must be stored in an internal resource bin)
   const int required_resource = m_world->GetConfig().REQUIRED_RESOURCE.Get();
@@ -1337,9 +1302,18 @@ bool cOrganism::CanReceiveString(int string_tag, int amount)
 	
 }
 
-bool cOrganism::IsInterrupted() {
-  for(int k = 0; k< GetHardware().GetNumThreads(); ++k)
-    if(GetHardware().GetThreadMessageTriggerType(k) != -1)
-      return true;
+bool cOrganism::IsInterrupted()
+{
+  for (int k = 0; k< GetHardware().GetNumThreads(); ++k) if (GetHardware().GetThreadMessageTriggerType(k) != -1) return true;
   return false;
+}
+
+void cOrganism::DonateResConsumedToDeme()
+{
+	cDeme* deme = m_interface->GetDeme();
+	
+	if(deme) {
+		deme->AddResourcesConsumed(m_phenotype.GetResourcesConsumed());
+	}	
+	return;
 }

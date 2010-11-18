@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 6/25/06.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,16 +24,19 @@
 
 #include "PopulationActions.h"
 
+#include "AvidaTools.h"
+
 #include "cAction.h"
 #include "cActionLibrary.h"
 #include "cCodeLabel.h"
-#include "cGenome.h"
-#include "cGenomeUtil.h"
+#include "cDoubleSum.h"
 #include "cHardwareManager.h"
+#include "cInstSet.h"
 #include "cIntSum.h"
 #include "cOrgMessagePredicate.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
+#include "cSequence.h"
 #include "cStats.h"
 #include "cWorld.h"
 #include "cOrganism.h"
@@ -44,9 +47,8 @@
 #include <numeric>
 #include <algorithm>
 
-#ifndef cDoubleSum_h
-#include "cDoubleSum.h"
-#endif
+using namespace AvidaTools;
+
 
 /*
  Injects a single organism into the population.
@@ -54,8 +56,8 @@
  Parameters:
  filename (string)
  The filename of the genotype to load. If this is left empty, or the keyword
- "START_CREATURE" is given, than the genotype specified in the genesis
- file under "START_CREATURE" is used.
+ "START_ORGANISM" is given, than the genotype specified in the avida.cfg
+ file under "START_ORGANISM" is used.
  cell ID (integer) default: 0
  The grid-point into which the organism should be placed.
  merit (double) default: -1
@@ -77,21 +79,25 @@ public:
   cActionInject(cWorld* world, const cString& args) : cAction(world, args), m_cell_id(0), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
   {
     cString largs(args);
-    if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+    if (!largs.GetSize()) m_filename = "START_ORGANISM";
+    else m_filename = largs.PopWord();
     if (largs.GetSize()) m_cell_id = largs.PopWord().AsInt();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
     if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
     if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
     
-    if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+    if (m_filename == "START_ORGANISM") {
+      m_filename = m_world->GetConfig().START_ORGANISM.Get();
+    }
   }
   
-  static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [int cell_id=0] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+  static const cString GetDescription() { return "Arguments: [string fname=\"START_ORGANISM\"] [int cell_id=0] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
-    m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
+    cGenome genome;
+    genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
+    m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
   }
 };
 
@@ -134,8 +140,11 @@ public:
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cGenomeUtil::RandomGenome(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
-    m_world->GetPopulation().Inject(genome, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
+    const cInstSet& is = m_world->GetHardwareManager().GetDefaultInstSet();
+    cGenome mg(is.GetHardwareType(), is.GetInstSetName(), cSequence(m_length));
+    cSequence& seq = mg.GetSequence();
+    for (int i = 0; i < m_length; i++) seq[i] = is.GetRandomInst(ctx);
+    m_world->GetPopulation().Inject(mg, SRC_ORGANISM_RANDOM, m_cell_id, m_merit, m_lineage_label, m_neutral_metric);
   }
 };
 
@@ -180,12 +189,18 @@ public:
   {
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
     {
-      cGenome genome;
-      if (m_sex)
-        genome = cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusReproSex(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
-      else
-        genome = cGenomeUtil::RandomGenomeWithoutZeroRedundantsPlusRepro(ctx, m_length, m_world->GetHardwareManager().GetInstSet());
-      m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+      const cInstSet& is = m_world->GetHardwareManager().GetDefaultInstSet();
+      cGenome mg(is.GetHardwareType(), is.GetInstSetName(), cSequence(m_length + 1));
+      cSequence& seq = mg.GetSequence();
+      for (int j = 0; j < m_length; j++) {
+        cInstruction inst = is.GetRandomInst(ctx);
+        while (is.GetRedundancy(inst) == 0) inst = is.GetRandomInst(ctx);
+        seq[j] = inst;
+      }
+      if (m_sex) seq[m_length] = is.GetInst("repro-sex");
+      else seq[m_length] = is.GetInst("repro");
+      
+      m_world->GetPopulation().Inject(mg, SRC_ORGANISM_RANDOM, i, m_merit, m_lineage_label, m_neutral_metric);
     }
   }
 };
@@ -196,8 +211,8 @@ public:
  Parameters:
  filename (string)
  The filename of the genotype to load.  If empty (or the keyword
- "START_CREATURE" is given) than the genotype specified in the genesis
- file under "START_CREATURE" is used.
+ "START_ORGANISM" is given) than the genotype specified in the avida.cfg
+ file under "START_ORGANISM" is used.
  merit (double) default: -1
  The initial merit of the organism. If set to -1, this is ignored.
  lineage label (integer) default: 0
@@ -216,21 +231,25 @@ public:
   cActionInjectAll(cWorld* world, const cString& args) : cAction(world, args), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
   {
     cString largs(args);
-    if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+    if (!largs.GetSize()) m_filename = "START_ORGANISM"; 
+    else m_filename = largs.PopWord();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
     if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
     if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
     
-    if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+    if (m_filename == "START_ORGANISM") {
+      m_filename = m_world->GetConfig().START_ORGANISM.Get();
+    }
   }
   
-  static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+  static const cString GetDescription() { return "Arguments: [string fname=\"START_ORGANISM\"] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome;
+    genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++)
-      m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+      m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, i, m_merit, m_lineage_label, m_neutral_metric);
   }
 };
 
@@ -240,8 +259,8 @@ public:
  Parameters:
  filename (string)
  The filename of the genotype to load. If this is left empty, or the keyword
- "START_CREATURE" is given, than the genotype specified in the genesis
- file under "START_CREATURE" is used.
+ "START_ORGANISM" is given, than the genotype specified in the avida.cfg
+ file under "START_ORGANISM" is used.
  cell_start (int)
  First cell to inject into.
  cell_end (int)
@@ -267,27 +286,31 @@ public:
   : cAction(world, args), m_cell_start(0), m_cell_end(-1), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
   {
     cString largs(args);
-    if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+    if (!largs.GetSize()) m_filename = "START_ORGANISM";
+    else m_filename = largs.PopWord();
     if (largs.GetSize()) m_cell_start = largs.PopWord().AsInt();
     if (largs.GetSize()) m_cell_end = largs.PopWord().AsInt();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
     if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
     if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
     
-    if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+    if (m_filename == "START_ORGANISM") {
+      m_filename = m_world->GetConfig().START_ORGANISM.Get();
+    }
     if (m_cell_end == -1) m_cell_end = m_cell_start + 1;
   }
   
-  static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [int cell_start=0] [int cell_end=-1] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+  static const cString GetDescription() { return "Arguments: [string fname=\"START_ORGANISM\"] [int cell_start=0] [int cell_end=-1] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
   
   void Process(cAvidaContext& ctx)
   {
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectRange has invalid range!");
     } else {
-      cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome;
+      genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
       for (int i = m_cell_start; i < m_cell_end; i++) {
-        m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, i, m_merit, m_lineage_label, m_neutral_metric);
       }
       m_world->GetPopulation().SetSyncEvents(true);
     }
@@ -343,9 +366,10 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectSequence has invalid range!");
     } else {
-      cGenome genome(m_sequence);
+      const cInstSet& is = m_world->GetHardwareManager().GetDefaultInstSet();
+      cGenome genome(is.GetHardwareType(), is.GetInstSetName(), cSequence(m_sequence));
       for (int i = m_cell_start; i < m_cell_end; i++) {
-        m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, i, m_merit, m_lineage_label, m_neutral_metric);
       }
       m_world->GetPopulation().SetSyncEvents(true);
     }
@@ -404,9 +428,10 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectSequenceWithDivMutRate has invalid range!");
     } else {
-      cGenome genome(m_sequence);
+      const cInstSet& is = m_world->GetHardwareManager().GetDefaultInstSet();
+      cGenome genome(is.GetHardwareType(), is.GetInstSetName(), cSequence(m_sequence));
       for (int i = m_cell_start; i < m_cell_end; i++) {
-        m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, i, m_merit, m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().GetCell(i).GetOrganism()->MutationRates().SetDivMutProb(m_div_mut_rate);
       }
       m_world->GetPopulation().SetSyncEvents(true);
@@ -431,7 +456,7 @@ class cActionInjectParasite : public cAction
 {
 private:
   cString m_filename;
-  cCodeLabel m_label;
+  cString m_label;
   int m_cell_start;
   int m_cell_end;
 public:
@@ -439,7 +464,7 @@ public:
   {
     cString largs(args);
     m_filename = largs.PopWord();
-    m_label.ReadString(largs.PopWord());
+    m_label = largs.PopWord();
     if (largs.GetSize()) m_cell_start = largs.PopWord().AsInt();
     if (largs.GetSize()) m_cell_end = largs.PopWord().AsInt();
     
@@ -453,9 +478,10 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectParasite has invalid range!");
     } else {
-      cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome;
+      genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
       for (int i = m_cell_start; i < m_cell_end; i++) {
-        m_world->GetPopulation().InjectParasite(m_label, genome, i);
+        m_world->GetPopulation().InjectParasite(m_label, genome.GetSequence(), i);
       }
       m_world->GetPopulation().SetSyncEvents(true);
     }
@@ -489,7 +515,7 @@ class cActionInjectParasitePair : public cAction
 private:
   cString m_filename_genome;
   cString m_filename_parasite;
-  cCodeLabel m_label;
+  cString m_label;
   int m_cell_start;
   int m_cell_end;
   double m_merit;
@@ -502,7 +528,7 @@ public:
     cString largs(args);
     m_filename_genome = largs.PopWord();
     m_filename_parasite = largs.PopWord();
-    m_label.ReadString(largs.PopWord());
+    m_label = largs.PopWord();
     if (largs.GetSize()) m_cell_start = largs.PopWord().AsInt();
     if (largs.GetSize()) m_cell_end = largs.PopWord().AsInt();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
@@ -519,11 +545,12 @@ public:
     if (m_cell_start < 0 || m_cell_end > m_world->GetPopulation().GetSize() || m_cell_start >= m_cell_end) {
       m_world->GetDriver().NotifyWarning("InjectParasitePair has invalid range!");
     } else {
-      cGenome genome = cGenomeUtil::LoadGenome(m_filename_genome, m_world->GetHardwareManager().GetInstSet());
-      cGenome parasite = cGenomeUtil::LoadGenome(m_filename_parasite, m_world->GetHardwareManager().GetInstSet());
+      cGenome genome, parasite;
+      genome.LoadFromDetailFile(m_filename_genome, m_world->GetWorkingDir(), m_world->GetHardwareManager());
+      parasite.LoadFromDetailFile(m_filename_parasite, m_world->GetWorkingDir(), m_world->GetHardwareManager());
       for (int i = m_cell_start; i < m_cell_end; i++) {
-        m_world->GetPopulation().Inject(genome, i, m_merit, m_lineage_label, m_neutral_metric);
-        m_world->GetPopulation().InjectParasite(m_label, parasite, i);
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD, i, m_merit, m_lineage_label, m_neutral_metric);
+        m_world->GetPopulation().InjectParasite(m_label, parasite.GetSequence(), i);
       }
       m_world->GetPopulation().SetSyncEvents(true);
     }
@@ -537,8 +564,8 @@ public:
  Parameters:
  filename (string):
  The filename of the genotype to load. If this is left empty, or the keyword
- "START_CREATURE" is given, than the genotype specified in the genesis
- file under "START_CREATURE" is used.
+ "START_ORGANISM" is given, than the genotype specified in the avida.cfg
+ file under "START_ORGANISM" is used.
  cell ID (integer) default: 0
  The grid-point into which the organism should be placed.
  merit (double) default: -1
@@ -559,21 +586,25 @@ public:
   cActionInjectDemes(cWorld* world, const cString& args) : cAction(world, args), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
   {
     cString largs(args);
-    if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+    if (!largs.GetSize()) m_filename = "START_ORGANISM";
+    else m_filename = largs.PopWord();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
     if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
     if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
-    if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+    if (m_filename == "START_ORGANISM") {
+      m_filename = m_world->GetConfig().START_ORGANISM.Get();
+    }
   }
   
-  static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+  static const cString GetDescription() { return "Arguments: [string fname=\"START_ORGANISM\"] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome;
+    genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
     if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
       for(int i=1; i<m_world->GetPopulation().GetNumDemes(); ++i) {  // first org has already been injected
-        m_world->GetPopulation().Inject(genome,
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD,
                                         m_world->GetPopulation().GetDeme(i).GetCellID(0),
                                         m_merit, m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -582,7 +613,7 @@ public:
       for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
         // WARNING: initial ancestor has already be injected into the population
         //           calling this will overwrite it.
-        m_world->GetPopulation().Inject(genome,
+        m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD,
                                         m_world->GetPopulation().GetDeme(i).GetCellID(0),
                                         m_merit, m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -597,8 +628,8 @@ public:
  Parameters:
  filename (string):
  The filename of the genotype to load. If this is left empty, or the keyword
- "START_CREATURE" is given, than the genotype specified in the genesis
- file under "START_CREATURE" is used.
+ "START_ORGANISM" is given, than the genotype specified in the avida.cfg
+ file under "START_ORGANISM" is used.
  modulo default: 1 -- when the deme number modulo this number is 0, inject org
  cell ID (integer) default: 0
  The grid-point into which the organism should be placed.
@@ -621,23 +652,27 @@ public:
   cActionInjectModuloDemes(cWorld* world, const cString& args) : cAction(world, args), m_mod_num(1), m_merit(-1), m_lineage_label(0), m_neutral_metric(0)
   {
     cString largs(args);
-    if (!largs.GetSize()) m_filename = "START_CREATURE"; else m_filename = largs.PopWord();
+    if (!largs.GetSize()) m_filename = "START_ORGANISM";
+    else m_filename = largs.PopWord();
     if (largs.GetSize()) m_mod_num = largs.PopWord().AsInt();
     if (largs.GetSize()) m_merit = largs.PopWord().AsDouble();
     if (largs.GetSize()) m_lineage_label = largs.PopWord().AsInt();
     if (largs.GetSize()) m_neutral_metric = largs.PopWord().AsDouble();
-    if (m_filename == "START_CREATURE") m_filename = m_world->GetConfig().START_CREATURE.Get();
+    if (m_filename == "START_ORGANISM") {
+      m_filename = m_world->GetConfig().START_ORGANISM.Get();
+    }
   }
   
-  static const cString GetDescription() { return "Arguments: [string fname=\"START_CREATURE\"] [int mod_num = 1] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
+  static const cString GetDescription() { return "Arguments: [string fname=\"START_ORGANISM\"] [int mod_num = 1] [double merit=-1] [int lineage_label=0] [double neutral_metric=0]"; }
   
   void Process(cAvidaContext& ctx)
   {
-    cGenome genome = cGenomeUtil::LoadGenome(m_filename, m_world->GetHardwareManager().GetInstSet());
+    cGenome genome;
+    genome.LoadFromDetailFile(m_filename, m_world->GetWorkingDir(), m_world->GetHardwareManager());
     if(m_world->GetConfig().ENERGY_ENABLED.Get() == 1) {
       for(int i=1; i<m_world->GetPopulation().GetNumDemes(); ++i) {  // first org has already been injected
         if (i % m_mod_num == 0) {
-          m_world->GetPopulation().Inject(genome,
+          m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD,
                                           m_world->GetPopulation().GetDeme(i).GetCellID(0),
                                           m_merit, m_lineage_label, m_neutral_metric);
           m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -648,7 +683,7 @@ public:
         // WARNING: initial ancestor has already be injected into the population
         //           calling this will overwrite it.
         if (i==0 || (i % m_mod_num) ==0){
-          m_world->GetPopulation().Inject(genome,
+          m_world->GetPopulation().Inject(genome, SRC_ORGANISM_FILE_LOAD,
 																					m_world->GetPopulation().GetDeme(i).GetCellID(0),
 																					m_merit, m_lineage_label, m_neutral_metric);
           m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -721,7 +756,7 @@ public:
       }
       
       if(m_world->GetPopulation().GetDeme(i).GetInjectedCount() < m_num_orgs) {
-        m_world->GetPopulation().Inject(m_world->GetPopulation().GetDeme(i).GetGermline().GetLatest(),
+        m_world->GetPopulation().Inject(m_world->GetPopulation().GetDeme(i).GetGermline().GetLatest(), SRC_DEME_GERMLINE,
                                         m_world->GetPopulation().GetDeme(i).GetCellID(m_nest_cellid),
                                         m_merit, m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -805,7 +840,7 @@ public:
         assert(target_cell > -1);
         assert(target_cell < m_world->GetPopulation().GetSize());
         
-        m_world->GetPopulation().Inject(m_world->GetPopulation().GetDeme(i).GetGermline().GetLatest(),
+        m_world->GetPopulation().Inject(m_world->GetPopulation().GetDeme(i).GetGermline().GetLatest(), SRC_DEME_GERMLINE,
                                         target_cell, m_merit,
                                         m_lineage_label, m_neutral_metric);
         m_world->GetPopulation().GetDeme(i).IncInjectedCount();
@@ -1008,7 +1043,7 @@ public:
       if (cell.IsOccupied() == false) continue;
       
       // count the number of target instructions in the genome
-      count = cGenomeUtil::CountInst(cell.GetOrganism()->GetGenome(), m_world->GetHardwareManager().GetInstSet().GetInst(m_inst));
+      count = cell.GetOrganism()->GetGenome().GetSequence().CountInst(m_world->GetHardwareManager().GetInstSet(cell.GetOrganism()->GetGenome().GetInstSet()).GetInst(m_inst));
       
       // decide if it should be killed or not, based on the count and a the kill probability
       if (count >= m_limit) {
@@ -1068,8 +1103,8 @@ public:
 			if (cell.IsOccupied() == false) continue;
 			
 			// get the number of instructions of each type.
-			count1 = cGenomeUtil::CountInst(cell.GetOrganism()->GetGenome(), m_world->GetHardwareManager().GetInstSet().GetInst(m_inst1));
-			count2 = cGenomeUtil::CountInst(cell.GetOrganism()->GetGenome(), m_world->GetHardwareManager().GetInstSet().GetInst(m_inst2));
+			count1 = cell.GetOrganism()->GetGenome().GetSequence().CountInst(m_world->GetHardwareManager().GetInstSet(cell.GetOrganism()->GetGenome().GetInstSet()).GetInst(m_inst1));
+			count2 = cell.GetOrganism()->GetGenome().GetSequence().CountInst(m_world->GetHardwareManager().GetInstSet(cell.GetOrganism()->GetGenome().GetInstSet()).GetInst(m_inst2));
 			
 			// decide if it should be killed or not, based on the two counts and a the kill probability
 			if ((count1 >= m_limit) && (count2 >= m_limit)) {
@@ -1145,7 +1180,7 @@ public:
 					continue;
 				
 				// count the number of target instructions in the genome
-				int count = cGenomeUtil::CountInst(cell.GetOrganism()->GetGenome(), m_world->GetHardwareManager().GetInstSet().GetInst(m_inst));
+				int count = cell.GetOrganism()->GetGenome().GetSequence().CountInst(m_world->GetHardwareManager().GetInstSet(cell.GetOrganism()->GetGenome().GetInstSet()).GetInst(m_inst));
 				currentInstCount.Add(count);
         
 				double killprob;
@@ -1245,9 +1280,10 @@ public:
 					continue;
 				
 				// count the number of target instructions in the genome
-				const cGenome& genome = cell.GetOrganism()->GetGenome();
+        const cGenome& mg = cell.GetOrganism()->GetGenome();
+				const cSequence& genome = mg.GetSequence();
 				const double genomeSize = static_cast<double>(genome.GetSize());
-				int minDist = cGenomeUtil::MinDistBetween(genome, m_world->GetHardwareManager().GetInstSet().GetInst(m_inst));
+				int minDist = genome.MinDistBetween(m_world->GetHardwareManager().GetInstSet(mg.GetInstSet()).GetInst(m_inst));
 				currentMinDist.Add(minDist);
 				
 				int ratioNumerator = min(genomeSize, pow(m_exprWeight*minDist, m_exponent));
@@ -1931,6 +1967,15 @@ public:
     for (int i = 0; i < m_world->GetPopulation().GetSize(); i++) {
       m_world->GetPopulation().GetCell(i).MutationRates().Clear();
     }
+		bool Set(const cString& entry, const cString& val);
+		const cString cpy = "GERMLINE_COPY_MUT";
+		const cString ins = "GERMLINE_INS_MUT";
+		const cString del = "GERMLINE_DEL_MUT";
+		const cString val = "0.0";
+		
+		m_world->GetConfig().Set(cpy, val);
+		m_world->GetConfig().Set(ins, val);
+		m_world->GetConfig().Set(del, val);
   }
 };
 
@@ -2232,6 +2277,29 @@ public:
 };
 
 
+/*! Measure statistics of all deme networks.
+ */
+class cActionMeasureDemeNetworks : public cAction {
+public:
+	//! Constructor.
+	cActionMeasureDemeNetworks(cWorld* world, const cString& args) : cAction(world, args) {
+	}
+	
+	//! Retrieve this class's description.
+	static const cString GetDescription() { return "No arguments."; }
+	
+	//! Called to process this event.
+  virtual void Process(cAvidaContext& ctx) {
+		for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {			
+			cDeme& deme = m_world->GetPopulation().GetDeme(i);
+			m_world->GetStats().NetworkTopology(deme.GetNetwork().Measure());
+		}
+	}
+	
+protected:
+};
+
+
 /*! This class rewards for data distribution among organisms in a deme.
  
  Specifically, "data" injected into a single cell-data field in the deme should eventually
@@ -2253,6 +2321,11 @@ public:
 	
 	static const cString GetDescription() { return "No arguments."; }
 	
+	virtual void Process(cAvidaContext& ctx) {
+		cAbstractCompeteDemes::Process(ctx);
+		m_message_counter.Reset();
+	}
+
 	//! Calculate the current fitness of this deme.
 	virtual double Fitness(cDeme& deme) {
 		return pow((double)received_data(deme) + 1.0, 2.0);
@@ -2304,6 +2377,35 @@ public:
 		double size = deme.GetSize() * 1000; // Scaled by 1000 (arbitrary) to get the fraction > 1.0.
 		double msg_count = m_message_counter.GetMessageCount(deme);
 		return pow(received + 1.0 + size / msg_count, 2.0);
+	}	
+};
+
+
+
+class cActionDistributeDataCheaply : public cActionDistributeData {
+public:
+	cActionDistributeDataCheaply(cWorld* world, const cString& args) : cActionDistributeData(world, args) {
+		m_world->GetConfig().DEME_NETWORK_TOPOLOGY_FITNESS.Set(4); // link length sum
+	}
+	
+	//! Destructor.
+	virtual ~cActionDistributeDataCheaply() { }
+	
+	static const cString GetDescription() { return "No arguments."; }
+	
+	//! Calculate the current fitness of this deme.
+	virtual double Fitness(cDeme& deme) {
+		// First, get the number that have received the data (and set their opinion):
+		unsigned int received = received_data(deme);
+		
+		// If not everyone has the data yet, we're done:
+		if(received < (unsigned int)deme.GetSize()) {
+			return pow((double)received + 1.0, 2.0);
+		}
+		
+		// sum the euclidean lengths of all links in the network:
+		double link_length_sum = deme.GetNetwork().Fitness(false);
+		return pow(received + 1.0 + 1000.0/link_length_sum, 2.0);
 	}	
 };
 
@@ -2559,16 +2661,26 @@ protected:
 			cAssignRandomCellData::ReplaceCellData(cell_data, m_world->GetRandom().GetInt(min_data, max_data), deme);
 			cell_ids.insert(cell_ids.end(), extra_cell_ids.begin(), extra_cell_ids.end());
 		}
-		
+				
 		// Ok, if we're going to kill the organisms, do so:
 		if(_kill) {
 			// This is probably only compatible with the "old-style" germline
 			for(cAssignRandomCellData::CellIDList::iterator i=cell_ids.begin(); i!=cell_ids.end(); ++i) {
-				m_world->GetPopulation().KillOrganism(deme.GetCell(*i));
-				m_world->GetPopulation().InjectGenome(*i, deme.GetGermline().GetLatest(), 0);
-				m_world->GetPopulation().DemePostInjection(deme, deme.GetCell(*i));
+				cPopulationCell& cell = deme.GetCell(*i);				
+				if(cell.IsOccupied()) {
+					if(m_world->GetConfig().DEMES_USE_GERMLINE.Get()) {
+						m_world->GetPopulation().KillOrganism(cell);
+						m_world->GetPopulation().InjectGenome(*i, SRC_DEME_GERMLINE, deme.GetGermline().GetLatest());
+					} else {
+						cGenome genome(cell.GetOrganism()->GetGenome());
+						m_world->GetPopulation().KillOrganism(cell);
+						m_world->GetPopulation().InjectGenome(*i, SRC_DEME_RANDOM, genome);
+					}
+					
+					m_world->GetPopulation().DemePostInjection(deme, cell);
+				}
 			}
-		}		
+		}
 	}
 	
 private:
@@ -2614,7 +2726,7 @@ public:
 					
 					// Kill any organism in that cell, re-seed the from the germline, and do the post-injection magic:
 					m_world->GetPopulation().KillOrganism(cell);
-					m_world->GetPopulation().InjectGenome(cell.GetID(), deme.GetGermline().GetLatest(), 0);
+					m_world->GetPopulation().InjectGenome(cell.GetID(), SRC_DEME_GERMLINE, deme.GetGermline().GetLatest());
 					m_world->GetPopulation().DemePostInjection(deme, cell);
 				}
 			}
@@ -3240,6 +3352,9 @@ public:
  'events-killed' ...demes that have killed a certian number of events
  'sat-msg-pred'  - ...demes whose message predicate was previously satisfied
  'sat-deme-predicate'...demes whose predicate has been satisfied; does not include movement or message predicates as those are organisms-level
+ 'perf-reactions' ...demes that have performed X number of each task are replicated
+ 'consume-res' ...demes that have consumed a sufficienct amount of resources
+
  */
 
 class cActionReplicateDemes : public cAction
@@ -3253,20 +3368,23 @@ public:
     cString in_trigger("full_deme");
     if (largs.GetSize()) in_trigger = largs.PopWord();
     
-    if (in_trigger == "all") m_rep_trigger = 0;
-    else if (in_trigger == "full_deme") m_rep_trigger = 1;
-    else if (in_trigger == "corners") m_rep_trigger = 2;
-    else if (in_trigger == "deme-age") m_rep_trigger = 3;
-    else if (in_trigger == "birth-count") m_rep_trigger = 4;
-    else if (in_trigger == "sat-mov-pred") m_rep_trigger = 5;
-    else if (in_trigger == "events-killed") m_rep_trigger = 6;
-    else if (in_trigger == "sat-msg-pred") m_rep_trigger = 7;
-    else if (in_trigger == "sat-deme-predicate") m_rep_trigger = 8;
+    if (in_trigger == "all") m_rep_trigger = DEME_TRIGGER_ALL;
+    else if (in_trigger == "full_deme") m_rep_trigger = DEME_TRIGGER_FULL;
+    else if (in_trigger == "corners") m_rep_trigger = DEME_TRIGGER_CORNERS;
+    else if (in_trigger == "deme-age") m_rep_trigger = DEME_TRIGGER_AGE;
+    else if (in_trigger == "birth-count") m_rep_trigger = DEME_TRIGGER_BIRTHS;
+    else if (in_trigger == "sat-mov-pred") m_rep_trigger = DEME_TRIGGER_MOVE_PREDATORS;
+    else if (in_trigger == "events-killed") m_rep_trigger = DEME_TRIGGER_GROUP_KILL;
+    else if (in_trigger == "sat-msg-pred") m_rep_trigger = DEME_TRIGGER_MESSAGE_PREDATORS;
+    else if (in_trigger == "sat-deme-predicate") m_rep_trigger = DEME_TRIGGER_PREDICATE;
+    else if (in_trigger == "perf-reactions") m_rep_trigger = DEME_TRIGGER_PERFECT_REACTIONS;
+    else if (in_trigger == "consume-res") m_rep_trigger = DEME_TRIGGER_CONSUME_RESOURCES;
     else {
       cString err("Unknown replication trigger '");
       err += in_trigger;
       err += "' in ReplicatDemes action.";
       m_world->GetDriver().RaiseException(err);
+      m_rep_trigger = DEME_TRIGGER_UNKNOWN;
       return;
     }
   }
@@ -4715,8 +4833,11 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 	
   action_lib->Register<cAbstractCompeteDemes_AttackKillAndEnergyConserve>("CompeteDemes_AttackKillAndEnergyConserve");
   action_lib->Register<cAssignRandomCellData>("AssignRandomCellData");
+	action_lib->Register<cActionMeasureDemeNetworks>("MeasureDemeNetworks");
 	action_lib->Register<cActionDistributeData>("DistributeData");
 	action_lib->Register<cActionDistributeDataEfficiently>("DistributeDataEfficiently");
+	action_lib->Register<cActionDistributeDataCheaply>("DistributeDataCheaply");
+
 	action_lib->Register<cActionCompeteDemesByNetwork>("CompeteDemesByNetwork");
   action_lib->Register<cActionIteratedConsensus>("IteratedConsensus");
 	action_lib->Register<cActionCountOpinions>("CountOpinions");
@@ -4756,39 +4877,4 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
 	
 	action_lib->Register<cActionDiffuseHGTGenomeFragments>("DiffuseHGTGenomeFragments");
 	action_lib->Register<cActionAvidianConjugation>("AvidianConjugation");
-	
-  // @DMB - The following actions are DEPRECATED aliases - These will be removed in 2.7.
-  action_lib->Register<cActionInject>("inject");
-  action_lib->Register<cActionInjectRandom>("inject_random");
-  action_lib->Register<cActionInjectAllRandomRepro>("inject_all_random_repro");
-  action_lib->Register<cActionInjectAll>("inject_all");
-  action_lib->Register<cActionInjectRange>("inject_range");
-  action_lib->Register<cActionInjectSequence>("inject_sequence");
-	
-  action_lib->Register<cActionKillProb>("apocalypse");
-  action_lib->Register<cActionKillRate>("rate_kill");
-  action_lib->Register<cActionKillRectangle>("kill_rectangle");
-  action_lib->Register<cActionSerialTransfer>("serial_transfer");
-	
-  action_lib->Register<cActionZeroMuts>("zero_muts");
-  
-  action_lib->Register<cActionCompeteDemes>("compete_demes");
-  action_lib->Register<cActionReplicateDemes>("replicate_demes");
-  action_lib->Register<cActionResetDemes>("reset_demes");
-  action_lib->Register<cActionCopyDeme>("copy_deme");
-  
-  action_lib->Register<cActionCompeteDemes>("new_trial");
-  action_lib->Register<cActionCompeteDemes>("compete_organisms");
-  
-  action_lib->Register<cActionSeverGridCol>("sever_grid_col");
-  action_lib->Register<cActionSeverGridRow>("sever_grid_row");
-  action_lib->Register<cActionJoinGridCol>("join_grid_col");
-  action_lib->Register<cActionJoinGridRow>("join_grid_row");
-	
-  action_lib->Register<cActionConnectCells>("connect_cells");
-  action_lib->Register<cActionDisconnectCells>("disconnect_cells");
-  action_lib->Register<cActionSwapCells>("swap_cells");
-  action_lib->Register<cActionKillDemePercent>("KillDemePercent");
-  action_lib->Register<cActionSetDemeTreatmentAges>("SetDemeTreatmentAges");
-  action_lib->Register<cActionMigrateDemes>("MigrateDemes");
 }

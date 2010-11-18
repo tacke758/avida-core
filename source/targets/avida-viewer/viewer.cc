@@ -2,7 +2,7 @@
  *  viewer.cc
  *  Avida
  *
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -23,21 +23,22 @@
 
 #include <csignal>
 
-#include "avida.h"
+#include "Avida.h"
+#include "AvidaTools.h"
+
 #include "cAvidaConfig.h"
 #include "cTextViewerAnalyzeDriver.h"
 #include "cDriverManager.h"
 #include "cTextViewerDriver.h"
+#include "cUserFeedback.h"
 #include "cWorld.h"
-
-#include "PlatformExpert.h"
 
 using namespace std;
 
 
 int main(int argc, char * argv[])
 {
-  PlatformExpert::Initialize();
+  Avida::Initialize();
   
   Avida::PrintVersionBanner();
   
@@ -45,21 +46,28 @@ int main(int argc, char * argv[])
   cAvidaConfig* cfg = new cAvidaConfig();
   Avida::ProcessCmdLineArgs(argc, argv, cfg);
   
-  cWorld* world = new cWorld(cfg);
-  cAvidaDriver* driver = NULL;
+  cUserFeedback feedback;
+  cWorld* world = cWorld::Initialize(cfg, AvidaTools::FileSystem::GetCWD(), &feedback);
   
+  for (int i = 0; i < feedback.GetNumMessages(); i++) {
+    switch (feedback.GetMessageType(i)) {
+      case cUserFeedback::ERROR:    cerr << "error: "; break;
+      case cUserFeedback::WARNING:  cerr << "warning: "; break;
+      default: break;
+    };
+    cerr << feedback.GetMessage(i) << endl;
+  }
+  
+  if (!world) return -1;
+  
+  cAvidaDriver* driver = NULL;
   if (world->GetConfig().ANALYZE_MODE.Get() > 0) {
     driver = new cTextViewerAnalyzeDriver(world, (world->GetConfig().ANALYZE_MODE.Get() == 2));
   } else {
     driver = new cTextViewerDriver(world);
   }
-  
-  cout << endl;
-  
+
   driver->Run();
-  
-  // Exit Nicely
-  Avida::Exit(0);
   
   return 0;
 }

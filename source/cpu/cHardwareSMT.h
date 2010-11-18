@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 6/4/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,37 +25,17 @@
 #ifndef cHardwareSMT_h
 #define cHardwareSMT_h
 
-#ifndef defs_h
-#include "defs.h"
-#endif
+#include "Avida.h"
 
-#ifndef cCodeLabel_h
 #include "cCodeLabel.h"
-#endif
-#ifndef cCPUMemory_h
 #include "cCPUMemory.h"
-#endif
-#ifndef cCPUStack_h
 #include "cCPUStack.h"
-#endif
-#ifndef cHeadCPU_h
 #include "cHeadCPU.h"
-#endif
-#ifndef cHardwareBase_h
 #include "cHardwareBase.h"
-#endif
-#ifndef cString_h
 #include "cString.h"
-#endif
-#ifndef tHashTable_h
-#include "tHashTable.h"
-#endif
-#ifndef tInstLib_h
+#include "tHashMap.h"
 #include "tInstLib.h"
-#endif
-#ifndef tManagedPointerArray_h
 #include "tManagedPointerArray.h"
-#endif
 
 
 class cHardwareSMT : public cHardwareBase
@@ -92,11 +72,11 @@ protected:
     cCodeLabel next_label;
     bool running;
     
-    // If this thread was spawned by Inject, this will point to the genotype 
-    // of the parasite running the thread.  Otherwise, it will be NULL.
-    cInjectGenotype* owner;
+    // If this thread was spawned by Inject, this will point to the biounit of the parasite running the thread.
+    // Otherwise, it will be NULL.
+    cBioUnit* owner;
     
-    cLocalThread(cHardwareBase* in_hardware = NULL) { Reset(in_hardware); }
+    cLocalThread(cHardwareBase* hw = NULL) { Reset(hw); }
     ~cLocalThread() { ; }
     
     void Reset(cHardwareBase* in_hardware, int mem_space = 0);
@@ -116,11 +96,11 @@ protected:
   // Memory
   tManagedPointerArray<cCPUMemory> m_mem_array;
   tArray<bool> m_mem_marks;
-  tHashTable<int, int> m_mem_lbls;
+  tHashMap<int, int> m_mem_lbls;
 
   // Threads
   tManagedPointerArray<cLocalThread> m_threads;
-  tHashTable<int, int> m_thread_lbls;
+  tHashMap<int, int> m_thread_lbls;
   int m_cur_thread;  
   int m_cur_child;
 
@@ -153,8 +133,8 @@ protected:
   cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
   void ReadLabel(int max_size=nHardware::MAX_LABEL_SIZE);
   cHeadCPU FindLabel(int direction);
-  int FindLabel_Forward(const cCodeLabel& search_label, const cGenome& search_genome, int pos);
-  int FindLabel_Backward(const cCodeLabel& search_label, const cGenome& search_genome, int pos);
+  int FindLabel_Forward(const cCodeLabel& search_label, const cSequence& search_genome, int pos);
+  int FindLabel_Backward(const cCodeLabel& search_label, const cSequence& search_genome, int pos);
   cHeadCPU FindLabel(const cCodeLabel& in_label, int direction);
   const cCodeLabel& GetReadLabel() const { return m_threads[m_cur_thread].read_label; }
   cCodeLabel& GetReadLabel() { return m_threads[m_cur_thread].read_label; }
@@ -181,7 +161,7 @@ protected:
 
 
   void internalReset();
-  
+  void internalResetOnFailedDivide();
   
 	int calcCopiedSize(const int parent_size, const int child_size);
   
@@ -200,7 +180,7 @@ protected:
   cHardwareSMT& operator=(const cHardwareSMT&); // @not_implemented
   
 public:
-  cHardwareSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, int inst_set_id);
+  cHardwareSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
   ~cHardwareSMT() { ; }
 
   static cInstLib* GetInstLib() { return s_inst_slib; }
@@ -255,8 +235,7 @@ public:
   inline bool ThreadSelect(const cCodeLabel& in_label);
   inline void ThreadPrev(); // Shift the current thread in use.
   inline void ThreadNext();
-  cInjectGenotype* ThreadGetOwner() { return m_threads[m_cur_thread].owner; }
-  void ThreadSetOwner(cInjectGenotype* in_genotype) { m_threads[m_cur_thread].owner = in_genotype; }
+  cBioUnit* ThreadGetOwner();
 
   int GetNumThreads() const { return m_threads.GetSize(); }
   int GetCurThread() const { return m_cur_thread; }
@@ -267,7 +246,7 @@ public:
   int GetThreadMessageTriggerType(int _index) { return -1; }
   
   // --------  Parasite Stuff  --------
-  bool InjectHost(const cCodeLabel& in_label, const cGenome& inject_code);
+  bool ParasiteInfectHost(cBioUnit* bu);
 	
   
 private:
@@ -319,18 +298,6 @@ private:
   
   bool Inst_Apoptosis(cAvidaContext& ctx);
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nHardwareSMT {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 
 inline bool cHardwareSMT::ThreadKill(const cCodeLabel& in_label)

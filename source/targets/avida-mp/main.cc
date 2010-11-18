@@ -21,18 +21,19 @@
  *
  */
 
-#include "defs.h"
+#include "Avida.h"
+
 #if BOOST_IS_AVAILABLE
 #include <boost/mpi.hpp>
 #include <boost/mpi/environment.hpp>
 #include <boost/mpi/communicator.hpp>
 
-#include "avida.h"
 #include "cAvidaConfig.h"
+#include "AvidaTools.h"
 #include "cDefaultAnalyzeDriver.h"
 #include "cDefaultRunDriver.h"
 #include "cMultiProcessWorld.h"
-#include "PlatformExpert.h"
+#include "Platform.h"
 
 using namespace std;
 
@@ -40,7 +41,7 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-  PlatformExpert::Initialize();
+  Avida::Initialize();
   
   Avida::PrintVersionBanner();
 
@@ -59,7 +60,7 @@ int main(int argc, char * argv[])
 	cfg->DATA_DIR.Set(dirname.str().c_str());
 	cout << "Data directory overwritten for Avida-MP: " << cfg->DATA_DIR.Get() << endl;
   
-  cWorld* world = new cMultiProcessWorld(cfg, mpi_env, mpi_world);
+  cWorld* world = cMultiProcessWorld::Initialize(cfg, AvidaTools::FileSystem::GetCWD(), mpi_env, mpi_world);
   cAvidaDriver* driver = NULL;
 
   if (world->GetConfig().ANALYZE_MODE.Get() > 0) {
@@ -72,9 +73,6 @@ int main(int argc, char * argv[])
   
   driver->Run();
 
-  // Exit Nicely
-  //Avida::Exit(0);
-  
   return 0;
 }
 

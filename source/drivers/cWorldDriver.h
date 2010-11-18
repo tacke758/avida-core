@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 12/10/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -35,6 +35,10 @@ class cString;
 // This class is an abstract base class that is used by actions within
 // a cWorld to notify its driver of various states and conditions.
 
+enum eDriverPauseState {
+  DRIVER_PAUSED,
+  DRIVER_UNPAUSED
+};
 
 class cWorldDriver : public virtual cDMObject
 {
@@ -69,17 +73,5 @@ public:
   virtual bool GetFastForward() { return false; }
 
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nWorldDriver {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

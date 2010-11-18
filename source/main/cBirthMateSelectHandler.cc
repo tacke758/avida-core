@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,7 +28,16 @@
 #include "cOrganism.h"
 
 
-cBirthEntry* cBirthMateSelectHandler::SelectOffspring(cAvidaContext& ctx, const cMetaGenome& offspring, cOrganism* parent)
+cBirthMateSelectHandler::~cBirthMateSelectHandler()
+{
+  for (int i = 0; i < m_entries.GetSize(); i++) {
+    m_bc->ClearEntry(m_entries[i]);
+  }
+  m_bc->ClearEntry(m_non_ms_entry);
+}
+
+
+cBirthEntry* cBirthMateSelectHandler::SelectOffspring(cAvidaContext& ctx, const cGenome& offspring, cOrganism* parent)
 {
   int mate_id = parent->GetPhenotype().MateSelectID();
   

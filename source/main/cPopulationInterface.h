@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "pop_interface.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -40,7 +40,7 @@
 
 class cAvidaContext;
 class cDeme;
-class cGenome;
+class cSequence;
 class cPopulation;
 class cOrgMessage;
 class cOrganism;
@@ -93,7 +93,7 @@ public:
   void SetPrevSeenCellID(int in_id) { m_prevseen_cell_id = in_id; }
   void SetPrevTaskCellID(int in_id) { m_prev_task_cell = in_id; }
 
-  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cMetaGenome& offspring_genome);
+  bool Divide(cAvidaContext& ctx, cOrganism* parent, const cGenome& offspring_genome);
   cOrganism* GetNeighbor();
   bool IsNeighborCellOccupied();
   int GetNumNeighbors();
@@ -106,7 +106,6 @@ public:
   int GetInputAt(int& input_pointer);
   void ResetInputs(cAvidaContext& ctx);
   const tArray<int>& GetInputs() const;
-  int Debug();
   const tArray<double>& GetResources();
   const tArray<double>& GetDemeResources(int deme_id);
   const tArray< tArray<int> >& GetCellIdLists();
@@ -120,11 +119,16 @@ public:
   int ReceiveValue();
   void SellValue(const int data, const int label, const int sell_price, const int org_id);
   int BuyValue(const int label, const int buy_price);
-  bool InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code);
+  bool InjectParasite(cOrganism* host, cBioUnit* parent, const cString& label, const cSequence& injected_code);
   bool UpdateMerit(double new_merit);
   bool TestOnDivide();
   //! Send a message to the faced organism.
   bool SendMessage(cOrgMessage& msg);
+	//! Send a message to the organism in the given cell.
+	bool SendMessage(cOrgMessage& msg, cPopulationCell& rcell);
+	//! Send a message to the cell with the given cell id.
+	bool SendMessage(cOrgMessage& msg, int cellid);	
+	//! Broadcast a message.
   bool BroadcastMessage(cOrgMessage& msg, int depth);
   bool BcastAlarm(int jump_label, int bcast_range);  
   void DivideOrgTestamentAmongDeme(double value);
@@ -133,25 +137,29 @@ public:
 
   int GetStateGridID(cAvidaContext& ctx);
 	
+  void Move(cAvidaContext& ctx, int src_id, int dest_id);
+
 	// Reputation
 	void RotateToGreatestReputation();
 	void RotateToGreatestReputationWithDifferentTag(int tag);
 	void RotateToGreatestReputationWithDifferentLineage(int line);
 	
 	// -------- Network creation support --------
+public:
 	//! Link this organism's cell to the cell it is currently facing.
 	void CreateLinkByFacing(double weight=1.0);
 	//! Link this organism's cell to the cell with coordinates (x,y).
 	void CreateLinkByXY(int x, int y, double weight=1.0);
 	//! Link this organism's cell to the cell with index idx.
 	void CreateLinkByIndex(int idx, double weight=1.0);
-
-  void Move(cAvidaContext& ctx, int src_id, int dest_id);
-
-
-protected:
-	//! Internal-use method to consolidate message-sending code.
-	bool SendMessage(cOrgMessage& msg, cPopulationCell& rcell);
+	//! Broadcast a message to all organisms that are connected by this network.
+	bool NetworkBroadcast(cOrgMessage& msg);
+	//! Unicast a message to the current selected organism.
+	bool NetworkUnicast(cOrgMessage& msg);
+	//! Rotate to select a new network link.
+	bool NetworkRotate(int x);
+	//! Select a new network link.
+	bool NetworkSelect(int x);
 	
 	// -------- HGT support --------
 public:
@@ -165,18 +173,18 @@ public:
 	void DoHGTConjugation(cAvidaContext& ctx);
 	//! Perform an HGT mutation on this offspring.
 	void DoHGTMutation(cAvidaContext& ctx, cGenome& offspring);
-	
+
 protected:
 	//! Place the fragment at the location of best match.
-	void HGTMatchPlacement(cAvidaContext& ctx, const cGenome& offspring,
+	void HGTMatchPlacement(cAvidaContext& ctx, const cSequence& offspring,
 												 fragment_list_type::iterator& selected,
 												 substring_match& location);
 	//! Place the fragment at the location of best match, with redundant instructions trimmed.
-	void HGTTrimmedPlacement(cAvidaContext& ctx, const cGenome& offspring,
+	void HGTTrimmedPlacement(cAvidaContext& ctx, const cSequence& offspring,
 													 fragment_list_type::iterator& selected,
 													 substring_match& location);	
 	//! Place the fragment at a random location.
-	void HGTRandomPlacement(cAvidaContext& ctx, const cGenome& offspring,
+	void HGTRandomPlacement(cAvidaContext& ctx, const cSequence& offspring,
 													fragment_list_type::iterator& selected,
 													substring_match& location);
 	//! Support for stateful HGT mutations.
@@ -187,19 +195,15 @@ protected:
 	//! Initialize HGT support.
 	inline void InitHGTSupport() { if(!m_hgt_support) { m_hgt_support = new HGTSupport(); } }
 	//! Called when this organism is the receiver of an HGT donation.
-	void ReceiveHGTDonation(const cGenome& fragment);
+	void ReceiveHGTDonation(const cSequence& fragment);
+  
+  
+public:
+  void JoinGroup(int group_id);
+  void LeaveGroup(int group_id);
+  
+  void BeginSleep();
+  void EndSleep();
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nPopulationInterface {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif

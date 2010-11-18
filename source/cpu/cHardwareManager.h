@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -25,32 +25,26 @@
 #ifndef cHardwareManager_h
 #define cHardwareManager_h
 
-#ifndef cTestCPU_h
 #include "cTestCPU.h"
-#endif
-
-#if USE_tMemTrack
-# ifndef tMemTrack_h
-#  include "tMemTrack.h"
-# endif
-#endif
+#include "tDictionary.h"
 
 class cAvidaContext;
 class cHardwareBase;
 class cInstSet;
-class cMetaGenome;
+class cGenome;
 class cOrganism;
+class cStringList;
+class cUserFeedback;
 class cWorld;
+template<typename T> class tList;
 
 
 class cHardwareManager
 {
-#if USE_tMemTrack
-  tMemTrack<cHardwareManager> mt;
-#endif
 private:
   cWorld* m_world;
-  cInstSet* m_inst_set;
+  tArray<cInstSet*> m_inst_sets;
+  tDictionary<int> m_is_name_map;
   int m_cpu_count;
   
   
@@ -61,25 +55,39 @@ private:
 
 public:
   cHardwareManager(cWorld* world);
-  ~cHardwareManager() { ; }
+  ~cHardwareManager();
   
-  cHardwareBase* Create(cAvidaContext& ctx, cOrganism* org, const cMetaGenome& mg, cInstSet* is = NULL);
+  bool LoadInstSets(cUserFeedback* feedback = NULL);
+  bool ConvertLegacyInstSetFile(cString filename, cStringList& str_list, cUserFeedback* feedback = NULL);
+  
+  cHardwareBase* Create(cAvidaContext& ctx, cOrganism* org, const cGenome& mg);
   inline cTestCPU* CreateTestCPU() { return new cTestCPU(m_world); }
 
-  const cInstSet& GetInstSet() const { return *m_inst_set; }
-  cInstSet& GetInstSet() { return *m_inst_set; }
+  inline bool IsInstSet(const cString& name) const { return m_is_name_map.HasEntry(name); }
+  
+  inline const cInstSet& GetInstSet(const cString& name) const;
+  inline cInstSet& GetInstSet(const cString& name);
+  const cInstSet& GetInstSet(int i) const { return *m_inst_sets[i]; }
+  
+  const cInstSet& GetDefaultInstSet() const { return *m_inst_sets[0]; }
+  
+  int GetNumInstSets() const { return m_inst_sets.GetSize(); }
+  
+  bool RegisterInstSet(const cString& name, cInstSet* inst_set);
+  
+private:
+  bool loadInstSet(int hw_type, const cString& name, cStringList& sl, cUserFeedback* feedback);
 };
 
 
-#ifdef ENABLE_UNIT_TESTS
-namespace nHardwareManager {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
+inline const cInstSet& cHardwareManager::GetInstSet(const cString& name) const
+{
+  return (name == "(default)") ? *m_inst_sets[0] : *m_inst_sets[m_is_name_map.Get(name)];
 }
-#endif  
+
+inline cInstSet& cHardwareManager::GetInstSet(const cString& name)
+{
+  return (name == "(default)") ? *m_inst_sets[0] : *m_inst_sets[m_is_name_map.Get(name)];
+}
 
 #endif

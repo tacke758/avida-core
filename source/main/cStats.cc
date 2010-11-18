@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "stats.cc" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
@@ -25,14 +25,15 @@
 
 #include "cStats.h"
 
+#include "cBioGroup.h"
 #include "cDataFile.h"
 #include "cEnvironment.h"
-#include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cHardwareManager.h"
 #include "cInstSet.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
+#include "cDeme.h"
 #include "cStringUtil.h"
 #include "cWorld.h"
 #include "cWorldDriver.h"
@@ -43,21 +44,21 @@
 #include "cReaction.h"
 #include "cEventList.h"
 
-#include "functions.h"
-
 #include <algorithm>
 #include <cfloat>
 #include <numeric>
 #include <cmath>
 #include <sstream>
 
+using namespace AvidaTools;
+
 
 cStats::cStats(cWorld* world)
   : m_world(world)
+  , m_data_manager(this, "population_data")
   , m_update(-1)
   , sub_update(0)
   , avida_time(0)
-  , data_manager(this, "population_data")
   , rave_true_replication_rate( 500 )
   , entropy(0.0)
   , species_entropy(0.0)
@@ -65,7 +66,6 @@ cStats::cStats(cWorld* world)
   , dom_fidelity(0.0)
   , ave_fidelity(0.0)
   , max_viable_fitness(0)
-  , dom_genotype(NULL)
   , dom_merit(0)
   , dom_gestation(0)
   , dom_repro_rate(0)
@@ -98,9 +98,8 @@ cStats::cStats(cWorld* world)
   , num_breed_true_creatures(0)
   , num_creatures(0)
   , num_genotypes(0)
+  , num_genotypes_historic(0)
   , num_threshold(0)
-  , num_species(0)
-  , num_thresh_species(0)
   , num_lineages(0)
   , num_executed(0)
   , num_parasites(0)
@@ -113,8 +112,6 @@ cStats::cStats(cWorld* world)
   , tot_organisms(0)
   , tot_genotypes(0)
   , tot_threshold(0)
-  , tot_species(0)
-  , tot_thresh_species(0)
   , tot_lineages(0)
   , tot_executed(0)
   , num_resamplings(0)
@@ -147,6 +144,12 @@ cStats::cStats(cWorld* world)
     
   task_cur_count.Resize(num_tasks);
   task_last_count.Resize(num_tasks);
+  
+  tasks_host_current.Resize(num_tasks);
+  tasks_host_last.Resize(num_tasks);
+  tasks_parasite_current.Resize(num_tasks);
+  tasks_parasite_last.Resize(num_tasks);
+  
   task_cur_quality.Resize(num_tasks);
   task_last_quality.Resize(num_tasks);
   task_cur_max_quality.Resize(num_tasks);
@@ -186,10 +189,8 @@ cStats::cStats(cWorld* world)
   
 
 #if INSTRUCTION_COUNT
-  sum_exe_inst_array.Resize(m_world->GetNumInstructions());
   ZeroInst();
 #endif
-  inst_names.Resize(m_world->GetNumInstructions());
 
   const int num_reactions = env.GetNumReactions();
   m_reaction_cur_count.Resize(num_reactions);
@@ -221,54 +222,54 @@ cStats::cStats(cWorld* world)
   // This block calculates how many slots we need to
   // make for paying attention to different label combinations 
   // Require sense instruction to be present then die if not at least 2 NOPs
-  
-  bool sense_used = m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense") )
-                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-unit") )
-                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-m100") );
-  if (sense_used)
-  {
-    if (m_world->GetHardwareManager().GetInstSet().GetNumNops() < 2)
-    {
-      cerr << "Error: If you have a sense instruction in your instruction set, then";
-      cerr << "you MUST also include at least two NOPs in your instruction set. " << endl; exit(1);
-    }
-  
-    int on = 1;
-    int max_sense_label_length = 0;
-    while (on < m_world->GetNumResources())
-    {
-      max_sense_label_length++;
-      sense_size += on;
-      on *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
-    }
-    sense_size += on;
-    
-    sense_last_count.Resize( sense_size );
-    sense_last_count.SetAll(0);
-      
-    sense_last_exe_count.Resize( sense_size );
-    sense_last_exe_count.SetAll(0);
-    
-    sense_names.Resize( sense_size );
-    int assign_index = 0;
-    int num_per = 1;
-    for (int i=0; i<= max_sense_label_length; i++)
-    {
-      for (int j=0; j< num_per; j++)
-      {
-        sense_names[assign_index] = (on > 1) ? 
-          cStringUtil::Stringf("sense_res.%i-%i", j*on, (j+1)*on-1) :
-          cStringUtil::Stringf("sense_res.%i", j);
-    
-        assign_index++;
-      }
-      on /= m_world->GetHardwareManager().GetInstSet().GetNumNops();
-      num_per *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
-    }
-  }
-  // End sense tracking initialization
 
-  genotype_map.Resize( m_world->GetConfig().WORLD_X.Get() * m_world->GetConfig().WORLD_Y.Get() );
+  // @DMB - This code makes assumptions about instruction sets that may not hold true under multiple inst sets.
+  //      - This sort of functionality should be reimplemented as instruction set stats or something similar
+//  bool sense_used = m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense") )
+//                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-unit") )
+//                ||  m_world->GetHardwareManager().GetInstSet().InstInSet( cStringUtil::Stringf("sense-m100") );
+//  if (sense_used)
+//  {
+//    if (m_world->GetHardwareManager().GetInstSet().GetNumNops() < 2)
+//    {
+//      cerr << "Error: If you have a sense instruction in your instruction set, then";
+//      cerr << "you MUST also include at least two NOPs in your instruction set. " << endl; exit(1);
+//    }
+//  
+//    int on = 1;
+//    int max_sense_label_length = 0;
+//    while (on < m_world->GetNumResources())
+//    {
+//      max_sense_label_length++;
+//      sense_size += on;
+//      on *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+//    }
+//    sense_size += on;
+//    
+//    sense_last_count.Resize( sense_size );
+//    sense_last_count.SetAll(0);
+//      
+//    sense_last_exe_count.Resize( sense_size );
+//    sense_last_exe_count.SetAll(0);
+//    
+//    sense_names.Resize( sense_size );
+//    int assign_index = 0;
+//    int num_per = 1;
+//    for (int i=0; i<= max_sense_label_length; i++)
+//    {
+//      for (int j=0; j< num_per; j++)
+//      {
+//        sense_names[assign_index] = (on > 1) ? 
+//          cStringUtil::Stringf("sense_res.%i-%i", j*on, (j+1)*on-1) :
+//          cStringUtil::Stringf("sense_res.%i", j);
+//    
+//        assign_index++;
+//      }
+//      on /= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+//      num_per *= m_world->GetHardwareManager().GetInstSet().GetNumNops();
+//    }
+//  }
+  // End sense tracking initialization
 
   if(m_world->GetConfig().NUM_DEMES.Get() == 0) {
     relative_pos_event_count.ResizeClear(m_world->GetConfig().WORLD_X.Get(), m_world->GetConfig().WORLD_Y.Get()); 
@@ -284,102 +285,124 @@ cStats::cStats(cWorld* world)
   SetupPrintDatabase();
 }
 
+
+void cStats::NotifyBGEvent(cBioGroup* bg, eBGEventType type, cBioUnit* bu)
+{
+  assert(bg);
+
+  switch (type) {
+    case BG_EVENT_ADD_THRESHOLD:
+      num_threshold++;
+      tot_threshold++;
+      if (m_world->GetConfig().LOG_THRESHOLD.Get()) {
+        cDataFile& df = m_world->GetDataFile("threshold.log");
+        df.Write(m_update, "Update");
+        df.Write(bg->GetID(), "ID");
+        df.Write(bg->GetProperty("name").AsString(), "Name");
+        df.Endl();
+      }
+      break;
+      
+    case BG_EVENT_REMOVE_THRESHOLD:
+      num_threshold--;
+      break;
+  } 
+  
+}
+
+
 void cStats::SetupPrintDatabase()
 {
   // Load in all the keywords, descriptions, and associated functions for
   // data management.
 
   // Time Stats
-  data_manager.Add("update",      "Update",      &cStats::GetUpdate);
-  data_manager.Add("sub_update",  "Sub-Update",  &cStats::GetSubUpdate);
-  data_manager.Add("generation",  "Generation",  &cStats::GetGeneration);
+  m_data_manager.Add("update",      "Update",      &cStats::GetUpdate);
+  m_data_manager.Add("sub_update",  "Sub-Update",  &cStats::GetSubUpdate);
+  m_data_manager.Add("generation",  "Generation",  &cStats::GetGeneration);
 
   // Population Level Stats
-  data_manager.Add("entropy",         "Genotype Entropy (Diversity)", &cStats::GetEntropy);
-  data_manager.Add("species_entropy", "Species Entropy (Diversity)",  &cStats::GetEntropy);
-  data_manager.Add("energy",          "Average Inferiority (Energy)", &cStats::GetEnergy);
-  data_manager.Add("richness",        "Number of Different Genotypes (Richness)", &cStats::GetNumGenotypes);
-  data_manager.Add("eveness",         "Equitability of Genotype Distribution (Evenness)", &cStats::GetEvenness);
-  data_manager.Add("coal_depth",      "Depth of Coalescent Genotype", &cStats::GetCoalescentDepth);
-  data_manager.Add("num_resamplings",  "Total Number of resamplings this time step", &cStats::GetResamplings);
-  data_manager.Add("num_failedResamplings",  "Total Number of divide commands that reached the resampling hard-cap this time step", &cStats::GetFailedResamplings);
+  m_data_manager.Add("entropy",         "Genotype Entropy (Diversity)", &cStats::GetEntropy);
+  m_data_manager.Add("species_entropy", "Species Entropy (Diversity)",  &cStats::GetEntropy);
+  m_data_manager.Add("energy",          "Average Inferiority (Energy)", &cStats::GetEnergy);
+  m_data_manager.Add("richness",        "Number of Different Genotypes (Richness)", &cStats::GetNumGenotypes);
+  m_data_manager.Add("eveness",         "Equitability of Genotype Distribution (Evenness)", &cStats::GetEvenness);
+  m_data_manager.Add("coal_depth",      "Depth of Coalescent Genotype", &cStats::GetCoalescentDepth);
+  m_data_manager.Add("num_resamplings",  "Total Number of resamplings this time step", &cStats::GetResamplings);
+  m_data_manager.Add("num_failedResamplings",  "Total Number of divide commands that reached the resampling hard-cap this time step", &cStats::GetFailedResamplings);
 
 
   // Dominant Genotype Stats
-  data_manager.Add("dom_merit",      "Ave Merit of Dominant Genotype",          &cStats::GetDomMerit);
-  data_manager.Add("dom_gest",       "Ave Gestation Time of Dominant Genotype", &cStats::GetDomGestation);
-  data_manager.Add("dom_fitness",    "Ave Fitness of Dominant Genotype",        &cStats::GetDomFitness);
-  data_manager.Add("dom_repro",      "Ave Repro-Rate of Dominant Genotype",     &cStats::GetDomReproRate);
-  data_manager.Add("dom_length",     "Genome Length of Dominant Genotype",      &cStats::GetDomSize);
-  data_manager.Add("dom_copy_length","Copied Length of Dominant Genotype",      &cStats::GetDomCopySize);
-  data_manager.Add("dom_exe_length", "Executed Length of Dominant Genotype",    &cStats::GetDomExeSize);
-  data_manager.Add("dom_id",         "ID of Dominant Genotype",                 &cStats::GetDomID);
-  data_manager.Add("dom_name",       "Name of Dominant Genotype",               &cStats::GetDomName);
-  data_manager.Add("dom_births",     "Birth Count of Dominant Genotype",        &cStats::GetDomBirths);
-  data_manager.Add("dom_breed_true", "Breed-True Count  of Dominant Genotype",  &cStats::GetDomBreedTrue);
-  data_manager.Add("dom_breed_in",   "Breed-In Count of Dominant Genotype",     &cStats::GetDomBreedIn);
-  data_manager.Add("dom_breed_out",  "Breed-Out Count of Dominant Genotype",    &cStats::GetDomBreedOut);
-  data_manager.Add("dom_num_cpus",   "Abundance of Dominant Genotype",          &cStats::GetDomAbundance);
-  data_manager.Add("dom_depth",      "Tree Depth of Dominant Genotype",         &cStats::GetDomGeneDepth);
-  data_manager.Add("dom_sequence",   "Sequence of Dominant Genotype",           &cStats::GetDomSequence);
+  m_data_manager.Add("dom_merit",      "Ave Merit of Dominant Genotype",          &cStats::GetDomMerit);
+  m_data_manager.Add("dom_gest",       "Ave Gestation Time of Dominant Genotype", &cStats::GetDomGestation);
+  m_data_manager.Add("dom_fitness",    "Ave Fitness of Dominant Genotype",        &cStats::GetDomFitness);
+  m_data_manager.Add("dom_repro",      "Ave Repro-Rate of Dominant Genotype",     &cStats::GetDomReproRate);
+  m_data_manager.Add("dom_length",     "Genome Length of Dominant Genotype",      &cStats::GetDomSize);
+  m_data_manager.Add("dom_copy_length","Copied Length of Dominant Genotype",      &cStats::GetDomCopySize);
+  m_data_manager.Add("dom_exe_length", "Executed Length of Dominant Genotype",    &cStats::GetDomExeSize);
+  m_data_manager.Add("dom_id",         "ID of Dominant Genotype",                 &cStats::GetDomID);
+  m_data_manager.Add("dom_name",       "Name of Dominant Genotype",               &cStats::GetDomName);
+  m_data_manager.Add("dom_births",     "Birth Count of Dominant Genotype",        &cStats::GetDomBirths);
+  m_data_manager.Add("dom_breed_true", "Breed-True Count  of Dominant Genotype",  &cStats::GetDomBreedTrue);
+  m_data_manager.Add("dom_breed_in",   "Breed-In Count of Dominant Genotype",     &cStats::GetDomBreedIn);
+  m_data_manager.Add("dom_breed_out",  "Breed-Out Count of Dominant Genotype",    &cStats::GetDomBreedOut);
+  m_data_manager.Add("dom_num_cpus",   "Abundance of Dominant Genotype",          &cStats::GetDomAbundance);
+  m_data_manager.Add("dom_depth",      "Tree Depth of Dominant Genotype",         &cStats::GetDomGeneDepth);
+  m_data_manager.Add("dom_sequence",   "Sequence of Dominant Genotype",           &cStats::GetDomSequence);
 
-  // Dominant Inject Genotype Stats
-  data_manager.Add("dom_inj_size",      "Genome Length of Dominant Parasite",   &cStats::GetDomInjSize);
-  data_manager.Add("dom_inj_ID",        "ID of Dominant Parasite",              &cStats::GetDomInjID);
-  data_manager.Add("dom_inj_name",      "Nameof Dominant Parasite",             &cStats::GetDomInjName);
-  data_manager.Add("dom_inj_births",    "Birth Count of Dominant Parasite",     &cStats::GetDomInjBirths);
-  data_manager.Add("dom_inj_abundance", "Abundance of Dominant Parasite",       &cStats::GetDomInjAbundance);
-  data_manager.Add("dom_inj_sequence",  "Sequence of Dominant Parasite",        &cStats::GetDomInjSequence);
   
   // Current Counts...
-  data_manager.Add("num_births",     "Count of Births in Population",          &cStats::GetNumBirths);
-  data_manager.Add("num_deaths",     "Count of Deaths in Population",          &cStats::GetNumDeaths);
-  data_manager.Add("breed_in",       "Count of Non-Breed-True Births",         &cStats::GetBreedIn);
-  data_manager.Add("breed_true",     "Count of Breed-True Births",             &cStats::GetBreedTrue);
-  data_manager.Add("bred_true",      "Count of Organisms that have Bred True", &cStats::GetBreedTrueCreatures);
-  data_manager.Add("num_cpus",       "Count of Organisms in Population",       &cStats::GetNumCreatures);
-  data_manager.Add("num_genotypes",  "Count of Genotypes in Population",       &cStats::GetNumGenotypes);
-  data_manager.Add("num_threshold",  "Count of Threshold Genotypes",           &cStats::GetNumThreshold);
-  data_manager.Add("num_species",    "Count of Species in Population",         &cStats::GetNumSpecies);
-  data_manager.Add("thresh_species", "Count of Threshold Species",             &cStats::GetNumThreshSpecies);
-  data_manager.Add("num_lineages",   "Count of Lineages in Population",        &cStats::GetNumLineages);
-  data_manager.Add("num_parasites",  "Count of Parasites in Population",       &cStats::GetNumParasites);
-  data_manager.Add("num_no_birth",   "Count of Childless Organisms",           &cStats::GetNumNoBirthCreatures);
+  m_data_manager.Add("num_births",     "Count of Births in Population",          &cStats::GetNumBirths);
+  m_data_manager.Add("num_deaths",     "Count of Deaths in Population",          &cStats::GetNumDeaths);
+  m_data_manager.Add("breed_in",       "Count of Non-Breed-True Births",         &cStats::GetBreedIn);
+  m_data_manager.Add("breed_true",     "Count of Breed-True Births",             &cStats::GetBreedTrue);
+  m_data_manager.Add("bred_true",      "Count of Organisms that have Bred True", &cStats::GetBreedTrueCreatures);
+  m_data_manager.Add("num_cpus",       "Count of Organisms in Population",       &cStats::GetNumCreatures);
+  m_data_manager.Add("num_genotypes",  "Count of Genotypes in Population",       &cStats::GetNumGenotypes);
+  m_data_manager.Add("num_genotypes_historic", "Count of Historic Genotypes",    &cStats::GetNumGenotypesHistoric);
+  m_data_manager.Add("num_threshold",  "Count of Threshold Genotypes",           &cStats::GetNumThreshold);
+  m_data_manager.Add("num_lineages",   "Count of Lineages in Population",        &cStats::GetNumLineages);
+  m_data_manager.Add("num_parasites",  "Count of Parasites in Population",       &cStats::GetNumParasites);
+  m_data_manager.Add("num_no_birth",   "Count of Childless Organisms",           &cStats::GetNumNoBirthCreatures);
 
   // Total Counts...
-  data_manager.Add("tot_cpus",      "Total Organisms ever in Population", &cStats::GetTotCreatures);
-  data_manager.Add("tot_genotypes", "Total Genotypes ever in Population", &cStats::GetTotGenotypes);
-  data_manager.Add("tot_threshold", "Total Threshold Genotypes Ever",     &cStats::GetTotThreshold);
-  data_manager.Add("tot_species",   "Total Species ever in Population",   &cStats::GetTotSpecies);
-  data_manager.Add("tot_lineages",  "Total Lineages ever in Population",  &cStats::GetTotLineages);
+  m_data_manager.Add("tot_cpus",      "Total Organisms ever in Population", &cStats::GetTotCreatures);
+  m_data_manager.Add("tot_genotypes", "Total Genotypes ever in Population", &cStats::GetTotGenotypes);
+  m_data_manager.Add("tot_threshold", "Total Threshold Genotypes Ever",     &cStats::GetTotThreshold);
+  m_data_manager.Add("tot_lineages",  "Total Lineages ever in Population",  &cStats::GetTotLineages);
 
   // Some Average Data...
-  data_manager.Add("ave_repro_rate", "Average Repro-Rate (1/Gestation)", &cStats::GetAveReproRate);
-  data_manager.Add("ave_merit",      "Average Merit",                    &cStats::GetAveMerit);
-  data_manager.Add("ave_age",        "Average Age",                      &cStats::GetAveCreatureAge);
-  data_manager.Add("ave_memory",     "Average Memory Used",              &cStats::GetAveMemSize);
-  data_manager.Add("ave_neutral",    "Average Neutral Metric",           &cStats::GetAveNeutralMetric);
-  data_manager.Add("ave_lineage",    "Average Lineage Label",            &cStats::GetAveLineageLabel);
-  data_manager.Add("ave_gest",       "Average Gestation Time",           &cStats::GetAveGestation);
-  data_manager.Add("ave_fitness",    "Average Fitness",                  &cStats::GetAveFitness);
-  data_manager.Add("ave_gen_age",    "Average Genotype Age",             &cStats::GetAveGenotypeAge);
-  data_manager.Add("ave_length",     "Average Genome Length",            &cStats::GetAveSize);
-  data_manager.Add("ave_copy_length","Average Copied Length",            &cStats::GetAveCopySize);
-  data_manager.Add("ave_exe_length", "Average Executed Length",          &cStats::GetAveExeSize);
-  data_manager.Add("ave_thresh_age", "Average Threshold Genotype Age",   &cStats::GetAveThresholdAge);
-  data_manager.Add("ave_species_age","Average Species Age",              &cStats::GetAveSpeciesAge);
+  m_data_manager.Add("ave_repro_rate", "Average Repro-Rate (1/Gestation)", &cStats::GetAveReproRate);
+  m_data_manager.Add("ave_merit",      "Average Merit",                    &cStats::GetAveMerit);
+  m_data_manager.Add("ave_age",        "Average Age",                      &cStats::GetAveCreatureAge);
+  m_data_manager.Add("ave_memory",     "Average Memory Used",              &cStats::GetAveMemSize);
+  m_data_manager.Add("ave_neutral",    "Average Neutral Metric",           &cStats::GetAveNeutralMetric);
+  m_data_manager.Add("ave_lineage",    "Average Lineage Label",            &cStats::GetAveLineageLabel);
+  m_data_manager.Add("ave_gest",       "Average Gestation Time",           &cStats::GetAveGestation);
+  m_data_manager.Add("ave_fitness",    "Average Fitness",                  &cStats::GetAveFitness);
+  m_data_manager.Add("ave_gen_age",    "Average Genotype Age",             &cStats::GetAveGenotypeAge);
+  m_data_manager.Add("ave_length",     "Average Genome Length",            &cStats::GetAveSize);
+  m_data_manager.Add("ave_copy_length","Average Copied Length",            &cStats::GetAveCopySize);
+  m_data_manager.Add("ave_exe_length", "Average Executed Length",          &cStats::GetAveExeSize);
+  m_data_manager.Add("ave_thresh_age", "Average Threshold Genotype Age",   &cStats::GetAveThresholdAge);
 
   // And a couple of Maximums
-  data_manager.Add("max_fitness", "Maximum Fitness in Population", &cStats::GetMaxFitness);
-  data_manager.Add("max_merit",   "Maximum Merit in Population",   &cStats::GetMaxMerit);
+  m_data_manager.Add("max_fitness", "Maximum Fitness in Population", &cStats::GetMaxFitness);
+  m_data_manager.Add("max_merit",   "Maximum Merit in Population",   &cStats::GetMaxMerit);
 
-  data_manager.Add("min_fitness", "Minimum Fitness in Population", &cStats::GetMinFitness);
+  m_data_manager.Add("min_fitness", "Minimum Fitness in Population", &cStats::GetMinFitness);
 }
 
 void cStats::ZeroTasks()
 {
   task_cur_count.SetAll(0);
   task_last_count.SetAll(0);
+  
+  tasks_host_current.SetAll(0);
+  tasks_host_last.SetAll(0);
+  tasks_parasite_current.SetAll(0);
+  tasks_parasite_last.SetAll(0);
+  
   task_cur_quality.SetAll(0);
   task_last_quality.SetAll(0);
   task_last_max_quality.SetAll(0);
@@ -404,8 +427,8 @@ void cStats::ZeroReactions()
 #if INSTRUCTION_COUNT
 void cStats::ZeroInst()
 {
-  for (int i = 0; i < sum_exe_inst_array.GetSize(); i++) {
-    sum_exe_inst_array[i].Clear();
+  for (tArrayMap<cString, tArray<cIntSum> >::iterator it = m_is_exe_inst_map.begin(); it != m_is_exe_inst_map.end(); it++) {
+    for (int i = 0; i < (*it).Value().GetSize(); i++) (*it).Value()[i].Clear();
   }
 }
 #endif
@@ -433,9 +456,14 @@ void cStats::CalcFidelity()
   // There is a (small) probability that when a random instruction is picked
   // after a mutation occurs, that it will be the original instruction again;
   // This needs to be adjusted for!
+  
+  double ave_num_insts = 0.0;
+  for (tArrayMap<cString, tArray<cString> >::iterator it = m_is_inst_names_map.begin(); it != m_is_inst_names_map.end(); it++) {
+    ave_num_insts += (*it).Value().GetSize();
+  }
+  ave_num_insts /= m_is_inst_names_map.GetSize();
 
-  double adj = static_cast<double>(m_world->GetNumInstructions() - 1) /
-    static_cast<double>(m_world->GetNumInstructions());
+  double adj = (ave_num_insts - 1.0) / ave_num_insts;
 
   double base_fidelity = (1.0 - adj * m_world->GetConfig().DIVIDE_MUT_PROB.Get()) *
     (1.0 - m_world->GetConfig().DIVIDE_INS_PROB.Get()) * (1.0 - m_world->GetConfig().DIVIDE_DEL_PROB.Get());
@@ -445,7 +473,7 @@ void cStats::CalcFidelity()
   dom_fidelity = base_fidelity * pow(1.0 - true_cm_rate, dom_size);
 }
 
-void cStats::RecordBirth(int cell_id, int genotype_id, bool breed_true)
+void cStats::RecordBirth(bool breed_true)
 {
 
 	
@@ -454,14 +482,6 @@ void cStats::RecordBirth(int cell_id, int genotype_id, bool breed_true)
 		
   tot_organisms++;
   num_births++;
-
-  if (m_world->GetConfig().LOG_CREATURES.Get()) {
-    cDataFile& df = m_world->GetDataFile("creature.log");
-    df.Write(m_update, "Update");
-    df.Write(cell_id, "Cell ID");
-    df.Write(genotype_id, "Genotype ID");
-    df.Endl();
-  }
 
   if (breed_true) num_breed_true++;
   else num_breed_in++;
@@ -488,36 +508,6 @@ void cStats::RemoveGenotype(int id_num, int parent_id,
   }
 
   (void) parasite_abundance; // Not used now, but maybe in future.
-}
-
-void cStats::AddThreshold(int id_num, const char* name, int species_num)
-{
-  num_threshold++;
-  tot_threshold++;
-  if (m_world->GetConfig().LOG_THRESHOLD.Get()) {
-    cDataFile& df = m_world->GetDataFile("threshold.log");
-    df.Write(m_update, "Update");
-    df.Write(id_num, "ID");
-    df.Write(species_num, "Species Num");
-    df.Write(name, "Name");
-    df.Endl();
-  }
-}
-
-
-void cStats::RemoveSpecies(int id_num, int parent_id, int max_gen_abundance, int max_abundance, int age)
-{
-  num_species--;
-  if (m_world->GetConfig().LOG_SPECIES.Get()) {
-    cDataFile& df = m_world->GetDataFile("species.log");
-    df.Write(m_update, "Update");
-    df.Write(id_num, "Species ID");
-    df.Write(parent_id, "Parent ID");
-    df.Write(max_gen_abundance, "Maximum Gen Abundance");
-    df.Write(max_abundance, "Maximum Abundance");
-    df.Write(age, "Age");
-    df.Endl();
-  }
 }
 
 void cStats::ProcessUpdate()
@@ -609,7 +599,7 @@ void cStats::RemoveLineage(int id_num, int parent_id, int update_born, double ge
 void cStats::PrintDataFile(const cString& filename, const cString& format, char sep)
 {
   cDataFile& data_file = m_world->GetDataFile(filename);
-  data_manager.PrintRow(data_file, format, sep);
+  m_data_manager.PrintRow(data_file, format, sep);
 }
 
 
@@ -804,10 +794,6 @@ void cStats::PrintParasiteData(const cString& filename)
 
   df.Write(m_update, "Update");
   df.Write(num_parasites, "Number of Extant Parasites");
-  df.Write(dom_inj_size, "Size of Dominant Parasite Genotype");
-  df.Write(dom_inj_abundance, "Abundance of Dominant Parasite Genotype");
-  df.Write(dom_inj_genotype_id, "Genotype ID of Dominant Parasite Genotype");
-  df.Write(dom_inj_name, "Name of the Dominant Parasite Genotype");
   df.Endl();
 }
 
@@ -851,8 +837,8 @@ void cStats::PrintCountData(const cString& filename)
   df.Write(num_creatures,          "number of organisms");
   df.Write(num_genotypes,          "number of different genotypes");
   df.Write(num_threshold,          "number of different threshold genotypes");
-  df.Write(num_species,            "number of different species");
-  df.Write(num_thresh_species,     "number of different threshold species");
+  df.Write(0,                      "number of different species");
+  df.Write(0,                      "number of different threshold species");
   df.Write(num_lineages,           "number of different lineages");
   df.Write(num_births,             "number of births in this update");
   df.Write(num_deaths,             "number of deaths in this update");
@@ -945,7 +931,7 @@ void cStats::PrintTotalsData(const cString& filename)
   df.Write(tot_organisms, "Total Organisms");
   df.Write(tot_genotypes, "Total Genotypes");
   df.Write(tot_threshold, "Total Threshold");
-  df.Write(tot_species, "Total Species");
+  df.Write(0, "Total Species");
   df.Write(tot_lineages, "Total Lineages");
   df.Endl();
 }
@@ -972,6 +958,54 @@ void cStats::PrintTasksData(const cString& filename)
 	df.Write(m_update,   "Update");
 	for(int i = 0; i < task_last_count.GetSize(); i++) {
 		df.Write(task_last_count[i], task_names[i] );
+	}
+	df.Endl();
+}
+
+void cStats::PrintHostTasksData(const cString& filename)
+{
+	cString file = filename;
+  
+	// flag to print both tasks.dat and taskquality.dat
+	if (filename == "tasksq.dat")
+	{
+		file = "host_tasks.dat";
+	}
+  
+	// print tasks.dat
+	cDataFile& df = m_world->GetDataFile(file);
+	df.WriteComment("Avida Host Tasks data");
+	df.WriteTimeStamp();
+	df.WriteComment("First column gives the current update, next columns give the number");
+	df.WriteComment("of Hosts that have the particular task");
+  
+	df.Write(m_update,   "Update");
+	for(int i = 0; i < tasks_host_last.GetSize(); i++) {
+		df.Write(tasks_host_last[i], task_names[i] );
+	}
+	df.Endl();
+}
+
+void cStats::PrintParasiteTasksData(const cString& filename)
+{
+	cString file = filename;
+  
+	// flag to print both tasks.dat and taskquality.dat
+	if (filename == "tasksq.dat")
+	{
+		file = "parasite_tasks.dat";
+	}
+  
+	// print tasks.dat
+	cDataFile& df = m_world->GetDataFile(file);
+	df.WriteComment("Avida tasks data");
+	df.WriteTimeStamp();
+	df.WriteComment("First column gives the current update, next columns give the number");
+	df.WriteComment("of Parasites that have the particular task");
+  
+	df.Write(m_update,   "Update");
+	for(int i = 0; i < tasks_parasite_last.GetSize(); i++) {
+		df.Write(tasks_parasite_last[i], task_names[i] );
 	}
 	df.Endl();
 }
@@ -1326,7 +1360,7 @@ void cStats::PrintDivideMutData(const cString& filename)
   df.Endl();
 }
 
-void cStats::PrintInstructionData(const cString& filename)
+void cStats::PrintInstructionData(const cString& filename, const cString& inst_set)
 {
   cDataFile& df = m_world->GetDataFile(filename);
 
@@ -1336,33 +1370,14 @@ void cStats::PrintInstructionData(const cString& filename)
   df.Write(m_update, "Update");
 
 #if INSTRUCTION_COUNT
-  for (int i = 0; i < sum_exe_inst_array.GetSize(); i++) {
-    df.Write(sum_exe_inst_array[i].Sum(), inst_names[i]);
+  for (int i = 0; i < m_is_exe_inst_map[inst_set].GetSize(); i++) {
+    df.Write(m_is_exe_inst_map[inst_set][i].Sum(), m_is_inst_names_map[inst_set][i]);
   }
 #else // INSTRUCTION_COUNT undefined
   m_world->GetDriver().RaiseException("Warning: Instruction Counts not compiled in");
 #endif // ifdef INSTRUCTION_COUNT
 
   df.Endl();
-}
-
-void cStats::PrintGenotypeMap(const cString& filename)
-{
-  cDataFile& df = m_world->GetDataFile(filename);
-  cString UpdateStr =
-    cStringUtil::Stringf( "GenoID%07i", GetUpdate() ) + " = [ ...";
-  df.WriteRaw(UpdateStr);
-
-  int gridsize = genotype_map.GetSize();
-  int xsize = m_world->GetConfig().WORLD_X.Get();
-
-  // write grid to file                                        
-
-  for (int i = 0; i < gridsize; i++) {
-    df.WriteBlockElement(genotype_map[i],i,xsize);
-  }
-  df.WriteRaw("];");
-  df.Flush();
 }
 
 void cStats::PrintMarketData(const cString& filename)
@@ -1641,6 +1656,7 @@ void cStats::PrintPredSatFracDump(const cString& filename) {
 void cStats::DemePreReplication(cDeme& source_deme, cDeme& target_deme)
 {
   ++m_deme_num_repls;
+	++m_total_deme_num_repls;
   m_deme_gestation_time.Add(source_deme.GetAge());
   m_deme_births.Add(source_deme.GetBirthCount());
   m_deme_merit.Add(source_deme.GetHeritableDemeMerit().GetDouble());
@@ -1672,16 +1688,7 @@ lose the ancestral deme founders.
 */
 void cStats::DemePostReplication(cDeme& source_deme, cDeme& target_deme)
 {
-  std::vector<int> genotype_ids;
-  for(int i=0; i<target_deme.GetSize(); ++i) {
-    cPopulationCell& cell = target_deme.GetCell(i);
-    if(cell.IsOccupied()) {
-      genotype_ids.push_back(cell.GetOrganism()->GetGenotype()->GetID());  
-    }
-  }
-  //assert(genotype_ids.size()>0); // How did we get to replication otherwise?
-  //@JEB some germline methods can result in empty source demes if they didn't produce a germ)
-  m_deme_founders[target_deme.GetID()] = genotype_ids;
+  m_deme_founders[target_deme.GetID()] = target_deme.GetGenotypeIDs();
 }
 
 
@@ -2844,11 +2851,10 @@ void cStats::PrintShadedAltruists(const cString& filename) {
     if(cell.IsOccupied()) {
 			org = cell.GetOrganism();
 			
-			cInstSet& inst_set = m_world->GetHardwareManager().GetInstSet();
-			const int num_inst = m_world->GetNumInstructions();
+			const cInstSet& inst_set = m_world->GetHardwareManager().GetDefaultInstSet();
+			const int num_inst = inst_set.GetSize();
 			for (int i = 0; i < num_inst; i++) { 
-				if ((inst_set.GetName(i) == "donate-shadedgb") && 
-						(org->GetPhenotype().GetTestCPUInstCount().GetSize() > 0)) {
+				if ((inst_set.GetName(i) == "donate-shadedgb") && (org->GetPhenotype().GetTestCPUInstCount().GetSize() > 0)) {
 					shade_of_gb = org->GetPhenotype().GetTestCPUInstCount()[i];
 				} 
 			}
@@ -2980,6 +2986,15 @@ void cStats::PrintGroupIds(const cString& filename)
 	
 }
 
+/*! Track named network stats.
+ */
+void cStats::NetworkTopology(const network_stats_t& ns) {
+	for(network_stats_t::const_iterator i=ns.begin(); i!=ns.end(); ++i) {
+		m_network_stats[i->first].Add(i->second);
+	}
+}
+
+
 /*! Print and reset network statistics.
  */
 void cStats::PrintDemeNetworkData(const cString& filename) {
@@ -2987,17 +3002,34 @@ void cStats::PrintDemeNetworkData(const cString& filename) {
   
   df.WriteComment("Deme network statistics");
   df.WriteTimeStamp();
+	df.Write(GetUpdate(), "Update [update]");
+	for(avg_network_stats_t::iterator i=m_network_stats.begin(); i!=m_network_stats.end(); ++i) {
+		df.Write(i->second.Average(), i->first.c_str());
+	}
+	df.Endl();
+	m_network_stats.clear();
 }
+
+void cStats::PrintDemeNetworkTopology(const cString& filename) {
+  cDataFile& df = m_world->GetDataFile(filename);
+  df.WriteComment("Deme network topologies.");
+  df.WriteTimeStamp();
+	
+	for(int i=0; i<m_world->GetPopulation().GetNumDemes(); ++i) {
+		m_world->GetPopulation().GetDeme(i).GetNetwork().PrintTopology(df);
+	}
+}
+
 
 /*! Called when an organism metabolizes a genome fragment.
  */
-void cStats::GenomeFragmentMetabolized(cOrganism* organism, const cGenome& fragment) {
+void cStats::GenomeFragmentMetabolized(cOrganism* organism, const cSequence& fragment) {
 	m_hgt_metabolized.Add(fragment.GetSize());
 }
 
 /*! Called when a fragment is inserted into an offspring's genome via HGT.
  */
-void cStats::GenomeFragmentInserted(cOrganism* organism, const cGenome& fragment, const cGenomeUtil::substring_match& location) {
+void cStats::GenomeFragmentInserted(cOrganism* organism, const cSequence& fragment, const cGenomeUtil::substring_match& location) {
 	m_hgt_inserted.Add(fragment.GetSize());
 }
 
@@ -3017,4 +3049,196 @@ void cStats::PrintHGTData(const cString& filename) {
 	
 	m_hgt_metabolized.Clear();
 	m_hgt_inserted.Clear();
+}
+
+
+/*! Log a message.
+ */
+void cStats::LogMessage(const cOrgMessage& msg, bool dropped, bool lost) {
+	m_message_log.push_back(message_log_entry_t(GetUpdate(),
+																							msg.GetSender()->GetDeme()->GetID(),
+																							msg.GetSenderCellID(), 
+																							msg.GetReceiverCellID(), 
+																							msg.GetData(),
+																							msg.GetLabel(),
+																							dropped,
+																							lost));
+}
+
+/*! Prints logged messages.
+ */
+void cStats::PrintMessageLog(const cString& filename) {
+	cDataFile& df = m_world->GetDataFile(filename);
+	
+	df.WriteComment("Log of all messages sent in population.");
+  df.WriteTimeStamp();
+
+	for(message_log_t::iterator i=m_message_log.begin(); i!=m_message_log.end(); ++i) {
+		df.Write(i->update, "Update [update]");
+		df.Write(i->deme, "Deme ID [deme]");
+		df.Write(i->src_cell, "Source [src]");
+		df.Write(i->dst_cell, "Destination [dst]");
+		df.Write(i->msg_data, "Message data [data]");
+		df.Write(i->msg_label, "Message label [label]");
+		df.Write(i->dropped, "Dropped [dropped]");
+		df.Write(i->lost, "Lost [lost]");
+		df.Endl();
+	}
+
+	m_message_log.clear();
+}
+
+
+/* Add that an organism performed a task at a certain age */
+void cStats::AgeTaskEvent(int org_id, int task_id, int org_age) { 
+	reaction_age_map[task_id].Add(org_age); 
+}
+
+/* Track the relationship between the age of the organism and the task that they perform */
+
+void cStats::PrintAgePolyethismData(const cString& filename) {
+	cDataFile& df = m_world->GetDataFile(filename);
+	const cEnvironment& env = m_world->GetEnvironment();
+  const int num_tasks = env.GetNumTasks();
+  
+  df.WriteComment("Tasks, mean organism age, and variance of ages");
+  df.WriteTimeStamp();
+	df.WriteColumnDesc("Update [update]");
+	for(int i = 0; i < num_tasks; i++) {
+		string s;
+		std::stringstream out;
+		out << i;
+		s = out.str();
+		string av_comment = "Task " + s + " Organism Age Mean [meanorgage" + s + "]";
+		string err_comment = "Task " + s + " Organism Age Standard Error [errorgage" + s + "]"; 
+		df.WriteColumnDesc(av_comment.c_str());
+		df.WriteColumnDesc(err_comment.c_str());
+		
+	}
+	
+	df.FlushComments();	
+	df.Write(m_update,   "Update");
+	for(int i = 0; i < num_tasks; i++) {
+		string s;
+		std::stringstream out;
+		out << i;
+		s = out.str();
+		
+		string av_comment = "Task " + s + " Organism Age Mean [meanorgage" + s + "]";
+		string err_comment = "Task " + s + " Organism Age Standard Error [errorgage" + s + "]"; 
+		if (reaction_age_map[i].Count()  > 0) {
+			df.Write(reaction_age_map[i].Average(), av_comment.c_str());
+			df.Write(reaction_age_map[i].StdError(), err_comment.c_str());
+		} else {
+			df.Write(0, av_comment.c_str());
+			df.Write(0, err_comment.c_str());		
+		}
+		
+		reaction_age_map[i].Clear();
+	}
+	df.Endl();
+}
+
+
+
+
+/*! Print statistics related to the diversity of reactions performed by a deme 
+ prior to replication.  */
+void cStats::PrintDemeReactionDiversityReplicationData(const cString& filename)
+{
+  cDataFile& df = m_world->GetDataFile(filename);
+  
+  df.WriteComment("Avida deme reaction diversity replication data");
+  df.WriteTimeStamp();
+  df.Write(GetUpdate(), "Update [update]");
+	
+	while(m_switching.size()>100) {
+		m_switching.pop_front();
+	}
+	while(m_deme_diversity.size()>100) {
+		m_deme_diversity.pop_front();
+	}
+	while(m_shannon_div.size()>100) {
+		m_shannon_div.pop_front();
+	}
+	while(m_num_orgs_perf_reaction.size() > 100) {
+		m_num_orgs_perf_reaction.pop_front();
+	}
+	
+	if(m_deme_diversity.empty()) {
+		df.Write(0.0, "Mean number of different reactions by deme [demereact]");
+	} else {
+		df.Write(std::accumulate(m_deme_diversity.begin(), m_deme_diversity.end(), 0.0)/m_deme_diversity.size(), "Mean number of different reactions by deme [demereact]"); 
+	}
+	if(m_switching.empty()) {
+		df.Write(0.0, "Mean number of deme switch penalties per org  [orgpen]"); 
+	} else {
+		df.Write(std::accumulate(m_switching.begin(), m_switching.end(), 0.0)/m_switching.size(), "Mean number of deme switch penalties per org  [orgpen]");
+	}
+	if(m_shannon_div.empty()) {
+		df.Write(0.0, "Mean shannon mutual entropy per deme [shannon]"); 
+	} else {
+		df.Write(std::accumulate(m_shannon_div.begin(), m_shannon_div.end(), 0.0)/m_shannon_div.size(), "Mean shannon mutual entropy [shannon]");
+	}
+	if(m_num_orgs_perf_reaction.empty()) {
+		df.Write(0.0, "Mean number of orgs that perform a reaction [meanreact]"); 
+	} else {
+		df.Write(std::accumulate(m_num_orgs_perf_reaction.begin(), m_num_orgs_perf_reaction.end(), 0.0)/m_num_orgs_perf_reaction.size(), "Mean number of orgs that perform a reaction [meanreact]");
+	}
+	
+	
+  df.Endl();
+}
+
+/*! Record information about an organism migrating from this population.
+ */
+void cStats::OutgoingMigrant(const cOrganism* org) {
+	m_outgoing.Add(1);
+}
+
+/*! Record information about an organism migrating into this population.
+ */
+void cStats::IncomingMigrant(const cOrganism* org) {
+	m_incoming.Add(1);
+}
+
+/*! Print multiprocess data.
+ */
+void cStats::PrintMultiProcessData(const cString& filename) {
+	cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Avida-MP data");
+  df.WriteTimeStamp();
+  df.Write(GetUpdate(), "Update [update]");
+	df.Write(m_outgoing.Count(), "Outgoing migrants [outgoing]");
+	df.Write(m_incoming.Count(), "Incoming migrants [incoming]");
+	df.Endl();
+	
+	m_outgoing.Clear();
+	m_incoming.Clear();
+}
+
+/*! Track profiling data.
+ */
+void cStats::ProfilingData(const profiling_stats_t& pf) {
+	for(profiling_stats_t::const_iterator i=pf.begin(); i!=pf.end(); ++i) {
+		m_profiling[i->first].Add(i->second);
+	}
+}
+
+/*! Print profiling data.
+ */
+void cStats::PrintProfilingData(const cString& filename) {
+	cDataFile& df = m_world->GetDataFile(filename);
+
+  df.WriteComment("Profiling statistics");
+  df.WriteTimeStamp();
+	df.Write(GetUpdate(), "Update [update]");
+	
+	for(avg_profiling_stats_t::iterator i=m_profiling.begin(); i!=m_profiling.end(); ++i) {
+		df.Write(i->second.Average(), i->first.c_str());
+	}
+	df.Endl();
+
+	m_profiling.clear();
 }

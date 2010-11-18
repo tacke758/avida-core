@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Created by David Bryson on 4/1/09.
- *  Copyright 2009 Michigan State University. All rights reserved.
+ *  Copyright 2009-2010 Michigan State University. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or
@@ -27,7 +27,12 @@
 #include "cBirthChamber.h"
 
 
-cBirthEntry* cBirthGlobalHandler::SelectOffspring(cAvidaContext& ctx, const cMetaGenome& offspring, cOrganism* parent)
+cBirthGlobalHandler::~cBirthGlobalHandler()
+{
+  m_bc->ClearEntry(m_entry);
+}
+
+cBirthEntry* cBirthGlobalHandler::SelectOffspring(cAvidaContext& ctx, const cGenome& offspring, cOrganism* parent)
 {
   if (!m_bc->ValidBirthEntry(m_entry)) {
     m_bc->StoreAsEntry(offspring, parent, m_entry);

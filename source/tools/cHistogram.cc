@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "histogram.cc" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,12 +25,13 @@
 
 #include "cHistogram.h"
 
-#include "functions.h"
+#include "AvidaTools.h"
 
 #include <cstdio>
 #include <iostream>
 
 using namespace std;
+using namespace AvidaTools;
 
 
 cHistogram::cHistogram(int in_max, int in_min)

@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "help_manager.cc" prior to 12/7/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -25,6 +25,7 @@
 
 #include "cHelpManager.h"
 
+#include "AvidaTools.h"
 #include "cHelpType.h"
 #include "cInitFile.h"
 #include "cString.h"
@@ -54,7 +55,7 @@ cHelpType* cHelpManager::GetType(const cString type_name)
 
 void cHelpManager::LoadFile(const cString & filename)
 {
-  cInitFile help_file(filename);
+  cInitFile help_file(filename, AvidaTools::FileSystem::GetCWD());
 
   cHelpType * type = NULL;
   cString keyword;

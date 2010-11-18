@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "phenotype.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -28,8 +28,8 @@
 
 #include <fstream>
 
-#ifndef cGenome_h
-#include "cGenome.h"
+#ifndef cSequence_h
+#include "cSequence.h"
 #endif
 #ifndef cMerit_h
 #include "cMerit.h"
@@ -43,8 +43,8 @@
 #ifndef cCodeLabel_h
 #include "cCodeLabel.h"
 #endif
-#ifndef tHashTable_h
-#include "tHashTable.h"
+#ifndef tHashMap_h
+#include "tHashMap.h"
 #endif
 #ifndef cWorld_h
 #include "cWorld.h"
@@ -123,6 +123,8 @@ private:
   int cur_num_errors;                         // Total instructions executed illeagally.
   int cur_num_donates;                        // Number of donations so far
   tArray<int> cur_task_count;                 // Total times each task was performed
+  tArray<int> cur_para_tasks;                 // Total times each task was performed by the parasite @LZ
+  tArray<int> cur_host_tasks;                 // Total times each task was done by JUST the host @LZ
   tArray<int> cur_internal_task_count;        // Total times each task was performed using internal resources
   tArray<int> eff_task_count;                 // Total times each task was performed (resetable during the life of the organism)
   tArray<double> cur_task_quality;            // Average (total?) quality with which each task was performed
@@ -137,16 +139,17 @@ private:
   tArray<int> cur_sense_count;                // Total times resource combinations have been sensed; @JEB 
   tArray<double> sensed_resources;            // Resources which the organism has sensed; @JEB 
   tArray<double> cur_task_time;    // Time at which each task was last performed; WRE 03-18-07
-  tHashTable<void*, cTaskState*> m_task_states;
+  tHashMap<void*, cTaskState*> m_task_states;
   tArray<double> cur_trial_fitnesses;         // Fitnesses of various trials.; @JEB
   tArray<double> cur_trial_bonuses;           // Bonuses of various trials.; @JEB
   tArray<int> cur_trial_times_used;           // Time used in of various trials.; @JEB
   int trial_time_used;                        // like time_used, but reset every trial; @JEB
   int trial_cpu_cycles_used;                  // like cpu_cycles_used, but reset every trial; @JEB
   double last_child_germline_propensity;   // chance of child being a germline cell; @JEB
-  
+
   cReactionResult* m_reaction_result;
   
+
 
   // 3. These mark the status of "in progess" variables at the last divide.
   double last_merit_base;         // Either constant or based on genome length.
@@ -155,6 +158,8 @@ private:
   int last_num_errors;
   int last_num_donates;
   tArray<int> last_task_count;
+  tArray<int> last_para_tasks;
+  tArray<int> last_host_tasks;                // Last task counts from hosts only, before last divide @LZ
   tArray<int> last_internal_task_count;
   tArray<double> last_task_quality;
   tArray<double> last_task_value;
@@ -169,8 +174,11 @@ private:
   double last_fitness;            // Used to determine sterilization.
   int last_cpu_cycles_used;
   double cur_child_germline_propensity;   // chance of child being a germline cell; @JEB
+  
+  
 
   // 4. Records from this organism's life...
+  int num_divides_failed; //Number of failed divide events @LZ
   int num_divides;       // Total successful divides organism has produced.
   int generation;        // Number of birth events to original ancestor.
   int cpu_cycles_used;   // Total CPU cycles consumed. @JEB
@@ -184,6 +192,9 @@ private:
   double gmu_exec_time_born; //@MRR mutation-rate and gestation time scaled time of birth
   int birth_update;      // @MRR update *organism* born
 	tArray<int> testCPU_inst_count;	  // Instruction exection counter as calculated by Test CPU
+	int last_task_id; // id of the previous task
+	int num_new_unique_reactions; // count the number of new unique reactions this organism has performed.
+	double res_consumed; // amount of resources consumed since the organism last turned them over to the deme.
 
   
   // 5. Status Flags...  (updated at each divide)
@@ -268,11 +279,10 @@ private:
   inline void SetInstSetSize(int inst_set_size);
 
   
-  cPhenotype(cWorld* world);
-
-  
 public:
   cPhenotype() : m_world(NULL), m_reaction_result(NULL) { ; } // Will not construct a valid cPhenotype! Only exists to support incorrect cDeme tArray usage.
+  cPhenotype(cWorld* world, int parent_generation, int num_nops);
+
 
   cPhenotype(const cPhenotype&); 
   cPhenotype& operator=(const cPhenotype&); 
@@ -282,17 +292,19 @@ public:
 	
   bool OK();
 
+  void ResetMerit(const cSequence & _cgenome);
+  void Sterilize();
   // Run when being setup *as* and offspring.
-  void SetupOffspring(const cPhenotype & parent_phenotype, const cGenome & _genome);
+  void SetupOffspring(const cPhenotype & parent_phenotype, const cSequence & _genome);
 
   // Run when being setup as an injected organism.
-  void SetupInject(const cGenome & _genome);
+  void SetupInject(const cSequence & _genome);
 
   // Run when this organism successfully executes a divide.
-  void DivideReset(const cGenome & _genome);
+  void DivideReset(const cSequence & _genome);
   
   // Same as DivideReset(), but only run in test CPUs.
-  void TestDivideReset(const cGenome & _genome);
+  void TestDivideReset(const cSequence & _genome);
 
   // Run when an organism is being forced to replicate, but not at the end
   // of its replication cycle.  Assume exact clone with no mutations.
@@ -302,7 +314,7 @@ public:
   bool TestInput(tBuffer<int>& inputs, tBuffer<int>& outputs);
   bool TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
                   const tArray<double>& res_in, const tArray<double>& rbins_in, tArray<double>& res_change,
-                  tArray<int>& insts_triggered);
+                  tArray<cString>& insts_triggered, bool is_parasite=false);
 
   // State saving and loading, and printing...
   void PrintStatus(std::ostream& fp) const;
@@ -359,6 +371,8 @@ public:
   int GetCurNumErrors() const { assert(initialized == true); return cur_num_errors; }
   int GetCurNumDonates() const { assert(initialized == true); return cur_num_donates; }
   const tArray<int>& GetCurTaskCount() const { assert(initialized == true); return cur_task_count; }
+  const tArray<int>& GetCurHostTaskCount() const { assert(initialized == true); return cur_host_tasks; }
+  const tArray<int>& GetCurParasiteTaskCount() const { assert(initialized == true); return cur_para_tasks; }
   const tArray<int>& GetCurInternalTaskCount() const { assert(initialized == true); return cur_internal_task_count; }
   void ClearEffTaskCount() { assert(initialized == true); eff_task_count.SetAll(0); }
   const tArray<double> & GetCurTaskQuality() const { assert(initialized == true); return cur_task_quality; }
@@ -377,8 +391,9 @@ public:
   int GetCurCollectSpecCount(int spec_id) const { assert(initialized == true); return cur_collect_spec_counts[spec_id]; }
 	const tArray<int>& GetTestCPUInstCount() const { assert(initialized == true); return testCPU_inst_count; }
 
+
   void  NewTrial(); //Save the current fitness, and reset the bonus. @JEB
-  void  TrialDivideReset(const cGenome & _genome); //Subset of resets specific to division not done by NewTrial. @JEB
+  void  TrialDivideReset(const cSequence & _genome); //Subset of resets specific to division not done by NewTrial. @JEB
   const tArray<double>& GetTrialFitnesses() { return cur_trial_fitnesses; }; //Return list of trial fitnesses. @JEB
   const tArray<double>& GetTrialBonuses() { return cur_trial_bonuses; }; //Return list of trial bonuses. @JEB
   const tArray<int>& GetTrialTimesUsed() { return cur_trial_times_used; }; //Return list of trial times used. @JEB
@@ -390,6 +405,9 @@ public:
   int GetLastNumErrors() const { assert(initialized == true); return last_num_errors; }
   int GetLastNumDonates() const { assert(initialized == true); return last_num_donates; }
   const tArray<int>& GetLastTaskCount() const { assert(initialized == true); return last_task_count; }
+  const tArray<int>& GetLastHostTaskCount() const { assert(initialized == true); return last_host_tasks; }
+  const tArray<int>& GetLastParasiteTaskCount() const { assert(initialized == true); return last_para_tasks; }
+  void  SetLastParasiteTaskCount(tArray<int>  oldParaPhenotype);
   const tArray<int>& GetLastInternalTaskCount() const { assert(initialized == true); return last_internal_task_count; }
   const tArray<double>& GetLastTaskQuality() const { assert(initialized == true); return last_task_quality; }
   const tArray<double>& GetLastTaskValue() const { assert(initialized == true); return last_task_value; }
@@ -406,7 +424,9 @@ public:
   int GetLastCollectSpecCount(int spec_id) const { assert(initialized == true); return last_collect_spec_counts[spec_id]; }
 
   int GetNumDivides() const { assert(initialized == true); return num_divides;}
-  int GetGeneration() const { assert(initialized == true); return generation; }
+  int GetNumDivideFailed() const { assert(initialized == true); return num_divides_failed;}
+
+  int GetGeneration() const { return generation; }
   int GetCPUCyclesUsed() const { assert(initialized == true); return cpu_cycles_used; }
   int GetTimeUsed()   const { assert(initialized == true); return time_used; }
   int GetTrialTimeUsed()   const { assert(initialized == true); return trial_time_used; }
@@ -575,7 +595,7 @@ public:
   void IncTimeUsed(int i=1) { assert(initialized == true); time_used+=i; trial_time_used+=i; }
   void IncErrors()   { assert(initialized == true); cur_num_errors++; }
   void IncDonates()   { assert(initialized == true); cur_num_donates++; }
-  void IncSenseCount(const int i) { assert(initialized == true); cur_sense_count[i]++; }  
+  void IncSenseCount(const int i) { /*assert(initialized == true); cur_sense_count[i]++;*/ }  
   
   bool& IsInjected() { assert(initialized == true); return is_injected; }
   bool& IsModifier() { assert(initialized == true); return is_modifier; }
@@ -595,6 +615,18 @@ public:
   void DoubleEnergyUsage();
   void HalveEnergyUsage();
   void DefaultEnergyUsage();
+	
+	// --- Support for Division of Labor --- //
+	int GetLastTaskID() const { return last_task_id; }
+	int  GetNumNewUniqueReactions() const {assert(initialized == true);  return num_new_unique_reactions; }
+	void  ResetNumNewUniqueReactions()  {num_new_unique_reactions =0; }
+	double GetResourcesConsumed(); 
+
+  //LZ - Parasite Etc. Helpers
+  void DivideFailed();
+  void UpdateParasiteTasks() { last_para_tasks = cur_para_tasks; cur_para_tasks.SetAll(0); return; }
+
+
   
   void RefreshEnergy();
   void ApplyToEnergyStore();

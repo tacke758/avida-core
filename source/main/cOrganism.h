@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "organism.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -26,6 +26,21 @@
 #ifndef cOrganism_h
 #define cOrganism_h
 
+#include "cBioUnit.h"
+#include "cCPUMemory.h"
+#include "cGenomeTestMetrics.h"
+#include "cGenome.h"
+#include "cMutationRates.h"
+#include "cPhenotype.h"
+#include "cOrgInterface.h"
+#include "cOrgSeqMessage.h"
+#include "cOrgSourceMessage.h"
+#include "cOrgMessage.h"
+#include "tArray.h"
+#include "tBuffer.h"
+#include "tList.h"
+#include "tSmartArray.h"
+
 #include <deque>
 #include <iostream>
 #include <set>
@@ -34,53 +49,10 @@
 #include <utility>
 #include <map>
 
-#ifndef cCPUMemory_h
-#include "cCPUMemory.h"
-#endif
-#ifndef cLocalMutations_h
-#include "cLocalMutations.h"
-#endif
-#ifndef cMetaGenome_h
-#include "cMetaGenome.h"
-#endif
-#ifndef cMutationRates_h
-#include "cMutationRates.h"
-#endif
-#ifndef cPhenotype_h
-#include "cPhenotype.h"
-#endif
-#ifndef cOrgInterface_h
-#include "cOrgInterface.h"
-#endif
-#ifndef cOrgSeqMessage_h
-#include "cOrgSeqMessage.h"
-#endif
-#ifndef cOrgSourceMessage_h
-#include "cOrgSourceMessage.h"
-#endif
-#ifndef cOrgMessage_h
-#include "cOrgMessage.h"
-#endif
-#ifndef tArray_h
-#include "tArray.h"
-#endif
-#ifndef tBuffer_h
-#include "tBuffer.h"
-#endif
-#ifndef tList_h
-#include "tList.h"
-#endif
-#ifndef tSmartArray_h
-#include "tSmartArray.h"
-#endif
-
-
 class cAvidaContext;
-class cCodeLabel;
+class cBioGroup;
 class cEnvironment;
-class cGenotype;
 class cHardwareBase;
-class cInjectGenotype;
 class cInstSet;
 class cLineage;
 class cOrgSinkMessage;
@@ -89,17 +61,17 @@ class cStateGrid;
 
 
 
-class cOrganism
+class cOrganism : public cBioUnit
 {
 private:
   cWorld* m_world;
   cHardwareBase* m_hardware;              // The actual machinery running this organism.
-  cGenotype* m_genotype;                  // Information about organisms with this genome.
   cPhenotype m_phenotype;                 // Descriptive attributes of organism.
-  const cMetaGenome m_initial_genome;         // Initial genome; can never be changed!
-  tArray<cInjectGenotype*> m_parasites;   // List of all parasites associated with this organism.
+  eBioUnitSource m_src;
+  cString m_src_args;
+  const cGenome m_initial_genome;         // Initial genome; can never be changed!
+  tArray<cBioUnit*> m_parasites;   // List of all parasites associated with this organism.
   cMutationRates m_mut_rates;             // Rate of all possible mutations.
-  cLocalMutations m_mut_info;             // Info about possible mutations;
   cOrgInterface* m_interface;             // Interface back to the population.
   int m_id;                               // unique id for each org, is just the number it was born
   int m_lineage_label;                    // a lineages tag; inherited unchanged in offspring
@@ -107,7 +79,7 @@ private:
 	int cclade_id;				                  // @MRR Coalescence clade information (set in cPopulation)
   
 	// Other stats
-  cMetaGenome m_offspring_genome;              // Child genome, while under construction.
+  cGenome m_offspring_genome;              // Child genome, while under construction.
 
   // Input and Output with the environment
   int m_input_pointer;
@@ -156,16 +128,24 @@ private:
   cOrganism& operator=(const cOrganism&); // @not_implemented
   
 public:
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome);
-  cOrganism(cWorld* world, cAvidaContext& ctx, int hw_type, int inst_set_id, const cGenome& genome);
-  cOrganism(cWorld* world, cAvidaContext& ctx, const cMetaGenome& genome, cInstSet* inst_set);
+  cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& genome, int parent_generation,
+            eBioUnitSource src, const cString& src_args = "");
   ~cOrganism();
+  
+  // --------  cBioUnit Methods  --------
+  eBioUnitSource GetUnitSource() const { return m_src; }
+  const cString& GetUnitSourceArgs() const { return m_src_args; }
+  const cGenome& GetGenome() const { return m_initial_genome; }
+  
 
   // --------  Support Methods  --------
-  double GetTestFitness(cAvidaContext& ctx);
+  inline double GetTestFitness(cAvidaContext& ctx) const;
+  inline double GetTestMerit(cAvidaContext& ctx) const;
+  inline double GetTestColonyFitness(cAvidaContext& ctx) const;
   double CalcMeritRatio();
   
   void HardwareReset(cAvidaContext& ctx);
+  void NotifyDeath();
   
   void PrintStatus(std::ostream& fp, const cString& next_name);
   void PrintFinalStatus(std::ostream& fp, int time_used, int time_allocated) const;
@@ -175,19 +155,12 @@ public:
   
   
   // --------  Accessor Methods  --------
-  void SetGenotype(cGenotype* in_genotype) { m_genotype = in_genotype; }
-  cGenotype* GetGenotype() const { return m_genotype; }
   const cPhenotype& GetPhenotype() const { return m_phenotype; }
   cPhenotype& GetPhenotype() { return m_phenotype; }
   void SetPhenotype(cPhenotype& _in_phenotype) { m_phenotype = _in_phenotype; }
 
-  const cGenome& GetGenome() const { return m_initial_genome.GetGenome(); }
-  const cMetaGenome& GetMetaGenome() const { return m_initial_genome; }
-  
   const cMutationRates& MutationRates() const { return m_mut_rates; }
   cMutationRates& MutationRates() { return m_mut_rates; }
-  const cLocalMutations& GetLocalMutations() const { return m_mut_info; }
-  cLocalMutations& GetLocalMutations() { return m_mut_info; }
   
   const cOrgInterface& GetOrgInterface() const { assert(m_interface); return *m_interface; }
   cOrgInterface& GetOrgInterface() { assert(m_interface); return *m_interface; }
@@ -211,12 +184,12 @@ public:
 
   int GetMaxExecuted() const { return m_max_executed; }
   
-  cMetaGenome& OffspringGenome() { return m_offspring_genome; }
+  cGenome& OffspringGenome() { return m_offspring_genome; }
 
   void SetRunning(bool in_running) { m_is_running = in_running; }
   bool IsRunning() { return m_is_running; }
 
-  void SetSleeping(bool in_sleeping) { m_is_sleeping = in_sleeping; }
+  inline void SetSleeping(bool in_sleeping);
   bool IsSleeping() { return m_is_sleeping; }
   
   bool IsDead() { return m_is_dead; }
@@ -270,7 +243,6 @@ public:
   void Die() { m_interface->Die(); m_is_dead = true; }
   void Kaboom(int dist) { m_interface->Kaboom(dist);}
   void SpawnDeme() { m_interface->SpawnDeme(); }
-  int GetDebugInfo() { return m_interface->Debug(); }
   bool GetSentActive() { return m_sent_active; }
   void SendValue(int value) { m_sent_active = true; m_sent_value = value; }
   int RetrieveSentValue() { m_sent_active = false; return m_sent_value; }
@@ -288,6 +260,8 @@ public:
   int GetNumTaskCellsReached() const { return m_interface->GetNumTaskCellsReached(); }
   void AddReachedTaskCell() { m_interface->AddReachedTaskCell(); }
 
+  void JoinGroup(int group_id) { m_interface->JoinGroup(group_id); }
+  void LeaveGroup(int group_id) { m_interface->LeaveGroup(group_id); }
 
   
   // --------  Input and Output Methods  --------
@@ -300,6 +274,8 @@ public:
   void DoOutput(cAvidaContext& ctx, const bool on_divide=false);
   //! Add the passed-in value to this organism's output buffer, and check tasks (on_divide=false).
   void DoOutput(cAvidaContext& ctx, const int value);
+  //! Check if we're calling this from a parasite.
+  void DoOutput(cAvidaContext& ctx, const int value, bool is_parasite);
   //! Check tasks based on the passed-in IO buffers and value (on_divide=false).
   void DoOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const int value);  
   
@@ -327,11 +303,10 @@ public:
 
   
   // --------  Parasite Interactions  --------
-  bool InjectParasite(const cCodeLabel& label, const cGenome& genome);
-  bool InjectHost(const cCodeLabel& in_label, const cGenome& genome);
-  void AddParasite(cInjectGenotype* cur) { m_parasites.Push(cur); }
-  cInjectGenotype& GetParasite(int x) { return *m_parasites[x]; }
+  bool InjectParasite(cBioUnit* parent, const cString& label, const cSequence& genome);
+  bool ParasiteInfectHost(cBioUnit* parasite);
   int GetNumParasites() const { return m_parasites.GetSize(); }
+  const tArray<cBioUnit*>& GetParasites() const { return m_parasites; }
   void ClearParasites();
 
   // --------  Mutation Rate Convenience Methods  --------
@@ -381,7 +356,7 @@ public:
 
   // --------  Configuration Convenience Methods  --------
   bool GetTestOnDivide() const;
-  int GetFailImplicit() const;
+  int GetSterilizeUnstable() const;
 
   bool GetRevertFatal() const;
   bool GetRevertNeg() const;
@@ -659,6 +634,11 @@ public:
 	void DoHGTDonation();
 	
 	
+	// -------- Division of Labor support --------
+public: 
+	void DonateResConsumedToDeme(); //! donate consumed resources to the deme.
+	
+	
 	
 	
 	
@@ -667,8 +647,30 @@ private:
   void initialize(cAvidaContext& ctx);
   
   /*! The main DoOutput function.  The DoOutputs above all forward to this function. */
-  void doOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const bool on_divide);
+  void doOutput(cAvidaContext& ctx, tBuffer<int>& input_buffer, tBuffer<int>& output_buffer, const bool on_divide, bool is_parasite=false);
 };
+
+
+inline double cOrganism::GetTestFitness(cAvidaContext& ctx) const {
+  return cGenomeTestMetrics::GetMetrics(ctx, GetBioGroup("genotype"))->GetFitness();
+}
+
+inline double cOrganism::GetTestMerit(cAvidaContext& ctx) const {
+  return cGenomeTestMetrics::GetMetrics(ctx, GetBioGroup("genotype"))->GetMerit();
+}
+
+inline double cOrganism::GetTestColonyFitness(cAvidaContext& ctx) const {
+  return cGenomeTestMetrics::GetMetrics(ctx, GetBioGroup("genotype"))->GetColonyFitness();
+}
+
+
+inline void cOrganism::SetSleeping(bool sleeping)
+{
+  m_is_sleeping = sleeping;
+  
+  if (sleeping) m_interface->BeginSleep();
+  else m_interface->EndSleep();
+}
 
 
 #endif

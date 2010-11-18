@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "landscape.hh" prior to 12/5/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2010 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
@@ -50,7 +50,6 @@ class cLandscape
 {
 private:
   cWorld* m_world;
-  const cInstSet& inst_set;
   cCPUTestInfo m_cpu_test_info;
   cGenome base_genome;
   cGenome peak_genome;
@@ -99,20 +98,12 @@ private:
   int m_num_found;
 
 
-  void BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu);
-  double ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& in_genome);
-  void ProcessBase(cAvidaContext& ctx, cTestCPU* testcpu);
-  void Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cur_genome, int cur_distance, int start_line);
-
-  double TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& mod_genome, int line1, int line2,
-                     const cInstruction& mut1, const cInstruction& mut2);
-
   cLandscape(); // @not_implemented
   cLandscape(const cLandscape&); // @not_implemented
   cLandscape& operator=(const cLandscape&); // @not_implemented
 
 public:
-  cLandscape(cWorld* world, const cGenome& in_genome, const cInstSet& in_inst_set);
+  cLandscape(cWorld* world, const cGenome& in_genome);
   ~cLandscape();
 
   void Reset(const cGenome& in_genome);
@@ -131,7 +122,6 @@ public:
   inline void SetCPUTestInfo(const cCPUTestInfo& in_cpu_test_info) 
   { 
       m_cpu_test_info = in_cpu_test_info; 
-      m_cpu_test_info.SetInstSet(const_cast<cInstSet*>(&inst_set));
   }
 
   void SampleProcess(cAvidaContext& ctx);
@@ -182,18 +172,16 @@ public:
   inline int GetNumTrials() const { return trials; }
   inline double GetTotalEntropy() const { return total_entropy; }
   inline double GetComplexity() const { return complexity; }
+  
+  
+private:
+  void BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu);
+  double ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& in_genome);
+  void ProcessBase(cAvidaContext& ctx, cTestCPU* testcpu);
+  void Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cur_genome, int cur_distance, int start_line);
+  
+  double TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& mod_genome, int line1, int line2,
+                     const cInstruction& mut1, const cInstruction& mut2);  
 };
-
-
-#ifdef ENABLE_UNIT_TESTS
-namespace nLandscape {
-  /**
-   * Run unit tests
-   *
-   * @param full Run full test suite; if false, just the fast tests.
-   **/
-  void UnitTests(bool full = false);
-}
-#endif  
 
 #endif
