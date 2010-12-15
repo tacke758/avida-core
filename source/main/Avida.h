@@ -26,7 +26,7 @@
 #define avida_h
 
 
-#define VERSION "2.12.0"
+#define VERSION "2.12.1"
 #define VERSION_TAG "Biounit"
 
 
