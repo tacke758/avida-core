@@ -1,3 +1,12 @@
+Avida 2.12.1 Release Notes
+
+Bug Fixes:
+- Fixed an analyze mode crash when loading unsupported file format headers where
+  no near match was found.
+- Implemented full field support for loading and processing structured population
+  files (.spop) in analyze mode.
+
+
 Avida 2.12 Release Notes
 
 The following items are major features and changes present in this release of
