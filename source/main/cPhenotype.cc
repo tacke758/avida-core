@@ -1508,6 +1508,9 @@ bool cPhenotype::TestOutput(cAvidaContext& ctx, cTaskContext& taskctx,
     is_fertile = false;
   }
   
+      //HACK JW 
+  if(cur_bonus < 0) cur_bonus = 1/abs(cur_bonus);
+  
   result.Invalidate();
   return true;
 }
@@ -1611,7 +1614,7 @@ int cPhenotype::CalcSizeMerit() const
 double cPhenotype::CalcCurrentMerit() const
 {
   int merit_base = CalcSizeMerit();
-  
+  if(merit_base * cur_bonus < 1) return 1.00; //JW
   return merit_base * cur_bonus;  
 }
 

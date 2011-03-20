@@ -59,6 +59,7 @@ cOrganism::cOrganism(cWorld* world, cAvidaContext& ctx, const cGenome& genome, i
   , m_lineage_label(-1)
   , m_lineage(NULL)
   , m_input_pointer(0)
+  , m_has_sensed(0) //JW
   , m_input_buf(world->GetEnvironment().GetInputSize())
   , m_output_buf(world->GetEnvironment().GetOutputSize())
   , m_received_messages(RECEIVED_MESSAGES_SIZE)
@@ -575,11 +576,19 @@ void cOrganism::HardwareReset(cAvidaContext& ctx)
     const cStateGrid& sg = GetStateGrid();
     
     tArray<int> sg_state(3 + sg.GetNumStates(), 0);
+
+    if(sg.GetRandom()){ //JW
+      sg_state[0] = ctx.GetRandom().GetUInt(sg.GetWidth());
+      sg_state[1] = ctx.GetRandom().GetUInt(sg.GetHeight());
+      sg_state[2] = ctx.GetRandom().GetUInt(8);
+    }
 	
+    else{ //JW
       sg_state[0] = sg.GetInitialX();
       sg_state[1] = sg.GetInitialY();
       sg_state[2] = sg.GetInitialFacing(); 
-    
+    }
+
     m_hardware->SetupExtendedMemory(sg_state);
   }
 

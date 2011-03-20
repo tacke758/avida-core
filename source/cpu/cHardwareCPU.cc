@@ -318,6 +318,7 @@ tInstLib<cHardwareCPU::tMethod>* cHardwareCPU::initInstLib(void)
     tInstLibEntry<tMethod>("sg-rotate-l", &cHardwareCPU::Inst_SGRotateL),
     tInstLibEntry<tMethod>("sg-rotate-r", &cHardwareCPU::Inst_SGRotateR),
     tInstLibEntry<tMethod>("sg-sense", &cHardwareCPU::Inst_SGSense),
+    tInstLibEntry<tMethod>("sg-sense-facing", &cHardwareCPU::Inst_SGSenseFacing), //JW
     
     
     
@@ -5712,7 +5713,14 @@ bool cHardwareCPU::Inst_Tumble(cAvidaContext& ctx)
   return true;
 }
 
-
+bool cHardwareCPU::Inst_SGSenseFacing(cAvidaContext& ctx) //JW
+{
+  const cStateGrid& sg = m_organism->GetStateGrid();
+  const int reg_used = FindModifiedRegister(REG_BX);
+  const int facing = m_ext_mem[2];
+  GetRegister(reg_used) = facing;
+  return true; 
+}
 
 bool cHardwareCPU::Inst_SGMove(cAvidaContext& ctx)
 {
@@ -5723,58 +5731,124 @@ bool cHardwareCPU::Inst_SGMove(cAvidaContext& ctx)
   int& x = m_ext_mem[0];
   int& y = m_ext_mem[1];
   
-  const int facing = m_ext_mem[2];
-
-  // State grid is treated as a 2-dimensional toroidal grid with size [0, width) and [0, height)
-  // State grid is treated as a 2-dimensional toroidal grid with size [0, width) and [0, height)
-  switch (facing) {
-    case 0: // N
-      if (++y == sg.GetHeight()) y = 0;
-      break;
-      
-    case 1: // NE
-      if (++x == sg.GetWidth()) x = 0;
-      if (++y == sg.GetHeight()) y = 0;
-      break;
-      
-    case 2: // E
-      if (++x == sg.GetWidth()) x = 0;
-      break;
-      
-    case 3: // SE
-      if (++x == sg.GetWidth()) x = 0;
-      if (--y == -1) y = sg.GetHeight() - 1;
-      break;
-      
-    case 4: // S
-      if (--y == -1) y = sg.GetHeight() - 1;
-      break;
-      
-    case 5: // SW
-      if (--x == -1) x = sg.GetWidth() - 1;
-      if (--y == -1) y = sg.GetHeight() - 1;
-      break;
-      
-    case 6: // W
-      if (--x == -1) x = sg.GetWidth() - 1;
-      break;
-      
-    case 7: // NW
-      if (--x == -1) x = sg.GetWidth() - 1;
-      if (++y == sg.GetHeight()) y = 0;
-      break;
-      
-    default:
-      assert(facing >= 0 && facing <= 7);
+	const int facing = m_ext_mem[2];
+	// JW
+	// State grid is treated as a 2-dimensional toroidal grid with size [0, width) and [0, height)
+	switch (facing) {
+		case 0: // N
+			//if (++y == sg.GetHeight()) y = 0;
+			if (++y == sg.GetHeight())
+			{
+				--y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;			
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			break;
+			
+			case 1: // NE
+			if (++x == sg.GetWidth())
+			{
+				--x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;			
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			if (++y == sg.GetHeight())
+			{
+				--y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;			
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			break;
+			
+			case 2: // E
+			if (++x == sg.GetWidth())
+			{
+				--x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			break;
+			
+			case 3: // SE
+			if (++x == sg.GetWidth())
+			{
+				--x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			if (--y == -1)
+			{
+				++y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			};
+			break;
+			
+			case 4: // S
+			if (--y == -1)
+			{
+				++y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			};
+			break;
+			
+			case 5: // SW
+			if (--x == -1)
+			{
+				++x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			
+			if (--y == -1)
+			{
+				++y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			};
+			break;
+			
+			case 6: // W
+			if (--x == -1)
+			{
+				++x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			break;
+			
+			case 7: // NW
+			if (--x == -1)
+			{
+				++x;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			
+			if (++y == sg.GetHeight())
+			{
+				--y;
+				if(m_world->GetConfig().GRID_NOBOUNCE.Get())	break;
+				m_ext_mem[2] = ctx.GetRandom().GetUInt(8);
+			}
+			break;
+			
+			default:
+			assert(facing >= 0 && facing <= 7);
   }
   
   // Increment state observed count
   m_ext_mem[3 + sg.GetStateAt(x, y)]++;
-  
+  if(m_world->GetConfig().SPIT_STATE_GRID.Get()) cout << x << " " << y << endl;
   // Save this location in the movement history
   m_ext_mem.Push(sg.GetIDFor(x, y));
+  if(sg.SenseStateAt(m_ext_mem[0], m_ext_mem[1]) == 2) m_organism->IncSensed(); //JW
+  if(sg.SenseStateAt(m_ext_mem[0], m_ext_mem[1]) == 3) m_organism->DecSensed(); //JW
+  Inst_SGSense(ctx);
   return true;
 }
+
 
 bool cHardwareCPU::Inst_SGRotateL(cAvidaContext& ctx)
 {

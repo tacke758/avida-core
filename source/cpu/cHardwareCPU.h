@@ -590,6 +590,7 @@ private:
   bool Inst_SGRotateL(cAvidaContext& ctx);
   bool Inst_SGRotateR(cAvidaContext& ctx);
   bool Inst_SGSense(cAvidaContext& ctx);
+  bool Inst_SGSenseFacing(cAvidaContext& ctx); //JW
 
   bool Inst_GetDistanceFromDiagonal(cAvidaContext& ctx);
   bool Inst_Tumble(cAvidaContext& ctx);
