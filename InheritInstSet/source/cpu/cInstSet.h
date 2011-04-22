@@ -119,7 +119,7 @@ public:
     return m_inst_lib->GetNopMod(nopmod);
   }
 
-  cInstruction GetRandomInst(cAvidaContext& ctx) const;
+  cInstruction GetRandomInst(cAvidaContext& ctx, int cur_inst=-1) const;
   int GetRandFunctionIndex(cAvidaContext& ctx) const { return m_lib_name_map[ GetRandomInst(ctx).GetOp() ].lib_fun_id; }
 
   int GetSize() const { return m_lib_name_map.GetSize(); }

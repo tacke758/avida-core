@@ -293,7 +293,7 @@ cGenome cDemeManager::DoGermlineMutation(const cGenome& source_germ)
   if(m_world->GetConfig().GERMLINE_COPY_MUT.Get() > 0)
     for(int i=0; i<next_germ.GetSize(); i++) 
       if(m_world->GetRandom().P(m_world->GetConfig().GERMLINE_COPY_MUT.Get())) 
-        next_germ[i] = m_world->GetHardwareManager().GetInstSet().GetRandomInst(m_world->GetDefaultContext());
+        next_germ[i] = m_world->GetHardwareManager().GetInstSet().GetRandomInst(m_world->GetDefaultContext(), next_germ[i]);
   return next_germ;
 }
 

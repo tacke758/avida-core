@@ -1947,7 +1947,7 @@ bool cHardwareGX::Inst_Copy(cAvidaContext& ctx)
 //  sCPUStats& cpu_stats = organism->CPUStats();
   
   if (organism->TestCopyMut(ctx)) {
-    to.SetInst(m_inst_set->GetRandomInst(ctx));
+    to.SetInst(m_inst_set->GetRandomInst(ctx, from.GetInst()));
     to.SetFlagMutated();  // Mark this instruction as mutated...
     to.SetFlagCopyMut();  // Mark this instruction as copy mut...
                               //organism->GetPhenotype().IsMutated() = true;
@@ -1988,7 +1988,7 @@ bool cHardwareGX::Inst_WriteInst(cAvidaContext& ctx)
 
   // Change value on a mutation...
   if (organism->TestCopyMut(ctx)) {
-    to.SetInst(m_inst_set->GetRandomInst(ctx));
+    to.SetInst(m_inst_set->GetRandomInst(ctx, cInstruction(value)));
     to.SetFlagMutated();      // Mark this instruction as mutated...
     to.SetFlagCopyMut();      // Mark this instruction as copy mut...
                                   //organism->GetPhenotype().IsMutated() = true;
@@ -2049,7 +2049,7 @@ bool cHardwareGX::Inst_Compare(cAvidaContext& ctx)
   
   // Compare is dangerous -- it can cause mutations!
   if (organism->TestCopyMut(ctx)) {
-    to.SetInst(m_inst_set->GetRandomInst(ctx));
+    to.SetInst(m_inst_set->GetRandomInst(ctx));  //@MRR substitution?
     to.SetFlagMutated();      // Mark this instruction as mutated...
     to.SetFlagCopyMut();      // Mark this instruction as copy mut...
                                   //organism->GetPhenotype().IsMutated() = true;
@@ -3224,7 +3224,7 @@ bool cHardwareGX::Inst_HeadRead(cAvidaContext& ctx)
   // Mutations only occur on the read, for the moment.
   int read_inst = 0;
   if (organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
+    read_inst = m_inst_set->GetRandomInst(ctx, GetHead(head_id).GetInst()).GetOp();
 //    cpu_stats.mut_stats.copy_mut_count++;  // @CAO, hope this is good!
   } else {
     read_inst = GetHead(head_id).GetInst().GetOp();
@@ -3274,7 +3274,7 @@ bool cHardwareGX::Inst_HeadCopy(cAvidaContext& ctx)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst.GetOp());
   if (organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
 //    cpu_stats.mut_stats.copy_mut_count++; 
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
@@ -3304,7 +3304,7 @@ bool cHardwareGX::HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst.GetOp());
   if ( ctx.GetRandom().P(organism->GetCopyMutProb() / reduction) ) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
 //    cpu_stats.mut_stats.copy_mut_count++; 
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();

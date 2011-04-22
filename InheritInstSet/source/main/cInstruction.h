@@ -41,7 +41,7 @@ public:
   // Constructors and Destructor...
   cInstruction() : m_operand(0) { ; }
   cInstruction(const cInstruction& inst) { *this = inst; }
-  explicit cInstruction(int in_op) { SetOp(in_op); }
+  cInstruction(int in_op) { SetOp(in_op); }
   ~cInstruction() { ; }
   
   // Accessors...
@@ -51,7 +51,7 @@ public:
   //                       cout << m_operand << "  " << static_cast<int>(m_operand) << endl; 
   //                     }
   //                   }
-  void SetOp(int in_op) { assert(in_op < 256); m_operand = in_op; }
+  void SetOp(int in_op) { assert(in_op < 256 && in_op >= 0); m_operand = in_op; }
 
   // Operators...
   void operator=(const cInstruction& inst) { if (this != &inst) m_operand = inst.m_operand; }
@@ -63,6 +63,7 @@ public:
   void SetSymbol(char symbol);
 	
 	static int ConvertSymbol(const char symbol);
+  operator int() const {return static_cast<int>(m_operand); } 
 };
 
 

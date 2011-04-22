@@ -561,7 +561,7 @@ void cLandscape::SampleProcess(cAvidaContext& ctx)
     
     for (int i = 0; i < trials; i++) {
       // Choose the new instruction for that line...
-      cInstruction new_inst( inst_set.GetRandomInst(ctx) );
+      cInstruction new_inst( inst_set.GetRandomInst(ctx, cur_inst) );
       if (cur_inst == new_inst) { i--; continue; }
       
       // Make the change, and test it!
@@ -598,8 +598,8 @@ void cLandscape::RandomProcess(cAvidaContext& ctx)
     
     // Choose the new instructions for those lines...
     for (mut_num = 0; mut_num < distance; mut_num++) {
-      const cInstruction new_inst( inst_set.GetRandomInst(ctx) );
       const cInstruction & cur_inst = base_genome[ mut_lines[mut_num] ];
+      const cInstruction new_inst( inst_set.GetRandomInst(ctx, cur_inst) );
       if (cur_inst == new_inst) {
         mut_num--;
         continue;
@@ -677,8 +677,8 @@ void cLandscape::TestPairs(cAvidaContext& ctx)
     
     // Choose the new instructions for those lines...
     for (int mut_num = 0; mut_num < 2; mut_num++) {
-      const cInstruction new_inst( inst_set.GetRandomInst(ctx) );
       const cInstruction& cur_inst = base_genome[ mut_lines[mut_num] ];
+      const cInstruction new_inst( inst_set.GetRandomInst(ctx, cur_inst) );
       if (cur_inst == new_inst) {
         mut_num--;
         continue;

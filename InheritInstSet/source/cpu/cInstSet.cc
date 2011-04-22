@@ -75,9 +75,15 @@ bool cInstSet::OK() const
 }
 
 
-cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
+cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx, int cur_inst) const
 {
-  int ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+  int ndx;
+  if (cur_inst >= 0 && m_world->GetConfig().DISABLE_SYNONYMOUS_SUBS.Get() == 0)
+    ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+  else //@MRR have to find a different instruction than what is currently there
+    do{
+      ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+    }while(ndx == cur_inst);
   return cInstruction(ndx);
 }
 
