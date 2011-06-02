@@ -1596,6 +1596,48 @@ class cActionMutateOrganismInstSetID : public cAction
 };
 
 
+
+
+class cActionSterilizeBeneficialMutations : public cAction
+{
+  private:
+    cString action;
+    
+  public:
+    cActionSterilizeBeneficialMutations(cWorld* world, const cString& args) : cAction(world, args)
+    {
+      cString largs(args);
+      action = (largs.GetSize()) ? largs.PopWord() : "enable";
+    }
+    
+  static const cString GetDescription() { return "Arguments: <action=\"enable\"|\"toggle\"|\"disable\">"; }
+  
+  void Process(cAvidaContext& ctx)
+  {
+    if (action == "enable"){
+      m_world->GetConfig().STERILIZE_BENEFICIAL.Set(1.0);
+      m_world->SetTestSterilize(true);
+      return;
+    }
+    
+    bool other_tests = ( (m_world->GetConfig().STERILIZE_DETRIMENTAL.Get() + m_world->GetConfig().STERILIZE_NEUTRAL.Get() +
+                          m_world->GetConfig().STERILIZE_FATAL.Get()) > 0.0 ) ? true : false;
+    if (action == "disable"){
+      m_world->GetConfig().STERILIZE_BENEFICIAL.Set(0.0);
+      m_world->SetTestSterilize( (other_tests) ? true : false);
+    }
+    else{
+      double state = m_world->GetConfig().STERILIZE_BENEFICIAL.Get();
+      double new_state = (state == 1.0) ? 0.0 : 1.0;
+      m_world->GetConfig().STERILIZE_BENEFICIAL.Set(new_state);
+      m_world->SetTestSterilize( (other_tests | (new_state>0.0)) ? true : false);
+    }
+  }
+  
+
+};
+
+
 void RegisterPopulationActions(cActionLibrary* action_lib)
 {
   action_lib->Register<cActionInject>("Inject");
@@ -1618,6 +1660,8 @@ void RegisterPopulationActions(cActionLibrary* action_lib)
   action_lib->Register<cActionSetMutProb>("SetMutProb");
   action_lib->Register<cActionModMutProb>("ModMutProb");
   action_lib->Register<cActionZeroMuts>("ZeroMuts");
+  
+  action_lib->Register<cActionSterilizeBeneficialMutations>("SterilizeBeneficialMutations");
 
   
   action_lib->Register<cActionCompeteDemes>("CompeteDemes");
