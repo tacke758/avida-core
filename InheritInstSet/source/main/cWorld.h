@@ -126,7 +126,7 @@ public:
   // Config Dependent Modes
   bool GetTestOnDivide() const { return m_test_on_div; }
   bool GetTestSterilize() const { return m_test_sterilize; }
-  bool SetTestSterilize(bool state=true) {m_test_sterilize = state; }
+  void SetTestSterilize(bool state=true) {m_test_sterilize = state; }
   
   // Convenience Accessors
   int GetNumInstructions();

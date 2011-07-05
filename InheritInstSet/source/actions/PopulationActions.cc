@@ -1617,6 +1617,7 @@ class cActionSterilizeBeneficialMutations : public cAction
     if (action == "enable"){
       m_world->GetConfig().STERILIZE_BENEFICIAL.Set(1.0);
       m_world->SetTestSterilize(true);
+      cout << "Sterilize Beneficial Mutations is enabled." << endl;
       return;
     }
     
@@ -1625,12 +1626,15 @@ class cActionSterilizeBeneficialMutations : public cAction
     if (action == "disable"){
       m_world->GetConfig().STERILIZE_BENEFICIAL.Set(0.0);
       m_world->SetTestSterilize( (other_tests) ? true : false);
+      cout << "Sterilize Beneficial Mutations is disabled." << endl;
     }
-    else{
+    else if (action =="toggle"){
       double state = m_world->GetConfig().STERILIZE_BENEFICIAL.Get();
       double new_state = (state == 1.0) ? 0.0 : 1.0;
       m_world->GetConfig().STERILIZE_BENEFICIAL.Set(new_state);
       m_world->SetTestSterilize( (other_tests | (new_state>0.0)) ? true : false);
+      cout << "Sterilize Beneficial Mutations toggled from " << ( (state > 0.0) ? "enabled" : "disabled" ) <<
+        " to " << ( (new_state > 0.0) ? "disabled" : "enabled") << endl;
     }
   }
   
