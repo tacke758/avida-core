@@ -3,25 +3,29 @@
  *  Avida
  *
  *  Called "code_label.cc" prior to 11/22/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cCodeLabel.h"
 
+#include "cTools.h"
 
 #include <cmath>
 #include <vector>
@@ -50,6 +54,18 @@ void cCodeLabel::ReadString(const cString& label_str)
   }
 }
 
+bool cCodeLabel::OK()
+{
+  bool result = true;
+
+  assert (m_size <= nHardware::MAX_LABEL_SIZE);
+  assert (m_size <= m_nops.GetSize());
+  for (int i = 0; i < m_size; i++) {
+    assert (m_nops[i] < nHardware::MAX_NOPS);
+  }
+
+  return result;
+}
 
 bool cCodeLabel::operator==(const cCodeLabel & other_label) const
 {
@@ -87,16 +103,6 @@ int cCodeLabel::FindSublabel(cCodeLabel & sub_label)
   return -1;
 }
 
-/* Translates a code label into an n-ary integer, reading the first nop as 0.
- * Example: nops A, B, C with base 3
- *   no nops = 0
- *   A       = 0
- *   B       = 1
- *   AA      = 0
- *   AC      = 2
- *   BB      = 4
- *   CA      = 6
- */
 int cCodeLabel::AsInt(const int base) const
 {
   int value = 0;
@@ -134,36 +140,12 @@ int cCodeLabel::AsIntGreyCode(const int base) const
 int cCodeLabel::AsIntDirect(const int base) const
 {
   int value = 0;
-  
+
   for (int i = 0; i < m_size; i++) {
     value *= base;
     value += m_nops[i];
   }
 
-  return value;
-}
-
-/* Translates a code label into a unique integer (given a base >= the number of nop types)
- * Example: nops A, B, C with base 3
- *   no nops = 0
- *   A       = 1
- *   B       = 2
- *   AA      = 4
- *   AC      = 6
- *   BB      = 8
- *   CA      = 12
- *
- * N.B.: Uniqueness will NOT be true if base < # of nop types
- */
-int cCodeLabel::AsIntUnique(const int base) const
-{
-  int value = 0;
-  
-  for (int i = 0; i < m_size; i++) {
-    value *= base;
-    value += m_nops[i] + 1;
-  }
-  
   return value;
 }
 

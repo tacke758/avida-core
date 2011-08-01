@@ -3,76 +3,87 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cWorld_h
 #define cWorld_h
 
-#include "apto/core/SmartPtr.h"
-#include "avida/data/Types.h"
-
+#ifndef cAvidaConfig_h
 #include "cAvidaConfig.h"
+#endif
+#ifndef cAvidaContext_h
 #include "cAvidaContext.h"
+#endif
+#ifndef cEventContext_h
+#include "cEventContext.h"
+#endif
+#ifndef cDataFileManager_h
 #include "cDataFileManager.h"
+#endif
+#ifndef cRandom_h
 #include "cRandom.h"
+#endif
+
+#ifndef defs_h
+#include "defs.h"
+#endif
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 #include <cassert>
 
-namespace Avida {
-  class WorldDriver;
-};
-
+class cActionLibrary;
 class cAnalyze;
-class cAnalyzeGenotype;
+class cAvidaDriver;
 class cClassificationManager;
 class cEnvironment;
 class cEventList;
 class cHardwareManager;
-class cOrganism;
 class cPopulation;
-class cMerit;
-class cPopulationCell;
 class cStats;
 class cTestCPU;
-class cUserFeedback;
-template<class T> class tDataEntry;
-template<class T> class tDictionary;
-
-using namespace Avida;
-
+class cWorldDriver;
 
 class cWorld
 {
+#if USE_tMemTrack
+  tMemTrack<cWorld> mt;
+#endif
 protected:
-  cString m_working_dir;
-  
+  cActionLibrary* m_actlib;
   cAnalyze* m_analyze;
   cAvidaConfig* m_conf;
   cAvidaContext m_ctx;
   cClassificationManager* m_class_mgr;
-  cDataFileManager* m_datafile_mgr;
+  cDataFileManager* m_data_mgr;
   cEnvironment* m_env;
   cEventList* m_event_list;
   cHardwareManager* m_hw_mgr;
   cPopulation* m_pop;
-  Apto::SmartPtr<cStats, Apto::ThreadSafeRefCount> m_stats;
-  WorldDriver* m_driver;
-  
-  Avida::Data::Manager* m_data_mgr;
+  cStats* m_stats;
+  cWorldDriver* m_driver;
 
   cRandom m_rng;
   
@@ -81,78 +92,124 @@ protected:
   
   bool m_own_driver;      // specifies whether this world object should manage its driver object
 
-  cWorld(cAvidaConfig* cfg, const cString& wd);
+  // Internal Methods
+  void Setup();
   
-private:
-  cWorld(); // @not_implemented
   cWorld(const cWorld&); // @not_implemented
-  cWorld& operator=(const cWorld&); // @not_implemented  
-  
+  cWorld& operator=(const cWorld&); // @not_implemented
   
 public:
-  static cWorld* Initialize(cAvidaConfig* cfg, const cString& working_dir, cUserFeedback* feedback = NULL); 
-  virtual ~cWorld();
+  cWorld(cAvidaConfig* cfg) : m_analyze(NULL), m_conf(cfg), m_ctx(m_rng) { Setup(); }
+  ~cWorld();
   
-  void SetDriver(WorldDriver* driver, bool take_ownership = false);
-  
-  const cString& GetWorkingDir() const { return m_working_dir; }
+  void SetConfig(cAvidaConfig* cfg) { delete m_conf; m_conf = cfg; }
+  void SetDriver(cWorldDriver* driver, bool take_ownership = false);
   
   // General Object Accessors
+  cActionLibrary& GetActionLibrary() { return *m_actlib; }
   cAnalyze& GetAnalyze();
   cAvidaConfig& GetConfig() { return *m_conf; }
   cAvidaContext& GetDefaultContext() { return m_ctx; }
   cClassificationManager& GetClassificationManager() { return *m_class_mgr; }
-  cDataFileManager& GetDataFileManager() { return *m_datafile_mgr; }
+  cDataFileManager& GetDataFileManager() { return *m_data_mgr; }
   cEnvironment& GetEnvironment() { return *m_env; }
   cHardwareManager& GetHardwareManager() { return *m_hw_mgr; }
   cPopulation& GetPopulation() { return *m_pop; }
   cRandom& GetRandom() { return m_rng; }
   cStats& GetStats() { return *m_stats; }
-  WorldDriver& GetDriver() { return *m_driver; }
-  
-  Data::Manager& GetDataManager() { return *m_data_mgr; }
-  
-  Data::ProviderPtr GetStatsProvider(cWorld*);
+  cWorldDriver& GetDriver() { return *m_driver; }
   
   // Access to Data File Manager
-  std::ofstream& GetDataFileOFStream(const cString& fname) { return m_datafile_mgr->GetOFStream(fname); }
-  cDataFile& GetDataFile(const cString& fname) { return m_datafile_mgr->Get(fname); }  
+  std::ofstream& GetDataFileOFStream(const cString& fname) { return m_data_mgr->GetOFStream(fname); }
+  cDataFile& GetDataFile(const cString& fname) { return m_data_mgr->Get(fname); }  
 
   // Config Dependent Modes
   bool GetTestOnDivide() const { return m_test_on_div; }
   bool GetTestSterilize() const { return m_test_sterilize; }
+  void SetTestSterilize(bool state=true) {m_test_sterilize = state; }
   
   // Convenience Accessors
+  int GetNumInstructions();
+  int GetNumReactions();
   int GetNumResources();
   inline int GetVerbosity() { return m_conf->VERBOSITY.Get(); }
   inline void SetVerbosity(int v) { m_conf->VERBOSITY.Set(v); }
 
+  // @DMB - Inherited from cAvidaDriver heritage
   void GetEvents(cAvidaContext& ctx);
-	
-	cEventList* GetEventsList() { return m_event_list; }
 
-	//! Migrate this organism to a different world (does nothing here; see cMultiProcessWorld).
-	virtual void MigrateOrganism(cOrganism* org, const cPopulationCell& cell, const cMerit& merit, int lineage) { }
-
-	//! Returns true if an organism should be migrated to a different world.
-	virtual bool TestForMigration() { return false; }
-		
-	//! Returns true if the given cell is on the boundary of the world, false otherwise.
-	virtual bool IsWorldBoundary(const cPopulationCell& cell) { return false; }
-	
-	//! Process post-update events.
-	virtual void ProcessPostUpdate(cAvidaContext& ctx) { }
-	
-	//! Returns true if this world allows early exits, e.g., when the population reaches 0.
-	virtual bool AllowsEarlyExit() const { return true; }
-	
-	//! Calculate the size (in virtual CPU cycles) of the current update.
-	virtual int CalculateUpdateSize();
+  // @MRR
+  bool TriggerEvent(cEventContext& state); 
   
-protected:
-  // Internal Methods
-  bool setup(cUserFeedback* errors); 
+  // Save to archive 
+  template<class Archive>
+  void save(Archive & a, const unsigned int version) const {
+    a.ArkvObj("m_actlib", m_actlib);
+    a.ArkvObj("m_analyze", m_analyze);
+    a.ArkvObj("m_conf", m_conf);
+    a.ArkvObj("m_ctx", m_ctx);
+    a.ArkvObj("m_class_mgr", m_class_mgr);
+    a.ArkvObj("m_data_mgr", m_data_mgr);
+    a.ArkvObj("m_env", m_env);
+    a.ArkvObj("m_event_list", m_event_list);
+    a.ArkvObj("m_hw_mgr", m_hw_mgr);
+    a.ArkvObj("m_pop", m_pop);
+    a.ArkvObj("m_stats", m_stats);
+    a.ArkvObj("m_driver", m_driver);
+    a.ArkvObj("m_rng", m_rng);
+    int __m_test_on_div = (m_test_on_div == false)?(0):(1);
+    int __m_test_sterilize = (m_test_sterilize == false)?(0):(1);
+    int __m_own_driver = (m_own_driver == false)?(0):(1);
+    a.ArkvObj("m_test_on_div", __m_test_on_div);
+    a.ArkvObj("m_test_sterilize", __m_test_sterilize);
+    a.ArkvObj("m_own_driver", __m_own_driver);
+  }
+  
+  // Load from archive 
+  template<class Archive>
+  void load(Archive & a, const unsigned int version){
+    a.ArkvObj("m_actlib", m_actlib);
+    a.ArkvObj("m_analyze", m_analyze);
+    a.ArkvObj("m_conf", m_conf);
+    a.ArkvObj("m_ctx", m_ctx);
+    a.ArkvObj("m_class_mgr", m_class_mgr);
+    a.ArkvObj("m_data_mgr", m_data_mgr);
+    a.ArkvObj("m_env", m_env);
+    a.ArkvObj("m_event_list", m_event_list);
+    a.ArkvObj("m_hw_mgr", m_hw_mgr);
+    a.ArkvObj("m_pop", m_pop);
+    a.ArkvObj("m_stats", m_stats);
+    a.ArkvObj("m_driver", m_driver);
+    a.ArkvObj("m_rng", m_rng);
+    int __m_test_on_div;
+    int __m_test_sterilize;
+    int __m_own_driver;
+    a.ArkvObj("m_test_on_div", __m_test_on_div);
+    a.ArkvObj("m_test_sterilize", __m_test_sterilize);
+    a.ArkvObj("m_own_driver", __m_own_driver);
+    m_test_on_div = (__m_test_on_div == 0)?(false):(true);
+    m_test_sterilize = (__m_test_sterilize == 0)?(false):(true);
+    m_own_driver = (__m_own_driver == 0)?(false):(true);
+  } 
+    
+  // Ask archive to handle loads and saves separately
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version){
+    a.SplitLoadSave(*this, version);
+  }
 
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nWorld {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

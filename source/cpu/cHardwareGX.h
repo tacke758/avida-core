@@ -2,19 +2,22 @@
  *  cHardwareGX.h
  *  Avida
  *
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  *
  * cHardwareGX enables gene expression as follows:
@@ -43,8 +46,10 @@
 #ifndef cHardwareGX_h
 #define cHardwareGX_h
 
-#include "avida/Avida.h"
-
+#include <iomanip>
+#include <vector>
+#include <list>
+#include <utility>
 #include "cCodeLabel.h"
 #include "cHeadCPU.h"
 #include "cCPUMemory.h"
@@ -54,16 +59,14 @@
 #include "cStats.h"
 #include "tArray.h"
 #include "tInstLib.h"
+#include "defs.h"
 #include "nHardware.h"
 #include "tBuffer.h"
 
-#include <iomanip>
-#include <vector>
-#include <list>
-#include <utility>
-
+class cInjectGenotype;
 class cInstLib;
 class cInstSet;
+class cMutation;
 class cOrganism;
 
 /*! Each organism may have a cHardwareGX structure that keeps track of the 
@@ -97,7 +100,7 @@ public:
   //! Enums for the different supported registers.
   enum tRegisters { REG_AX=0, REG_BX, REG_CX };
   
-  class cProgramid; // pre-declaration.
+  struct cProgramid; // pre-declaration.
   typedef cProgramid* programid_ptr; //!< It would be nice to change this to boost::shared_ptr.
   typedef std::vector<programid_ptr> programid_list; //!< Type for the list of cProgramids.
   
@@ -138,7 +141,7 @@ public:
   class cProgramid {
   public:
     //! Constructs a cProgramid from a genome and CPU.
-    cProgramid(const Sequence& genome, cHardwareGX* hardware);
+    cProgramid(const cGenome& genome, cHardwareGX* hardware);
     ~cProgramid() {}
     
     //! Returns whether and where this cProgramid matches the passed-in label.
@@ -184,7 +187,7 @@ public:
     const cCPUMemory& GetMemory() const { return m_memory; }
     
     //! Append this programid's genome to the passed-in genome in linear format (includes tags).
-    void AppendLinearGenome(Sequence& genome);
+    void AppendLinearGenome(cCPUMemory& genome);
 
     //! Print this programid's genome, in linear format.
     void PrintGenome(std::ostream& out);
@@ -273,8 +276,8 @@ protected:
   cCodeLabel& GetLabel() { assert(m_current); return m_current->m_next_label; }
   void ReadLabel(int max_size=nHardware::MAX_LABEL_SIZE);
   cHeadCPU FindLabel(int direction);
-  int FindLabel_Forward(const cCodeLabel & search_label, const Sequence& search_genome, int pos);
-  int FindLabel_Backward(const cCodeLabel & search_label, const Sequence& search_genome, int pos);
+  int FindLabel_Forward(const cCodeLabel & search_label, const cGenome& search_genome, int pos);
+  int FindLabel_Backward(const cCodeLabel & search_label, const cGenome& search_genome, int pos);
   cHeadCPU FindLabel(const cCodeLabel & in_label, int direction);
   const cCodeLabel& GetReadLabel() const { assert(m_current); return m_current->m_read_label; }
   cCodeLabel& GetReadLabel() { assert(m_current); return m_current->m_read_label; }
@@ -291,32 +294,29 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(cAvidaContext& ctx, const int allocated_size);
   
-
-  void internalReset();
-	void internalResetOnFailedDivide();
-  
-    
-  int calcExecutedSize(const int parent_size);
-  int calcCopiedSize(const int parent_size, const int child_size);
+  int GetExecutedSize(const int parent_size);
+  int GetCopiedSize(const int parent_size, const int child_size);
   bool Divide_Main(cAvidaContext& ctx);
+  void InjectCode(const cGenome& injection, const int line_num);
   bool HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction);
   void ReadInst(const int in_inst);
 
 public:
   //! Main constructor for cHardwareGX; called from cHardwareManager for every organism.
-  cHardwareGX(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
+  cHardwareGX(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
   virtual ~cHardwareGX(); //!< Destructor; removes all cProgramids.
     
   static tInstLib<tMethod>* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-gx.cfg"; }
 
-  bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
+  void Reset();
+  void SingleProcess(cAvidaContext& ctx);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 
   
   // --------  Helper methods  --------
   int GetType() const { return HARDWARE_TYPE_CPU_GX; }  
-  bool SupportsSpeculative() const { return false; }
+  bool OK();
   void PrintStatus(std::ostream& fp);
 
   // --------  Stack Manipulation...  --------
@@ -342,10 +342,8 @@ public:
   // so be careful to fix these when changing the programid list.
   const cCPUMemory& GetMemory() const { assert(m_current); return m_current->m_memory; }
   cCPUMemory& GetMemory() { assert(m_current); return m_current->m_memory; }
-  int GetMemSize() const { assert(m_current); return m_current->m_memory.GetSize(); }
   const cCPUMemory& GetMemory(int value) const { return m_programids[value]->m_memory; }
   cCPUMemory& GetMemory(int value) { return m_programids[value]->m_memory; }
-  int GetMemSize(int value) const { return m_programids[value]->m_memory.GetSize(); }
   int GetNumMemSpaces() const { return m_programids.size(); }
   
   
@@ -358,21 +356,17 @@ public:
   /* cHardwareGX does not support threads (at least, not as in other CPUs). */
   virtual bool ThreadSelect(const int thread_id) { return false; }
   virtual bool ThreadSelect(const cCodeLabel& in_label) { return false; }
-  virtual void ThreadPrev() { ; }
-  virtual void ThreadNext() { ; }
-  virtual cBioUnit* ThreadGetOwner() { return m_organism; }
+  virtual void ThreadPrev() { }
+  virtual void ThreadNext() { }
+  virtual cInjectGenotype* ThreadGetOwner() { return 0; }
+  virtual void ThreadSetOwner(cInjectGenotype* in_genotype) { }
   
-  virtual int GetNumThreads() const { return 1; }
+  virtual int GetNumThreads() const { return -1; }
   virtual int GetCurThread() const { return -1; }
   virtual int GetCurThreadID() const { return -1; }
  
-  // interrupt current thread
-  bool InterruptThread(int interruptType) { return false; }
-  int GetThreadMessageTriggerType(int _index) { return -1; }
-
    // --------  Parasite Stuff  --------
-  bool ParasiteInfectHost(cBioUnit* bu) { return false; }
-
+  bool InjectHost(const cCodeLabel& in_label, const cGenome& injection);
 
   // --------  Input/Output Buffers  --------
   virtual tBuffer<int>& GetInputBuf() { return m_current->GetInputBuf(); }
@@ -489,6 +483,8 @@ private:
   bool Inst_Allocate(cAvidaContext& ctx);
   bool Inst_CAlloc(cAvidaContext& ctx);
   bool Inst_MaxAlloc(cAvidaContext& ctx);
+  bool Inst_Inject(cAvidaContext& ctx);
+  bool Inst_InjectRand(cAvidaContext& ctx);
   
   bool Inst_Repro(cAvidaContext& ctx);
 
@@ -519,6 +515,7 @@ private:
 
   void DoDonate(cOrganism * to_org);
   bool Inst_DonateRandom(cAvidaContext& ctx);
+  bool Inst_DonateKin(cAvidaContext& ctx);
   bool Inst_DonateEditDist(cAvidaContext& ctx);
   bool Inst_DonateGreenBeardGene(cAvidaContext& ctx);
   bool Inst_DonateTrueGreenBeard(cAvidaContext& ctx);
@@ -597,5 +594,17 @@ private:
   void AdjustPromoterRates(); //Call after a change to occupied array to correctly update rates.
   int FindRegulatoryMatch(const cCodeLabel& label);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHardwareGX {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif
 
 #endif

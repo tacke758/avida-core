@@ -3,78 +3,88 @@
  *  Avida
  *
  *  Called "inst_set.cc" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cInstSet.h"
 
-#include "avida/core/WorldDriver.h"
-
 #include "cArgContainer.h"
 #include "cArgSchema.h"
 #include "cAvidaContext.h"
+#include "cInitFile.h"
 #include "cStringUtil.h"
-#include "cUserFeedback.h"
+#include "cWeightedIndex.h"
 #include "cWorld.h"
-
-#include <iostream>
+#include "cWorldDriver.h"
 
 using namespace std;
-using namespace Avida;
 
-
-cInstSet::cInstSet(const cInstSet& _in)
-  : m_world(_in.m_world)
-  , m_name(_in.m_name)
-  , m_hw_type(_in.m_hw_type)
-  , m_inst_lib(_in.m_inst_lib)
-  , m_lib_name_map(_in.m_lib_name_map)
-  , m_mutation_index(NULL)
-  , m_has_costs(_in.m_has_costs)
-  , m_has_ft_costs(_in.m_has_ft_costs)
-  , m_has_energy_costs(_in.m_has_energy_costs)
-  , m_has_res_costs(_in.m_has_res_costs)
-{
-  m_mutation_index = new cOrderedWeightedIndex(*_in.m_mutation_index);
+cInstSet::~cInstSet(){
+  if (m_weight_ndx != NULL) delete m_weight_ndx; 
 }
+
+cInstSet::cInstSet(const cInstSet& is)
+: m_world(is.m_world), m_inst_lib(is.m_inst_lib), m_lib_name_map(is.m_lib_name_map)
+,m_lib_nopmod_map(is.m_lib_nopmod_map)
+{
+  m_weight_ndx = new cWeightedIndex(*is.m_weight_ndx);
+}
+
+cInstSet::cInstSet(const cInstSet* is)
+: m_world(is->m_world)
+, m_inst_lib(is->m_inst_lib) 
+, m_lib_name_map(is->m_lib_name_map)
+, m_lib_nopmod_map(is->m_lib_nopmod_map)
+{
+  m_weight_ndx = new cWeightedIndex(*(*is).m_weight_ndx);
+}
+
 
 cInstSet& cInstSet::operator=(const cInstSet& _in)
 {
-  m_world = _in.m_world;
-  m_name = _in.m_name;
-  m_hw_type = _in.m_hw_type;
   m_inst_lib = _in.m_inst_lib;
   m_lib_name_map = _in.m_lib_name_map;
-  m_mutation_index = NULL;
-  m_has_costs = _in.m_has_costs;
-  m_has_ft_costs = _in.m_has_ft_costs;
-  m_has_energy_costs = _in.m_has_energy_costs;
-  m_has_res_costs = _in.m_has_res_costs;
-
-  m_mutation_index = new cOrderedWeightedIndex(*_in.m_mutation_index);
+  m_lib_nopmod_map = _in.m_lib_nopmod_map;
+  m_weight_ndx = new cWeightedIndex(*_in.m_weight_ndx);
   return *this;
 }
 
 
-cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
+
+bool cInstSet::OK() const
 {
-  double weight = ctx.GetRandom().GetDouble(m_mutation_index->GetTotalWeight());
-  unsigned inst_ndx = m_mutation_index->FindPosition(weight);
-  return cInstruction(inst_ndx);
+  assert(m_lib_nopmod_map.GetSize() < m_lib_name_map.GetSize());
+  return true;
+}
+
+
+cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx, int cur_inst) const
+{
+  int ndx;
+  if (cur_inst >= 0 && m_world->GetConfig().DISABLE_SYNONYMOUS_SUBS.Get() == 0)
+    ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+  else //@MRR have to find a different instruction than what is currently there
+    do{
+      ndx = m_weight_ndx->FindPosition( ctx.GetRandom().GetDouble( m_weight_ndx->GetTotalWeight()) );
+    }while(ndx == cur_inst);
+  return cInstruction(ndx);
 }
 
 
@@ -82,9 +92,9 @@ cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
 cInstruction cInstSet::ActivateNullInst()
 {  
   const int inst_id = m_lib_name_map.GetSize();
-  const int null_fun_id = m_inst_lib->GetInstNull();
+  const int null_fun_id = m_inst_lib->GetInstNull().GetOp();
   
-  assert(inst_id < MAX_INSTSET_SIZE);
+  assert(inst_id < 255);
   
   // Make sure not to activate again if NULL is already active
   for (int i = 0; i < inst_id; i++) if (m_lib_name_map[i].lib_fun_id == null_fun_id) return cInstruction(i);
@@ -101,7 +111,6 @@ cInstruction cInstSet::ActivateNullInst()
   m_lib_name_map[inst_id].energy_cost = 0;
   m_lib_name_map[inst_id].prob_fail = 0.0;
   m_lib_name_map[inst_id].addl_time_cost = 0;
-  m_lib_name_map[inst_id].res_cost = 0.0; 
   
   return cInstruction(inst_id);
 }
@@ -136,20 +145,43 @@ bool cInstSet::InstInSet(const cString& in_name) const
   return false;
 }
 
-bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback)
+void cInstSet::LoadFromFile(const cString& filename)
 {
-  cArgSchema schema(':');
+  cInitFile file(filename);
+  if (!file.WasOpened()) {
+    tConstListIterator<cString> err_it(file.GetErrors());
+    const cString* errstr = NULL;
+    while ((errstr = err_it.Next())) m_world->GetDriver().RaiseException(*errstr);
+    m_world->GetDriver().RaiseFatalException(1, cString("Unable to load instruction set '") + filename + "'.");
+  }
+   
+  cStringList sl;
+  for (int line_id = 0; line_id < file.GetNumLines(); line_id++) {
+    sl.PushRear(file.GetLine(line_id));
+  }
+  
+  LoadWithStringList(sl);
+}
+
+
+void cInstSet::LoadFromConfig()
+{
+  LoadWithStringList(m_world->GetConfig().INST_SET_NEW.Get());
+}
+
+void cInstSet::LoadWithStringList(const cStringList& sl)
+{
+  cArgSchema schema;
   
   // Integer
-  schema.AddEntry("cost", 0, 0);
-  schema.AddEntry("initial_cost", 1, 0);
-  schema.AddEntry("energy_cost", 2, 0);
-  schema.AddEntry("addl_time_cost", 3, 0);
-
+  schema.AddEntry("cost", 1, 0);
+  schema.AddEntry("initial_cost", 2, 0);
+  schema.AddEntry("energy_cost", 3, 0);
+  schema.AddEntry("addl_time_cost", 4, 0);
+  
   // Double
+  schema.AddEntry("redundancy", 0, 1.0);
   schema.AddEntry("prob_fail", 0, 0.0);
-  schema.AddEntry("res_cost", 1, 0.0);  
-  schema.AddEntry("redundancy", 2, 1.0);
   
   // String  
   schema.AddEntry("inst_code", 0, "");
@@ -160,6 +192,7 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
   if ((unsigned)inst_code_len > (sizeof(int) * 8)) inst_code_len = sizeof(int) * 8;
   else if (inst_code_len <= 0) inst_code_len = 1;
   
+  tList<cString> errors;
   bool success = true;
   for (int line_id = 0; line_id < sl.GetSize(); line_id++) {
     cString cur_line = sl.GetLine(line_id);
@@ -169,40 +202,42 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
     if (inst_name != "INST") continue;
     
     // Lookup the instruction name in the library
-    inst_name = cur_line.Pop(':');
+    inst_name = cur_line.PopWord();
     int fun_id = m_inst_lib->GetIndex(inst_name);
     if (fun_id == -1) {
       // Oh oh!  Didn't find an instruction!
-      if (feedback) feedback->Error("unknown instruction '%s' (Best match = '%s')",
-                                    (const char*)inst_name, (const char*)m_inst_lib->GetNearMatch(inst_name));
+      cString* errorstr = new cString("Unknown instruction '");
+      *errorstr += inst_name + "' (Best match = '" + m_inst_lib->GetNearMatch(inst_name) + "').";
+      errors.PushRear(errorstr);
       success = false;
       continue;
     }
     
     // Load the arguments for this instruction
-    cArgContainer* args = cArgContainer::Load(cur_line, schema, *feedback);
+    cArgContainer* args = cArgContainer::Load(cur_line, schema, &errors);
     if (!args) {
       success = false;
       continue;
     }
     
     // Check to make sure we are not inserting the special NULL instruction
-    if (fun_id == m_inst_lib->GetInstNull()) {
-      if (feedback) feedback->Error("invalid use of NULL instruction");
+    if (fun_id == m_inst_lib->GetInstNull().GetOp()) {
+      errors.PushRear(new cString("Invalid use of NULL instruction"));
       success = false;
       continue;
     }
     
-    double redundancy = args->GetDouble(2);
+    double redundancy = args->GetInt(0);
     if (redundancy < 0.0) {
-      if (feedback) feedback->Warning("instruction '%s' has negative redundancy, ignoring...", (const char*)inst_name);
+      m_world->GetDriver().NotifyWarning(cString("Instruction '") + inst_name + "' has negative redundancy, ignoring.");
       continue;
     }
     
     
+    
     // Get the ID of the new Instruction
     const int inst_id = m_lib_name_map.GetSize();
-    assert(inst_id < MAX_INSTSET_SIZE);
+    assert(inst_id < 255);
     
     // Increase the size of the array...
     m_lib_name_map.Resize(inst_id + 1);
@@ -210,17 +245,12 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
     // Setup the new function...
     m_lib_name_map[inst_id].lib_fun_id = fun_id;
     m_lib_name_map[inst_id].redundancy = redundancy;
-    m_lib_name_map[inst_id].cost = args->GetInt(0);
-    m_lib_name_map[inst_id].ft_cost = args->GetInt(1);
-    m_lib_name_map[inst_id].energy_cost = args->GetInt(2);
+    m_lib_name_map[inst_id].cost = args->GetInt(1);
+    m_lib_name_map[inst_id].ft_cost = args->GetInt(2);
+    m_lib_name_map[inst_id].energy_cost = args->GetInt(3);
     m_lib_name_map[inst_id].prob_fail = args->GetDouble(0);
-    m_lib_name_map[inst_id].addl_time_cost = args->GetInt(3);
-    m_lib_name_map[inst_id].res_cost = args->GetDouble(1); 
+    m_lib_name_map[inst_id].addl_time_cost = args->GetInt(4);
     
-    if (m_lib_name_map[inst_id].cost > 1) m_has_costs = true;
-    if (m_lib_name_map[inst_id].ft_cost) m_has_ft_costs = true;
-    if (m_lib_name_map[inst_id].energy_cost) m_has_energy_costs = true;
-    if (m_lib_name_map[inst_id].res_cost) m_has_res_costs = true;   
     
     // Parse the instruction code
     cString inst_code = args->GetString(0);
@@ -233,7 +263,7 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
           m_lib_name_map[inst_id].inst_code = ((~0) >> ((sizeof(int) * 8) - inst_code_len)) & inst_id;
           break;
         default:
-          if (feedback) feedback->Error("invalid default instruction code type");
+          errors.PushRear(new cString("Invalid default instruction code type."));
           success = false;
           break;
       }
@@ -243,7 +273,7 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
         inst_code_val <<= 1;
         if (inst_code[i] == '1') inst_code_val |= 1;
         else if (inst_code[i] != '0') {
-          if (feedback) feedback->Error("invalid character in instruction code, must be 0 or 1");
+          errors.PushRear(new cString("Invalid character in instruction code, must be 0 or 1."));
           success = false;
           break;
         }
@@ -257,7 +287,7 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
     if ((*m_inst_lib)[fun_id].IsNop()) {
       // Assert nops are at the _beginning_ of an inst_set.
       if (m_lib_name_map.GetSize() != (m_lib_nopmod_map.GetSize() + 1)) {
-        if (feedback) feedback->Error("invalid NOP placement, all NOPs must be listed first");
+        errors.PushRear(new cString("Invalid NOP placement, all NOPs must be listed first."));
         success = false;
       }
 
@@ -265,20 +295,109 @@ bool cInstSet::LoadWithStringList(const cStringList& sl, cUserFeedback* feedback
       m_lib_nopmod_map[inst_id] = fun_id;
     }
     
+    
     // Clean up the argument container for this instruction
     delete args;
   }
-
-  //Setup mutation indexing based on redundancies
-  m_mutation_index = new cOrderedWeightedIndex();
-  for (int id=0; id < m_lib_name_map.GetSize(); id++)
-  {
-     double red = m_lib_name_map[id].redundancy;
-     if (red == 0.0)
-     {
-       continue;
-     }
-     m_mutation_index->SetWeight(id, m_lib_name_map[id].redundancy);
+  
+  
+  if (!success) {
+    cString* errstr = NULL;
+    while ((errstr = errors.Pop())) {
+      m_world->GetDriver().RaiseException(*errstr);
+      delete errstr;
+    }
+    m_world->GetDriver().RaiseFatalException(1,"Failed to load instruction set due to previous errors.");
   }
-  return success;
+  
+  //Instruction set loaded okay.
+  SynchRedundancyWeights();  
+}
+
+
+ 
+void cInstSet::LoadFromLegacyFile(const cString& filename)
+{
+  cInitFile file(filename);
+  
+  if (file.WasOpened() == false) {
+    tConstListIterator<cString> err_it(file.GetErrors());
+    const cString* errstr = NULL;
+    while ((errstr = err_it.Next())) m_world->GetDriver().RaiseException(*errstr);
+    m_world->GetDriver().RaiseFatalException(1, cString("Could not open instruction set '") + filename + "'.");
+  }
+  
+  for (int line_id = 0; line_id < file.GetNumLines(); line_id++) {
+    cString cur_line = file.GetLine(line_id);
+    cString inst_name = cur_line.PopWord();
+    int redundancy = cur_line.PopWord().AsInt();
+    int cost = cur_line.PopWord().AsInt();
+    int ft_cost = cur_line.PopWord().AsInt();
+    int energy_cost = cur_line.PopWord().AsInt();
+    double prob_fail = cur_line.PopWord().AsDouble();
+    int addl_time_cost = cur_line.PopWord().AsInt();
+    
+    // If this instruction has 0 redundancy, we don't want it!
+    if (redundancy < 0) continue;
+    if (redundancy > 256) {
+      cString msg("Max redundancy is 256.  Resetting redundancy of \"");
+      msg += inst_name; msg += "\" from "; msg += redundancy; msg += " to 256.";
+      m_world->GetDriver().NotifyWarning(msg);
+      redundancy = 256;
+    }
+    
+    // Otherwise, this instruction will be in the set.
+    // First, determine if it is a nop...
+    int fun_id = m_inst_lib->GetIndex(inst_name);
+    
+    if (fun_id == -1) {
+      // Oh oh!  Didn't find an instruction!
+      cString errorstr("Could not find instruction '");
+      errorstr += inst_name + "'\n        (Best match = '" + m_inst_lib->GetNearMatch(inst_name) + "').";
+      m_world->GetDriver().RaiseFatalException(1, errorstr);
+    }
+
+    
+    
+    if (fun_id == m_inst_lib->GetInstNull().GetOp())
+      m_world->GetDriver().RaiseFatalException(1,"Invalid use of NULL instruction");
+    
+    const int inst_id = m_lib_name_map.GetSize();
+    
+    assert(inst_id < 255);
+    
+    // Increase the size of the array...
+    m_lib_name_map.Resize(inst_id + 1);
+    
+    // Setup the new function...
+    m_lib_name_map[inst_id].lib_fun_id = fun_id;
+    m_lib_name_map[inst_id].redundancy = redundancy;
+    m_lib_name_map[inst_id].cost = cost;
+    m_lib_name_map[inst_id].ft_cost = ft_cost;
+    m_lib_name_map[inst_id].energy_cost = energy_cost;
+    m_lib_name_map[inst_id].prob_fail = prob_fail;
+    m_lib_name_map[inst_id].addl_time_cost = addl_time_cost;
+    m_lib_name_map[inst_id].inst_code = 0;
+    
+
+    if ((*m_inst_lib)[fun_id].IsNop()) {
+      // Assert nops are at the _beginning_ of an inst_set.
+      assert(m_lib_name_map.GetSize() == (m_lib_nopmod_map.GetSize() + 1));
+      
+      m_lib_nopmod_map.Resize(inst_id + 1);
+      m_lib_nopmod_map[inst_id] = fun_id;
+    }
+  }
+  
+  SynchRedundancyWeights();
+}
+
+
+void cInstSet::SynchRedundancyWeights()
+{
+  if (m_weight_ndx != NULL)
+    delete m_weight_ndx;
+  m_weight_ndx = new cWeightedIndex(GetSize());
+  for (int k = 0; k < GetSize(); k++)
+    m_weight_ndx->SetWeight(k, m_lib_name_map[k].redundancy);
 }

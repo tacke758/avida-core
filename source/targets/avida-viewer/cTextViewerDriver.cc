@@ -3,25 +3,31 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cTextViewerDriver.h"
 
+#include "cChangeList.h"
 #include "cClassificationManager.h"
+#include "cDriverManager.h"
+#include "cGenotype.h"
 #include "cHardwareBase.h"
 #include "cOrganism.h"
 #include "cPopulation.h"
@@ -37,18 +43,18 @@ using namespace std;
 
 
 cTextViewerDriver::cTextViewerDriver(cWorld* world)
-  : cTextViewerDriver_Base(world), m_pause(false), m_firstupdate(true)
+  : cTextViewerDriver_Base(world)
 {
-  m_view = new cView(world, this);
-  m_view->SetViewMode(-1);    // Set the view mode to its default value.
+  m_view = new cView(world);
+  m_view->SetViewMode(world->GetConfig().VIEW_MODE.Get());
 
-  GlobalObjectManager::Register(this);
+  cDriverManager::Register(static_cast<cAvidaDriver*>(this));
   world->SetDriver(this);
 }
 
 cTextViewerDriver::~cTextViewerDriver()
 {
-  GlobalObjectManager::Unregister(this);
+  cDriverManager::Unregister(static_cast<cAvidaDriver*>(this));
   
   if (m_view != NULL) EndProg(0);
 }
@@ -56,16 +62,19 @@ cTextViewerDriver::~cTextViewerDriver()
 
 void cTextViewerDriver::Run()
 {
+  cClassificationManager& classmgr = m_world->GetClassificationManager();
   cPopulation& population = m_world->GetPopulation();
   cStats& stats = m_world->GetStats();
   
   const int ave_time_slice = m_world->GetConfig().AVE_TIME_SLICE.Get();
   const double point_mut_prob = m_world->GetConfig().POINT_MUT_PROB.Get();
   
-  cAvidaContext ctx(m_world, m_world->GetRandom());
-  ctx.EnableOrgFaultReporting();
+  cAvidaContext ctx(m_world->GetRandom());
   
   while (!m_done) {
+    if (cChangeList* change_list = population.GetChangeList()) {
+      change_list->Reset();
+    }
     
     m_world->GetEvents(ctx);
     if (m_done == true) break;
@@ -77,6 +86,13 @@ void cTextViewerDriver::Run()
     if (stats.GetUpdate() > 0) {
       // Tell the stats object to do update calculations and printing.
       stats.ProcessUpdate();
+      
+      // Update all the genotypes for the end of this update.
+      for (cGenotype * cur_genotype = classmgr.ResetThread(0);
+           cur_genotype != NULL && cur_genotype->GetThreshold();
+           cur_genotype = classmgr.NextGenotype(0)) {
+        cur_genotype->UpdateReset();
+      }
     }
     
     
@@ -84,51 +100,43 @@ void cTextViewerDriver::Run()
     const int UD_size = ave_time_slice * population.GetNumOrganisms();
     const double step_size = 1.0 / (double) UD_size;
     
-    if (m_pause) {
-      m_view->Pause();
-      m_pause = false;
-      
-      // This is needed to have the top bar drawn properly; I'm not sure why...
-      if (m_firstupdate) {
-        m_view->Refresh(ctx);
-        m_firstupdate = false;
-      }
-    }
-    
+
     // Are we stepping through an organism?
     if (m_view->GetStepOrganism() != -1) {  // Yes we are!
                                             // Keep the viewer informed about the organism we are stepping through...
       for (int i = 0; i < UD_size; i++) {
         const int next_id = population.ScheduleOrganism();
         if (next_id == m_view->GetStepOrganism()) {
-          m_view->NotifyUpdate(ctx);
-          m_view->NewUpdate(ctx);
+          m_view->NotifyUpdate();
+          m_view->NewUpdate();
           
           // This is needed to have the top bar drawn properly; I'm not sure why...
-          if (m_firstupdate) {
-            m_view->Refresh(ctx);
-            m_firstupdate = false;
+          static bool first_update = true;
+          if (first_update) {
+            m_view->Refresh();
+            first_update = false;
           }
         }
         population.ProcessStep(ctx, step_size, next_id);
       }
     }
     else {
-      for (int i = 0; i < UD_size; i++) population.ProcessStep(ctx, step_size, population.ScheduleOrganism());
+      for (int i = 0; i < UD_size; i++) population.ProcessStep(ctx, step_size);
     }
     
     
     // end of update stats...
-    population.ProcessPostUpdate(ctx);
+    population.CalcUpdateStats();
     
     // Setup the viewer for the new update.
     if (m_view->GetStepOrganism() == -1) {
-      m_view->NewUpdate(ctx);
+      m_view->NewUpdate();
  
       // This is needed to have the top bar drawn properly; I'm not sure why...
-      if (m_firstupdate) {
-        m_view->Refresh(ctx);
-        m_firstupdate = false;
+      static bool first_update = true;
+      if (first_update) {
+        m_view->Refresh();
+        first_update = false;
       }
     }
     

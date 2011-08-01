@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "analyze_flow_command.hh" prior to 12/2/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -38,12 +41,25 @@ class cAnalyzeFlowCommand : public cAnalyzeCommand {
 protected:
   tList<cAnalyzeCommand> command_list;
 public:
-  cAnalyzeFlowCommand(const cString& _command, const cString& _args) : cAnalyzeCommand(_command, _args) { ; }
+  cAnalyzeFlowCommand(const cString & _command, const cString & _args)
+    : cAnalyzeCommand(_command, _args) { ; }
   virtual ~cAnalyzeFlowCommand() {
-    while (command_list.GetSize() > 0) delete command_list.Pop();
+    while ( command_list.GetSize() > 0 ) delete command_list.Pop();
   }
 
-  tList<cAnalyzeCommand>* GetCommandList() { return &command_list; }
+  tList<cAnalyzeCommand> * GetCommandList() { return &command_list; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nAnalyzeFlowCommand {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

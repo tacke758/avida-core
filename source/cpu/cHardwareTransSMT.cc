@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Created by David on 7/13/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -23,25 +26,24 @@
 
 #include "cAvidaContext.h"
 #include "cCPUTestInfo.h"
-#include "cEnvironment.h"
 #include "cInstLib.h"
 #include "cInstSet.h"
 #include "cHardwareTracer.h"
+#include "cMutation.h"
+#include "cMutationLib.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
 #include "cRandom.h"
 #include "cTestCPU.h"
 #include "cWorld.h"
-#include "tArrayUtils.h"
 #include "tInstLibEntry.h"
-#include "cParasite.h"
 
-#include "AvidaTools.h"
+#include "functions.h"
+#include "nMutation.h"
 
 #include <iomanip>
 
 using namespace std;
-using namespace AvidaTools;
 
 tInstLib<cHardwareTransSMT::tMethod>* cHardwareTransSMT::s_inst_slib = cHardwareTransSMT::initInstLib();
 
@@ -104,13 +106,9 @@ tInstLib<cHardwareTransSMT::tMethod>* cHardwareTransSMT::initInstLib(void)
     tInstLibEntry<tMethod>("Net-Last", &cHardwareTransSMT::Inst_NetLast), // 42
     tInstLibEntry<tMethod>("Rotate-Left", &cHardwareTransSMT::Inst_RotateLeft), // 43
     tInstLibEntry<tMethod>("Rotate-Right", &cHardwareTransSMT::Inst_RotateRight), // 44
-    tInstLibEntry<tMethod>("Call-Flow", &cHardwareTransSMT::Inst_CallFlow), // 45
-    tInstLibEntry<tMethod>("Call-Label", &cHardwareTransSMT::Inst_CallLabel), // 46
-    tInstLibEntry<tMethod>("Return", &cHardwareTransSMT::Inst_Return), // 47
-    tInstLibEntry<tMethod>("If-Greater-Equal", &cHardwareTransSMT::Inst_IfGreaterEqual), // 48
-    tInstLibEntry<tMethod>("Divide-Erase", &cHardwareTransSMT::Inst_Divide_Erase), // 49
-    tInstLibEntry<tMethod>("Divide-Sex-Erase", &cHardwareTransSMT::Inst_Divide_Sex_Erase), // 50
-    tInstLibEntry<tMethod>("Collect-Unit", &cHardwareTransSMT::Inst_Collect_Unit), // 51
+    tInstLibEntry<tMethod>("Call-Flow", &cHardwareTransSMT::Inst_CallFlow), // 44
+    tInstLibEntry<tMethod>("Call-Label", &cHardwareTransSMT::Inst_CallLabel), // 44
+    tInstLibEntry<tMethod>("Return", &cHardwareTransSMT::Inst_Return), // 44
     
     tInstLibEntry<tMethod>("NULL", &cHardwareTransSMT::Inst_Nop) // Last Instruction Always NULL
   };
@@ -128,26 +126,27 @@ tInstLib<cHardwareTransSMT::tMethod>* cHardwareTransSMT::initInstLib(void)
   static tMethod functions[f_size];
   for (int i = 0; i < f_size; i++) functions[i] = s_f_array[i].GetFunction();
 	
-	const int def = 0;
-  const int null_inst = f_size - 1;
+	const cInstruction error(255);
+	const cInstruction def(0);
+  const cInstruction null_inst(f_size - 1);
 	
-  return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, def, null_inst);
+  return new tInstLib<tMethod>(f_size, s_f_array, n_names, nop_mods, functions, error, def, null_inst);
 }
 
-cHardwareTransSMT::cHardwareTransSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set)
-: cHardwareBase(world, in_organism, in_inst_set), m_mem_array(1)
+cHardwareTransSMT::cHardwareTransSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_m_inst_set, bool inherited_instset)
+: cHardwareBase(world, in_organism, in_m_inst_set, inherited_instset), m_mem_array(1)
 , m_mem_lbls(Pow(NUM_NOPS, MAX_MEMSPACE_LABEL) / MEM_LBLS_HASH_FACTOR)
 , m_thread_lbls(Pow(NUM_NOPS, MAX_THREAD_LABEL) / THREAD_LBLS_HASH_FACTOR)
 {
   m_functions = s_inst_slib->GetFunctions();
 	
-  m_mem_array[0] = in_organism->GetGenome().GetSequence();  // Initialize memory...
+  m_mem_array[0] = in_organism->GetGenome();  // Initialize memory...
   m_mem_array[0].Resize(m_mem_array[0].GetSize() + 1);
   m_mem_array[0][m_mem_array[0].GetSize() - 1] = cInstruction();
-  Reset(ctx);                            // Setup the rest of the hardware...
+  Reset();                            // Setup the rest of the hardware...
 }
 
-void cHardwareTransSMT::internalReset()
+void cHardwareTransSMT::Reset()
 {
   // Setup the memory...
   m_mem_array.Resize(1);
@@ -160,22 +159,36 @@ void cHardwareTransSMT::internalReset()
   // Reset that single thread.
   m_threads[0].Reset(this, 0);
   m_cur_thread = 0;
-  
+		
   // Reset all stacks (local and global)
   for(int i = 0; i < NUM_STACKS; i++) {
 		Stack(i).Clear();
 	}
 	
-  m_organism->ClearParasites();
-}
+#if INSTRUCTION_COSTS
+  // instruction cost arrays
+  const int num_inst_cost = m_inst_set->GetSize();
+  inst_cost.Resize(num_inst_cost);
+  inst_ft_cost.Resize(num_inst_cost);
+  inst_energy_cost.Resize(num_inst_cost);
+  m_has_costs = false;
+  m_has_ft_costs = false;
+  m_has_energy_costs = false;
+  
+  for (int i = 0; i < num_inst_cost; i++) {
+    inst_cost[i] = m_inst_set->GetCost(cInstruction(i));
+    if (!m_has_costs && inst_cost[i]) m_has_costs = true;
+    
+    inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+    if (!m_has_ft_costs && inst_ft_cost[i]) m_has_ft_costs = true;
 
-
-//TODO: Need to handle different divide methods here, for example not resetting parasites when divide method
-//also doesn't reset parasites. - LZ
-void cHardwareTransSMT::internalResetOnFailedDivide()
-{
-	internalReset();
-  AdvanceIP() = false;
+    inst_energy_cost[i] = m_inst_set->GetEnergyCost(cInstruction(i));    
+    if(!m_has_energy_costs && inst_energy_cost[i]) m_has_energy_costs = true;
+  }
+#endif
+  
+  organism->ClearParasites();
+  organism->NetReset();
 }
 
 void cHardwareTransSMT::cLocalThread::Reset(cHardwareBase* in_hardware, int mem_space)
@@ -187,75 +200,33 @@ void cHardwareTransSMT::cLocalThread::Reset(cHardwareBase* in_hardware, int mem_
   read_label.Clear();
   next_label.Clear();
   running = true;
-  owner = NULL;
-  skipExecution = false;
+  owner = NULL;  
 }
 
-cBioUnit* cHardwareTransSMT::ThreadGetOwner()
-{
-  return (m_threads[m_cur_thread].owner) ? (cBioUnit*) m_threads[m_cur_thread].owner : m_organism;
-}
 
 
 // This function processes the very next command in the genome, and is made
 // to be as optimized as possible.  This is the heart of avida.
-bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
+void cHardwareTransSMT::SingleProcess(cAvidaContext& ctx)
 {
-  if (speculative) return false;
-  
   // Mark this organism as running...
-  m_organism->SetRunning(true);
+  organism->SetRunning(true);
 	
-  cPhenotype& phenotype = m_organism->GetPhenotype();
+  cPhenotype& phenotype = organism->GetPhenotype();
   phenotype.IncTimeUsed();
 	
-  const int num_inst_exec = (m_world->GetConfig().THREAD_SLICING_METHOD.Get() == 1) ? m_threads.GetSize() : 1;
+  const int num_inst_exec = (m_world->GetConfig().THREAD_SLICING_METHOD.Get() == 1) ? GetNumThreads() : 1;
   
   for (int i = 0; i < num_inst_exec; i++) {
-    double parasiteVirulence;
     // Setup the hardware for the next instruction to be executed.
-    m_cur_thread++;
-		//Ignore incremeting the thread, set it to be the parasite, unless we draw something lower thean 0.8
-		//Then set it to the parasite
-    if (m_threads.GetSize() > 1 &&  m_threads[1].owner->IsParasite())
-    {
-      parasiteVirulence = dynamic_cast<cParasite*>(m_threads[1].owner)->GetVirulence();
-    }
-    else
-    {
-      parasiteVirulence = m_world->GetConfig().PARASITE_VIRULENCE.Get();
-    }
-    
-		if (parasiteVirulence != -1) {
-      
-			double probThread = ctx.GetRandom().GetDouble();
-      
-      //Default to the first thread
-			m_cur_thread = 0;
-			if (probThread < parasiteVirulence)
-			{
-        //LZ- this only works for MAX_THREADS 2 right now
-				m_cur_thread = 1;
-			}
-		};
-		
-		//If we don't have a parasite, this will fix it. 
-    if (m_cur_thread >= m_threads.GetSize())
-		{
-			m_cur_thread = 0;			
-		}    
-    
-    if(m_threads[m_cur_thread].skipExecution)
-      m_cur_thread++;
-    
+    ThreadNext();
     if (!ThreadIsRunning()) continue;
     
     AdvanceIP() = true;
     IP().Adjust();
 		
-    // BREAKPOINTS
-#if 0
-    if (IP().FlagBreakpoint()) m_organism->DoBreakpoint();
+#if BREAKPOINTS
+    if (IP().FlagBreakpoint()) organism->DoBreakpoint();
 #endif
     
     // Print the status of this CPU at each step...
@@ -265,7 +236,7 @@ bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
     const cInstruction& cur_inst = IP().GetInst();
 		
     // Test if costs have been paid and it is okay to execute this now...
-    bool exec = SingleProcess_PayPreCosts(ctx, cur_inst);
+    bool exec = SingleProcess_PayCosts(ctx, cur_inst);
 		
     // Now execute the instruction...
     if (exec == true) {
@@ -274,7 +245,7 @@ bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
         exec = !( ctx.GetRandom().P(m_inst_set->GetProbFail(cur_inst)) );
       }
       
-      if (exec == true) if (SingleProcess_ExecuteInst(ctx, cur_inst)) SingleProcess_PayPostCosts(ctx, cur_inst);
+      if (exec == true) SingleProcess_ExecuteInst(ctx, cur_inst);
 			
       // Some instruction (such as jump) may turn advance_ip off.  Ususally
       // we now want to move to the next instruction in the memory.
@@ -283,16 +254,14 @@ bool cHardwareTransSMT::SingleProcess(cAvidaContext& ctx, bool speculative)
   }
   
   // Kill creatures who have reached their max num of instructions executed
-  const int max_executed = m_organism->GetMaxExecuted();
+  const int max_executed = organism->GetMaxExecuted();
   if ((max_executed > 0 && phenotype.GetTimeUsed() >= max_executed)
       || phenotype.GetToDie()) {
-    m_organism->Die(ctx);
+    organism->Die();
   }
   
-  m_organism->SetRunning(false);
+  organism->SetRunning(false);
   CheckImplicitRepro(ctx);
-  
-  return true;
 }
 
 // This method will handle the actual execution of an instruction
@@ -304,7 +273,7 @@ bool cHardwareTransSMT::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cIns
   
 #ifdef EXECUTION_ERRORS
   // If there is an execution error, execute a random instruction.
-  if (m_organism->TestExeErr()) actual_inst = m_inst_set->GetRandomInst(ctx);
+  if (organism->TestExeErr()) actual_inst = m_inst_set->GetRandomInst(ctx);
 #endif /* EXECUTION_ERRORS */
 	
   // Get a pointer to the corrisponding method...
@@ -314,16 +283,20 @@ bool cHardwareTransSMT::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cIns
   IP().SetFlagExecuted();
 	
 	
+#if INSTRUCTION_COUNT
   // instruction execution count incremeneted
-  m_organism->GetPhenotype().IncCurInstCount(actual_inst.GetOp());
+  organism->GetPhenotype().IncCurInstCount(actual_inst.GetOp());
+#endif
 	
   // And execute it.
   const bool exec_success = (this->*(m_functions[inst_idx]))(ctx);
 	
+#if INSTRUCTION_COUNT
   // decremenet if the instruction was not executed successfully
   if (exec_success == false) {
-    m_organism->GetPhenotype().DecCurInstCount(actual_inst.GetOp());
+    organism->GetPhenotype().DecCurInstCount(actual_inst.GetOp());
   }
+#endif	
 	
   return exec_success;
 }
@@ -332,21 +305,35 @@ bool cHardwareTransSMT::SingleProcess_ExecuteInst(cAvidaContext& ctx, const cIns
 void cHardwareTransSMT::ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst)
 {
   // Mark this organism as running...
-  bool prev_run_state = m_organism->IsRunning();
-  m_organism->SetRunning(true);
+  bool prev_run_state = organism->IsRunning();
+  organism->SetRunning(true);
 	
   // Print the status of this CPU at each step...
   if (m_tracer != NULL) m_tracer->TraceHardware(*this, true);
   
   SingleProcess_ExecuteInst(ctx, inst);
   
-  m_organism->SetRunning(prev_run_state);
+  organism->SetRunning(prev_run_state);
 }
 
+bool cHardwareTransSMT::OK()
+{
+  for(int i = 0 ; i < m_mem_array.GetSize(); i++) {
+    if (!m_mem_array[i].OK()) return false;
+  }
+	
+  for (int i = 0; i < GetNumThreads(); i++) {
+    for(int j=0; j < NUM_LOCAL_STACKS; j++)
+			if (m_threads[i].local_stacks[j].OK() == false) return false;
+    if (m_threads[i].next_label.OK() == false) return false;
+  }
+	
+  return true;
+}
 
 void cHardwareTransSMT::PrintStatus(ostream& fp)
 {
-  fp << m_organism->GetPhenotype().GetTimeUsed() << " "
+  fp << organism->GetPhenotype().GetTimeUsed() << " "
   << "THREAD: " << m_cur_thread << ", " << m_threads.GetSize() << "   "
 	<< "IP:(" << IP().GetMemSpace() << ", " << IP().GetPosition() << ")    "
 	
@@ -365,13 +352,13 @@ void cHardwareTransSMT::PrintStatus(ostream& fp)
 	<< endl;
 	
   fp << "  R-Head:(" << GetHead(nHardware::HEAD_READ).GetMemSpace() << ", " 
-  << GetHead(nHardware::HEAD_READ).GetPosition() << ")  " 
-  << "W-Head:(" << GetHead(nHardware::HEAD_WRITE).GetMemSpace()  << ", "
-  << GetHead(nHardware::HEAD_WRITE).GetPosition() << ")  "
-  << "F-Head:(" << GetHead(nHardware::HEAD_FLOW).GetMemSpace()   << ",  "
-  << GetHead(nHardware::HEAD_FLOW).GetPosition() << ")  "
-  << "RL:" << GetReadLabel().AsString() << "   "
-  << endl;
+		<< GetHead(nHardware::HEAD_READ).GetPosition() << ")  " 
+		<< "W-Head:(" << GetHead(nHardware::HEAD_WRITE).GetMemSpace()  << ", "
+		<< GetHead(nHardware::HEAD_WRITE).GetPosition() << ")  "
+		<< "F-Head:(" << GetHead(nHardware::HEAD_FLOW).GetMemSpace()   << ",  "
+		<< GetHead(nHardware::HEAD_FLOW).GetPosition() << ")  "
+		<< "RL:" << GetReadLabel().AsString() << "   "
+    << endl;
 	
   for (int i = 0; i < m_mem_array.GetSize(); i++) {
     const cCPUMemory& mem = m_mem_array[i];
@@ -390,7 +377,7 @@ int cHardwareTransSMT::FindMemorySpaceLabel(const cCodeLabel& label, int mem_spa
   if (!m_mem_lbls.Find(hash_key, mem_space)) {
     mem_space = m_mem_array.GetSize();
     m_mem_array.Resize(mem_space + 1);
-    m_mem_lbls.Set(hash_key, mem_space);
+    m_mem_lbls.Add(hash_key, mem_space);
   }
   
   return mem_space;
@@ -449,7 +436,7 @@ cHeadCPU cHardwareTransSMT::FindLabel(int direction)
 // memory.  Return the first line _after_ the the found label.  It is okay
 // to find search label's match inside another label.
 int cHardwareTransSMT::FindLabel_Forward(const cCodeLabel& search_label,
-                                         const Sequence& search_genome, int pos)
+                                    const cGenome& search_genome, int pos)
 {
   assert (pos < search_genome.GetSize() && pos >= 0);
 	
@@ -530,7 +517,7 @@ int cHardwareTransSMT::FindLabel_Forward(const cCodeLabel& search_label,
 // memory.  Return the first line _after_ the the found label.  It is okay
 // to find search label's match inside another label.
 int cHardwareTransSMT::FindLabel_Backward(const cCodeLabel & search_label,
-                                          const Sequence & search_genome, int pos)
+                                     const cGenome & search_genome, int pos)
 {
   assert (pos < search_genome.GetSize());
 	
@@ -649,16 +636,13 @@ bool cHardwareTransSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier
   
   // Make sure the creature will still be above the minimum size
   if (end_pos <= 0) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: no code to inject");
+    organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: no code to inject");
     return false; // (inject fails)
   }
   if (end_pos < MIN_INJECT_SIZE) {
-    m_organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: new size too small");
+    organism->Fault(FAULT_LOC_INJECT, FAULT_TYPE_ERROR, "inject: new size too small");
     return false; // (inject fails)
   }  
-  
-  //update the parasites tasks
-	m_organism->GetPhenotype().UpdateParasiteTasks();
   
   m_mem_array[mem_space_used].Resize(end_pos);
   cCPUMemory injected_code = m_mem_array[mem_space_used];
@@ -666,13 +650,10 @@ bool cHardwareTransSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier
   Inject_DoMutations(ctx, mut_multiplier, injected_code);
 	
   bool inject_signal = false;
-  if (injected_code.GetSize() > 0) {
-    cBioUnit* parent = (m_threads[m_cur_thread].owner) ? (cBioUnit*) m_threads[m_cur_thread].owner : m_organism;
-    inject_signal = m_organism->InjectParasite(parent, GetLabel().AsString(), injected_code);
-  }
+  if (injected_code.GetSize() > 0) inject_signal = organism->InjectParasite(GetLabel(), injected_code);
 	
   // reset the memory space that was injected
-  m_mem_array[mem_space_used] = Sequence("a"); 
+  m_mem_array[mem_space_used] = cGenome("a"); 
 	
   if (m_world->GetConfig().INJECT_METHOD.Get() == INJECT_METHOD_SPLIT) {
     for (int x = 0; x < nHardware::NUM_HEADS; x++) GetHead(x).Reset(this, IP().GetMemSpace());
@@ -684,174 +665,20 @@ bool cHardwareTransSMT::InjectParasite(cAvidaContext& ctx, double mut_multiplier
   return inject_signal;
 }
 
-
-bool cHardwareTransSMT::ParasiteInfectHost(cBioUnit* bu)
+//This is the code run by the TARGET of an injection.  This RECIEVES the infection.
+bool cHardwareTransSMT::InjectHost(const cCodeLabel& in_label, const cGenome& inject_code)
 {
-  assert(bu->GetGenome().GetHardwareType() == GetType() && bu->GetGenome().GetInstSet() == m_inst_set->GetInstSetName());
-  
-  cCodeLabel label;
-  label.ReadString(bu->GetUnitSourceArgs());
-  
-  // Inject fails if the memory space is already in use
-  if (label.GetSize() == 0 || MemorySpaceExists(label)) return false;
-  
-  int thread_id = m_threads.GetSize();
-  
-  // Check for existing thread
-  int hash_key = label.AsInt(NUM_NOPS);
-  if (m_thread_lbls.Find(hash_key, thread_id)) {
-    if (m_threads[thread_id].running) return false;  // Thread exists, and is running... call fails
-  } else {
-    // Check for thread cap
-    if (thread_id == m_world->GetConfig().MAX_CPU_THREADS.Get()) return false;
-    
-    // Add new thread entry
-    m_threads.Resize(thread_id + 1);
-    m_thread_lbls.Set(hash_key, thread_id);
-	}
-  
-  // Create the memory space and copy in the parasite
-  int mem_space = FindMemorySpaceLabel(label, -1);
-  assert(mem_space != -1);
-  m_mem_array[mem_space] = bu->GetGenome().GetSequence();
-  
-  // Setup the thread
-  m_threads[thread_id].Reset(this, mem_space);
-  m_threads[thread_id].owner = bu;
-  
-  if(m_world->GetConfig().INJECT_IS_VIRULENT.Get())
-    m_threads[0].skipExecution = true;
-  
-  return true;
-}
+  // Inject fails if the memory space is already in use or thread exists
+  if (MemorySpaceExists(in_label) || FindThreadLabel(in_label) != -1) return false;
 
-/* Convert modifying NOPs to the index of a resource.  
- *
- * When the specification does not map to exactly one resource (either because the 
- * specification does not have enough nops to fully specify, or because the number of 
- * resources is not a power of the number of nops), choose randomly among the resources 
- * covered by the specification.  The random choice is weighted by how much of the 
- * resource is covered by the specification.
- *
- * For example, in a 3-nop 4-resource system:
- * A -> 75% chance resouce 0, 25% chance resource 1
- * AA and AB -> 100% chance resource 0
- * AC -> 75% chance resource 0, 25% chance resource 1
- *
- * Originally inspired by Jeff B.'s DoSense(); meant to be a helper function for
- * the various collect instructions, and anything else that wants to use this type 
- * of resource NOP-specification.
- */
-int cHardwareTransSMT::FindModifiedResource(cAvidaContext& ctx, int& spec_id)
-{
-  int num_resources = m_organism->GetOrgInterface().GetResources(ctx).GetSize(); 
+  // Otherwise create the memory space and copy in the genome
+  int mem_space_used = FindMemorySpaceLabel(in_label, -1);
+  assert(mem_space_used != -1);
+  m_mem_array[mem_space_used] = inject_code;
   
-  //if there are no resources, translation cannot be successful; return false
-  if (num_resources <= 0)
-  {return -1;}
-  
-  //calculate the maximum number of NOPs necessary to completely specify a resource
-  int num_nops = GetInstSet().GetNumNops();
-  int max_label_length = (int)(ceil(log((double)num_resources) / log((double)num_nops)));
-  
-  //attempt to read a label of the maximum length
-  ReadLabel(max_label_length);
-  
-  //find the length of the label that was actually read
-  int real_label_length = GetLabel().GetSize();
-  
-  // save the specification id
-  spec_id = GetLabel().AsIntUnique(num_nops);
-  
-  /* Find the resource specified by the label.
-   * If the specification is not complete, pick a resource from the range specified.
-   * If the range covers resources unequally, this is taken into account.
-   */
-   
-  // translate the specification into a number
-  int label_int = GetLabel().AsInt(num_nops);
-  
-  // find the chunk of a unit range covered by the specification
-  double chunk_size = 1.0 / pow(double(num_nops), real_label_length);
-  
-  
-  // choose a point in the range
-  double resource_approx = label_int * chunk_size + ctx.GetRandom().GetDouble(chunk_size);
-  
-  // translate it into a resource bin
-  int bin_used = floor(resource_approx * num_resources);
+  // Create a thread for this parasite
+  if (!ThreadCreate(in_label, mem_space_used)) return false; // Partially failed injection, could not create thread
 
-  return bin_used;
-}
-
-/* Helper function to reduce code redundancy in the Inst_Collect variations,
- * including Inst_Destroy.
- * Calls FindModifiedResource() to decide which resource to collect, logs which 
- * specification was used, then calls DoActualCollect() to do the environmental 
- * resource removal and/or internal resource addition.
- *
- * env_remove    - specifies whether the collected resources should be removed from
- *                 the environment
- * internal_add  - specifies whether the collected resources should be added to 
- *                 the organism's internal resources.
- * probabilistic - specifies whether the chance of collection success should be based on 
- *                 the amount of resource in the environment.
- * unit          - specifies whether collection uses the ABSORB_RESOURCE_FRACTION
- *                 configuration or always collects 1 unit of resource.
- */
-bool cHardwareTransSMT::DoCollect(cAvidaContext& ctx, bool env_remove, bool internal_add, bool probabilistic, bool unit)
-{
-  int spec_id;
-  
-  int bin_used = FindModifiedResource(ctx, spec_id);
-  if (bin_used < 0) { return false; }  // collection failed, there's nothing to collect
-  
-  // Add this specification
-  m_organism->IncCollectSpecCount(spec_id);
-  
-  return DoActualCollect(ctx, bin_used, env_remove, internal_add, probabilistic, unit);
-}
-
-
-bool cHardwareTransSMT::DoActualCollect(cAvidaContext& ctx, int bin_used, bool env_remove, bool internal_add, bool probabilistic, bool unit)
-{
-  // Set up res_change and max total
-  const tArray<double> res_count = m_organism->GetOrgInterface().GetResources(ctx); 
-  tArray<double> res_change(res_count.GetSize());
-  res_change.SetAll(0.0);
-  double total = m_organism->GetRBinsTotal();
-  double max = m_world->GetConfig().MAX_TOTAL_STORED.Get();
-  
-	/* First, if collection is probabilistic, check to see if it succeeds.
-   *
-   * If so, remove resource(s) from environment if env_remove is set;
-   * add resource(s) to internal resource bins if internal_add is set
-   * (and this would not fill the bin beyond max).
-   */
-  if (probabilistic) {
-    double success_chance = res_count[bin_used] / double(m_world->GetConfig().COLLECT_PROB_DIVISOR.Get());
-    if (success_chance < ctx.GetRandom().GetDouble())
-    { return false; }  // we define not collecting as failure
-  }
-  
-  // Collect a unit (if possible) or some ABSORB_RESOURCE_FRACTION
-  if (unit) {
-    if (res_count[bin_used] >= 1.0) {res_change[bin_used] = -1.0;}
-    else {return false;}  // failure: not enough to collect
-  }
-  else {
-    res_change[bin_used] = -1 * (res_count[bin_used] * m_world->GetConfig().ABSORB_RESOURCE_FRACTION.Get());
-  }
-
-  if(internal_add && (max < 0 || (total + -1 * res_change[bin_used]) <= max))
-  { m_organism->AddToRBin(bin_used, -1 * res_change[bin_used]); }
-  
-  if(!env_remove || (max >= 0 && (total + -1 * res_change[bin_used]) > max))
-  {res_change[bin_used] = 0.0;}
-
-  // Update resource counts to reflect res_change
-  m_organism->GetOrgInterface().UpdateResources(res_change);
-  
   return true;
 }
 
@@ -909,11 +736,10 @@ int cHardwareTransSMT::ThreadCreate(const cCodeLabel& label, int mem_space)
   
   // Add new thread entry
   m_threads.Resize(thread_id + 1);
-  m_thread_lbls.Set(hash_key, thread_id);
-  
+  m_thread_lbls.Add(hash_key, thread_id);
+    
   // Setup this thread into the current selected memory space (Flow Head)
   m_threads[thread_id].Reset(this, mem_space);
-  m_threads[thread_id].owner = m_threads[m_cur_thread].owner;
 	
   return thread_id;
 }
@@ -921,7 +747,7 @@ int cHardwareTransSMT::ThreadCreate(const cCodeLabel& label, int mem_space)
 bool cHardwareTransSMT::ThreadKill(const int thread_id)
 {
   if (thread_id < 1 || thread_id >= m_threads.GetSize()) return false;
-  
+
   // Increment thread, if killing current thread
   if (m_cur_thread == thread_id) ThreadNext();
   
@@ -1001,12 +827,7 @@ inline int cHardwareTransSMT::FindModifiedHead(int default_head)
     if (nop_head < nHardware::NUM_HEADS) default_head = nop_head;
     IP().SetFlagExecuted();
   }
-  
-  if (default_head > 240)
-    cout << "uh oh!" << endl;
-  
   return default_head;
-  
 }
 
 inline int cHardwareTransSMT::FindNextStack(int default_stack)
@@ -1025,7 +846,7 @@ inline int cHardwareTransSMT::FindComplementStack(int base_stack)
 }
 
 
-int cHardwareTransSMT::calcCopiedSize(const int parent_size, const int child_size)
+int cHardwareTransSMT::GetCopiedSize(const int parent_size, const int child_size)
 {
   int copied_size = 0;
   const cCPUMemory& memory = m_mem_array[m_cur_child];
@@ -1037,63 +858,73 @@ int cHardwareTransSMT::calcCopiedSize(const int parent_size, const int child_siz
 
 void cHardwareTransSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier, cCPUMemory& injected_code)
 {
-  m_organism->GetPhenotype().SetDivType(mut_multiplier);
+  organism->GetPhenotype().SetDivType(mut_multiplier);
 	
   // Divide Mutations (per site)
-  int num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(), 
-                                                m_organism->GetInjectMutProb() / mut_multiplier);
-  // If we have lines to mutate...
-  if( num_mut > 0 ){
-    for (int i = 0; i < num_mut; i++) {
-      int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
-      injected_code[site] = m_inst_set->GetRandomInst(ctx);
+  if(organism->GetDivMutProb() > 0){
+    int num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(), 
+																					 organism->GetInjectMutProb() / mut_multiplier);
+    // If we have lines to mutate...
+    if( num_mut > 0 ){
+      for (int i = 0; i < num_mut; i++) {
+				int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
+				injected_code[site] = m_inst_set->GetRandomInst(ctx, injected_code[site]);
+      }
     }
   }
+	
 	
   // Insert Mutations (per site)
-  num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(),
-                                            m_organism->GetInjectInsProb());
-  // If would make creature to big, insert up to MAX_GENOME_LENGTH
-  if( num_mut + injected_code.GetSize() > MAX_GENOME_LENGTH )
-    num_mut = MAX_GENOME_LENGTH - injected_code.GetSize();
-  // If we have lines to insert...
-  if( num_mut > 0 ){
-    // Build a list of the sites where mutations occured
-    tArray<int> mut_sites(num_mut);
-    for (int i = 0; i < num_mut; i++) mut_sites[i] = ctx.GetRandom().GetUInt(injected_code.GetSize() + 1);
-    tArrayUtils::QSort(mut_sites);
-    
-    // Actually do the mutations (in reverse sort order)
-    for(int i = num_mut-1; i >= 0; i--) {
-      injected_code.Insert(mut_sites[i], m_inst_set->GetRandomInst(ctx));
+  if(organism->GetInsMutProb() > 0){
+    int num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(),
+																					 organism->GetInjectInsProb());
+    // If would make creature to big, insert up to MAX_CREATURE_SIZE
+    if( num_mut + injected_code.GetSize() > MAX_CREATURE_SIZE ){
+      num_mut = MAX_CREATURE_SIZE - injected_code.GetSize();
+    }
+    // If we have lines to insert...
+    if( num_mut > 0 ){
+      // Build a list of the sites where mutations occured
+      static int mut_sites[MAX_CREATURE_SIZE];
+      for (int i = 0; i < num_mut; i++) {
+				mut_sites[i] = ctx.GetRandom().GetUInt(injected_code.GetSize() + 1);
+      }
+      // Sort the list
+      qsort( (void*)mut_sites, num_mut, sizeof(int), &IntCompareFunction );
+      // Actually do the mutations (in reverse sort order)
+      for(int i = num_mut-1; i >= 0; i--) {
+				injected_code.Insert(mut_sites[i], m_inst_set->GetRandomInst(ctx));
+      }
     }
   }
 	
+	
   // Delete Mutations (per site)
-  num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(),
-                                            m_organism->GetInjectDelProb());
-  // If would make creature too small, delete down to MIN_GENOME_LENGTH
-  if (injected_code.GetSize() - num_mut < MIN_GENOME_LENGTH) {
-    num_mut = injected_code.GetSize() - MIN_GENOME_LENGTH;
-  }
-  
-  // If we have lines to delete...
-  for (int i = 0; i < num_mut; i++) {
-    int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
-    injected_code.Remove(site);
+  if( organism->GetDelMutProb() > 0 ){
+    int num_mut = ctx.GetRandom().GetRandBinomial(injected_code.GetSize(),
+																					 organism->GetInjectDelProb());
+    // If would make creature too small, delete down to MIN_CREATURE_SIZE
+    if (injected_code.GetSize() - num_mut < MIN_CREATURE_SIZE) {
+      num_mut = injected_code.GetSize() - MIN_CREATURE_SIZE;
+    }
+		
+    // If we have lines to delete...
+    for (int i = 0; i < num_mut; i++) {
+      int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
+      injected_code.Remove(site);
+    }
   }
 	
   // Mutations in the parent's genome
-  if (m_organism->GetParentMutProb() > 0) {
+  if (organism->GetParentMutProb() > 0) {
     for (int i = 0; i < m_mem_array[0].GetSize(); i++) {
-      if (m_organism->TestParentMut(ctx)) {
-				m_mem_array[0][i] = m_inst_set->GetRandomInst(ctx);
+      if (organism->TestParentMut(ctx)) {
+				m_mem_array[0][i] = m_inst_set->GetRandomInst(ctx, m_mem_array[0][i]);
       }
     }
   }
 	
 }
-
 
 
 bool cHardwareTransSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
@@ -1103,16 +934,14 @@ bool cHardwareTransSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
   
   // Make sure the memory space we're using exists
   if (m_mem_array.GetSize() <= mem_space_used) return false;
-  
+  	
   // Make sure this divide will produce a viable offspring.
-  m_cur_child = mem_space_used; // save current child memory space for use by dependent functions (e.g. calcCopiedSize())
+  m_cur_child = mem_space_used; // save current child memory space for use by dependent functions (e.g. GetCopiedSize())
   if (!Divide_CheckViable(ctx, m_mem_array[0].GetSize(), write_head_pos)) return false;
   
   // Since the divide will now succeed, set up the information to be sent to the new organism
   m_mem_array[mem_space_used].Resize(write_head_pos);
-  m_organism->OffspringGenome().SetSequence(m_mem_array[mem_space_used]);
-  m_organism->OffspringGenome().SetHardwareType(GetType());
-  m_organism->OffspringGenome().SetInstSet(m_inst_set->GetInstSetName());
+  organism->ChildGenome() = m_mem_array[mem_space_used];
 	
   // Handle Divide Mutations...
   Divide_DoMutations(ctx, mut_multiplier);
@@ -1122,15 +951,17 @@ bool cHardwareTransSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
   // lineages need to be updated.
   Divide_TestFitnessMeasures(ctx);
 	
+#if INSTRUCTION_COSTS
   // reset first time instruction costs
-  for (int i = 0; i < m_inst_ft_cost.GetSize(); i++) {
-    m_inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
+  for (int i = 0; i < inst_ft_cost.GetSize(); i++) {
+    inst_ft_cost[i] = m_inst_set->GetFTCost(cInstruction(i));
   }
+#endif
 	
-  //bool parent_alive = m_organism->ActivateDivide(ctx);
-  bool parent_alive = m_organism->ActivateDivide(ctx, &m_threads[m_cur_thread].context_phenotype);
+  bool parent_alive = organism->ActivateDivide(ctx);
+	
   //reset the memory of the memory space that has been divided off
-  m_mem_array[mem_space_used] = Sequence("a"); 
+  m_mem_array[mem_space_used] = cGenome("a"); 
 	
   // Division Methods:
   // 0 - DIVIDE_METHOD_OFFSPRING - Create a child, leave parent state untouched.
@@ -1140,17 +971,15 @@ bool cHardwareTransSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
   if (parent_alive) { // If the parent is no longer alive, all of this is moot
     switch (m_world->GetConfig().DIVIDE_METHOD.Get()) {
       case DIVIDE_METHOD_SPLIT:
-        Reset(ctx);  // This will wipe out all parasites on a divide.
+        Reset();  // This will wipe out all parasites on a divide.
         break;
-        
+      
       case DIVIDE_METHOD_BIRTH:
         // Reset only the calling thread's state
         for(int x = 0; x < nHardware::NUM_HEADS; x++) GetHead(x).Reset(this, 0);
         for(int x = 0; x < NUM_LOCAL_STACKS; x++) Stack(x).Clear();
-        if(m_world->GetConfig().INHERIT_MERIT.Get() == 0)
-          m_organism->GetPhenotype().ResetMerit(m_organism->GetGenome().GetSequence());
         break;
-        
+      
       case DIVIDE_METHOD_OFFSPRING:
       default:
         break;
@@ -1169,7 +998,11 @@ bool cHardwareTransSMT::Divide_Main(cAvidaContext& ctx, double mut_multiplier)
 bool cHardwareTransSMT::Inst_ShiftR(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
   int value = Stack(src).Pop();
   value >>= 1;
   Stack(dst).Push(value);
@@ -1180,7 +1013,11 @@ bool cHardwareTransSMT::Inst_ShiftR(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_ShiftL(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
   int value = Stack(src).Pop();
   value <<= 1;
   Stack(dst).Push(value);
@@ -1191,8 +1028,13 @@ bool cHardwareTransSMT::Inst_ShiftL(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Nand(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   Stack(dst).Push(~(Stack(op1).Top() & Stack(op2).Top()));
   return true;
 }
@@ -1201,8 +1043,13 @@ bool cHardwareTransSMT::Inst_Val_Nand(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Add(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   Stack(dst).Push(Stack(op1).Top() + Stack(op2).Top());
   return true;
 }
@@ -1211,8 +1058,13 @@ bool cHardwareTransSMT::Inst_Val_Add(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Sub(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   Stack(dst).Push(Stack(op1).Top() - Stack(op2).Top());
   return true;
 }
@@ -1221,8 +1073,13 @@ bool cHardwareTransSMT::Inst_Val_Sub(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Mult(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   Stack(dst).Push(Stack(op1).Top() * Stack(op2).Top());
   return true;
 }
@@ -1231,15 +1088,20 @@ bool cHardwareTransSMT::Inst_Val_Mult(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Div(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   if (Stack(op2).Top() != 0) {
     if (0-INT_MAX > Stack(op1).Top() && Stack(op2).Top() == -1)
-      m_organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "div: Float exception");
+      organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "div: Float exception");
     else
       Stack(dst).Push(Stack(op1).Top() / Stack(op2).Top());
   } else {
-    m_organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "div: dividing by 0");
+    organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "div: dividing by 0");
     return false;
   }
   return true;
@@ -1249,15 +1111,20 @@ bool cHardwareTransSMT::Inst_Val_Div(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Mod(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op1 = FindModifiedStack(STACK_BX);
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op1 = STACK_BX;
+  const int op2 = STACK_CX;
+#endif
   if (Stack(op2).Top() != 0) {
     if(Stack(op2).Top() == -1)
       Stack(dst).Push(0);
     else
       Stack(dst).Push(Stack(op1).Top() % Stack(op2).Top());
   } else {
-    m_organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "mod: modding by 0");
+    organism->Fault(FAULT_LOC_MATH, FAULT_TYPE_ERROR, "mod: modding by 0");
 		return false;
   }
   return true;
@@ -1267,7 +1134,11 @@ bool cHardwareTransSMT::Inst_Val_Mod(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Inc(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
   int value = Stack(src).Pop();
   Stack(dst).Push(++value);
   return true;
@@ -1277,7 +1148,11 @@ bool cHardwareTransSMT::Inst_Val_Inc(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_Val_Dec(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
   int value = Stack(src).Pop();
   Stack(dst).Push(--value);
   return true;
@@ -1288,18 +1163,6 @@ bool cHardwareTransSMT::Inst_SetMemory(cAvidaContext& ctx)
 {
   ReadLabel(MAX_MEMSPACE_LABEL);
   
-  if(ThreadGetOwner()->IsParasite())
-  {
-		if(m_world->GetConfig().PARASITE_MEM_SPACES.Get())
-		{
-      //If parasites get their own memory spaces, just prefix them with 4 nops (1 more than the hosts can possibly access) - LZ
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-		}
-  }
-	
   if (GetLabel().GetSize() == 0) {
     GetHead(nHardware::HEAD_FLOW).Set(0, 0);
   } else {
@@ -1317,35 +1180,31 @@ bool cHardwareTransSMT::Inst_Divide(cAvidaContext& ctx)
   return Divide_Main(ctx);
 }
 
-
 //18
 bool cHardwareTransSMT::Inst_HeadRead(cAvidaContext& ctx)
 {
   const int head_id = FindModifiedHead(nHardware::HEAD_READ);
+#if SMT_FULLY_ASSOCIATIVE
   const int dst = FindModifiedStack(STACK_AX);
+#else
+  const int dst = STACK_AX;
+#endif
   
   GetHead(head_id).Adjust();
+//  sCPUStats & cpu_stats = organism->CPUStats();
 	
   // Mutations only occur on the read, for the moment.
   int read_inst = 0;
-  bool toMutate = true;
-  
-  if(m_world->GetConfig().PARASITE_NO_COPY_MUT.Get())
-  {
-    //Parasites should not have any copy mutations;
-    if(ThreadGetOwner()->IsParasite()) toMutate = false;
-  }
-  
-  if (m_organism->TestCopyMut(ctx) && toMutate) {
-    read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
+  if (organism->TestCopyMut(ctx)) {
+    read_inst = m_inst_set->GetRandomInst(ctx, GetHead(head_id).GetInst()).GetOp();
+//    cpu_stats.mut_stats.copy_mut_count++;  // @CAO, hope this is good!
   } else {
     read_inst = GetHead(head_id).GetInst().GetOp();
   }
-  
-  //read_inst = GetHead(head_id).GetInst().GetOp();
   Stack(dst).Push(read_inst);
   ReadInst(read_inst);
 	
+//  cpu_stats.mut_stats.copies_exec++;  // @CAO, this too..
   GetHead(head_id).Advance();
   return true;
 }
@@ -1354,8 +1213,12 @@ bool cHardwareTransSMT::Inst_HeadRead(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_HeadWrite(cAvidaContext& ctx)
 {
   const int head_id = FindModifiedHead(nHardware::HEAD_WRITE);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(STACK_AX);
-  
+#else
+  const int src = STACK_AX;
+#endif
+
   cHeadCPU & active_head = GetHead(head_id);
   int mem_space_used = active_head.GetMemSpace();
   
@@ -1368,7 +1231,7 @@ bool cHardwareTransSMT::Inst_HeadWrite(cAvidaContext& ctx)
   active_head.Adjust();
 	
   int value = Stack(src).Pop();
-  if (value < 0 || value >= m_inst_set->GetSize()) value = 0;
+  if (value < 0 || value >= m_inst_set->GetSize()) value = NOPX;
 	
   active_head.SetInst(cInstruction(value));
   active_head.SetFlagCopied();
@@ -1382,7 +1245,11 @@ bool cHardwareTransSMT::Inst_HeadWrite(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_IfEqual(cAvidaContext& ctx)      // Execute next if bx == ?cx?
 {
   const int op1 = FindModifiedStack(STACK_AX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op2 = FindNextStack(op1);
+#endif
   if (Stack(op1).Top() != Stack(op2).Top())  IP().Advance();
   return true;
 }
@@ -1391,7 +1258,11 @@ bool cHardwareTransSMT::Inst_IfEqual(cAvidaContext& ctx)      // Execute next if
 bool cHardwareTransSMT::Inst_IfNotEqual(cAvidaContext& ctx)     // Execute next if bx != ?cx?
 {
   const int op1 = FindModifiedStack(STACK_AX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op2 = FindNextStack(op1);
+#endif
   if (Stack(op1).Top() == Stack(op2).Top())  IP().Advance();
   return true;
 }
@@ -1400,7 +1271,11 @@ bool cHardwareTransSMT::Inst_IfNotEqual(cAvidaContext& ctx)     // Execute next 
 bool cHardwareTransSMT::Inst_IfLess(cAvidaContext& ctx)       // Execute next if ?bx? < ?cx?
 {
   const int op1 = FindModifiedStack(STACK_AX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op2 = FindNextStack(op1);
+#endif
   if (Stack(op1).Top() >=  Stack(op2).Top())  IP().Advance();
   return true;
 }
@@ -1409,7 +1284,11 @@ bool cHardwareTransSMT::Inst_IfLess(cAvidaContext& ctx)       // Execute next if
 bool cHardwareTransSMT::Inst_IfGreater(cAvidaContext& ctx)       // Execute next if bx > ?cx?
 {
   const int op1 = FindModifiedStack(STACK_AX);
+#if SMT_FULLY_ASSOCIATIVE
   const int op2 = FindModifiedNextStack(op1);
+#else
+  const int op2 = FindNextStack(op1);
+#endif
   if (Stack(op1).Top() <= Stack(op2).Top())  IP().Advance();
   return true;
 }
@@ -1418,7 +1297,11 @@ bool cHardwareTransSMT::Inst_IfGreater(cAvidaContext& ctx)       // Execute next
 bool cHardwareTransSMT::Inst_HeadPush(cAvidaContext& ctx)
 {
   const int head_used = FindModifiedHead(nHardware::HEAD_IP);
+#if SMT_FULLY_ASSOCIATIVE
   const int dst = FindModifiedStack(STACK_BX);
+#else
+  const int dst = STACK_BX;
+#endif
   Stack(dst).Push(GetHead(head_used).GetPosition());
   return true;
 }
@@ -1427,7 +1310,11 @@ bool cHardwareTransSMT::Inst_HeadPush(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_HeadPop(cAvidaContext& ctx)
 {
   const int head_used = FindModifiedHead(nHardware::HEAD_IP);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(STACK_BX);
+#else
+  const int src = STACK_BX;
+#endif
   GetHead(head_used).Set(Stack(src).Pop(), GetHead(head_used).GetMemSpace());
   return true;
 }
@@ -1476,7 +1363,11 @@ bool cHardwareTransSMT::Inst_Search(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_PushNext(cAvidaContext& ctx) 
 {
   const int src = FindModifiedStack(STACK_AX);
+#if SMT_FULLY_ASSOCIATIVE
   const int dst = FindModifiedNextStack(src);
+#else
+  const int dst = FindNextStack(src);
+#endif
   Stack(dst).Push(Stack(src).Pop());
   return true;
 }
@@ -1485,7 +1376,11 @@ bool cHardwareTransSMT::Inst_PushNext(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_PushPrevious(cAvidaContext& ctx) 
 {
   const int src = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int dst = FindModifiedPreviousStack(src);
+#else
+  const int dst = FindPreviousStack(src);
+#endif
   Stack(dst).Push(Stack(src).Pop());
   return true;
 }
@@ -1494,7 +1389,11 @@ bool cHardwareTransSMT::Inst_PushPrevious(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_PushComplement(cAvidaContext& ctx) 
 {
   int src = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int dst = FindModifiedComplementStack(src);
+#else
+  const int dst = FindComplementStack(src);
+#endif
   Stack(dst).Push(Stack(src).Pop());
   return true;
 }
@@ -1511,7 +1410,11 @@ bool cHardwareTransSMT::Inst_ValDelete(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_ValCopy(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
   Stack(dst).Push(Stack(src).Top());
   return true;
 }
@@ -1520,16 +1423,20 @@ bool cHardwareTransSMT::Inst_ValCopy(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_IO(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int src = FindModifiedStack(dst);
+#else
+  const int src = dst;
+#endif
 	
   // Do the "put" component
   const int value_out = Stack(src).Top();
-  
-  m_organism->DoOutput(ctx, value_out, ThreadGetOwner()->IsParasite(), &m_threads[m_cur_thread].context_phenotype);  // Check for tasks compleated.
+  organism->DoOutput(ctx, value_out);  // Check for tasks compleated.
+	
   // Do the "get" component
-  const int value_in = m_organism->GetNextInput();
+  const int value_in = organism->GetNextInput();
   Stack(dst).Push(value_in);
-  m_organism->DoInput(value_in);
+  organism->DoInput(value_in);
   return true;
 }
 
@@ -1545,10 +1452,7 @@ bool cHardwareTransSMT::Inst_ThreadCreate(cAvidaContext& ctx)
 {
   ReadLabel(MAX_THREAD_LABEL);
   bool success = ThreadCreate(GetLabel(), GetHead(nHardware::HEAD_FLOW).GetMemSpace());
-  if (!success) m_organism->Fault(FAULT_LOC_THREAD_FORK, FAULT_TYPE_FORK_TH);
-  
-  if (success) m_organism->GetPhenotype().SetIsMultiThread();
-  
+  if (!success) organism->Fault(FAULT_LOC_THREAD_FORK, FAULT_TYPE_FORK_TH);
   return success;
 }
 
@@ -1556,10 +1460,7 @@ bool cHardwareTransSMT::Inst_ThreadCreate(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_ThreadCancel(cAvidaContext& ctx)
 {
   bool success = ThreadKill(m_cur_thread);
-  if (!success) m_organism->Fault(FAULT_LOC_THREAD_KILL, FAULT_TYPE_KILL_TH);
-  
-  if(m_threads.GetSize() == 1) m_organism->GetPhenotype().ClearIsMultiThread();
-  
+  if (!success) organism->Fault(FAULT_LOC_THREAD_KILL, FAULT_TYPE_KILL_TH);
   return success;
 }
 
@@ -1568,10 +1469,7 @@ bool cHardwareTransSMT::Inst_ThreadKill(cAvidaContext& ctx)
 {
   ReadLabel(MAX_THREAD_LABEL);
   bool success = ThreadKill(GetLabel());
-  if (!success) m_organism->Fault(FAULT_LOC_THREAD_KILL, FAULT_TYPE_KILL_TH);
-  
-  if(m_threads.GetSize() == 1) m_organism->GetPhenotype().ClearIsMultiThread();
-  
+  if (!success) organism->Fault(FAULT_LOC_THREAD_KILL, FAULT_TYPE_KILL_TH);
   return success;
 }
 
@@ -1590,17 +1488,6 @@ bool cHardwareTransSMT::Inst_Inject(cAvidaContext& ctx)
 {
   ReadLabel(MAX_MEMSPACE_LABEL);
   
-  if(ThreadGetOwner()->IsParasite())
-  {
-		if(m_world->GetConfig().PARASITE_MEM_SPACES.Get())
-		{
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-			GetLabel().AddNop(1);
-		}
-  }
-  
   double mut_multiplier = 1.0;	
   return InjectParasite(ctx, mut_multiplier);
 }
@@ -1608,7 +1495,7 @@ bool cHardwareTransSMT::Inst_Inject(cAvidaContext& ctx)
 //38
 bool cHardwareTransSMT::Inst_Apoptosis(cAvidaContext& ctx)
 {
-  m_organism->Die(ctx);
+  organism->Die();
   
   return true;
 }
@@ -1617,9 +1504,13 @@ bool cHardwareTransSMT::Inst_Apoptosis(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_NetGet(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
+#if SMT_FULLY_ASSOCIATIVE
   const int seq_dst = FindModifiedNextStack(dst);
+#else
+  const int seq_dst = FindNextStack(dst);
+#endif
   int val, seq;
-  m_organism->NetGet(ctx, val, seq);
+  organism->NetGet(ctx, val, seq);
   Stack(dst).Push(val);
   Stack(seq_dst).Push(seq);
   
@@ -1630,7 +1521,7 @@ bool cHardwareTransSMT::Inst_NetGet(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_NetSend(cAvidaContext& ctx)
 {
   const int src = FindModifiedStack(STACK_BX);
-  m_organism->NetSend(ctx, Stack(src).Pop());
+  organism->NetSend(ctx, Stack(src).Pop());
   return true;
 }
 
@@ -1639,7 +1530,7 @@ bool cHardwareTransSMT::Inst_NetReceive(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_BX);
   int val;
-  bool success = m_organism->NetReceive(val);
+  bool success = organism->NetReceive(val);
   Stack(dst).Push(val);
   return success;
 }
@@ -1648,20 +1539,20 @@ bool cHardwareTransSMT::Inst_NetReceive(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_NetLast(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_CX);
-  Stack(dst).Push(m_organism->NetLast());
+  Stack(dst).Push(organism->NetLast());
   return true;
 }
 
 //43
 bool cHardwareTransSMT::Inst_RotateLeft(cAvidaContext& ctx)
 {
-  const int num_neighbors = m_organism->GetNeighborhoodSize();
+  const int num_neighbors = organism->GetNeighborhoodSize();
   
   // If this organism has no neighbors, ignore rotate.
   if (num_neighbors == 0) return false;
   
   // Always rotate at least once.
-  m_organism->Rotate(1);
+  organism->Rotate(-1);
   
   return true;
 }
@@ -1669,13 +1560,13 @@ bool cHardwareTransSMT::Inst_RotateLeft(cAvidaContext& ctx)
 //44
 bool cHardwareTransSMT::Inst_RotateRight(cAvidaContext& ctx)
 {
-  const int num_neighbors = m_organism->GetNeighborhoodSize();
+  const int num_neighbors = organism->GetNeighborhoodSize();
   
   // If this organism has no neighbors, ignore rotate.
   if (num_neighbors == 0) return false;
   
   // Always rotate at least once.
-  m_organism->Rotate(-1);
+  organism->Rotate(1);
   
   return true;
 }
@@ -1684,7 +1575,7 @@ bool cHardwareTransSMT::Inst_RotateRight(cAvidaContext& ctx)
 bool cHardwareTransSMT::Inst_CallFlow(cAvidaContext& ctx)
 {
   const int dst = FindModifiedStack(STACK_AX);
-  
+
   const int location = IP().GetPosition() & 0xFFFF;
   const int mem_space = IP().GetMemSpace() << 8;
   const int ra  = location | mem_space;
@@ -1734,49 +1625,4 @@ bool cHardwareTransSMT::Inst_Return(cAvidaContext& ctx)
   IP().Set(location, mem_space);
   
   return true;
-}
-
-//48
-bool cHardwareTransSMT::Inst_IfGreaterEqual(cAvidaContext& ctx)      // Execute next if bx >= ?cx?
-{
-  const int op1 = FindModifiedStack(STACK_AX);
-  const int op2 = FindModifiedNextStack(op1);
-  if (Stack(op1).Top() > Stack(op2).Top())  IP().Advance();
-  return true;
-}
-
-bool cHardwareTransSMT::Inst_Divide_Sex_Erase(cAvidaContext& ctx)
-{
-  m_organism->GetPhenotype().SetDivideSex(true);
-  m_organism->GetPhenotype().SetCrossNum(1);
-  
-  return Inst_Divide_Erase(ctx);
-}
-
-bool cHardwareTransSMT::Inst_Divide_Erase(cAvidaContext& ctx)
-{
-  bool toReturn =  Divide_Main(ctx);
-  if(toReturn)
-    return toReturn;
-  
-	//internalReset();
-  
-  m_organism->GetPhenotype().DivideFailed();
-  
-  const int mem_space_used = GetHead(nHardware::HEAD_WRITE).GetMemSpace();
-  
-  if (m_mem_array.GetSize() <= mem_space_used) return false;
-  
-  m_mem_array[mem_space_used] = Sequence("a"); 
-  
-  for(int x = 0; x < nHardware::NUM_HEADS; x++) GetHead(x).Reset(this, 0);
-  //for(int x = 0; x < NUM_LOCAL_STACKS; x++) Stack(x).Clear();
-  
-  return toReturn;
-  
-}
-
-bool cHardwareTransSMT::Inst_Collect_Unit(cAvidaContext& ctx)
-{
-  return DoCollect(ctx, true, true, false, true);
 }

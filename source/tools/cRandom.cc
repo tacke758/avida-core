@@ -3,18 +3,17 @@
  *  Avida
  *
  *  Called "random.cc" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2000 California Institute of Technology
  *
  */
 
 #include "cRandom.h"
 
-#include "apto/platform.h"
-
+#include "../platform/platform.h"
 #include "tArray.h"
 
-#if APTO_PLATFORM(WINDOWS)
+#if AVIDA_PLATFORM(WINDOWS)
 # include <process.h>
 #else
 # include <unistd.h>
@@ -58,7 +57,7 @@ void cRandom::ResetSeed(const int in_seed)
   
   if (in_seed <= 0) {
     int seed_time = (int) time(NULL);
-#if APTO_PLATFORM(WINDOWS)
+#if AVIDA_PLATFORM(WINDOWS)
     int seed_pid = (int) _getpid(); 
 #else
     int seed_pid = (int) getpid(); 
@@ -76,7 +75,7 @@ void cRandom::ResetSeed(const int in_seed)
 
 void cRandomMT::ResetSeed(const int in_seed)
 {
-  Apto::MutexAutoLock lock(m_mutex);
+  cMutexAutoLock lock(m_mutex);
   cRandom::ResetSeed(in_seed);
 }
 
@@ -137,7 +136,7 @@ unsigned int cRandom::Get()
 
 unsigned int cRandomMT::Get()
 {
-  Apto::MutexAutoLock lock(m_mutex);
+  cMutexAutoLock lock(m_mutex);
   unsigned int value = cRandom::Get();
   return value;
 }

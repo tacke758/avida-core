@@ -7,9 +7,8 @@
 
 #include "cView.h"
 
-#include "apto/platform.h"
-
 #include "cEnvironment.h"
+#include "cGenotype.h"
 #include "cHardwareManager.h"
 #include "cOrganism.h"
 #include "cPhenotype.h"
@@ -30,10 +29,12 @@
 #include "cEnvironmentScreen.h"
 #include "cAnalyzeScreen.h"
 
+#include "platform.h"
+
 #include <csignal>
 #include <fstream>
 
-#if APTO_PLATFORM(WINDOWS)
+#if AVIDA_PLATFORM(WINDOWS)
 # include <process.h>
 # define kill(x, y)
 #else
@@ -43,17 +44,17 @@
 using namespace std;
 
 
-cView::cView(cWorld* world, cTextViewerDriver_Base* driver) : info(world, this)
+cView::cView(cWorld* world) : info(world, this)
 {
-  Setup(world->GetDefaultContext(), "Avida");
+  Setup("Avida");
 
   map_screen     = new cMapScreen     (0,0,3,0,info, world->GetPopulation());
   stats_screen   = new cStatsScreen   (world, 0, 0, 3, 0, info);
-  hist_screen    = new cHistScreen    (world, 0, 0, 3, 0, info);
+  hist_screen    = new cHistScreen    (0,0,3,0,info, world->GetPopulation());
   options_screen = new cOptionsScreen (0,0,3,0,info);
   zoom_screen    = new cZoomScreen    (0,0,3,0,info, world->GetPopulation());
   environment_screen = new cEnvironmentScreen (world, 0, 0, 3, 0, info);
-  analyze_screen = new cAnalyzeScreen(world, 0, 0, 3, 0, info, driver);
+  analyze_screen = new cAnalyzeScreen(world, 0, 0, 3, 0, info);
 
   info.SetActiveCell( &( world->GetPopulation().GetCell(0) ) );
 }
@@ -71,7 +72,7 @@ cView::~cView()
   EndProg(0);
 }
 
-void cView::Setup(cAvidaContext& ctx, const cString & in_name)
+void cView::Setup(const cString & in_name)
 {
   cur_screen = NULL;
 
@@ -81,13 +82,11 @@ void cView::Setup(cAvidaContext& ctx, const cString & in_name)
 
   bar_screen = new cBarScreen(&info.GetWorld(), 3, 0, 0, 0, info, in_name);
   base_window = new cTextWindow(0,0,3,0);
-  bar_screen->Draw(ctx);
+  bar_screen->Draw();
 }
 
 void cView::SetViewMode(int in_mode)
 {
-  if (in_mode == -1) in_mode = MODE_MAP; // Default to map mode.
-
   if (in_mode == MODE_BLANK) {
     cur_screen = NULL;
   } else if (in_mode == MODE_MAP) {
@@ -107,9 +106,9 @@ void cView::SetViewMode(int in_mode)
   }
 }
 
-void cView::Refresh(cAvidaContext& ctx)
+void cView::Refresh()
 {
-  ChangeCurScreen(ctx, cur_screen); bar_screen->Redraw();
+  ChangeCurScreen(cur_screen); bar_screen->Redraw();
 }
 
 void cView::Redraw()
@@ -119,21 +118,21 @@ void cView::Redraw()
   else base_window->Redraw();
 }
 
-void cView::NewUpdate(cAvidaContext& ctx)
+void cView::NewUpdate()
 {
   if (info.GetPauseLevel() == PAUSE_ADVANCE_STEP){
     return;
   }
-  NotifyUpdate(ctx);
+  NotifyUpdate();
 }
 
-void cView::NotifyUpdate(cAvidaContext& ctx)
+void cView::NotifyUpdate()
 {
-  bar_screen->Update(ctx);
+  bar_screen->Update();
   info.UpdateSymbols();
 
-  if (cur_screen) cur_screen->Update(ctx);
-  DoInputs(ctx);
+  if (cur_screen) cur_screen->Update();
+  DoInputs();
 }
 
 void cView::NotifyError(const cString & in_string)
@@ -163,16 +162,16 @@ void cView::NotifyOutput(const cString & in_string)
   if (cur_screen == analyze_screen) analyze_screen->Refresh();
 }
 
-void cView::DoBreakpoint(cAvidaContext& ctx)
+void cView::DoBreakpoint()
 {
   if (info.GetPauseLevel() == PAUSE_OFF ||
       info.GetPauseLevel() == PAUSE_ADVANCE_UPDATE) {
     Pause();
-    NotifyUpdate(ctx);
+    NotifyUpdate();
   }
 }
 
-void cView::DoInputs(cAvidaContext& ctx)
+void cView::DoInputs()
 {
   // If we are paused, delay doing anything else until a key is pressed.
   if (info.GetPauseLevel() != PAUSE_OFF) nodelay(stdscr, false);
@@ -186,10 +185,10 @@ void cView::DoInputs(cAvidaContext& ctx)
   // If there is any input in the buffer, process all of it.
   int cur_char = ERR;
   while ((cur_char = GetInput()) != ERR || info.GetPauseLevel() == PAUSE_ON) {
-    bool found_keypress = ProcessKeypress(ctx, cur_char);
+    bool found_keypress = ProcessKeypress(cur_char);
 
     // If we couldn't manage the keypress here, check the current screen.
-    if (found_keypress == false && cur_screen) cur_screen->DoInput(ctx, cur_char);
+    if (found_keypress == false && cur_screen) cur_screen->DoInput(cur_char);
   }
 
   if (info.GetPauseLevel() == PAUSE_ADVANCE_UPDATE) {
@@ -199,36 +198,36 @@ void cView::DoInputs(cAvidaContext& ctx)
   nodelay(stdscr, true);
 }
 
-bool cView::ProcessKeypress(cAvidaContext& ctx, int keypress)
+bool cView::ProcessKeypress(int keypress)
 {
   bool unknown = false;
 
   switch (keypress) {
   case 'a':
   case 'A':
-    ChangeCurScreen(ctx, analyze_screen);
+    ChangeCurScreen(analyze_screen);
     break;
   case 'b':
   case 'B':
-    ChangeCurScreen(ctx, NULL);
+    ChangeCurScreen(NULL);
     break;
   case 'C':
   case 'c':
-    NavigateMapWindow(ctx);
+    NavigateMapWindow();
     // Now we need to restore the proper window mode (already cleared)
-    ChangeCurScreen(ctx, cur_screen);
+    ChangeCurScreen(cur_screen);
     break;
   case 'e':
   case 'E':
-    ChangeCurScreen(ctx, environment_screen);
+    ChangeCurScreen(environment_screen);
     break;
   case 'h':
   case 'H':
-    ChangeCurScreen(ctx, hist_screen);
+    ChangeCurScreen(hist_screen);
     break;
   case 'm':
   case 'M':
-    ChangeCurScreen(ctx, map_screen);
+    ChangeCurScreen(map_screen);
     break;
   case 'n':
   case 'N':
@@ -242,11 +241,11 @@ bool cView::ProcessKeypress(cAvidaContext& ctx, int keypress)
     break;
   case 'o':
   case 'O':
-    ChangeCurScreen(ctx, options_screen);
+    ChangeCurScreen(options_screen);
     break;
   case 'p':
   case 'P':
-    TogglePause(ctx);
+    TogglePause();
     // We don't want to delay if we're unpaused.
     if (info.GetPauseLevel() == PAUSE_OFF) nodelay(stdscr, true);
     else nodelay(stdscr, false);
@@ -262,7 +261,7 @@ bool cView::ProcessKeypress(cAvidaContext& ctx, int keypress)
     break;
   case 's':
   case 'S':
-    ChangeCurScreen(ctx, stats_screen);
+    ChangeCurScreen(stats_screen);
     break;
   case 'W':
   case 'w':
@@ -274,13 +273,13 @@ bool cView::ProcessKeypress(cAvidaContext& ctx, int keypress)
     break;
   case 'z':
   case 'Z':
-    ChangeCurScreen(ctx, zoom_screen);
+    ChangeCurScreen(zoom_screen);
     break;
   case 3: // CTRL-C...
     exit(0);
     break;
   case 12: // CTRL-L...
-    Refresh(ctx);
+    Refresh();
     break;
   case 26: // CTRL-Z
     kill(getpid(), SIGTSTP);
@@ -309,7 +308,7 @@ bool cView::ProcessKeypress(cAvidaContext& ctx, int keypress)
   return !unknown;
 }
 
-void cView::TogglePause(cAvidaContext& ctx)
+void cView::TogglePause()
 {
   // If the run is already paused, un-pause it!
   if (info.GetPauseLevel() != PAUSE_OFF) {
@@ -326,31 +325,32 @@ void cView::TogglePause(cAvidaContext& ctx)
   }
 
   // Redraw the screen to account for the toggled pause.
-  if (cur_screen) cur_screen->Draw(ctx);
+  if (cur_screen) cur_screen->Draw();
 }
 
 void cView::CloneSoup()
 {
   cString filename;
-  filename.Set("detail-%d.spop", info.GetWorld().GetStats().GetUpdate());
-  info.GetPopulation().SavePopulation(filename, true);
+  filename.Set("clone.%d", info.GetWorld().GetStats().GetUpdate());
+  ofstream fp(static_cast<const char*>(filename));
+  info.GetPopulation().SaveClone(fp);
   cString message;
-  message.Set("Saved population to file: %s", static_cast<const char*>(filename));
+  message.Set("Saved clone to file: %s", static_cast<const char*>(filename));
   Notify(message);
 }
 
 void cView::ExtractCreature()
 {
-  cBioGroup* cur_gen = info.GetActiveGenotype();
-  cString gen_name = cur_gen->GetProperty("name").AsString();
+  cGenotype * cur_gen = info.GetActiveGenotype();
+  cString gen_name = cur_gen->GetName();
 
-  Genome mg = Genome(cur_gen->GetProperty("genome").AsString());
-  if (gen_name == "(no name)") gen_name.Set("%03d-unnamed", mg.GetSize());
+  if (gen_name == "(no name)")
+    gen_name.Set("%03d-unnamed", cur_gen->GetLength());
 
   if (cur_screen) cur_screen->Print(20, 0, "Extracting %s...", static_cast<const char*>(gen_name));
 
   cTestCPU* testcpu = info.GetWorld().GetHardwareManager().CreateTestCPU();
-  testcpu->PrintGenome(info.GetWorld().GetDefaultContext(), mg, gen_name);
+  testcpu->PrintGenome(info.GetWorld().GetDefaultContext(), cur_gen->GetGenome(), gen_name);
   delete testcpu;
 
   if (cur_screen) {
@@ -360,7 +360,7 @@ void cView::ExtractCreature()
 }
 
 
-void cView::ChangeCurScreen(cAvidaContext& ctx, cScreen* new_screen)
+void cView::ChangeCurScreen(cScreen* new_screen)
 {
   if (cur_screen) cur_screen->Exit();
 
@@ -369,7 +369,7 @@ void cView::ChangeCurScreen(cAvidaContext& ctx, cScreen* new_screen)
   bar_screen->Redraw();
   if (cur_screen) {
     cur_screen->Clear();
-    cur_screen->Draw(ctx);
+    cur_screen->Draw();
   }
 }
 
@@ -410,9 +410,9 @@ void cView::PrintFitness(int in_y, int in_x, double in_fitness)
     cur_screen->Print(in_y, in_x, "%7.1e", in_fitness);
 }
 
-void cView::NavigateMapWindow(cAvidaContext& ctx)
+void cView::NavigateMapWindow()
 {
-  map_screen->Navigate(ctx);
+  map_screen->Navigate();
 }
 
 

@@ -3,30 +3,36 @@
  *  Avida
  *
  *  Created by David on 2/18/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cAnalyzeJobQueue_h
 #define cAnalyzeJobQueue_h
 
-#include "apto/core.h"
-#include "apto/platform.h"
-
 #ifndef cAnalyzeJob
 #include "cAnalyzeJob.h"
+#endif
+#ifndef cConditionVariable_h
+#include "cConditionVariable.h"
+#endif
+#ifndef cMutex_h
+#include "cMutex.h"
 #endif
 #ifndef cRandom_h
 #include "cRandom.h"
@@ -40,10 +46,6 @@
 
 class cAnalyzeJobWorker;
 class cWorld;
-
-#if APTO_PLATFORM(WINDOWS) && defined(AddJob)
-# undef AddJob
-#endif
 
 
 const int MT_RANDOM_POOL_SIZE = 128;
@@ -59,9 +61,9 @@ private:
   tList<cAnalyzeJob> m_queue;
   int m_last_jobid;
   cRandomMT* m_rng_pool[MT_RANDOM_POOL_SIZE];
-  Apto::Mutex m_mutex;
-  Apto::ConditionVariable m_cond;
-  Apto::ConditionVariable m_term_cond;
+  cMutex m_mutex;
+  cConditionVariable m_cond;
+  cConditionVariable m_term_cond;
   
   volatile int m_jobs;      // count of waiting jobs, used in condition variable constructs
   volatile int m_pending;   // count of currently executing jobs
@@ -90,5 +92,17 @@ public:
   
   cRandom* GetRandom(int jobid) { return m_rng_pool[jobid & MT_RANDOM_INDEX_MASK]; } 
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nAnalyzeJobQueue {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

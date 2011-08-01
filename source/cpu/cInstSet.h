@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "inst_set.hh" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -40,9 +43,6 @@
 #ifndef tSmartArray_h
 #include "tSmartArray.h"
 #endif
-#ifndef tWeightedIndex_h
-#include "cOrderedWeightedIndex.h"
-#endif
 
 using namespace std;
 
@@ -56,66 +56,60 @@ using namespace std;
 
 class cAvidaContext;
 class cStringList;
-class cUserFeedback;
 class cWorld;
-
-const int MAX_INSTSET_SIZE = 255;
+class cWeightedIndex;
 
 class cInstSet
 {
 public:
   cWorld* m_world;
-  cString m_name;
-  int m_hw_type;
   cInstLib* m_inst_lib;
   
   struct sInstEntry {
     int lib_fun_id;
-    int redundancy;           // Weight in instruction set (not impl.)
+    double redundancy;        // Weight in instruction set
     int cost;                 // additional time spent to exectute inst.
     int ft_cost;              // time spent first time exec (in add to cost)
     int energy_cost;          // energy required to execute.
     double prob_fail;         // probability of failing to execute inst
     int addl_time_cost;       // additional time added to age for executing instruction
     int inst_code;            // instruction binary code
-    double res_cost;          // resources (from bins) required to execute inst (this is the 7th column after instname)
   };
   tSmartArray<sInstEntry> m_lib_name_map;
   
-  tArray<int> m_lib_nopmod_map;
+  tArray<int> m_lib_nopmod_map; 
+  cWeightedIndex* m_weight_ndx;  //Used to quickly get instructions weighted by redundancy
   
-  cOrderedWeightedIndex* m_mutation_index;     // Weighted index for instructions 
   
-  bool m_has_costs;
-  bool m_has_ft_costs;
-  bool m_has_energy_costs;
-  bool m_has_res_costs;
-  
+  void LoadWithStringList(const cStringList& sl);
+  void SynchRedundancyWeights();
+
   cInstSet(); // @not_implemented
 
 public:
-  inline cInstSet(cWorld* world, const cString& name, int hw_type, cInstLib* inst_lib)
-    : m_world(world), m_name(name), m_hw_type(hw_type), m_inst_lib(inst_lib), m_mutation_index(NULL), 
-      m_has_costs(false), m_has_ft_costs(false), m_has_energy_costs(false), m_has_res_costs(false) { ; }
-  cInstSet(const cInstSet&); 
-  cInstSet& operator=(const cInstSet&); 
-  inline ~cInstSet() { if (m_mutation_index != NULL) delete m_mutation_index; }
+  inline cInstSet(cWorld* world, cInstLib* inst_lib) : m_world(world), m_inst_lib(inst_lib), m_weight_ndx(NULL) { ; }
+  cInstSet(const cInstSet& is);
+  cInstSet(const cInstSet* is);
+  virtual ~cInstSet();
   
-  const cString& GetInstSetName() const { return m_name; }
-  int GetHardwareType() const { return m_hw_type; }
+  inline bool operator==(const cInstSet& _in) const;
+  cInstSet& operator=(const cInstSet& _in);
+
+  bool OK() const;
 
   // Accessors
   const cString& GetName(int id) const { return m_inst_lib->GetName(m_lib_name_map[id].lib_fun_id); }
   const cString& GetName(const cInstruction& inst) const { return GetName(inst.GetOp()); }
   
-  int GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
+  double GetRedundancy(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].redundancy; }
+  double GetRedundancy(int index) const { return m_lib_name_map[index].redundancy; }
+  
   int GetCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].cost; }
   int GetFTCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].ft_cost; }
   int GetEnergyCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].energy_cost; }
   double GetProbFail(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].prob_fail; }
   int GetAddlTimeCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].addl_time_cost; }
   int GetInstructionCode(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].inst_code; }
-  double GetResCost(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].res_cost; }
   
   int GetLibFunctionIndex(const cInstruction& inst) const { return m_lib_name_map[inst.GetOp()].lib_fun_id; }
 
@@ -125,31 +119,18 @@ public:
     return m_inst_lib->GetNopMod(nopmod);
   }
 
-  cInstruction GetRandomInst(cAvidaContext& ctx) const;
+  cInstruction GetRandomInst(cAvidaContext& ctx, int cur_inst=-1) const;
   int GetRandFunctionIndex(cAvidaContext& ctx) const { return m_lib_name_map[ GetRandomInst(ctx).GetOp() ].lib_fun_id; }
 
   int GetSize() const { return m_lib_name_map.GetSize(); }
   int GetNumNops() const { return m_lib_nopmod_map.GetSize(); }
-  
-  bool HasCosts() const { return m_has_costs; }
-  bool HasFTCosts() const { return m_has_ft_costs; }
-  bool HasEnergyCosts() const { return m_has_energy_costs; }
-  bool HasResCosts() const { return m_has_res_costs; }
-  
+
   // Instruction Analysis.
   int IsNop(const cInstruction& inst) const { return (inst.GetOp() < m_lib_nopmod_map.GetSize()); }
-  bool IsLabel(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsLabel(); }
-  bool IsPromoter(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsPromoter(); }
-  bool ShouldStall(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).ShouldStall(); }
-  bool ShouldSleep(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).ShouldSleep(); }
-  
-  unsigned int GetFlags(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).GetFlags(); }
+  int IsLabel(const cInstruction& inst) const { return m_inst_lib->Get(GetLibFunctionIndex(inst)).IsLabel(); }
 
   // Insertion of new instructions...
   cInstruction ActivateNullInst();
-  
-  // Modification of instructions during run.
-  void SetProbFail(const cInstruction& inst, double _prob_fail) { m_lib_name_map[inst.GetOp()].prob_fail = _prob_fail; }
 
   // accessors for instruction library
   cInstLib* GetInstLib() { return m_inst_lib; }
@@ -158,12 +139,46 @@ public:
   cString FindBestMatch(const cString& in_name) const;
   bool InstInSet(const cString& in_name) const;
 
-  cInstruction GetInstDefault() const { return cInstruction(m_inst_lib->GetInstDefault()); }
-  cInstruction GetInstError() const { return cInstruction(255); }
+  cInstruction GetInstDefault() const { return m_inst_lib->GetInstDefault(); }
+  cInstruction GetInstError() const { return m_inst_lib->GetInstError(); }
   
-  bool LoadWithStringList(const cStringList& sl, cUserFeedback* errors = NULL);
+  void LoadFromConfig();
+  void LoadFromFile(const cString& filename);
+  void LoadFromLegacyFile(const cString& filename);
 };
 
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nInstSet {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
+
+
+
+
+
+
+//@MRR Instruction sets are equivalent if their mappings to function ids 
+// are identical.  Other properties are not considered.
+inline bool cInstSet::operator==(const cInstSet& _rhs) const{
+  //Check to make sure we are referencing the same library and have the
+  //same number of instructions in each instruction set
+  if (m_inst_lib                !=   _rhs.m_inst_lib || 
+      m_lib_name_map.GetSize()  !=   _rhs.m_lib_name_map.GetSize() ) 
+    return false;
+  
+  //Verify that the instruction sets have the same mapping
+  for (int i = 0; i < m_lib_name_map.GetSize(); i++)
+    if (m_lib_name_map[i].lib_fun_id != _rhs.m_lib_name_map[i].lib_fun_id)
+      return false;
+  return true;
+}
 
 inline cInstruction cInstSet::GetInst(const cString & in_name) const
 {
@@ -179,7 +194,15 @@ inline cInstruction cInstSet::GetInst(const cString & in_name) const
 
 
   // Adding default answer if nothing is found...
-  return cInstruction(255);
+  /*
+  FIXME:  this return value is supposed to be cInstSet::GetInstError
+  which should be the same as m_inst_lib->GetInstError().
+  -- kgn
+  */
+  return cInstruction(0);
 }
+
+
+
 
 #endif

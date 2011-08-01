@@ -7,22 +7,26 @@
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 #ifndef cOrgMessage_h
 #define cOrgMessage_h
 
 class cOrganism;
+
 
 /*! This class encapsulates two unsigned integers that are sent as a "message"
 between connected organisms within an Avida population.  The label and data fields
@@ -34,15 +38,15 @@ pointers.
 class cOrgMessage
 {
 public:
-  //! Default constructor.
-  cOrgMessage();
-	
   //! Constructor that takes a pointer to the sending organism.
-  cOrgMessage(cOrganism* sender, int messageType = 0);
+  cOrgMessage(cOrganism* sender) : m_pSender(sender), m_pReceiver(0), m_data(0), m_label(0) 
+  {
+    assert(m_pSender);
+  }
   
   cOrganism* GetSender() const { return m_pSender; }
   cOrganism* GetReceiver() const { return m_pReceiver; }
-  void SetReceiver(cOrganism* recvr);
+  void SetReceiver(cOrganism* recvr) { m_pReceiver = recvr; }
   
   unsigned int GetData() const { return m_data; }
   unsigned int GetLabel() const { return m_label; }
@@ -50,32 +54,16 @@ public:
   void SetData(unsigned int data) { m_data = data; }
   void SetLabel(unsigned int label) { m_label = label; }
 
-  int GetSenderCellID() const { return m_senderCellID; }
-  int GetSenderOrgID() const { return m_senderOrgID; }
-
-  int GetReceiverCellID() const { return m_receiverCellID; }
-  int GetReceiverOrgID() const { return m_receiverOrgID; }
-	
-	int GetMessageType() const { return m_messageType; }
-
 private:
+  //! Default constructor is only used internally, to support message predicates.
+  cOrgMessage() : m_pSender(0), m_pReceiver(0), m_data(0), m_label(0)
+  {
+  }
+  
   cOrganism* m_pSender;
   cOrganism* m_pReceiver;
-	int m_messageType;
   unsigned int m_data;
   unsigned int m_label;
-
-  //! ID of the organism that sent this message
-  int m_senderOrgID;
-
-  //! ID of the cell that the sending organism occupied when this message was sent
-  int m_senderCellID;
-
-  //! ID of the organism that received this message
-  int m_receiverOrgID;
-
-  //! ID of the cell that the receiving organism occupied when this message was sent
-  int m_receiverCellID;
 };
 
 

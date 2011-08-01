@@ -3,45 +3,50 @@
  *  Avida
  *
  *  Called "head_cpu.hh" prior to 11/30/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1999-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cHeadCPU_h
 #define cHeadCPU_h
 
-#include "avida/Avida.h"
-
+#ifndef cCPUMemory_h
 #include "cCPUMemory.h"
+#endif
+#ifndef cHardwareBase_h
 #include "cHardwareBase.h"
+#endif
+#ifndef cInstSet_h
 #include "cInstSet.h"
+#endif
+#ifndef defs_h
+#include "defs.h"
+#endif
 
 /**
  * The cHeadCPU class contains a pointer to locations in memory for a CPU.
  **/
 
-namespace Avida {
-  class Sequence;
-};
 class cCodeLabel;
+class cGenome;
 class cInstruction;
 class cString;
-
-using namespace Avida;
-
 
 class cHeadCPU
 {
@@ -49,13 +54,9 @@ protected:
   cHardwareBase* m_hardware;
   int m_position;
   int m_mem_space;
-  int m_cached_ms;
-  cCPUMemory* m_memory;
-  
-  void fullAdjust(int mem_size = -1);
 
-  int FindLabel_Forward(const cCodeLabel& search_label, const Sequence& search_mem, int pos);
-  int FindLabel_Backward(const cCodeLabel& search_label, const Sequence& search_mem, int pos);
+  int FindLabel_Forward(const cCodeLabel& search_label, const cGenome& search_mem, int pos);
+  int FindLabel_Backward(const cCodeLabel& search_label, const cGenome& search_mem, int pos);
   
 
 public:
@@ -63,12 +64,11 @@ public:
   inline cHeadCPU(const cHeadCPU& in_cpu_head);
   ~cHeadCPU() { ; }
   
-  inline const cCPUMemory& GetMemory() const { return *m_memory; }
-  inline cCPUMemory& GetMemory() { return *m_memory; }
-  inline int GetMemSize() const { return m_memory->GetSize(); }
+  inline const cCPUMemory& GetMemory() const { return m_hardware->GetMemory(m_mem_space); }
+  inline cCPUMemory& GetMemory() { return m_hardware->GetMemory(m_mem_space); }
   
-  inline void Adjust() { if (m_mem_space != m_cached_ms || m_position < 0 || m_position >= GetMemSize()) fullAdjust(); }
-  inline void Reset(cHardwareBase* hw, int ms = 0) { m_hardware = hw; m_position = 0; m_mem_space = ms; if (hw) Adjust(); }
+  void Adjust();
+  inline void Reset(cHardwareBase* hw, int ms = 0) { m_hardware = hw; m_position = 0; m_mem_space = ms; }
   
   inline int GetMemSpace() const { return m_mem_space; }
   inline int GetPosition() const { return m_position; }
@@ -124,16 +124,9 @@ public:
 };
 
 
-inline cHeadCPU::cHeadCPU(cHardwareBase* hw, int pos, int ms)
-  : m_hardware(hw), m_position(pos), m_mem_space(ms), m_cached_ms(-1)
+inline cHeadCPU::cHeadCPU(cHardwareBase* hw, int pos, int ms) : m_hardware(hw), m_position(pos), m_mem_space(ms)
 {
-  if (hw) {
-    if (pos || ms) Adjust();
-    else {
-      m_cached_ms = 0;
-      m_memory = &m_hardware->GetMemory(0);
-    }
-  }
+  if (pos || ms) Adjust();
 }
 
 inline cHeadCPU::cHeadCPU(const cHeadCPU& in_cpu_head)
@@ -141,8 +134,6 @@ inline cHeadCPU::cHeadCPU(const cHeadCPU& in_cpu_head)
   m_hardware = in_cpu_head.m_hardware;
   m_position = in_cpu_head.m_position;
   m_mem_space = in_cpu_head.m_mem_space;
-  m_cached_ms = in_cpu_head.m_cached_ms;
-  m_memory = in_cpu_head.m_memory;
 }
 
 inline void cHeadCPU::LoopJump(int jump)
@@ -172,5 +163,18 @@ inline cInstruction cHeadCPU::GetNextInst() const
 {
   return (AtEnd()) ? m_hardware->GetInstSet().GetInstError() : GetMemory()[m_position + 1];
 }
+
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHeadCPU {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

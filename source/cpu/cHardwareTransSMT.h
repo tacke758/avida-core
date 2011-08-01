@@ -3,37 +3,59 @@
  *  Avida
  *
  *  Created by David on 7/13/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cHardwareTransSMT_h
 #define cHardwareTransSMT_h
 
-#include "avida/Avida.h"
+#ifndef defs_h
+#include "defs.h"
+#endif
 
+#ifndef cCodeLabel_h
 #include "cCodeLabel.h"
-#include "cContextPhenotype.h"
+#endif
+#ifndef cCPUMemory_h
 #include "cCPUMemory.h"
+#endif
+#ifndef cCPUStack_h
 #include "cCPUStack.h"
+#endif
+#ifndef cHeadCPU_h
 #include "cHeadCPU.h"
+#endif
+#ifndef cHardwareBase_h
 #include "cHardwareBase.h"
+#endif
+#ifndef cString_h
 #include "cString.h"
-#include "tHashMap.h"
+#endif
+#ifndef tHashTable_h
+#include "tHashTable.h"
+#endif
+#ifndef tInstLib_h
 #include "tInstLib.h"
+#endif
+#ifndef tManagedPointerArray_h
 #include "tManagedPointerArray.h"
+#endif
 
 
 class cHardwareTransSMT : public cHardwareBase
@@ -47,6 +69,7 @@ protected:
   static const int NUM_GLOBAL_STACKS = 1;
   static const int NUM_STACKS = NUM_LOCAL_STACKS + NUM_GLOBAL_STACKS;
   static const int NUM_NOPS = 4;
+  static const int NOPX = 4;
   static const int MAX_MEMSPACE_LABEL = 3;
   static const int MAX_THREAD_LABEL = 3;
 
@@ -65,15 +88,13 @@ protected:
     cCPUStack local_stacks[NUM_LOCAL_STACKS];
     
     bool advance_ip;         // Should the IP advance after this instruction?
-	bool skipExecution;
     cCodeLabel read_label;
     cCodeLabel next_label;
     bool running;
-    cContextPhenotype context_phenotype;
     
-    // If this thread was spawned by Inject, this will point to the biounit of the parasite running the thread.
-    // Otherwise, it will be NULL.
-    cBioUnit* owner;
+    // If this thread was spawned by Inject, this will point to the genotype 
+    // of the parasite running the thread.  Otherwise, it will be NULL.
+    cInjectGenotype* owner;
     
     cLocalThread(cHardwareBase* in_hardware = NULL) { Reset(in_hardware); }
     ~cLocalThread() { ; }
@@ -94,11 +115,11 @@ protected:
 	
   // Memory
   tManagedPointerArray<cCPUMemory> m_mem_array;
-  tHashMap<int, int> m_mem_lbls;
+  tHashTable<int, int> m_mem_lbls;
 
   // Threads
   tManagedPointerArray<cLocalThread> m_threads;
-  tHashMap<int, int> m_thread_lbls;
+  tHashTable<int, int> m_thread_lbls;
   int m_cur_thread;
   int m_cur_child;
 
@@ -131,8 +152,8 @@ protected:
   cCodeLabel& GetLabel() { return m_threads[m_cur_thread].next_label; }
   void ReadLabel(int max_size=nHardware::MAX_LABEL_SIZE);
   cHeadCPU FindLabel(int direction);
-  int FindLabel_Forward(const cCodeLabel& search_label, const Sequence& search_genome, int pos);
-  int FindLabel_Backward(const cCodeLabel& search_label, const Sequence& search_genome, int pos);
+  int FindLabel_Forward(const cCodeLabel& search_label, const cGenome& search_genome, int pos);
+  int FindLabel_Backward(const cCodeLabel& search_label, const cGenome& search_genome, int pos);
   cHeadCPU FindLabel(const cCodeLabel& in_label, int direction);
   const cCodeLabel& GetReadLabel() const { return m_threads[m_cur_thread].read_label; }
   cCodeLabel& GetReadLabel() { return m_threads[m_cur_thread].read_label; }
@@ -157,12 +178,7 @@ protected:
   bool Allocate_Default(const int new_size);
   bool Allocate_Main(const int allocated_size);
 
-
-  void internalReset();
-	void internalResetOnFailedDivide();
-  
-  
-  int calcCopiedSize(const int parent_size, const int child_size);
+	int GetCopiedSize(const int parent_size, const int child_size);
   
   bool Divide_Main(cAvidaContext& ctx, double mut_multiplier = 1.0);
   void Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier, cCPUMemory& injected_code);
@@ -179,18 +195,18 @@ protected:
   cHardwareTransSMT& operator=(const cHardwareTransSMT&); // @not_implemented
   
 public:
-  cHardwareTransSMT(cAvidaContext& ctx, cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set);
-  ~cHardwareTransSMT() { ; }
-
+  cHardwareTransSMT(cWorld* world, cOrganism* in_organism, cInstSet* in_inst_set, bool inherited_instset);
+  virtual ~cHardwareTransSMT() { ; }
   static cInstLib* GetInstLib() { return s_inst_slib; }
   static cString GetDefaultInstFilename() { return "instset-transsmt.cfg"; }
 	
-  bool SingleProcess(cAvidaContext& ctx, bool speculative = false);
+  void Reset();
+  void SingleProcess(cAvidaContext& ctx);
   void ProcessBonusInst(cAvidaContext& ctx, const cInstruction& inst);
 	
   // --------  Helper methods  --------
-  int GetType() const { return HARDWARE_TYPE_CPU_TRANSSMT; }
-  bool SupportsSpeculative() const { return false; }
+  int GetType() const { return HARDWARE_TYPE_CPU_SMT; }
+  bool OK();
   void PrintStatus(std::ostream& fp);
 	
 	
@@ -215,10 +231,8 @@ public:
   // --------  Memory Manipulation  --------
   cCPUMemory& GetMemory() { return m_mem_array[0]; }
   const cCPUMemory& GetMemory() const { return m_mem_array[0]; }
-  int GetMemSize() const { return m_mem_array[0].GetSize(); }
   cCPUMemory& GetMemory(int mem_space) { return m_mem_array[NormalizeMemSpace(mem_space)]; }
   const cCPUMemory& GetMemory(int mem_space) const { return m_mem_array[NormalizeMemSpace(mem_space)]; }
-  int GetMemSize(int mem_space) const { return m_mem_array[NormalizeMemSpace(mem_space)].GetSize(); }
   int GetNumMemSpaces() const { return m_mem_array.GetSize(); }
   
   
@@ -233,24 +247,18 @@ public:
   inline bool ThreadSelect(const cCodeLabel& in_label);
   inline void ThreadPrev(); // Shift the current thread in use.
   inline void ThreadNext();
-  cBioUnit* ThreadGetOwner();
+  cInjectGenotype* ThreadGetOwner() { return m_threads[m_cur_thread].owner; }
+  void ThreadSetOwner(cInjectGenotype* in_genotype) { m_threads[m_cur_thread].owner = in_genotype; }
 
   int GetNumThreads() const { return m_threads.GetSize(); }
   int GetCurThread() const { return m_cur_thread; }
   int GetCurThreadID() const { return m_cur_thread; }
   
-  // interrupt current thread
-  bool InterruptThread(int interruptType) { return false; }
-  int GetThreadMessageTriggerType(int _index) { return -1; }
-
-  // --------  Parasite Stuff  --------
-  bool ParasiteInfectHost(cBioUnit* bu);
   
-  // --------  Resource Collection Helper Methods  --------
-  int FindModifiedResource(cAvidaContext& ctx, int& spec_id);
-  bool DoCollect(cAvidaContext& ctx, bool env_remove, bool internal_add, bool probabilistic, bool unit);
-  bool DoActualCollect(cAvidaContext& ctx, int bin_used, bool env_remove, bool internal_add, bool probabilistic, bool unit);
-
+  // --------  Parasite Stuff  --------
+  bool InjectHost(const cCodeLabel& in_label, const cGenome& inject_code);
+	
+  
 private:
   // ---------- Instruction Library -----------
 
@@ -299,12 +307,20 @@ private:
   bool Inst_CallFlow(cAvidaContext& ctx);       // 45
   bool Inst_CallLabel(cAvidaContext& ctx);      // 46
   bool Inst_Return(cAvidaContext& ctx);         // 47
-  bool Inst_IfGreaterEqual(cAvidaContext& ctx); //48
-  bool Inst_Divide_Erase(cAvidaContext& ctx); //49
-  bool Inst_Divide_Sex_Erase(cAvidaContext& ctx); //50
-  bool Inst_Collect_Unit(cAvidaContext& ctx);        //51
   
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nHardwareTransSMT {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 inline bool cHardwareTransSMT::ThreadKill(const cCodeLabel& in_label)

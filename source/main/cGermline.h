@@ -2,19 +2,22 @@
  *  cGermline.h
  *  Avida
  *
- *  Copyright 2007-2011 Michigan State University. All rights reserved.
+ *  Copyright 2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -23,15 +26,13 @@
 
 #include <vector>
 
-#include "avida/core/Genome.h"
-
-using namespace Avida;
+#include "cGenome.h"
 
 
 class cGermline
 {
 protected:
-	std::vector<Genome> m_germline;
+	std::vector<cGenome> m_germline;
 
   cGermline(const cGermline&); // @not_implmented
   
@@ -39,8 +40,8 @@ protected:
 public:
   cGermline() { ; }
     
-	Genome& GetLatest() { assert(m_germline.size() > 0); return m_germline.back(); }
-	void Add(const Genome& genome) { m_germline.push_back(genome); }
+	cGenome& GetLatest() { return m_germline.back(); }
+	void Add(const cGenome& genome) { m_germline.push_back(genome); }
 	unsigned int Size() const { return m_germline.size(); }
 };
 

@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "reaction_result.cc" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2004 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -29,13 +32,16 @@ cReactionResult::cReactionResult(const int num_resources,
   : resources_consumed(num_resources)
   , resources_produced(num_resources)
   , resources_detected(num_resources)
-  , internal_resources_consumed(num_resources)
-  , internal_resources_produced(num_resources)
   , tasks_done(num_tasks)
   , tasks_quality(num_tasks)
   , tasks_value(num_tasks)
   , reactions_triggered(num_reactions)
   , reaction_add_bonus(num_reactions)
+  , energy_add(0.0)
+  , bonus_add(0.0)
+  , bonus_mult(1.0)
+  , insts_triggered(0)
+  , lethal(false)
   , active_reaction(false)
 {
 }
@@ -49,52 +55,28 @@ void cReactionResult::ActivateReaction()
   resources_consumed.SetAll(0.0);
   resources_produced.SetAll(0.0);
   resources_detected.SetAll(-1.0);
-  internal_resources_consumed.SetAll(0.0);
-  internal_resources_produced.SetAll(0.0);
   tasks_done.SetAll(false);
   tasks_quality.SetAll(0.0);
   tasks_value.SetAll(0.0);
   reactions_triggered.SetAll(false);
   reaction_add_bonus.SetAll(0.0);
-  task_plasticity.SetAll(0.0);
-  energy_add = 0.0;
-  bonus_add = 0.0;
-  bonus_mult = 1.0;
-  germline_add = 0.0;
-  germline_mult = 1.0;
-  insts_triggered.Resize(0);
-  lethal = false;
-  sterilize = false;
-  used_env_resource = true;
-  deme_add_bonus = 0.0;
-  deme_mult_bonus = 1.0;
-  active_deme_reaction = false;
 
   // And finally note that this is indeed already active.
   active_reaction = true;
 }
 
 
-void cReactionResult::Consume(int id, double num, bool is_env_resource)
+void cReactionResult::Consume(int id, double num)
 {
   ActivateReaction();
-  if(is_env_resource) { resources_consumed[id] += num; }
-  else {
-    used_env_resource = false;
-    internal_resources_consumed[id] += num;
-  }
+  resources_consumed[id] += num;
 }
 
 
-void cReactionResult::Produce(int id, double num, bool is_env_resource)
+void cReactionResult::Produce(int id, double num)
 {
   ActivateReaction();
-
-  if(is_env_resource) { resources_produced[id] += num; }
-  else {
-    used_env_resource = false;
-    internal_resources_produced[id] += num;
-  }
+  resources_produced[id] += num;
 }
 
 
@@ -109,13 +91,6 @@ void cReactionResult::Lethal(bool flag)
  ActivateReaction();
  lethal = flag;
 }
-
-void cReactionResult::Sterilize(bool flag)
-{
-  ActivateReaction();
-  sterilize = flag;
-}
-
 
 void cReactionResult::MarkTask(int id, const double quality, const double value)
 {
@@ -152,36 +127,9 @@ void cReactionResult::MultBonus(double value)
   bonus_mult *= value;
 }
 
-void cReactionResult::AddDemeBonus(double value)
+void cReactionResult::AddInst(int id)
 {
-  ActivateReaction();
-  active_deme_reaction = true;
-  deme_add_bonus += value;
-}
-
-void cReactionResult::MultDemeBonus(double value)
-{
-  ActivateReaction();
-  active_deme_reaction = true;
-  deme_mult_bonus *= value;
-}
-
-void cReactionResult::AddGermline(double value)
-{
-  ActivateReaction();
-  germline_add += value;
-}
-
-void cReactionResult::MultGermline(double value)
-{
-  ActivateReaction();
-  germline_mult *= value;
-}
-
-
-void cReactionResult::AddInst(const cString& inst)
-{
-  insts_triggered.Push(inst);
+  insts_triggered.Push(id);
 }
 
 double cReactionResult::GetConsumed(int id)
@@ -203,28 +151,10 @@ double cReactionResult::GetDetected(int id)
   return resources_detected[id];
 }
 
-double cReactionResult::GetInternalConsumed(int id)
-{
-  if (GetActive() == false) return 0.0;
-  return internal_resources_consumed[id];
-}
-
-double cReactionResult::GetInternalProduced(int id)
-{
-  if (GetActive() == false) return 0.0;
-  return internal_resources_produced[id];
-}
-
 bool cReactionResult::GetLethal()
 {
   if (GetActive() == false) return false;
   return lethal;
-}
-
-bool cReactionResult::GetSterilize()
-{
-  if (GetActive() == false) return false;
-  return sterilize;
 }
 
 bool cReactionResult::ReactionTriggered(int id)

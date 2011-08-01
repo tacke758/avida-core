@@ -13,6 +13,7 @@ class cPopulationCell;
 class cSymbolUtil {
 public:
   static char GetBasicSymbol(    const cPopulationCell & cell );
+  static char GetSpeciesSymbol(  const cPopulationCell & cell );
   static char GetModifiedSymbol( const cPopulationCell & cell );
   static char GetResourceSymbol( const cPopulationCell & cell );
   static char GetAgeSymbol(      const cPopulationCell & cell );
@@ -22,5 +23,17 @@ public:
   static char GetThreadSymbol(   const cPopulationCell & cell );
   static char GetLineageSymbol(  const cPopulationCell & cell );
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nSymbolUtil {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

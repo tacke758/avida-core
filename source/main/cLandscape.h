@@ -3,30 +3,34 @@
  *  Avida
  *
  *  Called "landscape.hh" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cLandscape_h
 #define cLandscape_h
 
-#include "avida/core/Genome.h"
-
 #ifndef cCPUTestInfo_h
 #include "cCPUTestInfo.h"
+#endif
+#ifndef cGenome_h
+#include "cGenome.h"
 #endif
 #ifndef cString_h
 #include "cString.h"
@@ -42,16 +46,13 @@ class cInstruction;
 class cTestCPU;
 class cWorld;
 
-using namespace Avida;
-
-
 class cLandscape
 {
 private:
   cWorld* m_world;
-  cCPUTestInfo m_cpu_test_info;
-  Genome base_genome;
-  Genome peak_genome;
+  const cInstSet& inst_set;
+  cGenome base_genome;
+  cGenome peak_genome;
   double base_fitness;
   double base_merit;
   double base_gestation;
@@ -90,6 +91,7 @@ private:
   double total_entropy;
   double complexity;
 
+  cCPUTestInfo test_info;  // Info used for all cpu calculations.
   double neut_min;         // These two variables are a range around the base
   double neut_max;         //   fitness to be counted as neutral mutations.
   tMatrix<double> fitness_chart; // Chart of all one-step mutations.
@@ -97,15 +99,23 @@ private:
   int m_num_found;
 
 
+  void BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu);
+  double ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& in_genome);
+  void ProcessBase(cAvidaContext& ctx, cTestCPU* testcpu);
+  void Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& cur_genome, int cur_distance, int start_line);
+
+  double TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, cGenome& mod_genome, int line1, int line2,
+                     const cInstruction& mut1, const cInstruction& mut2);
+
   cLandscape(); // @not_implemented
   cLandscape(const cLandscape&); // @not_implemented
   cLandscape& operator=(const cLandscape&); // @not_implemented
 
 public:
-  cLandscape(cWorld* world, const Genome& in_genome);
+  cLandscape(cWorld* world, const cGenome& in_genome, const cInstSet& in_inst_set);
   ~cLandscape();
 
-  void Reset(const Genome& in_genome);
+  void Reset(const cGenome& in_genome);
 
   void Process(cAvidaContext& ctx);
   void ProcessDelete(cAvidaContext& ctx);
@@ -118,10 +128,6 @@ public:
   inline void SetTrials(int in_trials) { trials = in_trials; }
   inline void SetMinFound(int min_found) { m_min_found = min_found; }
   inline void SetMaxTrials(int max_trials) { m_max_trials = max_trials; }
-  inline void SetCPUTestInfo(const cCPUTestInfo& in_cpu_test_info) 
-  { 
-      m_cpu_test_info = in_cpu_test_info; 
-  }
 
   void SampleProcess(cAvidaContext& ctx);
   void RandomProcess(cAvidaContext& ctx);
@@ -137,7 +143,7 @@ public:
   void PrintEntropy(cDataFile& fp);
   void PrintSiteCount(cDataFile& fp);
 
-  inline const Genome& GetPeakGenome() { return peak_genome; }
+  inline const cGenome& GetPeakGenome() { return peak_genome; }
   inline double GetAveFitness() { return total_fitness / total_count; }
   inline double GetAveSqrFitness() { return total_sqr_fitness / total_count; }
   inline double GetPeakFitness() { return peak_fitness; }
@@ -171,16 +177,18 @@ public:
   inline int GetNumTrials() const { return trials; }
   inline double GetTotalEntropy() const { return total_entropy; }
   inline double GetComplexity() const { return complexity; }
-  
-  
-private:
-  void BuildFitnessChart(cAvidaContext& ctx, cTestCPU* testcpu);
-  double ProcessGenome(cAvidaContext& ctx, cTestCPU* testcpu, Genome& in_genome);
-  void ProcessBase(cAvidaContext& ctx, cTestCPU* testcpu);
-  void Process_Body(cAvidaContext& ctx, cTestCPU* testcpu, Genome& cur_genome, int cur_distance, int start_line);
-  
-  double TestMutPair(cAvidaContext& ctx, cTestCPU* testcpu, Genome& mod_genome, int line1, int line2,
-                     const cInstruction& mut1, const cInstruction& mut2);  
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nLandscape {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

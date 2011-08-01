@@ -20,13 +20,11 @@
 
 
 class cAnalyzeCommand;
-class cTextViewerDriver_Base;
 class cWorld;
 
 class cAnalyzeScreen : public cScreen {
 protected:
   cWorld* m_world;
-  cTextViewerDriver_Base* m_driver;
   int mode;
 
   // Manage the menu mode.
@@ -52,22 +50,20 @@ protected:
   static const int ANALYZE_MENU_TAB_FUNCTIONS = 3;
 
   void UpdateCommandLine_Body();
-  void DoInput_CommandLine(cAvidaContext& ctx);
+  void DoInput_CommandLine();
   void UpdateMenu_Body();
   void UpdateMenu_Genotypes();
   void UpdateMenu_Variables();
   void UpdateMenu_Commands();
   void UpdateMenu_Functions();
-  void DoInput_Menu(cAvidaContext& ctx);
+  void DoInput_Menu();
 
   void ProcessCommandLine();
 public:
-  cAnalyzeScreen(cWorld* world, int y_size, int x_size, int y_start, int x_start, cViewInfo& in_info,
-                 cTextViewerDriver_Base* driver)
+  cAnalyzeScreen(cWorld* world, int y_size, int x_size, int y_start, int x_start, cViewInfo& in_info)
     : cScreen(y_size, x_size, y_start, x_start, in_info)
     , m_world(world)
-    , m_driver(driver)
-    , tab_box(this, 0, 0, Height() - 1, Width())
+	, tab_box(this, 0, 0, Height() - 1, Width())
     , rollback_line(0)
     , cursor_pos(0)
     , nest_depth(0)
@@ -86,14 +82,26 @@ public:
   void Notify(const cString & in_string);
 
   // Virtual in base screen...
-  void Draw(cAvidaContext& ctx);
-  void Update(cAvidaContext& ctx);
-  void DoInput(cAvidaContext& ctx, int in_char);
+  void Draw();
+  void Update();
+  void DoInput(int in_char);
 
   void DrawCommandLine();
-  void DrawMenu(cAvidaContext& ctx);
-  void UpdateCommandLine(cAvidaContext& ctx);
-  void UpdateMenu(cAvidaContext& ctx);
+  void DrawMenu();
+  void UpdateCommandLine();
+  void UpdateMenu();
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nEnvironmentScreen {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

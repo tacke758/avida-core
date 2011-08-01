@@ -90,12 +90,12 @@ private:
   void UpdateStats(cHardwareBase & hardware);
   void UpdateStats_CPU(cHardwareBase & hardware);
   void UpdateStats_SMT(cHardwareBase & hardware);
-  void UpdateGenotype(cAvidaContext& ctx);
+  void UpdateGenotype();
 
-  void EditMemory(cAvidaContext& ctx);
+  void EditMemory();
   void ViewMemory();
 
-  void ThreadOptions(cAvidaContext& ctx);
+  void ThreadOptions();
 
   void ViewInstruction();
   void ViewRegisters();
@@ -105,7 +105,7 @@ private:
 
   cCoords GetSectionCoords(int in_section);
   //cString GetSectionName(int in_section);
-  const char* GetSectionName(int in_section);
+  char* GetSectionName(int in_section);
   void SetActiveSection(int in_section);
 
   void DrawMiniMap();
@@ -116,15 +116,27 @@ public:
   virtual ~cZoomScreen() { ; }
 
   // Virtual in base screen...
-  void Draw(cAvidaContext& ctx);
-  virtual void Update(cAvidaContext& ctx);
-  virtual void DoInput(cAvidaContext& ctx, int in_char);
-  bool DoInputCPU(cAvidaContext& ctx, int in_char);
-  bool DoInputStats(cAvidaContext& ctx, int in_char);
+  void Draw();
+  virtual void Update();
+  virtual void DoInput(int in_char);
+  bool DoInputCPU(int in_char);
+  bool DoInputStats(int in_char);
   bool DoInputGenotype(int in_char);
 
   // Other misc functions...
   void AdvanceUpdate() { memory_offset = 0; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nZoomScreen {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

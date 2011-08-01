@@ -3,41 +3,37 @@
  *  Avida
  *
  *  Created by David on 2/18/06.
- *  Copyright 2006-2011 Michigan State University. All rights reserved.
+ *  Copyright 2006-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cAnalyzeJobQueue.h"
 
-#include "apto/platform.h"
-#include "avida/Avida.h"
-#include "avida/core/WorldDriver.h"
-
 #include "cAnalyzeJobWorker.h"
 #include "cWorld.h"
+#include "cWorldDriver.h"
+#include "PlatformExpert.h"
 
-
-#if APTO_PLATFORM(WINDOWS) && defined(AddJob)
-# undef AddJob
-#endif
-
-using namespace Avida;
+#include "defs.h"
 
 
 cAnalyzeJobQueue::cAnalyzeJobQueue(cWorld* world)
-: m_world(world), m_last_jobid(0), m_jobs(0), m_pending(0), m_workers(Apto::Platform::AvailableCPUs())
+: m_world(world), m_last_jobid(0), m_jobs(0), m_pending(0), m_workers(PlatformExpert::AvailableCPUs())
 {
   const int max_workers = world->GetConfig().MAX_CONCURRENCY.Get();
   if (max_workers > 0 && max_workers < m_workers.GetSize()) m_workers.Resize(max_workers);
@@ -88,7 +84,7 @@ inline void cAnalyzeJobQueue::queueJob(cAnalyzeJob* job)
 
 void cAnalyzeJobQueue::AddJob(cAnalyzeJob* job)
 {
-  Apto::MutexAutoLock lock(m_mutex);
+  cMutexAutoLock lock(m_mutex);
   job->SetID(m_last_jobid++);
   queueJob(job);
   m_jobs++;
@@ -134,9 +130,8 @@ void cAnalyzeJobQueue::Execute()
 
 void cAnalyzeJobQueue::singleThreadedJobExecution(cAnalyzeJob* job)
 {
-  cAvidaContext ctx(m_world, NULL);
+  cAvidaContext ctx(NULL);
   ctx.SetRandom(GetRandom(job->GetID()));
   job->Run(ctx);
   delete job;
 }
-

@@ -3,32 +3,36 @@
  *  Avida
  *
  *  Created by David on 3/4/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cTestCPUInterface.h"
 
+#include "cGenotype.h"
 #include "cOrganism.h"
 #include "cTestCPU.h"
 
 
-bool cTestCPUInterface::Divide(cAvidaContext& ctx, cOrganism* parent, const Genome& offspring_genome)
+bool cTestCPUInterface::Divide(cAvidaContext& ctx, cOrganism* parent, cGenome& child_genome)
 {
-  parent->GetPhenotype().TestDivideReset(parent->GetGenome().GetSequence());
-  // @CAO in the future, we probably want to pass this offspring the test_cpu!
+  parent->GetPhenotype().TestDivideReset(parent->GetGenome());
+  // @CAO in the future, we probably want to pass this child the test_cpu!
   return true;
 }
 
@@ -37,18 +41,9 @@ cOrganism* cTestCPUInterface::GetNeighbor()
   return NULL;
 }
 
-bool cTestCPUInterface::IsNeighborCellOccupied() {
-  return false;
-}
-
 int cTestCPUInterface::GetNumNeighbors()
 {
   return 0;
-}
-
-void cTestCPUInterface::GetNeighborhoodCellIDs(tArray<int>& list)
-{
-  
 }
 
 void cTestCPUInterface::Rotate(int direction)
@@ -70,24 +65,18 @@ const tArray<int>& cTestCPUInterface::GetInputs() const
   return m_testcpu->GetInputs();
 }
 
-const tArray<double>& cTestCPUInterface::GetResources(cAvidaContext& ctx) 
+int cTestCPUInterface::Debug()
 {
-  return m_testcpu->GetResources(ctx); 
+  return -1;
 }
 
-const tArray<double>& cTestCPUInterface::GetFacedCellResources(cAvidaContext& ctx) 
+const tArray<double>& cTestCPUInterface::GetResources()
 {
-  return m_testcpu->GetFacedCellResources(ctx); 
+  return m_testcpu->GetResources();  
 }
 
-const tArray<double>& cTestCPUInterface::GetDemeResources(int deme_id, cAvidaContext& ctx) 
-{ 
-  return m_testcpu->GetDemeResources(deme_id, ctx); 
-}
-
-const tArray< tArray<int> >& cTestCPUInterface::GetCellIdLists()
-{
-	return m_testcpu->GetCellIdLists();
+const tArray<double>& cTestCPUInterface::GetDemeResources(int deme_id) {
+  return m_testcpu->GetDemeResources(deme_id);
 }
 
 void cTestCPUInterface::UpdateResources(const tArray<double>& res_change)
@@ -95,22 +84,18 @@ void cTestCPUInterface::UpdateResources(const tArray<double>& res_change)
    m_testcpu->ModifyResources(res_change);
 }
 
-void cTestCPUInterface::Die(cAvidaContext& ctx) 
+void cTestCPUInterface::Die()
 {
 }
 
-void cTestCPUInterface::KillCellID(int target, cAvidaContext& ctx) 
-{
-}
-
-void cTestCPUInterface::Kaboom(int distance, cAvidaContext& ctx)
+void cTestCPUInterface::Kaboom(int distance)
 {
   (void) distance;
   // @CAO We should keep a note that the organism tried to explode, and
   // record the probability it used.
 }
 
-void cTestCPUInterface::SpawnDeme(cAvidaContext& ctx)
+void cTestCPUInterface::SpawnDeme()
 {
 }
 
@@ -129,18 +114,12 @@ int cTestCPUInterface::BuyValue(const int label, const int buy_price)
 	return m_testcpu->GetReceiveValue();
 }
 
-bool cTestCPUInterface::InjectParasite(cOrganism* host, cBioUnit* parent, const cString& label, const Sequence& injected_code)
+bool cTestCPUInterface::InjectParasite(cOrganism* parent, const cCodeLabel& label, const cGenome& injected_code)
 {
   return false;
 }
 
 bool cTestCPUInterface::UpdateMerit(double new_merit)
 {
-  m_test_info.GetTestPhenotype(m_cur_depth).SetMerit(cMerit(new_merit));
-  return true;
-}
-
-int cTestCPUInterface::GetStateGridID(cAvidaContext& ctx)
-{
-  return m_test_info.GetStateGridID();
+  return false;
 }

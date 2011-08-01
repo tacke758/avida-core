@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "merit.hh" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -59,17 +62,12 @@ public:
   }
 
   void operator=(double _merit) { UpdateValue(_merit); }
-  
-  void operator+=(const cMerit & _m) { UpdateValue(value + _m.GetDouble()); }
-  void operator+=(double _merit) { UpdateValue(value + _merit); }
-  
-  cMerit operator*(const cMerit& _m) const { return cMerit(value * _m.GetDouble()); }
-  void operator*=(const cMerit& _m) { UpdateValue(value * _m.GetDouble()); }
+  void operator+=(const cMerit & _m){ UpdateValue(value + _m.GetDouble()); }
 
-  int  operator>(const cMerit& _m)  const { return value >  _m.GetDouble(); }
-  int  operator<(const cMerit& _m)  const { return value <  _m.GetDouble(); }
-  int  operator>=(const cMerit& _m) const { return value >= _m.GetDouble(); }
-  int  operator<=(const cMerit& _m) const { return value <= _m.GetDouble(); }
+  int  operator>(const cMerit & _m)  const { return value >  _m.GetDouble(); }
+  int  operator<(const cMerit & _m)  const { return value <  _m.GetDouble(); }
+  int  operator>=(const cMerit & _m) const { return value >= _m.GetDouble(); }
+  int  operator<=(const cMerit & _m) const { return value <= _m.GetDouble(); }
 
   int  operator==(const cMerit & _m) const { return value == _m.GetDouble(); }
   int  operator==(const double _m) const { return value == _m; }
@@ -95,11 +93,25 @@ public:
 
   int GetNumBits() const { return bits; }
 
-  double CalcFitness(int gestation_time) const { return ( gestation_time != 0 ) ? value / ((double) gestation_time) : 0; }
+  double CalcFitness(int gestation_time) const {
+    return ( gestation_time != 0 ) ? value / ((double) gestation_time) : 0; }
+
+  static double EnergyToMerit(const double orgEnergy, cWorld* m_world);
 
   std::ostream& BinaryPrint(std::ostream& os = std::cout) const;
 };
 
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nMerit {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 std::ostream& operator<<(std::ostream& os, const cMerit & merit);
 

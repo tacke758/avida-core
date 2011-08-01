@@ -8,46 +8,55 @@
 #ifndef cScreen_h
 #define cScreen_h
 
-#include "avida/Avida.h"
-
+#ifndef cInstSet_h
 #include "cInstSet.h"
+#endif
+#ifndef cMerit_h
 #include "cMerit.h"
+#endif
+#ifndef cTextWindow_h
 #include "cTextWindow.h"
+#endif
+#ifndef cViewInfo_h
 #include "cViewInfo.h"
+#endif
+#ifndef defs_h
+#include "defs.h"
+#endif
 
-class cAvidaContext;
 class cEnvironment;
 class cSpecies;
 class cGenotype;
 class cPopulation;
 class cPopulationCell;
 class cOrganism;
+class cInjectGenotype;
 
-// #define NUM_SYMBOLS 12
-// #define SYMBOL_THRESHOLD 10
+#define NUM_SYMBOLS 12
+#define SYMBOL_THRESHOLD 10
 
-// #define PAUSE_OFF               0
-// #define PAUSE_ON                1
-// #define PAUSE_ADVANCE_STEP      2
-// #define PAUSE_ADVANCE_UPDATE    3
-// #define PAUSE_ADVANCE_GESTATION 4
+#define PAUSE_OFF               0
+#define PAUSE_ON                1
+#define PAUSE_ADVANCE_STEP      2
+#define PAUSE_ADVANCE_UPDATE    3
+#define PAUSE_ADVANCE_GESTATION 4
 
 
-// #define MAP_BASIC      0
-// #define MAP_SPECIES    1
-// #define MAP_BREED_TRUE 2
-// #define MAP_PARASITE   3
-// #define MAP_MUTATIONS  4
-// #define MAP_THREAD     5
-// #define MAP_INJECT     6
-// #define MAP_LINEAGE    7
-// #define NUM_MAPS       8
+#define MAP_BASIC      0
+#define MAP_SPECIES    1
+#define MAP_BREED_TRUE 2
+#define MAP_PARASITE   3
+#define MAP_MUTATIONS  4
+#define MAP_THREAD     5
+#define MAP_INJECT     6
+#define MAP_LINEAGE    7
+#define NUM_MAPS       8
 
-// // Other map modes currently inactive...
-// #define MAP_COMBO      9
-// #define MAP_RESOURCE  10
-// #define MAP_AGE       11
-// #define NUM_MAP_MODES 12
+// Other map modes currently inactive...
+#define MAP_COMBO      9
+#define MAP_RESOURCE  10
+#define MAP_AGE       11
+#define NUM_MAP_MODES 12
 
 class cScreen : public cTextWindow {
 protected:
@@ -63,13 +72,25 @@ public:
     cTextWindow(y_size, x_size, y_start, x_start), info(in_info) { ; }
   virtual ~cScreen() { ; }
 
-  virtual void Draw(cAvidaContext& ctx) = 0;
-  virtual void Update(cAvidaContext& ctx) = 0;
+  virtual void Draw() = 0;
+  virtual void Update() = 0;
   virtual void AdvanceUpdate() { ; }
-  virtual void DoInput(cAvidaContext& ctx, int in_char) = 0;
+  virtual void DoInput(int in_char) = 0;
   virtual void DoMouseClick(int x, int y) { (void) x; (void) y; }
   virtual void Exit() { ; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nScreen {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 inline void cScreen::SetSymbolColor(char color)

@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "file.cc" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -31,23 +34,37 @@ using namespace std;
 
 bool cFile::Open(cString _fname, ios::openmode flags)
 {
-  if (IsOpen()) Close();    // If a file is already open, clost it first.
+  if( IsOpen() ) Close();    // If a file is already open, clost it first.
   fp.open(_fname, flags);  // Open the new file.
 
   // Test if there was an error, and if so, try again!
-  if (fp.fail()) {
+  int err_id = fp.fail();
+  if( err_id ){
     fp.clear();
     fp.open(_fname, flags);
   }
 
-  if (fp.fail()) return false;
-  
+  // If there is still an error, determine its type and report it.
+  err_id = fp.fail();
+  if (err_id){
+    cString error_desc = "?? Unknown Error??";
+
+    // See if we can determine a more exact error type.
+    if (err_id == EACCES) error_desc = "Access denied";
+    else if (err_id == EINVAL) error_desc = "Invalid open flag or access mode";
+    else if (err_id == ENOENT) error_desc = "File or path not found";
+
+    // Print the error.
+    cerr << "Error: Unable to open file '" << _fname << "' : " << error_desc << endl;
+    return false;
+  }
+
   m_openmode = flags;
   filename = _fname;
   is_open = true;
 
   // Return true only if there were no problems...
-  return (fp.good() && !fp.fail());
+  return( fp.good() && !fp.fail() );
 }
 
 bool cFile::Close()
@@ -60,11 +77,14 @@ bool cFile::Close()
   return false;
 }
 
-bool cFile::ReadLine(cString& in_string)
+bool cFile::ReadLine(cString & in_string)
 {
-  std::string linebuf;
-  std::getline(fp, linebuf);
-  if (fp.bad()) return false;
-  in_string = linebuf.c_str();
+  char cur_line[MAX_STRING_LENGTH];
+  cur_line[0]='\0';
+  fp.getline(cur_line, MAX_STRING_LENGTH);
+  if( fp.bad() ){
+    return false;
+  }
+  in_string = cur_line;
   return true;
 }

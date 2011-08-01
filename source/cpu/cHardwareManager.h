@@ -3,50 +3,79 @@
  *  Avida
  *
  *  Created by David on 10/18/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cHardwareManager_h
 #define cHardwareManager_h
 
+#include <cassert>
+
+#ifndef cTestCPU_h
 #include "cTestCPU.h"
-#include "tDictionary.h"
+#endif
 
-namespace Avida {
-  class Genome;
-};
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
-class cAvidaContext;
+#ifndef tList_h
+#include "tList.h"
+#endif
+
+#ifndef cInstSet_h
+#include "cInstSet.h"
+#endif
+
+#ifndef cInheritedInstSet_h
+#include "cInheritedInstSet.h"
+#endif
+
+#ifndef tList_h
+#include "tArray.h"
+#endif
+
+class cEventContext;
 class cHardwareBase;
-class cInstSet;
 class cOrganism;
-class cStringList;
-class cUserFeedback;
 class cWorld;
-template<typename T> class tList;
-
-using namespace Avida;
 
 
 class cHardwareManager
 {
+#if USE_tMemTrack
+  tMemTrack<cHardwareManager> mt;
+#endif
 private:
   cWorld* m_world;
-  tArray<cInstSet*> m_inst_sets;
-  tDictionary<int> m_is_name_map;
+  tArray<cInstSet*> m_inst_sets;  //Global instruction sets
+  bool m_inherited_instset;       //Are we using per-organism instruction sets?
+  tInstRed* m_allowed_redundancies;  //Global restriction on per-organsim instruction sets.
+  int m_init_redundancy;
+
+  int m_type;
+  
+//  cTestResources m_testres;
+  
+  void LoadRedundancyFile(cString path);
   
   cHardwareManager(); // @not_implemented
   cHardwareManager(const cHardwareManager&); // @not_implemented
@@ -55,39 +84,32 @@ private:
 
 public:
   cHardwareManager(cWorld* world);
-  ~cHardwareManager();
+  ~cHardwareManager() { for(int i = 0; i < m_inst_sets.GetSize(); i++) delete m_inst_sets[i]; }
   
-  bool LoadInstSets(cUserFeedback* feedback = NULL);
-  bool ConvertLegacyInstSetFile(cString filename, cStringList& str_list, cUserFeedback* feedback = NULL);
-  
-  cHardwareBase* Create(cAvidaContext& ctx, cOrganism* org, const Genome& mg);
-  inline cTestCPU* CreateTestCPU() { return new cTestCPU(m_world); }
+  cHardwareBase* Create(cOrganism* in_org, const cInstSet* parent_instset = NULL);
+  cTestCPU* CreateTestCPU() { return new cTestCPU(m_world /*, &m_testres*/); }
 
-  inline bool IsInstSet(const cString& name) const { return m_is_name_map.HasEntry(name); }
-  
-  inline const cInstSet& GetInstSet(const cString& name) const;
-  inline cInstSet& GetInstSet(const cString& name);
-  const cInstSet& GetInstSet(int i) const { return *m_inst_sets[i]; }
-  
-  const cInstSet& GetDefaultInstSet() const { return *m_inst_sets[0]; }
+  const cInstSet& GetInstSet(int id=0) const { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
+  cInstSet& GetInstSet(int id=0) { assert(id < m_inst_sets.GetSize()); return *(m_inst_sets[id]); }
   
   int GetNumInstSets() const { return m_inst_sets.GetSize(); }
   
-  bool RegisterInstSet(const cString& name, cInstSet* inst_set);
+  bool AddInstSet(const cString& filename, int id = 0);
+  tInstRed* GetAllowedRedundancies() { return m_allowed_redundancies; }
+  static void ReplaceDeprecatedInstSet(cOrganism* org, cEventContext& ctx);
   
-private:
-  bool loadInstSet(int hw_type, const cString& name, cStringList& sl, cUserFeedback* feedback);
 };
 
 
-inline const cInstSet& cHardwareManager::GetInstSet(const cString& name) const
-{
-  return (name == "(default)") ? *m_inst_sets[0] : *m_inst_sets[m_is_name_map.Get(name)];
+#ifdef ENABLE_UNIT_TESTS
+namespace nHardwareManager {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
 }
-
-inline cInstSet& cHardwareManager::GetInstSet(const cString& name)
-{
-  return (name == "(default)") ? *m_inst_sets[0] : *m_inst_sets[m_is_name_map.Get(name)];
-}
+#endif  
 
 #endif

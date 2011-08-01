@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_file_manager.hh" prior to 10/18/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2005 California Institute of Technology
  *
  */
@@ -20,6 +20,12 @@
 #include "tDictionary.h"
 #endif
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 /**
  * This class helps to manage a collection of data files. It is possible
@@ -30,8 +36,10 @@ class cDataFile;
 class cString;
 template <class T> class tList; // aggregate
 
-class cDataFileManager
-{
+class cDataFileManager {
+#if USE_tMemTrack
+  tMemTrack<cDataFileManager> mt;
+#endif
 private:
   cString m_target_dir;
   tDictionary<cDataFile*> m_datafiles;
@@ -65,6 +73,18 @@ public:
   
   const cString& GetTargetDir() const { return m_target_dir; }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nDataFileManager {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 inline bool cDataFileManager::IsOpen(const cString & name)

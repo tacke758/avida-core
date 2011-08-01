@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "analyze.hh" prior to 12/1/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -24,40 +27,63 @@
 #define cAnalyze_h
 
 #include <iostream>
+#include <vector>
 
+#ifndef cAnalyzeJobQueue_h
 #include "cAnalyzeJobQueue.h"
+#endif
+#ifndef cAvidaContext_h
 #include "cAvidaContext.h"
+#endif
+#ifndef cGenotypeBatch_h
 #include "cGenotypeBatch.h"
+#endif
+#ifndef cFlexVar_h
 #include "cFlexVar.h"
+#endif
+#ifndef cRandom_h
 #include "cRandom.h"
+#endif
+#ifndef cString_h
 #include "cString.h"
+#endif
+#ifndef cStringList_h
 #include "cStringList.h"
+#endif
+#ifndef tList_h
 #include "tList.h"
+#endif
+#ifndef tMatrix_h
 #include "tMatrix.h"
-#include "tHashMap.h"
+#endif
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
 
 const int MAX_BATCHES = 2000;
 
 class cAnalyzeCommand;
-class cAnalyzeCommandDefBase;
 class cAnalyzeFunction;
-class cAnalyzeGenotype;
+class cAnalyzeCommandDefBase;
 class cAnalyzeScreen;
-class cCPUTestInfo;
-class cEnvironment;
-class cInitFile;
+template <class T> class tDataEntryBase;
 class cInstSet;
-class cResourceHistory;
+class cAnalyzeGenotype;
+class cInitFile;
+template <class T> class tDataEntryCommand;
+class cEnvironment;
 class cTestCPU;
 class cWorld;
-template <class T> class tDataEntry;
-template <class T> class tDataEntryCommand;
-
 
 class cAnalyze {
   friend class cAnalyzeScreen;
-
+#if USE_tMemTrack
+  tMemTrack<cAnalyze> mt;
+#endif
 private:
   int cur_batch;
 
@@ -84,15 +110,20 @@ private:
   bool exit_on_error;
 
   cWorld* m_world;
+  cInstSet& inst_set;
+  cTestCPU* m_testcpu;
   cAvidaContext& m_ctx;
   cAnalyzeJobQueue m_jobqueue;
 
-  // This is the storage for the resource information from resource.dat.
-  cResourceHistory* m_resources;
+  // This is the storage for the resource information from resource.dat.  It 
+  // is a pair of the update and a vector of the resource concentrations
+  std::vector<std::pair<int, std::vector<double> > > resources;
   int m_resource_time_spent_offset; // The amount to offset the time spent when 
                                     // beginning, using resources that change
 
   int interactive_depth;  // How nested are we if in interactive mode?
+
+  tList< tDataEntryBase<cAnalyzeGenotype> > genotype_data_list;
 
   cRandom random;
 
@@ -128,6 +159,8 @@ public:
 
   void RunFile(cString filename);
   void RunInteractive();
+  bool Send(const cString &text_input);
+  bool Send(const cStringList &list_input);
   
   int GetCurrentBatchID() { return cur_batch; }
   cGenotypeBatch& GetCurrentBatch() { return batch[cur_batch]; }
@@ -135,20 +168,7 @@ public:
   cAnalyzeJobQueue& GetJobQueue() { return m_jobqueue; }
   
   void AlignCurrentBatch() { CommandAlign(""); }
-  
-  static void PopCommonCPUTestParameters(cWorld* in_world, cString& cur_string, cCPUTestInfo& test_info,
-    cResourceHistory* in_resource_history = NULL, int in_resource_time_spent_offset = 0);
-    
-  // structure for phenotype statistics, used in CommandPrintPhenotypes
-  struct p_stats {
-    cBitArray phen_id;
-    int cpu_count;
-    int genotype_count;
-    double total_length;
-    double total_gest;
-    int total_task_count;
-    int total_task_performance_count;
-  };
+
   
 private:
   // Pop specific types of arguments from an arg list.
@@ -168,6 +188,10 @@ private:
                      const cString& cell_flags="align=center", const cString& null_text = "0", bool print_text = true);
   int CompareFlexStat(const cFlexVar& org_stat, const cFlexVar& parent_stat, int compare_type = FLEX_COMPARE_MAX);
   
+  // Deal with genotype data list (linking keywords to stats)
+  void SetupGenotypeDataList();	
+  tDataEntryCommand<cAnalyzeGenotype>* GetGenotypeDataCommand(const cString & stat_entry);
+  void LoadGenotypeDataList(cStringList arg_list, tList< tDataEntryCommand<cAnalyzeGenotype> > & output_list);
   
   void AddLibraryDef(const cString & name, void (cAnalyze::*_fun)(cString));
   void AddLibraryDef(const cString & name, void (cAnalyze::*_fun)(cString, tList<cAnalyzeCommand> &));
@@ -178,7 +202,7 @@ private:
   // Batch management...
   int BatchUtil_GetMaxLength(int batch_id = -1);
   
-  // Command helpers...
+  // Comamnd helpers...
   void CommandDetail_Header(std::ostream& fp, int format_type,
                             tListIterator< tDataEntryCommand<cAnalyzeGenotype> >& output_it, int time_step = -1);
   void CommandDetail_Body(std::ostream& fp, int format_type,
@@ -190,29 +214,31 @@ private:
                                tListIterator< tDataEntryCommand<cAnalyzeGenotype> >& output_it);
   void CommandHistogram_Body(std::ostream& fp, int format_type,
                              tListIterator< tDataEntryCommand<cAnalyzeGenotype> >& output_it);
-  static int PStatsComparator(const void * elem1, const void * elem2);  // must be static for qsort to accept it
   
   // Loading methods...
   void LoadOrganism(cString cur_string);
+  void LoadBasicDump(cString cur_string);
+  void LoadDetailDump(cString cur_string);
+  void LoadMultiDetail(cString cur_string);
   void LoadSequence(cString cur_string);
+  void LoadDominant(cString cur_string);
   // Clears the current time oriented list of resources and loads in a new one
   // from a file specified by the user, or resource.dat by default.
   void LoadResources(cString cur_string);
   void LoadFile(cString cur_string);
   
-  // Reduction and Sampling
+  // Reduction
   void CommandFilter(cString cur_string);
   void FindGenotype(cString cur_string);
   void FindOrganism(cString cur_string);
   void FindLineage(cString cur_string);
   void FindSexLineage(cString cur_string);
   void FindClade(cString cur_string);
-  void FindLastCommonAncestor(cString cur_string);
   void SampleOrganisms(cString cur_string);
   void SampleGenotypes(cString cur_string);
   void KeepTopGenotypes(cString cur_string);
   void TruncateLineage(cString cur_string);
-  void SampleOffspring(cString cur_string);
+  
   
   // Direct Output Commands...
   void CommandPrint(cString cur_string);
@@ -230,21 +256,15 @@ private:
   // Population Analysis Commands...
   void CommandPrintPhenotypes(cString cur_string);
   void CommandPrintDiversity(cString cur_string);
-  void CommandPrintDistances(cString cur_String);
   void CommandPrintTreeStats(cString cur_string);
-  void CommandPrintCumulativeStemminess(cString cur_string);
-  void CommandPrintGamma(cString cur_string);
   void PhyloCommunityComplexity(cString cur_string);
   void AnalyzeCommunityComplexity(cString cur_string);
-  void CommandPrintResourceFitnessMap(cString cur_string);
   
   // Individual Organism Analysis...
   void CommandFitnessMatrix(cString cur_string);
   void CommandMapTasks(cString cur_string);
-  void CommandCalcFunctionalModularity(cString cur_string);
   void CommandAverageModularity(cString cur_string);
   void CommandAnalyzeModularity(cString cur_string);
-  void CommandAnalyzeRedundancyByInstFailure(cString cur_string);
   void CommandMapMutations(cString cur_string);
   void CommandMapDepth(cString cur_string);
   void CommandPairwiseEntropy(cString cur_string);
@@ -272,13 +292,14 @@ private:
   void AnalyzeBranching(cString cur_string);
   void AnalyzeMutationTraceback(cString cur_string);
   void AnalyzeComplexity(cString cur_string);
-  void AnalyzeFitnessLandscapeTwoSites(cString cur_string);
-  void AnalyzeComplexityTwoSites(cString cur_string);
   void AnalyzeKnockouts(cString cur_string);
   void AnalyzePopComplexity(cString cur_string);
   void AnalyzeMateSelection(cString cur_string);
   void AnalyzeComplexityDelta(cString cur_string);
   
+	//@MRR
+	void LandscapeNeighbors(cString cur_string);
+	
   // Environment Manipulation
   void EnvironmentSetup(cString cur_string);
   
@@ -297,7 +318,6 @@ private:
   void BatchRecalculate(cString cur_string);
   void BatchRecalculateWithArgs(cString cur_string);
   void BatchRename(cString cur_string);
-  void CloseFile(cString cur_string);
   void PrintStatus(cString cur_string);
   void PrintDebug(cString cur_string);
   void PrintTestInfo(cString cur_string);

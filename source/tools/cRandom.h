@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "random.hh" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2000 California Institute of Technology
  *
  */
@@ -11,15 +11,19 @@
 #ifndef cRandom_h
 #define cRandom_h
 
-#include "apto/core/Mutex.h"
-#include "apto/platform.h"
+#ifndef cMutex_h
+#include "../platform/cMutex.h"
+#endif
 
-#include <algorithm>
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 #include <ctime>
 #include <climits>
 #include <cmath>
-#include <iterator>
-#include <vector>
 
 /**
  * A versatile and fast pseudo random number generator.
@@ -29,6 +33,9 @@ template <class T> class tArray;
 
 class cRandom
 {
+#if USE_tMemTrack
+  tMemTrack<cRandom> mt;
+#endif
 protected:
   // Internal members
   int seed;
@@ -218,98 +225,38 @@ public:
    * @see cRandom::GetFullRandBinomial
    **/  
   unsigned int GetRandBinomial(const double n, const double p); // Approx
-};
 
-
-/*! This is an adaptor to make cRandom behave like a proper STL random number
- generator.
- */
-struct cRandomStdAdaptor {
-	typedef int argument_type;
-	typedef int result_type;
-	
-	cRandomStdAdaptor(cRandom& rng) : _rng(rng) { }
-	int operator()(int n) { return _rng.GetInt(n); }
-	
-	cRandom& _rng;
-};
-
-
-/*! Draw a sample (with replacement) from an input range, copying to the output range.
- */
-template <typename ForwardIterator, typename OutputIterator, typename RNG>
-void sample_with_replacement(ForwardIterator first, ForwardIterator last, OutputIterator ofirst, OutputIterator olast, RNG rng) {
-	std::size_t range = std::distance(first, last);
-	while(ofirst != olast) {
-		*ofirst = *(first+rng(range));
-		++ofirst;
-	}
-}
-
-
-#if !APTO_PLATFORM(WINDOWS)
-/*! Convenience function to assign increasing values to a range.
- */
-namespace std {
-  template <typename ForwardIterator, typename T>
-  void iota(ForwardIterator first, ForwardIterator last, T value) {
-	  while(first != last) {
-		  *first = value;
-		  ++first;
-		  ++value;
-	  }
+  /**
+   * Serialization to or from an archive.
+   **/  
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version){
+    a.ArkvObj("seed", seed);
+    a.ArkvObj("original_seed", original_seed);
+    a.ArkvObj("inext", inext);
+    a.ArkvObj("inextp", inextp);
+    a.ArkvObj("ma", ma);
+    a.ArkvObj("expRV", expRV);
   }
 };
-#endif
 
-/*! Draw a sample (without replacement) from an input range, copying to the output range.
- */
-template <typename ForwardIterator, typename OutputIterator, typename RNG>
-void sample_without_replacement(ForwardIterator first, ForwardIterator last, OutputIterator ofirst, OutputIterator olast, RNG rng) {
-	std::size_t range = std::distance(first, last);
-	std::size_t output_range = std::distance(ofirst, olast);
-	
-	// if our output range is greater in size than our input range, copy the whole thing.
-	if(output_range >= range) {
-		std::copy(first, last, ofirst);
-		return;
-	}
-	
-	std::vector<std::size_t> rmap(range);
-	std::iota(rmap.begin(), rmap.end(), 0);
-	std::random_shuffle(rmap.begin(), rmap.end());
-	
-	while(ofirst != olast) {
-		*ofirst = *(first + rmap.back());
-		++ofirst;
-		rmap.pop_back();
-	}
-}
 
-/*! Convenience function to draw samples (without replacement) from a range of values.
- */
-template <typename T, typename OutputIterator, typename RNG>
-void sample_range_without_replacement(T min, T max, OutputIterator ofirst, OutputIterator olast, RNG rng) {
-	std::size_t range = static_cast<std::size_t>(max - min);
-	std::vector<T> input(range);
-	iota(input.begin(), input.end(), min);
-	sample_without_replacement(input.begin(), input.end(), ofirst, olast, rng);
+#ifdef ENABLE_UNIT_TESTS
+namespace nRandom {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
 }
-
-	
-/*! Choose one element at random from the given range.
- */
-template <typename ForwardIterator, typename RNG>
-ForwardIterator choose(ForwardIterator first, ForwardIterator last, RNG rng) {
-	std::size_t range = std::distance(first, last);
-	return first+rng(range);
-}
+#endif  
 
 
 class cRandomMT : public cRandom
 {
 private:
-  Apto::Mutex m_mutex;
+  cMutex m_mutex;
   
   unsigned int Get();
 

@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Created by David on 3/29/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -31,11 +34,11 @@
 #ifndef tList_h
 #include "tList.h"
 #endif
-#ifndef tHashMap_h
-#include "tHashMap.h"
+#ifndef tHashTable_h
+#include "tHashTable.h"
 #endif
-#ifndef tSmartArray_h
-#include "tSmartArray.h"
+#ifndef cOrganism_h
+#include "cOrganism.h"
 #endif
 
 class cTaskEntry;
@@ -45,12 +48,13 @@ class cTaskState;
 class cTaskContext
 {
 private:
-  cOrganism* m_organism;
+  cOrgInterface* m_interface;
   const tBuffer<int>& m_input_buffer;
   const tBuffer<int>& m_output_buffer;
   const tList<tBuffer<int> >& m_other_input_buffers;
   const tList<tBuffer<int> >& m_other_output_buffers;
-  const tSmartArray<int>& m_ext_mem;
+  bool m_net_valid;
+  int m_net_completed;
   tBuffer<int>* m_received_messages;
   int m_logic_id;
   bool m_on_divide;
@@ -60,35 +64,39 @@ private:
   double m_task_value;	
 
   cTaskEntry* m_task_entry;
-  tHashMap<void*, cTaskState*>* m_task_states;
-  
+  tHashTable<void*, cTaskState*>* m_task_states;
+
+  cOrganism* m_organism;
   
 public:
-  cTaskContext(cOrganism* organism, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
+  cTaskContext(cOrgInterface* interface, const tBuffer<int>& inputs, const tBuffer<int>& outputs,
                const tList<tBuffer<int> >& other_inputs, const tList<tBuffer<int> >& other_outputs,
-               const tSmartArray<int>& ext_mem, bool in_on_divide = false,
-               tBuffer<int>* in_received_messages = NULL)
-    : m_organism(organism)
+               bool in_net_valid, int in_net_completed, bool in_on_divide = false,
+               tBuffer<int>* in_received_messages = NULL, cOrganism* org=0)
+    : m_interface(interface)
     , m_input_buffer(inputs)
     , m_output_buffer(outputs)
     , m_other_input_buffers(other_inputs)
     , m_other_output_buffers(other_outputs)
-    , m_ext_mem(ext_mem)
+    , m_net_valid(in_net_valid)
+    , m_net_completed(in_net_completed)
     , m_received_messages(in_received_messages)
     , m_logic_id(0)
     , m_on_divide(in_on_divide)
     , m_task_entry(NULL)
     , m_task_states(NULL)
+    , m_organism(org)
   {
 	  m_task_value = 0;
   }
   
-  inline cOrganism* GetOrganism() { return m_organism; }
+  inline int GetInputAt(int index) { return m_interface->GetInputAt(index); }
   inline const tBuffer<int>& GetInputBuffer() { return m_input_buffer; }
   inline const tBuffer<int>& GetOutputBuffer() { return m_output_buffer; }
   inline const tList<tBuffer<int> >& GetNeighborhoodInputBuffers() { return m_other_input_buffers; }
   inline const tList<tBuffer<int> >& GetNeighborhoodOutputBuffers() { return m_other_output_buffers; }
-  inline const tSmartArray<int>& GetExtendedMemory() const { return m_ext_mem; }
+  inline bool NetIsValid() const { return m_net_valid; }
+  inline int GetNetCompleted() const { return m_net_completed; }
   inline tBuffer<int>* GetReceivedMessages() { return m_received_messages; }
   inline int GetLogicId() const { return m_logic_id; }
   inline void SetLogicId(int v) { m_logic_id = v; }
@@ -98,8 +106,10 @@ public:
   
   inline void SetTaskEntry(cTaskEntry* in_entry) { m_task_entry = in_entry; }
   inline cTaskEntry* GetTaskEntry() { return m_task_entry; }
-    
-  inline void SetTaskStates(tHashMap<void*, cTaskState*>* states) { m_task_states = states; }
+  
+  inline void SetTaskStates(tHashTable<void*, cTaskState*>* states) { m_task_states = states; }
+
+  inline cOrganism* GetOrganism() { return m_organism; }
   
   inline cTaskState* GetTaskState()
   {
@@ -107,7 +117,19 @@ public:
     m_task_states->Find(m_task_entry, ret);
     return ret;
   }
-  inline void AddTaskState(cTaskState* value) { m_task_states->Set(m_task_entry, value); }
+  inline void AddTaskState(cTaskState* value) { m_task_states->Add(m_task_entry, value); }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTaskContext {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

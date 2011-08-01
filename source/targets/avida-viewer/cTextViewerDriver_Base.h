@@ -2,43 +2,47 @@
  *  cTextViewerDriver_Base.h
  *  Avida
  *
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cTextViewerDriver_Base_h
 #define cTextViewerDriver_Base_h
 
-#include "avida/core/WorldDriver.h"
+#ifndef cAvidaDriver_h
+#include "cAvidaDriver.h"
+#endif
+
+#ifndef cWorldDriver_h
+#include "cWorldDriver.h"
+#endif
 
 #include <sstream>
 #include <iostream>
 
-class cAvidaContext;
 class cView_Base;
 class cWorld;
 
-using namespace Avida;
-
-
-class cTextViewerDriver_Base : public WorldDriver {
+class cTextViewerDriver_Base : public cAvidaDriver, public cWorldDriver {
 protected:
   cWorld* m_world;
   cView_Base* m_view;
   bool m_done;  // This is set to true when run should finish.
-  bool m_pause;
 
   std::stringstream out_stream;
   std::stringstream err_stream;
@@ -52,9 +56,7 @@ public:
   bool IsInteractive() { return true; }
   void Flush();
 
-  bool ProcessKeypress(cAvidaContext& ctx, int keypress);
-
-  virtual void Run() = 0;
+  bool ProcessKeypress(int keypress);
 };
 
 #endif

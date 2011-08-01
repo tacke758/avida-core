@@ -1,6 +1,3 @@
-#instset experimental
-#hw_type 3
-
 h-alloc    # Allocate space for child
 h-search   # Locate the end of the organism
 nop-D      #

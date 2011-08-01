@@ -3,7 +3,7 @@
  *  Avida
  *
  *  Called "data_manager_base.cc" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2001 California Institute of Technology
  *
  */
@@ -52,6 +52,7 @@ bool cDataManager_Base::PrintRow(cDataFile& data_file, cString row_entries, char
       }
       data_file.WriteColumnDesc(cur_desc);
     }
+    data_file.FlushComments();
     data_file.Endl();
   }
   

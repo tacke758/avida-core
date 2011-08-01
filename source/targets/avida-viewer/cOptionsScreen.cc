@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void cOptionsScreen::Draw(cAvidaContext& ctx)
+void cOptionsScreen::Draw()
 {
   // Options - Used: ABCEIMOPQRSVWZ
 
@@ -54,7 +54,7 @@ void cOptionsScreen::Draw(cAvidaContext& ctx)
   PrintOption(Height() - 3, 30, "[CTRL-L] Redraw Screen");
   PrintOption(Height() - 2, 30, "[C]hoose New CPU");
 
-  PrintOption(Height() - 6, 55, "E[x]tract Organism");
+  PrintOption(Height() - 6, 55, "E[x]tract Creature");
   PrintOption(Height() - 5, 55, "[W]rite Soup Clone");
   if (info.GetPauseLevel()) {
     PrintOption(Height() - 4, 55, "Un-[P]ause");
@@ -108,16 +108,16 @@ void cOptionsScreen::Draw(cAvidaContext& ctx)
   }
 
   switch(info.GetConfig().BIRTH_METHOD.Get()) {
-  case POSITION_OFFSPRING_AGE:
+  case POSITION_CHILD_AGE:
     Print(4, 55, "Replace max age");
     break;
-  case POSITION_OFFSPRING_MERIT:
+  case POSITION_CHILD_MERIT:
     Print(4, 55, "Replace max age/merit");
     break;
-  case POSITION_OFFSPRING_RANDOM:
+  case POSITION_CHILD_RANDOM:
     Print(4, 55, "Replace random");
     break;
-  case POSITION_OFFSPRING_EMPTY:
+  case POSITION_CHILD_EMPTY:
     Print(4, 55, "Place in empty only");
     break;
   }
@@ -132,12 +132,12 @@ void cOptionsScreen::Draw(cAvidaContext& ctx)
 
   SetColor(COLOR_WHITE);
 
-  Update(ctx);
+  Update();
   Refresh();
 }
 
 
-void cOptionsScreen::Update(cAvidaContext& ctx)
+void cOptionsScreen::Update()
 {
   if (info.GetActiveCell() == NULL)
     info.SetActiveCell( &(info.GetPopulation().GetCell(0)) );

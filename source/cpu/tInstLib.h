@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Called "tInstLib.hh" prior to 6/4/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -44,14 +47,14 @@ private:
 
 public:
   tInstLib(int size, const tInstLibEntry<MethodType>* entries, cString* nopmod_names, const int* nopmods,
-           const MethodType* functions, int def, int null_inst)
-  : cInstLib(size, def, null_inst), m_entries(entries), 
+           const MethodType* functions, const cInstruction error, const cInstruction def, const cInstruction null_inst)
+  : cInstLib(size, error, def, null_inst), m_entries(entries), 
     m_nopmod_names(nopmod_names),
     m_nopmods(nopmods),
     m_functions(functions)
   {
     // Fill out cInstLib::m_namemap dictionary with instruction name to entry index mappings
-    for(int i = 0; i < m_size; i++) m_namemap.Set(m_entries[i].GetName(), i);
+    for(int i = 0; i < m_size; i++) m_namemap.Add(m_entries[i].GetName(), i);
   }
   
   const MethodType* GetFunctions() const { return m_functions; } 

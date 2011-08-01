@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "task_lib.hh" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -38,7 +41,6 @@
 #ifndef cStats_h
 #include "cStats.h"
 #endif
-
 
 
 class cEnvReqs;
@@ -75,42 +77,25 @@ public:
 
   int GetSize() const { return task_array.GetSize(); }
 
-  cTaskEntry* AddTask(const cString& name, const cString& info, cEnvReqs& envreqs, Feedback& feedback);
+  cTaskEntry* AddTask(const cString& name, const cString& info, cEnvReqs& envreqs, tList<cString>* errors);
   const cTaskEntry& GetTask(int id) const { return *(task_array[id]); }
-  cTaskEntry * GetTaskReference(int id) { return task_array[id]; }
-
+  
   void SetupTests(cTaskContext& ctx) const;
   inline double TestOutput(cTaskContext& ctx) const { return (this->*(ctx.GetTaskEntry()->GetTestFun()))(ctx); }
 
   bool UseNeighborInput() const { return use_neighbor_input; }
   bool UseNeighborOutput() const { return use_neighbor_output; }
-	
-	// Get the strings that parameterize the MatchString tasks
-	vector<cString> GetMatchStrings(); 
-	cString GetMatchString(int x);
-	int GetNumberOfMatchStrings() { return m_strings.size(); } 
-
-private: 
-	// Store the strings used by the MatchString tasks
-	vector<cString> m_strings; 
   
   
-private:
-  
-  void NewTask(const cString& name, const cString& desc, tTaskTest task_fun, int reqs = 0, cArgContainer* args = NULL);
+private:  // Direct task related methods
+  void NewTask(const cString& name, const cString& desc, tTaskTest task_fun, int reqs = 0,
+               cArgContainer* args = NULL);
 
   inline double FractionalReward(unsigned int supplied, unsigned int correct);  
 
-  // All tasks must be declared here, taking a cTaskContext reference as the sole input and
-  // returning a double between 0.0 and 1.0 indicating the quality of how well the task was
-  // performed.
-
-  // Basic Tasks
   double Task_Echo(cTaskContext& ctx) const;
   double Task_Add(cTaskContext& ctx) const;
-  double Task_Add3(cTaskContext& ctx) const;
   double Task_Sub(cTaskContext& ctx) const;
-  double Task_DontCare(cTaskContext& ctx) const;
 
   // All 1- and 2-Input Logic Functions
   double Task_Not(cTaskContext& ctx) const;
@@ -123,11 +108,6 @@ private:
   double Task_Xor(cTaskContext& ctx) const;
   double Task_Equ(cTaskContext& ctx) const;
 
-	// resource dependent
-	double Task_Nand_ResourceDependent(cTaskContext& ctx) const;
-	double Task_Nor_ResourceDependent(cTaskContext& ctx) const;
-			
-	
   // All 3-Input Logic Functions
   double Task_Logic3in_AA(cTaskContext& ctx) const;
   double Task_Logic3in_AB(cTaskContext& ctx) const;
@@ -256,42 +236,38 @@ private:
   double Task_Math3in_AM(cTaskContext& ctx) const;
   
   // Matching Tasks
-  void Load_MatchStr(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_MatchStr(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_MatchStr(cTaskContext& ctx) const;
-	void Load_MatchProdStr(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-  double Task_MatchProdStr(cTaskContext& ctx) const;
-  void Load_MatchNumber(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_MatchNumber(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_MatchNumber(cTaskContext& ctx) const;
 
-  // Sequence Tasks
-  void Load_SortInputs(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_SortInputs(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_SortInputs(cTaskContext& ctx) const;
-  void Load_FibonacciSequence(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_FibonacciSequence(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_FibonacciSequence(cTaskContext& ctx) const;
+  
+   // Optimization Tasks
+  void Load_Optimize(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
+  double Task_Optimize(cTaskContext& ctx) const;
 
-  // Math Tasks
-  void Load_Mult(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Mult(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Mult(cTaskContext& ctx) const;
-  void Load_Div(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Div(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Div(cTaskContext& ctx) const;
-  void Load_Log(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Log(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Log(cTaskContext& ctx) const;
-  void Load_Log2(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Log2(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Log2(cTaskContext& ctx) const;
-  void Load_Log10(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Log10(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Log10(cTaskContext& ctx) const;
-  void Load_Sqrt(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Sqrt(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Sqrt(cTaskContext& ctx) const;
-  void Load_Sine(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Sine(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Sine(cTaskContext& ctx) const;
-  void Load_Cosine(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
+  void Load_Cosine(const cString& name, const cString& argstr, cEnvReqs& envreqs, tList<cString>* errors);
   double Task_Cosine(cTaskContext& ctx) const;
 
-  // Optimization Tasks
-  void Load_Optimize(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-  double Task_Optimize(cTaskContext& ctx) const;
-  
-  
+
   // Communication Tasks
   double Task_CommEcho(cTaskContext& ctx) const;
   double Task_CommNot(cTaskContext& ctx) const;
@@ -299,54 +275,20 @@ private:
   // Network Tasks
   double Task_NetSend(cTaskContext& ctx) const;
   double Task_NetReceive(cTaskContext& ctx) const;
-
-  // Movement tasks (temp, rely on hack)
-  double Task_MoveUpGradient(cTaskContext& ctx) const;
-  double Task_MoveNeutralGradient(cTaskContext& ctx) const;
-  double Task_MoveDownGradient(cTaskContext& ctx) const;
-  double Task_MoveNotUpGradient(cTaskContext& ctx) const;
-  double Task_MoveToRightSide(cTaskContext& ctx) const;
-  double Task_MoveToLeftSide(cTaskContext& ctx) const;
-
-  // BDC Movement tasks
-  double Task_Move(cTaskContext& ctx) const;
-  double Task_MoveToTarget(cTaskContext& ctx) const;
-  double Task_MoveToMovementEvent(cTaskContext& ctx) const;
-  double Task_MoveBetweenMovementEvent(cTaskContext& ctx) const;
-
-  // movement
-  double Task_MoveToEvent(cTaskContext& ctx) const;
-  double Task_EventKilled(cTaskContext& ctx) const;
-
-  // State Grid Tasks
-  void Load_SGPathTraversal(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-  double Task_SGPathTraversal(cTaskContext& ctx) const;  
-	
-	// reputation
-	double Task_CreatePerfectStrings(cTaskContext& ctx) const; 
-	
-	// group formation 
-	void Load_FormSpatialGroup(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_FormSpatialGroup(cTaskContext& ctx) const; 
-	void Load_FormSpatialGroupWithID(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_FormSpatialGroupWithID(cTaskContext& ctx) const; 
-	void Load_LiveOnPatchRes(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_LiveOnPatchRes(cTaskContext& ctx) const; 
-	
-	// String Matching Tasks
-	void Load_AllOnes(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_AllOnes(cTaskContext& ctx) const;
-	void Load_RoyalRoad(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_RoyalRoad(cTaskContext& ctx) const;
-	void Load_RoyalRoadWithDitches(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_RoyalRoadWithDitches(cTaskContext& ctx) const;
-	
-	// division of labor
-	void Load_OpinionIs(const cString& name, const cString& argstr, cEnvReqs& envreqs, Feedback& feedback);
-	double Task_OpinionIs(cTaskContext& ctx) const;
-	
-
-	
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTaskLib {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
+
+
 
 #endif

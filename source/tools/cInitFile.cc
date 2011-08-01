@@ -3,28 +3,28 @@
  *  Avida
  *
  *  Called "init_file.cc" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cInitFile.h"
 
-#include "apto/core/FileSystem.h"
-
-#include "AvidaTools.h"
 #include "cFile.h"
 #include "cStringIterator.h"
 
@@ -32,64 +32,52 @@
 using namespace std;
 
 
-cInitFile::cInitFile(const cString& filename, const cString& working_dir, Feedback& feedback,
-                     const Apto::Set<cString>* custom_directives)
-: m_filename(filename), m_found(false), m_opened(false), m_ftype("unknown")
+cInitFile::cInitFile(const cString& filename) : m_filename(filename), m_ftype("unknown")
 {
   tSmartArray<sLine*> lines;
-  m_opened = loadFile(filename, lines, working_dir, custom_directives, feedback);
-  postProcess(lines);
+  m_opened = LoadFile(filename, lines);
+  PostProcess(lines);
 }
 
-cInitFile::cInitFile(const cString& filename, const cString& working_dir, const Apto::Set<cString>* custom_directives)
-  : m_filename(filename), m_found(false), m_opened(false), m_ftype("unknown")
+cInitFile::cInitFile(const cString& filename, const tDictionary<cString>& mappings)
+  : m_filename(filename), m_ftype("unknown")
 {
+  InitMappings(mappings);
   tSmartArray<sLine*> lines;
-  m_opened = loadFile(filename, lines, working_dir, custom_directives, m_feedback);
-  postProcess(lines);
-}
-
-cInitFile::cInitFile(const cString& filename, const tDictionary<cString>& mappings, const cString& working_dir)
-  : m_filename(filename), m_found(false), m_opened(false), m_ftype("unknown")
-{
-  initMappings(mappings);
-  tSmartArray<sLine*> lines;
-  m_opened = loadFile(filename, lines, working_dir, NULL, m_feedback);
-  postProcess(lines);
+  m_opened = LoadFile(filename, lines);
+  PostProcess(lines);
 }
 
 
-cInitFile::cInitFile(istream& in_stream, const cString& working_dir)
-  : m_filename("(stream)"), m_found(false), m_opened(false), m_ftype("unknown")
+cInitFile::cInitFile(istream& in_stream) : m_filename("(stream)"), m_ftype("unknown")
 {
   if (in_stream.good() == false) {
-    m_feedback.Error("bad stream, unable to process.");
+    m_errors.PushRear(new cString("Bad stream, unable to process."));
     m_opened = false;
     return;
   }
   
   tSmartArray<sLine*> lines;
   
+  char cur_line[MAX_STRING_LENGTH];
+  in_stream.getline(cur_line, MAX_STRING_LENGTH);
+  
+  if (!in_stream && !strlen(cur_line)) return;
+  
   int linenum = 1;
-  std::string linebuf;
-  while (std::getline(in_stream, linebuf)) {
-    cString cur_line(linebuf.c_str());
-    if (cur_line[0] == '#') processCommand(cur_line, lines, m_filename, linenum, working_dir, NULL, m_feedback);
-    else lines.Push(new sLine(cur_line, m_filename, linenum));    
+  while (in_stream) {
+    if (cur_line[0] == '#' && cur_line[1] == '!') ProcessCommand(cur_line, lines, m_filename, linenum);
+    else lines.Push(new sLine(cur_line, m_filename, linenum));
+    
+    in_stream.getline(cur_line, MAX_STRING_LENGTH);
     linenum++;
   }
   
-  postProcess(lines);
+  PostProcess(lines);
 }
 
 
-cInitFile::~cInitFile()
-{
-  for (int i = 0; i < m_lines.GetSize(); i++) delete m_lines[i];
-}
-
-
-void cInitFile::initMappings(const tDictionary<cString>& mappings)
+void cInitFile::InitMappings(const tDictionary<cString>& mappings)
 {
   tList<cString> names;
   mappings.GetKeys(names);
@@ -98,22 +86,18 @@ void cInitFile::initMappings(const tDictionary<cString>& mappings)
   while (names_it.Next() != NULL) {
     cString* name = names_it.Get();
     cString value;
-    if (mappings.Find(*name, value)) m_mappings.Set(*name, value);
+    if (mappings.Find(*name, value)) m_mappings.Add(*name, value);
   }
 }
 
 
-bool cInitFile::loadFile(const cString& filename, tSmartArray<sLine*>& lines, const cString& working_dir,
-                         const Apto::Set<cString>* custom_directives, Feedback& feedback)
+bool cInitFile::LoadFile(const cString& filename, tSmartArray<sLine*>& lines)
 {
-  cString path = cString(Apto::FileSystem::GetAbsolutePath(Apto::String(filename), Apto::String(working_dir))); 
-  cFile file(path);
+  cFile file(filename);
   if (!file.IsOpen()) {
-    feedback.Error("unable to open file '%s'.", (const char*)filename);
+    m_errors.PushRear(new cString(cStringUtil::Stringf("Unable to open file '%s'.", (const char*)filename)));
     return false;   // The file must be opened!
   }
-  
-  m_found = true;
   
   cStringList line_list;   // Create a list to load all of the lines into.
 
@@ -122,8 +106,8 @@ bool cInitFile::loadFile(const cString& filename, tSmartArray<sLine*>& lines, co
   while (!file.Eof() && file.ReadLine(buf)) {
     linenum++;
 
-    if (buf.GetSize() && buf[0] == '#') {
-      if (!processCommand(buf, lines, filename, linenum, working_dir, custom_directives, feedback)) return false;
+    if (buf.GetSize() > 1 && buf[0] == '#' && buf[1] == '!') {
+      if (!ProcessCommand(buf, lines, filename, linenum)) return false;
     } else {
       lines.Push(new sLine(buf, filename, linenum));
     }
@@ -134,85 +118,35 @@ bool cInitFile::loadFile(const cString& filename, tSmartArray<sLine*>& lines, co
 }
 
 
-bool cInitFile::processCommand(cString cmdstr, tSmartArray<sLine*>& lines, const cString& filename, int linenum,
-                               const cString& working_dir, const Apto::Set<cString>* custom_directives, Feedback& feedback)
+bool cInitFile::ProcessCommand(cString cmdstr, tSmartArray<sLine*>& lines, const cString& filename, int linenum)
 {
   cString cmd = cmdstr.PopWord();
   
-  if (cmd == "#include" || cmd == "#import") {
-    cString path = cmdstr.PopWord();
-    cString mapping;
-    
-    // Grab mapping name, if specified
-    if (path.Find('=') >= 0) {
-      mapping = path.Pop('=');
-    }
-    
-    // Strip quotes
-    if (path[0] == '<' || path[0] == '"') {
-      int lidx = path.GetSize() - 1;
-      if ((path[0] == '"' && path[lidx] != '"') || (path[0] == '<' && path[lidx] != '>')) {
-        feedback.Error("%s:%d: syntax error processing include directive", (const char*)filename, linenum);
-        return false;
-      }
-      path = path.Substring(1, path.GetSize() - 2);
-    }
-    
-    // Handle mapping, if specified
-    if (mapping.GetSize()) m_mappings.Find(mapping, path);
-    
-    if (cmd != "#import" || !m_imported_files.HasString(path)) {
-      // Attempt to include the specified file
-      if (!loadFile(path, lines, working_dir, custom_directives, feedback)) {
-        feedback.Error("%s:%d: unable to process include directive", (const char*)filename, linenum);
-        return false;
-      }
-    }
-  } else if (cmd == "#filetype") {
-    cString ft = cmdstr.PopWord();
-    if (m_ftype != "unknown" && m_ftype != ft) {
-      feedback.Error("%s:%d: duplicate filetype directive", (const char*)filename, linenum);
-      return false;
-    }
-    m_ftype = ft;
-  } else if (cmd == "#format") {
-    if (m_format.GetSize() != 0) {
-      feedback.Error("%s:%d: duplicate format directive", (const char*)filename, linenum);
-      return false;
-    }
-    m_format.Load(cmdstr);
-  } else if (cmd == "#define") {
+  if (cmd == "#!include") {
+    cString dir = cmdstr.PopWord();
     cString mapping = cmdstr.PopWord();
-    if (mapping.GetSize()) {
-      cString value = cmdstr.PopWord();
-      value.Trim();
-      
-      if (value.GetSize()) {
-        m_mappings.Set(mapping, value);
-      } else {
-        m_mappings.Remove(mapping);
-      }
-    } else {
-      feedback.Error("%s:%d: invalid define directive", (const char*)filename, linenum);      
-      return false;
-    }
-  } else if (custom_directives) {
-    for (Apto::Set<cString>::ConstIterator it = custom_directives->Begin(); it.Next();) {
-      if (cmd == (cString("#") + *it.Get())) {
-        m_custom_directives.Set(*it.Get(), cmdstr);
-        break;
-      }
-    }
+    if (mapping.GetSize()) m_mappings.Find(mapping, dir);
+    bool success = LoadFile(dir, lines);
+    if (!success) m_errors.PushRear(new cString(cStringUtil::Stringf("%f:%d: Unable to process include directive.",
+                                                                     (const char*)filename, linenum)));
+    return success;
   }
   
-  return true;
+  m_errors.PushRear(new cString("Unrecognized processing directive."));
+  return false;
 }
 
 
-void cInitFile::postProcess(tSmartArray<sLine*>& lines)
+void cInitFile::PostProcess(tSmartArray<sLine*>& lines)
 {
-  m_mappings.Clear();
-  m_imported_files.Clear();
+  if (lines.GetSize() >= 2) {
+    cString type_line = lines[0]->line;
+    cString format_line = lines[1]->line;
+    
+    if (type_line.PopWord() == "#filetype") m_ftype = type_line.PopWord();
+    if (format_line.PopWord() == "#format") m_format.Load(format_line);
+  }
+
   
   // We're going to handle this compression in multiple passes to make it
   // clean and easy.
@@ -270,7 +204,6 @@ void cInitFile::postProcess(tSmartArray<sLine*>& lines)
   // Resize the internal line structure and move the line structs to it
   m_lines.Resize(next_id);
   for (int i = 0; i < next_id; i++) m_lines[i] = lines[i];
-  for (int i = next_id; i < num_lines; i++) delete lines[i];
 }
 
 
@@ -297,19 +230,6 @@ cString cInitFile::GetLine(int line_num)
   return m_lines[line_num]->line;
 }
 
-tDictionary<cString>* cInitFile::GetLineAsDict(int line_num)
-{
-  tDictionary<cString>* dict = new tDictionary<cString>;
-  
-  cStringList fmt = m_format;
-  cStringList line;
-  if (line_num >= 0 && line_num < m_lines.GetSize()) line.Load(m_lines[line_num]->line);  
-  
-  while (fmt.GetSize() && line.GetSize()) dict->Set(fmt.Pop(), line.Pop());
-  
-  return dict;
-}
-
 
 bool cInitFile::Find(cString& in_string, const cString& keyword, int col) const
 {
@@ -332,7 +252,7 @@ bool cInitFile::Find(cString& in_string, const cString& keyword, int col) const
 }
 
 
-cString cInitFile::ReadString(const cString& name, cString def, bool warn_default) const
+cString cInitFile::ReadString(const cString& name, cString def) const
 {
   // See if we definately can't find the keyword.
   if (name == "") return def;
@@ -340,36 +260,8 @@ cString cInitFile::ReadString(const cString& name, cString def, bool warn_defaul
   // Search for the keyword.
   cString cur_line;
   if (Find(cur_line, name, 0) == false) {
-    if (warn_default) {
-      m_feedback.Error("%s not in '%s', defaulting to: %s", (const char*)name, (const char*)m_filename, (const char*)def);
-    }
-    return def;
-  }
-
-  // Pop off the keyword, and return the remainder of the line.
-  cur_line.PopWord();
-  return cur_line;
-}
-
-
-cString cInitFile::ReadString(const tArray<cString>& names, cString def, bool warn_default) const
-{
-  const int num_names = names.GetSize();
-  if (num_names == 0) return def;
-  if (num_names == 1) return ReadString(names[0], def, warn_default);
-
-  // Search for the keyword.
-  cString cur_line;
-  bool found = false;
-  for (int i = 0; i < num_names; i++) {
-    if (Find(cur_line, names[i], 0) == true) {
-      found = true;
-      break;
-    }
-  }
-
-  if (found == false) {
-    m_feedback.Warning("%s not in '%s', defaulting to: %s", (const char*) names[0], (const char*)m_filename, (const char*)def);
+    m_errors.PushRear(new cString(cStringUtil::Stringf("%s not in '%s', defaulting to: %s",
+                                                       (const char*)name, (const char*)m_filename, (const char*)def)));
     return def;
   }
 
@@ -387,9 +279,11 @@ bool cInitFile::WarnUnused() const
     if (m_lines[i]->used == false) {
       if (found == false) {
         found = true;
-        m_feedback.Warning("unknown lines in input file '%s'.", (const char*)m_filename);
+        m_errors.PushRear(new cString(cStringUtil::Stringf("Unknown lines in input file '%s'.", (const char*)m_filename)));
       }
-      m_feedback.Notify("  %s:%d: %s", (const char*)m_lines[i]->file, m_lines[i]->line_num, (const char*)m_lines[i]->line);
+      m_errors.PushRear(new cString(cStringUtil::Stringf("  %s:%d: %s",
+                                                         (const char*)m_lines[i]->file, m_lines[i]->line_num,
+                                                         (const char*)m_lines[i]->line)));
     }
   }
   

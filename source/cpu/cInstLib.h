@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "inst_lib_base.hh" prior to 12/5/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -42,16 +45,19 @@ protected:
   const int m_size;
   tDictionary<int> m_namemap;
 
-  int m_inst_default;
-  int m_inst_null;
+  const cInstruction m_inst_error;
+  const cInstruction m_inst_default;
+  const cInstruction m_inst_null;
   
   cInstLib(); // @not_implemented
   
 public:
-  cInstLib(int size, int inst_default, int inst_null)
-    : m_size(size), m_inst_default(inst_default), m_inst_null(inst_null) { ; }
+  cInstLib(int size, const cInstruction inst_error, const cInstruction inst_default, const cInstruction inst_null)
+    : m_size(size), m_inst_error(inst_error), m_inst_default(inst_default), m_inst_null(inst_null) { ; }
   virtual ~cInstLib() { ; }
 
+  inline bool operator==(const cInstLib& _in) const;
+  
   inline int GetSize() const { return m_size; }
 
   virtual const cInstLibEntry& Get(int i) const = 0;
@@ -65,13 +71,11 @@ public:
   virtual int GetNopMod(const unsigned int id) = 0;
   virtual int GetNopMod(const cInstruction& inst) = 0;
   
+  inline cInstruction GetInst(const cString& name);
 
-  int GetInstDefault() const { return m_inst_default; }
-  int GetInstNull() const { return m_inst_null; }
-
-private:
-    inline cInstruction GetInst(const cString& name);
-
+  const cInstruction GetInstError() const { return m_inst_error; }
+  const cInstruction GetInstDefault() const { return m_inst_default; }
+  const cInstruction GetInstNull() const { return m_inst_null; }
 };
 
 
@@ -86,8 +90,15 @@ inline cInstruction cInstLib::GetInst(const cString& name)
 {
   int idx;
   if (m_namemap.Find(name, idx)) return cInstruction(idx);
-  return cInstruction(255);
+  return m_inst_error;
 }
 
+inline bool cInstLib::operator==(const cInstLib& _in) const{
+  return (m_size         ==  _in.m_size && 
+          m_namemap      ==  _in.m_namemap &&
+          m_inst_error   ==  _in.m_inst_error &&
+          m_inst_default ==  _in.m_inst_default &&
+          m_inst_null    ==  _in.m_inst_null);
+}
 
 #endif

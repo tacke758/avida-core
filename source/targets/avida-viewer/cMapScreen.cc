@@ -7,6 +7,7 @@
 
 #include "cMapScreen.h"
 
+#include "cGenotype.h"
 #include "cPopulation.h"
 #include "cPopulationCell.h"
 
@@ -29,14 +30,13 @@ cMapScreen::~cMapScreen()
 {
 }
 
-void cMapScreen::Draw(cAvidaContext& ctx)
+void cMapScreen::Draw()
 {
   CenterActiveCPU();
-  Update(ctx);
+  Update();
  
 }
-
-void cMapScreen::Update(cAvidaContext& ctx)
+void cMapScreen::Update()
 {
   // Get working in multiple modes!!
 
@@ -45,6 +45,8 @@ void cMapScreen::Update(cAvidaContext& ctx)
   const int name_x = Width() - 20;
   const int name_y = Height() - 1;
   if (info.GetMapMode() == MAP_BASIC)           Print(name_y, name_x, " Genotype View ");
+  else if (info.GetMapMode() == MAP_SPECIES)    Print(name_y, name_x, " Species View  ");
+  else if (info.GetMapMode() == MAP_COMBO)      Print(name_y, name_x, "  Combo View   ");
   else if (info.GetMapMode() == MAP_INJECT)     Print(name_y, name_x, " Modified View ");
   else if (info.GetMapMode() == MAP_RESOURCE)   Print(name_y, name_x, " Resource View ");
   else if (info.GetMapMode() == MAP_AGE)        Print(name_y, name_x, "   Age View    ");
@@ -96,42 +98,45 @@ void cMapScreen::Update(cAvidaContext& ctx)
 }
 
 
-void cMapScreen::DoInput(cAvidaContext& ctx, int in_char)
+void cMapScreen::DoInput(int in_char)
 {
   switch(in_char) {
   case '2':
   case KEY_DOWN:
     corner_id += x_size;
     corner_id %= population.GetSize();
-    Update(ctx);
+    Update();
     break;
   case '8':
   case KEY_UP:
     corner_id -= x_size;
     if (corner_id < 0) corner_id += population.GetSize();
-    Update(ctx);
+    Update();
     break;
   case '6':
   case KEY_RIGHT:
     corner_id++;
     if (corner_id == population.GetSize()) corner_id = 0;
-    Update(ctx);
+    Update();
     break;
   case '4':
   case KEY_LEFT:
     corner_id--;
     if (corner_id < 0) corner_id += population.GetSize();
-    Update(ctx);
+    Update();
     break;
   case '>':
   case '.':
     info.IncMapMode();
-    Update(ctx);
+    //++map_mode %= NUM_MAPS;
+    Update();
     break;
   case '<':
   case ',':
     info.DecMapMode();
-    Update(ctx);
+    //map_mode += NUM_MAPS;
+    //--map_mode %= NUM_MAPS;
+    Update();
     break;
   }
 }
@@ -188,7 +193,7 @@ void cMapScreen::CenterYCoord()
   corner_id = corner_y * x_size + corner_x;
 }
 
-void cMapScreen::PlaceCursor(cAvidaContext& ctx)
+void cMapScreen::PlaceCursor()
 {
   int x_offset = info.GetActiveID() - corner_id;
   x_offset %= x_size;
@@ -197,7 +202,7 @@ void cMapScreen::PlaceCursor(cAvidaContext& ctx)
   int y_offset = (info.GetActiveID() / x_size) - (corner_id / x_size);
   if (y_offset < 0) y_offset += y_size;
 
-  cBioGroup* cpu_gen = info.GetActiveGenotype();
+  cGenotype * cpu_gen = info.GetActiveGenotype();
 
   if (!cpu_gen) {
     Print(Height() - 1, 33,
@@ -207,20 +212,20 @@ void cMapScreen::PlaceCursor(cAvidaContext& ctx)
     Print(Height() - 1, 33, "(%2d, %2d) - %s",
 		       info.GetActiveID() % x_size,
 		       info.GetActiveID() / x_size,
-		       static_cast<const char*>(cpu_gen->GetProperty("name").AsString()));
+		       static_cast<const char*>(cpu_gen->GetName()));
   }
 
   if (x_offset == 0 || x_offset == Width()/2 - 1) {
     CenterXCoord();
     Clear();
-    Draw(ctx);
-    PlaceCursor(ctx);
+    Draw();
+    PlaceCursor();
   }
   else if (y_offset == 0 || y_offset == Height() - 2) {
     CenterYCoord();
     Clear();
-    Draw(ctx);
-    PlaceCursor(ctx);
+    Draw();
+    PlaceCursor();
   }
   else {
     Move(y_offset, x_offset * 2);
@@ -228,17 +233,17 @@ void cMapScreen::PlaceCursor(cAvidaContext& ctx)
   }
 }
 
-void cMapScreen::Navigate(cAvidaContext& ctx)
+void cMapScreen::Navigate()
 {
   // Setup for choosing a cpu...
 
   CenterActiveCPU();
   Clear();
-  Update(ctx);
+  Update();
   Print(Height() - 1, 0, "Choose a CPU and press ENTER");
   Refresh();
 
-  PlaceCursor(ctx);
+  PlaceCursor();
 
   cPopulationCell * old_cell = info.GetActiveCell();
   int temp_cell_id;
@@ -340,7 +345,7 @@ void cMapScreen::Navigate(cAvidaContext& ctx)
     }
     if (iXMove || iYMove) {
       info.SetActiveCell( &(population.GetCell(temp_cell_id)) );
-      PlaceCursor(ctx);
+      PlaceCursor();
     }
   } // End of WHILE
 

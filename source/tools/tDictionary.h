@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Called "tDictionary.hh" prior to 10/11/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -24,10 +27,10 @@
 
 /*
  * This template is used to look up objects of the desired type by name.
- * It is essentially a wrapper around tHashMap<cString, DATA_TYPE>, with
+ * It is essentially a wrapper around tHashTable<cString, DATA_TYPE>, with
  * the addition of NearMatch().
  *
- * For details about the encapsulated methods, see tHashMap.
+ * For details about the encapsulated methods, see tHashTable.
  */
 
 #ifndef cString_h
@@ -36,45 +39,50 @@
 #ifndef cStringUtil_h
 #include "cStringUtil.h"
 #endif
-#ifndef tHashMap_h
-#include "tHashMap.h"
+#ifndef tHashTable_h
+#include "tHashTable.h"
+#endif
+
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
 #endif
 
 
-template <class T> class tDictionary
-{
+
+
+template <class T> class tDictionary {
+#if USE_tMemTrack
+  tMemTrack<tDictionary<T> > mt;
+#endif
 private:
-  tHashMap<cString, T> m_hash;
-  T m_default;
+  tHashTable<cString, T> m_hash;
 
   tDictionary(const tDictionary&); // @not_implemented
 
 
 public:
   inline tDictionary() { ; }
+  
   inline tDictionary(int in_hash_size) : m_hash(in_hash_size) { ; }
   
-  inline void SetDefault(const T& def) { m_default = def; }
+  inline bool operator==(const tDictionary<T>& _rhs) const {return m_hash == _rhs.m_hash;} 
   
-  // The following methods just call the encapsulated tHashMap
-  inline bool OK() const { return m_hash.OK(); }
-  inline int GetSize() const { return m_hash.GetSize(); }
-  inline void Set(const cString& name, T data) { m_hash.Set(name, data); }
+  // The following methods just call the encapsulated tHashTable
+  inline bool OK() { return m_hash.OK(); }
+  inline int GetSize() { return m_hash.GetSize(); }
+  inline void Add(const cString& name, T data) { m_hash.Add(name, data); }
+  inline void SetValue(const cString& name, T data) { m_hash.SetValue(name, data); }
   inline bool HasEntry(const cString& name) const { return m_hash.HasEntry(name); }
   inline bool Find(const cString& name, T& out_data) const { return m_hash.Find(name, out_data); }
-  inline T Get(const cString& name) const { T rval = m_default; m_hash.Find(name, rval); return rval; }
-  inline T GetWithDefault(const cString& name, const T& def) const;
-  inline void Remove(const cString& name) { m_hash.Remove(name); }
-  inline bool Remove(const cString& name, T& data) { return m_hash.Remove(name, data); }
-  inline void Clear() { m_hash.ClearAll(); }
+  inline T Remove(const cString& name) { return m_hash.Remove(name); }
   inline void SetHash(int _hash) { m_hash.SetTableSize(_hash); }
   inline void AsLists(tList<cString>& name_list, tList<T>& value_list) const {
     m_hash.AsLists(name_list, value_list);
   }
   inline void GetKeys(tList<cString>& names) const { m_hash.GetKeys(names); }
-  inline void GetKeys(tArray<cString>& names) const { m_hash.GetKeys(names); }
-  inline void GetValues(tList<T>& values) const { m_hash.GetValues(values); }
-  inline void GetValues(tArray<T>& values) const { m_hash.GetValues(values); }
+
   
   // This function will take an input string and load its value into the
   // dictionary; it will only work for types that cStringUtil can convert to.
@@ -89,7 +97,7 @@ public:
     SetValue(key, value);
   }
   
-  // This function has no direct implementation in tHashMap
+  // This function has no direct implementation in tHashTable
   // Grabs key/value lists, and processes the keys.
   cString NearMatch(const cString name) const {
     tList<cString> keys;
@@ -108,23 +116,20 @@ public:
     }
     return best_match;
   }
-  
-  
+
+  template<class Archive>
+  void serialize(Archive& a, const unsigned int version){
+    a.ArkvObj("m_hash", m_hash);
+  }
 };
 
-template<class T> inline T tDictionary<T>::GetWithDefault(const cString& name, const T& def) const
-{
-  T rval;
-  if (m_hash.Find(name, rval)) return rval;
-  return def;
-}
 
-
-
-template <class T> class tDictionaryNoCase
-{
+template <class T> class tDictionaryNoCase {
+#if USE_tMemTrack
+  tMemTrack<tDictionary<T> > mt;
+#endif
 private:
-  tHashMap<cString, T> m_hash;
+  tHashTable<cString, T> m_hash;
   
   // disabled copy constructor.
   tDictionaryNoCase(const tDictionaryNoCase &);
@@ -133,7 +138,7 @@ public:
   inline tDictionaryNoCase() { ; }
   inline tDictionaryNoCase(int in_hash_size) : m_hash(in_hash_size) { ; }
   
-  // The following methods just call the encapsulated tHashMap
+  // The following methods just call the encapsulated tHashTable
   inline bool OK() { return m_hash.OK(); }
   inline int GetSize() { return m_hash.GetSize(); }
   inline void SetHash(int _hash) { m_hash.SetTableSize(_hash); }
@@ -142,16 +147,15 @@ public:
   }
 
 
-  // Encapsulated tHashMap methods with No Case functionality
-  inline void Set(const cString& name, T data) { cString uname(name); uname.ToUpper(); m_hash.Set(uname, data); }
+  // Encapsulated tHashTable methods with No Case functionality
+  inline void Add(const cString& name, T data) { cString uname(name); uname.ToUpper(); m_hash.Add(uname, data); }
+  inline void SetValue(const cString& name, T data) { cString uname(name); uname.ToUpper(); m_hash.SetValue(uname, data); }
   inline bool HasEntry(const cString& name) const { cString uname(name); uname.ToUpper(); return m_hash.HasEntry(uname); }
   inline bool Find(const cString& name, T& out_data) const {
     cString uname(name); uname.ToUpper(); return m_hash.Find(uname, out_data);
   }
-  inline void Remove(const cString& name) { cString uname(name); uname.ToUpper(); m_hash.Remove(uname); }
-  inline bool Remove(const cString& name, T& data) { cString uname(name); uname.ToUpper(); return m_hash.Remove(uname, data); }
+  inline T Remove(const cString& name) { cString uname(name); uname.ToUpper(); return m_hash.Remove(uname); }
   
-  inline void Clear() { m_hash.ClearAll(); }
 
   // Fast Accessor Methods - Calling method assumes responsibility for UCasing the key
   inline bool HasEntryFast(const cString& name) const { return m_hash.HasEntry(name); }
@@ -170,7 +174,7 @@ public:
     SetValue(key, value);
   }
   
-  // This function has no direct implementation in tHashMap
+  // This function has no direct implementation in tHashTable
   // Grabs key/value lists, and processes the keys.
   cString NearMatch(const cString name) const {
     tList<cString> keys;
@@ -189,6 +193,11 @@ public:
     }
     return best_match;
   }
+  
+  template<class Archive>
+    void serialize(Archive& a, const unsigned int version){
+      a.ArkvObj("m_hash", m_hash);
+    }
 };
 
 #endif

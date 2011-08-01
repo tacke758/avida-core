@@ -3,27 +3,37 @@
  *  Avida
  *
  *  Called "file.hh" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cFile_h
 #define cFile_h
 
+#ifndef cString_h
 #include "cString.h"
+#endif
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
 
 #include <fstream>
 
@@ -36,6 +46,9 @@
 
 class cFile
 {
+#if USE_tMemTrack
+  tMemTrack<cFile> mt;
+#endif
 private:
   cFile(const cFile&); // @not_implemented
   cFile& operator=(const cFile&); // @not_implemented
@@ -89,7 +102,7 @@ public:
   /**
    * Reads the next line in the file.
    **/
-  bool ReadLine(cString& in_string);
+  bool ReadLine(cString & in_string);
   
   // Tests
   bool IsOpen() const { return is_open; }
@@ -98,6 +111,66 @@ public:
   bool Eof() const { return (fp.eof()); }
 
   void SetVerbose(bool _v=true) { verbose = _v; }
+
+  // Serialization
+public:
+  // Save to archive
+  template<class Archive>
+  void save(Archive & a, const unsigned int version) const {
+    /*
+    __is_open and __verbose are workarounds for bool-serialization bugs.
+    @kgn
+    */
+    int __is_open = (is_open == false)?(0):(1);
+    int __verbose = (verbose == false)?(0):(1);
+    a.ArkvObj("filename", filename);
+    a.ArkvObj("verbose", __verbose);
+    a.ArkvObj("is_open", __is_open);
+    a.ArkvObj("m_openmode", m_openmode);
+    if(is_open){
+      /*
+      If the file is open, record current read-position.
+      */
+      int position = fp.rdbuf()->pubseekoff(0,std::ios::cur);
+      a.ArkvObj("position", position);
+    }
+  }
+
+  // Load from archive 
+  template<class Archive>
+  void load(Archive & a, const unsigned int version){
+    /*
+    __is_open and __verbose are workarounds for bool-serialization bugs.
+    @kgn
+    */
+    int __is_open;
+    int __verbose;
+    a.ArkvObj("filename", filename);
+    a.ArkvObj("verbose", __verbose);
+    a.ArkvObj("is_open", __is_open);
+    a.ArkvObj("m_openmode", m_openmode);
+    is_open = (__is_open == 0)?(false):(true);
+    verbose = (__verbose == 0)?(false):(true);
+    if(is_open){
+      /*
+      After opening file, seek to saved read-position.
+      */
+      int position;
+      a.ArkvObj("position", position);
+      is_open = false;
+      // Only seek if open succeeds.
+      if(Open(filename, m_openmode)){
+        fp.rdbuf()->pubseekpos(position);
+      }
+    }
+  } 
+    
+  // Ask archive to handle loads and saves separately
+  template<class Archive>
+  void serialize(Archive & a, const unsigned int version){
+    a.SplitLoadSave(*this, version);
+  }
+
 };
 
 #endif

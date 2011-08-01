@@ -2,75 +2,60 @@
  *  primitive.cc
  *  Avida
  *
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
-#include "AvidaTools.h"
-
-#include "apto/core/FileSystem.h"
-#include "avida/Avida.h"
-#include "avida/util/CmdLine.h"
-
+#include "avida.h"
 #include "cAvidaConfig.h"
 #include "cDefaultAnalyzeDriver.h"
 #include "cDefaultRunDriver.h"
-#include "cUserFeedback.h"
 #include "cWorld.h"
+#include "PlatformExpert.h"
+
+using namespace std;
 
 
 int main(int argc, char * argv[])
 {
-
-  Avida::Initialize();
+  PlatformExpert::Initialize();
   
-  cout << Avida::Version::Banner() << endl;
+  Avida::PrintVersionBanner();
 
   // Initialize the configuration data...
   cAvidaConfig* cfg = new cAvidaConfig();
-  Avida::Util::ProcessCmdLineArgs(argc, argv, cfg);
+  Avida::ProcessCmdLineArgs(argc, argv, cfg);
   
-  cUserFeedback feedback;
-  cWorld* world = cWorld::Initialize(cfg, cString(Apto::FileSystem::GetCWD()), &feedback);
+  cWorld* world = new cWorld(cfg);
+  cAvidaDriver* driver = NULL;
 
-  for (int i = 0; i < feedback.GetNumMessages(); i++) {
-    switch (feedback.GetMessageType(i)) {
-      case cUserFeedback::UF_ERROR:    cerr << "error: "; break;
-      case cUserFeedback::UF_WARNING:  cerr << "warning: "; break;
-      default: break;
-    };
-    cerr << feedback.GetMessage(i) << endl;
-  }
-
-  if (!world) return -1;
-  
-  const int rand_seed = world->GetConfig().RANDOM_SEED.Get();
-  cout << "Random Seed: " << rand_seed;
-  if (rand_seed != world->GetRandom().GetSeed()) cout << " -> " << world->GetRandom().GetSeed();
-  cout << endl;
-
-  if (world->GetConfig().VERBOSITY.Get() > VERBOSE_NORMAL)
-    cout << "Data Directory: " << world->GetDataFileManager().GetTargetDir() << endl;
-
-  cout << endl;
-  
   if (world->GetConfig().ANALYZE_MODE.Get() > 0) {
-    (new cDefaultAnalyzeDriver(world, (world->GetConfig().ANALYZE_MODE.Get() == 2)))->Run();
+    driver = new cDefaultAnalyzeDriver(world, (world->GetConfig().ANALYZE_MODE.Get() == 2));
   } else {
-    (new cDefaultRunDriver(world))->Run();
+    driver = new cDefaultRunDriver(world);
   }
+
+  cout << endl;
+  
+  driver->Run();
+
+  // Exit Nicely
+  Avida::Exit(0);
   
   return 0;
 }

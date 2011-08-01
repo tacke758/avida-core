@@ -22,7 +22,7 @@ int cBarScreen::AddMenuOption(const cString option, int max_x, int cur_x)
   return cur_x+option.GetSize()+1;
 }
 
-void cBarScreen::Draw(cAvidaContext& ctx)
+void cBarScreen::Draw()
 {
   SetBoldColor(COLOR_WHITE);
 
@@ -57,7 +57,7 @@ void cBarScreen::Draw(cAvidaContext& ctx)
   Refresh();
 }
 
-void cBarScreen::Update(cAvidaContext& ctx)
+void cBarScreen::Update()
 {
   SetBoldColor(COLOR_WHITE);
   Print(1, 11, "%d", m_world->GetStats().GetUpdate());

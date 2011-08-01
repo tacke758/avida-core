@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Created by David on 12/11/05.
- *  Copyright 1999-2009 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -29,9 +32,6 @@
 class cTextViewerDriver : public cTextViewerDriver_Base
 {
 private:
-  bool m_pause;
-  bool m_firstupdate;
-  
   cTextViewerDriver();  // not implemented
   
 public:
@@ -40,8 +40,6 @@ public:
   
   void Run();
   
-  void SetPause() { m_pause = true; }
-
   // Driver Actions
   void SignalBreakpoint();
   void SetDone() { m_done = true; }
@@ -53,5 +51,17 @@ public:
   void NotifyComment(const cString& in_string);
   void NotifyWarning(const cString& in_string);
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTextViewerDriver {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

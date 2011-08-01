@@ -200,7 +200,7 @@ sub-directory is:
 <dd>
 Contains various source files that define action classes that are
 usable as schedule events and analyze commands.  Also contains
-the cActionLibrary responsible for instantiating objects based on
+the cActionLibrary responsible for instiating objects based on
 cString names.
 </dd>
 <dt><kbd style="color: #008844">analyze/</kbd></dt>
@@ -276,9 +276,9 @@ This file defines the cEnvironment object, which controls all of the
 environmental interactions in an Avida run.  It makes use of reactions, 
 resources, and tasks.
 </dd>
-<dt><kbd style="color: #000088">Genome.??</kbd></dt>
+<dt><kbd style="color: #000088">cGenome.??</kbd></dt>
 <dd>
-The Genome object maintains of a sequence of objects of class cInstruction.
+The cGenome object maintains of a sequence of objects of class cInstruction.
 </dd>
 <dt><kbd style="color: #000088">cInstruction.??</kbd></dt>
 <dd>
@@ -389,7 +389,7 @@ instruction argument.
 </dd>
 <dt><kbd style="color: #000088">cCPUMemory.??</kbd></dt>
 <dd>
-The cCPUMemory class inherits from the Genome class, extending its
+The cCPUMemory class inherits from the cGenome class, extending its
 functionality to facilitate insertions and deletions.	It also associates
 flags with each instruction in the genome to mark if they have been
 executed, copied, mutated, etc.
@@ -487,7 +487,7 @@ over a normal list.
 <dd>
 Contains a bunch of static methods to manipulate and compare strings.
 </dd>
-<dt><kbd style="color: #000088">AvidaTools.h</kbd></dt>
+<dt><kbd style="color: #000088">functions.h</kbd></dt>
 <dd>
 Some useful math functions such as Min, Max, and Log.
 </dd>
@@ -539,6 +539,13 @@ the unnecessary copying of large objects.
 <dt><kbd style="color: #000088">tMatrix.h</kbd></dt>
 <dd>
 A fixed size matrix template with arbitrary indexing.
+</dd>
+<dt><kbd style="color: #000088">tMemTrack.h</kbd></dt>
+<dd>
+This is a template that can be put over any class or data type to keep
+track of it.  If all creations of objects in the class are done through
+this template rather than (or in conjunction with) "new", memory leaks
+should be detectable. This is new, and not yet used in Avida.
 </dd>
 <dt><kbd style="color: #000088">tSmartArray.h</kbd></dt>
 <dd>

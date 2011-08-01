@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "tDataEntryCommand.hh" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -26,41 +29,41 @@
 #include <iostream>
 
 #ifndef cFlexVar_h
-#include "cFlexVar.h"
+#define "cFlexVar.h"
 #endif
 
 #ifndef cStringList_h
 #include "cStringList.h"
 #endif
 
-#ifndef tDataEntry_h
-#include "tDataEntry.h"
+#ifndef tDataEntryBase_h
+#include "tDataEntryBase.h"
 #endif
 
 class cString;
 
 
-template <class T> class tDataEntryCommand
-{
+template <class T> class tDataEntryCommand {
 private:
-  tDataEntry<T>* m_data_entry;
-  cFlexVar m_idx;
-  cStringList m_args;
-  
+  tDataEntryBase<T> * data_entry;
+  cStringList args;
 public:
-  tDataEntryCommand(tDataEntry<T>* entry, const cString& idx = "", const cString& args = "")
-    : m_data_entry(entry), m_idx(idx), m_args(args, ':') { ; }
+  tDataEntryCommand(tDataEntryBase<T> * _entry, const cString & _args="")
+    : data_entry(_entry), args(_args, ':') { ; }
   
-  bool HasArg(const cString& test_arg) const { return m_args.HasString(test_arg); }
+  const cStringList & GetArgs() const { return args; }
+  bool HasArg(const cString & test_arg) { return args.HasString(test_arg); }
+
+  const cString & GetName() const { return data_entry->GetName(); }
+  const cString & GetDesc() const { return data_entry->GetDesc(); }
+  int GetCompareType() const { return data_entry->GetCompareType(); }
+  const cString & GetNull() const { return data_entry->GetNull(); }
+  const cString & GetHtmlCellFlags() const { return data_entry->GetHtmlCellFlags(); }
+  cFlexVar GetValue() const { assert(data_entry != NULL); return data_entry->Get(); }
+  cFlexVar GetValue(const T * temp_target) const { return data_entry->Get(temp_target); }
   
-  const cString& GetName() const { return m_data_entry->GetName(); }
-  cString GetDesc(const T* target) const { return m_data_entry->GetDesc(target, m_idx); }
-  int GetCompareType() const { return m_data_entry->GetCompareType(); }
-  const cString& GetNull() const { return m_data_entry->GetNull(); }
-  const cString& GetHtmlCellFlags() const { return m_data_entry->GetHtmlCellFlags(); }
-  
-  bool SetValue(T* target, const cString& value) const { return m_data_entry->Set(target, m_idx, m_args, value); }
-  cFlexVar GetValue(const T* target) const { return m_data_entry->Get(target, m_idx, m_args); }
+  void SetTarget(T * _target) { data_entry->SetTarget(_target); }
+  bool SetValue(const cString & value) { return data_entry->Set(value); }
 };
 
 #endif

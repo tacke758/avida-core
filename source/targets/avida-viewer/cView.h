@@ -35,7 +35,6 @@ class cOptionsScreen;
 class cZoomScreen;
 class cEnvironmentScreen;
 class cAnalyzeScreen;
-class cTextViewerDriver_Base;
 class cWorld;
 
 class cView : public cView_Base {
@@ -56,37 +55,37 @@ private:
 
   // Window managing functions...
 
-  void TogglePause(cAvidaContext& ctx);
+  void TogglePause();
   void CloneSoup();
   void ExtractCreature();
 
   // Input function
-  void DoInputs(cAvidaContext& ctx);
+  void DoInputs();
 
   // Screen helpers
-  void ChangeCurScreen(cAvidaContext& ctx, cScreen * new_screen);
+  void ChangeCurScreen(cScreen * new_screen);
   void PrintMerit(int in_y, int in_x, double in_merit);
   void PrintFitness(int in_y, int in_x, double in_fitness);
 
   // Map navigation
-  void NavigateMapWindow(cAvidaContext& ctx);
+  void NavigateMapWindow();
 public:
-  cView(cWorld* world, cTextViewerDriver_Base* driver);
+  cView(cWorld* world);
   virtual ~cView();
 
-  void Setup(cAvidaContext& ctx, const cString & in_name);
+  void Setup(const cString & in_name);
   void SetViewMode(int in_mode);
 
-  bool ProcessKeypress(cAvidaContext& ctx, int keypress);
+  bool ProcessKeypress(int keypress);
 
-  void NewUpdate(cAvidaContext& ctx);
-  void NotifyUpdate(cAvidaContext& ctx);
+  void NewUpdate();
+  void NotifyUpdate();
   void NotifyError(const cString & in_string);
   void NotifyWarning(const cString & in_string);
   void NotifyComment(const cString & in_string);
   void NotifyOutput(const cString & in_string);
   void Pause() { info.SetPauseLevel(PAUSE_ON); }
-  void DoBreakpoint(cAvidaContext& ctx);
+  void DoBreakpoint();
   
   int Confirm(const cString & message);
   void Notify(const cString & message);
@@ -94,12 +93,24 @@ public:
   int GetStepOrganism() { return info.GetStepOrganism(); }
   void SetStepOrganism(int in_id) { info.SetStepOrganism(in_id); }
 
-  void Refresh(cAvidaContext& ctx);
+  void Refresh();
 
   // Methods called by sub-windows.
   void Redraw();
 
   void TestDEBUG();
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nView {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

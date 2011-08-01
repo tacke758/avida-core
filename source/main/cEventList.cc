@@ -3,27 +3,29 @@
  *  Avida
  *
  *  Called "event_list.cc" prior to 12/2/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cEventList.h"
 
-#include "avida/Avida.h"
-
+#include "defs.h"
 #include "cActionLibrary.h"
 #include "cInitFile.h"
 #include "cStats.h"
@@ -42,6 +44,8 @@ const double cEventList::TRIGGER_ALL = 0.0;
 const double cEventList::TRIGGER_ONCE = DBL_MAX;
 
 
+
+
 cEventList::~cEventList()
 {
   cEventListEntry* current = NULL;
@@ -54,9 +58,9 @@ cEventList::~cEventList()
 
 
 bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
-                          double stop, const cString& name, const cString& args, Feedback& feedback)
+                          double stop, const cString& name, const cString& args)
 {
-  cAction* action = cActionLibrary::GetInstance().Create(name, m_world, args, feedback);
+  cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
   
   if (action != NULL) {
     cEventListEntry* entry = new cEventListEntry(action, name, trigger, start, interval, stop);
@@ -74,28 +78,51 @@ bool cEventList::AddEvent(eTriggerType trigger, double start, double interval,
     }
     
     SyncEvent(entry);
-		
-		if (trigger == BIRTHS_INTERRUPT)  //Operates outside of usual event processing
-			QueueBirthInterruptEvent(start);
-		
     ++m_num_events;
     return true;
   }
   
-  cerr << "error: unable to load event '" << name << "'" << endl; 
-  
   return false;
 }
 
-bool cEventList::LoadEventFile(const cString& filename, const cString& working_dir, Feedback& feedback)
+
+
+bool cEventList::AddTriggerEvent(const cString& trigger, const cString& name, const cString& args)
 {
-  cInitFile event_file(filename, working_dir);
+  eEventTrigger event = ParseEventCode(trigger);
+  cAction* action = m_world->GetActionLibrary().Create(name, m_world, args);
+  m_trigger_events.Push(new cEventTriggerEntry(action, name, event));
+  return true;
+}
+
+
+eEventTrigger cEventList::ParseEventCode(cString event)
+{
+  if (event.ToUpper() == "DEMEREPLACMENTPRE")
+    return TRIGGER_DEME_REPLACEMENT_PRE;
+  else if (event.ToUpper() == "DEMEREPLACEMENTPOST")
+    return TRIGGER_DEME_REPLACEMENT_POST;
+  else if (event.ToUpper() == "DEMECOMPETITIONPOST")
+    return TRIGGER_DEME_COMPETITION_POST;
+  else if (event.ToUpper() == "DEMECOMPETITIONFINAL")
+    return TRIGGER_DEME_COMPETITION_FINAL;
+  else if (event.ToUpper() == "OFFSPRINGACTIVATE")
+    return TRIGGER_OFFSPRING_ACTIVATE;
+  else
+    return TRIGGER_UNKNOWN;
+}
+
+
+
+bool cEventList::LoadEventFile(const cString& filename)
+{
+  cInitFile event_file(filename);
   
   if (!event_file.WasOpened()) return false;
 
   // Loop through the line_list and change the lines to events.
   for (int line_id = 0; line_id < event_file.GetNumLines(); line_id++) {
-    if (!AddEventFileFormat(event_file.GetLine(line_id), feedback)) return false;
+    AddEventFileFormat(event_file.GetLine(line_id));
   }
   
   return true;
@@ -136,11 +163,11 @@ double cEventList::GetTriggerValue(eTriggerType trigger) const
     break;
   case GENERATION:
     t_val = m_world->GetStats().SumGeneration().Average();
+      break;
+  case SEED_DISTANCE:
+    t_val = m_world->GetStats().GetSeedDistance().Average();
     break;
-  case BIRTHS_INTERRUPT:
-  case BIRTHS:
-    t_val = m_world->GetStats().GetTotCreatures();
-    break;
+  case EVENT:
   case UNDEFINED:
     break;
   }
@@ -159,15 +186,15 @@ void cEventList::Process(cAvidaContext& ctx)
     
     // Check trigger condition
     
+    if (entry->GetTrigger() == EVENT)
+      continue;
+    
     // IMMEDIATE Events always happen and are always deleted
     if (entry->GetTrigger() == IMMEDIATE) {
       entry->GetAction()->Process(ctx);
       Delete(entry);
-    } else if (entry->GetTrigger() != BIRTHS_INTERRUPT) {
-      //BIRTHS_INTERRUPT occur outside of update boundaries
-	  //and should not alter the behavior of other events.
-	  
-	  // Get the value of the appropriate trigger varile
+    } else {
+      // Get the value of the appropriate trigger variable
       t_val = GetTriggerValue(entry->GetTrigger());
       
       if (t_val != DBL_MAX &&
@@ -195,69 +222,10 @@ void cEventList::Process(cAvidaContext& ctx)
              (entry->GetStart() < entry->GetStop() && entry->GetInterval() < 0)))
             Delete(entry);
       }
-    } 
+    }  // end condition to do event
+    
     entry = next_entry;
   }
-}
-
-
-/*
-   @MRR January 2007
-   I'm adding this method to have events in the population interrupt
-   mid-update to perform an event.  Right now, the only trigger is
-   when a particular value of tot_creatures is reached (BIRTHS).  At that point
-   this method will be called.  Although these events are stored in the
-   same queue as other events, they should not be processed at an
-   update boundary.  A set of events is kept and queried prior to determine
-   when this method should be called.  Some statistic values are not available
-   since they are not processed until the end of an update.
-*/
-void cEventList::ProcessInterrupt(cAvidaContext& ctx)
-{
-	double t_val = 0; // trigger value
-	
-	// Iterate through all entrys in event list
-	cEventListEntry* entry = m_head;
-	while (entry != NULL) {
-		cEventListEntry* next_entry = entry->GetNext();
-		
-		//BIRTHS_INTERRUPT occur outside of update boundaries
-		//and should not alter the behavior of other events.
-		if (entry->GetTrigger() == BIRTHS_INTERRUPT) {
-			
-			// Get the value of the appropriate trigger varile
-			t_val = GetTriggerValue(entry->GetTrigger());
-			
-			if (t_val == entry->GetStart() ) {  //This event *must* happen at this value
-				
-				// Process the Action
-				entry->GetAction()->Process(ctx);
-				
-				// Handle Interval Adjustment
-				if (entry->GetInterval() == TRIGGER_ALL) {
-					// Do Nothing
-				} else if (entry->GetInterval() == TRIGGER_ONCE) {
-					// If it is a onetime thing, remove it...
-					Delete(entry);
-					entry = NULL;
-				} else {
-					// There is an interval.. so add it
-					entry->NextInterval();
-				}
-				
-				// If the event can never happen now... excize it
-				if (entry != NULL && entry->GetStop() != TRIGGER_END &&
-					((entry->GetStart() > entry->GetStop() && entry->GetInterval() > 0) ||
-					 (entry->GetStart() < entry->GetStop() && entry->GetInterval() < 0))){
-					Delete(entry);
-				} else {
-					// We have to add this entry to the BirthInterrupt queue
-					QueueBirthInterruptEvent(entry->GetStart());
-				}
-			}
-		} 
-		entry = next_entry;
-	}
 }
 
 
@@ -276,7 +244,7 @@ void cEventList::Sync()
 void cEventList::SyncEvent(cEventListEntry* entry)
 {
   // Ignore events that are immdeiate
-  if (entry->GetTrigger() == IMMEDIATE) return;
+  if (entry->GetTrigger() == IMMEDIATE || entry->GetTrigger() == EVENT) return;
   
   double t_val = GetTriggerValue(entry->GetTrigger());
   
@@ -318,15 +286,12 @@ void cEventList::PrintEventList(ostream& os)
       case GENERATION:
         os << "generation ";
         break;
+      case SEED_DISTANCE:
+        os << "seed_distance ";
+        break;
       case IMMEDIATE:
         os << "immediate ";
         break;
-      case BIRTHS:
-        os << "births ";
-        break;
-			case BIRTHS_INTERRUPT:
-					os << "birth_interrupt ";
-					break;
       default:
         os << "undefined ";
     }
@@ -347,43 +312,16 @@ void cEventList::PrintEventList(ostream& os)
       
       os << " ";
     }
+    
     os << entry->GetName() << " " << entry->GetArgs() << endl;
+    
     entry = next_entry;
   }
 }
 
 
-// Dequeue a particular birth interrupt event
-void cEventList::DequeueBirthInterruptEvent(double t_val)
-{
-	double* ptr = m_birth_interrupt_queue.Remove(&t_val);
-	if (ptr != NULL) 
-		delete ptr;
-}
-
-
-// Add a birth event trigger time to avoid unnecessary processing
-void cEventList::QueueBirthInterruptEvent(double t_val)
-{
-	//See if the event is already queued; add if not
-	if (m_birth_interrupt_queue.Find(&t_val) == NULL){
-		double* val_ptr = new double(t_val);
-		m_birth_interrupt_queue.PushRear(val_ptr);
-	}
-}
-
-// Check to see whether or not a particular value is in the asynchronous
-// birth queue.
-bool cEventList::CheckBirthInterruptQueue(double t_val)
-{
-	return false;
-	//Disabled for now...
-	//return (m_birth_interrupt_queue.Find(&t_val) != NULL);
-}
-
-
 //// Parsing Event List File Format ////
-bool cEventList::AddEventFileFormat(const cString& in_line, Feedback& feedback)
+bool cEventList::AddEventFileFormat(const cString& in_line)
 {
   cString cur_line = in_line;
   
@@ -404,22 +342,23 @@ bool cEventList::AddEventFileFormat(const cString& in_line, Feedback& feedback)
   if (cur_word == "i" || cur_word == "immediate") {
     trigger = IMMEDIATE;
     name = cur_line.PopWord();
-    return AddEvent(IMMEDIATE, TRIGGER_BEGIN, TRIGGER_ONCE, TRIGGER_END, name, cur_line, feedback);
+    return AddEvent(name, cur_line); // If event is IMMEDIATE shortcut
   } else if (cur_word == "u" || cur_word == "update") {
     trigger = UPDATE;
     cur_word = cur_line.PopWord();
   } else if( cur_word == "g" || cur_word == "generation") {
     trigger = GENERATION;
     cur_word = cur_line.PopWord();
-  } else if (cur_word == "b" || cur_word == "births") {
-    trigger = BIRTHS;
+  } else if (cur_word == "seed_dist"){
+    trigger = SEED_DISTANCE;
     cur_word = cur_line.PopWord();
-  } else if (cur_word == "o"  || cur_word == "org_id") {
-    trigger = BIRTHS_INTERRUPT;
-		cur_word = cur_line.PopWord();
-  } else {
-    cerr << "error: unrecognized event trigger '" << cur_word << "'" << endl;
-    return false;
+  }else if (cur_word == "e" || cur_word == "event") {
+    trigger = EVENT;
+    cur_word = cur_line.PopWord();
+  }
+  else {
+    // If Trigger is skipped so assume IMMEDIATE
+    trigger = IMMEDIATE;
   }
   
   // Do we now have timing specified?
@@ -458,28 +397,38 @@ bool cEventList::AddEventFileFormat(const cString& in_line, Feedback& feedback)
     }
     cur_word = cur_line.PopWord(); // timing provided, so get next word
     
-  } else { 
-    cerr << "error: invalid event timing '" << tmp << "'" << endl;
-    return false;
+  } else if (trigger == IMMEDIATE){ // We don't have timing, so assume IMMEDIATE
+    trigger = IMMEDIATE;
+    start = TRIGGER_BEGIN;
+    interval = TRIGGER_ONCE;
+    stop = TRIGGER_END;
+  } else if (trigger == EVENT){
+    cString trigger = cur_word;
+    name = cur_line.PopWord();
+    arg_list = cur_line;
+    return AddTriggerEvent(cur_word, name, cur_line);
   }
   
   // Get the rest of the info
   name = cur_word;
   arg_list = cur_line;
   
-  return AddEvent(trigger, start, interval, stop, name, arg_list, feedback);
+  return AddEvent(trigger, start, interval, stop, name, arg_list);
 }
 
 
-/*! Check to see if an event with the given name is upcoming at some point in the future.
- */
-bool cEventList::IsEventUpcoming(const cString& event_name) {
-	cEventListEntry* entry = m_head;
-  while(entry != 0) {
-		if(entry->GetName() == event_name) {
-			return true;
-		}
-		entry = entry->GetNext();
-	}
-	return false;
+//@MRR
+bool cEventList::TriggerEvent(cEventContext& state)
+{
+  bool triggered = false;
+  tListIterator<cEventTriggerEntry> cur_it(m_trigger_events);
+  cEventTriggerEntry* cur;
+  while ( (cur = cur_it.Next()) != NULL ){
+    if (cur->GetEventTrigger() == state.GetEventTrigger()){
+      cur->GetAction()->Process(state);
+      triggered = true;
+    }
+  }
+  return triggered;
 }
+

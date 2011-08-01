@@ -8,18 +8,19 @@
 #ifndef cTextWindow_h
 #define cTextWindow_h
 
-#include "apto/platform.h"
-
 #ifdef HAVE_NCURSES_H
-#define NCURSES_OPAQUE 0
 #include <ncurses.h>
+#undef OK
 #else
-#define NCURSES_OPAQUE 0
 #include <curses.h>
+#undef OK
 #endif
 
 #ifndef cBaseTextWindow_h
 #include "cBaseTextWindow.h"
+#endif
+#ifndef platform_h
+#include "platform.h"
 #endif
 
 #include <csignal>
@@ -71,7 +72,7 @@ public:
 
   // These function return the number of characters wide or high
   // (respectively) that the screen is.
-#if APTO_PLATFORM(WINDOWS)
+#if AVIDA_PLATFORM(WINDOWS)
   // Windows returns the screen width and height
   inline int Width() { return win_id->_maxx; }
   inline int Height() { return win_id->_maxy; }
@@ -144,5 +145,17 @@ public:
     wattrset(win_id, COLOR_PAIR(color) | A_BOLD);
   }
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nTextWindow {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

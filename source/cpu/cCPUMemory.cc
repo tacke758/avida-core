@@ -3,20 +3,23 @@
  *  Avida
  *
  *  Called "cpu_memory.cc" prior to 11/22/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -24,41 +27,102 @@
 
 using namespace std;
 
+const int MEMORY_INCREASE_MINIMUM = 10;
+const double MEMORY_INCREASE_FACTOR = 1.5;
+const double MEMORY_SHRINK_TEST_FACTOR = 4.0;
 
-cCPUMemory::cCPUMemory(const cCPUMemory& in_memory) : Sequence(in_memory), m_flag_array(in_memory.GetSize())
+cCPUMemory::cCPUMemory(const cCPUMemory& in_memory)
+  : cGenome(in_memory), flag_array(in_memory.GetSize())
 {
-  for (int i = 0; i < m_flag_array.GetSize(); i++) m_flag_array[i] = in_memory.m_flag_array[i];
+  for (int i = 0; i < flag_array.GetSize(); i++) {
+    flag_array[i] = in_memory.flag_array[i];
+  }
 }
 
 
-void cCPUMemory::adjustCapacity(int new_size)
+void cCPUMemory::SloppyResize(int new_size)
 {
-  Sequence::adjustCapacity(new_size);
-  if (m_seq.GetSize() != m_flag_array.GetSize()) m_flag_array.Resize(m_seq.GetSize()); 
-}
+  assert(new_size > 0);
 
+  // Make sure we're really changing the size...
+  if (new_size == active_size) return;
 
-void cCPUMemory::prepareInsert(int pos, int num_sites)
-{
-  assert(pos >= 0 && pos <= m_active_size); // Must insert at a legal position!
-  assert(num_sites > 0); // Must insert positive number of lines!
+  const int array_size = genome.GetSize();
+
+  // Determine if we need to adjust the allocated array sizes...
+  if (new_size > array_size || new_size * MEMORY_SHRINK_TEST_FACTOR < array_size) {
+    int new_array_size = (int) (new_size * MEMORY_INCREASE_FACTOR);
+    const int new_array_min = new_size + MEMORY_INCREASE_MINIMUM;
+		if (new_array_min > new_array_size) new_array_size = new_array_min;
+    genome.Resize(new_array_size);
+    flag_array.Resize(new_array_size);
+  }
   
+  // And just change the active_size once we're sure it will be in range.
+  active_size = new_size;
+}
+
+
+void cCPUMemory::SloppyInsert(int pos, int num_lines)
+{
+  assert(pos >= 0 && pos <= active_size); // Must insert at a legal position!
+  assert(num_lines > 0);  // Must insert positive number of lines!
+
   // Re-adjust the size...
-  const int old_size = m_active_size;
-  const int new_size = m_active_size + num_sites;
-  adjustCapacity(new_size);
-  
-  // Shift any sites needed...
-  for (int i = old_size - 1; i >= pos; i--) m_seq[i + num_sites] = m_seq[i];
-  for (int i = old_size - 1; i >= pos; i--) m_flag_array[i + num_sites] = m_flag_array[i];
+  const int old_size = active_size;
+  const int new_size = active_size + num_lines;
+  SloppyResize(new_size);
+
+  // Shift any lines needed...
+  for (int i = old_size - 1; i >= pos; i--) {
+    genome[i+num_lines] = genome[i];
+    flag_array[i+num_lines] = flag_array[i];
+  }
 }
 
+
+// ---  Public Methods ---
+
+
+void cCPUMemory::operator=(const cCPUMemory & other_memory)
+{
+  SloppyResize(other_memory.active_size);
+
+  // Fill in the new information...
+  for (int i = 0; i < active_size; i++) {
+    genome[i] = other_memory.genome[i];
+    flag_array[i] = other_memory.flag_array[i];
+  }
+}
+
+
+void cCPUMemory::operator=(const cGenome & other_genome)
+{
+  SloppyResize(other_genome.GetSize());
+
+  // Fill in the new information...
+  for (int i = 0; i < active_size; i++) {
+    genome[i] = other_genome[i];
+    flag_array[i] = 0;
+  }
+}
+
+void cCPUMemory::Copy(int to, int from)
+{
+  assert(to >= 0);
+  assert(to < genome.GetSize());
+  assert(from >= 0);
+  assert(from < genome.GetSize());
+
+  genome[to] = genome[from];
+  flag_array[to] = flag_array[from];
+}
 
 void cCPUMemory::Reset(int new_size)
 {
   assert(new_size >= 0);
 
-  adjustCapacity(new_size);
+  SloppyResize(new_size);
   Clear();
 }
 
@@ -67,12 +131,14 @@ void cCPUMemory::Resize(int new_size)
 {
   assert(new_size >= 0);
 
-  const int old_size = m_active_size;
-  adjustCapacity(new_size);
+  // Do a sloppy resize first, saving old values...
+  const int old_size = active_size;
+  SloppyResize(new_size);
   
+  // Clean up all of the old memory that might need it...
   for (int i = old_size; i < new_size; i++) {
-    m_seq[i].SetOp(0);
-    m_flag_array[i] = 0;
+    genome[i].SetOp(0);
+    flag_array[i] = 0;
   }
 }
 
@@ -81,101 +147,68 @@ void cCPUMemory::ResizeOld(int new_size)
 {
   assert(new_size >= 0);
 
-  const int old_size = m_active_size;
-  adjustCapacity(new_size);
+  const int old_size = active_size;
 
-  for (int i = old_size; i < new_size; i++) m_flag_array[i] = 0;
-}
+  // Do a sloppy resize, which will still have old values.
+  SloppyResize(new_size);
 
-
-void cCPUMemory::Copy(int to, int from)
-{
-  assert(to >= 0);
-  assert(to < m_seq.GetSize());
-  assert(from >= 0);
-  assert(from < m_seq.GetSize());
-  
-  m_seq[to] = m_seq[from];
-  m_flag_array[to] = m_flag_array[from];
-}
-
-
-void cCPUMemory::Insert(int pos, const cInstruction& inst)
-{
-  assert(pos >= 0);
-  assert(pos <= m_seq.GetSize());
-
-  prepareInsert(pos, 1);
-  m_seq[pos] = inst;
-  m_flag_array[pos] = 0;
-}
-
-void cCPUMemory::Insert(int pos, const Sequence& genome)
-{
-  assert(pos >= 0);
-  assert(pos <= m_seq.GetSize());
-
-  prepareInsert(pos, genome.GetSize());
-  for (int i = 0; i < genome.GetSize(); i++) {
-    m_seq[i + pos] = genome[i];
-    m_flag_array[i + pos] = 0;
+  for (int i = old_size; i < new_size; i++) {
+    flag_array[i] = 0;
   }
 }
 
-void cCPUMemory::Remove(int pos, int num_sites)
-{
-  assert(num_sites > 0);                    // Must remove something...
-  assert(pos >= 0);                         // Removal must be in genome.
-  assert(pos + num_sites <= m_active_size); // Cannot extend past end of genome.
 
-  const int new_size = m_active_size - num_sites;
+void cCPUMemory::Insert(int pos, const cInstruction & in_inst)
+{
+  assert(pos >= 0);
+  assert(pos <= genome.GetSize());
+
+  SloppyInsert(pos, 1);
+  genome[pos] = in_inst;
+  flag_array[pos] = 0;
+}
+
+void cCPUMemory::Insert(int pos, const cGenome & in_genome)
+{
+  assert(pos >= 0);
+  assert(pos <= genome.GetSize());
+
+  SloppyInsert(pos, in_genome.GetSize());
+  for (int i = 0; i < in_genome.GetSize(); i++) {
+    genome[i+pos] = in_genome[i];
+    flag_array[i+pos] = 0;
+  }
+}
+
+void cCPUMemory::Remove(int pos, int num_insts)
+{
+  assert(num_insts > 0);                  // Must remove something...
+  assert(pos >= 0);                       // Removal must be in genome.
+  assert(pos + num_insts <= active_size); // Cannot extend past end of genome.
+
+  const int new_size = active_size - num_insts;
   for (int i = pos; i < new_size; i++) {
-    m_seq[i] = m_seq[i + num_sites];
-    m_flag_array[i] = m_flag_array[i + num_sites];
+    genome[i] = genome[i + num_insts];
+    flag_array[i] = flag_array[i + num_insts];
   }
-  adjustCapacity(new_size);
+  SloppyResize(new_size);
 }
 
-void cCPUMemory::Replace(int pos, int num_sites, const Sequence& genome)
+void cCPUMemory::Replace(int pos, int num_insts, const cGenome & in_genome)
 {
-  assert(pos >= 0);                         // Replace must be in genome
-  assert(num_sites >= 0);                   // Cannot replace negative
-  assert(pos + num_sites <= m_active_size); // Cannot extend past end!
-  
-  const int size_change = genome.GetSize() - num_sites;
-  
-  // First, get the size right
-  if (size_change > 0) prepareInsert(pos, size_change);
+  assert(pos >= 0);                       // Replace must be in genome.
+  assert(num_insts >= 0);                 // Cannot replace negative.
+  assert(pos + num_insts <= active_size); // Cannot extend past end!
+
+  const int size_change = in_genome.GetSize() - num_insts;
+
+  // First, get the size right.
+  if (size_change > 0) SloppyInsert(pos, size_change);
   else if (size_change < 0) Remove(pos, -size_change);
-  
+
   // Now just copy everything over!
-  for (int i = 0; i < genome.GetSize(); i++) {
-    m_seq[i + pos] = genome[i];
-    m_flag_array[i + pos] = 0;
+  for (int i = 0; i < in_genome.GetSize(); i++) {
+    genome[i + pos] = in_genome[i];
+    flag_array[i + pos] = 0;
   }
 }
-
-
-void cCPUMemory::operator=(const cCPUMemory& other_memory)
-{
-  adjustCapacity(other_memory.m_active_size);
-  
-  // Fill in the new information...
-  for (int i = 0; i < m_active_size; i++) {
-    m_seq[i] = other_memory.m_seq[i];
-    m_flag_array[i] = other_memory.m_flag_array[i];
-  }
-}
-
-
-void cCPUMemory::operator=(const Sequence& other_genome)
-{
-  adjustCapacity(other_genome.GetSize());
-  
-  // Fill in the new information...
-  for (int i = 0; i < m_active_size; i++) {
-    m_seq[i] = other_genome[i];
-    m_flag_array[i] = 0;
-  }
-}
-

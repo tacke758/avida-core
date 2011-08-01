@@ -196,9 +196,17 @@ int Function ( );
 </pre>
 </li>
 <li>
-  Include statements in header (<kbd>.h</kbd>) and implementation (<kbd>.cc</kbd>) files must
-  <strong>not</strong> check include guards (no <kbd>#ifndef</kbd> blocks).  This compile time
-  optimization is to be left for the compiler to perform.
+  Include statements in header files (<kbd>.h</kbd>) <em>must</em> check for
+  previously defined include guards.  Example:
+<pre>
+#ifndef cPopulation_h
+#include cPopulation_h
+#endif
+</pre>
+</li>
+<li>
+  Include statements in implementation files (<kbd>.cc</kbd>) must
+  <strong>not</strong> check include guards.
 </li>
 </ul>
 
@@ -225,23 +233,13 @@ m_my_component
 </pre>
 </li>
 <li>
-  All functions and public struct/class methods should begin with a capital
-  letter followed by lowercase.  Additional words should be signified by
-  capital letters.  Underscores should only be used to indicate a category
-  of functions.  Examples:
+  All functions should begin with a capital letter followed by lowercase. 
+  Additional words should be signified by capital letters.  Underscores 
+  should only be used to indicate a category of functions.  Examples:
 <pre>
 Sort() 
 ThisIsMyFunction() 
-cHardwareCPU::SingleProcess()
-</pre>
-</li>
-<li>
-  Private and protected struct/class support methods should begin with a
-  lowercase letter. Additional words should be signified by capital letters.
-  Underscores should only be used to indicate a category of functions.  Examples:
-<pre>
-cHardwareBase::doSlipMutation()
-cParser::parseCodeBlock()
+Inst_Divide()
 </pre>
 </li>
 <li>
@@ -282,34 +280,6 @@ cPopulation.cc
 </li>
 </ul>
 
-
-<p>&nbsp;</p>
-<h2>Class Dependency Guidelines</h2>
-<div style="margin-left: 10px">
-  <p>
-  Some groupings of classes should maintain important limitations with respect
-  to class dependency.
-  </p>
-
-  <h3>Tools Classes</h3>
-  <div style="margin-left: 10px">
-    <p>
-    All classes developed as general utility classes should be placed within the
-    <kbd style="color: #008844">source/tools</kbd> directory.   These classes
-    should have no dependencies that extend outside of this directory.
-    </p>
-  </div>
-
-  <h3>STL Usage</h3>
-  <div style="margin-left: 10px">
-    <p>
-    Usage of the Standard Template Library should be very limited.  A number of
-    these templates have unspecified orderings that can vary across platforms,
-    affecting consistency.  Where possible, it is greatly preferred to use the
-    local tools classes.
-    </p>
-  </div>
-</div>
 
 <hr />
 <p><a href="index.html">Return to the Index</a></p>

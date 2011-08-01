@@ -1,15 +1,20 @@
-# Mon Nov  8 16:04:06 2010
+# Wed Sep  5 15:37:12 2007
 # Filename........: archive/050-aaaaa.org
 # Update Output...: 100
 # Is Viable.......: 1
 # Repro Cycle Size: 0
 # Depth to Viable.: 0
+# Update Created..: -1
+# Genotype ID.....: 2
+# Parent Gen ID...: -1
+# Tree Depth......: 0
+# Parent Distance.: -1
 # 
 # Generation: 0
 # Merit...........: 376.000000
 # Gestation Time..: 178
 # Fitness.........: 2.112360
-# Errors..........: 0
+# Errors..........: 1
 # Genome Size.....: 50
 # Copied Size.....: 50
 # Executed Size...: 47

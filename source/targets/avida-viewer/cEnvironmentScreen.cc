@@ -8,17 +8,19 @@
 #include "cEnvironmentScreen.h"
 
 #include "cEnvironment.h"
+#include "cGenotype.h"
 #include "cPopulation.h"
 #include "cReaction.h"
 #include "cReactionProcess.h"
 #include "cResource.h"
+#include "cSpecies.h"
 #include "cStats.h"
 #include "cPopulationCell.h"
 #include "cOrganism.h"
 
 using namespace std;
 
-void cEnvironmentScreen::Draw(cAvidaContext& ctx)
+void cEnvironmentScreen::Draw()
 {
   SetBoldColor(COLOR_WHITE);
   Print(1, 54, "[ ]               [ ]");
@@ -46,7 +48,7 @@ void cEnvironmentScreen::Draw(cAvidaContext& ctx)
     DrawResource();
   else
     DrawReaction();
-  Update(ctx);
+  Update();
 }
 
 void cEnvironmentScreen::DrawResource()
@@ -110,7 +112,7 @@ void cEnvironmentScreen::DrawReaction()
     Print(i+1, 1, rxn_lib.GetReaction(i)->GetName());
     //Print(i+1, 12, "%7.2f", res_lib.GetResource(i)->GetInflow());
     //Print(i+1, 24, "%7.2f", res_lib.GetResource(i)->GetOutflow());
-  }
+  }  
   
   SetColor(COLOR_WHITE);
   Box(rxn_lib.GetSize()+2, 0, Height()-rxn_lib.GetSize()-2, Width(), true);
@@ -119,29 +121,29 @@ void cEnvironmentScreen::DrawReaction()
   Print(1, 58, "Reaction View");
 }
 
-void cEnvironmentScreen::Update(cAvidaContext& ctx)
+void cEnvironmentScreen::Update()
 {
   if(mode==ENVIRONMENT_MODE_RESOURCE)
-    UpdateResource(ctx);
+    UpdateResource();
   else
-    UpdateReaction(ctx);
+    UpdateReaction();
   Refresh();
 }
 
-void cEnvironmentScreen::UpdateResource(cAvidaContext& ctx)
+void cEnvironmentScreen::UpdateResource()
 {
   const cResourceLib & res_lib = m_world->GetEnvironment().GetResourceLib();
   const cReactionLib & rxn_lib = m_world->GetEnvironment().GetReactionLib();
-  const int num_resources = m_world->GetPopulation().GetResources(ctx).GetSize();
+  const int num_resources = m_world->GetPopulation().GetResources().GetSize();
   
   // If there are no resources, then we have nothing to update.
   if (num_resources == 0) return;
-  
+
   // Update the quantity of each resource.
   SetBoldColor(COLOR_CYAN);
   for(int i = 0; i < num_resources; i++)
   {
-    Print(i+1, 40, "%7.2f", m_world->GetPopulation().GetResources(ctx)[i]);
+    Print(i+1, 40, "%7.2f", m_world->GetPopulation().GetResources()[i]);
   }
   
   // Highlight the current resource in blue.
@@ -149,35 +151,18 @@ void cEnvironmentScreen::UpdateResource(cAvidaContext& ctx)
   Print(res_selection+1, 1, res_lib.GetResource(res_selection)->GetName());
   Print(res_selection+1, 12, "%7.2f", res_lib.GetResource(res_selection)->GetInflow());
   Print(res_selection+1, 24, "%7.2f", res_lib.GetResource(res_selection)->GetOutflow());
-  Print(res_selection+1, 40, "%7.2f", m_world->GetPopulation().GetResources(ctx)[res_selection]);
+  Print(res_selection+1, 40, "%7.2f", m_world->GetPopulation().GetResources()[res_selection]);
   
-  // Print all of the information about the reaction(s) associated with
-  // current resource.
-  
+  // Print all of the information about the current resources.
   int offset=0;
   SetBoldColor(COLOR_CYAN);
   for(int i=0; i<rxn_lib.GetSize(); i++) {
     for(int j=0; j<rxn_lib.GetReaction(i)->GetProcesses().GetSize(); j++) {
-      if(rxn_lib.GetReaction(i)->GetProcesses().GetPos(j)->GetResource() != NULL)
-      {
-        cout << "BDB part 1 " << rxn_lib.GetReaction(i)->GetProcesses().GetPos(j)->GetResource()->GetName() << endl;
-        cout << "BDB part 2 " << res_lib.GetResource(res_selection)->GetName() << endl;
-        if(rxn_lib.GetReaction(i)->GetProcesses().GetPos(j)->GetResource()->GetName() ==
-           res_lib.GetResource(res_selection)->GetName()) {
-          int reactions = 0;
-          for(int k=0; k<m_world->GetPopulation().GetSize(); ++k) {
-            cPopulationCell& cell = m_world->GetPopulation().GetCell(k);
-            if(cell.IsOccupied()) {
-              const tArray<int>& org_rx = cell.GetOrganism()->GetPhenotype().GetLastReactionCount();
-              reactions += org_rx[i];
-            }
-          }
-          
-          Print(num_resources + 5 + offset, 2, "%-10s %7d",
-                static_cast<const char*>(rxn_lib.GetReaction(i)->GetName()),
-                reactions);
-          offset++;
-        }
+      if(rxn_lib.GetReaction(i)->GetProcesses().GetPos(j)->GetResource()->GetName() == 
+         res_lib.GetResource(res_selection)->GetName()) {
+	Print(num_resources + 5 + offset, 2,
+	      rxn_lib.GetReaction(i)->GetName());
+	offset++;
       }
     }
   }
@@ -190,7 +175,7 @@ void cEnvironmentScreen::UpdateResource(cAvidaContext& ctx)
   
 }
 
-void cEnvironmentScreen::UpdateReaction(cAvidaContext& ctx)
+void cEnvironmentScreen::UpdateReaction()
 {
   const cReactionLib & rxn_lib = m_world->GetEnvironment().GetReactionLib();
   const cResourceLib & res_lib = m_world->GetEnvironment().GetResourceLib();
@@ -198,37 +183,22 @@ void cEnvironmentScreen::UpdateReaction(cAvidaContext& ctx)
   
   // If we have no reactions, stop right here.
   if (num_reactions == 0) return;
-  
-  // Find the sum of the reactions
-  
-  tArray<int> reactions(num_reactions);
-  reactions.SetAll(0);
-  
-  for(int i=0; i<m_world->GetPopulation().GetSize(); ++i) {
-    cPopulationCell& cell = m_world->GetPopulation().GetCell(i);
-    if(cell.IsOccupied()) {
-      const tArray<int>& org_rx = cell.GetOrganism()->GetPhenotype().GetLastReactionCount();
-      for(int j=0; j<num_reactions; ++j) {
-        reactions[j] += org_rx[j];
-      }
-    }
-  }
-  
+
   // For each reaction, print how often it was performed.
   SetBoldColor(COLOR_CYAN);
   for(int i = 0; i < num_reactions; i++) {
-    Print(i+1, 40, "%7d", reactions[i]);
+    Print(i+1, 40, "%7.2f", m_world->GetStats().GetReactions()[i]);
   }
   
   // Highlight the selected reaction.
   SetBoldColor(COLOR_BLUE);
   Print(rxn_selection+1, 1, rxn_lib.GetReaction(rxn_selection)->GetName());
-  Print(rxn_selection+1, 40, "%7d", reactions[rxn_selection]);
+  Print(rxn_selection+1, 40, "%7.2f", m_world->GetStats().GetReactions()[rxn_selection]);
   
   
   // Update header on reaction section.
   SetBoldColor(COLOR_WHITE);
-  Print(rxn_lib.GetSize()+3, 37, "%-s", static_cast<const char*>(rxn_lib.GetReaction(rxn_selection)->GetName()));
+  Print(rxn_lib.GetSize()+3, 37, "%s", static_cast<const char*>(rxn_lib.GetReaction(rxn_selection)->GetName()));
   Print(rxn_lib.GetSize()+3, rxn_lib.GetReaction(rxn_selection)->GetName().GetSize()+37, ":");
   Print(rxn_lib.GetSize()+3, rxn_lib.GetReaction(rxn_selection)->GetName().GetSize()+38, "        ");
   
@@ -238,29 +208,29 @@ void cEnvironmentScreen::UpdateReaction(cAvidaContext& ctx)
   const int num_processes = rxn_lib.GetReaction(rxn_selection)->GetProcesses().GetSize();
   for(int i = 0; i < num_processes; i++) {
     cResource * cur_resource =
-    rxn_lib.GetReaction(rxn_selection)->GetProcesses().GetPos(i)->GetResource();
-    
+      rxn_lib.GetReaction(rxn_selection)->GetProcesses().GetPos(i)->GetResource();
+
     // Ignore all processes that are not associated with resources.
     if (cur_resource == NULL) continue;
-    
+
     // Print info about this resource.
     Print(m_world->GetStats().GetReactions().GetSize()+5+offset, 2,
-          "%-10s", static_cast<const char*>(cur_resource->GetName()));
+	  cur_resource->GetName());
     Print(m_world->GetStats().GetReactions().GetSize()+5+offset, 13, "%7.2f",
-          cur_resource->GetInflow());
+	  cur_resource->GetInflow());
     Print(m_world->GetStats().GetReactions().GetSize()+5+offset, 25, "%7.2f",
           cur_resource->GetOutflow());
     for(int j=0; j < res_lib.GetSize(); j++) {
       if (res_lib.GetResource(j)->GetName() == cur_resource->GetName()) {
-        Print(m_world->GetStats().GetReactions().GetSize()+5+offset, 40, "%7.2f",
-              m_world->GetPopulation().GetResources(ctx)[j]);
+        Print(m_world->GetStats().GetReactions().GetSize()+5+offset, 40, "%7.2f", 
+              m_world->GetPopulation().GetResources()[j]);
       }
     }
-    offset++;
+    offset++;  
   }
 }
 
-void cEnvironmentScreen::DoInput(cAvidaContext& ctx, int in_char)
+void cEnvironmentScreen::DoInput(int in_char)
 {
   int last_selection;
   const cResourceLib & res_lib = m_world->GetEnvironment().GetResourceLib();
@@ -268,73 +238,73 @@ void cEnvironmentScreen::DoInput(cAvidaContext& ctx, int in_char)
   SetBoldColor(COLOR_CYAN);
   
   switch (in_char) {
-    case KEY_DOWN:
-      if(mode==ENVIRONMENT_MODE_RESOURCE ) {
-        const int num_resources = m_world->GetPopulation().GetResources(ctx).GetSize();
-        if (num_resources > 0) {
-          last_selection=res_selection;
-          res_selection++;
-          res_selection %= num_resources;
-          
-          Print(last_selection+1, 1, res_lib.GetResource(last_selection)->GetName());
-          Print(last_selection+1, 12, "%7.2f", res_lib.GetResource(last_selection)->GetInflow());
-          Print(last_selection+1, 24, "%7.2f", res_lib.GetResource(last_selection)->GetOutflow());
-        }
+  case KEY_DOWN:
+    if(mode==ENVIRONMENT_MODE_RESOURCE ) {
+      const int num_resources = m_world->GetPopulation().GetResources().GetSize();
+      if (num_resources > 0) {
+	last_selection=res_selection;
+	res_selection++;
+	res_selection %= num_resources;
+	
+	Print(last_selection+1, 1, res_lib.GetResource(last_selection)->GetName());
+	Print(last_selection+1, 12, "%7.2f", res_lib.GetResource(last_selection)->GetInflow());
+	Print(last_selection+1, 24, "%7.2f", res_lib.GetResource(last_selection)->GetOutflow());
       }
-      else { // ENVIRONMENT_MODE_REACTION
-        const int num_reactions = m_world->GetStats().GetReactions().GetSize();
-        if (num_reactions > 0) {
-          last_selection = rxn_selection;
-          rxn_selection++;
-          rxn_selection %= num_reactions;
-          
-          Print(last_selection+1, 1, rxn_lib.GetReaction(last_selection)->GetName());
-          //Print(last_selection+1, 12, "%7.2f", rxn_lib.GetReaction(last_selection)->GetInflow());
-          //Print(last_selection+1, 24, "%7.2f", rxn_lib.GetReaction(last_selection)->GetOutflow());
-        }
+    }
+    else { // ENVIRONMENT_MODE_REACTION
+      const int num_reactions = m_world->GetStats().GetReactions().GetSize();
+      if (num_reactions > 0) {
+	last_selection = rxn_selection;
+	rxn_selection++;
+	rxn_selection %= num_reactions;
+	
+	Print(last_selection+1, 1, rxn_lib.GetReaction(last_selection)->GetName());
+	//Print(last_selection+1, 12, "%7.2f", rxn_lib.GetReaction(last_selection)->GetInflow());
+	//Print(last_selection+1, 24, "%7.2f", rxn_lib.GetReaction(last_selection)->GetOutflow());
       }
-      
-      Update(ctx);
-      break;
-    case KEY_UP:
-      if(mode == ENVIRONMENT_MODE_RESOURCE) {
-        const int num_resources = m_world->GetPopulation().GetResources(ctx).GetSize();
-        if (num_resources > 0) {
-          last_selection = res_selection;
-          res_selection--;
-          if(res_selection < 0) res_selection = num_resources - 1;
-          
-          Print(last_selection+1, 1, res_lib.GetResource(last_selection)->GetName());
-          Print(last_selection+1, 12, "%7.2f", res_lib.GetResource(last_selection)->GetInflow());
-          Print(last_selection+1, 24, "%7.2f", res_lib.GetResource(last_selection)->GetOutflow());
-        }
+    }
+    
+    Update();
+    break;
+  case KEY_UP:
+    if(mode == ENVIRONMENT_MODE_RESOURCE) {
+      const int num_resources = m_world->GetPopulation().GetResources().GetSize();
+      if (num_resources > 0) {
+	last_selection = res_selection;
+	res_selection--;
+	if(res_selection < 0) res_selection = num_resources - 1;
+	
+	Print(last_selection+1, 1, res_lib.GetResource(last_selection)->GetName());
+	Print(last_selection+1, 12, "%7.2f", res_lib.GetResource(last_selection)->GetInflow());
+	Print(last_selection+1, 24, "%7.2f", res_lib.GetResource(last_selection)->GetOutflow());
       }
-      else { // ENVIRONMENT_MODE_REACTIONS
-        const int num_reactions = m_world->GetStats().GetReactions().GetSize();
-        if (num_reactions > 0) {
-          last_selection=rxn_selection;
-          rxn_selection--;
-          if (rxn_selection < 0) rxn_selection = num_reactions - 1;
-          
-          Print(last_selection+1, 1, rxn_lib.GetReaction(last_selection)->GetName());
-          //Print(last_selection+1, 12, "%7.2f", rxn_lib.GetReaction(last_selection)->GetInflow());
-          //Print(last_selection+1, 24, "%7.2f", rxn_lib.GetReaction(last_selection)->GetOutflow());
-        }
+    }
+    else { // ENVIRONMENT_MODE_REACTIONS
+      const int num_reactions = m_world->GetStats().GetReactions().GetSize();
+      if (num_reactions > 0) {
+	last_selection=rxn_selection;
+	rxn_selection--;
+	if (rxn_selection < 0) rxn_selection = num_reactions - 1;
+	
+	Print(last_selection+1, 1, rxn_lib.GetReaction(last_selection)->GetName());
+	//Print(last_selection+1, 12, "%7.2f", rxn_lib.GetReaction(last_selection)->GetInflow());
+	//Print(last_selection+1, 24, "%7.2f", rxn_lib.GetReaction(last_selection)->GetOutflow());
       }
-      
-      Update(ctx);
-      break;
-    case '>':
-    case '.':
-    case '<':
-    case ',':
-      if(mode==ENVIRONMENT_MODE_RESOURCE)
-        mode=ENVIRONMENT_MODE_REACTION;
-      else
-        mode=ENVIRONMENT_MODE_RESOURCE;
-      Clear();
-      Draw(ctx);
-      break;
+    }
+    
+    Update();
+    break;
+  case '>':
+  case '.':
+  case '<':
+  case ',':
+    if(mode==ENVIRONMENT_MODE_RESOURCE)
+      mode=ENVIRONMENT_MODE_REACTION;
+    else
+      mode=ENVIRONMENT_MODE_RESOURCE;
+    Clear();
+    Draw();
+    break;
   }
 }
 

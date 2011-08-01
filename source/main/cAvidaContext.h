@@ -3,19 +3,22 @@
  *  Avida
  *
  *  Created by David on 3/13/06.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software Foundation, 
+ *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
@@ -26,25 +29,28 @@
 #ifndef cAvidaContext_h
 #define cAvidaContext_h
 
+#if USE_tMemTrack
+# ifndef tMemTrack_h
+#  include "tMemTrack.h"
+# endif
+#endif
+
 
 class cRandom;
-class cWorld;
 
 class cAvidaContext
 {
+#if USE_tMemTrack
+  tMemTrack<cAvidaContext> mt;
+#endif
 private:
-  cWorld* m_world;
   cRandom* m_rng;
   bool m_analyze;
-  bool m_testing;
-  bool m_org_faults;
   
 public:
-  cAvidaContext(cWorld* world, cRandom& rng) : m_world(world), m_rng(&rng), m_analyze(false), m_testing(false), m_org_faults(false) { ; }
-  cAvidaContext(cWorld* world, cRandom* rng) : m_world(world), m_rng(rng), m_analyze(false), m_testing(false), m_org_faults(false) { ; }
+  cAvidaContext(cRandom& rng) : m_rng(&rng), m_analyze(false) { ; }
+  cAvidaContext(cRandom* rng) : m_rng(rng), m_analyze(false) { ; }
   ~cAvidaContext() { ; }
-  
-  cWorld* GetWorld() { return m_world; }
   
   void SetRandom(cRandom& rng) { m_rng = &rng; }  
   void SetRandom(cRandom* rng) { m_rng = rng; }  
@@ -53,14 +59,6 @@ public:
   void SetAnalyzeMode() { m_analyze = true; }
   void ClearAnalyzeMode() { m_analyze = false; }
   bool GetAnalyzeMode() { return m_analyze; }
-  
-  void SetTestMode()   { m_testing = true; }   //@MRR  Some modifications I've made need to distinguish
-  void ClearTestMode() { m_testing = false; }  //      when we're running a genotype through a test-cpu
-  bool GetTestMode()   { return m_testing; }   //      versus when we're not when dealing with reactions rewards.
-
-  void EnableOrgFaultReporting() { m_org_faults = true; }
-  void DisableOrgFaultReporting() { m_org_faults = false; }
-  bool OrgFaultReporting() { return m_org_faults; }
 };
 
 #endif

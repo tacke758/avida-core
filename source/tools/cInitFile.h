@@ -3,45 +3,58 @@
  *  Avida
  *
  *  Called "init_file.hh" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #ifndef cInitFile_h
 #define cInitFile_h
 
-#include "apto/core/Set.h"
-
+#ifndef cString_h
 #include "cString.h"
+#endif
+#ifndef cStringList_h
 #include "cStringList.h"
-#include "cUserFeedback.h"
+#endif
+#ifndef tDictionary_h
 #include "tDictionary.h"
+#endif
+#ifndef tList_h
+#include "tList.h"
+#endif
+#ifndef tSmartArray_h
 #include "tSmartArray.h"
+#endif
+
 
 #include <iostream>
 
+/**
+ * A class to handle initialization files.
+ **/
 
-// A class to handle initialization files.
 class cInitFile
 {
 private:
   cString m_filename;
-  bool m_found;
   bool m_opened;
-  mutable cUserFeedback m_feedback;
+  mutable tList<cString> m_errors;
   
   struct sLine {
     cString line;
@@ -56,10 +69,14 @@ private:
   tArray<sLine*> m_lines;
   cString m_ftype;
   cStringList m_format;
-  cStringList m_imported_files;
   
   tDictionary<cString> m_mappings;
-  tDictionary<cString> m_custom_directives;
+
+  
+  void InitMappings(const tDictionary<cString>& mappings);
+  bool LoadFile(const cString& filename, tSmartArray<sLine*>& lines);
+  bool ProcessCommand(cString cmdstr, tSmartArray<sLine*>& lines, const cString& filename, int linenum);
+  void PostProcess(tSmartArray<sLine*>& lines);
 
   
   cInitFile(const cInitFile&); // @not_implemented
@@ -67,16 +84,18 @@ private:
   
 
 public:
-  cInitFile(const cString& filename, const cString& working_dir, Feedback& feedback, const Apto::Set<cString>* custom_directives = NULL);
-  cInitFile(const cString& filename, const cString& working_dir, const Apto::Set<cString>* custom_directives = NULL);
-  cInitFile(const cString& filename, const tDictionary<cString>& mappings, const cString& working_dir);
-  cInitFile(std::istream& in_stream, const cString& working_dir);
-  ~cInitFile();
+  cInitFile(const cString& filename);
+  cInitFile(const cString& filename, const tDictionary<cString>& mappings);
+  cInitFile(std::istream& in_stream);
+  ~cInitFile()
+  {
+    for (int i = 0; i < m_lines.GetSize(); i++) delete m_lines[i];
+    cString* errstr = NULL;
+    while ((errstr = m_errors.Pop())) delete errstr;
+  }
   
-  bool WasFound() const { return m_found; }
   bool WasOpened() const { return m_opened; }
-  const cUserFeedback& GetFeedback() const { return m_feedback; }
-  const tDictionary<cString>& GetCustomDirectives() const { return m_custom_directives; }
+  const tList<cString>& GetErrors() const { return m_errors; }
   
   void Save(const cString& in_filename = "");
   
@@ -88,8 +107,6 @@ public:
    * (starting from 0).
    **/
   cString GetLine(int line_num = 0);
-  
-  tDictionary<cString>* GetLineAsDict(int line_num = 0);
   
 
   /**
@@ -105,8 +122,8 @@ public:
   bool Find(cString& in_string, const cString& keyword, int col) const;
   
   /**
-   * Reads an entry in the initialization file that has a given keyword in the first column.
-   * The keyword is not part of the returned string.
+   * Reads an entry in the initialization file that has a given keyword
+   * in the first column. The keyword is not part of the returned string.
    *
    * @return The entry that has been found.
    * @param name The keyword to look for (the name of the entry).
@@ -114,19 +131,7 @@ public:
    * one to set standard values that are used if the user does not override
    * them.
    **/
-  cString ReadString(const cString& name, cString def = "", bool warn_default = true) const;
-
-  /**
-   * Reads an entry in the initialization file that has a given keyword OR ANY OF ITS ALIASES
-   * in the first column. The keyword is not part of the returned string.
-   *
-   * @return The entry that has been found.
-   * @param names An array of keywords to look for (the name of the entry).
-   * @param def If the keyword is not found, def is returned. This allows
-   * one to set standard values that are used if the user does not override
-   * them.
-   **/
-  cString ReadString(const tArray<cString>& names, cString def = "", bool warn_default = true) const;
+  cString ReadString(const cString& name, cString def = "") const;
   
   /**
    * Looks over all lines loaded into the file, and warns if any of them
@@ -142,15 +147,6 @@ public:
 
   const cString& GetFiletype() { return m_ftype; }
   const cStringList& GetFormat() { return m_format; }
-
-
-private:
-  void initMappings(const tDictionary<cString>& mappings);
-  bool loadFile(const cString& filename, tSmartArray<sLine*>& lines, const cString& working_dir,
-                const Apto::Set<cString>* custom_directives, Feedback& feedback);
-  bool processCommand(cString cmdstr, tSmartArray<sLine*>& lines, const cString& filename, int linenum,
-                      const cString& working_dir, const Apto::Set<cString>* custom_directives, Feedback& feedback);
-  void postProcess(tSmartArray<sLine*>& lines);
 };
 
 #endif

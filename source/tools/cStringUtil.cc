@@ -3,34 +3,35 @@
  *  Avida
  *
  *  Called "string_util.cc" prior to 12/7/05.
- *  Copyright 1999-2011 Michigan State University. All rights reserved.
+ *  Copyright 1999-2007 Michigan State University. All rights reserved.
  *  Copyright 1993-2003 California Institute of Technology.
  *
  *
- *  This file is part of Avida.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; version 2
+ *  of the License.
  *
- *  Avida is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- *  Avida is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License along with Avida.
- *  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 
 #include "cStringUtil.h"
 
+#include "functions.h"
 #include "tMatrix.h"
-
-#include "AvidaTools.h"
 
 #include <cstdarg>
 #include <cstdio>
 
 using namespace std;
-using namespace AvidaTools;
 
 
 cString cStringUtil::Stringf(const char * fmt, ...) {
@@ -153,15 +154,16 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2)
     for (int j = 1; j < size1; j++) {
       // If the values are equal, keep the value in the upper left.
       if (string1[j] == string2[i]) {
-        cur_row[j] = prev_row[j-1];
+	cur_row[j] = prev_row[j-1];
       }
 
       // Otherwise, set the current position the the minimal of the three
       // numbers to the upper right in the chart plus one.
       else {
-        cur_row[j] = (prev_row[j] < prev_row[j-1]) ? prev_row[j] : prev_row[j-1];
-        if (cur_row[j-1] < cur_row[j]) cur_row[j] = cur_row[j-1];
-        cur_row[j]++;
+	cur_row[j] =
+	  (prev_row[j] < prev_row[j-1]) ? prev_row[j] : prev_row[j-1];
+	if (cur_row[j-1] < cur_row[j]) cur_row[j] = cur_row[j-1];
+	cur_row[j]++;
       }
     }
 
@@ -182,6 +184,7 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2)
 
   return value;
 }
+
 
 int cStringUtil::EditDistance(const cString & string1, const cString & string2,
 			      cString & info, const char gap)
@@ -214,12 +217,12 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2,
     for (int j = 0; j < size1; j++) {
       // If the values are equal, keep the value in the upper left.
       if (string1[j] == string2[i]) {
-        dist_matrix(i+1,j+1) = dist_matrix(i,j);
-        mut_matrix(i+1,j+1) = 'N';
-        continue; // Move on to next entry...
+	dist_matrix(i+1,j+1) = dist_matrix(i,j);
+	mut_matrix(i+1,j+1) = 'N';
+	continue; // Move on to next entry...
       }
 
-      // Otherwise, set the current position to the minimal of the three
+      // Otherwise, set the current position the the minimal of the three
       // numbers above (insertion), to the left (deletion), or upper left
       // (mutation) in the chart, plus one.
       double mut_dist = dist_matrix(i,j) + 1;
@@ -228,14 +231,14 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2,
       const double del_dist = dist_matrix(i,j+1) + (string2[i] != gap);
 
       if (mut_dist < ins_dist && mut_dist < del_dist) {  // Mutation!
-        dist_matrix(i+1,j+1) = mut_dist;
-        mut_matrix(i+1,j+1) = 'M';
+	dist_matrix(i+1,j+1) = mut_dist;
+	mut_matrix(i+1,j+1) = 'M';
       } else if (ins_dist < del_dist) {                  // Insertion!
-        dist_matrix(i+1,j+1) = ins_dist;
-        mut_matrix(i+1,j+1) = 'I';
+	dist_matrix(i+1,j+1) = ins_dist;
+	mut_matrix(i+1,j+1) = 'I';
       } else {                                           // Deletion!
-        dist_matrix(i+1,j+1) = del_dist;
-        mut_matrix(i+1,j+1) = 'D';
+	dist_matrix(i+1,j+1) = del_dist;
+	mut_matrix(i+1,j+1) = 'D';
       }
     }
   }
@@ -276,8 +279,6 @@ int cStringUtil::EditDistance(const cString & string1, const cString & string2,
   // Now that we are done, return the bottom-right corner of the chart.
   return (int) dist_matrix(size2, size1);
 }
-
-
 
 const cString & cStringUtil::Convert(const cString& in_string,
 				     const cString& out_string)

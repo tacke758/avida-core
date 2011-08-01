@@ -20,7 +20,6 @@ class cScreen;
 class cTextWindow;
 class cBarScreen;
 class cAnalyzeScreen;
-class cTextViewerDriver_Base;
 class cWorld;
 
 class cAnalyzeView : public cView_Base {
@@ -33,19 +32,19 @@ private:
   cAnalyzeScreen * analyze_screen;
 
   // Input function
-  void DoInputs(cAvidaContext& ctx);
+  void DoInputs();
 
 public:
-  cAnalyzeView(cWorld* world, cTextViewerDriver_Base* driver);
+  cAnalyzeView(cWorld* world);
   ~cAnalyzeView();
 
-  void Setup(cAvidaContext& ctx, const cString& in_name);
+  void Setup(const cString & in_name);
   void SetViewMode(int in_mode) { (void) in_mode; }
 
-  bool ProcessKeypress(cAvidaContext& ctx, int keypress) { return false; }
+  bool ProcessKeypress(int keypress) { return false; }
 
-  void NewUpdate(cAvidaContext& ctx) { ; }
-  void NotifyUpdate(cAvidaContext& ctx);
+  void NewUpdate() { ; }
+  void NotifyUpdate();
   void NotifyError(const cString & in_string);
   void NotifyWarning(const cString & in_string);
   void NotifyComment(const cString & in_string);
@@ -59,10 +58,22 @@ public:
   int GetStepOrganism() { return -1; }
   void SetStepOrganism(int in_id) { (void) in_id; }
 
-  void Refresh(cAvidaContext& ctx);
+  void Refresh();
 
   // Methods called by sub-windows.
   void Redraw();
 };
+
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nAnalyzeView {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 #endif

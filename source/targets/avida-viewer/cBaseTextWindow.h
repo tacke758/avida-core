@@ -10,11 +10,26 @@
 
 #include <cassert>
 
+#ifndef cTools_h
+#include "cTools.h"
+#endif
+
 #ifndef cCoords_h
 #include "cCoords.h"
 #endif
 
 #define MAX_SUB_WINDOWS 4
+
+#ifdef ENABLE_UNIT_TESTS
+namespace nBaseTextWindow {
+  /**
+   * Run unit tests
+   *
+   * @param full Run full test suite; if false, just the fast tests.
+   **/
+  void UnitTests(bool full = false);
+}
+#endif  
 
 
 class cBaseTextWindow {
