@@ -860,7 +860,7 @@ void cHardwareSMT::Inject_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     if( num_mut > 0 ){
       for (int i = 0; i < num_mut; i++) {
 				int site = ctx.GetRandom().GetUInt(injected_code.GetSize());
-				injected_code[site] = m_inst_set->GetRandomInst(ctx);
+				injected_code[site] = m_inst_set->GetRandomInst(ctx, injected_code[site]);
       }
     }
   }
@@ -1216,7 +1216,7 @@ bool cHardwareSMT::Inst_InstRead(cAvidaContext& ctx)
   // Mutations only occur on the read, for the moment.
   int read_inst = 0;
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst).GetOp();
   } else {
     read_inst = GetHead(head_id).GetInst().GetOp();
   }

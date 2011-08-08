@@ -3207,7 +3207,7 @@ bool cHardwareCPU::Inst_Repro(cAvidaContext& ctx)
   if (m_organism->GetCopyMutProb() > 0) { // Skip this if no mutations....
     for (int i = 0; i < m_memory.GetSize(); i++) {
       if (m_organism->TestCopyMut(ctx)) {
-        child_genome[i] = m_inst_set->GetRandomInst(ctx);
+        child_genome[i] = m_inst_set->GetRandomInst(ctx, child_genome[i]);
       }
     }
   }
@@ -6213,7 +6213,7 @@ bool cHardwareCPU::Inst_HeadCopy(cAvidaContext& ctx)
   ReadInst(read_inst.GetOp());
   
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
   }
@@ -6250,7 +6250,7 @@ bool cHardwareCPU::HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst.GetOp());
   if ( ctx.GetRandom().P(m_organism->GetCopyMutProb() / reduction) ) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
   }

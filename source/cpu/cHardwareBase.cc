@@ -277,7 +277,7 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
   if (m_organism->TestDivideMut(ctx) && totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
     char before_mutation = offspring_genome[mut_line].GetSymbol();
-    offspring_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
+    offspring_genome[mut_line] = m_inst_set->GetRandomInst(ctx, offspring_genome[mut_line]);
     offspring_genome.GetMutationSteps().AddSubstitutionMutation(mut_line, before_mutation, offspring_genome[mut_line].GetSymbol());
     totalMutations++;
   }
@@ -290,7 +290,7 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
     if (totalMutations >= maxmut) break;
     const unsigned int mut_line = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
     char before_mutation = offspring_genome[mut_line].GetSymbol();
-    offspring_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
+    offspring_genome[mut_line] = m_inst_set->GetRandomInst(ctx, offspring_genome[mut_line]);
     offspring_genome.GetMutationSteps().AddSubstitutionMutation(mut_line, before_mutation, offspring_genome[mut_line].GetSymbol());
     totalMutations++;
   }
@@ -355,7 +355,7 @@ int cHardwareBase::Divide_DoMutations(cAvidaContext& ctx, double mut_multiplier,
       for (int i = 0; i < num_mut && totalMutations < maxmut; i++) {
         int site = ctx.GetRandom().GetUInt(offspring_genome.GetSize());
         char before_mutation = offspring_genome[site].GetSymbol();
-        offspring_genome[site] = m_inst_set->GetRandomInst(ctx);
+        offspring_genome[site] = m_inst_set->GetRandomInst(ctx, offspring_genome[site]);
         offspring_genome.GetMutationSteps().AddSubstitutionMutation(site, before_mutation, offspring_genome[site].GetSymbol());
         totalMutations++;
       }
@@ -571,7 +571,7 @@ unsigned cHardwareBase::Divide_DoExactMutations(cAvidaContext& ctx, double mut_m
   // Divide Mutations
   if (totalMutations < maxmut) {
     const unsigned int mut_line = ctx.GetRandom().GetUInt(child_genome.GetSize());
-    child_genome[mut_line] = m_inst_set->GetRandomInst(ctx);
+    child_genome[mut_line] = m_inst_set->GetRandomInst(ctx, child_genome[mut_line]);
     totalMutations++;
   }
   
@@ -582,7 +582,7 @@ unsigned cHardwareBase::Divide_DoExactMutations(cAvidaContext& ctx, double mut_m
     if (num_mut > 0 && totalMutations < maxmut) {
       for (int i = 0; i < num_mut && totalMutations < maxmut; i++) {
         int site = ctx.GetRandom().GetUInt(child_genome.GetSize());
-        child_genome[site] = m_inst_set->GetRandomInst(ctx);
+        child_genome[site] = m_inst_set->GetRandomInst(ctx, child_genome[site]);
         totalMutations++;
         cerr << "Resampling here " << totalMutations << endl;
       }
@@ -826,7 +826,7 @@ int cHardwareBase::PointMutate(cAvidaContext& ctx, const double mut_rate)
   
   for (int i = 0; i < num_muts; i++) {
     const int pos = ctx.GetRandom().GetUInt(memory.GetSize());
-    memory[pos] = m_inst_set->GetRandomInst(ctx);
+    memory[pos] = m_inst_set->GetRandomInst(ctx, memory[pos]);
     memory.SetFlagMutated(pos);
     memory.SetFlagPointMut(pos);
   }

@@ -52,6 +52,7 @@ public:
   void operator=(const cInstruction& inst) { if (this != &inst) m_operand = inst.m_operand; }
   bool operator==(const cInstruction& inst) const { return (m_operand == inst.m_operand); }
   bool operator!=(const cInstruction& inst) const { return !(operator==(inst)); }
+  operator int() { return static_cast<int> (m_operand); }
 
   // Some extra methods to convert too and from alpha-numeric symbols...
   char GetSymbol() const;

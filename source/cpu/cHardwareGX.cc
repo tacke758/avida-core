@@ -2915,7 +2915,7 @@ bool cHardwareGX::Inst_HeadRead(cAvidaContext& ctx)
   // Mutations only occur on the read, for the moment.
   int read_inst = 0;
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx).GetOp();
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst).GetOp();
   } else {
     read_inst = GetHead(head_id).GetInst().GetOp();
   }
@@ -2962,7 +2962,7 @@ bool cHardwareGX::Inst_HeadCopy(cAvidaContext& ctx)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst.GetOp());
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
   }
@@ -2988,7 +2988,7 @@ bool cHardwareGX::HeadCopy_ErrorCorrect(cAvidaContext& ctx, double reduction)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst.GetOp());
   if ( ctx.GetRandom().P(m_organism->GetCopyMutProb() / reduction) ) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
   }

@@ -60,6 +60,7 @@ class cUserFeedback;
 class cWorld;
 
 const int MAX_INSTSET_SIZE = 255;
+const int NO_STATE = -1;
 
 class cInstSet
 {
@@ -125,7 +126,7 @@ public:
     return m_inst_lib->GetNopMod(nopmod);
   }
 
-  cInstruction GetRandomInst(cAvidaContext& ctx) const;
+  cInstruction GetRandomInst(cAvidaContext& ctx, int state = NO_STATE) const;
   int GetRandFunctionIndex(cAvidaContext& ctx) const { return m_lib_name_map[ GetRandomInst(ctx).GetOp() ].lib_fun_id; }
 
   int GetSize() const { return m_lib_name_map.GetSize(); }

@@ -30,6 +30,7 @@
 #include "cStringUtil.h"
 #include "cUserFeedback.h"
 #include "cWorld.h"
+#include "cInstruction.h"
 
 #include <iostream>
 
@@ -70,7 +71,7 @@ cInstSet& cInstSet::operator=(const cInstSet& _in)
 }
 
 
-cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx) const
+cInstruction cInstSet::GetRandomInst(cAvidaContext& ctx, int state) const
 {
   double weight = ctx.GetRandom().GetDouble(m_mutation_index->GetTotalWeight());
   unsigned inst_ndx = m_mutation_index->FindPosition(weight);

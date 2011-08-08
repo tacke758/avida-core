@@ -1891,7 +1891,7 @@ bool cHardwareExperimental::Inst_HeadRead(cAvidaContext& ctx)
   // Mutations only occur on the read, for the moment.
   cInstruction read_inst;
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
   } else {
     read_inst = getHead(head_id).GetInst();
   }
@@ -1943,7 +1943,7 @@ bool cHardwareExperimental::Inst_HeadCopy(cAvidaContext& ctx)
   cInstruction read_inst = read_head.GetInst();
   ReadInst(read_inst);
   if (m_organism->TestCopyMut(ctx)) {
-    read_inst = m_inst_set->GetRandomInst(ctx);
+    read_inst = m_inst_set->GetRandomInst(ctx, read_inst);
     write_head.SetFlagMutated();
     write_head.SetFlagCopyMut();
   }
